@@ -14,7 +14,9 @@ export default defineComponent({
         const wrapper = (ref(null) as any) as Ref<HTMLElement>;
 
         onMounted(() => {
-            wrapper.value.addEventListener('mousedown', (e) => {
+            wrapper.value.style.minWidth = props.minWidth!;
+
+            wrapper.value.addEventListener('mousedown', () => {
                 if (!isResizing) {
                     isResizing = true;
                 }
@@ -57,7 +59,11 @@ export default defineComponent({
         };
     },
     props: {
-        modelValue: String
+        modelValue: String,
+        minWidth: {
+            type: String,
+            default: '100px'
+        }
     },
     emits: ['update:modelValue']
 });
@@ -74,7 +80,7 @@ export default defineComponent({
 
 .resizable-handle
     height: 100%
-    width: 10px
+    width: 2px
     cursor: ew-resize
     background-color: black
     flex-grow: 0
