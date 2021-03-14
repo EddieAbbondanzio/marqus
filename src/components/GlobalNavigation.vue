@@ -1,7 +1,7 @@
 <template>
     <resizable modelValue="300px">
         <div class="has-h-100 has-text-dark">
-            Local
+            Global
         </div>
     </resizable>
 </template>
@@ -11,6 +11,8 @@ import { defineComponent } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 
 export default defineComponent({
-    components: { Resizable }
+    components: {
+        Resizable
+    }
 });
 </script>

@@ -1,6 +1,6 @@
 <template>
     <div class="resizable-wrapper" ref="wrapper">
-        <template />
+        <slot></slot>
         <div class="resizable-handle">&nbsp;</div>
     </div>
 </template>
@@ -14,9 +14,7 @@ export default defineComponent({
         const wrapper = (ref(null) as any) as Ref<HTMLElement>;
 
         onMounted(() => {
-            (wrapper.value.parentElement!.firstElementChild as HTMLElement)!.style.width = props.modelValue!;
-
-            wrapper.value.addEventListener('mousedown', () => {
+            wrapper.value.addEventListener('mousedown', (e) => {
                 if (!isResizing) {
                     isResizing = true;
                 }
@@ -30,13 +28,11 @@ export default defineComponent({
 
             document.addEventListener('mousemove', (e) => {
                 if (isResizing) {
-                    const resizeWrapper = wrapper.value.parentElement!.firstElementChild as HTMLElement;
-
-                    if (resizeWrapper == null) {
+                    if (wrapper == null) {
                         throw new Error('No resizable container found');
                     }
 
-                    const containerOffsetLeft = resizeWrapper.offsetLeft;
+                    const containerOffsetLeft = wrapper.value.offsetLeft;
 
                     // Get x-coordinate of pointer relative to container
                     const pointerRelativeXpos = e.clientX - containerOffsetLeft;
@@ -48,7 +44,7 @@ export default defineComponent({
                     // * 8px is the left/right spacing between .handler and its inner pseudo-element
                     // * Set flex-grow to 0 to prevent it from growing
                     const newWidth = `${Math.max(boxAminWidth, pointerRelativeXpos)}px`;
-                    resizeWrapper.style.width = newWidth;
+                    wrapper.value.style.width = newWidth;
 
                     emit('update:modelValue', newWidth);
                 }
@@ -69,9 +65,17 @@ export default defineComponent({
 
 <style lang="sass" scoped>
 .resizable-wrapper
-    flex-grow: 0
+    display: flex
+    flex-direction: row
+    background-color: transparent
+
+    & > :first-child
+        flex-grow: 1
 
 .resizable-handle
     height: 100%
+    width: 10px
     cursor: ew-resize
+    background-color: black
+    flex-grow: 0
 </style>
