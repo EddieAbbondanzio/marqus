@@ -1,5 +1,5 @@
 <template>
-    <div class="has-background-dark">
+    <div class="has-background-dark" v-resizable>
         LOCAL
     </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-    <div class="has-background-black">
+    <div class="has-background-black" v-resizable>
         ROOT
     </div>
 </template>
