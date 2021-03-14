@@ -1,19 +1,22 @@
 <template>
-    <div class="home">
-        fc
-        <img alt="Vue logo" src="../assets/logo.png" />
-        <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+    <div class="is-flex is-flex-row has-h-fullheight">
+        <root-navigation />
+        <local-navigation />
+        <editor />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import Editor from '@/components/Editor.vue';
+import LocalNavigation from '@/components/LocalNavigation.vue';
+import RootNavigation from '@/components/RootNavigation.vue';
 
 export default defineComponent({
-    name: 'Home',
     components: {
-        HelloWorld
+        Editor,
+        LocalNavigation,
+        RootNavigation
     }
 });
 </script>
