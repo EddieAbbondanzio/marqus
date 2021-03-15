@@ -7,8 +7,6 @@ export interface State {
     config: any;
 }
 
-export const key: InjectionKey<Store<State>> = Symbol();
-
 export const store = createStore<State>({
     state: {
         count: 1
@@ -20,8 +18,3 @@ export const store = createStore<State>({
     },
     strict: process.env.NODE_ENV !== 'production' // Major performance hit in prod see: https://next.vuex.vuejs.org/guide/strict.html#development-vs-production
 });
-
-// define your own `useStore` composition function
-export function useStore() {
-    return baseUseStore(key);
-}
