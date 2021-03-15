@@ -1,30 +1,35 @@
 <template>
-    <div class="resizable-wrapper" ref="wrapper">
+    <div class="resizable-wrapper" ref="wrapper" :style="styles">
         <slot></slot>
         <div class="resizable-handle">&nbsp;</div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, Ref, ref } from 'vue';
+import { defineComponent, onMounted, Ref, ref, watch } from 'vue';
 
 export default defineComponent({
     setup(props, { emit }) {
         let isResizing = false;
         const wrapper = (ref(null) as any) as Ref<HTMLElement>;
+        let styles: { width: string } = { width: null! }; // eslint-disable-line
 
         onMounted(() => {
             wrapper.value.style.minWidth = props.minWidth!;
+            wrapper.value.style.width = props.modelValue!;
+            styles.width = props.modelValue!;
 
             wrapper.value.addEventListener('mousedown', () => {
                 if (!isResizing) {
                     isResizing = true;
+                    emit('resizeStart');
                 }
             });
 
-            document.addEventListener('mouseup', () => {
+            document.addEventListener('mouseup', (e) => {
                 if (isResizing) {
                     isResizing = false;
+                    emit('resizeStop');
                 }
             });
 
@@ -42,20 +47,26 @@ export default defineComponent({
                     // Arbitrary minimum width set on box A, otherwise its inner content will collapse to width of 0
                     const boxAminWidth = 2;
 
-                    // Resize box A
-                    // * 8px is the left/right spacing between .handler and its inner pseudo-element
-                    // * Set flex-grow to 0 to prevent it from growing
                     const newWidth = `${Math.max(boxAminWidth, pointerRelativeXpos)}px`;
-                    wrapper.value.style.width = newWidth;
 
                     emit('update:modelValue', newWidth);
+                    styles.width = newWidth;
+                    emit('resizeMove', newWidth);
                 }
             });
         });
 
+        watch(
+            () => props.modelValue,
+            (v) => {
+                styles.width = v!;
+            }
+        );
+
         return {
             isResizing,
-            wrapper
+            wrapper,
+            styles
         };
     },
     props: {
@@ -65,7 +76,7 @@ export default defineComponent({
             default: '100px'
         }
     },
-    emits: ['update:modelValue']
+    emits: ['update:modelValue', 'resizeStart', 'resizeMove', 'resizeStop']
 });
 </script>
 

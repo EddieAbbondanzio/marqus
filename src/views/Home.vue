@@ -7,12 +7,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 import Editor from '@/components/Editor.vue';
 import LocalNavigation from '@/components/LocalNavigation.vue';
 import GlobalNavigation from '@/components/GlobalNavigation.vue';
+import { store } from '@/store/store';
 
 export default defineComponent({
+    setup() {
+        onMounted(() => {
+            store.dispatch('config/load');
+        });
+    },
     components: {
         Editor,
         LocalNavigation,
