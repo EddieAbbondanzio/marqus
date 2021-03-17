@@ -1,73 +1,32 @@
 <template>
-    <div class="resizable-wrapper" ref="wrapper" :style="styles">
+    <div class="resizable-wrapper" ref="wrapper" :style="style">
         <slot></slot>
-        <div class="resizable-handle">&nbsp;</div>
+        <div class="resizable-handle" @mousedown="onHandleMouseDown">&nbsp;</div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, Ref, ref, watch } from 'vue';
+import { defineComponent, getCurrentInstance, onMounted, Ref, ref, watch } from 'vue';
 
 export default defineComponent({
-    setup(props, { emit }) {
-        let isResizing = false;
-        const wrapper = (ref(null) as any) as Ref<HTMLElement>;
-        let styles: { width: string } = { width: null! }; // eslint-disable-line
-
-        onMounted(() => {
-            wrapper.value.style.minWidth = props.minWidth!;
-            wrapper.value.style.width = props.modelValue!;
-            styles.width = props.modelValue!;
-
-            wrapper.value.addEventListener('mousedown', () => {
-                if (!isResizing) {
-                    isResizing = true;
-                    emit('resizeStart');
-                }
-            });
-
-            document.addEventListener('mouseup', (e) => {
-                if (isResizing) {
-                    isResizing = false;
-                    emit('resizeStop');
-                }
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (isResizing) {
-                    if (wrapper == null) {
-                        throw new Error('No resizable container found');
-                    }
-
-                    const containerOffsetLeft = wrapper.value.offsetLeft;
-
-                    // Get x-coordinate of pointer relative to container
-                    const pointerRelativeXpos = e.clientX - containerOffsetLeft;
-
-                    // Arbitrary minimum width set on box A, otherwise its inner content will collapse to width of 0
-                    const boxAminWidth = 2;
-
-                    const newWidth = `${Math.max(boxAminWidth, pointerRelativeXpos)}px`;
-
-                    emit('update:modelValue', newWidth);
-                    styles.width = newWidth;
-                    emit('resizeMove', newWidth);
-                }
-            });
-        });
-
-        watch(
-            () => props.modelValue,
-            (v) => {
-                styles.width = v!;
-            }
-        );
+    setup(props) {
+        const isResizing = false;
 
         return {
-            isResizing,
-            wrapper,
-            styles
+            isResizing
         };
+    },
+    mounted() {
+        document.addEventListener('mousemove', this.onMouseMove);
+        document.addEventListener('mouseup', this.onMouseUp);
+    },
+    computed: {
+        style(): {} {
+            return {
+                width: this.$props.modelValue,
+                minWidth: this.$props.minWidth
+            };
+        }
     },
     props: {
         modelValue: String,
@@ -76,7 +35,43 @@ export default defineComponent({
             default: '100px'
         }
     },
-    emits: ['update:modelValue', 'resizeStart', 'resizeMove', 'resizeStop']
+    methods: {
+        onHandleMouseDown(e: MouseEvent) {
+            if (!this.isResizing) {
+                this.isResizing = true;
+                this.$emit('resizeStart');
+                e.stopPropagation();
+            }
+        },
+        onMouseMove(e: MouseEvent) {
+            if (this.isResizing) {
+                if (this.$refs.wrapper == null) {
+                    throw new Error('No resizable container found');
+                }
+
+                const containerOffsetLeft = (this.$refs.wrapper as HTMLElement).offsetLeft;
+
+                // Get x-coordinate of pointer relative to container
+                const pointerRelativeXpos = e.clientX - containerOffsetLeft;
+
+                // Arbitrary minimum width set on box A, otherwise its inner content will collapse to width of 0
+                const boxAminWidth = 2;
+                const newWidth = `${Math.max(boxAminWidth, pointerRelativeXpos)}px`;
+
+                this.$emit('update:modelValue', newWidth);
+
+                e.stopPropagation();
+            }
+        },
+        onMouseUp(e: MouseEvent) {
+            if (this.isResizing) {
+                this.isResizing = false;
+                this.$emit('resizeStop');
+                e.stopPropagation();
+            }
+        }
+    },
+    emits: ['update:modelValue', 'resizeStart', 'resizeStop']
 });
 </script>
 

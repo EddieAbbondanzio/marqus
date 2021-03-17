@@ -5,8 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit --testMatch=**/tests/unit/**/*.spec.ts",
-    "test:integration": "vue-cli-service test:unit --testMatch=**/tests/e2e/**/*.spec.ts",
+    "test:unit": "vue-cli-service test:unit --testMatch=**/tests/unit/**/*.spec.ts -u",
+    "test:integration": "vue-cli-service test:unit --testMatch=**/tests/e2e/**/*.spec.ts -u",
     "lint": "vue-cli-service lint",
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",

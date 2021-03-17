@@ -5,7 +5,6 @@
 </template>
 
 <script lang="ts">
-import { store, useStore } from '@/store/store';
 import { defineComponent, onMounted } from 'vue';
 
 export default defineComponent({});

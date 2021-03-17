@@ -11,7 +11,6 @@
 import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import { store } from '@/store/store';
-import { createNamespacedHelpers } from 'vuex';
 
 export default defineComponent({
     components: { Resizable },

@@ -10,14 +10,11 @@
 <script lang="ts">
 import { computed, defineComponent, ref, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
-import { useStore } from '@/store/store';
-import { createNamespacedHelpers } from 'vuex';
+import { store } from '@/store/store';
 
 export default defineComponent({
     components: { Resizable },
     setup() {
-        const store = useStore();
-
         const width: WritableComputedRef<string> = computed({
             get: () => {
                 return store.state.config['window.localNavigation.width'] as string;
