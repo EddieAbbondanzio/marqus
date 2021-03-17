@@ -14,27 +14,21 @@ import { store } from '@/store/store';
 
 export default defineComponent({
     components: { Resizable },
-    setup() {
-        const width: WritableComputedRef<string> = computed({
-            get: () => {
-                return store.state.config['window.localNavigation.width'] as string;
-            },
+    computed: {
+        width: {
+            get: () => store.state.config['window.localNavigation.width'] as string,
             set: (v) => {
                 store.commit('config/updateConfig', {
                     key: 'window.localNavigation.width',
                     value: v
                 });
             }
-        });
-
-        const onResizeStop = () => {
+        }
+    },
+    methods: {
+        onResizeStop() {
             store.dispatch('config/save');
-        };
-
-        return {
-            width,
-            onResizeStop
-        };
+        }
     }
 });
 </script>

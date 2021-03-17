@@ -14,9 +14,7 @@ export default defineComponent({
     components: { Resizable },
     computed: {
         width: {
-            get: () => {
-                return store.state.config['window.globalNavigation.width'] as string;
-            },
+            get: () => store.state.config['window.globalNavigation.width'] as string,
             set: (v) => {
                 store.commit('config/updateConfig', {
                     key: 'window.globalNavigation.width',

@@ -7,6 +7,7 @@
 // Utilities
 @import "utils/_flex.sass"
 @import "utils/_size.sass"
+@import "utils/_border.sass"
 
 html
     height: 100vh
@@ -18,3 +19,14 @@ body
 
 div
     background-color: white
+
+$font-dir: "/fonts/"
+
+@font-face
+    font-family: "MaterialDesignIcons"
+    src: url("#{$font-dir}MaterialDesignIconsDesktop.ttf")
+    font-style: normal
+    font-weight: normal
+
+.mdi
+    font: 'MaterialDesignIcons'

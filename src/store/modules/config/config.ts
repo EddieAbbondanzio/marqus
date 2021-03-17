@@ -1,6 +1,6 @@
 import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/load-json-file';
 import { ActionTree, Module, MutationTree } from 'vuex';
-import { State } from '../store';
+import { State } from '../../store';
 
 const state = {
     ['window.globalNavigation.width' as string]: '300px',

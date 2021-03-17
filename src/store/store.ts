@@ -1,5 +1,5 @@
 import { createStore, useStore as baseUseStore, Store } from 'vuex';
-import config from '@/store/modules/config';
+import config from '@/store/modules/config/config';
 import { InjectionKey } from 'vue';
 
 export interface State {

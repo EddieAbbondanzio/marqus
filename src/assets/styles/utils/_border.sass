@@ -1,0 +1,48 @@
+@import "~bulma/sass/utilities/_all"
+
+$sizes: (0: 0, 1: 1)
+$positions: ("all" : (""), "top" : ("-top"), "left": ("-left"), "bottom": ("-bottom"), "right": ("-right"), "x": ("-left", "-right"), "y": ("-top", "-bottom"))
+
+=spacings($target:'')
+    @each $pos, $props in $positions
+        @each $size, $value in $sizes
+            @each $color-name, $color in $colors
+                // Example: .has-border-all-1-light-mobile
+                .has-border-#{$pos}-#{$size}-#{$color-name}#{if($target == '', '', '-' + $target)}
+                    @each $prop in $props
+                        border#{$prop}: #{$value}px solid #{nth($color, 1)}!important
+
++spacings()
+
++mobile
+    +spacings('mobile')
+
++tablet
+    +spacings('tablet')
+
++touch
+    +spacings('touch')
+
++desktop
+    +spacings('desktop')
+
++widescreen
+    +spacings('widescreen')
+
++fullhd
+    +spacings('fullhd')
+
++tablet-only
+    +spacings('tablet-only')
+
++desktop-only
+    +spacings('desktop-only')
+
++widescreen-only
+    +spacings('widescreen-only')
+
++until-widescreen
+    +spacings('until-widescreen')
+
++until-fullhd
+    +spacings('until-fullhd')
