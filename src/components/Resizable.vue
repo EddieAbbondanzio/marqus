@@ -40,6 +40,9 @@ export default defineComponent({
             if (!this.isResizing) {
                 this.isResizing = true;
                 this.$emit('resizeStart');
+
+                document.body.style.cursor = 'ew-resize';
+
                 e.stopPropagation();
             }
         },
@@ -67,6 +70,8 @@ export default defineComponent({
             if (this.isResizing) {
                 this.isResizing = false;
                 this.$emit('resizeStop');
+                document.body.style.cursor = 'pointer';
+
                 e.stopPropagation();
             }
         }
@@ -86,8 +91,8 @@ export default defineComponent({
 
 .resizable-handle
     height: 100%
-    width: 2px
     cursor: ew-resize
+    width: 2px
     background-color: black
     flex-grow: 0
 </style>

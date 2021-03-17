@@ -1,9 +1,7 @@
 <template>
     <resizable v-model="width" @resizeStop="onResizeStop">
         <p class="has-text-dark">{{ width }}</p>
-        <div class="has-h-100 has-text-dark">
-            global
-        </div>
+        <div class="has-h-100 has-text-dark">global</div>
     </resizable>
 </template>
 
@@ -14,8 +12,8 @@ import { store } from '@/store/store';
 
 export default defineComponent({
     components: { Resizable },
-    setup() {
-        const width: WritableComputedRef<string> = computed({
+    computed: {
+        width: {
             get: () => {
                 return store.state.config['window.globalNavigation.width'] as string;
             },
@@ -25,16 +23,12 @@ export default defineComponent({
                     value: v
                 });
             }
-        });
-
-        const onResizeStop = () => {
+        }
+    },
+    methods: {
+        onResizeStop() {
             store.dispatch('config/save');
-        };
-
-        return {
-            width,
-            onResizeStop
-        };
+        }
     }
 });
 </script>
