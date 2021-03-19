@@ -46,7 +46,6 @@ export default defineComponent({
 
         return {
             toggleMode: function() {
-                console.log('feck');
                 s.commit('editor/toggleMode');
                 s.dispatch('editor/save');
             }

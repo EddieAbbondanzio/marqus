@@ -1,5 +1,5 @@
 <template>
-    <resizable v-model="width" @resizeStop="onResizeStop">
+    <resizable v-model="width" @resizeStop="save">
         <p class="has-text-dark">{{ width }}</p>
         <div class="has-h-100 has-text-dark">
             Local
@@ -11,24 +11,24 @@
 import { computed, defineComponent, ref, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import { store } from '@/store/store';
+import { useStore } from 'vuex';
 
 export default defineComponent({
-    components: { Resizable },
-    computed: {
-        width: {
-            get: () => store.state.editor['window.localNavigation.width'] as string,
-            set: (v) => {
-                store.commit('editor/update', {
-                    key: 'window.localNavigation.width',
-                    value: v
-                });
-            }
-        }
+    setup: function() {
+        const s = useStore();
+
+        const width = computed({
+            get: () => s.state.editor['window.localNavigation.width'] as string,
+            set: (v: any) => s.commit('editor/update', { key: 'window.localNavigation.width', value: v })
+        });
+
+        const save = () => s.dispatch('editor/save');
+
+        return {
+            width,
+            save
+        };
     },
-    methods: {
-        onResizeStop() {
-            store.dispatch('editor/save');
-        }
-    }
+    components: { Resizable }
 });
 </script>
