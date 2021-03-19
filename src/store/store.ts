@@ -1,5 +1,6 @@
 import { createStore, useStore as baseUseStore, Store } from 'vuex';
 import config from '@/store/modules/config/config';
+import editor from '@/store/modules/editor/editor';
 import { InjectionKey } from 'vue';
 
 export interface State {
@@ -14,7 +15,8 @@ export const store = createStore<State>({
     mutations: {},
     actions: {},
     modules: {
-        config
+        config,
+        editor
     },
     strict: process.env.NODE_ENV !== 'production' // Major performance hit in prod see: https://next.vuex.vuejs.org/guide/strict.html#development-vs-production
 });

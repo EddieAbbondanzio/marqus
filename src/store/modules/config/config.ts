@@ -4,8 +4,11 @@ import { State } from '../../store';
 
 const state = {
     ['window.globalNavigation.width' as string]: '300px',
-    ['window.localNavigation.width' as string]: '300px'
+    ['window.localNavigation.width' as string]: '300px',
+    dataDirectory: 'data'
 };
+
+export type ConfigState = typeof state;
 
 const getters = {};
 
@@ -30,13 +33,12 @@ const mutations: MutationTree<ConfigState> = {
     applyLoadedConfig(state, config) {
         state['window.globalNavigation.width'] = config['window.globalNavigation.width'];
         state['window.localNavigation.width'] = config['window.localNavigation.width'];
+        state['dataDirectory'] = config['dataDirectory'];
     },
     updateConfig(state, kv: { key: string; value: any }) {
         state[kv.key] = kv.value;
     }
 };
-
-export type ConfigState = typeof state;
 
 export default {
     namespaced: true,
