@@ -14,11 +14,6 @@ import GlobalNavigation from '@/components/GlobalNavigation.vue';
 import { store } from '@/store/store';
 
 export default defineComponent({
-    setup() {
-        onMounted(() => {
-            store.dispatch('config/load');
-        });
-    },
     components: {
         Editor,
         LocalNavigation,

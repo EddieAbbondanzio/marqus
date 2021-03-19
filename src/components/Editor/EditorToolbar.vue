@@ -1,7 +1,7 @@
 <template>
     <div class="has-background-light has-border-bottom-1-dark p-1 is-flex is-align-center">
         <div class="buttons has-addons mb-0 mx-1">
-            <button class="button mb-0" style="height: 30px" title="Edit">
+            <button class="button mb-0" style="height: 30px" title="Edit" @click="onEditClick">
                 <span class="icon is-small">
                     <i class="fas fa-pen"></i>
                 </span>
@@ -30,11 +30,24 @@
                 </span>
             </button>
         </div>
+
+        {{ mode }}
     </div>
 </template>
 
 <script lang="ts">
+import { store } from '@/store/store';
 import { defineComponent, onMounted } from 'vue';
 
-export default defineComponent({});
+export default defineComponent({
+    methods: {
+        onEditClick() {
+            store.commit('editor/toggleMode');
+            store.dispatch('editor/save');
+        }
+    },
+    computed: {
+        mode: () => (store.state.editor as any).mode
+    }
+});
 </script>

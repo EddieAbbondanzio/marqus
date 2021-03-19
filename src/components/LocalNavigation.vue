@@ -16,9 +16,9 @@ export default defineComponent({
     components: { Resizable },
     computed: {
         width: {
-            get: () => store.state.config['window.localNavigation.width'] as string,
+            get: () => store.state.editor['window.localNavigation.width'] as string,
             set: (v) => {
-                store.commit('config/updateConfig', {
+                store.commit('editor/update', {
                     key: 'window.localNavigation.width',
                     value: v
                 });
@@ -27,7 +27,7 @@ export default defineComponent({
     },
     methods: {
         onResizeStop() {
-            store.dispatch('config/save');
+            store.dispatch('editor/save');
         }
     }
 });

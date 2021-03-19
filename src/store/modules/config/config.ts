@@ -3,8 +3,6 @@ import { ActionTree, Module, MutationTree } from 'vuex';
 import { State } from '../../store';
 
 const state = {
-    ['window.globalNavigation.width' as string]: '300px',
-    ['window.localNavigation.width' as string]: '300px',
     dataDirectory: 'data'
 };
 
@@ -30,14 +28,8 @@ const actions: ActionTree<ConfigState, State> = {
 };
 
 const mutations: MutationTree<ConfigState> = {
-    applyLoadedConfig(state, config) {
-        state['window.globalNavigation.width'] = config['window.globalNavigation.width'];
-        state['window.localNavigation.width'] = config['window.localNavigation.width'];
-        state['dataDirectory'] = config['dataDirectory'];
-    },
-    updateConfig(state, kv: { key: string; value: any }) {
-        state[kv.key] = kv.value;
-    }
+    applyLoadedConfig: (state, config) => Object.assign(state, config),
+    update: (state, kv: { key: string; value: any }) => ((state as any)[kv.key] = kv.value)
 };
 
 export default {

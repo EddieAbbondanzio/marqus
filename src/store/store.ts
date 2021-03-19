@@ -6,6 +6,7 @@ import { InjectionKey } from 'vue';
 export interface State {
     count: number;
     config: any;
+    editor: any;
 }
 
 export const store = createStore<State>({
