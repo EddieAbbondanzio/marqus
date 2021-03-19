@@ -1,9 +1,9 @@
 <template>
     <div class="has-background-light has-border-bottom-1-dark p-1 is-flex is-align-center">
         <div class="buttons has-addons mb-0 mx-1">
-            <button class="button mb-0" style="height: 30px" title="Edit" @click="onEditClick">
-                <span class="icon is-small">
-                    <i class="fas fa-pen"></i>
+            <button id="editButton" class="button mb-0" style="height: 30px" title="Edit" @click="toggleMode">
+                <span :class="editIconClasses">
+                    <i class="fas fa-edit"></i>
                 </span>
             </button>
             <button class="button mb-0" style="height: 30px" title="Delete">
@@ -38,16 +38,26 @@
 <script lang="ts">
 import { store } from '@/store/store';
 import { defineComponent, onMounted } from 'vue';
+import { useStore } from 'vuex';
 
 export default defineComponent({
-    methods: {
-        onEditClick() {
-            store.commit('editor/toggleMode');
-            store.dispatch('editor/save');
-        }
+    setup: function() {
+        const s = useStore(); // Need this to be able to unit test
+
+        return {
+            toggleMode: function() {
+                console.log('feck');
+                s.commit('editor/toggleMode');
+                s.dispatch('editor/save');
+            }
+        };
     },
     computed: {
-        mode: () => (store.state.editor as any).mode
+        mode: () => (store.state.editor as any).mode,
+        editIconClasses: () => ({
+            'has-text-warning': store.state.editor.mode === 'view',
+            'icon is-small': true
+        })
     }
 });
 </script>
