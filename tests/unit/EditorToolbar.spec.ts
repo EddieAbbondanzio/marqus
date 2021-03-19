@@ -4,8 +4,6 @@ import EditorToolbar from '@/components/Editor/EditorToolbar.vue';
 import { mount } from '@vue/test-utils';
 import { ActionTree, createStore, MutationTree, Store } from 'vuex';
 
-const store = createStore({});
-
 describe('EditorToolbar.vue', () => {
     let mutations: MutationTree<any>;
     let actions: ActionTree<any, any>;
