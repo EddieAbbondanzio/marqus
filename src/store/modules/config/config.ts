@@ -1,4 +1,4 @@
-import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/load-json-file';
+import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 import { ActionTree, Module, MutationTree } from 'vuex';
 import { State } from '../../store';
 

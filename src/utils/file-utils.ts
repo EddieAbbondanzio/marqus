@@ -17,6 +17,10 @@ export async function writeJsonFile(path: string, data: any) {
     await fs.promises.writeFile(path, raw, 'utf-8');
 }
 
-export async function doesFileExist(path: string) {
+export function doesFileExist(path: string) {
     return fs.existsSync(path);
+}
+
+export function createDirectory(path: string) {
+    return fs.mkdirSync(path);
 }

@@ -1,7 +1,7 @@
 import { State } from '@/store/store';
 import { ActionTree, MutationTree } from 'vuex';
 import path from 'path';
-import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/load-json-file';
+import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 
 const state: {
     mode: 'edit' | 'view';
