@@ -1,7 +1,12 @@
 <template>
-    <resizable v-model="width" @resizeStop="save">
-        <p class="has-text-dark">{{ width }}</p>
-        <div class="has-h-100 has-text-dark">global</div>
+    <resizable class="has-text-dark" v-model="width" @resizeStop="save">
+        <ul>
+            <li class="is-uppercase">All</li>
+            <li class="is-uppercase">Notebooks</li>
+            <li class="is-uppercase">Tags</li>
+            <li class="is-uppercase">Favorites</li>
+            <li class="is-uppercase">Trash</li>
+        </ul>
     </resizable>
 </template>
 

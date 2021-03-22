@@ -1,0 +1,5 @@
+@import "~bulma/sass/utilities/_all"
+
+@each $color-name, $color in $colors
+    .has-text-hover-#{$color-name}:hover
+        color: #{nth($color, 1)}!important
