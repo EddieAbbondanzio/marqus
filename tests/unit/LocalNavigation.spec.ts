@@ -46,6 +46,6 @@ describe('localNavigation.vue', () => {
         wrapper.find('.resizable-handle').trigger('mousedown');
         document.dispatchEvent(new MouseEvent('mouseup'));
 
-        expect(actions.save).toBeCalled();
+        expect(actions.saveState).toBeCalled();
     });
 });

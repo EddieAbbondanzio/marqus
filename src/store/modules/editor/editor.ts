@@ -5,10 +5,12 @@ import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 
 const state: {
     mode: 'edit' | 'view';
+    activeFile: string | null;
     'window.globalNavigation.width': string;
     'window.localNavigation.width': string;
 } = {
     mode: 'view',
+    activeFile: null,
     'window.globalNavigation.width': '300px',
     'window.localNavigation.width': '300px'
 };
@@ -18,7 +20,7 @@ export type EditorState = typeof state;
 const getters = {};
 
 const actions: ActionTree<EditorState, State> = {
-    async load(context) {
+    async loadState(context) {
         const dataDirectory = context.rootState.config.dataDirectory;
         const filePath = path.join(dataDirectory, 'state.json');
 
@@ -27,7 +29,7 @@ const actions: ActionTree<EditorState, State> = {
             this.commit('editor/setState', state);
         }
     },
-    async save(context) {
+    async saveState(context) {
         const dataDirectory = context.rootState.config.dataDirectory;
         const filePath = path.join(dataDirectory, 'state.json');
 

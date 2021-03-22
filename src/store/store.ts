@@ -18,7 +18,7 @@ const actions: ActionTree<State, any> = {
         }
 
         c.dispatch('config/load');
-        c.dispatch('editor/load');
+        c.dispatch('editor/loadState');
     }
 };
 

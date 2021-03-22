@@ -2,8 +2,11 @@
     <div class="has-background-light has-border-bottom-1-dark p-1 is-flex is-align-center">
         <div class="buttons has-addons mb-0 mx-1">
             <button id="editButton" class="button mb-0" style="height: 30px" title="Edit" @click="toggleMode">
-                <span :class="editIconClasses">
+                <span :class="editIconClasses" v-if="mode === 'view'">
                     <i class="fas fa-edit"></i>
+                </span>
+                <span :class="editIconClasses" v-else>
+                    <i class="fas fa-save"></i>
                 </span>
             </button>
             <button class="button mb-0" style="height: 30px" title="Delete">

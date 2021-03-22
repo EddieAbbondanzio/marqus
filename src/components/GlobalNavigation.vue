@@ -20,7 +20,7 @@ export default defineComponent({
             set: (v: any) => s.commit('editor/update', { key: 'window.globalNavigation.width', value: v })
         });
 
-        const save = () => s.dispatch('editor/save');
+        const save = () => s.dispatch('editor/saveState');
 
         return {
             width,
