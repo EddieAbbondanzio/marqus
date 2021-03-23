@@ -1,19 +1,23 @@
 <template>
     <div class="collapse-wrapper">
-        <div class="is-flex is-align-center is-justify-space-between">
+        <a
+            href="#"
+            @click="$emit('update:modelValue', !modelValue)"
+            class="is-flex is-align-center is-justify-space-between has-text-grey"
+        >
             <slot name="trigger"></slot>
 
-            <a href="#" @click="$emit('update:modelValue', !modelValue)" v-if="modelValue" class="has-text-grey">
+            <div v-if="modelValue">
                 <span class="icon">
                     <i class="fas fa-chevron-down"></i>
                 </span>
-            </a>
-            <a href="#" @click="$emit('update:modelValue', !modelValue)" v-else class="has-text-grey">
+            </div>
+            <div v-else>
                 <span class="icon">
                     <i class="fas fa-chevron-up"></i>
                 </span>
-            </a>
-        </div>
+            </div>
+        </a>
 
         <div v-if="modelValue">
             <slot></slot>

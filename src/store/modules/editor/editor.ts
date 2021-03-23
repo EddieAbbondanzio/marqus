@@ -3,16 +3,36 @@ import { ActionTree, MutationTree } from 'vuex';
 import path from 'path';
 import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 
+export interface Notebook {
+    id: string;
+    value: string;
+    expanded: boolean;
+    active: boolean;
+    children?: (Notebook | string)[]; // nested notebooks / files
+}
+
+export interface Tag {
+    id: string;
+    value: string;
+    expanded: boolean;
+    active: boolean;
+    files: string[];
+}
+
 const state: {
     mode: 'edit' | 'view';
     activeFile: string | null;
     'window.globalNavigation.width': string;
     'window.localNavigation.width': string;
+    notebooks: Notebook[];
+    tags: Tag[];
 } = {
     mode: 'view',
     activeFile: null,
     'window.globalNavigation.width': '300px',
-    'window.localNavigation.width': '300px'
+    'window.localNavigation.width': '300px',
+    notebooks: [],
+    tags: []
 };
 
 export type EditorState = typeof state;

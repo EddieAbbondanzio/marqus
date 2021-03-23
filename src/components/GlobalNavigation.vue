@@ -2,18 +2,22 @@
     <resizable class="has-text-dark" v-model="width" @resizeStop="save">
         <ul>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
-                <span class="icon">
-                    <i class="fas fa-file-alt"></i>
-                </span>
-                All
+                <div>
+                    <span class="icon">
+                        <i class="fas fa-file-alt"></i>
+                    </span>
+                    All
+                </div>
             </li>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
                 <collapse v-model="isNotebooksExpanded">
                     <template #trigger>
-                        <span class="icon">
-                            <i class="fas fa-book"></i>
-                        </span>
-                        Notebooks
+                        <div>
+                            <span class="icon">
+                                <i class="fas fa-book"></i>
+                            </span>
+                            Notebooks
+                        </div>
                     </template>
 
                     CONTENT
@@ -22,26 +26,32 @@
             <li class="m-1 is-uppercase has-text-grey is-size-7">
                 <collapse v-model="isTagsExpanded">
                     <template #trigger>
-                        <span class="icon">
-                            <i class="fas fa-tag"></i>
-                        </span>
-                        Tags
+                        <div>
+                            <span class="icon">
+                                <i class="fas fa-tag"></i>
+                            </span>
+                            Tags
+                        </div>
                     </template>
 
                     CONTENT
                 </collapse>
             </li>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
-                <span class="icon">
-                    <i class="fas fa-star"></i>
-                </span>
-                Favorites
+                <div>
+                    <span class="icon">
+                        <i class="fas fa-star"></i>
+                    </span>
+                    Favorites
+                </div>
             </li>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
-                <span class="icon">
-                    <i class="fas fa-trash"></i>
-                </span>
-                Trash
+                <div>
+                    <span class="icon">
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    Trash
+                </div>
             </li>
         </ul>
     </resizable>
