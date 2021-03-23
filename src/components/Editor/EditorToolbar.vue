@@ -22,7 +22,7 @@
                     <i class="fas fa-book"></i>
                 </span>
             </button>
-            <button class="button mb-0 has-text-hover-cyan" title="Edit tags" style="height: 30px">
+            <button class="button mb-0 has-text-hover-grey" title="Edit tags" style="height: 30px">
                 <span class="icon is-small">
                     <i class="fas fa-tag"></i>
                 </span>
@@ -58,7 +58,7 @@ export default defineComponent({
         mode: () => (store.state.editor as any).mode,
         editButtonClasses: () => ({
             'has-text-hover-warning': store.state.editor.mode === 'view',
-            'has-text-hover-success': store.state.editor.mode === 'edit',
+            'has-text-hover-grey': store.state.editor.mode === 'edit',
             'button mb-0': true
         })
     }

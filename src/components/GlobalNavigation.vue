@@ -1,11 +1,48 @@
 <template>
     <resizable class="has-text-dark" v-model="width" @resizeStop="save">
         <ul>
-            <li class="is-uppercase">All</li>
-            <li class="is-uppercase">Notebooks</li>
-            <li class="is-uppercase">Tags</li>
-            <li class="is-uppercase">Favorites</li>
-            <li class="is-uppercase">Trash</li>
+            <li class="m-1 is-uppercase has-text-grey is-size-7">
+                <span class="icon">
+                    <i class="fas fa-file-alt"></i>
+                </span>
+                All
+            </li>
+            <li class="m-1 is-uppercase has-text-grey is-size-7">
+                <collapse v-model="isNotebooksExpanded">
+                    <template #trigger>
+                        <span class="icon">
+                            <i class="fas fa-book"></i>
+                        </span>
+                        Notebooks
+                    </template>
+
+                    CONTENT
+                </collapse>
+            </li>
+            <li class="m-1 is-uppercase has-text-grey is-size-7">
+                <collapse v-model="isTagsExpanded">
+                    <template #trigger>
+                        <span class="icon">
+                            <i class="fas fa-tag"></i>
+                        </span>
+                        Tags
+                    </template>
+
+                    CONTENT
+                </collapse>
+            </li>
+            <li class="m-1 is-uppercase has-text-grey is-size-7">
+                <span class="icon">
+                    <i class="fas fa-star"></i>
+                </span>
+                Favorites
+            </li>
+            <li class="m-1 is-uppercase has-text-grey is-size-7">
+                <span class="icon">
+                    <i class="fas fa-trash"></i>
+                </span>
+                Trash
+            </li>
         </ul>
     </resizable>
 </template>
@@ -15,6 +52,7 @@ import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef
 import Resizable from '@/components/Resizable.vue';
 import { store } from '@/store/store';
 import { useStore } from 'vuex';
+import Collapse from '@/components/Collapse.vue';
 
 export default defineComponent({
     setup: function() {
@@ -29,9 +67,11 @@ export default defineComponent({
 
         return {
             width,
-            save
+            save,
+            isNotebooksExpanded: ref(true),
+            isTagsExpanded: ref(false)
         };
     },
-    components: { Resizable }
+    components: { Resizable, Collapse }
 });
 </script>
