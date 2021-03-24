@@ -5,6 +5,9 @@
 <script lang="ts">
 import { onMounted } from 'vue';
 import { store } from './store/store';
-
-export default {};
+export default {
+    created() {
+        // console.log(fs);
+    }
+};
 </script>

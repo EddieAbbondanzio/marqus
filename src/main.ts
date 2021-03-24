@@ -13,3 +13,12 @@ app.use(store)
     .mount('#app');
 
 store.dispatch('startup');
+
+// window.addEventListener('contextmenu', (e) => {
+//     e.preventDefault();
+//     try {
+//         ipcRenderer.send('show-context-menu'); // Need to send it to main thread
+//     } catch (e) {
+//         console.log('FUCK');
+//     }
+// });
