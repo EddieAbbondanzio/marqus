@@ -10,13 +10,22 @@ export default {
     setup() {
         onMounted(() => {
             contextMenu({
-                prepend: (da, p) => [
-                    {
-                        label: 'Cat'
-                    }
-                ],
+                menu: (da, p) => {
+                    // we can inject menu items as needed. This is called each time we right click
+                    console.log('BUILD MENU');
+                    return [
+                        {
+                            label: 'Create Notebook',
+                            click: () => console.log('create notebook!')
+                        },
+                        {
+                            label: 'Create Tag'
+                        }
+                    ];
+                },
                 shouldShowMenu: (e, p) => {
                     let element = document.elementFromPoint(p.x, p.y);
+                    console.log('target: ', element);
 
                     // Climb up parent tree until we find our attribute.
                     while (element != null && !element.hasAttribute('data-context-menu')) {
