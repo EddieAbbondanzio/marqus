@@ -3,7 +3,7 @@
         <a
             href="#"
             @click="$emit('update:modelValue', !modelValue)"
-            class="is-flex is-align-center is-justify-space-between has-text-grey"
+            class="collapse-trigger is-flex is-align-center is-justify-space-between has-text-grey"
         >
             <slot name="trigger"></slot>
 

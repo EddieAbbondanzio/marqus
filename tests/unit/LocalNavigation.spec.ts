@@ -1,5 +1,3 @@
-window.require = require;
-
 import LocalNavigation from '@/components/LocalNavigation.vue';
 import { EditorState } from '@/store/modules/editor/editor';
 import { mount } from '@vue/test-utils';
@@ -17,7 +15,7 @@ describe('localNavigation.vue', () => {
         };
 
         actions = {
-            save: jest.fn()
+            saveState: jest.fn()
         };
 
         state = {
@@ -36,14 +34,14 @@ describe('localNavigation.vue', () => {
         });
     });
 
-    it('triggers save on resizeStop', () => {
+    it('triggers save on resizeStop', async () => {
         const wrapper = mount(LocalNavigation, {
             global: {
                 plugins: [store]
             }
         });
 
-        wrapper.find('.resizable-handle').trigger('mousedown');
+        await wrapper.find('.resizable-handle').trigger('mousedown');
         document.dispatchEvent(new MouseEvent('mouseup'));
 
         expect(actions.saveState).toBeCalled();

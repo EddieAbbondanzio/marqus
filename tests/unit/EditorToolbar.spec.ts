@@ -36,15 +36,4 @@ describe('EditorToolbar.vue', () => {
         expect(mutations['editor/toggleMode']).toBeCalled();
         expect(actions['editor/save']).toBeCalled();
     });
-
-    it('edit button changes color when mode is edit', () => {
-        const wrapper = mount(EditorToolbar, {
-            global: {
-                plugins: [store]
-            }
-        });
-
-        wrapper.find('#editButton').trigger('click');
-        expect(wrapper.find('span').classes()).toContain('has-text-warning');
-    });
 });

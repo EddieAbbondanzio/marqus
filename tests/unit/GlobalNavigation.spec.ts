@@ -17,7 +17,7 @@ describe('GlobalNavigation.vue', () => {
         };
 
         actions = {
-            save: jest.fn()
+            saveState: jest.fn()
         };
 
         state = {
@@ -36,14 +36,14 @@ describe('GlobalNavigation.vue', () => {
         });
     });
 
-    it('triggers save on resizeStop', () => {
+    it('triggers save on resizeStop', async () => {
         const wrapper = mount(GlobalNavigation, {
             global: {
                 plugins: [store]
             }
         });
 
-        wrapper.find('.resizable-handle').trigger('mousedown');
+        await wrapper.find('.resizable-handle').trigger('mousedown');
         document.dispatchEvent(new MouseEvent('mouseup'));
 
         expect(actions.saveState).toBeCalled();
