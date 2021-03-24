@@ -1,14 +1,9 @@
-declare global {
-    interface Window {
-        require: any;
-    }
-}
-
 /*eslint-disable*/
-const fs = window.require('fs');
+
+import * as fs from 'fs';
 
 export async function loadJsonFile(path: string) {
-    const raw = await fs.promises.readFile(path, { enconding: 'utf-8' });
+    const raw = await fs.promises.readFile(path, { encoding: 'utf-8' });
     return JSON.parse(raw);
 }
 

@@ -1,5 +1,5 @@
 <template>
-    <resizable class="has-text-dark" v-model="width" @resizeStop="save">
+    <resizable class="has-text-dark" v-model="width" @resizeStop="save" data-context-menu="globalNavigation">
         <ul>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
                 <div>

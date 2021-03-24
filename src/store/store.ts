@@ -3,7 +3,7 @@ import config from '@/store/modules/config/config';
 import editor from '@/store/modules/editor/editor';
 import { InjectionKey } from 'vue';
 import { createDirectory, doesFileExist } from '@/utils/file-utils';
-import { ipcRenderer } from 'electron';
+import { Menu, MenuItem } from 'electron';
 
 export interface State {
     count: number;
@@ -17,8 +17,6 @@ const actions: ActionTree<State, any> = {
         if (!doesFileExist(c.state.config.dataDirectory)) {
             createDirectory(c.state.config.dataDirectory);
         }
-
-        console.log(ipcRenderer);
 
         c.dispatch('config/load');
         c.dispatch('editor/loadState');
