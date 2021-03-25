@@ -14,3 +14,9 @@ app.use(store)
     .mount('#app');
 
 store.dispatch('startup');
+
+app.directive('focus', {
+    mounted(el, binding, vnode) {
+        el.focus();
+    }
+});

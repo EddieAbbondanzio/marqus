@@ -36,7 +36,6 @@ export const mutations: MutationTree<EditorState> = {
             throw new Error('No tag to create');
         }
 
-        console.log(state.globalNavigation.tags.create);
         if (state.globalNavigation.tags.create.id == null || state.globalNavigation.tags.create.value == null) {
             throw new Error('Invalid tag data');
         }

@@ -48,9 +48,12 @@
                                 @blur="cancel"
                                 @keyup.enter="confirm"
                                 @keyup.esc="cancel"
+                                v-focus
                             />
                         </li>
-                        <li class="mb-1" v-for="tag in tags" :key="tag.id">{{ tag.value }}</li>
+                        <li class="global-navigation-tag mb-1" v-for="tag in tags" :key="tag.id" :data-id="tag.id">
+                            {{ tag.value }}
+                        </li>
                     </ul>
                 </collapse>
             </li>
@@ -75,7 +78,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide } from 'vue';
+import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide, onMounted } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import { store } from '@/store/store';
 import { useStore } from 'vuex';

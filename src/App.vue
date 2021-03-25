@@ -15,23 +15,35 @@ export default {
             contextMenu({
                 menu: (da, p) => {
                     // we can inject menu items as needed. This is called each time we right click
-                    console.log('BUILD MENU');
-                    return [
+                    const items = [
                         {
                             label: 'Create Notebook'
                         },
                         {
                             label: 'Create Tag',
                             click: () => {
-                                console.log('create notebook!', s);
                                 s.commit('editor/CREATE_TAG');
                             }
                         }
                     ];
+
+                    const element = document.elementFromPoint(p.x, p.y);
+
+                    // if tag, offer option to delete
+                    if (element?.classList.contains('global-navigation-tag')) {
+                        const id = element.getAttribute('data-id');
+
+                        items.push({
+                            label: 'Delete tag',
+                            click: () => {
+                                s.commit('editor/DELETE_TAG', id);
+                            }
+                        });
+                    }
+                    return items;
                 },
                 shouldShowMenu: (e, p) => {
                     let element = document.elementFromPoint(p.x, p.y);
-                    console.log('target: ', element);
 
                     // Climb up parent tree until we find our attribute.
                     while (element != null && !element.hasAttribute('data-context-menu')) {
