@@ -6,8 +6,11 @@
 import { onMounted } from 'vue';
 import { store } from './store/store';
 import contextMenu from 'electron-context-menu';
+import { useStore } from 'vuex';
 export default {
     setup() {
+        const s = useStore();
+
         onMounted(() => {
             contextMenu({
                 menu: (da, p) => {
@@ -15,11 +18,14 @@ export default {
                     console.log('BUILD MENU');
                     return [
                         {
-                            label: 'Create Notebook',
-                            click: () => console.log('create notebook!')
+                            label: 'Create Notebook'
                         },
                         {
-                            label: 'Create Tag'
+                            label: 'Create Tag',
+                            click: () => {
+                                console.log('create notebook!', s);
+                                s.commit('editor/CREATE_TAG');
+                            }
                         }
                     ];
                 },

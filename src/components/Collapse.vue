@@ -7,7 +7,7 @@
         >
             <slot name="trigger"></slot>
 
-            <div v-if="modelValue">
+            <div v-if="!modelValue">
                 <span class="icon">
                     <i class="fas fa-chevron-down"></i>
                 </span>

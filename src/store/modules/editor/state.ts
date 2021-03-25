@@ -11,20 +11,64 @@ export interface Tag {
     expanded: boolean;
 }
 
+interface GlobalNavigationNotebook {
+    id: string;
+    value: string;
+    expanded: boolean;
+    children: GlobalNavigationNotebook[] | null;
+}
+
+interface GlobalNavigationNotebookSection {
+    expanded: boolean;
+    create: Partial<Notebook> | null;
+    entries: GlobalNavigationNotebook[];
+}
+
+interface GlobalNavigationTag {
+    id: string;
+    value: string;
+}
+
+interface GlobalNavigationTagSection {
+    expanded: boolean;
+    create: Partial<Tag> | null;
+    entries: GlobalNavigationTag[];
+}
+
+interface GlobalNavigation {
+    width: string;
+    notebooks: GlobalNavigationNotebookSection;
+    tags: GlobalNavigationTagSection;
+}
+
+interface LocalNavigation {
+    width: string;
+}
+
 export interface EditorState {
     mode: 'edit' | 'view';
     activeFile: string | null;
-    'window.globalNavigation.width': string;
-    'window.localNavigation.width': string;
-    notebooks: Notebook[];
-    tags: Tag[];
+    globalNavigation: GlobalNavigation;
+    localNavigation: LocalNavigation;
 }
 
 export const state: EditorState = {
     mode: 'view',
     activeFile: null,
-    'window.globalNavigation.width': '300px',
-    'window.localNavigation.width': '300px',
-    notebooks: [],
-    tags: []
+    globalNavigation: {
+        notebooks: {
+            expanded: false,
+            entries: [],
+            create: null
+        },
+        tags: {
+            expanded: false,
+            entries: [],
+            create: null
+        },
+        width: '300px'
+    },
+    localNavigation: {
+        width: '300px'
+    }
 };

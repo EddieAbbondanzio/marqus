@@ -2,21 +2,21 @@
     <resizable class="has-text-dark" v-model="width" @resizeStop="save" data-context-menu="globalNavigation">
         <ul>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
-                <div>
+                <div class="is-flex is-align-center">
                     <span class="icon">
                         <i class="fas fa-file-alt"></i>
                     </span>
-                    All
+                    <span>All</span>
                 </div>
             </li>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
-                <collapse v-model="isNotebooksExpanded">
+                <collapse v-model="notebooksExpanded">
                     <template #trigger>
-                        <div>
+                        <div class="is-flex is-align-center">
                             <span class="icon">
                                 <i class="fas fa-book"></i>
                             </span>
-                            Notebooks
+                            <span>Notebooks</span>
                         </div>
                     </template>
 
@@ -24,17 +24,20 @@
                 </collapse>
             </li>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
-                <collapse v-model="isTagsExpanded">
+                <collapse v-model="tagsExpanded">
                     <template #trigger>
-                        <div>
+                        <div class="is-flex is-align-center">
                             <span class="icon">
                                 <i class="fas fa-tag"></i>
                             </span>
-                            Tags
+                            <span>Tags</span>
                         </div>
                     </template>
 
-                    CONTENT
+                    <ul style="margin-left: 24px;">
+                        <li class="mb-1" v-if="createTag">CREATE</li>
+                        <li class="mb-1" v-for="tag in tags" :key="tag.id">{{ tag.value }}</li>
+                    </ul>
                 </collapse>
             </li>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
@@ -42,7 +45,7 @@
                     <span class="icon">
                         <i class="fas fa-star"></i>
                     </span>
-                    Favorites
+                    <span>Favorites</span>
                 </div>
             </li>
             <li class="m-1 is-uppercase has-text-grey is-size-7">
@@ -50,7 +53,7 @@
                     <span class="icon">
                         <i class="fas fa-trash"></i>
                     </span>
-                    Trash
+                    <span>Trash</span>
                 </div>
             </li>
         </ul>
@@ -69,17 +72,32 @@ export default defineComponent({
         const s = useStore();
 
         const width = computed({
-            get: () => s.state.editor['window.globalNavigation.width'] as string,
-            set: (v: any) => s.commit('editor/update', { key: 'window.globalNavigation.width', value: v })
+            get: () => s.state.editor.globalNavigation.width as string,
+            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.width', value: v })
         });
 
-        const save = () => s.dispatch('editor/saveState');
+        const notebooksExpanded = computed({
+            get: () => s.state.editor.globalNavigation.notebooks.expanded,
+            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.notebooks.expanded', value: v })
+        });
+
+        const tagsExpanded = computed({
+            get: () => s.state.editor.globalNavigation.tags.expanded,
+            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.tags.expanded', value: v })
+        });
+
+        const tags = computed(() => s.state.editor.globalNavigation.tags.entries);
+        const createTag = computed(() => s.state.editor.globalNavigation.tags.create);
+
+        const save = () => s.dispatch('editor/save');
 
         return {
             width,
             save,
-            isNotebooksExpanded: ref(true),
-            isTagsExpanded: ref(false)
+            notebooksExpanded,
+            tagsExpanded,
+            tags,
+            createTag
         };
     },
     components: { Resizable, Collapse }
