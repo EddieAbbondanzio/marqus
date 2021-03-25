@@ -35,7 +35,21 @@
                     </template>
 
                     <ul style="margin-left: 24px;">
-                        <li class="mb-1" v-if="createTag">CREATE</li>
+                        <li class="mb-1" v-if="createTag">
+                            <input
+                                :value="createTag.value"
+                                @input="
+                                    (e) =>
+                                        store.commit('editor/UPDATE_STATE', {
+                                            key: 'globalNavigation.tags.create.value',
+                                            value: e.target.value
+                                        })
+                                "
+                                @blur="cancel"
+                                @keyup.enter="confirm"
+                                @keyup.esc="cancel"
+                            />
+                        </li>
                         <li class="mb-1" v-for="tag in tags" :key="tag.id">{{ tag.value }}</li>
                     </ul>
                 </collapse>
@@ -89,7 +103,11 @@ export default defineComponent({
         const tags = computed(() => s.state.editor.globalNavigation.tags.entries);
         const createTag = computed(() => s.state.editor.globalNavigation.tags.create);
 
-        const save = () => s.dispatch('editor/save');
+        const save = () => {
+            s.dispatch('editor/save');
+        };
+        const confirm = () => s.commit('editor/CREATE_TAG_CONFIRM');
+        const cancel = () => s.commit('editor/CREATE_TAG_CANCEL');
 
         return {
             width,
@@ -97,7 +115,10 @@ export default defineComponent({
             notebooksExpanded,
             tagsExpanded,
             tags,
-            createTag
+            createTag,
+            confirm,
+            cancel,
+            store: s
         };
     },
     components: { Resizable, Collapse }

@@ -25,14 +25,18 @@ export const mutations: MutationTree<EditorState> = {
     CREATE_TAG(state) {
         state.globalNavigation.tags.create = {
             id: id(),
+            value: '',
             expanded: false
         };
+
+        state.globalNavigation.tags.expanded = true;
     },
-    CREATE_TAG_SAVE(state) {
+    CREATE_TAG_CONFIRM(state) {
         if (state.globalNavigation.tags.create == null) {
             throw new Error('No tag to create');
         }
 
+        console.log(state.globalNavigation.tags.create);
         if (state.globalNavigation.tags.create.id == null || state.globalNavigation.tags.create.value == null) {
             throw new Error('Invalid tag data');
         }
