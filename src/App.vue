@@ -7,6 +7,7 @@ import { onMounted } from 'vue';
 import { store } from './store/store';
 import contextMenu from 'electron-context-menu';
 import { useStore } from 'vuex';
+
 export default {
     setup() {
         const s = useStore();

@@ -20,7 +20,7 @@ interface GlobalNavigationNotebook {
 
 interface GlobalNavigationNotebookSection {
     expanded: boolean;
-    create: Partial<Notebook> | null;
+    create: Partial<Notebook> & { active: boolean };
     entries: GlobalNavigationNotebook[];
 }
 
@@ -31,7 +31,7 @@ interface GlobalNavigationTag {
 
 interface GlobalNavigationTagSection {
     expanded: boolean;
-    create: Partial<Tag> | null;
+    create: Partial<Tag> & { active: boolean };
     entries: GlobalNavigationTag[];
 }
 
@@ -59,12 +59,16 @@ export const state: EditorState = {
         notebooks: {
             expanded: false,
             entries: [],
-            create: null
+            create: {
+                active: false
+            }
         },
         tags: {
             expanded: false,
             entries: [],
-            create: null
+            create: {
+                active: false
+            }
         },
         width: '300px'
     },

@@ -23,33 +23,37 @@
                     CONTENT
                 </collapse>
             </li>
-            <li class="m-1 is-uppercase has-text-grey is-size-7">
+            <li class="m-1 has-text-grey is-size-7">
                 <collapse v-model="tagsExpanded">
                     <template #trigger>
                         <div class="is-flex is-align-center">
                             <span class="icon">
                                 <i class="fas fa-tag"></i>
                             </span>
-                            <span>Tags</span>
+                            <span class=" is-uppercase">Tags</span>
                         </div>
                     </template>
 
                     <ul style="margin-left: 24px;">
-                        <li class="mb-1" v-if="createTag">
-                            <input
-                                :value="createTag.value"
-                                @input="
-                                    (e) =>
-                                        store.commit('editor/UPDATE_STATE', {
-                                            key: 'globalNavigation.tags.create.value',
-                                            value: e.target.value
-                                        })
-                                "
-                                @blur="cancel"
-                                @keyup.enter="confirm"
-                                @keyup.esc="cancel"
-                                v-focus
-                            />
+                        <li class="mb-1" v-if="createTag.active">
+                            <Form @submit="confirm" v-slot="{ submitForm }">
+                                <Field name="Tag" v-model="createTagValue" v-slot="{ field }" :rules="uniqueTags">
+                                    <input type="text" v-bind="field" v-focus @keyup.esc="cancel" />
+                                    <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm">
+                                        <span class="icon is-small">
+                                            <i class="fas fa-check" />
+                                        </span>
+                                    </a>
+                                    <a href="#" class="has-text-grey has-text-hover-danger" @click="cancel">
+                                        <span class="icon is-small">
+                                            <i class="fas fa-ban" />
+                                        </span>
+                                    </a>
+                                </Field>
+                                <ErrorMessage name="Tag" v-slot="{ message }">
+                                    <p class="has-text-danger">{{ message }}</p>
+                                </ErrorMessage>
+                            </Form>
                         </li>
                         <li class="global-navigation-tag mb-1" v-for="tag in tags" :key="tag.id" :data-id="tag.id">
                             {{ tag.value }}
@@ -83,6 +87,8 @@ import Resizable from '@/components/Resizable.vue';
 import { store } from '@/store/store';
 import { useStore } from 'vuex';
 import Collapse from '@/components/Collapse.vue';
+import { useField, Field, ErrorMessage, Form } from 'vee-validate';
+import { isBlank } from '@/utils/is-blank';
 
 export default defineComponent({
     setup: function() {
@@ -112,6 +118,26 @@ export default defineComponent({
         const confirm = () => s.commit('editor/CREATE_TAG_CONFIRM');
         const cancel = () => s.commit('editor/CREATE_TAG_CANCEL');
 
+        const uniqueTags = (v: any) => {
+            if (v == null || isBlank(v)) {
+                return 'Tag cannot be empty';
+            }
+
+            const existing = s.state.editor.globalNavigation.tags.entries.find(
+                (t: any) => t.value.toUpperCase() === v.toUpperCase()
+            );
+            if (existing != null) {
+                return `Tag with value ${v} already exists`;
+            }
+
+            return true;
+        };
+
+        const createTagValue = computed({
+            get: () => s.state.editor.globalNavigation.tags.create.value,
+            set: (v: string) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.tags.create.value', value: v })
+        });
+
         return {
             width,
             save,
@@ -121,9 +147,11 @@ export default defineComponent({
             createTag,
             confirm,
             cancel,
-            store: s
+            store: s,
+            createTagValue,
+            uniqueTags
         };
     },
-    components: { Resizable, Collapse }
+    components: { Resizable, Collapse, Field, ErrorMessage, Form }
 });
 </script>

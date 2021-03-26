@@ -1,4 +1,6 @@
+import Vue from '*.vue';
 import { id } from '@/utils/id';
+import { ref } from 'vue';
 import { MutationTree } from 'vuex';
 import { EditorState, Tag } from './state';
 
@@ -26,31 +28,28 @@ export const mutations: MutationTree<EditorState> = {
         state.globalNavigation.tags.create = {
             id: id(),
             value: '',
-            expanded: false
+            expanded: false,
+            active: true
         };
 
         state.globalNavigation.tags.expanded = true;
     },
     CREATE_TAG_CONFIRM(state) {
-        if (state.globalNavigation.tags.create == null) {
-            throw new Error('No tag to create');
-        }
-
-        if (state.globalNavigation.tags.create.id == null || state.globalNavigation.tags.create.value == null) {
+        if (state.globalNavigation.tags.create.value == null) {
             throw new Error('Invalid tag data');
         }
 
         const t: Tag = {
-            id: state.globalNavigation.tags.create.id,
+            id: id(),
             value: state.globalNavigation.tags.create.value,
             expanded: false
         };
 
         state.globalNavigation.tags.entries.push(t);
-        state.globalNavigation.tags.create = null;
+        state.globalNavigation.tags.create = { active: false };
     },
     CREATE_TAG_CANCEL(state) {
-        state.globalNavigation.tags.create = null;
+        state.globalNavigation.tags.create = { active: false };
     },
     UPDATE_TAG(state, { id, name }: { id: string; name: string }) {
         const tag = state.globalNavigation.tags.entries.find((t) => t.id === id);
