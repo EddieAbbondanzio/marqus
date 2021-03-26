@@ -23,44 +23,7 @@
                     CONTENT
                 </collapse>
             </li>
-            <li class="m-1 has-text-grey is-size-7">
-                <collapse v-model="tagsExpanded">
-                    <template #trigger>
-                        <div class="is-flex is-align-center">
-                            <span class="icon">
-                                <i class="fas fa-tag"></i>
-                            </span>
-                            <span class=" is-uppercase">Tags</span>
-                        </div>
-                    </template>
-
-                    <ul style="margin-left: 24px;">
-                        <li class="mb-1" v-if="createTag.active">
-                            <Form @submit="confirm" v-slot="{ submitForm }">
-                                <Field name="Tag" v-model="createTagValue" v-slot="{ field }" :rules="uniqueTags">
-                                    <input type="text" v-bind="field" v-focus @keyup.esc="cancel" />
-                                    <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm">
-                                        <span class="icon is-small">
-                                            <i class="fas fa-check" />
-                                        </span>
-                                    </a>
-                                    <a href="#" class="has-text-grey has-text-hover-danger" @click="cancel">
-                                        <span class="icon is-small">
-                                            <i class="fas fa-ban" />
-                                        </span>
-                                    </a>
-                                </Field>
-                                <ErrorMessage name="Tag" v-slot="{ message }">
-                                    <p class="has-text-danger">{{ message }}</p>
-                                </ErrorMessage>
-                            </Form>
-                        </li>
-                        <li class="global-navigation-tag mb-1" v-for="tag in tags" :key="tag.id" :data-id="tag.id">
-                            {{ tag.value }}
-                        </li>
-                    </ul>
-                </collapse>
-            </li>
+            <global-navigation-tags-section />
             <li class="m-1 is-uppercase has-text-grey is-size-7">
                 <div>
                     <span class="icon">
@@ -87,8 +50,8 @@ import Resizable from '@/components/Resizable.vue';
 import { store } from '@/store/store';
 import { useStore } from 'vuex';
 import Collapse from '@/components/Collapse.vue';
-import { useField, Field, ErrorMessage, Form } from 'vee-validate';
 import { isBlank } from '@/utils/is-blank';
+import GlobalNavigationTagsSection from '@/components/GlobalNavigation/GlobalNavigationTagsSection.vue';
 
 export default defineComponent({
     setup: function() {
@@ -152,6 +115,6 @@ export default defineComponent({
             uniqueTags
         };
     },
-    components: { Resizable, Collapse, Field, ErrorMessage, Form }
+    components: { Resizable, Collapse, GlobalNavigationTagsSection }
 });
 </script>

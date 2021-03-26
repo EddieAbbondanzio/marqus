@@ -25,46 +25,53 @@ export const mutations: MutationTree<EditorState> = {
         recurse(state, kv.key, kv.value);
     },
     CREATE_TAG(state) {
-        state.globalNavigation.tags.create = {
+        state.globalNavigation.tags.input = {
             id: id(),
             value: '',
             expanded: false,
-            active: true
+            mode: 'create'
         };
 
         state.globalNavigation.tags.expanded = true;
     },
     CREATE_TAG_CONFIRM(state) {
-        if (state.globalNavigation.tags.create.value == null) {
+        if (state.globalNavigation.tags.input.value == null) {
             throw new Error('Invalid tag data');
         }
 
         const t: Tag = {
             id: id(),
-            value: state.globalNavigation.tags.create.value,
+            value: state.globalNavigation.tags.input.value,
             expanded: false
         };
 
         state.globalNavigation.tags.entries.push(t);
-        state.globalNavigation.tags.create = { active: false };
+        state.globalNavigation.tags.input = {};
     },
     CREATE_TAG_CANCEL(state) {
-        state.globalNavigation.tags.create = { active: false };
+        state.globalNavigation.tags.input = {};
     },
-    UPDATE_TAG(state, { id, name }: { id: string; name: string }) {
+    UPDATE_TAG(state, id: string) {
         const tag = state.globalNavigation.tags.entries.find((t) => t.id === id);
 
         if (tag == null) {
             throw new Error(`No tag found with id: ${id}`);
         }
 
-        // Check to ensure no other tag has same name
-        const duplicate = state.globalNavigation.tags.entries.find((t) => t.value === name);
-        if (tag.id !== duplicate?.id) {
-            throw new Error('Cannot have multiple tags with same name');
+        state.globalNavigation.tags.input = { mode: 'update', ...tag };
+    },
+    UPDATE_TAG_CONFIRM(state) {
+        if (state.globalNavigation.tags.input.value == null) {
+            throw new Error('Invalid tag data');
         }
 
-        tag.value = name;
+        const tag = state.globalNavigation.tags.entries.find((t) => t.id === state.globalNavigation.tags.input.id)!;
+        tag.value = state.globalNavigation.tags.input.value;
+
+        state.globalNavigation.tags.input = {};
+    },
+    UPDATE_TAG_CANCEL(state) {
+        state.globalNavigation.tags.input = {};
     },
     DELETE_TAG(state, id) {
         const index = state.globalNavigation.tags.entries.findIndex((t) => t.id === id);

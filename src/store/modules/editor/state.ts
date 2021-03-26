@@ -31,7 +31,7 @@ interface GlobalNavigationTag {
 
 interface GlobalNavigationTagSection {
     expanded: boolean;
-    create: Partial<Tag> & { active: boolean };
+    input: Partial<Tag> & { mode?: 'create' | 'update' };
     entries: GlobalNavigationTag[];
 }
 
@@ -66,9 +66,7 @@ export const state: EditorState = {
         tags: {
             expanded: false,
             entries: [],
-            create: {
-                active: false
-            }
+            input: {}
         },
         width: '300px'
     },

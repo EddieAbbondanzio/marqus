@@ -35,7 +35,14 @@ export default {
                         const id = element.getAttribute('data-id');
 
                         items.push({
-                            label: 'Delete tag',
+                            label: 'Edit Tag',
+                            click: () => {
+                                s.commit('editor/UPDATE_TAG', id);
+                            }
+                        });
+
+                        items.push({
+                            label: 'Delete Tag',
                             click: () => {
                                 s.commit('editor/DELETE_TAG', id);
                             }
