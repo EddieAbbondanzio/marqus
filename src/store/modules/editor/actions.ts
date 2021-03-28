@@ -73,5 +73,36 @@ export const actions: ActionTree<EditorState, State> = {
     },
     async deleteAllTags() {
         this.commit('editor/DELETE_ALL_TAGS');
+    },
+    async createNotebook(c, parentId: string) {
+        this.commit('editor/CREATE_NOTEBOOK', parentId);
+        this.commit('editor/EXPAND_NOTEBOOKS');
+    },
+    async createNotebookConfirm() {
+        this.commit('editor/CREATE_NOTEBOOK_CONFIRM');
+        this.commit('editor/SORT_NOTEBOOKS');
+    },
+    async createNotebookCancel() {
+        this.commit('editor/CREATE_NOTEBOOK_CANCEL');
+    },
+    async updateNotebook(c, id: string) {
+        this.commit('editor/UPDATE_NOTEBOOK', id);
+    },
+    async updateNotebookConfirm() {
+        this.commit('editor/UPDATE_NOTEBOOK_CONFIRM');
+        this.commit('editor/SORT_NOTEBOOKS');
+    },
+    async updateNotebookCancel() {
+        this.commit('editor/UPDATE_NOTEBOOK_CANCEL');
+    },
+    async deleteNotebook(c, id: string) {
+        const confirm = await confirmDelete(
+            'notebook',
+            c.state.globalNavigation.notebooks.entries.find((n) => n.id === id)!.value
+        );
+
+        if (confirm) {
+            this.commit('editor/DELETE_NOTEBOOK', id);
+        }
     }
 };

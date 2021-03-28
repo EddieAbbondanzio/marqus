@@ -97,6 +97,7 @@ export const mutations: MutationTree<EditorState> = {
     DELETE_ALL_TAGS(state) {
         state.globalNavigation.tags.entries.length = 0;
     },
+    EXPAND_NOTBOOKS: (s) => (s.globalNavigation.notebooks.expanded = true),
     CREATE_NOTEBOOK(state, parentId?: string) {
         state.globalNavigation.notebooks.input = {
             id: id(),
