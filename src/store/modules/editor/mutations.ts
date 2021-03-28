@@ -1,16 +1,26 @@
-import Vue from '*.vue';
-import { confirmDelete } from '@/utils/confirm-delete';
 import { id } from '@/utils/id';
-import { ref } from 'vue';
 import { MutationTree } from 'vuex';
-import { EditorState, Tag } from './state';
+import { EditorState, Notebook, Tag } from './state';
+
+function findNotebookRecursive(notebooks: Notebook[], id: string): Notebook | undefined {
+    for (let i = 0; i < notebooks.length; i++) {
+        if (notebooks[i].id === id) {
+            return notebooks[i];
+        } else if (notebooks[i].children?.length) {
+            const r = findNotebookRecursive(notebooks[i].children!, id);
+
+            if (r != null) {
+                return r;
+            }
+        }
+    }
+}
 
 export const mutations: MutationTree<EditorState> = {
     TOGGLE_MODE: (s, p) => (s.mode = s.mode === 'edit' ? 'view' : 'edit'),
     SET_STATE: (state, config) => {
         Object.assign(state, config);
     },
-    EXPAND_TAGS: (s) => (s.globalNavigation.tags.expanded = true),
     UPDATE_STATE: (state, kv: { key: string; value: any }) => {
         // i = 'a.b.c' -> a['a']['b']['c'] = v
         const recurse = (a: any, i: string, v: any) => {
@@ -26,11 +36,11 @@ export const mutations: MutationTree<EditorState> = {
 
         recurse(state, kv.key, kv.value);
     },
+    EXPAND_TAGS: (s) => (s.globalNavigation.tags.expanded = true),
     CREATE_TAG(state) {
         state.globalNavigation.tags.input = {
             id: id(),
             value: '',
-            expanded: false,
             mode: 'create'
         };
     },
@@ -40,13 +50,11 @@ export const mutations: MutationTree<EditorState> = {
         }
 
         const t: Tag = {
-            id: id(),
-            value: state.globalNavigation.tags.input.value,
-            expanded: false
+            id: state.globalNavigation.tags.input.id!,
+            value: state.globalNavigation.tags.input.value
         };
 
         state.globalNavigation.tags.entries.push(t);
-        state.globalNavigation.tags.entries.sort((a, b) => a.value.toUpperCase().localeCompare(b.value.toUpperCase()));
         state.globalNavigation.tags.input = {};
     },
     CREATE_TAG_CANCEL(state) {
@@ -74,6 +82,9 @@ export const mutations: MutationTree<EditorState> = {
     UPDATE_TAG_CANCEL(state) {
         state.globalNavigation.tags.input = {};
     },
+    SORT_TAGS(state) {
+        state.globalNavigation.tags.entries.sort((a, b) => a.value.toUpperCase().localeCompare(b.value.toUpperCase()));
+    },
     DELETE_TAG(state, id) {
         const index = state.globalNavigation.tags.entries.findIndex((t) => t.id === id);
 
@@ -85,5 +96,86 @@ export const mutations: MutationTree<EditorState> = {
     },
     DELETE_ALL_TAGS(state) {
         state.globalNavigation.tags.entries.length = 0;
+    },
+    CREATE_NOTEBOOK(state, parentId?: string) {
+        state.globalNavigation.notebooks.input = {
+            id: id(),
+            value: '',
+            mode: 'create',
+            parentId
+        };
+    },
+    CREATE_NOTEBOOK_CONFIRM(state) {
+        if (state.globalNavigation.notebooks.input.value == null) {
+            throw new Error('Invalid tag data');
+        }
+
+        const { id, value, parentId } = state.globalNavigation.notebooks.input as Notebook & { parentId?: string };
+
+        const n: Notebook = {
+            id,
+            value,
+            expanded: false
+        };
+
+        if (parentId == null) {
+            state.globalNavigation.notebooks.entries.push(n);
+        } else {
+            const parent = state.globalNavigation.notebooks.entries.find((p) => p.id === parentId)!;
+
+            if (parent.children == null) {
+                parent.children = [];
+            }
+
+            parent.children.push(n);
+        }
+
+        state.globalNavigation.tags.input = {};
+    },
+    CREATE_NOTEBOOK_CANCEL(state) {
+        state.globalNavigation.notebooks.input = {};
+    },
+    UPDATE_NOTEBOOK(state, id: string) {
+        const n = findNotebookRecursive(state.globalNavigation.notebooks.entries, id);
+        state.globalNavigation.notebooks.input = { mode: 'update', ...n };
+    },
+    UPDATE_NOTEBOOK_CONFIRM(state) {
+        const input = state.globalNavigation.notebooks.input;
+
+        if (input.value == null) {
+            throw new Error('No notebook value passed');
+        }
+
+        const n = findNotebookRecursive(
+            state.globalNavigation.notebooks.entries,
+            state.globalNavigation.notebooks.input.id!
+        )!;
+        n.value = input.value!;
+    },
+    UPDATE_NOTEBOOK_CANCEL(state) {
+        state.globalNavigation.notebooks.input = {};
+    },
+    SORT_NOTEBOOKS(state) {
+        recursiveSort(state.globalNavigation.notebooks.entries);
+
+        function recursiveSort(notebooks: Notebook[]) {
+            for (let i = 0; i < notebooks.length; i++) {
+                const n = notebooks[i];
+
+                if (n.children != null) {
+                    n.children.sort((a, b) => a.value.toUpperCase().localeCompare(b.value.toUpperCase()));
+                    recursiveSort(n.children);
+                }
+            }
+        }
+    },
+    DELETE_NOTEBOOK(state, id) {
+        const index = state.globalNavigation.notebooks.entries.findIndex((t) => t.id === id);
+
+        if (index === -1) {
+            throw new Error('No notebook found');
+        }
+
+        state.globalNavigation.notebooks.entries.splice(index, 1);
     }
 };

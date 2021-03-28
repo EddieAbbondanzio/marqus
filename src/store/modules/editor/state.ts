@@ -8,31 +8,18 @@ export interface Notebook {
 export interface Tag {
     id: string;
     value: string;
-    expanded: boolean;
-}
-
-interface GlobalNavigationNotebook {
-    id: string;
-    value: string;
-    expanded: boolean;
-    children: GlobalNavigationNotebook[] | null;
 }
 
 interface GlobalNavigationNotebookSection {
     expanded: boolean;
-    create: Partial<Notebook> & { active: boolean };
-    entries: GlobalNavigationNotebook[];
-}
-
-interface GlobalNavigationTag {
-    id: string;
-    value: string;
+    input: Partial<Notebook> & { mode?: 'create' | 'update'; parentId?: string };
+    entries: Notebook[];
 }
 
 interface GlobalNavigationTagSection {
     expanded: boolean;
     input: Partial<Tag> & { mode?: 'create' | 'update' };
-    entries: GlobalNavigationTag[];
+    entries: Tag[];
 }
 
 interface GlobalNavigation {
@@ -59,9 +46,7 @@ export const state: EditorState = {
         notebooks: {
             expanded: false,
             entries: [],
-            create: {
-                active: false
-            }
+            input: {}
         },
         tags: {
             expanded: false,

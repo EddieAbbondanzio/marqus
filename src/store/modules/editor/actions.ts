@@ -46,6 +46,7 @@ export const actions: ActionTree<EditorState, State> = {
     },
     async createTagConfirm() {
         this.commit('editor/CREATE_TAG_CONFIRM');
+        this.commit('editor/SORT_TAGS');
     },
     async createTagCancel() {
         this.commit('editor/CREATE_TAG_CANCEL');
@@ -55,6 +56,7 @@ export const actions: ActionTree<EditorState, State> = {
     },
     async updateTagConfirm() {
         this.commit('editor/UPDATE_TAG_CONFIRM');
+        this.commit('editor/SORT_TAGS');
     },
     async updateTagCancel() {
         this.commit('editor/UPDATE_TAG_CANCEL');
