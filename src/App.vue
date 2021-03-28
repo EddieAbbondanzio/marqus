@@ -23,7 +23,7 @@ export default {
                         {
                             label: 'Create Tag',
                             click: () => {
-                                s.commit('editor/CREATE_TAG');
+                                s.dispatch('editor/createTag');
                             }
                         }
                     ];
@@ -37,14 +37,14 @@ export default {
                         items.push({
                             label: 'Edit Tag',
                             click: () => {
-                                s.commit('editor/UPDATE_TAG', id);
+                                s.dispatch('editor/updateTag', id);
                             }
                         });
 
                         items.push({
                             label: 'Delete Tag',
                             click: () => {
-                                s.commit('editor/DELETE_TAG', id);
+                                s.dispatch('editor/deleteTag', id);
                             }
                         });
                     }

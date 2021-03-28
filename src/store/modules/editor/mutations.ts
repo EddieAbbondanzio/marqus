@@ -1,4 +1,5 @@
 import Vue from '*.vue';
+import { confirmDelete } from '@/utils/confirm-delete';
 import { id } from '@/utils/id';
 import { ref } from 'vue';
 import { MutationTree } from 'vuex';
@@ -9,6 +10,7 @@ export const mutations: MutationTree<EditorState> = {
     SET_STATE: (state, config) => {
         Object.assign(state, config);
     },
+    EXPAND_TAGS: (s) => (s.globalNavigation.tags.expanded = true),
     UPDATE_STATE: (state, kv: { key: string; value: any }) => {
         // i = 'a.b.c' -> a['a']['b']['c'] = v
         const recurse = (a: any, i: string, v: any) => {
@@ -31,8 +33,6 @@ export const mutations: MutationTree<EditorState> = {
             expanded: false,
             mode: 'create'
         };
-
-        state.globalNavigation.tags.expanded = true;
     },
     CREATE_TAG_CONFIRM(state) {
         if (state.globalNavigation.tags.input.value == null) {
