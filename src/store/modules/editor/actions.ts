@@ -4,8 +4,11 @@ import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 import path from 'path';
 import { ActionTree } from 'vuex';
 import { EditorState, state } from './state';
+import * as lockFile from 'proper-lockfile';
 
 const STATE_FILE_NAME = 'state.json';
+
+const saving: { current?: Promise<any>; next?: () => Promise<any> } = {};
 
 export const actions: ActionTree<EditorState, State> = {
     async load(context) {
@@ -21,7 +24,24 @@ export const actions: ActionTree<EditorState, State> = {
         const dataDirectory = context.rootState.config.dataDirectory;
         const filePath = path.join(dataDirectory, STATE_FILE_NAME);
 
-        await writeJsonFile(filePath, state);
+        if (saving.current == null) {
+            saving.current = writeJsonFile(filePath, state);
+            console.log('empty, new save');
+        } else if (saving.next == null) {
+            saving.next = () => writeJsonFile(filePath, state);
+            console.log('active, new ssave');
+        } else {
+            console.log('active, and new save prepared');
+        }
+
+        await saving.current;
+        delete saving.current;
+
+        console.log('saving done!');
+        if (saving.next != null) {
+            saving.next();
+            delete saving.next;
+        }
     },
     async createTag() {
         this.commit('editor/CREATE_TAG');

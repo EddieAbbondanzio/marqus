@@ -8,8 +8,9 @@ export async function loadJsonFile(path: string) {
 }
 
 export async function writeJsonFile(path: string, data: any) {
+    console.log('writing!');
     const raw = JSON.stringify(data);
-    await fs.promises.writeFile(path, raw, 'utf-8');
+    await fs.promises.writeFile(path, raw, { encoding: 'utf-8' });
 }
 
 export function doesFileExist(path: string) {

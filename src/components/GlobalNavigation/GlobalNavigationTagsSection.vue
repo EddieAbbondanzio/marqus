@@ -75,8 +75,8 @@ export default defineComponent({
 
         const input = computed(() => s.state.editor.globalNavigation.tags.input);
 
-        const confirmCreate = () => s.commit('editor/CREATE_TAG_CONFIRM');
-        const cancelCreate = () => s.commit('editor/CREATE_TAG_CANCEL');
+        const confirmCreate = () => s.dispatch('editor/createTagConfirm');
+        const cancelCreate = () => s.dispatch('editor/createTagCancel');
 
         const uniqueTags = (v: any) => {
             if (v == null || isBlank(v)) {
@@ -105,8 +105,8 @@ export default defineComponent({
 
         const tags = computed(() => s.state.editor.globalNavigation.tags.entries);
 
-        const confirmUpdate = () => s.commit('editor/UPDATE_TAG_CONFIRM');
-        const cancelUpdate = () => s.commit('editor/UPDATE_TAG_CANCEL');
+        const confirmUpdate = () => s.dispatch('editor/updateTagConfirm');
+        const cancelUpdate = () => s.dispatch('editor/updateTagCancel');
 
         return {
             tags,
