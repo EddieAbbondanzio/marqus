@@ -26,18 +26,15 @@ export const actions: ActionTree<EditorState, State> = {
 
         if (saving.current == null) {
             saving.current = writeJsonFile(filePath, state);
-            console.log('empty, new save');
         } else if (saving.next == null) {
             saving.next = () => writeJsonFile(filePath, state);
-            console.log('active, new ssave');
-        } else {
-            console.log('active, and new save prepared');
         }
 
+        // Save current
         await saving.current;
         delete saving.current;
 
-        console.log('saving done!');
+        // Save next, if needed
         if (saving.next != null) {
             saving.next();
             delete saving.next;

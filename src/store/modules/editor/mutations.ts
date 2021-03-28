@@ -46,6 +46,7 @@ export const mutations: MutationTree<EditorState> = {
         };
 
         state.globalNavigation.tags.entries.push(t);
+        state.globalNavigation.tags.entries.sort((a, b) => a.value.toUpperCase().localeCompare(b.value.toUpperCase()));
         state.globalNavigation.tags.input = {};
     },
     CREATE_TAG_CANCEL(state) {
