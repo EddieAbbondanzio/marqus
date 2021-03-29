@@ -1,8 +1,8 @@
 <template>
     <resizable class="has-text-dark" v-model="width" @resizeStop="save" data-context-menu="globalNavigation">
         <ul>
-            <li class="m-1 is-uppercase has-text-grey is-size-7">
-                <div class="is-flex is-align-center">
+            <li class="is-uppercase has-text-grey is-size-7 has-background-hover-light">
+                <div class="is-flex is-align-center has-background-transparent">
                     <span class="icon">
                         <i class="fas fa-file-alt"></i>
                     </span>
@@ -14,16 +14,16 @@
 
             <global-navigation-tag-section />
 
-            <li class="m-1 is-uppercase has-text-grey is-size-7">
-                <div>
+            <li class="is-uppercase has-text-grey is-size-7 has-background-hover-light">
+                <div class="has-background-transparent">
                     <span class="icon">
                         <i class="fas fa-star"></i>
                     </span>
                     <span>Favorites</span>
                 </div>
             </li>
-            <li class="m-1 is-uppercase has-text-grey is-size-7">
-                <div>
+            <li class="is-uppercase has-text-grey is-size-7 has-background-hover-light">
+                <div class="has-background-transparent">
                     <span class="icon">
                         <i class="fas fa-trash"></i>
                     </span>
@@ -68,3 +68,12 @@ export default defineComponent({
     components: { Resizable, GlobalNavigationTagSection, GlobalNavigationNotebookSection }
 });
 </script>
+
+<style lang="sass">
+global-navigation-title
+    padding-top: 2px
+    padding-bottom: 2px
+
+.global-navigation-item
+    line-height: 24px
+</style>

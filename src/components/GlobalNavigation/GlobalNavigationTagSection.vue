@@ -1,8 +1,8 @@
 <template>
-    <li class="m-1 has-text-grey is-size-7">
-        <collapse v-model="tagsExpanded">
+    <li class="has-text-grey is-size-7">
+        <collapse v-model="tagsExpanded" triggerClass="has-background-hover-light">
             <template #trigger>
-                <div class="is-flex is-align-center">
+                <div class="is-flex is-align-center global-navigation-title is-flex-grow-1 has-background-transparent">
                     <span class="icon">
                         <i class="fas fa-tag"></i>
                     </span>
@@ -10,22 +10,28 @@
                 </div>
             </template>
 
-            <ul class="is-size-7" style="margin-left: 24px;">
-                <li class="mb-1 is-flex-grow-1">
+            <ul class="is-size-7">
+                <li class="is-flex-grow-1">
                     <GlobalNavigationTagForm
                         v-if="tagInputMode === 'create'"
                         @submit="confirmCreate"
                         @cancel="cancelCreate"
                     />
                 </li>
-                <li class="global-navigation-tag mb-1" v-for="tag in tags" :key="tag.id">
+                <li v-for="tag in tags" :key="tag.id">
                     <GlobalNavigationTagForm
                         v-if="isTagBeingUpdated(tag.id)"
                         @submit="confirmUpdate"
                         @cancel="cancelUpdate"
                     />
 
-                    <p v-else class="global-navigation-tag" :data-id="tag.id">{{ tag.value }}</p>
+                    <p
+                        v-else
+                        class="global-navigation-tag has-background-hover-light global-navigation-item"
+                        :data-id="tag.id"
+                    >
+                        {{ tag.value }}
+                    </p>
                 </li>
             </ul>
         </collapse>
@@ -83,3 +89,8 @@ export default defineComponent({
     components: { Collapse, GlobalNavigationTagForm }
 });
 </script>
+
+<style lang="sass">
+.global-navigation-tag
+    padding-left: 24px;
+</style>

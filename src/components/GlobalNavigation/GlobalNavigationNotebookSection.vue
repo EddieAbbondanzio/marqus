@@ -1,8 +1,8 @@
 <template>
-    <li class="m-1 has-text-grey is-size-7">
-        <collapse v-model="expanded">
+    <li class="has-text-grey is-size-7">
+        <collapse v-model="expanded" triggerClass="has-background-hover-light">
             <template #trigger>
-                <div class="is-flex is-align-center">
+                <div class="is-flex is-align-center has-background-transparent global-navigation-title">
                     <span class="icon">
                         <i class="fas fa-book"></i>
                     </span>
@@ -10,15 +10,15 @@
                 </div>
             </template>
 
-            <ul class="is-size-7" style="margin-left: 24px;">
-                <li class="mb-1">
+            <ul class="is-size-7">
+                <li>
                     <GlobalNavigationNotebookForm
                         v-if="notebookInputMode === 'create'"
                         @submit="confirmCreate"
                         @cancel="cancelCreate"
                     />
                 </li>
-                <li class=" mb-1" v-for="notebook in notebooks" :key="notebook.id">
+                <li v-for="notebook in notebooks" :key="notebook.id">
                     <global-navigation-notebook :modelValue="notebook" />
                 </li>
             </ul>

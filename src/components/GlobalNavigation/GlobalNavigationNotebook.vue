@@ -1,27 +1,41 @@
 <template>
-    <Collapse v-if="modelValue.children" v-model="expanded">
+    <Collapse v-if="modelValue.children" v-model="expanded" triggerClass="has-background-hover-light">
         <template #trigger>
-            <div class="mb-1 is-flex-grow-1">
+            <div class="is-flex-grow-1 has-background-transparent">
                 <GlobalNavigationNotebookForm
                     v-if="isNotebookBeingUpdated(modelValue.id)"
                     @submit="confirmUpdate"
                     @cancel="cancelUpdate"
                 />
-                <p v-else class="global-navigation-notebook" :data-id="modelValue.id">{{ modelValue.value }}</p>
+                <p
+                    v-else
+                    class="global-navigation-notebook global-navigation-item"
+                    :data-id="modelValue.id"
+                    :style="`padding-left: ${depth * 24}px`"
+                >
+                    {{ modelValue.value }}
+                </p>
             </div>
         </template>
 
-        <ul class="is-size-7" style="margin-left: 24px;" v-for="child in modelValue.children" :key="child.id">
-            <GlobalNavigationNotebook :modelValue="child" />
+        <ul class="is-size-7" v-for="child in modelValue.children" :key="child.id">
+            <GlobalNavigationNotebook :modelValue="child" :depth="depth + 1" />
         </ul>
     </Collapse>
-    <li v-else class="mb-1 is-flex-grow-1">
+    <li v-else class="is-flex-grow-1">
         <GlobalNavigationNotebookForm
             v-if="isNotebookBeingUpdated(modelValue.id)"
             @submit="confirmUpdate"
             @cancel="cancelUpdate"
         />
-        <p v-else class="global-navigation-notebook" :data-id="modelValue.id">{{ modelValue.value }}</p>
+        <p
+            v-else
+            class="global-navigation-notebook global-navigation-item has-background-hover-light"
+            :style="`padding-left: ${depth * 24}px`"
+            :data-id="modelValue.id"
+        >
+            {{ modelValue.value }}
+        </p>
     </li>
 </template>
 
@@ -35,7 +49,11 @@ import { isBlank } from '@/utils/is-blank';
 
 export default defineComponent({
     props: {
-        modelValue: Object
+        modelValue: Object,
+        depth: {
+            type: Number,
+            default: 1
+        }
     },
     name: 'GlobalNavigationNotebook',
     setup: function(p, c) {
