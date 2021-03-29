@@ -11,7 +11,7 @@
             </template>
 
             <ul class="is-size-7" style="margin-left: 24px;">
-                <li class="mb-1">
+                <li class="mb-1 is-flex-grow-1">
                     <GlobalNavigationTagForm
                         v-if="tagInputMode === 'create'"
                         @submit="confirmCreate"

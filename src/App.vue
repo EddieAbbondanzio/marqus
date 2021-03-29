@@ -19,6 +19,7 @@ export default {
                     const id = element?.getAttribute('data-id');
                     const isElementNotebook = element?.classList.contains('global-navigation-notebook');
                     const isElementTag = element?.classList.contains('global-navigation-tag');
+                    console.log(element);
 
                     // we can inject menu items as needed. This is called each time we right click
                     const items = [

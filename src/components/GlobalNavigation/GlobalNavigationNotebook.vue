@@ -1,7 +1,7 @@
 <template>
     <Collapse v-if="modelValue.children" v-model="expanded">
         <template #trigger>
-            <div class="mb-1">
+            <div class="mb-1 is-flex-grow-1">
                 <GlobalNavigationNotebookForm
                     v-if="isNotebookBeingUpdated(modelValue.id)"
                     @submit="confirmUpdate"
@@ -15,7 +15,7 @@
             <GlobalNavigationNotebook :modelValue="child" />
         </ul>
     </Collapse>
-    <li v-else class="mb-1">
+    <li v-else class="mb-1 is-flex-grow-1">
         <GlobalNavigationNotebookForm
             v-if="isNotebookBeingUpdated(modelValue.id)"
             @submit="confirmUpdate"

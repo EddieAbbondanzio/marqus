@@ -1,7 +1,5 @@
 <template>
     <li class="m-1 has-text-grey is-size-7">
-        input: {{ input.id }}
-
         <collapse v-model="expanded">
             <template #trigger>
                 <div class="is-flex is-align-center">
