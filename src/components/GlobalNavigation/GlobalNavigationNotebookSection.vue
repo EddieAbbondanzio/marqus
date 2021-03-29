@@ -13,7 +13,7 @@
             <ul class="is-size-7" style="margin-left: 24px;">
                 <li class="mb-1">
                     <Form @submit="confirmCreate" v-slot="{ submitForm }" v-if="input.mode === 'create'">
-                        <Field name="Notebook" v-model="inputValue" v-slot="{ field }" :rules="uniqueValue">
+                        <Field name="Notebook" v-model="inputValue" v-slot="{ field }" :rules="unique">
                             <input type="text" v-bind="field" v-focus @keyup.esc="cancelCreate" />
                             <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm">
                                 <span class="icon is-small">
@@ -37,7 +37,7 @@
                         @submit="confirmUpdate"
                         v-slot="{ submitForm }"
                     >
-                        <Field name="Notebook" v-model="inputValue" v-slot="{ field }" :rules="uniqueValue">
+                        <Field name="Notebook" v-model="inputValue" v-slot="{ field }" :rules="unique">
                             <input type="text" v-bind="field" v-focus @keyup.esc="cancelUpdate" />
                             <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm">
                                 <span class="icon is-small">
@@ -54,7 +54,8 @@
                             <p class="has-text-danger">{{ message }}</p>
                         </ErrorMessage>
                     </Form>
-                    <p v-else class="global-navigation-notebook" :data-id="notebook.id">{{ notebook.value }}</p>
+
+                    <global-navigation-notebook v-else :modelValue="notebook" />
                 </li>
             </ul>
         </collapse>
@@ -67,6 +68,7 @@ import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
 import { useField, Field, ErrorMessage, Form } from 'vee-validate';
 import Collapse from '@/components/Collapse.vue';
+import GlobalNavigationNotebook from '@/components/GlobalNavigation/GlobalNavigationNotebook.vue';
 
 export default defineComponent({
     setup: function() {
@@ -119,6 +121,6 @@ export default defineComponent({
             inputValue
         };
     },
-    components: { Collapse, Field, ErrorMessage, Form }
+    components: { Collapse, Field, ErrorMessage, Form, GlobalNavigationNotebook }
 });
 </script>

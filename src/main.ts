@@ -15,11 +15,18 @@ Object.keys(AllRules).forEach((rule) => {
 });
 
 const app = createApp(App);
-app.use(store)
-    .use(router)
-    .mount('#app');
 
-store.dispatch('startup');
+(async () => {
+    try {
+        // Need to deserialize state first.
+        await store.dispatch('startup');
+        app.use(store)
+            .use(router)
+            .mount('#app');
+    } catch (e) {
+        console.error(e);
+    }
+})();
 
 app.directive('focus', {
     mounted(el, binding, vnode) {

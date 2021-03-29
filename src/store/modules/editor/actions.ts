@@ -24,6 +24,15 @@ export const actions: ActionTree<EditorState, State> = {
         const dataDirectory = context.rootState.config.dataDirectory;
         const filePath = path.join(dataDirectory, STATE_FILE_NAME);
 
+        state.loaded = undefined!;
+
+        /*
+         * There be dragons here. This is written in a way to prevent a
+         * race condition from occuring when writing the file. Race conditions
+         * will corrupt the JSON because more than 1 process was writing the
+         * file at the same time.
+         */
+
         if (saving.current == null) {
             saving.current = writeJsonFile(filePath, state);
         } else if (saving.next == null) {

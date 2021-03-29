@@ -15,10 +15,22 @@ export default {
         onMounted(() => {
             contextMenu({
                 menu: (da, p) => {
+                    const element = document.elementFromPoint(p.x, p.y);
+                    const id = element?.getAttribute('data-id');
+                    const isElementNotebook = element?.classList.contains('global-navigation-notebook');
+                    const isElementTag = element?.classList.contains('global-navigation-tag');
+
                     // we can inject menu items as needed. This is called each time we right click
                     const items = [
                         {
-                            label: 'Create Notebook'
+                            label: 'Create Notebook',
+                            click: () => {
+                                if (isElementNotebook) {
+                                    s.dispatch('editor/createNotebook', id);
+                                } else {
+                                    s.dispatch('editor/createNotebook');
+                                }
+                            }
                         },
                         {
                             label: 'Create Tag',
@@ -28,12 +40,17 @@ export default {
                         }
                     ];
 
-                    const element = document.elementFromPoint(p.x, p.y);
+                    if (isElementNotebook) {
+                        items.push({
+                            label: 'Edit Notebook',
+                            click: () => {
+                                s.dispatch('editor/updateNotebook', id);
+                            }
+                        });
+                    }
 
                     // if tag, offer option to delete
-                    if (element?.classList.contains('global-navigation-tag')) {
-                        const id = element.getAttribute('data-id');
-
+                    if (isElementTag) {
                         items.push({
                             label: 'Edit Tag',
                             click: () => {

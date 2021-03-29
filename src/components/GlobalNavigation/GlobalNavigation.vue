@@ -10,9 +10,9 @@
                 </div>
             </li>
 
-            <global-navigation-notebooks-section />
+            <global-navigation-notebook-section />
 
-            <global-navigation-tags-section />
+            <global-navigation-tag-section />
 
             <li class="m-1 is-uppercase has-text-grey is-size-7">
                 <div>
@@ -38,8 +38,8 @@
 import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide, onMounted } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import { useStore } from 'vuex';
-import GlobalNavigationTagsSection from '@/components/GlobalNavigation/GlobalNavigationTagsSection.vue';
-import GlobalNavigationNotebooksSection from '@/components/GlobalNavigation/GlobalNavigationNotebooksSection.vue';
+import GlobalNavigationTagSection from '@/components/GlobalNavigation/GlobalNavigationTagSection.vue';
+import GlobalNavigationNotebookSection from '@/components/GlobalNavigation/GlobalNavigationNotebookSection.vue';
 
 export default defineComponent({
     setup: function() {
@@ -65,6 +65,6 @@ export default defineComponent({
             store: s
         };
     },
-    components: { Resizable, GlobalNavigationTagsSection, GlobalNavigationNotebooksSection }
+    components: { Resizable, GlobalNavigationTagSection, GlobalNavigationNotebookSection }
 });
 </script>

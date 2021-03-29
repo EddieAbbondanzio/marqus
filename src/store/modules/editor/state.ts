@@ -37,21 +37,23 @@ export interface EditorState {
     activeFile: string | null;
     globalNavigation: GlobalNavigation;
     localNavigation: LocalNavigation;
+    loaded: boolean;
 }
 
 export const state: EditorState = {
     mode: 'view',
     activeFile: null,
+    loaded: false,
     globalNavigation: {
         notebooks: {
             expanded: false,
             entries: [],
-            input: {}
+            input: { mode: null! }
         },
         tags: {
             expanded: false,
             entries: [],
-            input: {}
+            input: { mode: null! }
         },
         width: '300px'
     },

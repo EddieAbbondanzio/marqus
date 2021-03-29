@@ -20,6 +20,7 @@ export const mutations: MutationTree<EditorState> = {
     TOGGLE_MODE: (s, p) => (s.mode = s.mode === 'edit' ? 'view' : 'edit'),
     SET_STATE: (state, config) => {
         Object.assign(state, config);
+        state.loaded = true;
     },
     UPDATE_STATE: (state, kv: { key: string; value: any }) => {
         // i = 'a.b.c' -> a['a']['b']['c'] = v
@@ -97,7 +98,7 @@ export const mutations: MutationTree<EditorState> = {
     DELETE_ALL_TAGS(state) {
         state.globalNavigation.tags.entries.length = 0;
     },
-    EXPAND_NOTBOOKS: (s) => (s.globalNavigation.notebooks.expanded = true),
+    EXPAND_NOTEBOOKS: (s) => (s.globalNavigation.notebooks.expanded = true),
     CREATE_NOTEBOOK(state, parentId?: string) {
         state.globalNavigation.notebooks.input = {
             id: id(),
@@ -131,7 +132,7 @@ export const mutations: MutationTree<EditorState> = {
             parent.children.push(n);
         }
 
-        state.globalNavigation.tags.input = {};
+        state.globalNavigation.notebooks.input = {};
     },
     CREATE_NOTEBOOK_CANCEL(state) {
         state.globalNavigation.notebooks.input = {};
@@ -151,7 +152,9 @@ export const mutations: MutationTree<EditorState> = {
             state.globalNavigation.notebooks.entries,
             state.globalNavigation.notebooks.input.id!
         )!;
+
         n.value = input.value!;
+        state.globalNavigation.notebooks.input = {};
     },
     UPDATE_NOTEBOOK_CANCEL(state) {
         state.globalNavigation.notebooks.input = {};
