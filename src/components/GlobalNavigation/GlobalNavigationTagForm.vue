@@ -1,17 +1,9 @@
 <template>
+    <!-- If you don't have a submit listener, vee-validate won't .preventDefault() it.-->
     <Form @submit="() => 1">
         <Field name="Tag" v-model="inputValue" v-slot="{ field }" :rules="unique">
             <input type="text" v-bind="field" @keyup.enter="$emit('submit')" v-focus @keyup.esc="$emit('cancel')" />
-            <a
-                href="#"
-                class="mx-1 has-text-grey has-text-hover-success"
-                @click="
-                    () => {
-                        cat++;
-                        $emit('submit');
-                    }
-                "
-            >
+            <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="() => $emit('submit')">
                 <span class="icon is-small">
                     <i class="fas fa-check" />
                 </span>
@@ -63,8 +55,7 @@ export default defineComponent({
         return {
             input,
             inputValue,
-            unique,
-            cat: ref(0)
+            unique
         };
     },
     emits: ['submit', 'cancel'],

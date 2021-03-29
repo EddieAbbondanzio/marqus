@@ -98,6 +98,15 @@ export const mutations: MutationTree<EditorState> = {
     DELETE_ALL_TAGS(state) {
         state.globalNavigation.tags.entries.length = 0;
     },
+    SET_NOTEBOOK_EXPAND(s, { id, value }: { id: string; value: boolean }) {
+        const n = findNotebookRecursive(s.globalNavigation.notebooks.entries, id);
+
+        if (n == null) {
+            throw new Error('Cannot expand what we cannot find');
+        }
+
+        n.expanded = value;
+    },
     EXPAND_NOTEBOOKS: (s) => (s.globalNavigation.notebooks.expanded = true),
     CREATE_NOTEBOOK(state, parentId?: string) {
         state.globalNavigation.notebooks.input = {
@@ -139,6 +148,7 @@ export const mutations: MutationTree<EditorState> = {
     },
     UPDATE_NOTEBOOK(state, id: string) {
         const n = findNotebookRecursive(state.globalNavigation.notebooks.entries, id);
+        console.log('update!', id);
         state.globalNavigation.notebooks.input = { mode: 'update', ...n };
     },
     UPDATE_NOTEBOOK_CONFIRM(state) {

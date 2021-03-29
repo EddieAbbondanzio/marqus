@@ -1,5 +1,7 @@
 <template>
     <li class="m-1 has-text-grey is-size-7">
+        input: {{ input.id }}
+
         <collapse v-model="expanded">
             <template #trigger>
                 <div class="is-flex is-align-center">
@@ -12,50 +14,14 @@
 
             <ul class="is-size-7" style="margin-left: 24px;">
                 <li class="mb-1">
-                    <Form @submit="confirmCreate" v-slot="{ submitForm }" v-if="input.mode === 'create'">
-                        <Field name="Notebook" v-model="inputValue" v-slot="{ field }" :rules="unique">
-                            <input type="text" v-bind="field" v-focus @keyup.esc="cancelCreate" />
-                            <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm">
-                                <span class="icon is-small">
-                                    <i class="fas fa-check" />
-                                </span>
-                            </a>
-                            <a href="#" class="has-text-grey has-text-hover-danger" @click="cancelCreate">
-                                <span class="icon is-small">
-                                    <i class="fas fa-ban" />
-                                </span>
-                            </a>
-                        </Field>
-                        <ErrorMessage name="Notebook" v-slot="{ message }">
-                            <p class="has-text-danger">{{ message }}</p>
-                        </ErrorMessage>
-                    </Form>
+                    <GlobalNavigationNotebookForm
+                        v-if="notebookInputMode === 'create'"
+                        @submit="confirmCreate"
+                        @cancel="cancelCreate"
+                    />
                 </li>
                 <li class=" mb-1" v-for="notebook in notebooks" :key="notebook.id">
-                    <Form
-                        v-if="input.mode == 'update' && input.id === notebook.id"
-                        @submit="confirmUpdate"
-                        v-slot="{ submitForm }"
-                    >
-                        <Field name="Notebook" v-model="inputValue" v-slot="{ field }" :rules="unique">
-                            <input type="text" v-bind="field" v-focus @keyup.esc="cancelUpdate" />
-                            <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm">
-                                <span class="icon is-small">
-                                    <i class="fas fa-check" />
-                                </span>
-                            </a>
-                            <a href="#" class="has-text-grey has-text-hover-danger" @click="cancelUpdate">
-                                <span class="icon is-small">
-                                    <i class="fas fa-ban" />
-                                </span>
-                            </a>
-                        </Field>
-                        <ErrorMessage name="Notebook" v-slot="{ message }">
-                            <p class="has-text-danger">{{ message }}</p>
-                        </ErrorMessage>
-                    </Form>
-
-                    <global-navigation-notebook v-else :modelValue="notebook" />
+                    <global-navigation-notebook :modelValue="notebook" />
                 </li>
             </ul>
         </collapse>
@@ -69,6 +35,7 @@ import { useStore } from 'vuex';
 import { useField, Field, ErrorMessage, Form } from 'vee-validate';
 import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationNotebook from '@/components/GlobalNavigation/GlobalNavigationNotebook.vue';
+import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
 
 export default defineComponent({
     setup: function() {
@@ -106,8 +73,8 @@ export default defineComponent({
 
         const confirmCreate = () => s.dispatch('editor/createNotebookConfirm');
         const cancelCreate = () => s.dispatch('editor/createNotebookCancel');
-        const confirmUpdate = () => s.dispatch('editor/updateNotebookConfirm');
-        const cancelUpdate = () => s.dispatch('editor/updateNotebookCancel');
+
+        const notebookInputMode = computed(() => s.state.editor.globalNavigation.notebooks.input.mode);
 
         return {
             expanded,
@@ -115,12 +82,11 @@ export default defineComponent({
             unique,
             confirmCreate,
             cancelCreate,
-            confirmUpdate,
-            cancelUpdate,
             input,
-            inputValue
+            inputValue,
+            notebookInputMode
         };
     },
-    components: { Collapse, Field, ErrorMessage, Form, GlobalNavigationNotebook }
+    components: { Collapse, GlobalNavigationNotebook, GlobalNavigationNotebookForm }
 });
 </script>

@@ -29,8 +29,8 @@ export const actions: ActionTree<EditorState, State> = {
         /*
          * There be dragons here. This is written in a way to prevent a
          * race condition from occuring when writing the file. Race conditions
-         * will corrupt the JSON because more than 1 process was writing the
-         * file at the same time.
+         * will corrupt the JSON because more than 1 process is writing the
+         * file at the same time causing for overlaps, etc.
          */
 
         if (saving.current == null) {
