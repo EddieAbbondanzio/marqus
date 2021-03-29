@@ -48,6 +48,13 @@ export default {
                                 s.dispatch('editor/updateNotebook', id);
                             }
                         });
+
+                        items.push({
+                            label: 'Delete Notebook',
+                            click: () => {
+                                s.dispatch('editor/deleteNotebook', id);
+                            }
+                        });
                     }
 
                     // if tag, offer option to delete
