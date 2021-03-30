@@ -25,7 +25,7 @@
                         @cancel="cancelUpdate"
                     />
 
-                    <a v-else class="has-text-grey" @click="() => (active = tag.id)">
+                    <a v-else class="no-drag has-text-grey" @click="() => (active = tag.id)">
                         <p class="global-navigation-tag global-navigation-item" :data-id="tag.id">
                             {{ tag.value }}
                         </p>

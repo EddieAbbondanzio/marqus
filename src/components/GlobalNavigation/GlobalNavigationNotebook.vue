@@ -7,7 +7,7 @@
                     @submit="confirmUpdate"
                     @cancel="cancelUpdate"
                 />
-                <a v-else class="has-text-grey" @click="() => (active = modelValue.id)">
+                <a v-else class="no-drag has-text-grey" @click="() => (active = modelValue.id)">
                     <p
                         :class="[
                             'global-navigation-notebook',
@@ -33,7 +33,7 @@
             @submit="confirmUpdate"
             @cancel="cancelUpdate"
         />
-        <a v-else class="has-text-grey" @click="() => (active = modelValue.id)">
+        <a v-else class="no-drag has-text-grey" @click="() => (active = modelValue.id)">
             <p
                 class="global-navigation-notebook global-navigation-item has-background-hover-light"
                 :style="`padding-left: ${depth * 24}px`"

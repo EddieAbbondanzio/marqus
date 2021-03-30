@@ -1,10 +1,9 @@
 <template>
     <div class="collapse-wrapper">
         <a
-            href="#"
             @click="$emit('update:modelValue', !modelValue)"
             :class="
-                `${triggerClass} collapse-trigger is-flex is-align-center is-justify-space-between has-text-grey pr-1`
+                `${triggerClass} no-drag collapse-trigger is-flex is-align-center is-justify-space-between has-text-grey pr-1`
             "
         >
             <slot name="trigger"></slot>
