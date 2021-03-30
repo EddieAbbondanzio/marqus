@@ -7,14 +7,19 @@
                     @submit="confirmUpdate"
                     @cancel="cancelUpdate"
                 />
-                <p
-                    v-else
-                    class="global-navigation-notebook global-navigation-item"
-                    :data-id="modelValue.id"
-                    :style="`padding-left: ${depth * 24}px`"
-                >
-                    {{ modelValue.value }}
-                </p>
+                <a v-else class="has-text-grey" @click="() => (active = modelValue.id)">
+                    <p
+                        :class="[
+                            'global-navigation-notebook',
+                            'global-navigation-item',
+                            { 'has-background-light': active == modelValue.id }
+                        ]"
+                        :data-id="modelValue.id"
+                        :style="`padding-left: ${depth * 24}px`"
+                    >
+                        {{ modelValue.value }}
+                    </p>
+                </a>
             </div>
         </template>
 
@@ -22,20 +27,21 @@
             <GlobalNavigationNotebook :modelValue="child" :depth="depth + 1" />
         </ul>
     </Collapse>
-    <li v-else class="is-flex-grow-1">
+    <li v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">
         <GlobalNavigationNotebookForm
             v-if="isNotebookBeingUpdated(modelValue.id)"
             @submit="confirmUpdate"
             @cancel="cancelUpdate"
         />
-        <p
-            v-else
-            class="global-navigation-notebook global-navigation-item has-background-hover-light"
-            :style="`padding-left: ${depth * 24}px`"
-            :data-id="modelValue.id"
-        >
-            {{ modelValue.value }}
-        </p>
+        <a v-else class="has-text-grey" @click="() => (active = modelValue.id)">
+            <p
+                class="global-navigation-notebook global-navigation-item has-background-hover-light"
+                :style="`padding-left: ${depth * 24}px`"
+                :data-id="modelValue.id"
+            >
+                {{ modelValue.value }}
+            </p>
+        </a>
     </li>
 </template>
 
@@ -97,6 +103,11 @@ export default defineComponent({
         const isNotebookBeingUpdated = s.getters['editor/isNotebookBeingUpdated'];
         const notebookInputMode = computed(() => s.state.editor.globalNavigation.notebooks.input.mode);
 
+        const active = computed({
+            get: () => s.state.editor.globalNavigation.active,
+            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
+        });
+
         return {
             expanded,
             notebooks,
@@ -108,7 +119,8 @@ export default defineComponent({
             input,
             isNotebookBeingUpdated,
             inputValue,
-            notebookInputMode
+            notebookInputMode,
+            active
         };
     },
     components: { Collapse, GlobalNavigationNotebookForm }

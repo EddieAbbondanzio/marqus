@@ -26,6 +26,10 @@ interface GlobalNavigation {
     width: string;
     notebooks: GlobalNavigationNotebookSection;
     tags: GlobalNavigationTagSection;
+    /**
+     * Id of the active tag, or notebook, or name of the active option
+     */
+    active?: string;
 }
 
 interface LocalNavigation {

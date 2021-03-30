@@ -18,20 +18,18 @@
                         @cancel="cancelCreate"
                     />
                 </li>
-                <li v-for="tag in tags" :key="tag.id">
+                <li v-for="tag in tags" :key="tag.id" :class="{ 'has-background-light': active == tag.id }">
                     <GlobalNavigationTagForm
                         v-if="isTagBeingUpdated(tag.id)"
                         @submit="confirmUpdate"
                         @cancel="cancelUpdate"
                     />
 
-                    <p
-                        v-else
-                        class="global-navigation-tag has-background-hover-light global-navigation-item"
-                        :data-id="tag.id"
-                    >
-                        {{ tag.value }}
-                    </p>
+                    <a v-else class="has-text-grey" @click="() => (active = tag.id)">
+                        <p class="global-navigation-tag global-navigation-item" :data-id="tag.id">
+                            {{ tag.value }}
+                        </p>
+                    </a>
                 </li>
             </ul>
         </collapse>
@@ -73,6 +71,11 @@ export default defineComponent({
             set: (v: string) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.tags.input.value', value: v })
         });
 
+        const active = computed({
+            get: () => s.state.editor.globalNavigation.active,
+            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
+        });
+
         return {
             tags,
             tagsExpanded,
@@ -83,7 +86,8 @@ export default defineComponent({
             cancelUpdate,
             isTagBeingUpdated,
             tagInputMode,
-            input
+            input,
+            active
         };
     },
     components: { Collapse, GlobalNavigationTagForm }
