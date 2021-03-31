@@ -50,7 +50,6 @@ export const mouse = {
 
 function getAction(arg?: string): MouseAction {
     if (arg !== 'click' && arg !== 'hold' && arg !== 'release' && arg !== 'drag') {
-        console.log(arg);
         throw new Error('Action must be click, hold, drag, or release.');
     }
 

@@ -134,7 +134,6 @@ export default defineComponent({
         };
 
         const onClick = () => {
-            console.log('click!');
             s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.active', value: p.modelValue!.id });
         };
 

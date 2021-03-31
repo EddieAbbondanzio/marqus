@@ -152,7 +152,6 @@ export const mutations: MutationTree<EditorState> = {
     },
     UPDATE_NOTEBOOK(state, id: string) {
         const n = findNotebookRecursive(state.globalNavigation.notebooks.entries, id);
-        console.log('update!', id);
         state.globalNavigation.notebooks.input = { mode: 'update', ...n };
     },
     UPDATE_NOTEBOOK_CONFIRM(state) {
@@ -197,7 +196,6 @@ export const mutations: MutationTree<EditorState> = {
         state.globalNavigation.notebooks.entries.splice(index, 1);
     },
     DRAG_NOTEBOOK_START(state, dragging: { start: Notebook; parent: Notebook }) {
-        console.log('drag start: ', state.globalNavigation.notebooks.dragging);
         state.globalNavigation.notebooks.dragging = dragging;
     },
     DRAG_NOTEBOOK_STOP(state, endedOnId: string | null) {
