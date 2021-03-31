@@ -1,5 +1,9 @@
 <template>
-    <Collapse v-if="modelValue.children" v-model="expanded" triggerClass="has-background-hover-light">
+    <Collapse
+        v-if="modelValue.children != null && modelValue.children.length > 0"
+        v-model="expanded"
+        triggerClass="has-background-hover-light"
+    >
         <template #trigger>
             <div class="is-flex-grow-1 has-background-transparent">
                 <GlobalNavigationNotebookForm
@@ -64,7 +68,6 @@ import { Notebook } from '@/store/modules/editor/state';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
 import { useStore } from 'vuex';
 import { isBlank } from '@/utils/is-blank';
-import { sleep } from '@/utils/sleep';
 
 export default defineComponent({
     props: {

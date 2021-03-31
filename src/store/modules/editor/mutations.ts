@@ -219,6 +219,10 @@ export const mutations: MutationTree<EditorState> = {
                 const oldIndex = dragging.parent.children!.findIndex((c) => c.id === dragging.start.id);
                 dragging.parent.children!.splice(oldIndex, 1);
                 console.log('removed from old parent');
+
+                if (dragging.parent.children?.length === 0) {
+                    dragging.parent.expanded = false;
+                }
             }
             // No parent, we gotta remove it from the root array
             else {
