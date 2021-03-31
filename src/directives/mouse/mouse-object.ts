@@ -17,6 +17,7 @@ export class MouseObject {
     element: HTMLElement;
     mouseDown = false;
     holding = false;
+    moved = false;
 
     private subscribers: MouseObjectSubscriber[];
 
@@ -74,13 +75,6 @@ function onMouseDown(this: any, event: globalThis.MouseEvent) {
     event.stopImmediatePropagation();
     mouseObjectManager.active = this.mouseObject as MouseObject;
     mouseObjectManager.active.mouseDown = true;
-
-    mouseObjectManager.timer = setTimeout(() => {
-        mouseObjectManager.active!.holding = true;
-
-        const button = getButton(event.button);
-        mouseObjectManager.active!.notify('hold', button, event);
-    }, HOLD_MIN);
 }
 
 /**
@@ -92,19 +86,18 @@ function onMouseMove(this: any, event: globalThis.MouseEvent) {
     event.stopImmediatePropagation();
     const mouseObject = mouseObjectManager.active as MouseObject;
 
-    if (mouseObject == null || !mouseObject.mouseDown) {
-        return;
+    // If mouse is down, and moved assume drag
+    if (mouseObject != null && mouseObject.mouseDown) {
+        const button = getButton(event.button);
+
+        if (!mouseObject.holding) {
+            mouseObject.holding = true;
+            mouseObject.notify('hold', button, event);
+        }
+
+        mouseObject.notify('drag', button, event);
+        console.log('drag');
     }
-
-    const button = getButton(event.button);
-
-    // Trigger the hold event, as soon as a drag starts
-    if (!mouseObject.holding) {
-        mouseObject.holding = true;
-        mouseObject.notify('hold', button, event);
-    }
-
-    mouseObject.notify('drag', button, event);
 }
 
 /**
@@ -114,21 +107,21 @@ function onMouseMove(this: any, event: globalThis.MouseEvent) {
  */
 function onMouseUp(this: any, event: globalThis.MouseEvent) {
     event.stopImmediatePropagation();
-    if (mouseObjectManager.timer != null) {
-        const button = getButton(event.button);
-        const mouseObject = mouseObjectManager.active as MouseObject;
+    // if (mouseObjectManager.timer != null) {
+    const button = getButton(event.button);
+    const mouseObject = mouseObjectManager.active as MouseObject;
 
-        if (!mouseObject.holding) {
-            mouseObject.notify('click', button, event);
-        } else {
-            mouseObject.notify('release', button, event);
-        }
-
-        clearTimeout(mouseObjectManager.timer);
-        mouseObjectManager.timer = null;
-        mouseObject.holding = false;
-        mouseObject.mouseDown = false;
+    if (!mouseObject.holding) {
+        mouseObject.notify('click', button, event);
+        console.log('click');
+    } else {
+        mouseObject.notify('release', button, event);
+        console.log('release');
     }
+
+    mouseObject.holding = false;
+    mouseObject.mouseDown = false;
+    // }
 }
 
 function getButton(index: number): MouseButton {

@@ -197,7 +197,7 @@ export const mutations: MutationTree<EditorState> = {
         state.globalNavigation.notebooks.entries.splice(index, 1);
     },
     DRAG_NOTEBOOK_START(state, dragging: { start: Notebook; parent: Notebook }) {
-        console.log('drag start: ', dragging);
+        console.log('drag start: ', state.globalNavigation.notebooks.dragging);
         state.globalNavigation.notebooks.dragging = dragging;
     },
     DRAG_NOTEBOOK_STOP(state, endedOnId: string | null) {
@@ -212,13 +212,10 @@ export const mutations: MutationTree<EditorState> = {
          * we are attempting to move a parent to a child of it.
          */
         if (dragging.start.id !== endedOnId && findNotebookRecursive(dragging.start.children!, endedOnId!) == null) {
-            console.log('valid move');
-
             // Remove from old parent if needed
             if (dragging.parent != null) {
                 const oldIndex = dragging.parent.children!.findIndex((c) => c.id === dragging.start.id);
                 dragging.parent.children!.splice(oldIndex, 1);
-                console.log('removed from old parent');
 
                 if (dragging.parent.children?.length === 0) {
                     dragging.parent.expanded = false;
@@ -228,12 +225,10 @@ export const mutations: MutationTree<EditorState> = {
             else {
                 const oldIndex = state.globalNavigation.notebooks.entries.findIndex((n) => n.id === dragging.start.id);
                 state.globalNavigation.notebooks.entries.splice(oldIndex, 1);
-                console.log('removed from root');
             }
 
             // Didn't end on a notebook. Assume it should be placed in root.
             if (endedOnId == null) {
-                console.log('added to root');
                 state.globalNavigation.notebooks.entries.push(dragging.start);
             } else {
                 const endedOn = findNotebookRecursive(state.globalNavigation.notebooks.entries, endedOnId)!;
@@ -243,10 +238,9 @@ export const mutations: MutationTree<EditorState> = {
                 }
 
                 endedOn.children.push(dragging.start);
-                console.log('added to new parent!');
             }
         }
 
-        state.globalNavigation.notebooks.dragging = null!;
+        state.globalNavigation.notebooks.dragging = undefined;
     }
 };

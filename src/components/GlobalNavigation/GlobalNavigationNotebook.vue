@@ -14,7 +14,7 @@
                 <a
                     v-else
                     class="no-drag has-text-grey"
-                    v-mouse:click="() => (active = modelValue.id)"
+                    v-mouse:click="onClick"
                     v-mouse:hold="onHold"
                     v-mouse:release="onRelease"
                 >
@@ -46,7 +46,7 @@
         <a
             v-else
             class="no-drag has-text-grey"
-            v-mouse:click="() => (active = modelValue.id)"
+            v-mouse:click="onClick"
             v-mouse:hold="onHold"
             v-mouse:release="onRelease"
         >
@@ -133,6 +133,11 @@ export default defineComponent({
             s.commit('editor/DRAG_NOTEBOOK_STOP', (ev.target as HTMLElement).getAttribute('data-id'));
         };
 
+        const onClick = () => {
+            console.log('click!');
+            s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.active', value: p.modelValue!.id });
+        };
+
         return {
             expanded,
             notebooks,
@@ -147,7 +152,8 @@ export default defineComponent({
             notebookInputMode,
             active,
             onHold,
-            onRelease
+            onRelease,
+            onClick
         };
     },
     components: { Collapse, GlobalNavigationNotebookForm }
