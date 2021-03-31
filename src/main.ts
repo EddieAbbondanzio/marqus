@@ -9,6 +9,7 @@ import '@fortawesome/fontawesome-free/js/all.js';
 import contextMenu from 'electron-context-menu';
 import { defineRule } from 'vee-validate';
 import AllRules from '@vee-validate/rules';
+import { mouse } from './directives/mouse/mouse';
 
 Object.keys(AllRules).forEach((rule) => {
     defineRule(rule, AllRules[rule]);
@@ -33,3 +34,5 @@ app.directive('focus', {
         el.focus();
     }
 });
+
+app.directive('mouse', mouse);

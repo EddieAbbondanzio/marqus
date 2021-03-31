@@ -3,6 +3,10 @@ import { MutationTree } from 'vuex';
 import { EditorState, Notebook, Tag } from './state';
 
 function findNotebookRecursive(notebooks: Notebook[], id: string): Notebook | undefined {
+    if (notebooks == null) {
+        return undefined;
+    }
+
     for (let i = 0; i < notebooks.length; i++) {
         if (notebooks[i].id === id) {
             return notebooks[i];
@@ -191,5 +195,54 @@ export const mutations: MutationTree<EditorState> = {
         }
 
         state.globalNavigation.notebooks.entries.splice(index, 1);
+    },
+    DRAG_NOTEBOOK_START(state, dragging: { start: Notebook; parent: Notebook }) {
+        console.log('drag start: ', dragging);
+        state.globalNavigation.notebooks.dragging = dragging;
+    },
+    DRAG_NOTEBOOK_STOP(state, endedOnId: string | null) {
+        const dragging = state.globalNavigation.notebooks.dragging;
+
+        if (dragging == null) {
+            throw new Error('No drag to finalize.');
+        }
+
+        /*
+         * Don't allow a move if we started and stopped on the same element, or if
+         * we are attempting to move a parent to a child of it.
+         */
+        if (dragging.start.id !== endedOnId && findNotebookRecursive(dragging.start.children!, endedOnId!) == null) {
+            console.log('valid move');
+
+            // Remove from old parent if needed
+            if (dragging.parent != null) {
+                const oldIndex = dragging.parent.children!.findIndex((c) => c.id === dragging.start.id);
+                dragging.parent.children!.splice(oldIndex, 1);
+                console.log('removed from old parent');
+            }
+            // No parent, we gotta remove it from the root array
+            else {
+                const oldIndex = state.globalNavigation.notebooks.entries.findIndex((n) => n.id === dragging.start.id);
+                state.globalNavigation.notebooks.entries.splice(oldIndex, 1);
+                console.log('removed from root');
+            }
+
+            // Didn't end on a notebook. Assume it should be placed in root.
+            if (endedOnId == null) {
+                console.log('added to root');
+                state.globalNavigation.notebooks.entries.push(dragging.start);
+            } else {
+                const endedOn = findNotebookRecursive(state.globalNavigation.notebooks.entries, endedOnId)!;
+
+                if (endedOn.children == null) {
+                    endedOn.children = [];
+                }
+
+                endedOn.children.push(dragging.start);
+                console.log('added to new parent!');
+            }
+        }
+
+        state.globalNavigation.notebooks.dragging = null!;
     }
 };

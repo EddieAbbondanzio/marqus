@@ -7,7 +7,13 @@
                     @submit="confirmUpdate"
                     @cancel="cancelUpdate"
                 />
-                <a v-else class="no-drag has-text-grey" @click="() => (active = modelValue.id)">
+                <a
+                    v-else
+                    class="no-drag has-text-grey"
+                    v-mouse:click="() => (active = modelValue.id)"
+                    v-mouse:hold="onHold"
+                    v-mouse:release="onRelease"
+                >
                     <p
                         :class="[
                             'global-navigation-notebook',
@@ -24,7 +30,7 @@
         </template>
 
         <ul class="is-size-7" v-for="child in modelValue.children" :key="child.id">
-            <GlobalNavigationNotebook :modelValue="child" :depth="depth + 1" />
+            <GlobalNavigationNotebook :modelValue="child" :parent="modelValue" :depth="depth + 1" />
         </ul>
     </Collapse>
     <li v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">
@@ -33,7 +39,13 @@
             @submit="confirmUpdate"
             @cancel="cancelUpdate"
         />
-        <a v-else class="no-drag has-text-grey" @click="() => (active = modelValue.id)">
+        <a
+            v-else
+            class="no-drag has-text-grey"
+            v-mouse:click="() => (active = modelValue.id)"
+            v-mouse:hold="onHold"
+            v-mouse:release="onRelease"
+        >
             <p
                 class="global-navigation-notebook global-navigation-item has-background-hover-light"
                 :style="`padding-left: ${depth * 24}px`"
@@ -52,10 +64,12 @@ import { Notebook } from '@/store/modules/editor/state';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
 import { useStore } from 'vuex';
 import { isBlank } from '@/utils/is-blank';
+import { sleep } from '@/utils/sleep';
 
 export default defineComponent({
     props: {
         modelValue: Object,
+        parent: Object,
         depth: {
             type: Number,
             default: 1
@@ -108,6 +122,14 @@ export default defineComponent({
             set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
         });
 
+        const onHold = () => {
+            s.commit('editor/DRAG_NOTEBOOK_START', { start: p.modelValue, parent: p.parent });
+        };
+
+        const onRelease = (el: HTMLElement, ev: MouseEvent) => {
+            s.commit('editor/DRAG_NOTEBOOK_STOP', (ev.target as HTMLElement).getAttribute('data-id'));
+        };
+
         return {
             expanded,
             notebooks,
@@ -120,7 +142,9 @@ export default defineComponent({
             isNotebookBeingUpdated,
             inputValue,
             notebookInputMode,
-            active
+            active,
+            onHold,
+            onRelease
         };
     },
     components: { Collapse, GlobalNavigationNotebookForm }

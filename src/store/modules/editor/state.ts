@@ -13,6 +13,7 @@ export interface Tag {
 interface GlobalNavigationNotebookSection {
     expanded: boolean;
     input: Partial<Notebook> & { mode?: 'create' | 'update'; parentId?: string };
+    dragging?: { start: Notebook; parent?: Notebook };
     entries: Notebook[];
 }
 

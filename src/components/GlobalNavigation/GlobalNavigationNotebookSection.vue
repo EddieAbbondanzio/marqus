@@ -19,7 +19,7 @@
                     />
                 </li>
                 <li v-for="notebook in notebooks" :key="notebook.id">
-                    <global-navigation-notebook :modelValue="notebook" />
+                    <GlobalNavigationNotebook :modelValue="notebook" />
                 </li>
             </ul>
         </collapse>
