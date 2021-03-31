@@ -185,6 +185,11 @@ export const mutations: MutationTree<EditorState> = {
                 }
             }
         }
+
+        // Sort root
+        state.globalNavigation.notebooks.entries.sort((a, b) =>
+            a.value.toUpperCase().localeCompare(b.value.toUpperCase())
+        );
     },
     DELETE_NOTEBOOK(state, id) {
         const index = state.globalNavigation.notebooks.entries.findIndex((t) => t.id === id);

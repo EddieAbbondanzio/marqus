@@ -131,6 +131,7 @@ export default defineComponent({
 
         const onRelease = (el: HTMLElement, ev: MouseEvent) => {
             s.commit('editor/DRAG_NOTEBOOK_STOP', (ev.target as HTMLElement).getAttribute('data-id'));
+            s.commit('editor/SORT_NOTEBOOKS');
         };
 
         const onClick = () => {

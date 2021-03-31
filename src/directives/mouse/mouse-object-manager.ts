@@ -34,7 +34,7 @@ export const mouseObjectManager = new MouseObjectManager();
  * @param event MouseEvent details
  */
 function onMouseMove(this: any, event: globalThis.MouseEvent) {
-    // event.stopImmediatePropagation();
+    event.stopImmediatePropagation();
     const mouseObject = mouseObjectManager.active as MouseObject;
 
     // If mouse is down, and moved assume drag
