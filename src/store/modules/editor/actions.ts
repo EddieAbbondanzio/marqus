@@ -24,7 +24,8 @@ export const actions: ActionTree<EditorState, State> = {
         const dataDirectory = context.rootState.config.dataDirectory;
         const filePath = path.join(dataDirectory, STATE_FILE_NAME);
 
-        state.loaded = undefined!;
+        const state = JSON.parse(JSON.stringify(context.state));
+        state.globalNavigation.notebooks.dragging = undefined;
 
         /*
          * There be dragons here. This is written in a way to prevent a
