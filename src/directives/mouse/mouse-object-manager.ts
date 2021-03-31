@@ -39,6 +39,8 @@ function onMouseMove(this: any, event: globalThis.MouseEvent) {
 
     // If mouse is down, and moved assume drag
     if (mouseObject != null && mouseObject.mouseDown) {
+        document.body.setAttribute('data-dragging', 'true');
+
         const button = getButton(event.button);
 
         if (!mouseObject.holding) {
@@ -48,6 +50,8 @@ function onMouseMove(this: any, event: globalThis.MouseEvent) {
 
         mouseObject.notify('drag', button, event);
     }
+
+    console.log(document.body.style.cursor);
 }
 
 /**
@@ -65,6 +69,7 @@ function onMouseUp(this: any, event: globalThis.MouseEvent) {
         mouseObject.notify('click', button, event);
     } else {
         mouseObject.notify('release', button, event);
+        document.body.removeAttribute('data-dragging');
     }
 
     mouseObject.holding = false;
