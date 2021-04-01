@@ -7,6 +7,7 @@
         <template #trigger>
             <div class="is-flex-grow-1 has-background-transparent">
                 <GlobalNavigationNotebookForm
+                    :depth="depth"
                     v-if="isNotebookBeingUpdated(modelValue.id)"
                     @submit="confirmUpdate"
                     @cancel="cancelUpdate"
@@ -116,7 +117,7 @@ export default defineComponent({
         const confirmUpdate = () => s.dispatch('app/updateNotebookConfirm');
         const cancelUpdate = () => s.dispatch('app/updateNotebookCancel');
 
-        const isNotebookBeingUpdated = s.getters['editor/isNotebookBeingUpdated'];
+        const isNotebookBeingUpdated = s.getters['app/isNotebookBeingUpdated'];
         const notebookInputMode = computed(() => s.state.app.globalNavigation.notebooks.input.mode);
 
         const active = computed({

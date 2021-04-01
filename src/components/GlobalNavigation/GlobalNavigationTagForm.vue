@@ -1,22 +1,24 @@
 <template>
     <!-- If you don't have a submit listener, vee-validate won't .preventDefault() it.-->
     <Form @submit="() => 1">
-        <Field name="Tag" v-model="inputValue" v-slot="{ field }" :rules="unique">
-            <input type="text" v-bind="field" @keyup.enter="$emit('submit')" v-focus @keyup.esc="$emit('cancel')" />
-            <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="() => $emit('submit')">
-                <span class="icon is-small">
-                    <i class="fas fa-check" />
-                </span>
-            </a>
-            <a href="#" class="has-text-grey has-text-hover-danger" @click="$emit('cancel')">
-                <span class="icon is-small">
-                    <i class="fas fa-ban" />
-                </span>
-            </a>
-        </Field>
-        <ErrorMessage name="Tag" v-slot="{ message }">
-            <p class="has-text-danger">{{ message }}</p>
-        </ErrorMessage>
+        <div :style="{ paddingLeft: `${depth * 24}px` }">
+            <Field name="Tag" v-model="inputValue" v-slot="{ field }" :rules="unique">
+                <input type="text" v-bind="field" @keyup.enter="$emit('submit')" v-focus @keyup.esc="$emit('cancel')" />
+                <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="() => $emit('submit')">
+                    <span class="icon is-small">
+                        <i class="fas fa-check" />
+                    </span>
+                </a>
+                <a href="#" class="has-text-grey has-text-hover-danger" @click="$emit('cancel')">
+                    <span class="icon is-small">
+                        <i class="fas fa-ban" />
+                    </span>
+                </a>
+            </Field>
+            <ErrorMessage name="Tag" v-slot="{ message }">
+                <p class="has-text-danger">{{ message }}</p>
+            </ErrorMessage>
+        </div>
     </Form>
 </template>
 
