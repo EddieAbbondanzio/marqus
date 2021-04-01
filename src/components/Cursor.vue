@@ -18,7 +18,7 @@ export default defineComponent({
         const s = useStore();
         const title = ref(null);
         const show = computed(() => title.value !== null);
-        let cursorClass = 'has-cursor-pointer';
+        let cursorClass = 'has-cursor-default';
 
         const release = s.subscribe((m, s) => {
             switch (m.type) {
@@ -42,7 +42,7 @@ export default defineComponent({
                     // Remove old one first
                     document.body.classList.remove(cursorClass);
 
-                    cursorClass = 'has-cursor-pointer';
+                    cursorClass = 'has-cursor-default';
                     document.body.classList.add(cursorClass);
                     break;
             }
@@ -72,6 +72,9 @@ export default defineComponent({
 </script>
 
 <style lang="sass">
+.has-cursor-default
+    cursor: default!important
+
 .has-cursor-pointer
     *
         cursor: pointer!important

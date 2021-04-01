@@ -1,6 +1,5 @@
 <template>
     <resizable v-model="width" @resizeStop="save">
-        <p class="has-text-dark">{{ width }}</p>
         <div class="has-h-100 has-text-dark">
             Local
         </div>

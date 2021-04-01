@@ -3,7 +3,14 @@
     <Form @submit="() => 1">
         <div class="has-background-light" :style="{ paddingLeft: `${depth * 24}px` }">
             <Field name="Tag" v-model="inputValue" v-slot="{ field }" :rules="unique">
-                <input type="text" v-bind="field" @keyup.enter="$emit('submit')" v-focus @keyup.esc="$emit('cancel')" />
+                <input
+                    type="text"
+                    v-bind="field"
+                    style="min-width: 0; width: 0; flex-grow: 1;"
+                    @keyup.enter="$emit('submit')"
+                    v-focus
+                    @keyup.esc="$emit('cancel')"
+                />
                 <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="() => $emit('submit')">
                     <span class="icon is-small">
                         <i class="fas fa-check" />
