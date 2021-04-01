@@ -1,27 +1,29 @@
 <template>
     <!-- If you don't have a submit listener, vee-validate won't .preventDefault() it.-->
-    <Form @submit="() => 1">
+    <Form @submit="onSubmit" v-slot="{ submitForm }">
         <div class="has-background-light" :style="{ paddingLeft: `${depth * 24}px` }">
-            <Field name="Tag" v-model="inputValue" v-slot="{ field }" :rules="unique">
-                <input
-                    type="text"
-                    v-bind="field"
-                    style="min-width: 0; width: 0; flex-grow: 1;"
-                    @keyup.enter="$emit('submit')"
-                    v-focus
-                    @keyup.esc="$emit('cancel')"
-                />
-                <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="() => $emit('submit')">
-                    <span class="icon is-small">
-                        <i class="fas fa-check" />
-                    </span>
-                </a>
-                <a href="#" class="has-text-grey has-text-hover-danger" @click="$emit('cancel')">
-                    <span class="icon is-small">
-                        <i class="fas fa-ban" />
-                    </span>
-                </a>
-            </Field>
+            <div class="is-flex is-flex-row has-background-light py-1">
+                <Field name="Tag" v-model="inputValue" v-slot="{ field }" :rules="unique">
+                    <input
+                        type="text"
+                        v-bind="field"
+                        style="min-width: 0; width: 0; flex-grow: 1;"
+                        @keyup.enter="submitForm()"
+                        v-focus
+                        @keyup.esc="$emit('cancel')"
+                    />
+                    <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm()">
+                        <span class="icon is-small">
+                            <i class="fas fa-check" />
+                        </span>
+                    </a>
+                    <a href="#" class="has-text-grey has-text-hover-danger" @click="$emit('cancel')">
+                        <span class="icon is-small">
+                            <i class="fas fa-ban" />
+                        </span>
+                    </a>
+                </Field>
+            </div>
             <ErrorMessage name="Tag" v-slot="{ message }">
                 <p class="has-text-danger">{{ message }}</p>
             </ErrorMessage>
@@ -36,7 +38,7 @@ import { useStore } from 'vuex';
 import { isBlank } from '@/utils/is-blank';
 
 export default defineComponent({
-    setup() {
+    setup(p, c) {
         const s = useStore();
 
         const input = computed(() => s.state.app.globalNavigation.tags.input);
@@ -61,10 +63,16 @@ export default defineComponent({
             return true;
         };
 
+        const onSubmit = () => {
+            c.emit('submit');
+        };
+
         return {
             input,
             inputValue,
-            unique
+            unique,
+            onSubmit,
+            depth: 1
         };
     },
     emits: ['submit', 'cancel'],

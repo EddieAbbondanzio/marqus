@@ -1,8 +1,7 @@
 <template>
-    <!-- If you don't have a submit listener, vee-validate won't .preventDefault() it.-->
-    <Form @submit="() => 1">
+    <Form @submit="onSubmit" v-slot="{ submitForm }">
         <div class="has-background-light" :style="{ paddingLeft: `${depth * 24}px` }">
-            <div class="is-flex is-flex-row">
+            <div class="is-flex is-flex-row has-background-light py-1">
                 <Field name="Notebook" v-model="inputValue" v-slot="{ field }" :rules="unique">
                     <input
                         type="text"
@@ -12,7 +11,7 @@
                         v-focus
                         @keyup.esc="$emit('cancel')"
                     />
-                    <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="$emit('submit')">
+                    <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm">
                         <span class="icon is-small">
                             <i class="fas fa-check" />
                         </span>
@@ -38,7 +37,7 @@ import { useStore } from 'vuex';
 import { Field, ErrorMessage, Form } from 'vee-validate';
 
 export default defineComponent({
-    setup(p) {
+    setup(p, c) {
         const s = useStore();
 
         const input = computed(() => s.state.app.globalNavigation.notebooks.input);
@@ -64,10 +63,15 @@ export default defineComponent({
             return true;
         };
 
+        const onSubmit = () => {
+            c.emit('submit');
+        };
+
         return {
             input,
             inputValue,
-            unique
+            unique,
+            onSubmit
         };
     },
     props: {

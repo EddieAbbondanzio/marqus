@@ -64,7 +64,7 @@ export default defineComponent({
         const confirmUpdate = () => s.dispatch('app/updateTagConfirm');
         const cancelUpdate = () => s.dispatch('app/updateTagCancel');
 
-        const isTagBeingUpdated = s.getters['editor/isTagBeingUpdated'];
+        const isTagBeingUpdated = s.getters['app/isTagBeingUpdated'];
         const tagInputMode = computed(() => s.state.app.globalNavigation.tags.input.mode);
         const input = computed({
             get: () => s.state.app.globalNavigation.tags.input.value,
