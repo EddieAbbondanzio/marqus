@@ -13,7 +13,7 @@ export default defineComponent({
         const s = useStore();
         const title = ref(null);
 
-        let release = s.subscribe((m, s) => {
+        const release = s.subscribe((m, s) => {
             switch (m.type) {
                 case 'editor/SET_CURSOR_TITLE':
                     title.value = m.payload;
@@ -22,6 +22,9 @@ export default defineComponent({
                 case 'editor/CLEAR_CURSOR_TITLE':
                     title.value = null;
                     break;
+
+                case 'editor/SET_CURSOR_ICON':
+                    document.body.style.cursor = m.payload;
             }
         });
 

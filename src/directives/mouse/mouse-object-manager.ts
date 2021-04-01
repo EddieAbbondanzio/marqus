@@ -34,8 +34,13 @@ export const mouseObjectManager = new MouseObjectManager();
  * @param event MouseEvent details
  */
 function onMouseMove(this: any, event: globalThis.MouseEvent) {
-    event.stopImmediatePropagation();
     const mouseObject = mouseObjectManager.active as MouseObject;
+
+    if (mouseObject == null) {
+        return;
+    }
+
+    event.stopImmediatePropagation();
 
     // If mouse is down, and moved assume drag
     if (mouseObject != null && mouseObject.mouseDown) {
@@ -58,10 +63,14 @@ function onMouseMove(this: any, event: globalThis.MouseEvent) {
  * @param event MouseEvent details
  */
 function onMouseUp(this: any, event: globalThis.MouseEvent) {
-    event.stopImmediatePropagation();
-
-    const button = getButton(event.button);
     const mouseObject = mouseObjectManager.active as MouseObject;
+
+    if (mouseObject == null) {
+        return;
+    }
+
+    event.stopImmediatePropagation();
+    const button = getButton(event.button);
 
     if (!mouseObject.holding) {
         mouseObject.notify('click', button, event);

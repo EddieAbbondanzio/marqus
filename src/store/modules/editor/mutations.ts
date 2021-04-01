@@ -251,5 +251,8 @@ export const mutations: MutationTree<EditorState> = {
     },
     CLEAR_CURSOR_TITLE(state) {
         state.cursor.title = undefined;
+    },
+    SET_CURSOR_ICON(state, icon: string) {
+        state.cursor.icon = icon;
     }
 };

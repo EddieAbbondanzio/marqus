@@ -6,53 +6,35 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, onMounted, Ref, ref, watch } from 'vue';
+import { computed, defineComponent, getCurrentInstance, onMounted, onUnmounted, Ref, ref, watch } from 'vue';
+import { useStore } from 'vuex';
 
 export default defineComponent({
-    setup(props) {
-        const isResizing = false;
+    setup(p, c) {
+        let isResizing = false;
 
-        return {
-            isResizing
-        };
-    },
-    mounted() {
-        document.addEventListener('mousemove', this.onMouseMove);
-        document.addEventListener('mouseup', this.onMouseUp);
-    },
-    computed: {
-        style(): {} {
-            return {
-                width: this.$props.modelValue,
-                minWidth: this.$props.minWidth
-            };
-        }
-    },
-    props: {
-        modelValue: String,
-        minWidth: {
-            type: String,
-            default: '100px'
-        }
-    },
-    methods: {
-        onHandleMouseDown(e: MouseEvent) {
-            if (!this.isResizing) {
-                this.isResizing = true;
-                this.$emit('resizeStart');
+        const style = computed(() => ({ width: p.modelValue, minWidth: p.minWidth }));
+        const store = useStore();
 
-                document.body.style.cursor = 'ew-resize';
+        const onHandleMouseDown = function(e: MouseEvent) {
+            if (!isResizing) {
+                isResizing = true;
+                c.emit('resizeStart');
+                store.commit('editor/SET_CURSOR_ICON', 'ew-resize');
 
                 e.stopPropagation();
             }
-        },
-        onMouseMove(e: MouseEvent) {
-            if (this.isResizing) {
-                if (this.$refs.wrapper == null) {
+        };
+
+        const wrapper = ref(null) as any;
+
+        const onMouseMove = function(e: MouseEvent) {
+            if (isResizing) {
+                if (wrapper == null) {
                     throw new Error('No resizable container found');
                 }
 
-                const containerOffsetLeft = (this.$refs.wrapper as HTMLElement).offsetLeft;
+                const containerOffsetLeft = wrapper.value.offsetLeft;
 
                 // Get x-coordinate of pointer relative to container
                 const pointerRelativeXpos = e.clientX - containerOffsetLeft;
@@ -61,21 +43,46 @@ export default defineComponent({
                 const boxAminWidth = 2;
                 const newWidth = `${Math.max(boxAminWidth, pointerRelativeXpos)}px`;
 
-                this.$emit('update:modelValue', newWidth);
-
+                c.emit('update:modelValue', newWidth);
                 e.stopPropagation();
             }
-        },
-        onMouseUp(e: MouseEvent) {
-            if (this.isResizing) {
-                this.isResizing = false;
-                this.$emit('resizeStop');
-                document.body.style.cursor = 'pointer';
+        };
 
+        const onMouseUp = function(e: MouseEvent) {
+            if (isResizing) {
+                isResizing = false;
+                store.commit('editor/SET_CURSOR_ICON', 'default');
+
+                c.emit('resizeStop');
                 e.stopPropagation();
             }
+        };
+
+        onMounted(() => {
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        onUnmounted(() => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        });
+
+        return {
+            isResizing,
+            style,
+            onHandleMouseDown,
+            wrapper
+        };
+    },
+    props: {
+        modelValue: String,
+        minWidth: {
+            type: String,
+            default: '100px'
         }
     },
+    methods: {},
     emits: ['update:modelValue', 'resizeStart', 'resizeStop']
 });
 </script>
