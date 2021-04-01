@@ -30,11 +30,11 @@ export default defineComponent({
     setup() {
         const s = useStore();
 
-        const input = computed(() => s.state.editor.globalNavigation.tags.input);
+        const input = computed(() => s.state.app.globalNavigation.tags.input);
 
         const inputValue = computed({
-            get: () => s.state.editor.globalNavigation.tags.input?.value,
-            set: (v: string) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.tags.input.value', value: v })
+            get: () => s.state.app.globalNavigation.tags.input?.value,
+            set: (v: string) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.tags.input.value', value: v })
         });
 
         const unique = (v: any) => {
@@ -42,10 +42,10 @@ export default defineComponent({
                 return 'Tag cannot be empty';
             }
 
-            const existing = s.state.editor.globalNavigation.tags.entries.find(
+            const existing = s.state.app.globalNavigation.tags.entries.find(
                 (t: any) => t.value.toUpperCase() === v.toUpperCase()
             );
-            if (existing != null && existing.id !== s.state.editor.globalNavigation.tags.input.id) {
+            if (existing != null && existing.id !== s.state.app.globalNavigation.tags.input.id) {
                 return `Tag with value ${v} already exists`;
             }
 

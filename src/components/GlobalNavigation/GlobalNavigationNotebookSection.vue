@@ -40,18 +40,18 @@ export default defineComponent({
         const s = useStore();
 
         const expanded = computed({
-            get: () => s.state.editor.globalNavigation.notebooks.expanded,
-            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.notebooks.expanded', value: v })
+            get: () => s.state.app.globalNavigation.notebooks.expanded,
+            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.notebooks.expanded', value: v })
         });
 
-        const notebooks = computed(() => s.state.editor.globalNavigation.notebooks.entries);
+        const notebooks = computed(() => s.state.app.globalNavigation.notebooks.entries);
 
         const unique = (v: any) => {
             if (v == null || isBlank(v)) {
                 return 'Notebook cannot be empty';
             }
 
-            const existing = s.state.editor.globalNavigation.tags.entries.find(
+            const existing = s.state.app.globalNavigation.tags.entries.find(
                 (t: any) => t.value.toUpperCase() === v.toUpperCase()
             );
             if (existing != null) {
@@ -61,18 +61,18 @@ export default defineComponent({
             return true;
         };
 
-        const input = computed(() => s.state.editor.globalNavigation.notebooks.input);
+        const input = computed(() => s.state.app.globalNavigation.notebooks.input);
 
         const inputValue = computed({
-            get: () => s.state.editor.globalNavigation.notebooks.input?.value,
+            get: () => s.state.app.globalNavigation.notebooks.input?.value,
             set: (v: string) =>
-                s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.notebooks.input.value', value: v })
+                s.commit('app/UPDATE_STATE', { key: 'globalNavigation.notebooks.input.value', value: v })
         });
 
-        const confirmCreate = () => s.dispatch('editor/createNotebookConfirm');
-        const cancelCreate = () => s.dispatch('editor/createNotebookCancel');
+        const confirmCreate = () => s.dispatch('app/createNotebookConfirm');
+        const cancelCreate = () => s.dispatch('app/createNotebookCancel');
 
-        const notebookInputMode = computed(() => s.state.editor.globalNavigation.notebooks.input.mode);
+        const notebookInputMode = computed(() => s.state.app.globalNavigation.notebooks.input.mode);
 
         return {
             expanded,

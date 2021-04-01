@@ -49,16 +49,16 @@ export default defineComponent({
 
         return {
             toggleMode: function() {
-                s.commit('editor/toggleMode');
-                s.dispatch('editor/save');
+                s.commit('app/toggleMode');
+                s.dispatch('app/save');
             }
         };
     },
     computed: {
-        mode: () => (store.state.editor as any).mode,
+        mode: () => (store.state.app as any).mode,
         editButtonClasses: () => ({
-            'has-text-hover-warning': store.state.editor.mode === 'view',
-            'has-text-hover-grey': store.state.editor.mode === 'edit',
+            'has-text-hover-warning': store.state.app.mode === 'view',
+            'has-text-hover-grey': store.state.app.mode === 'edit',
             'button mb-0': true
         })
     }

@@ -64,7 +64,6 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import Collapse from '@/components/Collapse.vue';
-import { Notebook } from '@/store/modules/editor/state';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
 import { useStore } from 'vuex';
 import { isBlank } from '@/utils/is-blank';
@@ -84,17 +83,17 @@ export default defineComponent({
 
         const expanded = computed({
             get: () => p.modelValue!.expanded,
-            set: (v: any) => s.commit('editor/SET_NOTEBOOK_EXPAND', { id: p.modelValue!.id, value: v })
+            set: (v: any) => s.commit('app/SET_NOTEBOOK_EXPAND', { id: p.modelValue!.id, value: v })
         });
 
-        const notebooks = computed(() => s.state.editor.globalNavigation.notebooks.entries);
+        const notebooks = computed(() => s.state.app.globalNavigation.notebooks.entries);
 
         const unique = (v: any) => {
             if (v == null || isBlank(v)) {
                 return 'Notebook cannot be empty';
             }
 
-            const existing = s.state.editor.globalNavigation.tags.entries.find(
+            const existing = s.state.app.globalNavigation.tags.entries.find(
                 (t: any) => t.value.toUpperCase() === v.toUpperCase()
             );
             if (existing != null) {
@@ -104,40 +103,40 @@ export default defineComponent({
             return true;
         };
 
-        const input = computed(() => s.state.editor.globalNavigation.notebooks.input);
+        const input = computed(() => s.state.app.globalNavigation.notebooks.input);
 
         const inputValue = computed({
-            get: () => s.state.editor.globalNavigation.notebooks.input?.value,
+            get: () => s.state.app.globalNavigation.notebooks.input?.value,
             set: (v: string) =>
-                s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.notebooks.input.value', value: v })
+                s.commit('app/UPDATE_STATE', { key: 'globalNavigation.notebooks.input.value', value: v })
         });
 
-        const confirmCreate = () => s.dispatch('editor/createNotebookConfirm');
-        const cancelCreate = () => s.dispatch('editor/createNotebookCancel');
-        const confirmUpdate = () => s.dispatch('editor/updateNotebookConfirm');
-        const cancelUpdate = () => s.dispatch('editor/updateNotebookCancel');
+        const confirmCreate = () => s.dispatch('app/createNotebookConfirm');
+        const cancelCreate = () => s.dispatch('app/createNotebookCancel');
+        const confirmUpdate = () => s.dispatch('app/updateNotebookConfirm');
+        const cancelUpdate = () => s.dispatch('app/updateNotebookCancel');
 
         const isNotebookBeingUpdated = s.getters['editor/isNotebookBeingUpdated'];
-        const notebookInputMode = computed(() => s.state.editor.globalNavigation.notebooks.input.mode);
+        const notebookInputMode = computed(() => s.state.app.globalNavigation.notebooks.input.mode);
 
         const active = computed({
-            get: () => s.state.editor.globalNavigation.active,
-            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
+            get: () => s.state.app.globalNavigation.active,
+            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
         });
 
         const onHold = () => {
-            s.commit('editor/DRAG_NOTEBOOK_START', { start: p.modelValue, parent: p.parent });
-            s.commit('editor/SET_CURSOR_TITLE', p.modelValue!.value);
+            s.commit('app/DRAG_NOTEBOOK_START', { start: p.modelValue, parent: p.parent });
+            s.commit('app/SET_CURSOR_TITLE', p.modelValue!.value);
         };
 
         const onRelease = (el: HTMLElement, ev: MouseEvent) => {
-            s.commit('editor/DRAG_NOTEBOOK_STOP', (ev.target as HTMLElement).getAttribute('data-id'));
-            s.commit('editor/CLEAR_CURSOR_TITLE');
-            s.commit('editor/SORT_NOTEBOOKS');
+            s.commit('app/DRAG_NOTEBOOK_STOP', (ev.target as HTMLElement).getAttribute('data-id'));
+            s.commit('app/CLEAR_CURSOR_TITLE');
+            s.commit('app/SORT_NOTEBOOKS');
         };
 
         const onClick = () => {
-            s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.active', value: p.modelValue!.id });
+            s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: p.modelValue!.id });
         };
 
         return {

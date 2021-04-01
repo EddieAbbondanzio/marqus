@@ -18,11 +18,11 @@ export default defineComponent({
         const s = useStore();
 
         const width = computed({
-            get: () => s.state.editor.localNavigation.width as string,
-            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'localNavigation.width', value: v })
+            get: () => s.state.app.localNavigation.width as string,
+            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'localNavigation.width', value: v })
         });
 
-        const save = () => s.dispatch('editor/save');
+        const save = () => s.dispatch('app/save');
 
         return {
             width,

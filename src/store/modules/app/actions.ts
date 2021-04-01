@@ -17,7 +17,7 @@ export const actions: ActionTree<EditorState, State> = {
 
         if (doesFileExist(filePath)) {
             const state = await loadJsonFile(filePath);
-            this.commit('editor/SET_STATE', state);
+            this.commit('app/SET_STATE', state);
         }
     },
     async save(context) {
@@ -51,25 +51,25 @@ export const actions: ActionTree<EditorState, State> = {
         }
     },
     async createTag() {
-        this.commit('editor/CREATE_TAG');
-        this.commit('editor/EXPAND_TAGS');
+        this.commit('app/CREATE_TAG');
+        this.commit('app/EXPAND_TAGS');
     },
     async createTagConfirm() {
-        this.commit('editor/CREATE_TAG_CONFIRM');
-        this.commit('editor/SORT_TAGS');
+        this.commit('app/CREATE_TAG_CONFIRM');
+        this.commit('app/SORT_TAGS');
     },
     async createTagCancel() {
-        this.commit('editor/CREATE_TAG_CANCEL');
+        this.commit('app/CREATE_TAG_CANCEL');
     },
     async updateTag(c, id: string) {
-        this.commit('editor/UPDATE_TAG', id);
+        this.commit('app/UPDATE_TAG', id);
     },
     async updateTagConfirm() {
-        this.commit('editor/UPDATE_TAG_CONFIRM');
-        this.commit('editor/SORT_TAGS');
+        this.commit('app/UPDATE_TAG_CONFIRM');
+        this.commit('app/SORT_TAGS');
     },
     async updateTagCancel() {
-        this.commit('editor/UPDATE_TAG_CANCEL');
+        this.commit('app/UPDATE_TAG_CANCEL');
     },
     async deleteTag(c, id: string) {
         const confirm = await confirmDelete(
@@ -78,32 +78,32 @@ export const actions: ActionTree<EditorState, State> = {
         );
 
         if (confirm) {
-            this.commit('editor/DELETE_TAG', id);
+            this.commit('app/DELETE_TAG', id);
         }
     },
     async deleteAllTags() {
-        this.commit('editor/DELETE_ALL_TAGS');
+        this.commit('app/DELETE_ALL_TAGS');
     },
     async createNotebook(c, parentId: string) {
-        this.commit('editor/CREATE_NOTEBOOK', parentId);
-        this.commit('editor/EXPAND_NOTEBOOKS');
+        this.commit('app/CREATE_NOTEBOOK', parentId);
+        this.commit('app/EXPAND_NOTEBOOKS');
     },
     async createNotebookConfirm() {
-        this.commit('editor/CREATE_NOTEBOOK_CONFIRM');
-        this.commit('editor/SORT_NOTEBOOKS');
+        this.commit('app/CREATE_NOTEBOOK_CONFIRM');
+        this.commit('app/SORT_NOTEBOOKS');
     },
     async createNotebookCancel() {
-        this.commit('editor/CREATE_NOTEBOOK_CANCEL');
+        this.commit('app/CREATE_NOTEBOOK_CANCEL');
     },
     async updateNotebook(c, id: string) {
-        this.commit('editor/UPDATE_NOTEBOOK', id);
+        this.commit('app/UPDATE_NOTEBOOK', id);
     },
     async updateNotebookConfirm() {
-        this.commit('editor/UPDATE_NOTEBOOK_CONFIRM');
-        this.commit('editor/SORT_NOTEBOOKS');
+        this.commit('app/UPDATE_NOTEBOOK_CONFIRM');
+        this.commit('app/SORT_NOTEBOOKS');
     },
     async updateNotebookCancel() {
-        this.commit('editor/UPDATE_NOTEBOOK_CANCEL');
+        this.commit('app/UPDATE_NOTEBOOK_CANCEL');
     },
     async deleteNotebook(c, id: string) {
         const confirm = await confirmDelete(
@@ -112,7 +112,7 @@ export const actions: ActionTree<EditorState, State> = {
         );
 
         if (confirm) {
-            this.commit('editor/DELETE_NOTEBOOK', id);
+            this.commit('app/DELETE_NOTEBOOK', id);
         }
     }
 };

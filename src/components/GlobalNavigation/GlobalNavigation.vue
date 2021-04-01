@@ -52,22 +52,22 @@ export default defineComponent({
         const s = useStore();
 
         const width = computed({
-            get: () => s.state.editor.globalNavigation.width as string,
-            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.width', value: v })
+            get: () => s.state.app.globalNavigation.width as string,
+            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.width', value: v })
         });
 
         const save = () => {
-            s.dispatch('editor/save');
+            s.dispatch('app/save');
         };
 
         const createTagValue = computed({
-            get: () => s.state.editor.globalNavigation.tags.create.value,
-            set: (v: string) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.tags.create.value', value: v })
+            get: () => s.state.app.globalNavigation.tags.create.value,
+            set: (v: string) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.tags.create.value', value: v })
         });
 
         const active = computed({
-            get: () => s.state.editor.globalNavigation.active,
-            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
+            get: () => s.state.app.globalNavigation.active,
+            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
         });
 
         return {

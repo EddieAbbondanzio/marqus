@@ -28,16 +28,16 @@ export default {
                             label: 'Create Notebook',
                             click: () => {
                                 if (isElementNotebook) {
-                                    s.dispatch('editor/createNotebook', id);
+                                    s.dispatch('app/createNotebook', id);
                                 } else {
-                                    s.dispatch('editor/createNotebook');
+                                    s.dispatch('app/createNotebook');
                                 }
                             }
                         },
                         {
                             label: 'Create Tag',
                             click: () => {
-                                s.dispatch('editor/createTag');
+                                s.dispatch('app/createTag');
                             }
                         }
                     ];
@@ -46,14 +46,14 @@ export default {
                         items.push({
                             label: 'Edit Notebook',
                             click: () => {
-                                s.dispatch('editor/updateNotebook', id);
+                                s.dispatch('app/updateNotebook', id);
                             }
                         });
 
                         items.push({
                             label: 'Delete Notebook',
                             click: () => {
-                                s.dispatch('editor/deleteNotebook', id);
+                                s.dispatch('app/deleteNotebook', id);
                             }
                         });
                     }
@@ -63,14 +63,14 @@ export default {
                         items.push({
                             label: 'Edit Tag',
                             click: () => {
-                                s.dispatch('editor/updateTag', id);
+                                s.dispatch('app/updateTag', id);
                             }
                         });
 
                         items.push({
                             label: 'Delete Tag',
                             click: () => {
-                                s.dispatch('editor/deleteTag', id);
+                                s.dispatch('app/deleteTag', id);
                             }
                         });
                     }

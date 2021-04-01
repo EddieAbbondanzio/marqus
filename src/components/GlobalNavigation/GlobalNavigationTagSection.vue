@@ -50,30 +50,30 @@ export default defineComponent({
         const s = useStore();
 
         const confirmCreate = (e: any) => {
-            s.dispatch('editor/createTagConfirm');
+            s.dispatch('app/createTagConfirm');
         };
-        const cancelCreate = () => s.dispatch('editor/createTagCancel');
+        const cancelCreate = () => s.dispatch('app/createTagCancel');
 
         const tagsExpanded = computed({
-            get: () => s.state.editor.globalNavigation.tags.expanded,
-            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.tags.expanded', value: v })
+            get: () => s.state.app.globalNavigation.tags.expanded,
+            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.tags.expanded', value: v })
         });
 
-        const tags = computed(() => s.state.editor.globalNavigation.tags.entries);
+        const tags = computed(() => s.state.app.globalNavigation.tags.entries);
 
-        const confirmUpdate = () => s.dispatch('editor/updateTagConfirm');
-        const cancelUpdate = () => s.dispatch('editor/updateTagCancel');
+        const confirmUpdate = () => s.dispatch('app/updateTagConfirm');
+        const cancelUpdate = () => s.dispatch('app/updateTagCancel');
 
         const isTagBeingUpdated = s.getters['editor/isTagBeingUpdated'];
-        const tagInputMode = computed(() => s.state.editor.globalNavigation.tags.input.mode);
+        const tagInputMode = computed(() => s.state.app.globalNavigation.tags.input.mode);
         const input = computed({
-            get: () => s.state.editor.globalNavigation.tags.input.value,
-            set: (v: string) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.tags.input.value', value: v })
+            get: () => s.state.app.globalNavigation.tags.input.value,
+            set: (v: string) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.tags.input.value', value: v })
         });
 
         const active = computed({
-            get: () => s.state.editor.globalNavigation.active,
-            set: (v: any) => s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
+            get: () => s.state.app.globalNavigation.active,
+            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
         });
 
         return {

@@ -30,12 +30,12 @@ export default defineComponent({
     setup() {
         const s = useStore();
 
-        const input = computed(() => s.state.editor.globalNavigation.notebooks.input);
+        const input = computed(() => s.state.app.globalNavigation.notebooks.input);
 
         const inputValue = computed({
-            get: () => s.state.editor.globalNavigation.notebooks.input?.value,
+            get: () => s.state.app.globalNavigation.notebooks.input?.value,
             set: (v: string) =>
-                s.commit('editor/UPDATE_STATE', { key: 'globalNavigation.notebooks.input.value', value: v })
+                s.commit('app/UPDATE_STATE', { key: 'globalNavigation.notebooks.input.value', value: v })
         });
 
         const unique = (v: any) => {
@@ -43,10 +43,10 @@ export default defineComponent({
                 return 'Name cannot be empty';
             }
 
-            const existing = s.state.editor.globalNavigation.notebooks.entries.find(
+            const existing = s.state.app.globalNavigation.notebooks.entries.find(
                 (t: any) => t.value.toUpperCase() === v.toUpperCase()
             );
-            if (existing != null && existing.id !== s.state.editor.globalNavigation.notebooks.input.id) {
+            if (existing != null && existing.id !== s.state.app.globalNavigation.notebooks.input.id) {
                 return `Notebook with name ${v} already exists`;
             }
 

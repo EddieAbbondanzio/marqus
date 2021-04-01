@@ -1,12 +1,12 @@
 import { createStore, useStore as baseUseStore, Store, ActionTree } from 'vuex';
 import config from '@/store/modules/config/config';
 import { createDirectory, doesFileExist } from '@/utils/file-utils';
-import editor from '@/store/modules/editor';
+import app from '@/store/modules/app';
 
 export interface State {
     count: number;
     config: any;
-    editor: any;
+    app: any;
 }
 
 const actions: ActionTree<State, any> = {
@@ -17,7 +17,7 @@ const actions: ActionTree<State, any> = {
         }
 
         c.dispatch('config/load');
-        c.dispatch('editor/load');
+        c.dispatch('app/load');
     }
 };
 
@@ -29,7 +29,7 @@ export const store = createStore<State>({
     actions,
     modules: {
         config,
-        editor
+        app
     },
     strict: process.env.NODE_ENV !== 'production' // Major performance hit in prod see: https://next.vuex.vuejs.org/guide/strict.html#development-vs-production
 });
@@ -37,6 +37,6 @@ export const store = createStore<State>({
 store.subscribe((m, s) => {
     // Trigger save to file whenever we modify state
     if (m.type.startsWith('editor')) {
-        store.dispatch('editor/save');
+        store.dispatch('app/save');
     }
 });

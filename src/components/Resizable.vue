@@ -20,7 +20,7 @@ export default defineComponent({
             if (!isResizing) {
                 isResizing = true;
                 c.emit('resizeStart');
-                store.commit('editor/SET_CURSOR_ICON', 'ew-resize');
+                store.commit('app/SET_CURSOR_ICON', 'ew-resize');
 
                 e.stopPropagation();
             }
@@ -51,7 +51,7 @@ export default defineComponent({
         const onMouseUp = function(e: MouseEvent) {
             if (isResizing) {
                 isResizing = false;
-                store.commit('editor/SET_CURSOR_ICON', 'default');
+                store.commit('app/SET_CURSOR_ICON', 'default');
 
                 c.emit('resizeStop');
                 e.stopPropagation();
