@@ -42,19 +42,17 @@ interface Cursor {
     title?: string;
 }
 
-export interface EditorState {
+export interface AppState {
     mode: 'edit' | 'view';
     activeFile: string | null;
     globalNavigation: GlobalNavigation;
     localNavigation: LocalNavigation;
-    loaded: boolean;
     cursor: Cursor;
 }
 
-export const state: EditorState = {
+export const state: AppState = {
     mode: 'view',
     activeFile: null,
-    loaded: false,
     globalNavigation: {
         notebooks: {
             expanded: false,

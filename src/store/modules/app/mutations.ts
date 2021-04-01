@@ -1,6 +1,6 @@
 import { id } from '@/utils/id';
 import { MutationTree } from 'vuex';
-import { EditorState, Notebook, Tag } from './state';
+import { AppState, Notebook, Tag } from './state';
 
 function findNotebookRecursive(notebooks: Notebook[], id: string): Notebook | undefined {
     if (notebooks == null) {
@@ -20,11 +20,10 @@ function findNotebookRecursive(notebooks: Notebook[], id: string): Notebook | un
     }
 }
 
-export const mutations: MutationTree<EditorState> = {
+export const mutations: MutationTree<AppState> = {
     TOGGLE_MODE: (s, p) => (s.mode = s.mode === 'edit' ? 'view' : 'edit'),
     SET_STATE: (state, config) => {
         Object.assign(state, config);
-        state.loaded = true;
     },
     UPDATE_STATE: (state, kv: { key: string; value: any }) => {
         // i = 'a.b.c' -> a['a']['b']['c'] = v

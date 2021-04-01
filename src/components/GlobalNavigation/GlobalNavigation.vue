@@ -60,11 +60,6 @@ export default defineComponent({
             s.dispatch('app/save');
         };
 
-        const createTagValue = computed({
-            get: () => s.state.app.globalNavigation.tags.create.value,
-            set: (v: string) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.tags.create.value', value: v })
-        });
-
         const active = computed({
             get: () => s.state.app.globalNavigation.active,
             set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: v })

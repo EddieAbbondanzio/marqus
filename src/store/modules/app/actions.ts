@@ -3,14 +3,14 @@ import { confirmDelete } from '@/utils/confirm-delete';
 import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 import path from 'path';
 import { ActionTree } from 'vuex';
-import { EditorState, state } from './state';
+import { AppState, state } from './state';
 import * as lockFile from 'proper-lockfile';
 
 const STATE_FILE_NAME = 'state.json';
 
 const saving: { current?: Promise<any>; next?: () => Promise<any> } = {};
 
-export const actions: ActionTree<EditorState, State> = {
+export const actions: ActionTree<AppState, State> = {
     async load(context) {
         const dataDirectory = context.rootState.config.dataDirectory;
         const filePath = path.join(dataDirectory, STATE_FILE_NAME);
