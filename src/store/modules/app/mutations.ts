@@ -253,5 +253,8 @@ export const mutations: MutationTree<AppState> = {
     },
     SET_CURSOR_ICON(state, icon: string) {
         state.cursor.icon = icon;
+    },
+    RESET_CURSOR_ICON(state) {
+        state.cursor.icon = 'pointer';
     }
 };

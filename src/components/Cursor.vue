@@ -18,12 +18,12 @@ export default defineComponent({
         const s = useStore();
         const title = ref(null);
         const show = computed(() => title.value !== null);
+        let cursorClass = 'has-cursor-pointer';
 
         const release = s.subscribe((m, s) => {
             switch (m.type) {
                 case 'app/SET_CURSOR_TITLE':
                     title.value = m.payload;
-                    console.log('title was set!');
                     break;
 
                 case 'app/CLEAR_CURSOR_TITLE':
@@ -31,7 +31,20 @@ export default defineComponent({
                     break;
 
                 case 'app/SET_CURSOR_ICON':
-                    document.body.style.cursor = m.payload;
+                    // Remove old one first
+                    document.body.classList.remove(cursorClass);
+
+                    cursorClass = `has-cursor-${m.payload}`;
+                    document.body.classList.add(cursorClass);
+                    break;
+
+                case 'app/RESET_CURSOR_ICON':
+                    // Remove old one first
+                    document.body.classList.remove(cursorClass);
+
+                    cursorClass = 'has-cursor-pointer';
+                    document.body.classList.add(cursorClass);
+                    break;
             }
         });
 
@@ -57,3 +70,17 @@ export default defineComponent({
     }
 });
 </script>
+
+<style lang="sass">
+.has-cursor-pointer
+    *
+        cursor: pointer!important
+
+.has-cursor-ew-resize
+    *
+        cursor: ew-resize!important
+
+.has-cursor-grabbing
+    *
+        cursor: grabbing!important
+</style>

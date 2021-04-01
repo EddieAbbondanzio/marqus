@@ -1,5 +1,6 @@
 import { MouseObject } from './mouse-object';
 import { getButton } from './mouse-button';
+import { store } from '@/store/store';
 
 class MouseObjectManager {
     objects: MouseObject[];
@@ -44,7 +45,7 @@ function onMouseMove(this: any, event: globalThis.MouseEvent) {
 
     // If mouse is down, and moved assume drag
     if (mouseObject != null && mouseObject.mouseDown) {
-        document.body.setAttribute('data-dragging', 'true');
+        store.commit('app/SET_CURSOR_ICON', 'grabbing');
 
         const button = getButton(event.button);
 
@@ -76,7 +77,7 @@ function onMouseUp(this: any, event: globalThis.MouseEvent) {
         mouseObject.notify('click', button, event);
     } else {
         mouseObject.notify('release', button, event);
-        document.body.removeAttribute('data-dragging');
+        store.commit('app/RESET_CURSOR_ICON');
     }
 
     mouseObject.holding = false;
