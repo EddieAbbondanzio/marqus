@@ -1,7 +1,7 @@
 <template>
-    <Form @submit="onSubmit" v-slot="{ submitForm }">
+    <Form @submit="onSubmit">
         <div class="has-background-light" :style="{ paddingLeft: `${depth * 24}px` }">
-            <div class="is-flex is-flex-row has-background-light py-1">
+            <div class="is-flex is-flex-row is-align-center has-background-light py-1">
                 <Field name="Notebook" v-model="inputValue" v-slot="{ field }" :rules="unique">
                     <input
                         type="text"
@@ -11,16 +11,10 @@
                         v-focus
                         @keyup.esc="$emit('cancel')"
                     />
-                    <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm">
-                        <span class="icon is-small">
-                            <i class="fas fa-check" />
-                        </span>
-                    </a>
-                    <a href="#" class="has-text-grey has-text-hover-danger" @click="$emit('cancel')">
-                        <span class="icon is-small">
-                            <i class="fas fa-ban" />
-                        </span>
-                    </a>
+
+                    <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
+
+                    <icon-button class="has-text-hover-danger" icon="fa-ban" @click="$emit('cancel')" />
                 </Field>
             </div>
             <ErrorMessage name="Notebook" v-slot="{ message }">
@@ -34,7 +28,8 @@
 import { isBlank } from '@/utils/is-blank';
 import { computed, defineComponent, ref, watch } from 'vue';
 import { useStore } from 'vuex';
-import { Field, ErrorMessage, Form } from 'vee-validate';
+import { Field, ErrorMessage, Form, useForm } from 'vee-validate';
+import IconButton from '@/components/IconButton.vue';
 
 export default defineComponent({
     setup(p, c) {
@@ -81,6 +76,6 @@ export default defineComponent({
         }
     },
     emits: ['submit', 'cancel'],
-    components: { Field, ErrorMessage, Form }
+    components: { Field, ErrorMessage, Form, IconButton }
 });
 </script>
