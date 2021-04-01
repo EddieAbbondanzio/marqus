@@ -1,6 +1,10 @@
 <template>
-    <button class="button is-small is-icon-only" :type="type" @click="$emit('click')">
-        <span class="icon is-small">
+    <button
+        :class="{ button: true, 'is-icon-only': true, 'is-small': true, 'is-xs': size == 'is-xs' }"
+        :type="type"
+        @click="$emit('click')"
+    >
+        <span :class="{ icon: true, 'is-small': true, 'is-xs': size == 'is-xs' }">
             <i :class="classes"></i>
         </span>
     </button>
@@ -12,7 +16,13 @@ import { defineComponent } from 'vue';
 export default defineComponent({
     setup(p, c) {
         // fas fa-check fa-xs
-        const classes = `fas ${p.icon} fa-xs`;
+        let size = 'fa-xs';
+
+        if (p.size === 'is-small') {
+            size = 'fa-sm';
+        }
+
+        const classes = `fas ${p.icon} ${size}`;
 
         return { classes };
     },
@@ -24,6 +34,10 @@ export default defineComponent({
         icon: {
             type: String,
             default: ''
+        },
+        size: {
+            type: String,
+            default: 'is-xs'
         }
     },
     emits: ['click']
@@ -32,11 +46,18 @@ export default defineComponent({
 
 <style lang="sass" scoped>
 .button.is-icon-only
-    padding: 0 6px
     background-color: transparent
+    padding: 0 6px
+
+    &.is-xs
+    padding: 0 8px
 
     span
         border: none
+        padding: 12px
+        height: 16px
+
+    span.is-xs
         padding: 8px
         height: 12px
 </style>
