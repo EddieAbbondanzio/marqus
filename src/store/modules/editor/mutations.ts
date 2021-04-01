@@ -245,5 +245,11 @@ export const mutations: MutationTree<EditorState> = {
         }
 
         state.globalNavigation.notebooks.dragging = undefined;
+    },
+    SET_CURSOR_TITLE(state, title: string) {
+        state.cursor.title = title;
+    },
+    CLEAR_CURSOR_TITLE(state) {
+        state.cursor.title = undefined;
     }
 };

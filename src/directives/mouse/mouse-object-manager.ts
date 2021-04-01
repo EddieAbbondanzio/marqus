@@ -50,8 +50,6 @@ function onMouseMove(this: any, event: globalThis.MouseEvent) {
 
         mouseObject.notify('drag', button, event);
     }
-
-    console.log(document.body.style.cursor);
 }
 
 /**

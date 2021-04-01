@@ -37,12 +37,18 @@ interface LocalNavigation {
     width: string;
 }
 
+interface Cursor {
+    icon: string;
+    title?: string;
+}
+
 export interface EditorState {
     mode: 'edit' | 'view';
     activeFile: string | null;
     globalNavigation: GlobalNavigation;
     localNavigation: LocalNavigation;
     loaded: boolean;
+    cursor: Cursor;
 }
 
 export const state: EditorState = {
@@ -64,5 +70,8 @@ export const state: EditorState = {
     },
     localNavigation: {
         width: '300px'
+    },
+    cursor: {
+        icon: 'pointer'
     }
 };

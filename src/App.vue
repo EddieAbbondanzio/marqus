@@ -1,4 +1,5 @@
 <template>
+    <Cursor />
     <router-view></router-view>
 </template>
 
@@ -7,6 +8,7 @@ import { onMounted } from 'vue';
 import { store } from './store/store';
 import contextMenu from 'electron-context-menu';
 import { useStore } from 'vuex';
+import Cursor from '@/components/Cursor.vue';
 
 export default {
     setup() {
@@ -91,6 +93,7 @@ export default {
                 }
             });
         });
-    }
+    },
+    components: { Cursor }
 };
 </script>

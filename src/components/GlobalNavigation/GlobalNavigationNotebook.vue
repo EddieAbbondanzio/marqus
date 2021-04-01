@@ -127,10 +127,12 @@ export default defineComponent({
 
         const onHold = () => {
             s.commit('editor/DRAG_NOTEBOOK_START', { start: p.modelValue, parent: p.parent });
+            s.commit('editor/SET_CURSOR_TITLE', p.modelValue!.value);
         };
 
         const onRelease = (el: HTMLElement, ev: MouseEvent) => {
             s.commit('editor/DRAG_NOTEBOOK_STOP', (ev.target as HTMLElement).getAttribute('data-id'));
+            s.commit('editor/CLEAR_CURSOR_TITLE');
             s.commit('editor/SORT_NOTEBOOKS');
         };
 
