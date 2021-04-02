@@ -15,9 +15,9 @@
                 <a
                     v-else
                     class="no-drag has-text-grey"
-                    v-mouse:click="onClick"
-                    v-mouse:hold="onHold"
-                    v-mouse:release="onRelease"
+                    v-mouse:click.left="onClick"
+                    v-mouse:hold.left="onHold"
+                    v-mouse:release.left="onRelease"
                 >
                     <p
                         :class="[
