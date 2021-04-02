@@ -7,7 +7,6 @@
                         type="text"
                         style="min-width: 0; width: 0; flex-grow: 1;"
                         v-bind="field"
-                        @keyup.enter="$emit('submit')"
                         v-focus
                         @keyup.esc="$emit('cancel')"
                     />
