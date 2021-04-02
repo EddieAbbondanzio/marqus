@@ -2,6 +2,7 @@ import { createStore, useStore as baseUseStore, Store, ActionTree } from 'vuex';
 import config from '@/store/modules/config/config';
 import { createDirectory, doesFileExist } from '@/utils/file-utils';
 import app from '@/store/modules/app';
+import { PersistPlugin } from './persist-plugin/persist-plugin';
 
 export interface State {
     count: number;
@@ -31,12 +32,6 @@ export const store = createStore<State>({
         config,
         app
     },
+    plugins: [PersistPlugin],
     strict: process.env.NODE_ENV !== 'production' // Major performance hit in prod see: https://next.vuex.vuejs.org/guide/strict.html#development-vs-production
-});
-
-store.subscribe((m, s) => {
-    // Trigger save to file whenever we modify state
-    if (m.type.startsWith('editor')) {
-        store.dispatch('app/save');
-    }
 });
