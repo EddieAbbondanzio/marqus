@@ -8,16 +8,8 @@
         >
             <slot name="trigger"></slot>
 
-            <div class="has-background-transparent" v-if="!modelValue">
-                <span class="icon is-small">
-                    <i class="fas fa-chevron-down"></i>
-                </span>
-            </div>
-            <div class="has-background-transparent" v-else>
-                <span class="icon is-small">
-                    <i class="fas fa-chevron-up"></i>
-                </span>
-            </div>
+            <icon-button icon="fa-chevron-down" v-if="!modelValue" />
+            <icon-button icon="fa-chevron-up" v-else />
         </a>
 
         <div v-if="modelValue">
@@ -28,6 +20,7 @@
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, onMounted, Ref, ref, watch } from 'vue';
+import IconButton from '@/components/IconButton.vue';
 
 export default defineComponent({
     props: {
@@ -40,6 +33,9 @@ export default defineComponent({
             default: ''
         }
     },
-    emits: ['update:modelValue']
+    emits: ['update:modelValue'],
+    components: {
+        IconButton
+    }
 });
 </script>

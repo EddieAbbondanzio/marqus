@@ -1,6 +1,6 @@
 <template>
     <!-- If you don't have a submit listener, vee-validate won't .preventDefault() it.-->
-    <Form @submit="onSubmit" v-slot="{ submitForm }">
+    <Form @submit="onSubmit">
         <div class="has-background-light" :style="{ paddingLeft: `${depth * 24}px` }">
             <div class="is-flex is-flex-row has-background-light py-1">
                 <Field name="Tag" v-model="inputValue" v-slot="{ field }" :rules="unique">
@@ -12,16 +12,8 @@
                         v-focus
                         @keyup.esc="$emit('cancel')"
                     />
-                    <a href="#" class="mx-1 has-text-grey has-text-hover-success" @click="submitForm()">
-                        <span class="icon is-small">
-                            <i class="fas fa-check" />
-                        </span>
-                    </a>
-                    <a href="#" class="has-text-grey has-text-hover-danger" @click="$emit('cancel')">
-                        <span class="icon is-small">
-                            <i class="fas fa-ban" />
-                        </span>
-                    </a>
+                    <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
+                    <icon-button class="has-text-hover-danger" icon="fa-ban" @click="$emit('cancel')" />
                 </Field>
             </div>
             <ErrorMessage name="Tag" v-slot="{ message }">
@@ -36,6 +28,7 @@ import { computed, defineComponent, ref, watch } from 'vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
 import { useStore } from 'vuex';
 import { isBlank } from '@/utils/is-blank';
+import IconButton from '@/components/IconButton.vue';
 
 export default defineComponent({
     setup(p, c) {
@@ -76,6 +69,6 @@ export default defineComponent({
         };
     },
     emits: ['submit', 'cancel'],
-    components: { Field, ErrorMessage, Form }
+    components: { Field, ErrorMessage, Form, IconButton }
 });
 </script>
