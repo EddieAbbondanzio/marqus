@@ -49,19 +49,6 @@ describe('Resizable.vue', () => {
         expect((wrapper.props as any)['modelValue']).not.toEqual(width);
     });
 
-    it('changes cursor on mousemove', async () => {
-        const width = '127px';
-        const wrapper = mount(Resizable, {
-            props: { modelValue: width, minWidth: width },
-            global: {
-                plugins: [store]
-            }
-        });
-
-        await wrapper.find('.resizable-handle').trigger('mousedown');
-        expect(document.body.style.cursor).toBe('ew-resize');
-    });
-
     it('emits resizeStop on mouseup', async () => {
         const width = '127px';
         const wrapper = mount(Resizable, {

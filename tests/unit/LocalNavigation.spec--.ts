@@ -1,12 +1,12 @@
 import LocalNavigation from '@/components/LocalNavigation.vue';
-import { EditorState } from '@/store/modules/editor/editor';
+import { AppState } from '@/store/modules/app/state';
 import { mount } from '@vue/test-utils';
 import { ActionTree, createStore, MutationTree, Store } from 'vuex';
 
 describe('localNavigation.vue', () => {
     let mutations: MutationTree<any>;
     let actions: ActionTree<any, any>;
-    let state: EditorState;
+    let state: AppState;
     let store: Store<any>;
 
     beforeEach(() => {
@@ -24,7 +24,7 @@ describe('localNavigation.vue', () => {
 
         store = createStore({
             modules: {
-                editor: {
+                app: {
                     namespaced: true,
                     mutations,
                     actions,

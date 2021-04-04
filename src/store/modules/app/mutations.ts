@@ -141,6 +141,7 @@ export const mutations: MutationTree<AppState> = {
                 parent.children = [];
             }
 
+            n.parent = parent;
             parent.children.push(n);
         }
 
@@ -199,7 +200,7 @@ export const mutations: MutationTree<AppState> = {
 
         state.globalNavigation.notebooks.entries.splice(index, 1);
     },
-    DRAG_NOTEBOOK_START(state, dragging: { start: Notebook; parent: Notebook }) {
+    DRAG_NOTEBOOK_START(state, dragging: Notebook) {
         state.globalNavigation.notebooks.dragging = dragging;
     },
     DRAG_NOTEBOOK_STOP(state, endedOnId: string | null) {
@@ -213,10 +214,10 @@ export const mutations: MutationTree<AppState> = {
          * Don't allow a move if we started and stopped on the same element, or if
          * we are attempting to move a parent to a child of it.
          */
-        if (dragging.start.id !== endedOnId && findNotebookRecursive(dragging.start.children!, endedOnId!) == null) {
+        if (dragging.id !== endedOnId && findNotebookRecursive(dragging.children!, endedOnId!) == null) {
             // Remove from old parent if needed
             if (dragging.parent != null) {
-                const oldIndex = dragging.parent.children!.findIndex((c) => c.id === dragging.start.id);
+                const oldIndex = dragging.parent.children!.findIndex((c) => c.id === dragging.id);
                 dragging.parent.children!.splice(oldIndex, 1);
 
                 if (dragging.parent.children?.length === 0) {
@@ -225,13 +226,13 @@ export const mutations: MutationTree<AppState> = {
             }
             // No parent, we gotta remove it from the root array
             else {
-                const oldIndex = state.globalNavigation.notebooks.entries.findIndex((n) => n.id === dragging.start.id);
+                const oldIndex = state.globalNavigation.notebooks.entries.findIndex((n) => n.id === dragging.id);
                 state.globalNavigation.notebooks.entries.splice(oldIndex, 1);
             }
 
             // Didn't end on a notebook. Assume it should be placed in root.
             if (endedOnId == null) {
-                state.globalNavigation.notebooks.entries.push(dragging.start);
+                state.globalNavigation.notebooks.entries.push(dragging);
             } else {
                 const endedOn = findNotebookRecursive(state.globalNavigation.notebooks.entries, endedOnId)!;
 
@@ -239,7 +240,8 @@ export const mutations: MutationTree<AppState> = {
                     endedOn.children = [];
                 }
 
-                endedOn.children.push(dragging.start);
+                dragging.parent = endedOn;
+                endedOn.children.push(dragging);
             }
         }
 

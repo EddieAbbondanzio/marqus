@@ -2,6 +2,7 @@ export interface Notebook {
     id: string;
     value: string;
     expanded: boolean;
+    parent?: Notebook;
     children?: Notebook[];
 }
 
@@ -13,7 +14,7 @@ export interface Tag {
 interface GlobalNavigationNotebookSection {
     expanded: boolean;
     input: Partial<Notebook> & { mode?: 'create' | 'update'; parentId?: string };
-    dragging?: { start: Notebook; parent?: Notebook };
+    dragging?: Notebook;
     entries: Notebook[];
 }
 

@@ -126,7 +126,7 @@ export default defineComponent({
         });
 
         const onHold = () => {
-            s.commit('app/DRAG_NOTEBOOK_START', { start: p.modelValue, parent: p.parent });
+            s.commit('app/DRAG_NOTEBOOK_START', p.modelValue!);
             s.commit('app/SET_CURSOR_TITLE', p.modelValue!.value);
         };
 
