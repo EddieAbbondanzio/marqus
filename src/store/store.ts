@@ -1,11 +1,12 @@
-import { createStore, useStore as baseUseStore, Store, ActionTree } from 'vuex';
+import { createStore, useStore as baseUseStore, Store, ActionTree, MutationTree } from 'vuex';
 import config from '@/store/modules/config/config';
 import { createDirectory, doesFileExist } from '@/utils/file-utils';
 import app from '@/store/modules/app';
+import tags from '@/store/modules/tags';
+import notebooks from '@/store/modules/notebooks';
 import { PersistPlugin } from './persist-plugin/persist-plugin';
 
 export interface State {
-    count: number;
     config: any;
     app: any;
 }
@@ -18,19 +19,25 @@ const actions: ActionTree<State, any> = {
         }
 
         c.dispatch('config/load');
-        c.dispatch('app/load');
+        // c.dispatch('app/load');
+    }
+};
+
+const mutations: MutationTree<State> = {
+    SET_STATE: (state, config) => {
+        Object.assign(state, config);
     }
 };
 
 export const store = createStore<State>({
-    state: {
-        count: 1
-    } as any,
+    state: {} as any,
     mutations: {},
     actions,
     modules: {
+        app,
         config,
-        app
+        notebooks,
+        tags
     },
     plugins: [PersistPlugin],
     strict: process.env.NODE_ENV !== 'production' // Major performance hit in prod see: https://next.vuex.vuejs.org/guide/strict.html#development-vs-production

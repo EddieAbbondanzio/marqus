@@ -1,15 +1,5 @@
-export interface Notebook {
-    id: string;
-    value: string;
-    expanded: boolean;
-    parent?: Notebook;
-    children?: Notebook[];
-}
-
-export interface Tag {
-    id: string;
-    value: string;
-}
+import { Notebook } from '../notebooks/state';
+import { Tag } from '../tags/state';
 
 interface GlobalNavigationNotebookSection {
     expanded: boolean;

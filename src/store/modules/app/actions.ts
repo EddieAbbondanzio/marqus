@@ -24,6 +24,7 @@ export const actions: ActionTree<AppState, State> = {
         const dataDirectory = context.rootState.config.dataDirectory;
         const filePath = path.join(dataDirectory, STATE_FILE_NAME);
 
+        // Deep copy so we can purge some data without effecting vuex
         const state = JSON.parse(JSON.stringify(context.state));
         state.globalNavigation.notebooks.dragging = undefined;
 
