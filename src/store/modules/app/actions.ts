@@ -1,6 +1,6 @@
 import { State } from '@/store/state';
 import { confirmDelete } from '@/utils/confirm-delete';
-import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
+import { doesPathExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 import path from 'path';
 import { ActionTree } from 'vuex';
 import { AppState, state } from './state';
@@ -15,7 +15,7 @@ export const actions: ActionTree<AppState, State> = {
         const dataDirectory = context.rootState.config.dataDirectory;
         const filePath = path.join(dataDirectory, STATE_FILE_NAME);
 
-        if (doesFileExist(filePath)) {
+        if (doesPathExist(filePath)) {
             const state = await loadJsonFile(filePath);
             this.commit('app/SET_STATE', state);
         }

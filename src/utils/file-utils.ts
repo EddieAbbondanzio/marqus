@@ -12,7 +12,7 @@ export async function writeJsonFile(path: string, data: any) {
     await fs.promises.writeFile(path, raw, { encoding: 'utf-8' });
 }
 
-export function doesFileExist(path: string) {
+export function doesPathExist(path: string) {
     return fs.existsSync(path);
 }
 

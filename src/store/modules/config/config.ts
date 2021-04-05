@@ -1,5 +1,5 @@
 import { State } from '@/store/state';
-import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
+import { doesPathExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 import { ActionTree, Module, MutationTree } from 'vuex';
 
 const state = {
@@ -14,7 +14,7 @@ const actions: ActionTree<ConfigState, State> = {
     async load({ commit }) {
         const path = 'config.json';
 
-        if (await doesFileExist(path)) {
+        if (await doesPathExist(path)) {
             const config = await loadJsonFile(path);
             commit('applyLoadedConfig', config);
         } else {
