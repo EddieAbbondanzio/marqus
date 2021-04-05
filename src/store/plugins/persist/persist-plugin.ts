@@ -1,5 +1,5 @@
+import { State } from '@/store/state';
 import { Store } from 'vuex';
-import { State } from '../store';
 import { CountdownTimer } from './countdown-timer';
 
 let timer: CountdownTimer | null = null;

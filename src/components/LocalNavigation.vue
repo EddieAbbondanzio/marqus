@@ -9,7 +9,6 @@
 <script lang="ts">
 import { computed, defineComponent, ref, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
-import { store } from '@/store/store';
 import { useStore } from 'vuex';
 
 export default defineComponent({

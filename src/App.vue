@@ -5,7 +5,6 @@
 
 <script lang="ts">
 import { onMounted } from 'vue';
-import { store } from './store/store';
 import contextMenu from 'electron-context-menu';
 import { useStore } from 'vuex';
 import Cursor from '@/components/Cursor.vue';

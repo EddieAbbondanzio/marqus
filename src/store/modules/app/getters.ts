@@ -1,4 +1,4 @@
-import { State } from '@/store/store';
+import { State } from '@/store/state';
 import { GetterTree } from 'vuex';
 import { AppState } from './state';
 

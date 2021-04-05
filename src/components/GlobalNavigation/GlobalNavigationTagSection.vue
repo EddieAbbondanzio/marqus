@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide, onMounted } from 'vue';
-import { store } from '@/store/store';
+import { store } from '@/store';
 import { useStore } from 'vuex';
 import Collapse from '@/components/Collapse.vue';
 import { useField, Field, ErrorMessage, Form } from 'vee-validate';

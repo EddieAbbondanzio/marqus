@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { store } from '@/store/store';
+import { store } from '@/store';
 import { defineComponent, onMounted } from 'vue';
 import { useStore } from 'vuex';
 

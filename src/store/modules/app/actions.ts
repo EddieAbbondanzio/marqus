@@ -1,4 +1,4 @@
-import { State } from '@/store/store';
+import { State } from '@/store/state';
 import { confirmDelete } from '@/utils/confirm-delete';
 import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 import path from 'path';

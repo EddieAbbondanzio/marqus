@@ -9,7 +9,7 @@
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
 import EditorToolbar from '@/components/Editor/EditorToolbar.vue';
-import { store } from '@/store/store';
+import { store } from '@/store';
 
 export default defineComponent({
     components: {

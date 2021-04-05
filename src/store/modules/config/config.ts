@@ -1,6 +1,6 @@
+import { State } from '@/store/state';
 import { doesFileExist, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 import { ActionTree, Module, MutationTree } from 'vuex';
-import { State } from '../../store';
 
 const state = {
     dataDirectory: 'data'
