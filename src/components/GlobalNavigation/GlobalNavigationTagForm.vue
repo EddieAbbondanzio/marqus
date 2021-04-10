@@ -51,8 +51,8 @@ export default defineComponent({
         };
 
         const onSubmit = () => {
-            c.emit('submit');
-            console.log(value);
+            // c.emit('submit');
+            console.log('FUCK');
         };
 
         return {

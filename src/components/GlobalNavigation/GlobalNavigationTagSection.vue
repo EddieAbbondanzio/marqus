@@ -51,7 +51,7 @@ export default defineComponent({
 
         const tagsExpanded = computed({
             get: () => s.state.app.globalNavigation.tags.expanded,
-            set: (v: any) => s.commit('app/SET_TAGS_EXPANDED', v)
+            set: (v: any) => s.commit('app/globalNavigation/SET_TAGS_EXPANDED', v)
         });
 
         // EVERYTHING ABOVE THIS LINE HAS BEEN TESTED

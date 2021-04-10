@@ -6,24 +6,24 @@ describe('TagStore Mutations', () => {
 
     beforeEach(() => {
         state = {
-            tags: []
+            values: []
         };
     });
 
     describe('CREATE()', () => {
         it('sets value', () => {
             mutations.CREATE(state, { value: 'cat' });
-            expect(state.tags[0].value).toBe('cat');
+            expect(state.values[0].value).toBe('cat');
         });
 
         it('generates id for tag when none passed', () => {
             mutations.CREATE(state, { value: 'cat' });
-            expect(state.tags[0].id).toBeTruthy();
+            expect(state.values[0].id).toBeTruthy();
         });
 
         it('assigns id if passed', () => {
             mutations.CREATE(state, { id: '1', value: 'cat' });
-            expect(state.tags[0].id).toBe('1');
+            expect(state.values[0].id).toBe('1');
         });
     });
 
@@ -38,7 +38,7 @@ describe('TagStore Mutations', () => {
             mutations.CREATE(state, { id: '1', value: 'cat' });
             mutations.UPDATE(state, { id: '1', value: 'cat2' });
 
-            expect(state.tags[0].value).toBe('cat2');
+            expect(state.values[0].value).toBe('cat2');
         });
     });
 
@@ -52,7 +52,7 @@ describe('TagStore Mutations', () => {
         it('deletes tag from state', () => {
             mutations.CREATE(state, { id: '1', value: 'cat' });
             mutations.DELETE(state, '1');
-            expect(state.tags).toHaveLength(0);
+            expect(state.values).toHaveLength(0);
         });
     });
 });

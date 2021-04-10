@@ -1,7 +1,7 @@
 window.require = require;
 
 import Resizable from '@/components/Resizable.vue';
-import { store } from '@/store/store';
+import { store } from '@/store';
 import { mount } from '@vue/test-utils';
 
 describe('Resizable.vue', () => {
