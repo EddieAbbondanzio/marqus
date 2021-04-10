@@ -49,15 +49,17 @@ export default defineComponent({
     setup: function() {
         const s = useStore();
 
+        const tagsExpanded = computed({
+            get: () => s.state.app.globalNavigation.tags.expanded,
+            set: (v: any) => s.commit('app/SET_TAGS_EXPANDED', v)
+        });
+
+        // EVERYTHING ABOVE THIS LINE HAS BEEN TESTED
+
         const confirmCreate = (e: any) => {
             s.dispatch('app/createTagConfirm');
         };
         const cancelCreate = () => s.dispatch('app/createTagCancel');
-
-        const tagsExpanded = computed({
-            get: () => s.state.app.globalNavigation.tags.expanded,
-            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.tags.expanded', value: v })
-        });
 
         const tags = computed(() => s.state.app.globalNavigation.tags.entries);
 

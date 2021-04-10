@@ -3,7 +3,7 @@
     <Form @submit="onSubmit">
         <div class="has-background-light" :style="{ paddingLeft: `${depth * 24}px` }">
             <div class="is-flex is-flex-row has-background-light py-1">
-                <Field name="Tag" v-model="inputValue" v-slot="{ field }" :rules="unique">
+                <Field name="Tag" v-model="value" v-slot="{ field }" :rules="unique">
                     <input
                         type="text"
                         v-bind="field"
@@ -33,12 +33,7 @@ export default defineComponent({
     setup(p, c) {
         const s = useStore();
 
-        const input = computed(() => s.state.app.globalNavigation.tags.input);
-
-        const inputValue = computed({
-            get: () => s.state.app.globalNavigation.tags.input?.value,
-            set: (v: string) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.tags.input.value', value: v })
-        });
+        const value = ref(null);
 
         const unique = (v: any) => {
             if (v == null || isBlank(v)) {
@@ -57,14 +52,14 @@ export default defineComponent({
 
         const onSubmit = () => {
             c.emit('submit');
+            console.log(value);
         };
 
         return {
-            input,
-            inputValue,
             unique,
             onSubmit,
-            depth: 1
+            depth: 1,
+            value
         };
     },
     emits: ['submit', 'cancel'],
