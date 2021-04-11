@@ -14,14 +14,14 @@ describe('GlobalNavigation Actions', () => {
             (actions.tagInputStart as Function)(context);
 
             expect(context.commit.mock.calls).toHaveLength(2);
-            expect(context.commit.mock.calls[0][0]).toBe('app/globalNavigation/TAG_INPUT_START');
+            expect(context.commit.mock.calls[0][0]).toBe('TAG_INPUT_START');
         });
 
         it('expands tags section', () => {
             (actions.tagInputStart as Function)(context);
 
             expect(context.commit.mock.calls).toHaveLength(2);
-            expect(context.commit.mock.calls[1][0]).toBe('app/globalNavigation/TAGS_EXPANDED');
+            expect(context.commit.mock.calls[1][0]).toBe('TAGS_EXPANDED');
         });
     });
 
@@ -30,14 +30,14 @@ describe('GlobalNavigation Actions', () => {
             (actions.tagInputConfirm as Function)(context);
 
             expect(context.commit.mock.calls).toHaveLength(2);
-            expect(context.commit.mock.calls[0][0]).toBe('app/globalNavigation/TAG_INPUT_CONFIRM');
+            expect(context.commit.mock.calls[0][0]).toBe('TAG_INPUT_CONFIRM');
         });
 
         it('sorts tags', () => {
             (actions.tagInputConfirm as Function)(context);
 
             expect(context.commit.mock.calls).toHaveLength(2);
-            expect(context.commit.mock.calls[1][0]).toBe('app/globalNavigation/TAGS_SORT');
+            expect(context.commit.mock.calls[1][0]).toBe('TAGS_SORT');
         });
     });
 
@@ -46,7 +46,7 @@ describe('GlobalNavigation Actions', () => {
             (actions.tagInputCancel as Function)(context);
 
             expect(context.commit.mock.calls).toHaveLength(1);
-            expect(context.commit.mock.calls[0][0]).toBe('app/globalNavigation/TAG_INPUT_CANCEL');
+            expect(context.commit.mock.calls[0][0]).toBe('TAG_INPUT_CANCEL');
         });
     });
 });

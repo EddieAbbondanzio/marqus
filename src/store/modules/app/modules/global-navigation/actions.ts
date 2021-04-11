@@ -5,15 +5,15 @@ import { GlobalNavigation } from './state';
 
 export const actions: ActionTree<GlobalNavigation, State> = {
     async tagInputStart({ commit }, id: string | null = null) {
-        commit('app/globalNavigation/TAG_INPUT_START', id);
-        commit('app/globalNavigation/TAGS_EXPANDED');
+        commit('TAG_INPUT_START', id);
+        commit('TAGS_EXPANDED');
     },
     async tagInputConfirm({ commit }, value: string) {
-        commit('app/globalNavigation/TAG_INPUT_CONFIRM', value);
-        commit('app/globalNavigation/TAGS_SORT');
+        commit('TAG_INPUT_CONFIRM', value);
+        commit('TAGS_SORT');
     },
     async tagInputCancel({ commit }) {
-        commit('app/globalNavigation/TAG_INPUT_CANCEL');
+        commit('TAG_INPUT_CANCEL');
     }
     // OLD
     // async deleteTag(c, id: string) {

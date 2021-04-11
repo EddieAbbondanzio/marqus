@@ -10,6 +10,7 @@ import contextMenu from 'electron-context-menu';
 import { defineRule } from 'vee-validate';
 import AllRules from '@vee-validate/rules';
 import { mouse } from './directives/mouse/mouse';
+import { focus } from './directives/focus';
 
 Object.keys(AllRules).forEach((rule) => {
     defineRule(rule, AllRules[rule]);
@@ -29,10 +30,5 @@ const app = createApp(App);
     }
 })();
 
-app.directive('focus', {
-    mounted(el, binding, vnode) {
-        el.focus();
-    }
-});
-
+app.directive('focus', focus);
 app.directive('mouse', mouse);

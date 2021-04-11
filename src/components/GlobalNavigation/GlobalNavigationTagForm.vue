@@ -5,6 +5,7 @@
             <div class="is-flex is-flex-row has-background-light py-1">
                 <Field name="Tag" :value="modelValue" v-slot="{ field }" :rules="unique">
                     <input
+                        id="tagValue"
                         type="text"
                         v-bind="field"
                         style="min-width: 0; width: 0; flex-grow: 1;"
@@ -13,11 +14,16 @@
                         @keyup.esc="$emit('cancel')"
                     />
                     <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
-                    <icon-button class="has-text-hover-danger" icon="fa-ban" @click="$emit('cancel')" />
+                    <icon-button
+                        id="cancelButton"
+                        class="has-text-hover-danger"
+                        icon="fa-ban"
+                        @click="$emit('cancel')"
+                    />
                 </Field>
             </div>
             <ErrorMessage name="Tag" v-slot="{ message }">
-                <p class="has-text-danger">{{ message }}</p>
+                <p id="errorMessage" class="has-text-danger">{{ message }}</p>
             </ErrorMessage>
         </div>
     </Form>
