@@ -3,12 +3,13 @@
     <Form @submit="onSubmit">
         <div class="has-background-light" :style="{ paddingLeft: `${depth * 24}px` }">
             <div class="is-flex is-flex-row has-background-light py-1">
-                <Field name="Tag" v-model="value" v-slot="{ field }" :rules="unique">
+                <Field name="Tag" :value="modelValue" v-slot="{ field }" :rules="unique">
                     <input
                         type="text"
                         v-bind="field"
                         style="min-width: 0; width: 0; flex-grow: 1;"
                         v-focus
+                        @input="onInput"
                         @keyup.esc="$emit('cancel')"
                     />
                     <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
@@ -33,8 +34,6 @@ export default defineComponent({
     setup(p, c) {
         const s = useStore();
 
-        const value = ref(null);
-
         const unique = (v: any) => {
             if (v == null || isBlank(v)) {
                 return 'Tag cannot be empty';
@@ -51,18 +50,27 @@ export default defineComponent({
         };
 
         const onSubmit = () => {
-            // c.emit('submit');
-            console.log('FUCK');
+            c.emit('submit');
+        };
+
+        const onInput = (e: any) => {
+            c.emit('update:modelValue', e.target.value);
         };
 
         return {
             unique,
             onSubmit,
-            depth: 1,
-            value
+            onInput,
+            depth: 1
         };
     },
-    emits: ['submit', 'cancel'],
+    props: {
+        modelValue: {
+            type: String,
+            default: ''
+        }
+    },
+    emits: ['submit', 'cancel', 'update:modelValue'],
     components: { Field, ErrorMessage, Form, IconButton }
 });
 </script>

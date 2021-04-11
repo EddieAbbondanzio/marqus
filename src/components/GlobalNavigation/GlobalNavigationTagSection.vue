@@ -14,15 +14,17 @@
                 <li class="is-flex-grow-1">
                     <GlobalNavigationTagForm
                         v-if="tagInputMode === 'create'"
-                        @submit="confirmCreate"
-                        @cancel="cancelCreate"
+                        @submit="confirm"
+                        @cancel="cancel"
+                        v-model="input"
                     />
                 </li>
                 <li v-for="tag in tags" :key="tag.id" :class="{ 'has-background-light': active == tag.id }">
                     <GlobalNavigationTagForm
                         v-if="isTagBeingUpdated(tag.id)"
-                        @submit="confirmUpdate"
-                        @cancel="cancelUpdate"
+                        @submit="confirm"
+                        @cancel="cancel"
+                        v-model="input"
                     />
 
                     <a v-else class="no-drag has-text-grey" @click="() => (active = tag.id)">
@@ -49,43 +51,34 @@ export default defineComponent({
     setup: function() {
         const s = useStore();
 
-        const tagsExpanded = computed({
-            get: () => s.state.app.globalNavigation.tags.expanded,
-            set: (v: any) => s.commit('app/globalNavigation/SET_TAGS_EXPANDED', v)
-        });
-
-        // EVERYTHING ABOVE THIS LINE HAS BEEN TESTED
-
-        const confirmCreate = (e: any) => {
-            s.dispatch('app/createTagConfirm');
-        };
-        const cancelCreate = () => s.dispatch('app/createTagCancel');
-
         const tags = computed(() => s.state.app.globalNavigation.tags.entries);
 
-        const confirmUpdate = () => s.dispatch('app/updateTagConfirm');
-        const cancelUpdate = () => s.dispatch('app/updateTagCancel');
+        const tagsExpanded = computed({
+            get: () => s.state.app.globalNavigation.tags.expanded,
+            set: (v: any) => s.commit('app/globalNavigation/TAGS_EXPANDED', v)
+        });
 
-        const isTagBeingUpdated = s.getters['app/isTagBeingUpdated'];
+        const isTagBeingUpdated = s.getters['app/globalNavigation/isTagBeingUpdated'];
         const tagInputMode = computed(() => s.state.app.globalNavigation.tags.input.mode);
         const input = computed({
             get: () => s.state.app.globalNavigation.tags.input.value,
-            set: (v: string) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.tags.input.value', value: v })
+            set: (v: string) => s.commit('app/globalNavigation/TAG_INPUT_VALUE', v)
         });
 
         const active = computed({
             get: () => s.state.app.globalNavigation.active,
-            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
+            set: (v: any) => s.commit('app/globalNavigation/UPDATE_STATE', { key: 'active', value: v })
         });
+
+        const confirm = () => s.dispatch('app/globalNavigation/tagInputConfirm');
+        const cancel = () => s.dispatch('app/globalNavigation/tagInputCancel');
 
         return {
             tags,
             tagsExpanded,
-            confirmCreate,
-            cancelCreate,
+            confirm,
+            cancel,
             store: s,
-            confirmUpdate,
-            cancelUpdate,
             isTagBeingUpdated,
             tagInputMode,
             input,

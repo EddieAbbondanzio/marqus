@@ -25,5 +25,10 @@ describe('GlobalNavigation mutations', () => {
             mutations.SET_TAGS_EXPANDED(state, true);
             expect(state.tags.expanded).toBeTruthy();
         });
+
+        it('defaults to true', () => {
+            mutations.SET_TAGS_EXPANDED(state);
+            expect(state.tags.expanded).toBeTruthy();
+        });
     });
 });
