@@ -1,7 +1,7 @@
 import { MutationTree } from 'vuex';
 import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/state';
 import { Notebook } from '@/store/modules/notebooks/state';
-import { id } from '@/utils/id';
+import { id as generateId } from '@/utils/id';
 
 export const mutations: MutationTree<GlobalNavigation> = {
     TAGS_EXPANDED(s, e = true) {
@@ -17,6 +17,7 @@ export const mutations: MutationTree<GlobalNavigation> = {
         // Create
         if (id == null) {
             s.tags.input = {};
+            s.tags.input.id = generateId();
             s.tags.input.mode = 'create';
         }
         // Update
@@ -28,7 +29,7 @@ export const mutations: MutationTree<GlobalNavigation> = {
         }
     },
     TAG_INPUT_CONFIRM(s) {
-        if (s.tags.input === {} || s.tags.input.value == null) {
+        if (s.tags.input === {} || s.tags.input.value == null || s.tags.input.id == null) {
             throw new Error('Invalid state.');
         }
 
@@ -36,7 +37,7 @@ export const mutations: MutationTree<GlobalNavigation> = {
 
         if (existing == null) {
             s.tags.entries.push({
-                id: s.tags.input.id ?? id(),
+                id: s.tags.input.id,
                 value: s.tags.input.value
             });
         } else {
