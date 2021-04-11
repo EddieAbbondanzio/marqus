@@ -94,6 +94,53 @@ describe('GlobalNavigation mutations', () => {
         });
     });
 
+    describe('TAG_INPUT_CONFIRM', () => {
+        it('throws error if invalid state', () => {
+            expect(() => {
+                mutations.TAG_INPUT_CONFIRM(state);
+            }).toThrowError();
+        });
+
+        it('inserts new tag value', () => {
+            state.tags.input = {
+                id: id(),
+                value: 'Cat',
+                mode: 'create'
+            };
+
+            mutations.TAG_INPUT_CONFIRM(state);
+            expect(state.tags.entries[0].value).toBe('Cat');
+        });
+
+        it('updates existing value', () => {
+            const t = {
+                id: id(),
+                value: 'Cat'
+            };
+
+            state.tags.entries.push(t);
+
+            (state.tags.input.id = t.id), (state.tags.input.mode = 'update');
+            state.tags.input.value = 'Dog';
+
+            mutations.TAG_INPUT_CONFIRM(state);
+            expect(state.tags.entries[0].value).toBe('Dog');
+        });
+
+        it('clears out input', () => {
+            state.tags.input = {
+                id: id(),
+                value: 'Cat',
+                mode: 'create'
+            };
+
+            mutations.TAG_INPUT_CONFIRM(state);
+            expect(state.tags.input.id).toBeUndefined();
+            expect(state.tags.input.value).toBeUndefined();
+            expect(state.tags.input.mode).toBeUndefined();
+        });
+    });
+
     describe('TAG_INPUT_CANCEL', () => {
         it('clears input out', () => {
             state.tags.input = {
