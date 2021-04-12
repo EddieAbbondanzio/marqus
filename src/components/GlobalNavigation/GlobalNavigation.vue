@@ -1,5 +1,5 @@
 <template>
-    <resizable class="has-text-dark" v-model="width" @resizeStop="save" data-context-menu="globalNavigation">
+    <resizable class="has-text-dark" v-model="width" data-context-menu="globalNavigation">
         <ul>
             <li :class="['has-background-hover-light', { 'has-background-light': active === 'all' }]">
                 <a class="no-drag has-text-grey is-size-7 is-uppercase" @click="() => (active = 'all')">
@@ -53,23 +53,23 @@ export default defineComponent({
 
         const width = computed({
             get: () => s.state.app.globalNavigation.width as string,
-            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.width', value: v })
+            set: (w: any) => {
+                s.commit('app/globalNavigation/WIDTH', w);
+                s.commit('DIRTY', null, { root: true });
+            }
         });
-
-        const save = () => {
-            s.dispatch('save');
-        };
 
         const active = computed({
             get: () => s.state.app.globalNavigation.active,
-            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
+            set: (v: any) => {
+                s.commit('app/globalNavigation/ACTIVE', v);
+                s.commit('DIRTY', null, { root: true });
+            }
         });
 
         return {
             width,
-            active,
-            save,
-            store: s
+            active
         };
     },
     components: { Resizable, GlobalNavigationTagSection, GlobalNavigationNotebookSection }

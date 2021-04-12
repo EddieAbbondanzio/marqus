@@ -15,9 +15,13 @@ export const PersistPlugin = (store: Store<State>) => {
              * 0 we save off to file.
              */
             if (timer == null || timer.isFinished) {
-                timer = new CountdownTimer(function() {
-                    store.dispatch('save');
-                }, DELAY);
+                timer = new CountdownTimer(
+                    function() {
+                        store.dispatch('save');
+                    },
+                    DELAY,
+                    DELAY
+                );
             } else {
                 timer.add(DELAY);
             }

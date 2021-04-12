@@ -8,6 +8,9 @@ export const mutations: MutationTree<GlobalNavigation> = {
     ACTIVE(s, id) {
         s.active = id;
     },
+    WIDTH(s, width) {
+        s.width = width;
+    },
     TAGS_EXPANDED(s, e = true) {
         s.tags.expanded = e;
     },

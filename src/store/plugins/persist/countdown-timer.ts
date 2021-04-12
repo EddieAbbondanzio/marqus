@@ -3,7 +3,7 @@ export class CountdownTimer {
     isFinished = false;
     start = 0;
 
-    constructor(public callback: () => void, public milliseconds: number) {
+    constructor(public callback: () => void, public milliseconds: number, public maxTime: number = 250) {
         this.setTimeout(callback, milliseconds);
     }
 
@@ -28,7 +28,7 @@ export class CountdownTimer {
 
     add(ms: number) {
         if (!this.isFinished) {
-            const newTime = Math.min(this.milliseconds - (Date.now() - this.start) + ms, 5000);
+            const newTime = Math.min(this.milliseconds - (Date.now() - this.start) + ms, this.maxTime);
             this.setTimeout(this.callback, newTime);
         }
     }
