@@ -2,7 +2,10 @@
     <li class="has-text-grey is-size-7">
         <collapse v-model="expanded" triggerClass="has-background-hover-light">
             <template #trigger>
-                <div class="is-flex is-align-center has-background-transparent global-navigation-title">
+                <div
+                    class="is-flex is-align-center has-background-transparent global-navigation-title"
+                    style="height: 24px;"
+                >
                     <span class="icon">
                         <i class="fas fa-book"></i>
                     </span>

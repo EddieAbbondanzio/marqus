@@ -46,7 +46,6 @@ export const actions: ActionTree<State, any> = {
          */
 
         if (saving.current == null) {
-            console.log('saving');
             saving.current = writeJsonFile(filePath, state);
             context.commit('CLEAN');
         } else if (saving.next == null) {

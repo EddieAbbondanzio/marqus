@@ -28,7 +28,10 @@
                     />
 
                     <a v-else class="no-drag has-text-grey" @click="() => (active = tag.id)">
-                        <p class="global-navigation-tag global-navigation-item" :data-id="tag.id">
+                        <p
+                            class="global-navigation-tag global-navigation-item has-background-hover-light is-flex is-align-center"
+                            :data-id="tag.id"
+                        >
                             {{ tag.value }}
                         </p>
                     </a>
@@ -95,4 +98,5 @@ export default defineComponent({
 <style lang="sass">
 .global-navigation-tag
     padding-left: 24px;
+    height: 30px;
 </style>
