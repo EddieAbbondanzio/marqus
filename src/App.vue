@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted } from 'vue';
+import { onBeforeUnmount, onMounted } from 'vue';
 import contextMenu from 'electron-context-menu';
 import { useStore } from 'vuex';
 import Cursor from '@/components/Cursor.vue';
@@ -12,9 +12,10 @@ import Cursor from '@/components/Cursor.vue';
 export default {
     setup() {
         const s = useStore();
+        let release: (() => void) | null = null;
 
         onMounted(() => {
-            contextMenu({
+            release = contextMenu({
                 menu: (da, p) => {
                     const element = document.elementFromPoint(p.x, p.y);
                     const id = element?.getAttribute('data-id');
@@ -91,6 +92,12 @@ export default {
                     return menuName === 'globalNavigation';
                 }
             });
+        });
+
+        onBeforeUnmount(() => {
+            if (release != null) {
+                release();
+            }
         });
     },
     components: { Cursor }
