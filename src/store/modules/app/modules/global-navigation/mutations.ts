@@ -63,6 +63,10 @@ export const mutations: MutationTree<GlobalNavigation> = {
     },
     TAG_INPUT_CLEAR(s) {
         s.tags.input = {};
+    },
+    TAG_DELETE(s, id: string) {
+        const index = s.tags.entries.findIndex((t) => t.id === id);
+        s.tags.entries.splice(index, 1);
     }
     // OLD
     // SET_NOTEBOOK_EXPAND(s, { id, value }: { id: string; value: boolean }) {

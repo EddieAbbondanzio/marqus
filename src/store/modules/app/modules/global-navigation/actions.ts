@@ -28,15 +28,18 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     },
     async tagInputCancel({ commit }) {
         commit('TAG_INPUT_CLEAR');
-    }
-    // OLD
-    // async deleteTag(c, id: string) {
-    //     const confirm = await confirmDelete('tag', c.state.tags.entries.find((t) => t.id === id)!.value);
+    },
+    async refresh({ commit, rootState }) {
+        commit('TAGS_REFRESH', rootState.tags.values);
+    },
+    async deleteTag({ commit, state }, id: string) {
+        const confirm = await confirmDelete('tag', state.tags.entries.find((t) => t.id === id)!.value);
 
-    //     if (confirm) {
-    //         this.commit('app/globalNavigation/DELETE_TAG', id);
-    //     }
-    // },
+        if (confirm) {
+            commit('TAG_DELETE', id);
+            commit('tags/DELETE', id, { root: true });
+        }
+    }
     // async deleteAllTags() {
     //     this.commit('app/globalNavigation/DELETE_ALL_TAGS');
     // },

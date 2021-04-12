@@ -10,6 +10,7 @@ export const actions: ActionTree<State, any> = {
         }
 
         c.dispatch('config/load');
+        c.dispatch('app/globalNavigation/refresh');
         // c.dispatch('app/load');
     }
 };
