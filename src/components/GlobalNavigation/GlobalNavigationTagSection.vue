@@ -55,7 +55,10 @@ export default defineComponent({
 
         const tagsExpanded = computed({
             get: () => s.state.app.globalNavigation.tags.expanded,
-            set: (v: any) => s.commit('app/globalNavigation/TAGS_EXPANDED', v)
+            set: (v: any) => {
+                s.commit('app/globalNavigation/TAGS_EXPANDED', v);
+                s.commit('DIRTY', null, { root: true });
+            }
         });
 
         const isTagBeingUpdated = s.getters['app/globalNavigation/isTagBeingUpdated'];
@@ -67,7 +70,7 @@ export default defineComponent({
 
         const active = computed({
             get: () => s.state.app.globalNavigation.active,
-            set: (v: any) => s.commit('app/globalNavigation/UPDATE_STATE', { key: 'active', value: v })
+            set: (v: any) => s.commit('app/globalNavigation/ACTIVE', v)
         });
 
         const confirm = () => s.dispatch('app/globalNavigation/tagInputConfirm');

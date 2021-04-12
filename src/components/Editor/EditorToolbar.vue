@@ -50,7 +50,7 @@ export default defineComponent({
         return {
             toggleMode: function() {
                 s.commit('app/toggleMode');
-                s.dispatch('app/save');
+                s.dispatch('save');
             }
         };
     },

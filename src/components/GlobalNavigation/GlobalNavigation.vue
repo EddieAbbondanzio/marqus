@@ -57,7 +57,7 @@ export default defineComponent({
         });
 
         const save = () => {
-            s.dispatch('app/save');
+            s.dispatch('save');
         };
 
         const active = computed({

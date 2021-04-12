@@ -4,12 +4,12 @@ import app from '@/store/modules/app';
 import tags from '@/store/modules/tags';
 import notebooks from '@/store/modules/notebooks';
 import { PersistPlugin } from './plugins/persist/persist-plugin';
-import { State } from './state';
+import { State, state } from './state';
 import { mutations } from '@/store/mutations';
 import { actions } from '@/store/actions';
 
 export const store = createStore<State>({
-    state: {} as any,
+    state: () => state as any,
     mutations,
     actions,
     modules: {

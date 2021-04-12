@@ -20,7 +20,7 @@ export default defineComponent({
             set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'localNavigation.width', value: v })
         });
 
-        const save = () => s.dispatch('app/save');
+        const save = () => s.dispatch('save');
 
         return {
             width,

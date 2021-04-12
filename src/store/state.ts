@@ -8,4 +8,7 @@ export interface State {
     app: AppState;
     tags: TagState;
     notebooks: NotebookState;
+    dirty?: boolean;
 }
+
+export const state = {};

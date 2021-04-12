@@ -5,6 +5,9 @@ import { id as generateId } from '@/utils/id';
 import { Tag } from '@/store/modules/tags/state';
 
 export const mutations: MutationTree<GlobalNavigation> = {
+    ACTIVE(s, id) {
+        s.active = id;
+    },
     TAGS_EXPANDED(s, e = true) {
         s.tags.expanded = e;
     },
