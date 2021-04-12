@@ -53,6 +53,45 @@ describe('GlobalNavigation mutations', () => {
         });
     });
 
+    describe('TAGS_REFRESH', () => {
+        it('updates value of existing tags', () => {
+            const entry = {
+                id: id(),
+                value: 'cat'
+            };
+
+            const updatedTag = {
+                id: entry.id,
+                value: 'dog'
+            };
+
+            state.tags.entries.push(entry);
+
+            mutations.TAGS_REFRESH(state, [updatedTag]);
+            expect(state.tags.entries[0].value).toBe('dog');
+        });
+
+        it('removes existing if no longer a tag', () => {
+            const entry = {
+                id: id(),
+                value: 'cat'
+            };
+
+            mutations.TAGS_REFRESH(state, []);
+            expect(state.tags.entries).toHaveLength(0);
+        });
+
+        it('adds new tags', () => {
+            const tag = {
+                id: id(),
+                value: 'dog'
+            };
+
+            mutations.TAGS_REFRESH(state, [tag]);
+            expect(state.tags.entries[0].value).toBe('dog');
+        });
+    });
+
     describe('TAG_INPUT_VALUE', () => {
         it('sets value', () => {
             mutations.TAG_INPUT_VALUE(state, 'cat');
@@ -94,61 +133,14 @@ describe('GlobalNavigation mutations', () => {
         });
     });
 
-    describe('TAG_INPUT_CONFIRM', () => {
-        it('throws error if invalid state', () => {
-            expect(() => {
-                mutations.TAG_INPUT_CONFIRM(state);
-            }).toThrowError();
-        });
-
-        it('inserts new tag value', () => {
-            state.tags.input = {
-                id: id(),
-                value: 'Cat',
-                mode: 'create'
-            };
-
-            mutations.TAG_INPUT_CONFIRM(state);
-            expect(state.tags.entries[0].value).toBe('Cat');
-        });
-
-        it('updates existing value', () => {
-            const t = {
-                id: id(),
-                value: 'Cat'
-            };
-
-            state.tags.entries.push(t);
-
-            (state.tags.input.id = t.id), (state.tags.input.mode = 'update');
-            state.tags.input.value = 'Dog';
-
-            mutations.TAG_INPUT_CONFIRM(state);
-            expect(state.tags.entries[0].value).toBe('Dog');
-        });
-
-        it('clears out input', () => {
-            state.tags.input = {
-                id: id(),
-                value: 'Cat',
-                mode: 'create'
-            };
-
-            mutations.TAG_INPUT_CONFIRM(state);
-            expect(state.tags.input.id).toBeUndefined();
-            expect(state.tags.input.value).toBeUndefined();
-            expect(state.tags.input.mode).toBeUndefined();
-        });
-    });
-
-    describe('TAG_INPUT_CANCEL', () => {
+    describe('TAG_INPUT_CLEAR', () => {
         it('clears input out', () => {
             state.tags.input = {
                 id: id(),
                 value: 'Cat'
             };
 
-            mutations.TAG_INPUT_CANCEL(state);
+            mutations.TAG_INPUT_CLEAR(state);
             expect(state.tags.input.id).toBeUndefined();
             expect(state.tags.input.value).toBeUndefined();
             expect(state.tags.input.mode).toBeUndefined();

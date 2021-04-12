@@ -2,6 +2,7 @@ import { MutationTree } from 'vuex';
 import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/state';
 import { Notebook } from '@/store/modules/notebooks/state';
 import { id as generateId } from '@/utils/id';
+import { Tag } from '@/store/modules/tags/state';
 
 export const mutations: MutationTree<GlobalNavigation> = {
     TAGS_EXPANDED(s, e = true) {
@@ -9,6 +10,38 @@ export const mutations: MutationTree<GlobalNavigation> = {
     },
     TAGS_SORT(s) {
         s.tags.entries.sort((a, b) => a.value.localeCompare(b.value));
+    },
+    TAGS_REFRESH(s, tags: Tag[]) {
+        const newEntries = [];
+
+        // Update existing
+        for (let i = 0; i < s.tags.entries.length; i++) {
+            const entry = s.tags.entries[i];
+            const tag = tags.find((t) => t.id === entry.id);
+
+            // If no updated record found, it was probably removed.
+            if (tag == null) {
+                continue;
+            }
+
+            entry.value = tag.value;
+            newEntries.push(entry);
+        }
+
+        // Add new ones if any
+        for (let i = 0; i < tags.length; i++) {
+            const entry = s.tags.entries.find((t) => t.id === tags[i].id);
+            const tag = tags[i];
+
+            if (entry == null) {
+                newEntries.push({
+                    id: tag.id,
+                    value: tag.value
+                });
+            }
+        }
+
+        s.tags.entries = newEntries;
     },
     TAG_INPUT_VALUE(s, value: string) {
         s.tags.input.value = value;
@@ -28,25 +61,7 @@ export const mutations: MutationTree<GlobalNavigation> = {
             s.tags.input.mode = 'update';
         }
     },
-    TAG_INPUT_CONFIRM(s) {
-        if (s.tags.input === {} || s.tags.input.value == null || s.tags.input.id == null) {
-            throw new Error('Invalid state.');
-        }
-
-        const existing = s.tags.entries.find((t) => t.id === s.tags.input.id);
-
-        if (existing == null) {
-            s.tags.entries.push({
-                id: s.tags.input.id,
-                value: s.tags.input.value
-            });
-        } else {
-            existing.value = s.tags.input.value;
-        }
-
-        s.tags.input = {};
-    },
-    TAG_INPUT_CANCEL(s) {
+    TAG_INPUT_CLEAR(s) {
         s.tags.input = {};
     }
     // OLD

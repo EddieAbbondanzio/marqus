@@ -8,12 +8,26 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('TAG_INPUT_START', id);
         commit('TAGS_EXPANDED');
     },
-    async tagInputConfirm({ commit }, value: string) {
-        commit('TAG_INPUT_CONFIRM', value);
+    async tagInputConfirm({ commit, state, rootState }, value: string) {
+        switch (state.tags.input.mode) {
+            case 'create':
+                commit('tags/CREATE', { id: state.tags.input.id, value: state.tags.input.value }, { root: true });
+                break;
+
+            case 'update':
+                commit('tags/UPDATE', { id: state.tags.input.id, value: state.tags.input.value }, { root: true });
+                break;
+
+            default:
+                throw new Error('Invalid mode');
+        }
+
+        commit('TAG_INPUT_CLEAR', value);
+        commit('TAGS_REFRESH', rootState.tags.values);
         commit('TAGS_SORT');
     },
     async tagInputCancel({ commit }) {
-        commit('TAG_INPUT_CANCEL');
+        commit('TAG_INPUT_CLEAR');
     }
     // OLD
     // async deleteTag(c, id: string) {
