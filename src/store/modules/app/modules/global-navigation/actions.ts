@@ -32,7 +32,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     async refresh({ commit, rootState }) {
         commit('TAGS_REFRESH', rootState.tags.values);
     },
-    async deleteTag({ commit, state }, id: string) {
+    async tagDelete({ commit, state }, id: string) {
         const confirm = await confirmDelete('tag', state.tags.entries.find((t) => t.id === id)!.value);
 
         if (confirm) {

@@ -20,7 +20,7 @@ export const mutations: MutationTree<GlobalNavigation> = {
             const tag = tags.find((t) => t.id === entry.id);
 
             // If no updated record found, it was probably removed.
-            if (tag == null) {
+            if (tag == null || entry == null) {
                 continue;
             }
 
@@ -33,7 +33,7 @@ export const mutations: MutationTree<GlobalNavigation> = {
             const entry = s.tags.entries.find((t) => t.id === tags[i].id);
             const tag = tags[i];
 
-            if (entry == null) {
+            if (entry == null && tag != null) {
                 newEntries.push({
                     id: tag.id,
                     value: tag.value

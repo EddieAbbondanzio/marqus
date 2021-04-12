@@ -69,7 +69,7 @@ export default {
                         items.push({
                             label: 'Delete Tag',
                             click: () => {
-                                s.dispatch('app/globalNavigation/deleteTag', id);
+                                s.dispatch('app/globalNavigation/tagDelete', id);
                             }
                         });
                     }

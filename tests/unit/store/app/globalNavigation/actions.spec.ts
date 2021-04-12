@@ -10,7 +10,8 @@ describe('GlobalNavigation Actions', () => {
                 tags: {
                     input: {
                         mode: 'create'
-                    }
+                    },
+                    entries: []
                 }
             },
             rootState: {
@@ -57,15 +58,6 @@ describe('GlobalNavigation Actions', () => {
 
             expect(context.commit.mock.calls).toHaveLength(1);
             expect(context.commit.mock.calls[0][0]).toBe('TAG_INPUT_CLEAR');
-        });
-    });
-
-    describe('refresh', () => {
-        it('calls TAGS_REFRESH', () => {
-            (actions.refresh as Function)(context);
-
-            expect(context.commit.mock.calls).toHaveLength(1);
-            expect(context.commit.mock.calls[0][0]).toBe('TAGS_REFRESH');
         });
     });
 });

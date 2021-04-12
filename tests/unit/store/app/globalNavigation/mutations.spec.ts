@@ -146,4 +146,18 @@ describe('GlobalNavigation mutations', () => {
             expect(state.tags.input.mode).toBeUndefined();
         });
     });
+
+    describe('TAG_DELETE', () => {
+        it('removes tag', () => {
+            const t = {
+                id: id(),
+                value: 'Cat'
+            };
+
+            state.tags.entries.push(t);
+
+            mutations.TAG_DELETE(state, state.tags.entries[0].id);
+            expect(state.tags.entries).toHaveLength(0);
+        });
+    });
 });
