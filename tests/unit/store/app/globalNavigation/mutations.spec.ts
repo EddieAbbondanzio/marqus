@@ -21,6 +21,20 @@ describe('GlobalNavigation mutations', () => {
         };
     });
 
+    describe('ACTIVE', () => {
+        it('sets active', () => {
+            mutations.ACTIVE(state, true);
+            expect(state.active).toBeTruthy();
+        });
+    });
+
+    describe('WIDTH', () => {
+        it('sets width', () => {
+            mutations.WIDTH(state, '300px');
+            expect(state.width).toBe('300px');
+        });
+    });
+
     describe('TAGS_EXPANDED', () => {
         it('assigns tags.expanded to the parameter.', () => {
             mutations.TAGS_EXPANDED(state, true);
