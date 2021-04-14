@@ -48,7 +48,7 @@ describe('GlobalNavigation Actions', () => {
             (actions.tagInputConfirm as Function)(context);
 
             expect(context.commit.mock.calls).toHaveLength(4);
-            expect(context.commit.mock.calls[3][0]).toBe('TAGS_SORT');
+            expect(context.commit.mock.calls[3][0]).toBe('tags/SORT');
         });
     });
 

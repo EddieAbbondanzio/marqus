@@ -14,66 +14,63 @@ export const mutations: MutationTree<GlobalNavigation> = {
     TAGS_EXPANDED(s, e = true) {
         s.tags.expanded = e;
     },
-    TAGS_SORT(s) {
-        s.tags.entries.sort((a, b) => a.value.localeCompare(b.value));
-    },
-    TAGS_REFRESH(s, tags: Tag[]) {
-        const newEntries = [];
-
-        // Update existing
-        for (let i = 0; i < s.tags.entries.length; i++) {
-            const entry = s.tags.entries[i];
-            const tag = tags.find((t) => t.id === entry.id);
-
-            // If no updated record found, it was probably removed.
-            if (tag == null || entry == null) {
-                continue;
-            }
-
-            entry.value = tag.value;
-            newEntries.push(entry);
-        }
-
-        // Add new ones if any
-        for (let i = 0; i < tags.length; i++) {
-            const entry = s.tags.entries.find((t) => t.id === tags[i].id);
-            const tag = tags[i];
-
-            if (entry == null && tag != null) {
-                newEntries.push({
-                    id: tag.id,
-                    value: tag.value
-                });
-            }
-        }
-
-        s.tags.entries = newEntries;
-    },
     TAG_INPUT_VALUE(s, value: string) {
         s.tags.input.value = value;
     },
-    TAG_INPUT_START(s, id: string | null = null) {
+    TAG_INPUT_START(s, tag: Tag | null = null) {
         // Create
-        if (id == null) {
-            s.tags.input = {};
-            s.tags.input.id = generateId();
-            s.tags.input.mode = 'create';
+        if (tag == null) {
+            s.tags.input = {
+                id: generateId(),
+                mode: 'create'
+            };
         }
         // Update
         else {
-            const t = s.tags.entries.find((t) => t.id === id)!;
-            s.tags.input.id = t.id;
-            s.tags.input.value = t.value;
-            s.tags.input.mode = 'update';
+            s.tags.input = {
+                id: tag.id,
+                value: tag.value,
+                mode: 'update'
+            };
         }
     },
     TAG_INPUT_CLEAR(s) {
         s.tags.input = {};
     },
-    TAG_DELETE(s, id: string) {
-        const index = s.tags.entries.findIndex((t) => t.id === id);
-        s.tags.entries.splice(index, 1);
+    NOTEBOOKS_EXPANDED(s, e = true) {
+        s.notebooks.expanded = e;
     }
+    // NOTEBOOK_INPUT_START(s, { id, parentId }: { id?: string; parentId?: string }) {
+    //     let parent: Notebook | undefined;
+
+    //     if (parentId != null) {
+    //         parent = s.notebooks.entries.find((n) => n.id === parentId);
+    //     }
+
+    //     // Create
+    //     if (id == null) {
+    //         s.notebooks.input = {
+    //             id: generateId(),
+    //             mode: 'create',
+    //             parent
+    //         };
+    //     }
+    //     // Update
+    //     else {
+    //         const notebook = s.notebooks.entries.find((n) => n.id === id);
+
+    //         if (notebook == null) {
+    //             throw new Error(`Can't find notebook with id ${id} to update.`);
+    //         }
+
+    //         s.notebooks.input = {
+    //             id: notebook.id,
+    //             value: notebook.value,
+    //             mode: 'update',
+    //             parent
+    //         };
+    //     }
+    // }
     // OLD
     // SET_NOTEBOOK_EXPAND(s, { id, value }: { id: string; value: boolean }) {
     //     const n = findNotebookRecursive(s.notebooks.entries, id);

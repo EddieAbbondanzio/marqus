@@ -3,15 +3,13 @@ import { Tag } from '@/store/modules/tags/state';
 
 export interface GlobalNavigationNotebookSection {
     expanded: boolean;
-    input: Partial<Notebook> & { mode?: 'create' | 'update'; parentId?: string };
+    input: Partial<Notebook> & { mode?: 'create' | 'update' };
     dragging?: Notebook;
-    entries: Notebook[];
 }
 
 export interface GlobalNavigationTagSection {
     expanded: boolean;
     input: Partial<Tag> & { mode?: 'create' | 'update' };
-    entries: Tag[];
 }
 
 export interface GlobalNavigation {
@@ -27,12 +25,10 @@ export interface GlobalNavigation {
 export const state: GlobalNavigation = {
     notebooks: {
         expanded: false,
-        entries: [],
         input: {}
     },
     tags: {
         expanded: false,
-        entries: [],
         input: {}
     },
     width: '300px'

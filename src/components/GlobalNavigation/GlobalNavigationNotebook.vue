@@ -23,7 +23,8 @@
                         :class="[
                             'global-navigation-notebook',
                             'global-navigation-item',
-                            { 'has-background-light': active == modelValue.id }
+                            { 'has-background-light': active == modelValue.id },
+                            'is-flex is-align-center'
                         ]"
                         :data-id="modelValue.id"
                         :style="`padding-left: ${depth * 24}px`"
@@ -52,7 +53,7 @@
             v-mouse:release="onRelease"
         >
             <p
-                class="global-navigation-notebook global-navigation-item has-background-hover-light"
+                class="global-navigation-notebook global-navigation-item has-background-hover-light is-flex is-align-center"
                 :style="`padding-left: ${depth * 24}px`"
                 :data-id="modelValue.id"
             >
@@ -161,3 +162,8 @@ export default defineComponent({
     components: { Collapse, GlobalNavigationNotebookForm }
 });
 </script>
+
+<style lang="sass">
+.global-navigation-notebook
+    height: 30px;
+</style>

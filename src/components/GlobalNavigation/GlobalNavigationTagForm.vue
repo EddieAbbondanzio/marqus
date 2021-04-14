@@ -45,9 +45,8 @@ export default defineComponent({
                 return 'Tag cannot be empty';
             }
 
-            const existing = s.state.app.globalNavigation.tags.entries.find(
-                (t: any) => t.value.toUpperCase() === v.toUpperCase()
-            );
+            const existing = s.state.tags.values.find((t: any) => t.value.toUpperCase() === v.toUpperCase());
+
             if (existing != null && existing.id !== s.state.app.globalNavigation.tags.input.id) {
                 return `Tag with value ${v} already exists`;
             }

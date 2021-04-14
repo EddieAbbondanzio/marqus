@@ -2,10 +2,7 @@
     <li class="has-text-grey is-size-7">
         <collapse v-model="expanded" triggerClass="has-background-hover-light">
             <template #trigger>
-                <div
-                    class="is-flex is-align-center has-background-transparent global-navigation-title"
-                    style="height: 24px;"
-                >
+                <div class="is-flex is-align-center has-background-transparent global-navigation-title">
                     <span class="icon">
                         <i class="fas fa-book"></i>
                     </span>
@@ -44,25 +41,15 @@ export default defineComponent({
 
         const expanded = computed({
             get: () => s.state.app.globalNavigation.notebooks.expanded,
-            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.notebooks.expanded', value: v })
+            set: (v: any) => {
+                s.commit('app/globalNavigation/NOTEBOOKS_EXPANDED', v);
+                s.commit('DIRTY', null, { root: true });
+            }
         });
 
         const notebooks = computed(() => s.state.app.globalNavigation.notebooks.entries);
 
-        const unique = (v: any) => {
-            if (v == null || isBlank(v)) {
-                return 'Notebook cannot be empty';
-            }
-
-            const existing = s.state.app.globalNavigation.tags.entries.find(
-                (t: any) => t.value.toUpperCase() === v.toUpperCase()
-            );
-            if (existing != null) {
-                return `Notebook with value ${v} already exists`;
-            }
-
-            return true;
-        };
+        // OLD below here
 
         const input = computed(() => s.state.app.globalNavigation.notebooks.input);
 
@@ -80,7 +67,6 @@ export default defineComponent({
         return {
             expanded,
             notebooks,
-            unique,
             confirmCreate,
             cancelCreate,
             input,

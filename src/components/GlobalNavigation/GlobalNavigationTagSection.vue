@@ -44,7 +44,7 @@
 <script lang="ts">
 import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide, onMounted } from 'vue';
 import { store } from '@/store';
-import { useStore } from 'vuex';
+import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import Collapse from '@/components/Collapse.vue';
 import { useField, Field, ErrorMessage, Form } from 'vee-validate';
 import { isBlank } from '@/utils/is-blank';
@@ -54,8 +54,6 @@ export default defineComponent({
     setup: function() {
         const s = useStore();
 
-        const tags = computed(() => s.state.app.globalNavigation.tags.entries);
-
         const tagsExpanded = computed({
             get: () => s.state.app.globalNavigation.tags.expanded,
             set: (v: any) => {
@@ -64,8 +62,6 @@ export default defineComponent({
             }
         });
 
-        const isTagBeingUpdated = s.getters['app/globalNavigation/isTagBeingUpdated'];
-        const tagInputMode = computed(() => s.state.app.globalNavigation.tags.input.mode);
         const input = computed({
             get: () => s.state.app.globalNavigation.tags.input.value,
             set: (v: string) => s.commit('app/globalNavigation/TAG_INPUT_VALUE', v)
@@ -76,22 +72,27 @@ export default defineComponent({
             set: (v: any) => s.commit('app/globalNavigation/ACTIVE', v)
         });
 
-        const confirm = () => s.dispatch('app/globalNavigation/tagInputConfirm');
-        const cancel = () => s.dispatch('app/globalNavigation/tagInputCancel');
-
         return {
-            tags,
             tagsExpanded,
-            confirm,
-            cancel,
             store: s,
-            isTagBeingUpdated,
-            tagInputMode,
+
             input,
             active
         };
     },
-    components: { Collapse, GlobalNavigationTagForm }
+    components: { Collapse, GlobalNavigationTagForm },
+    computed: {
+        ...mapState('tags', {
+            tags: (state: any) => state.values
+        }),
+        ...mapState('app/globalNavigation', {
+            tagInputMode: (state: any) => state.tags.input.mode
+        }),
+        ...mapGetters('app/globalNavigation', ['isTagBeingUpdated'])
+    },
+    methods: {
+        ...mapActions('app/globalNavigation', { confirm: 'tagInputConfirm', cancel: 'tagInputCancel' })
+    }
 });
 </script>
 

@@ -1,7 +1,13 @@
 <template>
     <resizable class="has-text-dark" v-model="width" data-context-menu="globalNavigation">
         <ul>
-            <li :class="['has-background-hover-light', { 'has-background-light': active === 'all' }]">
+            <li
+                :class="[
+                    'global-navigation-item',
+                    'has-background-hover-light',
+                    { 'has-background-light': active === 'all' }
+                ]"
+            >
                 <a class="no-drag has-text-grey is-size-7 is-uppercase" @click="() => (active = 'all')">
                     <div class="is-flex is-align-center has-background-transparent">
                         <span class="icon">
@@ -16,7 +22,13 @@
 
             <global-navigation-tag-section />
 
-            <li :class="['has-background-hover-light', { 'has-background-light': active === 'favorites' }]">
+            <li
+                :class="[
+                    'global-navigation-item',
+                    'has-background-hover-light',
+                    { 'has-background-light': active === 'favorites' }
+                ]"
+            >
                 <a class="no-drag has-text-grey is-size-7 is-uppercase" @click="() => (active = 'favorites')">
                     <div class="has-background-transparent">
                         <span class="icon">
@@ -26,7 +38,13 @@
                     </div>
                 </a>
             </li>
-            <li :class="['has-background-hover-light', { 'has-background-light': active === 'trash' }]">
+            <li
+                :class="[
+                    'global-navigation-item',
+                    'has-background-hover-light',
+                    { 'has-background-light': active === 'trash' }
+                ]"
+            >
                 <a class="no-drag has-text-grey is-size-7 is-uppercase" @click="() => (active = 'trash')">
                     <div class="has-background-transparent">
                         <span class="icon">
@@ -83,4 +101,7 @@ global-navigation-title
 
 .global-navigation-item
     line-height: 24px
+    height: 30px
+    display: flex
+    align-items: center
 </style>
