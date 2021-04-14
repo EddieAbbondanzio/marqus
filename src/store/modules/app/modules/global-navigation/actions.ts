@@ -7,7 +7,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     async tagInputStart({ commit, rootState, state }, id: string | null = null) {
         const tag = rootState.tags.values.find((t) => t.id === id);
 
-        // Only throw error if an id was passed, but no matching tag found
+        // Only throw error if an id was passed (update), but no matching tag found
         if (tag == null && id != null) {
             throw new Error(`No tag with id ${id} found.`);
         }
@@ -49,35 +49,5 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('NOTEBOOK_INPUT_START', { id, parentId });
         commit('TAGS_EXPANDED');
     }
-    // async deleteAllTags() {
-    //     this.commit('app/globalNavigation/DELETE_ALL_TAGS');
-    // },
-    // async createNotebook(c, parentId: string) {
-    //     this.commit('app/globalNavigation/CREATE_NOTEBOOK', parentId);
-    //     this.commit('app/globalNavigation/EXPAND_NOTEBOOKS');
-    // },
-    // async createNotebookConfirm() {
-    //     this.commit('app/globalNavigation/CREATE_NOTEBOOK_CONFIRM');
-    //     this.commit('app/globalNavigation/SORT_NOTEBOOKS');
-    // },
-    // async createNotebookCancel() {
-    //     this.commit('app/globalNavigation/CREATE_NOTEBOOK_CANCEL');
-    // },
-    // async updateNotebook(c, id: string) {
-    //     this.commit('app/globalNavigation/UPDATE_NOTEBOOK', id);
-    // },
-    // async updateNotebookConfirm() {
-    //     this.commit('app/globalNavigation/UPDATE_NOTEBOOK_CONFIRM');
-    //     this.commit('app/globalNavigation/SORT_NOTEBOOKS');
-    // },
-    // async updateNotebookCancel() {
-    //     this.commit('app/globalNavigation/UPDATE_NOTEBOOK_CANCEL');
-    // },
-    // async deleteNotebook(c, id: string) {
-    //     const confirm = await confirmDelete('notebook', c.state.notebooks.entries.find((n) => n.id === id)!.value);
-
-    //     if (confirm) {
-    //         this.commit('app/globalNavigation/DELETE_NOTEBOOK', id);
-    //     }
-    // }
+    
 };

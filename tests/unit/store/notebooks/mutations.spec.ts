@@ -1,4 +1,4 @@
-import { mutations } from '@/store/modules/notebooks/mutations';
+import { findNotebookRecursive, mutations } from '@/store/modules/notebooks/mutations';
 import { Notebook, NotebookState } from '@/store/modules/notebooks/state';
 import { id } from '@/utils/id';
 
@@ -123,5 +123,40 @@ describe('NotebooksStore mutations', () => {
             expect(notebook.children![1]).toHaveProperty('value', 'correct');
             expect(notebook.children![2]).toHaveProperty('value', 'staple');
         });
+    });
+});
+
+describe('findNotebookRecursive()', () => {
+    const notebooks = [
+        {
+            id: id(),
+            value: 'horse',
+            expanded: false,
+            children: [
+                { id: id(), value: 'correct', expanded: false },
+                { id: id(), value: 'battery', expanded: false },
+                { id: id(), value: 'staple', expanded: false }
+            ]
+        }
+    ];
+
+    it('returns nothing if no notebooks passed', () => {
+        const match = findNotebookRecursive(null!, '1');
+        expect(match).toBeUndefined();
+    });
+
+    it('can find a root match', () => {
+        const match = findNotebookRecursive(notebooks, notebooks[0].id);
+        expect(match).toHaveProperty('id', notebooks[0].id);
+    });
+
+    it('can find a nested notebook', () => {
+        const match = findNotebookRecursive(notebooks, notebooks[0].children[2].id);
+        expect(match).toHaveProperty('id', notebooks[0].children[2].id);
+    });
+
+    it('returns nothing if no match found after searching', () => {
+        const match = findNotebookRecursive(notebooks, '1');
+        expect(match).toBeUndefined();
     });
 });
