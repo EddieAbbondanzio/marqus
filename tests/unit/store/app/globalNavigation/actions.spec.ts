@@ -1,65 +1,53 @@
 import { actions } from '@/store/modules/app/modules/global-navigation/actions';
 
 describe('GlobalNavigation Actions', () => {
-    let context: { commit: jest.Mock; rootState: {}; state: {} };
-
-    beforeEach(() => {
-        context = {
-            commit: jest.fn(),
-            state: {
-                tags: {
-                    input: {
-                        mode: 'create'
-                    },
-                    entries: []
-                }
-            },
-            rootState: {
-                tags: {
-                    values: []
-                }
+    const context = {
+        state: {
+            tags: {
+                input: {
+                    mode: 'create'
+                },
+                entries: []
             }
-        };
-    });
+        },
+        rootState: {
+            tags: {
+                values: []
+            }
+        }
+    };
 
     describe('tagInputStart', () => {
-        it('triggers input start', () => {
-            (actions.tagInputStart as Function)(context);
-
-            expect(context.commit.mock.calls).toHaveLength(2);
-            expect(context.commit.mock.calls[0][0]).toBe('TAG_INPUT_START');
-        });
-
-        it('expands tags section', () => {
-            (actions.tagInputStart as Function)(context);
-
-            expect(context.commit.mock.calls).toHaveLength(2);
-            expect(context.commit.mock.calls[1][0]).toBe('TAGS_EXPANDED');
+        it('triggers input start, and expands tags section', () => {
+            expectAction(actions.tagInputStart, null, context, ['TAG_INPUT_START', 'TAGS_EXPANDED']);
         });
     });
 
     describe('tagInputConfirm', () => {
-        it('saves off the input', () => {
-            (actions.tagInputConfirm as Function)(context);
-
-            expect(context.commit.mock.calls).toHaveLength(4);
-            expect(context.commit.mock.calls[0][0]).toBe('tags/CREATE');
+        it('on create triggers create tag, sorts, and saves', () => {
+            expectAction(actions.tagInputConfirm, null, context, [
+                'tags/CREATE',
+                'TAG_INPUT_CLEAR',
+                'tags/SORT',
+                'DIRTY'
+            ]);
         });
 
-        it('sorts tags', () => {
-            (actions.tagInputConfirm as Function)(context);
+        it('on update triggers update tag, sorts, and saves', () => {
+            context.state.tags.input.mode = 'update';
 
-            expect(context.commit.mock.calls).toHaveLength(4);
-            expect(context.commit.mock.calls[2][0]).toBe('tags/SORT');
+            expectAction(actions.tagInputConfirm, null, context, [
+                'tags/UPDATE',
+                'TAG_INPUT_CLEAR',
+                'tags/SORT',
+                'DIRTY'
+            ]);
         });
     });
 
     describe('tagInputCancel', () => {
         it('cancels', () => {
-            (actions.tagInputCancel as Function)(context);
-
-            expect(context.commit.mock.calls).toHaveLength(1);
-            expect(context.commit.mock.calls[0][0]).toBe('TAG_INPUT_CLEAR');
+            expectAction(actions.tagInputCancel, null, context, ['TAG_INPUT_CLEAR']);
         });
     });
 });

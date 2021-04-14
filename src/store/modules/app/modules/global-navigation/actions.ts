@@ -1,36 +1,48 @@
+import { findNotebookRecursive } from '@/store/modules/notebooks/mutations';
+import { Notebook } from '@/store/modules/notebooks/state';
+import { Tag } from '@/store/modules/tags/state';
 import { State } from '@/store/state';
 import { confirmDelete } from '@/utils/confirm-delete';
 import { Action, ActionContext, ActionTree } from 'vuex';
 import { GlobalNavigation } from './state';
 
 export const actions: ActionTree<GlobalNavigation, State> = {
-    async tagInputStart({ commit, rootState, state }, id: string | null = null) {
-        const tag = rootState.tags.values.find((t) => t.id === id);
+    async tagInputStart({ commit, rootState }, id: string | null = null) {
+        let tag: Tag | undefined;
 
-        // Only throw error if an id was passed (update), but no matching tag found
-        if (tag == null && id != null) {
-            throw new Error(`No tag with id ${id} found.`);
+        if (id != null) {
+            tag = rootState.tags.values.find((t) => t.id === id);
+
+            if (tag == null) {
+                throw new Error(`No tag with id ${id} found.`);
+            }
         }
+
         commit('TAG_INPUT_START', tag);
         commit('TAGS_EXPANDED');
     },
-    async tagInputConfirm({ commit, state, rootState }, value: string) {
+    async tagInputConfirm({ commit, state }) {
         const input = state.tags.input;
+
+        const tag = {
+            id: input.id,
+            value: input.value
+        };
 
         switch (input.mode) {
             case 'create':
-                commit('tags/CREATE', { id: input.id, value: input.value }, { root: true });
+                commit('tags/CREATE', tag, { root: true });
                 break;
 
             case 'update':
-                commit('tags/UPDATE', { id: input.id, value: input.value }, { root: true });
+                commit('tags/UPDATE', tag, { root: true });
                 break;
 
             default:
                 throw new Error(`Invalid tag input mode: ${state.tags.input.mode}`);
         }
 
-        commit('TAG_INPUT_CLEAR', value);
+        commit('TAG_INPUT_CLEAR');
         commit('tags/SORT', null, { root: true });
         commit('DIRTY', null, { root: true });
     },
@@ -45,9 +57,55 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             commit('DIRTY', null, { root: true });
         }
     },
-    async notebookInputStart({ commit }, id: string | null = null, parentId: string | null = null) {
-        commit('NOTEBOOK_INPUT_START', { id, parentId });
-        commit('TAGS_EXPANDED');
+    async notebookInputStart({ commit, rootState }, id: string | null = null) {
+        let notebook: Notebook | undefined;
+
+        if (id != null) {
+            notebook = findNotebookRecursive(rootState.notebooks.values, id);
+
+            if (notebook == null) {
+                throw new Error(`No notebook with id ${id} found.`);
+            }
+        }
+
+        commit('NOTEBOOK_INPUT_START', notebook);
+        commit('NOTEBOOKS_EXPANDED');
+    },
+    async notebookInputConfirm({ commit, state }) {
+        const input = state.notebooks.input;
+
+        const notebook = {
+            id: input.id!,
+            value: input.value!,
+            parent: input.parent!
+        };
+
+        switch (input.mode) {
+            case 'create':
+                commit('notebooks/CREATE', notebook, { root: true });
+                break;
+
+            case 'update':
+                commit('notebooks/UPDATE', notebook, { root: true });
+                break;
+
+            default:
+                throw new Error(`Invalid notebook input mode ${input.mode}`);
+        }
+
+        commit('TAG_INPUT_CLEAR');
+        commit('notebooks/SORT', null, { root: true });
+        commit('DIRTY', null, { root: true });
+    },
+    async notebookInputCancel({ commit }) {
+        commit('NOTEBOOK_INPUT_CANCEL');
+    },
+    async notebookDelete({ commit, state, rootState }, id: string) {
+        const notebook = findNotebookRecursive(rootState.notebooks.values, id)!;
+
+        if (await confirmDelete('tag', notebook.value)) {
+            commit('tags/DELETE', id, { root: true });
+            commit('DIRTY', null, { root: true });
+        }
     }
-    
 };
