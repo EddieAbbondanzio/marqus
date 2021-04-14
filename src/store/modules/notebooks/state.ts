@@ -1,8 +1,8 @@
 export interface Notebook {
     id: string;
     value: string;
-    parent: Notebook | null;
-    children: Notebook[] | null;
+    parent?: Notebook;
+    children?: Notebook[];
     expanded: boolean;
 }
 
