@@ -17,12 +17,10 @@ describe('GlobalNavigationTagForm', () => {
         state = {
             width: '100px',
             notebooks: {
-                entries: [],
                 expanded: true,
                 input: {}
             },
             tags: {
-                entries: [],
                 expanded: true,
                 input: {}
             }
@@ -39,6 +37,17 @@ describe('GlobalNavigationTagForm', () => {
                             actions,
                             state
                         }
+                    }
+                },
+                tags: {
+                    namespaced: true,
+                    state: {
+                        values: [
+                            {
+                                id: '1',
+                                value: 'cat'
+                            }
+                        ]
                     }
                 }
             }
@@ -74,12 +83,6 @@ describe('GlobalNavigationTagForm', () => {
     });
 
     it('shows error if duplicate tag name', async () => {
-        // Add an 'existing' tag
-        state.tags.entries.push({
-            id: id(),
-            value: 'cat'
-        });
-
         const wrapper = mount(GlobalNavigationTagForm, {
             global: {
                 plugins: [store],

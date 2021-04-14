@@ -15,7 +15,9 @@ describe('GlobalNavigation Actions', () => {
                 }
             },
             rootState: {
-                tags: []
+                tags: {
+                    values: []
+                }
             }
         };
     });
@@ -48,7 +50,7 @@ describe('GlobalNavigation Actions', () => {
             (actions.tagInputConfirm as Function)(context);
 
             expect(context.commit.mock.calls).toHaveLength(4);
-            expect(context.commit.mock.calls[3][0]).toBe('tags/SORT');
+            expect(context.commit.mock.calls[2][0]).toBe('tags/SORT');
         });
     });
 

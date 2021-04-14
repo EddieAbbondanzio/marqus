@@ -60,7 +60,7 @@ describe('TagStore Mutations', () => {
     describe('TAGS_SORT', () => {
         it('sorts alphabetically', () => {
             state.values.push({ id: id(), value: 'b' }, { id: id(), value: 'c' }, { id: id(), value: 'a' });
-            mutations.TAGS_SORT(state);
+            mutations.SORT(state);
 
             expect(state.values[0].value).toBe('a');
             expect(state.values[1].value).toBe('b');
@@ -69,7 +69,7 @@ describe('TagStore Mutations', () => {
 
         it('ignores case', () => {
             state.values.push({ id: id(), value: 'B' }, { id: id(), value: 'C' }, { id: id(), value: 'a' });
-            mutations.TAGS_SORT(state);
+            mutations.SORT(state);
 
             expect(state.values[0].value).toBe('a');
             expect(state.values[1].value).toBe('B');
