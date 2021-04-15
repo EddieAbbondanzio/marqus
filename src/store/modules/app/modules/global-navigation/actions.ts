@@ -7,7 +7,7 @@ import { Action, ActionContext, ActionTree } from 'vuex';
 import { GlobalNavigation } from './state';
 
 export const actions: ActionTree<GlobalNavigation, State> = {
-    async tagInputStart({ commit, rootState }, id: string | null = null) {
+    tagInputStart({ commit, rootState }, id: string | null = null) {
         let tag: Tag | undefined;
 
         if (id != null) {
@@ -21,7 +21,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('TAG_INPUT_START', tag);
         commit('TAGS_EXPANDED');
     },
-    async tagInputConfirm({ commit, state }) {
+    tagInputConfirm({ commit, state }) {
         const input = state.tags.input;
 
         const tag = {
@@ -39,14 +39,14 @@ export const actions: ActionTree<GlobalNavigation, State> = {
                 break;
 
             default:
-                throw new Error(`Invalid tag input mode: ${state.tags.input.mode}`);
+                throw Error(`Invalid tag input mode: ${state.tags.input.mode}`);
         }
 
         commit('TAG_INPUT_CLEAR');
         commit('tags/SORT', null, { root: true });
         commit('DIRTY', null, { root: true });
     },
-    async tagInputCancel({ commit }) {
+    tagInputCancel({ commit }) {
         commit('TAG_INPUT_CLEAR');
     },
     async tagDelete({ commit, rootState }, id: string) {
@@ -63,7 +63,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             commit('DIRTY', null, { root: true });
         }
     },
-    async notebookInputStart({ commit, rootState }, id: string | null = null) {
+    notebookInputStart({ commit, rootState }, id: string | null = null) {
         let notebook: Notebook | undefined;
 
         if (id != null) {
@@ -77,7 +77,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('NOTEBOOK_INPUT_START', notebook);
         commit('NOTEBOOKS_EXPANDED');
     },
-    async notebookInputConfirm({ commit, state }) {
+    notebookInputConfirm({ commit, state }) {
         const input = state.notebooks.input;
 
         const notebook = {
@@ -103,7 +103,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('notebooks/SORT', null, { root: true });
         commit('DIRTY', null, { root: true });
     },
-    async notebookInputCancel({ commit }) {
+    notebookInputCancel({ commit }) {
         commit('NOTEBOOK_INPUT_CANCEL');
     },
     async notebookDelete({ commit, rootState }, id: string) {

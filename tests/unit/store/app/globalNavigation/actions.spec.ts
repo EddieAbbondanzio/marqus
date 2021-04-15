@@ -28,13 +28,34 @@ describe('GlobalNavigation Actions', () => {
         }
     };
 
+    beforeEach(() => {
+        context.state.tags.input.mode = 'create';
+    });
+
     describe('tagInputStart', () => {
+        it('throws error if id passed, but no tag with matching id found', () => {
+            const commit = jest.fn();
+
+            expect(() =>
+                (actions as any).tagInputStart({ commit, rootState: context.rootState }, 'not-an-id')
+            ).toThrow();
+        });
+
         it('triggers input start, and expands tags section', () => {
             expectAction(actions.tagInputStart, null, context, ['TAG_INPUT_START', 'TAGS_EXPANDED']);
         });
     });
 
     describe('tagInputConfirm', () => {
+        it('throws error on invalid mode', () => {
+            const commit = jest.fn();
+            context.state.tags.input.mode = null!;
+
+            expect(() => {
+                (actions as any).tagInputConfirm({ commit, rootState: context.rootState });
+            }).toThrow();
+        });
+
         it('on create triggers create tag, sorts, and saves', () => {
             expectAction(actions.tagInputConfirm, null, context, [
                 'tags/CREATE',
@@ -63,6 +84,14 @@ describe('GlobalNavigation Actions', () => {
     });
 
     describe('tagDelete', () => {
+        it('throws error when no tag with matching id found.', async () => {
+            const commit = jest.fn();
+
+            await expect(
+                (actions as any).tagDelete({ commit, rootState: context.rootState }, 'not-an-id')
+            ).rejects.toThrow();
+        });
+
         it('confirms with user first', async () => {
             const tag: Tag = {
                 id: id(),
@@ -106,10 +135,14 @@ describe('GlobalNavigation Actions', () => {
     });
 
     describe('notebookInputStart', () => {
+        it('throws error if id passed, but no notebook found.', () => {});
+
         it('triggers input start, and expands notebook section', () => {});
     });
 
     describe('notebookInputConfirm', () => {
+        it('throws error if invalid input mode', () => {});
+
         it('on create triggers create notebook, sorts, and save', () => {});
 
         it('on update triggers update notebook, sorts, and save', () => {});
