@@ -6,7 +6,7 @@ import * as confirmDelete from '@/utils/confirm-delete';
 jest.mock('electron', () => ({
     remote: {
         dialog: {
-            showMessageBox: jest.fn().mockReturnValue({ response: 0 })
+            showMessageBox: jest.fn().mockReturnValue({ response: 0 }) // button index -> 'Yes'
         }
     }
 }));
@@ -15,6 +15,12 @@ describe('GlobalNavigation Actions', () => {
     const context = {
         state: {
             tags: {
+                input: {
+                    mode: 'create'
+                },
+                entries: []
+            },
+            notebooks: {
                 input: {
                     mode: 'create'
                 },
@@ -30,6 +36,7 @@ describe('GlobalNavigation Actions', () => {
 
     beforeEach(() => {
         context.state.tags.input.mode = 'create';
+        context.state.notebooks.input.mode = 'create';
     });
 
     describe('tagInputStart', () => {
@@ -135,30 +142,63 @@ describe('GlobalNavigation Actions', () => {
     });
 
     describe('notebookInputStart', () => {
-        it('throws error if id passed, but no notebook found.', () => {});
+        it('throws error if id passed, but no notebook found.', () => {
+            const commit = jest.fn();
 
-        it('triggers input start, and expands notebook section', () => {});
+            expect(() =>
+                (actions as any).notebookInputStart({ commit, rootState: context.rootState }, 'not-an-id')
+            ).toThrow();
+        });
+
+        it('triggers input start, and expands notebook section', () => {
+            expectAction(actions.notebookInputStart, null, context, ['NOTEBOOK_INPUT_START', 'NOTEBOOKS_EXPANDED']);
+        });
     });
 
     describe('notebookInputConfirm', () => {
-        it('throws error if invalid input mode', () => {});
+        it('throws error if invalid input mode', () => {
+            const commit = jest.fn();
+            context.state.notebooks.input.mode = null!;
 
-        it('on create triggers create notebook, sorts, and save', () => {});
+            expect(() => {
+                (actions as any).notebookInputConfirm({ commit, rootState: context.rootState });
+            }).toThrow();
+        });
 
-        it('on update triggers update notebook, sorts, and save', () => {});
+        it('on create triggers create notebook, sorts, and save', () => {
+            expectAction(actions.notebookInputConfirm, null, context, [
+                'notebooks/CREATE',
+                'NOTEBOOK_INPUT_CLEAR',
+                'notebooks/SORT',
+                'DIRTY'
+            ]);
+        });
+
+        it('on update triggers update notebook, sorts, and save', () => {
+            context.state.notebooks.input.mode = 'update';
+
+            expectAction(actions.notebookInputConfirm, null, context, [
+                'notebooks/UPDATE',
+                'NOTEBOOK_INPUT_CLEAR',
+                'notebooks/SORT',
+                'DIRTY'
+            ]);
+        });
     });
 
     describe('notebookInputCancel', () => {
-        it('cancels', () => {});
+        it('cancels', () => {
+            expectAction(actions.notebookInputCancel, null, context, ['NOTEBOOK_INPUT_CLEAR']);
+        });
     });
 
-    describe('notebookDelete', () => {
-        it('throws error if no notebook found.', () => {});
+    // describe('notebookDelete', () => {
+    //     it('throws error if no notebook found.', () => {});
 
-        it('confirms with user first', () => {});
+    //     it('confirms with user first', () => {});
 
-        it('if user confirms, notebook is deleted', () => {});
+    //     it('if user confirms, notebook is deleted', () => {});
 
-        it('if user says no, stop.', () => {});
-    });
+    //     it('if user says no, stop.', () => {});
+    // });
 });

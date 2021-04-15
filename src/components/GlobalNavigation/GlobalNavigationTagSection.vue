@@ -13,7 +13,7 @@
             <ul class="is-size-7">
                 <li class="is-flex-grow-1">
                     <GlobalNavigationTagForm
-                        v-if="tagInputMode === 'create'"
+                        v-if="isTagBeingCreated"
                         @submit="confirm"
                         @cancel="cancel"
                         v-model="input"
@@ -74,8 +74,6 @@ export default defineComponent({
 
         return {
             tagsExpanded,
-            store: s,
-
             input,
             active
         };
@@ -88,7 +86,7 @@ export default defineComponent({
         ...mapState('app/globalNavigation', {
             tagInputMode: (state: any) => state.tags.input.mode
         }),
-        ...mapGetters('app/globalNavigation', ['isTagBeingUpdated'])
+        ...mapGetters('app/globalNavigation', ['isTagBeingUpdated', 'isTagBeingCreated'])
     },
     methods: {
         ...mapActions('app/globalNavigation', { confirm: 'tagInputConfirm', cancel: 'tagInputCancel' })

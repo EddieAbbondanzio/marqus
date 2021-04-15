@@ -99,12 +99,12 @@ export const actions: ActionTree<GlobalNavigation, State> = {
                 throw new Error(`Invalid notebook input mode ${input.mode}`);
         }
 
-        commit('TAG_INPUT_CLEAR');
+        commit('NOTEBOOK_INPUT_CLEAR');
         commit('notebooks/SORT', null, { root: true });
         commit('DIRTY', null, { root: true });
     },
     notebookInputCancel({ commit }) {
-        commit('NOTEBOOK_INPUT_CANCEL');
+        commit('NOTEBOOK_INPUT_CLEAR');
     },
     async notebookDelete({ commit, rootState }, id: string) {
         const notebook = findNotebookRecursive(rootState.notebooks.values, id)!;
