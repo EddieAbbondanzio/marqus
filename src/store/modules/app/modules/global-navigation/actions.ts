@@ -49,8 +49,14 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     async tagInputCancel({ commit }) {
         commit('TAG_INPUT_CLEAR');
     },
-    async tagDelete({ commit, state, rootState }, id: string) {
-        const confirm = await confirmDelete('tag', rootState.tags.values.find((t) => t.id === id)!.value);
+    async tagDelete({ commit, rootState }, id: string) {
+        const tag = rootState.tags.values.find((t) => t.id === id);
+
+        if (tag == null) {
+            throw new Error(`No tag with id ${id} found.`);
+        }
+
+        const confirm = await confirmDelete('tag', tag.value);
 
         if (confirm) {
             commit('tags/DELETE', id, { root: true });
@@ -100,7 +106,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     async notebookInputCancel({ commit }) {
         commit('NOTEBOOK_INPUT_CANCEL');
     },
-    async notebookDelete({ commit, state, rootState }, id: string) {
+    async notebookDelete({ commit, rootState }, id: string) {
         const notebook = findNotebookRecursive(rootState.notebooks.values, id)!;
 
         if (await confirmDelete('tag', notebook.value)) {

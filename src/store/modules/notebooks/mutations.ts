@@ -41,7 +41,7 @@ export const mutations: MutationTree<NotebookState> = {
         const array = notebook.parent == null ? state.values : notebook.parent!.children!;
         const index = array.findIndex((n) => n.id === id);
 
-        if (index == -1) {
+        if (index === -1) {
             throw new Error(`No notebook with id ${id} found.`);
         }
 

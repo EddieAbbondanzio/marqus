@@ -1,14 +1,12 @@
-(global as any).expectAction = function(
+(global as any).expectAction = async function(
     action: any,
     payload: any,
     { state, rootState }: { state?: any; rootState?: any },
     expectedMutations: string[]
 ) {
     const commit = jest.fn();
-
-    action({ commit, state, rootState }, payload);
+    await action({ commit, state, rootState }, payload);
 
     const commitedMutations = commit.mock.calls.map((c) => c[0]);
-
-    expect(expectedMutations).toEqual(commitedMutations);
+    expect(commitedMutations).toEqual(expectedMutations);
 };
