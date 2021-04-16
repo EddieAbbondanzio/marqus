@@ -41,8 +41,6 @@ export default defineComponent({
             }
         });
 
-        const notebooks = computed(() => s.state.app.globalNavigation.notebooks.entries);
-
         const input = computed({
             get: () => s.state.app.globalNavigation.notebooks.input.value,
             set: (v: string) => s.commit('app/globalNavigation/NOTEBOOK_INPUT_VALUE', v)
@@ -50,11 +48,13 @@ export default defineComponent({
 
         return {
             expanded,
-            notebooks,
             input
         };
     },
     computed: {
+        ...mapState('notebooks', {
+            notebooks: (state: any) => state.values
+        }),
         ...mapGetters('app/globalNavigation', ['isNotebookBeingCreated'])
     },
     methods: {

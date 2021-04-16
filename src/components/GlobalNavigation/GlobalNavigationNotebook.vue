@@ -65,7 +65,7 @@
 import { computed, defineComponent } from 'vue';
 import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
-import { useStore } from 'vuex';
+import { mapGetters, useStore } from 'vuex';
 import { isBlank } from '@/utils/is-blank';
 
 export default defineComponent({
@@ -111,7 +111,6 @@ export default defineComponent({
         const confirmUpdate = () => s.dispatch('app/updateNotebookConfirm');
         const cancelUpdate = () => s.dispatch('app/updateNotebookCancel');
 
-        const isNotebookBeingUpdated = s.getters['app/isNotebookBeingUpdated'];
         const notebookInputMode = computed(() => s.state.app.globalNavigation.notebooks.input.mode);
 
         const active = computed({
@@ -143,7 +142,6 @@ export default defineComponent({
             confirmUpdate,
             cancelUpdate,
             input,
-            isNotebookBeingUpdated,
             inputValue,
             notebookInputMode,
             active,
@@ -151,6 +149,9 @@ export default defineComponent({
             onRelease,
             onClick
         };
+    },
+    computed: {
+        ...mapGetters('app/globalNavigation', ['isNotebookBeingUpdated', 'isNotebookBeingCreated'])
     },
     components: { Collapse, GlobalNavigationNotebookForm }
 });

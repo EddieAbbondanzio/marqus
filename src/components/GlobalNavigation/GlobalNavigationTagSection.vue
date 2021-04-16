@@ -1,6 +1,6 @@
 <template>
     <li class="has-text-grey is-size-7">
-        <collapse v-model="tagsExpanded" triggerClass="has-background-hover-light">
+        <collapse v-model="expanded" triggerClass="has-background-hover-light">
             <template #trigger>
                 <div class="is-flex is-align-center global-navigation-title is-flex-grow-1 has-background-transparent">
                     <span class="icon">
@@ -49,7 +49,7 @@ export default defineComponent({
     setup: function() {
         const s = useStore();
 
-        const tagsExpanded = computed({
+        const expanded = computed({
             get: () => s.state.app.globalNavigation.tags.expanded,
             set: (v: any) => {
                 s.commit('app/globalNavigation/TAGS_EXPANDED', v);
@@ -68,7 +68,7 @@ export default defineComponent({
         });
 
         return {
-            tagsExpanded,
+            expanded,
             input,
             active
         };
