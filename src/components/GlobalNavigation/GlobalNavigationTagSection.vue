@@ -11,13 +11,8 @@
             </template>
 
             <ul class="is-size-7">
-                <li class="is-flex-grow-1">
-                    <GlobalNavigationTagForm
-                        v-if="isTagBeingCreated"
-                        @submit="confirm"
-                        @cancel="cancel"
-                        v-model="input"
-                    />
+                <li class="is-flex-grow-1" v-if="isTagBeingCreated">
+                    <GlobalNavigationTagForm @submit="confirm" @cancel="cancel" v-model="input" />
                 </li>
                 <li v-for="tag in tags" :key="tag.id" :class="{ 'has-background-light': active == tag.id }">
                     <GlobalNavigationTagForm
@@ -83,9 +78,6 @@ export default defineComponent({
         ...mapState('tags', {
             tags: (state: any) => state.values
         }),
-        ...mapState('app/globalNavigation', {
-            tagInputMode: (state: any) => state.tags.input.mode
-        }),
         ...mapGetters('app/globalNavigation', ['isTagBeingUpdated', 'isTagBeingCreated'])
     },
     methods: {
@@ -97,5 +89,4 @@ export default defineComponent({
 <style lang="sass">
 .global-navigation-tag
     padding-left: 24px;
-    height: 30px;
 </style>

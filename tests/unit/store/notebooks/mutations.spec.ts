@@ -12,6 +12,12 @@ describe('NotebooksStore mutations', () => {
     });
 
     describe('CREATE', () => {
+        it('throws error if value is null', () => {
+            expect(() => {
+                mutations.CREATE(state, {});
+            }).toThrow();
+        });
+
         it('sets id', () => {
             mutations.CREATE(state, { id: '1234', value: 'cat' });
             expect(state.values[0].id).toBe('1234');
@@ -40,6 +46,15 @@ describe('NotebooksStore mutations', () => {
     });
 
     describe('UPDATE', () => {
+        it('throws error if value is null', () => {
+            const notebook: Notebook = { id: id(), value: 'cat', expanded: false, children: [] };
+            state.values.push(notebook);
+
+            expect(() => {
+                mutations.UPDATE(state, { id: notebook.id });
+            }).toThrow();
+        });
+
         it('updates value', () => {
             const notebook: Notebook = { id: id(), value: 'cat', expanded: false, children: [] };
             state.values.push(notebook);

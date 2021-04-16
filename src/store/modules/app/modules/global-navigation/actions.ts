@@ -63,8 +63,14 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             commit('DIRTY', null, { root: true });
         }
     },
-    notebookInputStart({ commit, rootState }, id: string | null = null) {
+    notebookInputStart({ commit, rootState }, { id, parentId }: { id?: string; parentId?: string } = {}) {
         let notebook: Notebook | undefined;
+        let parent: Notebook | undefined;
+
+        /*
+         * id != null -> update
+         * id == null -> create, check if we put it under root, or a parent (parentId != null)
+         */
 
         if (id != null) {
             notebook = findNotebookRecursive(rootState.notebooks.values, id);
@@ -74,7 +80,11 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             }
         }
 
-        commit('NOTEBOOK_INPUT_START', notebook);
+        if (id == null && parentId != null) {
+            parent = findNotebookRecursive(rootState.notebooks.values, parentId);
+        }
+
+        commit('NOTEBOOK_INPUT_START', { notebook, parent });
         commit('NOTEBOOKS_EXPANDED');
     },
     notebookInputConfirm({ commit, state }) {

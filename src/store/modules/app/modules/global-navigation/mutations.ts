@@ -1,6 +1,6 @@
 import { MutationTree } from 'vuex';
 import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/state';
-import { Notebook } from '@/store/modules/notebooks/state';
+import { Notebook, NotebookState } from '@/store/modules/notebooks/state';
 import { id as generateId } from '@/utils/id';
 import { Tag } from '@/store/modules/tags/state';
 
@@ -39,38 +39,32 @@ export const mutations: MutationTree<GlobalNavigation> = {
     },
     NOTEBOOKS_EXPANDED(s, e = true) {
         s.notebooks.expanded = e;
+    },
+    NOTEBOOK_INPUT_START(s, { notebook, parent }: { notebook?: Notebook; parent?: Notebook }) {
+        // Update
+        if (notebook != null) {
+            s.notebooks.input = {
+                id: notebook.id,
+                value: notebook.value,
+                mode: 'update',
+                parent
+            };
+        }
+        // Create
+        else {
+            s.notebooks.input = {
+                id: generateId(),
+                mode: 'create',
+                parent
+            };
+        }
+    },
+    NOTEBOOK_INPUT_CLEAR(s) {
+        s.notebooks.input = {};
+    },
+    NOTEBOOK_INPUT_VALUE(s, value: string) {
+        s.notebooks.input.value = value;
     }
-    // NOTEBOOK_INPUT_START(s, { id, parentId }: { id?: string; parentId?: string }) {
-    //     let parent: Notebook | undefined;
-
-    //     if (parentId != null) {
-    //         parent = s.notebooks.entries.find((n) => n.id === parentId);
-    //     }
-
-    //     // Create
-    //     if (id == null) {
-    //         s.notebooks.input = {
-    //             id: generateId(),
-    //             mode: 'create',
-    //             parent
-    //         };
-    //     }
-    //     // Update
-    //     else {
-    //         const notebook = s.notebooks.entries.find((n) => n.id === id);
-
-    //         if (notebook == null) {
-    //             throw new Error(`Can't find notebook with id ${id} to update.`);
-    //         }
-
-    //         s.notebooks.input = {
-    //             id: notebook.id,
-    //             value: notebook.value,
-    //             mode: 'update',
-    //             parent
-    //         };
-    //     }
-    // }
     // OLD
     // SET_NOTEBOOK_EXPAND(s, { id, value }: { id: string; value: boolean }) {
     //     const n = findNotebookRecursive(s.notebooks.entries, id);

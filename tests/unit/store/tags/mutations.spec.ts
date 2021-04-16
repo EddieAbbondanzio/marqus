@@ -12,6 +12,12 @@ describe('TagStore Mutations', () => {
     });
 
     describe('CREATE()', () => {
+        it('throws error if value is null', () => {
+            expect(() => {
+                mutations.CREATE(state, {});
+            }).toThrow();
+        });
+
         it('sets value', () => {
             mutations.CREATE(state, { value: 'cat' });
             expect(state.values[0].value).toBe('cat');
@@ -29,6 +35,19 @@ describe('TagStore Mutations', () => {
     });
 
     describe('UPDATE()', () => {
+        it('throws error if value is null', () => {
+            const tag = {
+                id: id(),
+                value: 'cat'
+            };
+
+            state.values.push(tag);
+
+            expect(() => {
+                mutations.CREATE(state, { id: tag.id });
+            }).toThrow();
+        });
+
         it('throws error if no tag found.', () => {
             expect(() => {
                 mutations.UPDATE(state, { id: '1', value: 'cat' });

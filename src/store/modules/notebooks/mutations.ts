@@ -4,12 +4,17 @@ import { id as generateId } from '@/utils/id';
 
 export const mutations: MutationTree<NotebookState> = {
     CREATE(state, { id, value, parent }: { id?: string; value: string; parent?: Notebook }) {
+        if (value == null) {
+            throw Error('Value is required.');
+        }
+
         const notebook = {
             id: id ?? generateId(),
             value,
             parent,
             expanded: false
         };
+        console.log(arguments);
 
         state.values.push(notebook);
 
@@ -26,7 +31,11 @@ export const mutations: MutationTree<NotebookState> = {
         const notebook = findNotebookRecursive(state.values, id);
 
         if (notebook == null) {
-            throw new Error(`No notebook with id ${id} found.`);
+            throw Error(`No notebook with id ${id} found.`);
+        }
+
+        if (value == null) {
+            throw Error('Value is required.');
         }
 
         notebook.value = value;

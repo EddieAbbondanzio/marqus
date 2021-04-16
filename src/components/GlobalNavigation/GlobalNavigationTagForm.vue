@@ -1,8 +1,7 @@
 <template>
-    <!-- If you don't have a submit listener, vee-validate won't .preventDefault() it.-->
-    <Form @submit="onSubmit">
-        <div class="has-background-light" :style="{ paddingLeft: `${depth * 24}px` }">
-            <div class="is-flex is-flex-row has-background-light py-1">
+    <Form @submit="$emit('submit')">
+        <div class="has-background-light">
+            <div class="is-flex is-flex-row is-align-center has-background-light py-1">
                 <Field name="Tag" :value="modelValue" v-slot="{ field }" :rules="unique">
                     <input
                         id="tagValue"
@@ -54,19 +53,13 @@ export default defineComponent({
             return true;
         };
 
-        const onSubmit = () => {
-            c.emit('submit');
-        };
-
         const onInput = (e: any) => {
             c.emit('update:modelValue', e.target.value);
         };
 
         return {
             unique,
-            onSubmit,
-            onInput,
-            depth: 1
+            onInput
         };
     },
     props: {

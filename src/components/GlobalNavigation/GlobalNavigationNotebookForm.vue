@@ -1,13 +1,15 @@
 <template>
-    <Form @submit="onSubmit">
-        <div class="has-background-light" :style="{ paddingLeft: `${depth * 24}px` }">
+    <Form @submit="$emit('submit')">
+        <div class="has-background-light">
             <div class="is-flex is-flex-row is-align-center has-background-light py-1">
-                <Field name="Notebook" v-model="inputValue" v-slot="{ field }" :rules="unique">
+                <Field name="Notebook" :value="modelValue" v-slot="{ field }" :rules="unique">
                     <input
+                        id="notebookValue"
                         type="text"
                         style="min-width: 0; width: 0; flex-grow: 1;"
                         v-bind="field"
                         v-focus
+                        @input="onInput"
                         @keyup.esc="$emit('cancel')"
                     />
 
@@ -17,7 +19,7 @@
                 </Field>
             </div>
             <ErrorMessage name="Notebook" v-slot="{ message }">
-                <p class="has-text-danger">{{ message }}</p>
+                <p id="errorMessage" class="has-text-danger">{{ message }}</p>
             </ErrorMessage>
         </div>
     </Form>
@@ -34,14 +36,6 @@ export default defineComponent({
     setup(p, c) {
         const s = useStore();
 
-        const input = computed(() => s.state.app.globalNavigation.notebooks.input);
-
-        const inputValue = computed({
-            get: () => s.state.app.globalNavigation.notebooks.input?.value,
-            set: (v: string) =>
-                s.commit('app/UPDATE_STATE', { key: 'globalNavigation.notebooks.input.value', value: v })
-        });
-
         const unique = (v: any) => {
             if (v == null || isBlank(v)) {
                 return 'Name cannot be empty';
@@ -57,24 +51,22 @@ export default defineComponent({
             return true;
         };
 
-        const onSubmit = () => {
-            c.emit('submit');
+        const onInput = (e: any) => {
+            c.emit('update:modelValue', e.target.value);
         };
 
         return {
-            input,
-            inputValue,
             unique,
-            onSubmit
+            onInput
         };
     },
     props: {
-        depth: {
-            type: Number,
-            default: 1
+        modelValue: {
+            type: String,
+            default: ''
         }
     },
-    emits: ['submit', 'cancel'],
+    emits: ['submit', 'cancel', 'update:modelValue'],
     components: { Field, ErrorMessage, Form, IconButton }
 });
 </script>

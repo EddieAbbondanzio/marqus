@@ -11,12 +11,8 @@
             </template>
 
             <ul class="is-size-7">
-                <li>
-                    <GlobalNavigationNotebookForm
-                        v-if="notebookInputMode === 'create'"
-                        @submit="confirmCreate"
-                        @cancel="cancelCreate"
-                    />
+                <li v-if="isNotebookBeingCreated">
+                    <GlobalNavigationNotebookForm @submit="confirm" @cancel="cancel" v-model="input" />
                 </li>
                 <li v-for="notebook in notebooks" :key="notebook.id">
                     <GlobalNavigationNotebook :modelValue="notebook" />
@@ -27,10 +23,8 @@
 </template>
 
 <script lang="ts">
-import { isBlank } from '@/utils/is-blank';
 import { computed, defineComponent } from 'vue';
-import { useStore } from 'vuex';
-import { useField, Field, ErrorMessage, Form } from 'vee-validate';
+import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationNotebook from '@/components/GlobalNavigation/GlobalNavigationNotebook.vue';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
@@ -49,30 +43,22 @@ export default defineComponent({
 
         const notebooks = computed(() => s.state.app.globalNavigation.notebooks.entries);
 
-        // OLD below here
-
-        const input = computed(() => s.state.app.globalNavigation.notebooks.input);
-
-        const inputValue = computed({
-            get: () => s.state.app.globalNavigation.notebooks.input?.value,
-            set: (v: string) =>
-                s.commit('app/UPDATE_STATE', { key: 'globalNavigation.notebooks.input.value', value: v })
+        const input = computed({
+            get: () => s.state.app.globalNavigation.notebooks.input.value,
+            set: (v: string) => s.commit('app/globalNavigation/NOTEBOOK_INPUT_VALUE', v)
         });
-
-        const confirmCreate = () => s.dispatch('app/createNotebookConfirm');
-        const cancelCreate = () => s.dispatch('app/createNotebookCancel');
-
-        const notebookInputMode = computed(() => s.state.app.globalNavigation.notebooks.input.mode);
 
         return {
             expanded,
             notebooks,
-            confirmCreate,
-            cancelCreate,
-            input,
-            inputValue,
-            notebookInputMode
+            input
         };
+    },
+    computed: {
+        ...mapGetters('app/globalNavigation', ['isNotebookBeingCreated'])
+    },
+    methods: {
+        ...mapActions('app/globalNavigation', { confirm: 'notebookInputConfirm', cancel: 'notebookInputCancel' })
     },
     components: { Collapse, GlobalNavigationNotebook, GlobalNavigationNotebookForm }
 });

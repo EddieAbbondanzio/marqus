@@ -5,6 +5,10 @@ import { id as generateId } from '@/utils/id';
 
 export const mutations: MutationTree<TagState> = {
     CREATE(state, { id, value }: { id?: string; value: string }) {
+        if (value == null) {
+            throw Error('Value is required.');
+        }
+
         state.values.push({
             id: id ?? generateId(),
             value: value
@@ -14,7 +18,11 @@ export const mutations: MutationTree<TagState> = {
         const t = state.values.find((t) => t.id === id);
 
         if (t == null) {
-            throw new Error(`No tag with id: ${id} found.`);
+            throw Error(`No tag with id: ${id} found.`);
+        }
+
+        if (value == null) {
+            throw Error('Value is required.');
         }
 
         t.value = value;
@@ -23,7 +31,7 @@ export const mutations: MutationTree<TagState> = {
         const i = state.values.findIndex((t) => t.id === id);
 
         if (i === -1) {
-            throw new Error(`No tag with id: ${id} found.`);
+            throw Error(`No tag with id: ${id} found.`);
         }
 
         state.values.splice(i, 1);

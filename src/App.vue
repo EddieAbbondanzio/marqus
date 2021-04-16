@@ -28,9 +28,9 @@ export default {
                             label: 'Create Notebook',
                             click: () => {
                                 if (isElementNotebook) {
-                                    s.dispatch('app/globalNavigation/createNotebook', id);
+                                    s.dispatch('app/globalNavigation/notebookInputStart', { parentId: id });
                                 } else {
-                                    s.dispatch('app/globalNavigation/createNotebook');
+                                    s.dispatch('app/globalNavigation/notebookInputStart');
                                 }
                             }
                         },
@@ -46,7 +46,7 @@ export default {
                         items.push({
                             label: 'Edit Notebook',
                             click: () => {
-                                s.dispatch('app/globalNavigation/updateNotebook', id);
+                                s.dispatch('app/globalNavigation/notebookInputStart', { id });
                             }
                         });
 

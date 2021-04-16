@@ -7,7 +7,6 @@
         <template #trigger>
             <div class="is-flex-grow-1 has-background-transparent">
                 <GlobalNavigationNotebookForm
-                    :depth="depth"
                     v-if="isNotebookBeingUpdated(modelValue.id)"
                     @submit="confirmUpdate"
                     @cancel="cancelUpdate"
@@ -27,7 +26,6 @@
                             'is-flex is-align-center'
                         ]"
                         :data-id="modelValue.id"
-                        :style="`padding-left: ${depth * 24}px`"
                     >
                         {{ modelValue.value }}
                     </p>
@@ -36,7 +34,7 @@
         </template>
 
         <ul class="is-size-7" v-for="child in modelValue.children" :key="child.id">
-            <GlobalNavigationNotebook :modelValue="child" :parent="modelValue" :depth="depth + 1" />
+            <GlobalNavigationNotebook :modelValue="child" :depth="depth + 1" />
         </ul>
     </Collapse>
     <li v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">
@@ -72,12 +70,7 @@ import { isBlank } from '@/utils/is-blank';
 
 export default defineComponent({
     props: {
-        modelValue: Object,
-        parent: Object,
-        depth: {
-            type: Number,
-            default: 1
-        }
+        modelValue: Object
     },
     name: 'GlobalNavigationNotebook',
     setup: function(p, c) {

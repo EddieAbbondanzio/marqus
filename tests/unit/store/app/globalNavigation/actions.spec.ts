@@ -146,12 +146,12 @@ describe('GlobalNavigation Actions', () => {
             const commit = jest.fn();
 
             expect(() =>
-                (actions as any).notebookInputStart({ commit, rootState: context.rootState }, 'not-an-id')
+                (actions as any).notebookInputStart({ commit, rootState: context.rootState }, { id: 'not-an-id' })
             ).toThrow();
         });
 
         it('triggers input start, and expands notebook section', () => {
-            expectAction(actions.notebookInputStart, null, context, ['NOTEBOOK_INPUT_START', 'NOTEBOOKS_EXPANDED']);
+            expectAction(actions.notebookInputStart, {}, context, ['NOTEBOOK_INPUT_START', 'NOTEBOOKS_EXPANDED']);
         });
     });
 
