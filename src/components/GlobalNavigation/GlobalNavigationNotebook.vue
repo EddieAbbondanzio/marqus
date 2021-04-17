@@ -47,9 +47,9 @@
         <a
             v-else
             class="no-drag has-text-grey"
-            v-mouse:click="onClick"
-            v-mouse:hold="onHold"
-            v-mouse:release="onRelease"
+            v-mouse:click.left="onClick"
+            v-mouse:hold.left="onHold"
+            v-mouse:release.left="onRelease"
         >
             <p
                 class="global-navigation-notebook global-navigation-item has-background-hover-light is-flex is-align-center"
@@ -121,14 +121,14 @@ export default defineComponent({
         });
 
         const onHold = () => {
-            s.commit('app/DRAG_NOTEBOOK_START', p.modelValue!);
-            s.commit('app/SET_CURSOR_TITLE', p.modelValue!.value);
+            // s.commit('app/DRAG_NOTEBOOK_START', p.modelValue!);
+            // s.commit('app/SET_CURSOR_TITLE', p.modelValue!.value);
         };
 
         const onRelease = (el: HTMLElement, ev: MouseEvent) => {
-            s.commit('app/DRAG_NOTEBOOK_STOP', (ev.target as HTMLElement).getAttribute('data-id'));
-            s.commit('app/CLEAR_CURSOR_TITLE');
-            s.commit('app/SORT_NOTEBOOKS');
+            // s.commit('app/DRAG_NOTEBOOK_STOP', (ev.target as HTMLElement).getAttribute('data-id'));
+            // s.commit('app/CLEAR_CURSOR_TITLE');
+            // s.commit('app/SORT_NOTEBOOKS');
         };
 
         const onClick = () => {

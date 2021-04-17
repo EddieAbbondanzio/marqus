@@ -14,6 +14,18 @@ describe('GlobalNavigation getters', () => {
         };
     });
 
+    describe('indentation', () => {
+        it('returns 24px as default', () => {
+            const i = (getters as any).indentation()(1);
+            expect(i).toBe('24px');
+        });
+
+        it('multiples by value passed', () => {
+            const i = (getters as any).indentation()(3);
+            expect(i).toBe('72px');
+        });
+    });
+
     describe('isTagBeingCreated', () => {
         it('returns true if mode create', () => {
             state.tags.input.mode = 'create';

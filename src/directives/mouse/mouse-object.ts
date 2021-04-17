@@ -1,6 +1,6 @@
 import { MouseAction } from './mouse-action';
 import { MouseActionFunction } from './mouse-action-function';
-import { MouseButton } from './mouse-button';
+import { getButton, MouseButton } from './mouse-button';
 import { mouseObjectManager } from './mouse-object-manager';
 import { MouseObjectSubscriber } from './mouse-object-subscriber';
 
@@ -19,7 +19,7 @@ export class MouseObject {
     holding = false;
     moved = false;
 
-    private subscribers: MouseObjectSubscriber[];
+    subscribers: MouseObjectSubscriber[];
 
     constructor(element: HTMLElement) {
         this.element = element;
@@ -27,17 +27,17 @@ export class MouseObject {
 
         (this.element as any).mouseObject = this;
 
-        element.addEventListener('mousedown', onMouseDown);
+        element.addEventListener('mousedown', this.onMouseDown.bind(this));
     }
 
     dispose() {
-        this.element.removeEventListener('mousedown', onMouseDown);
+        this.element.removeEventListener('mousedown', this.onMouseDown);
     }
 
     notify(action: MouseAction, button: MouseButton, event: MouseEvent) {
         for (let i = 0; i < this.subscribers.length; i++) {
             if (this.subscribers[i].isMatch(action, button)) {
-                this.subscribers[i].callback(this.element, event);
+                this.subscribers[i].callback(event);
             }
         }
     }
@@ -55,15 +55,21 @@ export class MouseObject {
             (s) => s.action === action && s.callback === callback && s.button === button
         );
     }
-}
 
-/**
- * Mouse button was pressed event handler.
- * @param this HTMLElement event is on.
- * @param event MouseEvent details
- */
-function onMouseDown(this: any, event: globalThis.MouseEvent) {
-    event.stopImmediatePropagation();
-    mouseObjectManager.active = this.mouseObject as MouseObject;
-    mouseObjectManager.active.mouseDown = true;
+    /**
+     * Mouse button was pressed event handler.
+     * @param this HTMLElement event is on.
+     * @param event MouseEvent details
+     */
+    onMouseDown(event: globalThis.MouseEvent) {
+        // Check to see if we should care about it
+        const button = getButton(event.button);
+        console.log(this);
+
+        if (this.subscribers.some((s) => s.button === button)) {
+            event.stopImmediatePropagation();
+            mouseObjectManager.active = this;
+            mouseObjectManager.active.mouseDown = true;
+        }
+    }
 }
