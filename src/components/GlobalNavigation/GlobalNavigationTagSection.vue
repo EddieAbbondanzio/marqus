@@ -22,7 +22,12 @@
                         v-model="input"
                     />
 
-                    <a v-else class="no-drag has-text-grey" @click="() => (active = tag.id)">
+                    <a
+                        v-else
+                        class="no-drag has-text-grey"
+                        @click="() => (active = tag.id)"
+                        :stype="{ 'padding-left': indentation(1) }"
+                    >
                         <p
                             class="global-navigation-tag global-navigation-item has-background-hover-light is-flex is-align-center"
                             :data-id="tag.id"
@@ -78,7 +83,7 @@ export default defineComponent({
         ...mapState('tags', {
             tags: (state: any) => state.values
         }),
-        ...mapGetters('app/globalNavigation', ['isTagBeingUpdated', 'isTagBeingCreated'])
+        ...mapGetters('app/globalNavigation', ['isTagBeingUpdated', 'isTagBeingCreated', 'indentation'])
     },
     methods: {
         ...mapActions('app/globalNavigation', { confirm: 'tagInputConfirm', cancel: 'tagInputCancel' })

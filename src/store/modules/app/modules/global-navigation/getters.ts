@@ -3,6 +3,9 @@ import { GetterTree } from 'vuex';
 import { GlobalNavigation } from './state';
 
 export const getters: GetterTree<GlobalNavigation, State> = {
+    indentation: (s) => (depth: number) => {
+        return `${depth * 24}px`;
+    },
     isTagBeingCreated: (s) => s.tags.input.mode === 'create',
     isTagBeingUpdated: (s) => (id: string) => {
         return s.tags.input.mode === 'update' && s.tags.input.id === id;

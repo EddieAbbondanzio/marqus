@@ -26,6 +26,7 @@
                             'is-flex is-align-center'
                         ]"
                         :data-id="modelValue.id"
+                        :style="{ 'padding-left': indentation(getNotebookDepth(modelValue)) }"
                     >
                         {{ modelValue.value }}
                     </p>
@@ -34,7 +35,7 @@
         </template>
 
         <ul class="is-size-7" v-for="child in modelValue.children" :key="child.id">
-            <GlobalNavigationNotebook :modelValue="child" :depth="depth + 1" />
+            <GlobalNavigationNotebook :modelValue="child" />
         </ul>
     </Collapse>
     <li v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">
@@ -52,8 +53,8 @@
         >
             <p
                 class="global-navigation-notebook global-navigation-item has-background-hover-light is-flex is-align-center"
-                :style="`padding-left: ${depth * 24}px`"
                 :data-id="modelValue.id"
+                :style="{ 'padding-left': indentation(getNotebookDepth(modelValue)) }"
             >
                 {{ modelValue.value }}
             </p>
@@ -67,6 +68,7 @@ import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
 import { mapGetters, useStore } from 'vuex';
 import { isBlank } from '@/utils/is-blank';
+import { Notebook } from '@/store/modules/notebooks/state';
 
 export default defineComponent({
     props: {
@@ -133,6 +135,18 @@ export default defineComponent({
             s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: p.modelValue!.id });
         };
 
+        const getNotebookDepth = (n: Notebook) => {
+            let count = 1;
+            let c: Notebook = n;
+
+            while (c.parent != null) {
+                c = c.parent;
+                count++;
+            }
+
+            return count;
+        };
+
         return {
             expanded,
             notebooks,
@@ -147,11 +161,12 @@ export default defineComponent({
             active,
             onHold,
             onRelease,
-            onClick
+            onClick,
+            getNotebookDepth
         };
     },
     computed: {
-        ...mapGetters('app/globalNavigation', ['isNotebookBeingUpdated', 'isNotebookBeingCreated'])
+        ...mapGetters('app/globalNavigation', ['isNotebookBeingUpdated', 'isNotebookBeingCreated', 'indentation'])
     },
     components: { Collapse, GlobalNavigationNotebookForm }
 });
