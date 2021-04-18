@@ -1,13 +1,8 @@
 import { MouseAction } from './mouse-action';
 import { MouseActionFunction } from './mouse-action-function';
 import { getButton, MouseButton } from './mouse-button';
-import { mouseObjectManager } from './mouse-object-manager';
+import { MouseObjectManager } from './mouse-object-manager';
 import { MouseObjectSubscriber } from './mouse-object-subscriber';
-
-/**
- * How many milliseconds before trigger a hold condition.
- */
-export const HOLD_MIN = 250;
 
 export class MouseObject {
     get subscriberCount() {
@@ -15,17 +10,19 @@ export class MouseObject {
     }
 
     element: HTMLElement;
+    manager: MouseObjectManager;
     mouseDown = false;
     holding = false;
     moved = false;
 
     subscribers: MouseObjectSubscriber[];
 
-    constructor(element: HTMLElement) {
+    constructor(element: HTMLElement, manager: MouseObjectManager) {
         this.element = element;
         this.subscribers = [];
 
         (this.element as any).mouseObject = this;
+        this.manager = manager;
 
         element.addEventListener('mousedown', this.onMouseDown.bind(this));
     }
@@ -42,18 +39,28 @@ export class MouseObject {
         }
     }
 
-    subscribe(action: MouseAction, callback: MouseActionFunction, button: MouseButton = 'either') {
+    subscribe(action: MouseAction, button: MouseButton, callback: MouseActionFunction) {
         if (this.subscribers.some((s) => s.action === action && s.callback === callback && s.button === button)) {
             throw new Error('Duplicate subscriber');
         }
 
-        this.subscribers.push(new MouseObjectSubscriber(action, callback, button));
+        this.subscribers.push(new MouseObjectSubscriber(action, button, callback));
     }
 
-    desubscribe(action: MouseAction, callback: MouseActionFunction, button: MouseButton) {
-        this.subscribers = this.subscribers.filter(
-            (s) => s.action === action && s.callback === callback && s.button === button
-        );
+    unsubscribe(action: MouseAction, button: MouseButton, callback: MouseActionFunction) {
+        const keep = [];
+
+        for (let i = 0; i < this.subscribers.length; i++) {
+            const sub = this.subscribers[i];
+
+            if (sub.isMatch(action, button) && sub.callback === callback) {
+                continue;
+            } else {
+                keep.push(sub);
+            }
+        }
+
+        this.subscribers = keep;
     }
 
     /**
@@ -64,12 +71,12 @@ export class MouseObject {
     onMouseDown(event: globalThis.MouseEvent) {
         // Check to see if we should care about it
         const button = getButton(event.button);
-        console.log(this);
 
         if (this.subscribers.some((s) => s.button === button)) {
             event.stopImmediatePropagation();
-            mouseObjectManager.active = this;
-            mouseObjectManager.active.mouseDown = true;
+
+            this.mouseDown = true;
+            this.manager.active = this;
         }
     }
 }

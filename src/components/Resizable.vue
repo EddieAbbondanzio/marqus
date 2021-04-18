@@ -22,7 +22,6 @@ export default defineComponent({
         const store = useStore();
 
         const onHandleMouseDown = function() {
-            console.log('mouse down!');
             c.emit('resizeStart');
             store.commit('app/SET_CURSOR_ICON', 'ew-resize');
         };
@@ -47,20 +46,9 @@ export default defineComponent({
         };
 
         const onMouseUp = function() {
-            console.log('mouse up!');
             store.commit('app/SET_CURSOR_ICON', 'default');
             c.emit('resizeStop');
         };
-
-        // onMounted(() => {
-        //     document.addEventListener('mousemove', onMouseMove);
-        //     document.addEventListener('mouseup', onMouseUp);
-        // });
-
-        // onUnmounted(() => {
-        //     document.removeEventListener('mousemove', onMouseMove);
-        //     document.removeEventListener('mouseup', onMouseUp);
-        // });
 
         return {
             style,

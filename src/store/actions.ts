@@ -35,6 +35,11 @@ export const actions: ActionTree<State, any> = {
 
         if (state.globalNavigation?.notebooks) {
             state.globalNavigation.notebooks.dragging = undefined;
+            state.globalNavigation.notebooks.input = undefined;
+        }
+
+        if (state.globalNavigation?.tags) {
+            state.globalNavigation.tags.input = undefined;
         }
 
         /*
