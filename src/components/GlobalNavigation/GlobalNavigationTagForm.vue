@@ -11,6 +11,7 @@
                         v-focus
                         @input="onInput"
                         @keyup.esc="$emit('cancel')"
+                        @blur="onBlur"
                     />
                     <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
                     <icon-button
@@ -57,9 +58,17 @@ export default defineComponent({
             c.emit('update:modelValue', e.target.value);
         };
 
+        // When input is blurred, check to see if it was empty. If it was empty, cancel.
+        const onBlur = (e: any) => {
+            if (e.target.value === '') {
+                c.emit('cancel');
+            }
+        };
+
         return {
             unique,
-            onInput
+            onInput,
+            onBlur
         };
     },
     props: {

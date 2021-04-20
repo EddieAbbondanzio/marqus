@@ -1,4 +1,5 @@
 import { getters } from '@/store/modules/app/modules/global-navigation/getters';
+import { Notebook } from '@/store/modules/notebooks/state';
 
 describe('GlobalNavigation getters', () => {
     let state: any;
@@ -145,6 +146,59 @@ describe('GlobalNavigation getters', () => {
             state.notebooks.input.mode = 'create';
             const res = (getters as any).isNotebookBeingUpdated(state)('1');
             expect(res).toBeFalsy();
+        });
+    });
+
+    describe('canNotebookBeCollapsed', () => {
+        it('returns false when notebook has no children', () => {
+            const n: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false
+            };
+
+            const res = (getters as any).canNotebookBeCollapsed(state)(n);
+            expect(res).toBeFalsy();
+        });
+
+        it('returns true if notebook has children', () => {
+            const n: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false,
+                children: [{ id: '2', value: 'dog', expanded: false }]
+            };
+
+            const res = (getters as any).canNotebookBeCollapsed(state)(n);
+            expect(res).toBeTruthy();
+        });
+
+        it('returns false if mode is create but id doesn\t match parent', () => {
+            state.notebooks.input.mode = 'create';
+            state.notebooks.input.parent = { id: '2' };
+
+            const n: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false
+            };
+
+            const res = (getters as any).canNotebookBeCollapsed(state)(n);
+            expect(res).toBeFalsy();
+        });
+
+        it('returns true when mode is create and parent matches id passed', () => {
+            state.notebooks.input.mode = 'create';
+            state.notebooks.input.parent = { id: '1' };
+
+            const n: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false
+            };
+
+            const res = (getters as any).canNotebookBeCollapsed(state)(n);
+            expect(res).toBeTruthy();
         });
     });
 });

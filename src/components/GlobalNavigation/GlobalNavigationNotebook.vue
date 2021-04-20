@@ -1,9 +1,5 @@
 <template>
-    <Collapse
-        v-if="modelValue.children != null && modelValue.children.length > 0"
-        v-model="expanded"
-        triggerClass="has-background-hover-light"
-    >
+    <Collapse v-if="canNotebookBeCollapsed(modelValue)" v-model="expanded" triggerClass="has-background-hover-light">
         <template #trigger>
             <div class="is-flex-grow-1 has-background-transparent">
                 <GlobalNavigationNotebookForm
@@ -43,7 +39,7 @@
             />
         </ul>
     </Collapse>
-    <li v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">
+    <div v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">
         <GlobalNavigationNotebookForm
             v-if="isNotebookBeingUpdated(modelValue.id)"
             @submit="confirmUpdate"
@@ -64,7 +60,7 @@
                 {{ modelValue.value }}
             </p>
         </a>
-    </li>
+    </div>
 </template>
 
 <script lang="ts">
@@ -74,6 +70,7 @@ import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNa
 import { mapGetters, useStore } from 'vuex';
 import { isBlank } from '@/utils/is-blank';
 import { Notebook } from '@/store/modules/notebooks/state';
+import globalNavigation from '@/store/modules/app/modules/global-navigation';
 
 export default defineComponent({
     props: {
@@ -171,7 +168,12 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapGetters('app/globalNavigation', ['isNotebookBeingUpdated', 'isNotebookBeingCreated', 'indentation'])
+        ...mapGetters('app/globalNavigation', [
+            'isNotebookBeingUpdated',
+            'isNotebookBeingCreated',
+            'indentation',
+            'canNotebookBeCollapsed'
+        ])
     },
     components: { Collapse, GlobalNavigationNotebookForm }
 });

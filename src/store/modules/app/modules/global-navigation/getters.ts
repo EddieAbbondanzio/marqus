@@ -1,3 +1,4 @@
+import { Notebook } from '@/store/modules/notebooks/state';
 import { State } from '@/store/state';
 import { GetterTree } from 'vuex';
 import { GlobalNavigation } from './state';
@@ -22,5 +23,12 @@ export const getters: GetterTree<GlobalNavigation, State> = {
     },
     isNotebookBeingUpdated: (s) => (id: string) => {
         return s.notebooks.input.mode === 'update' && s.notebooks.input.id === id;
+    },
+    canNotebookBeCollapsed: (s) => (n: Notebook) => {
+        if (s.notebooks.input.mode === 'create') {
+            return s.notebooks.input.parent?.id === n.id;
+        } else {
+            return (n.children?.length ?? 0) > 0;
+        }
     }
 };

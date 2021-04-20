@@ -129,4 +129,18 @@ describe('GlobalNavigationTagForm', () => {
         input.setValue('catdog');
         expect((<HTMLInputElement>input.element).value).toBe('catdog');
     });
+
+    it('cancels input when blurred and value is empty', () => {
+        const wrapper = mount(GlobalNavigationTagForm, {
+            global: {
+                plugins: [store],
+                directives: { focus }
+            }
+        });
+
+        const input = wrapper.find('#tagValue');
+        input.trigger('blur');
+
+        expect(wrapper.emitted('cancel')).toBeTruthy();
+    });
 });
