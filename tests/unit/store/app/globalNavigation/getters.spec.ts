@@ -80,19 +80,43 @@ describe('GlobalNavigation getters', () => {
         it('returns true if mode create', () => {
             state.notebooks.input.mode = 'create';
 
-            const res = (getters as any).isNotebookBeingCreated(state);
+            const res = (getters as any).isNotebookBeingCreated(state)();
             expect(res).toBeTruthy();
         });
 
         it('returns false if mode is null', () => {
-            const res = (getters as any).isNotebookBeingCreated(state);
+            const res = (getters as any).isNotebookBeingCreated(state)();
             expect(res).toBeFalsy();
         });
 
         it('returns false if mode is update', () => {
             state.notebooks.input.mode = 'update';
 
-            const res = (getters as any).isNotebookBeingCreated(state);
+            const res = (getters as any).isNotebookBeingCreated(state)();
+            expect(res).toBeFalsy();
+        });
+
+        it('returns true if parent id was passed, and matches', () => {
+            state.notebooks.input.mode = 'create';
+            state.notebooks.input.parent = { id: '1' };
+
+            const res = (getters as any).isNotebookBeingCreated(state)('1');
+            expect(res).toBeTruthy();
+        });
+
+        it("returns false if parent id was passed, but doens't match.", () => {
+            state.notebooks.input.mode = 'create';
+            state.notebooks.input.parent = { id: '1' };
+
+            const res = (getters as any).isNotebookBeingCreated(state)('2');
+            expect(res).toBeFalsy();
+        });
+
+        it('returns false if no parent id was passed, but input has parent', () => {
+            state.notebooks.input.mode = 'create';
+            state.notebooks.input.parent = { id: '1' };
+
+            const res = (getters as any).isNotebookBeingCreated(state)();
             expect(res).toBeFalsy();
         });
     });

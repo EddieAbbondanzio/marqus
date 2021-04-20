@@ -21,6 +21,8 @@ export default defineComponent({
         const style = computed(() => ({ width: p.modelValue, minWidth: p.minWidth }));
         const store = useStore();
 
+        const minWidthInt = Number.parseInt(p.minWidth.split('px')[0], 10); // Hack. Assume it came in as 'XXpx'
+
         const onHandleMouseDown = function() {
             c.emit('resizeStart');
             store.commit('app/SET_CURSOR_ICON', 'ew-resize');
@@ -38,9 +40,7 @@ export default defineComponent({
             // Get x-coordinate of pointer relative to container
             const pointerRelativeXpos = event.clientX - containerOffsetLeft;
 
-            // Arbitrary minimum width set on box A, otherwise its inner content will collapse to width of 0
-            const boxAminWidth = 2;
-            const newWidth = `${Math.max(boxAminWidth, pointerRelativeXpos)}px`;
+            const newWidth = `${Math.max(minWidthInt, pointerRelativeXpos)}px`;
 
             c.emit('update:modelValue', newWidth);
         };

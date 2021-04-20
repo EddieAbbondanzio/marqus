@@ -1,5 +1,5 @@
 <template>
-    <resizable class="has-text-dark" v-model="width" data-context-menu="globalNavigation">
+    <resizable class="has-text-dark" v-model="width" minWidth="160px" data-context-menu="globalNavigation">
         <ul>
             <li
                 :class="[

@@ -11,7 +11,7 @@
             </template>
 
             <ul class="is-size-7">
-                <li v-if="isNotebookBeingCreated">
+                <li v-if="isNotebookBeingCreated()">
                     <GlobalNavigationNotebookForm @submit="confirm" @cancel="cancel" v-model="input" />
                 </li>
                 <li v-for="notebook in notebooks" :key="notebook.id">

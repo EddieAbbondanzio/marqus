@@ -14,4 +14,16 @@ describe('Collapse.vue', () => {
 
         expect(modelValue).toBeTruthy();
     });
+
+    it("when disabled is set to true, trigger doesn't work.", () => {
+        const modelValue = ref(false);
+        const disabled = ref(true);
+
+        const wrapper = mount(Collapse, {
+            props: { disabled, modelValue }
+        });
+
+        wrapper.find('.collapse-trigger').trigger('click');
+        expect(modelValue.value).toBeFalsy();
+    });
 });

@@ -36,6 +36,11 @@
 
         <ul class="is-size-7" v-for="child in modelValue.children" :key="child.id">
             <GlobalNavigationNotebook :modelValue="child" />
+            <GlobalNavigationNotebookForm
+                v-if="isNotebookBeingCreated(modelValue.id)"
+                @submit="confirmCreate"
+                @cancel="cancelCreate"
+            />
         </ul>
     </Collapse>
     <li v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">

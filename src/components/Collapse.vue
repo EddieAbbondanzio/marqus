@@ -5,6 +5,7 @@
             :class="
                 `${triggerClass} no-drag collapse-trigger is-flex is-align-center is-justify-space-between has-text-grey pr-1`
             "
+            :style="{ 'pointer-events': disabled ? 'none' : 'default' }"
         >
             <slot name="trigger"></slot>
 
@@ -24,6 +25,10 @@ import IconButton from '@/components/IconButton.vue';
 
 export default defineComponent({
     props: {
+        disabled: {
+            type: Boolean,
+            default: false
+        },
         modelValue: {
             type: Boolean,
             default: false
