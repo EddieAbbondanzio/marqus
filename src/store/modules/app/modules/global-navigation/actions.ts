@@ -120,7 +120,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         const notebook = findNotebookRecursive(rootState.notebooks.values, id)!;
 
         if (await confirmDelete('tag', notebook.value)) {
-            commit('tags/DELETE', id, { root: true });
+            commit('notebooks/DELETE', id, { root: true });
             commit('DIRTY', null, { root: true });
         }
     }

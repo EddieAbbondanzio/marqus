@@ -4,8 +4,9 @@
             <div class="is-flex-grow-1 has-background-transparent">
                 <GlobalNavigationNotebookForm
                     v-if="isNotebookBeingUpdated(modelValue.id)"
-                    @submit="confirmUpdate"
-                    @cancel="cancelUpdate"
+                    @submit="confirm"
+                    @cancel="cancel"
+                    v-model="input"
                 />
                 <a
                     v-else
@@ -30,20 +31,22 @@
             </div>
         </template>
 
-        <ul class="is-size-7" v-for="child in modelValue.children" :key="child.id">
-            <GlobalNavigationNotebook :modelValue="child" />
+        <ul class="is-size-7">
+            <GlobalNavigationNotebook v-for="child in modelValue.children" :key="child.id" :modelValue="child" />
             <GlobalNavigationNotebookForm
                 v-if="isNotebookBeingCreated(modelValue.id)"
-                @submit="confirmCreate"
-                @cancel="cancelCreate"
+                @submit="confirm"
+                @cancel="cancel"
+                v-model="input"
             />
         </ul>
     </Collapse>
     <div v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">
         <GlobalNavigationNotebookForm
             v-if="isNotebookBeingUpdated(modelValue.id)"
-            @submit="confirmUpdate"
-            @cancel="cancelUpdate"
+            @submit="confirm"
+            @cancel="cancel"
+            v-model="input"
         />
         <a
             v-else
@@ -67,10 +70,8 @@
 import { computed, defineComponent } from 'vue';
 import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
-import { mapGetters, useStore } from 'vuex';
-import { isBlank } from '@/utils/is-blank';
+import { mapActions, mapGetters, useStore } from 'vuex';
 import { Notebook } from '@/store/modules/notebooks/state';
-import globalNavigation from '@/store/modules/app/modules/global-navigation';
 
 export default defineComponent({
     props: {
@@ -82,44 +83,12 @@ export default defineComponent({
 
         const expanded = computed({
             get: () => p.modelValue!.expanded,
-            set: (v: any) => s.commit('app/SET_NOTEBOOK_EXPAND', { id: p.modelValue!.id, value: v })
+            set: (v: any) => s.commit('app/globalNavigation/NOTEBOOK_EXPANDED', { notebook: p.modelValue, expanded: v })
         });
-
-        const notebooks = computed(() => s.state.app.globalNavigation.notebooks.entries);
-
-        const unique = (v: any) => {
-            if (v == null || isBlank(v)) {
-                return 'Notebook cannot be empty';
-            }
-
-            const existing = s.state.app.globalNavigation.tags.entries.find(
-                (t: any) => t.value.toUpperCase() === v.toUpperCase()
-            );
-            if (existing != null) {
-                return `Notebook with value ${v} already exists`;
-            }
-
-            return true;
-        };
-
-        const input = computed(() => s.state.app.globalNavigation.notebooks.input);
-
-        const inputValue = computed({
-            get: () => s.state.app.globalNavigation.notebooks.input?.value,
-            set: (v: string) =>
-                s.commit('app/UPDATE_STATE', { key: 'globalNavigation.notebooks.input.value', value: v })
-        });
-
-        const confirmCreate = () => s.dispatch('app/createNotebookConfirm');
-        const cancelCreate = () => s.dispatch('app/createNotebookCancel');
-        const confirmUpdate = () => s.dispatch('app/updateNotebookConfirm');
-        const cancelUpdate = () => s.dispatch('app/updateNotebookCancel');
-
-        const notebookInputMode = computed(() => s.state.app.globalNavigation.notebooks.input.mode);
 
         const active = computed({
             get: () => s.state.app.globalNavigation.active,
-            set: (v: any) => s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: v })
+            set: (v: any) => s.commit('app/globalNavigation/ACTIVE', v)
         });
 
         const onHold = () => {
@@ -134,7 +103,7 @@ export default defineComponent({
         };
 
         const onClick = () => {
-            s.commit('app/UPDATE_STATE', { key: 'globalNavigation.active', value: p.modelValue!.id });
+            s.commit('app/globalNavigation/ACTIVE', !p.modelValue!.expanded);
         };
 
         const getNotebookDepth = (n: Notebook) => {
@@ -149,22 +118,19 @@ export default defineComponent({
             return count;
         };
 
+        const input = computed({
+            get: () => s.state.app.globalNavigation.notebooks.input.value,
+            set: (v: string) => s.commit('app/globalNavigation/NOTEBOOK_INPUT_VALUE', v)
+        });
+
         return {
             expanded,
-            notebooks,
-            unique,
-            confirmCreate,
-            cancelCreate,
-            confirmUpdate,
-            cancelUpdate,
-            input,
-            inputValue,
-            notebookInputMode,
             active,
             onHold,
             onRelease,
             onClick,
-            getNotebookDepth
+            getNotebookDepth,
+            input
         };
     },
     computed: {
@@ -174,6 +140,9 @@ export default defineComponent({
             'indentation',
             'canNotebookBeCollapsed'
         ])
+    },
+    methods: {
+        ...mapActions('app/globalNavigation', { confirm: 'notebookInputConfirm', cancel: 'notebookInputCancel' })
     },
     components: { Collapse, GlobalNavigationNotebookForm }
 });

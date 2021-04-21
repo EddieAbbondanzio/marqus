@@ -2,6 +2,7 @@ import { actions } from '@/store/modules/app/modules/global-navigation/actions';
 import { Tag } from '@/store/modules/tags/state';
 import { id } from '@/utils/id';
 import * as confirmDelete from '@/utils/confirm-delete';
+import { Notebook, NotebookState } from '@/store/modules/notebooks/state';
 
 jest.mock('electron', () => ({
     remote: {
@@ -17,19 +18,20 @@ describe('GlobalNavigation Actions', () => {
             tags: {
                 input: {
                     mode: 'create'
-                },
-                entries: []
+                }
             },
             notebooks: {
                 input: {
                     mode: 'create'
-                },
-                entries: []
+                }
             }
         },
         rootState: {
             tags: {
                 values: [] as Tag[]
+            },
+            notebooks: {
+                values: [] as Notebook[]
             }
         }
     };
@@ -37,6 +39,8 @@ describe('GlobalNavigation Actions', () => {
     beforeEach(() => {
         context.state.tags.input.mode = 'create';
         context.state.notebooks.input.mode = 'create';
+        context.rootState.notebooks.values.length = 0;
+        context.rootState.tags.values.length = 0;
     });
 
     describe('tagInputStart', () => {
@@ -192,13 +196,57 @@ describe('GlobalNavigation Actions', () => {
         });
     });
 
-    // describe('notebookDelete', () => {
-    //     it('throws error if no notebook found.', () => {});
+    describe('notebookDelete', () => {
+        it('throws error when no notebook with matching id found.', async () => {
+            const commit = jest.fn();
 
-    //     it('confirms with user first', () => {});
+            await expect(
+                (actions as any).notebookDelete({ commit, rootState: context.rootState }, 'not-an-id')
+            ).rejects.toThrow();
+        });
 
-    //     it('if user confirms, notebook is deleted', () => {});
+        it('confirms with user first', async () => {
+            const notebook: Notebook = {
+                id: id(),
+                value: 'cat',
+                expanded: false
+            };
 
-    //     it('if user says no, stop.', () => {});
-    // });
+            context.rootState.notebooks.values.push(notebook);
+            const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
+
+            await (actions as any).notebookDelete({ commit: jest.fn(), rootState: context.rootState }, notebook.id);
+            expect(confirmDeleteMock).toHaveBeenCalled();
+        });
+
+        it('if user confirms, notebook is deleted', () => {
+            const notebook: Notebook = {
+                id: id(),
+                value: 'cat',
+                expanded: false
+            };
+
+            context.rootState.notebooks.values.push(notebook);
+
+            const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
+            confirmDeleteMock.mockReturnValue(Promise.resolve(true));
+
+            expectAction(actions.notebookDelete, notebook.id, context, ['notebooks/DELETE', 'DIRTY']);
+        });
+
+        it('if user says no, stop.', () => {
+            const notebook: Notebook = {
+                id: id(),
+                value: 'cat',
+                expanded: false
+            };
+
+            context.rootState.notebooks.values.push(notebook);
+
+            const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
+            confirmDeleteMock.mockReturnValue(Promise.resolve(false));
+
+            expectAction(actions.notebookDelete, notebook.id, context, []);
+        });
+    });
 });

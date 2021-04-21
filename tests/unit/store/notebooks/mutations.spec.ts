@@ -42,6 +42,9 @@ describe('NotebooksStore mutations', () => {
 
             expect(child.parent).toBe(parent);
             expect(parent.children![0].value).toBe('dog');
+
+            // Ensure a nested record isn't added to root.
+            expect(state.values.find((c) => c.id === child.id)).toBeUndefined();
         });
     });
 

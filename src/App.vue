@@ -53,7 +53,7 @@ export default {
                         items.push({
                             label: 'Delete Notebook',
                             click: () => {
-                                s.dispatch('app/globalNavigation/deleteNotebook', id);
+                                s.dispatch('app/globalNavigation/notebookDelete', id);
                             }
                         });
                     }

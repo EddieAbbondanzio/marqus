@@ -14,9 +14,6 @@ export const mutations: MutationTree<NotebookState> = {
             parent,
             expanded: false
         };
-        console.log(arguments);
-
-        state.values.push(notebook);
 
         if (parent != null) {
             // Jest doesn't like logical assignments ??=
@@ -25,6 +22,8 @@ export const mutations: MutationTree<NotebookState> = {
             }
 
             parent.children.push(notebook);
+        } else {
+            state.values.push(notebook);
         }
     },
     UPDATE(state, { id, value }: { id: string; value: string }) {

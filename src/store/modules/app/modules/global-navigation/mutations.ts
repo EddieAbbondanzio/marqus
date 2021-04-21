@@ -3,6 +3,7 @@ import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/
 import { Notebook, NotebookState } from '@/store/modules/notebooks/state';
 import { id as generateId } from '@/utils/id';
 import { Tag } from '@/store/modules/tags/state';
+import { findNotebookRecursive } from '@/store/modules/notebooks/mutations';
 
 export const mutations: MutationTree<GlobalNavigation> = {
     ACTIVE(s, id) {
@@ -39,6 +40,9 @@ export const mutations: MutationTree<GlobalNavigation> = {
     },
     NOTEBOOKS_EXPANDED(s, e = true) {
         s.notebooks.expanded = e;
+    },
+    NOTEBOOK_EXPANDED(s, { notebook, expanded = true }: { notebook: Notebook; expanded: boolean }) {
+        notebook.expanded = expanded;
     },
     NOTEBOOK_INPUT_START(s, { notebook, parent }: { notebook?: Notebook; parent?: Notebook }) {
         // Update

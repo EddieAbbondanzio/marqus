@@ -1,6 +1,7 @@
 import { doesPathExist, createDirectory, loadJsonFile, writeJsonFile } from '@/utils/file-utils';
 import path from 'path';
 import { ActionTree } from 'vuex';
+import { Notebook } from './modules/notebooks/state';
 import { State } from './state';
 
 const STATE_FILE_NAME = 'state.json';
@@ -23,6 +24,14 @@ export const actions: ActionTree<State, any> = {
 
         if (doesPathExist(filePath)) {
             const state = await loadJsonFile(filePath);
+
+            // Fix .parent of notebooks
+            if (state.notebooks.values?.length > 0) {
+                for (let i = 0; i < state.notebooks.values.length; i++) {
+                    fixNotebookParentReferences(state.notebooks.values[i]);
+                }
+            }
+
             this.commit('STATE', state);
         }
     },
@@ -31,13 +40,24 @@ export const actions: ActionTree<State, any> = {
         const filePath = path.join(dataDirectory, STATE_FILE_NAME);
 
         // Deep copy so we can purge some data without effecting vuex
-        const state = JSON.parse(JSON.stringify(context.state));
+        const state = JSON.parse(
+            JSON.stringify(context.state, (k, v) => {
+                // Don't save off notebook parents
+                if (k === 'parent') {
+                    return undefined;
+                } else {
+                    return v;
+                }
+            })
+        );
 
+        // Don't
         if (state.globalNavigation?.notebooks) {
             state.globalNavigation.notebooks.dragging = undefined;
             state.globalNavigation.notebooks.input = undefined;
         }
 
+        // Don't save tag input
         if (state.globalNavigation?.tags) {
             state.globalNavigation.tags.input = undefined;
         }
@@ -67,3 +87,22 @@ export const actions: ActionTree<State, any> = {
         }
     }
 };
+
+/**
+ * Recursively iterate notebooks and rebuilt their .parent references.
+ * @param notebook The notebook to start at
+ */
+export function fixNotebookParentReferences(notebook: Notebook) {
+    // Base case
+    if (notebook.children == null || notebook.children.length === 0) {
+        return;
+    }
+
+    // Recursive step
+    for (let i = 0; i < notebook.children.length; i++) {
+        const child = notebook.children[i];
+        child.parent = notebook;
+
+        fixNotebookParentReferences(child);
+    }
+}
