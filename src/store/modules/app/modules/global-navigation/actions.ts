@@ -86,6 +86,10 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         commit('NOTEBOOK_INPUT_START', { notebook, parent });
         commit('NOTEBOOKS_EXPANDED');
+
+        if (parent != null) {
+            commit('NOTEBOOK_EXPANDED', { notebook: parent });
+        }
     },
     notebookInputConfirm({ commit, state }) {
         const input = state.notebooks.input;

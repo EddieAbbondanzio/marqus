@@ -1,5 +1,6 @@
 import { mutations } from '@/store/modules/app/modules/global-navigation/mutations';
 import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/state';
+import { Notebook } from '@/store/modules/notebooks/state';
 import { id } from '@/utils/id';
 
 describe('GlobalNavigation mutations', () => {
@@ -107,6 +108,33 @@ describe('GlobalNavigation mutations', () => {
         it('defaults to true', () => {
             mutations.NOTEBOOKS_EXPANDED(state);
             expect(state.notebooks.expanded).toBeTruthy();
+        });
+    });
+
+    describe('NOTEBOOK_EXPANDED', () => {
+        it('assign notebook.expanded to the parameter', () => {
+            const notebook: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false
+            };
+
+            mutations.NOTEBOOK_EXPANDED(state, { notebook, expanded: true });
+            expect(notebook.expanded).toBeTruthy();
+        });
+
+        it('expands up the tree if nested', () => {
+            const notebook: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false,
+                children: [{ id: '2', value: 'dog', expanded: false }]
+            };
+
+            notebook.children![0].parent = notebook;
+
+            mutations.NOTEBOOK_EXPANDED(state, { notebook: notebook.children![0], expanded: true });
+            expect(notebook.expanded).toBeTruthy();
         });
     });
 });

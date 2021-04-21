@@ -42,7 +42,13 @@ export const mutations: MutationTree<GlobalNavigation> = {
         s.notebooks.expanded = e;
     },
     NOTEBOOK_EXPANDED(s, { notebook, expanded = true }: { notebook: Notebook; expanded: boolean }) {
-        notebook.expanded = expanded;
+        let p: Notebook | undefined = notebook;
+
+        // Run up the tree expanding each parent until we hit the root
+        do {
+            p.expanded = expanded;
+            p = p.parent;
+        } while (p);
     },
     NOTEBOOK_INPUT_START(s, { notebook, parent }: { notebook?: Notebook; parent?: Notebook }) {
         // Update
