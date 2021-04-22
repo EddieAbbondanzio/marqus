@@ -12,23 +12,28 @@ export const getters: GetterTree<GlobalNavigation, State> = {
         return s.tags.input.mode === 'update' && s.tags.input.id === id;
     },
     isNotebookBeingCreated: (s) => (parentId: string) => {
+        // Check to see if we are even in create mode first
         if (s.notebooks.input.mode !== 'create') {
             return false;
-        } else if (parentId != null) {
-            return s.notebooks.input.parent?.id === parentId;
-        } else {
-            // Need to handle the case were no parentId was passed, but new notebook has parent.
+        }
+
+        // Now check to see if we're testing for a root notebook create
+        if (parentId == null) {
             return s.notebooks.input.parent == null;
         }
+
+        // Lastly, test for a nested notebook create
+        if (parentId != null) {
+            return s.notebooks.input.parent!.id === parentId;
+        }
+
+        // If we somehow got here, halt and catch fire.
+        throw Error();
     },
     isNotebookBeingUpdated: (s) => (id: string) => {
         return s.notebooks.input.mode === 'update' && s.notebooks.input.id === id;
     },
     canNotebookBeCollapsed: (s) => (n: Notebook) => {
-        if (s.notebooks.input.mode === 'create') {
-            return s.notebooks.input.parent?.id === n.id;
-        } else {
-            return (n.children?.length ?? 0) > 0;
-        }
+        return (n.children?.length ?? 0) > 0;
     }
 };

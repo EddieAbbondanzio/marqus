@@ -1,5 +1,7 @@
 <template>
+    <!-- Root, or mid level notebook with children -->
     <Collapse v-if="canNotebookBeCollapsed(modelValue)" v-model="expanded" triggerClass="has-background-hover-light">
+        <!-- Expand / Collapse trigger -->
         <template #trigger>
             <div class="is-flex-grow-1 has-background-transparent">
                 <GlobalNavigationNotebookForm
@@ -31,23 +33,27 @@
             </div>
         </template>
 
-        <ul class="is-size-7">
-            <GlobalNavigationNotebook v-for="child in modelValue.children" :key="child.id" :modelValue="child" />
+        <!-- Root, or mid level notebook children -->
+        <div class="is-size-7">
             <GlobalNavigationNotebookForm
                 v-if="isNotebookBeingCreated(modelValue.id)"
                 @submit="confirm"
                 @cancel="cancel"
                 v-model="input"
             />
-        </ul>
+            <GlobalNavigationNotebook v-for="child in modelValue.children" :key="child.id" :modelValue="child" />
+        </div>
     </Collapse>
+    <!-- Leaf Notebook -->
     <div v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">
+        <!-- Form to update notebook -->
         <GlobalNavigationNotebookForm
             v-if="isNotebookBeingUpdated(modelValue.id)"
             @submit="confirm"
             @cancel="cancel"
             v-model="input"
         />
+        <!-- Notebook value -->
         <a
             v-else
             class="no-drag has-text-grey"
@@ -63,6 +69,12 @@
                 {{ modelValue.value }}
             </p>
         </a>
+        <GlobalNavigationNotebookForm
+            v-if="isNotebookBeingCreated(modelValue.id)"
+            @submit="confirm"
+            @cancel="cancel"
+            v-model="input"
+        />
     </div>
 </template>
 
@@ -83,7 +95,14 @@ export default defineComponent({
 
         const expanded = computed({
             get: () => p.modelValue!.expanded,
-            set: (v: any) => s.commit('app/globalNavigation/NOTEBOOK_EXPANDED', { notebook: p.modelValue, expanded: v })
+            set: (v: any) => {
+                s.commit('app/globalNavigation/NOTEBOOK_EXPANDED', {
+                    notebook: p.modelValue,
+                    expanded: v,
+                    bubbleUp: false
+                });
+                s.commit('DIRTY', null, { root: true });
+            }
         });
 
         const active = computed({

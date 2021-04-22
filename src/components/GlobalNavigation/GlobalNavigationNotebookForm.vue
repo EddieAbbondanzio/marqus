@@ -42,9 +42,7 @@ export default defineComponent({
                 return 'Name cannot be empty';
             }
 
-            const existing = s.state.app.globalNavigation.notebooks.entries.find(
-                (t: any) => t.value.toUpperCase() === v.toUpperCase()
-            );
+            const existing = s.state.notebooks.values.find((t: any) => t.value.toUpperCase() === v.toUpperCase());
             if (existing != null && existing.id !== s.state.app.globalNavigation.notebooks.input.id) {
                 return `Notebook with name ${v} already exists`;
             }

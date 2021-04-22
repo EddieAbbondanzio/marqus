@@ -32,6 +32,9 @@ export const actions: ActionTree<State, any> = {
                 }
             }
 
+            state.app.globalNavigation.notebooks.input = {};
+            state.app.globalNavigation.tags.input = {};
+
             this.commit('STATE', state);
         }
     },
@@ -51,16 +54,18 @@ export const actions: ActionTree<State, any> = {
             })
         );
 
-        // Don't
-        if (state.globalNavigation?.notebooks) {
-            state.globalNavigation.notebooks.dragging = undefined;
-            state.globalNavigation.notebooks.input = undefined;
+        // Don't save notebook input
+        if (state.app.globalNavigation.notebooks) {
+            delete state.app.globalNavigation.notebooks.dragging;
+            delete state.app.globalNavigation.notebooks.input;
         }
 
         // Don't save tag input
-        if (state.globalNavigation?.tags) {
-            state.globalNavigation.tags.input = undefined;
+        if (state.app.globalNavigation.tags) {
+            delete state.app.globalNavigation.tags.input;
         }
+
+        delete state.dirty;
 
         /*
          * There be dragons here. This is written in a way to prevent a

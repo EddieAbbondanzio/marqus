@@ -1,6 +1,6 @@
 <template>
     <li class="has-text-grey is-size-7">
-        <collapse v-model="expanded" triggerClass="has-background-hover-light">
+        <Collapse v-model="expanded" triggerClass="has-background-hover-light">
             <template #trigger>
                 <div class="is-flex is-align-center has-background-transparent global-navigation-title">
                     <span class="icon">
@@ -10,15 +10,15 @@
                 </div>
             </template>
 
-            <ul class="is-size-7">
-                <li v-if="isNotebookBeingCreated()">
+            <div class="is-size-7">
+                <div v-if="isNotebookBeingCreated()">
                     <GlobalNavigationNotebookForm @submit="confirm" @cancel="cancel" v-model="input" />
-                </li>
-                <li v-for="notebook in notebooks" :key="notebook.id">
+                </div>
+                <div v-for="notebook in notebooks" :key="notebook.id">
                     <GlobalNavigationNotebook :modelValue="notebook" />
-                </li>
-            </ul>
-        </collapse>
+                </div>
+            </div>
+        </Collapse>
     </li>
 </template>
 
@@ -27,6 +27,7 @@ import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationNotebook from '@/components/GlobalNavigation/GlobalNavigationNotebook.vue';
+import GlobalNavigationNote from '@/components/GlobalNavigation/GlobalNavigationNote.vue';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
 
 export default defineComponent({

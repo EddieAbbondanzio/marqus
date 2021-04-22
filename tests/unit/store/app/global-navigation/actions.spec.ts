@@ -157,6 +157,16 @@ describe('GlobalNavigation Actions', () => {
         it('triggers input start, and expands notebook section', () => {
             expectAction(actions.notebookInputStart, {}, context, ['NOTEBOOK_INPUT_START', 'NOTEBOOKS_EXPANDED']);
         });
+
+        it('expands parent if nested notebook', async () => {
+            context.rootState.notebooks.values = [{ id: '1', value: 'cat', expanded: false }];
+
+            await expectAction(actions.notebookInputStart, { parentId: '1' }, context, [
+                'NOTEBOOK_INPUT_START',
+                'NOTEBOOKS_EXPANDED',
+                'NOTEBOOK_EXPANDED'
+            ]);
+        });
     });
 
     describe('notebookInputConfirm', () => {
