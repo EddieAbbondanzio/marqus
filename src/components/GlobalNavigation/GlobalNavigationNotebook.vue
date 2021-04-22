@@ -25,7 +25,7 @@
                             'is-flex is-align-center'
                         ]"
                         :data-id="modelValue.id"
-                        :style="{ 'padding-left': indentation(getNotebookDepth(modelValue)) }"
+                        :style="{ 'padding-left': indentation(notebookDepth(modelValue)) }"
                     >
                         {{ modelValue.value }}
                     </p>
@@ -64,7 +64,7 @@
             <p
                 class="global-navigation-notebook global-navigation-item has-background-hover-light is-flex is-align-center"
                 :data-id="modelValue.id"
-                :style="{ 'padding-left': indentation(getNotebookDepth(modelValue)) }"
+                :style="{ 'padding-left': indentation(notebookDepth(modelValue)) }"
             >
                 {{ modelValue.value }}
             </p>
@@ -125,18 +125,6 @@ export default defineComponent({
             s.commit('app/globalNavigation/ACTIVE', !p.modelValue!.expanded);
         };
 
-        const getNotebookDepth = (n: Notebook) => {
-            let count = 1;
-            let c: Notebook = n;
-
-            while (c.parent != null) {
-                c = c.parent;
-                count++;
-            }
-
-            return count;
-        };
-
         const input = computed({
             get: () => s.state.app.globalNavigation.notebooks.input.value,
             set: (v: string) => s.commit('app/globalNavigation/NOTEBOOK_INPUT_VALUE', v)
@@ -148,7 +136,6 @@ export default defineComponent({
             onHold,
             onRelease,
             onClick,
-            getNotebookDepth,
             input
         };
     },
@@ -157,7 +144,8 @@ export default defineComponent({
             'isNotebookBeingUpdated',
             'isNotebookBeingCreated',
             'indentation',
-            'canNotebookBeCollapsed'
+            'canNotebookBeCollapsed',
+            'notebookDepth'
         ])
     },
     methods: {

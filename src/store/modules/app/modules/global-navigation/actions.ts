@@ -90,8 +90,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         if (parent != null) {
             commit('NOTEBOOK_EXPANDED', { notebook: parent, bubbleUp: true });
         }
-
-        console.log('creating notebook with parent: ', parent?.value);
     },
     notebookInputConfirm({ commit, state }) {
         const input = state.notebooks.input;

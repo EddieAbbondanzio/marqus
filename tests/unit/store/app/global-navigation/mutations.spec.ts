@@ -123,7 +123,7 @@ describe('GlobalNavigation mutations', () => {
             expect(notebook.expanded).toBeTruthy();
         });
 
-        it('expands up the tree if nested', () => {
+        it("doesn't bubble up by default", () => {
             const notebook: Notebook = {
                 id: '1',
                 value: 'cat',
@@ -134,6 +134,20 @@ describe('GlobalNavigation mutations', () => {
             notebook.children![0].parent = notebook;
 
             mutations.NOTEBOOK_EXPANDED(state, { notebook: notebook.children![0], expanded: true });
+            expect(notebook.expanded).toBeFalsy();
+        });
+
+        it('will bubbleUp when requested', () => {
+            const notebook: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false,
+                children: [{ id: '2', value: 'dog', expanded: false }]
+            };
+
+            notebook.children![0].parent = notebook;
+
+            mutations.NOTEBOOK_EXPANDED(state, { notebook: notebook.children![0], expanded: true, bubbleUp: true });
             expect(notebook.expanded).toBeTruthy();
         });
     });

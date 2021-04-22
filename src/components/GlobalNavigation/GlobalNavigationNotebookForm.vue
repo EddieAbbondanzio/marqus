@@ -1,6 +1,6 @@
 <template>
-    <Form @submit="$emit('submit')">
-        <div class="has-background-light">
+    <div class="has-background-light" :style="{ 'padding-left': indentation(notebookDepth(parent)) }">
+        <Form @submit="$emit('submit')">
             <div class="is-flex is-flex-row is-align-center has-background-light py-1">
                 <Field name="Notebook" :value="modelValue" v-slot="{ field }" :rules="unique">
                     <input
@@ -22,14 +22,14 @@
             <ErrorMessage name="Notebook" v-slot="{ message }">
                 <p id="errorMessage" class="has-text-danger">{{ message }}</p>
             </ErrorMessage>
-        </div>
-    </Form>
+        </Form>
+    </div>
 </template>
 
 <script lang="ts">
 import { isBlank } from '@/utils/is-blank';
 import { computed, defineComponent, ref, watch } from 'vue';
-import { useStore } from 'vuex';
+import { mapGetters, useStore } from 'vuex';
 import { Field, ErrorMessage, Form, useForm } from 'vee-validate';
 import IconButton from '@/components/IconButton.vue';
 
@@ -60,10 +60,13 @@ export default defineComponent({
             }
         };
 
+        const parent = s.state.app.globalNavigation.notebooks.input.parent;
+
         return {
             unique,
             onInput,
-            onBlur
+            onBlur,
+            parent
         };
     },
     props: {
@@ -73,6 +76,9 @@ export default defineComponent({
         }
     },
     emits: ['submit', 'cancel', 'update:modelValue'],
-    components: { Field, ErrorMessage, Form, IconButton }
+    components: { Field, ErrorMessage, Form, IconButton },
+    computed: {
+        ...mapGetters('app/globalNavigation', ['indentation', 'canNotebookBeCollapsed', 'notebookDepth'])
+    }
 });
 </script>

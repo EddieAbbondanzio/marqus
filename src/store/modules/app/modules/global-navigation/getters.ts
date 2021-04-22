@@ -24,7 +24,7 @@ export const getters: GetterTree<GlobalNavigation, State> = {
 
         // Lastly, test for a nested notebook create
         if (parentId != null) {
-            return s.notebooks.input.parent!.id === parentId;
+            return s.notebooks.input.parent?.id === parentId;
         }
 
         // If we somehow got here, halt and catch fire.
@@ -35,5 +35,20 @@ export const getters: GetterTree<GlobalNavigation, State> = {
     },
     canNotebookBeCollapsed: (s) => (n: Notebook) => {
         return (n.children?.length ?? 0) > 0;
+    },
+    notebookDepth: (s) => (n: Notebook | null) => {
+        if (n == null) {
+            return 1;
+        }
+
+        let c: Notebook = n;
+        let count = 1;
+
+        while (c.parent != null) {
+            c = c.parent;
+            count++;
+        }
+
+        return count;
     }
 };

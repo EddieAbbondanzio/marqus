@@ -173,9 +173,8 @@ describe('GlobalNavigation getters', () => {
             expect(res).toBeTruthy();
         });
 
-        it('returns false if mode is create but id doesn\t match parent', () => {
+        it('returns false if notebook has no children', () => {
             state.notebooks.input.mode = 'create';
-            state.notebooks.input.parent = { id: '2' };
 
             const n: Notebook = {
                 id: '1',
@@ -186,19 +185,60 @@ describe('GlobalNavigation getters', () => {
             const res = (getters as any).canNotebookBeCollapsed(state)(n);
             expect(res).toBeFalsy();
         });
+    });
 
-        it('returns true when mode is create and parent matches id passed', () => {
-            state.notebooks.input.mode = 'create';
-            state.notebooks.input.parent = { id: '1' };
-
+    describe('notebookDepth()', () => {
+        it('returns 1 for root notebook', () => {
             const n: Notebook = {
                 id: '1',
                 value: 'cat',
                 expanded: false
             };
 
-            const res = (getters as any).canNotebookBeCollapsed(state)(n);
-            expect(res).toBeTruthy();
+            const depth = (getters as any).notebookDepth(state)(n);
+            expect(depth).toBe(1);
+        });
+
+        it('returns 2 for nested notebooks', () => {
+            const n: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false,
+                children: [
+                    {
+                        id: '2',
+                        value: 'dog',
+                        expanded: false
+                    }
+                ]
+            };
+
+            n.children![0].parent = n;
+
+            const depth = (getters as any).notebookDepth(state)(n.children![0]);
+            expect(depth).toBe(2);
+        });
+
+        it('can handle deep nested notebooks', () => {
+            const n: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false,
+                children: [
+                    {
+                        id: '2',
+                        value: 'dog',
+                        expanded: false,
+                        children: [{ id: '3', value: 'horse', expanded: false }]
+                    }
+                ]
+            };
+
+            n.children![0].parent = n;
+            n.children![0].children![0].parent = n.children![0];
+
+            const depth = (getters as any).notebookDepth(state)(n.children![0].children![0]);
+            expect(depth).toBe(3);
         });
     });
 });
