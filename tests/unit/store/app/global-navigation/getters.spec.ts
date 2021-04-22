@@ -120,6 +120,13 @@ describe('GlobalNavigation getters', () => {
             const res = (getters as any).isNotebookBeingCreated(state)();
             expect(res).toBeFalsy();
         });
+
+        it('returns false if parentId passed was passed, but input parent is null (root create)', () => {
+            state.notebooks.input.mode = 'create';
+
+            const res = (getters as any).isNotebookBeingCreated(state)('1');
+            expect(res).toBeFalsy();
+        });
     });
 
     describe('isNotebookBeingUpdated', () => {

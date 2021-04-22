@@ -151,4 +151,52 @@ describe('GlobalNavigation mutations', () => {
             expect(notebook.expanded).toBeTruthy();
         });
     });
+
+    describe('NOTEBOOK_INPUT_START', () => {
+        it('sets mode as update when passed notebook is not null', () => {
+            const notebook: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false
+            };
+
+            mutations.NOTEBOOK_INPUT_START(state, { notebook });
+            expect(state.notebooks.input.mode).toBe('update');
+            expect(state.notebooks.input.id).toBe(notebook.id);
+            expect(state.notebooks.input.value).toBe(notebook.value);
+        });
+
+        it('sets mode as create when passed notebook is null', () => {
+            mutations.NOTEBOOK_INPUT_START(state, {});
+            expect(state.notebooks.input.mode).toBe('create');
+        });
+
+        it('sets parent when creating nested', () => {
+            const notebook: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false
+            };
+
+            mutations.NOTEBOOK_INPUT_START(state, { parent: notebook });
+            expect(state.notebooks.input.parent).toBe(notebook);
+        });
+    });
+
+    describe('NOTEBOOK_INPUT_CLEAR', () => {
+        it('resets input', () => {
+            mutations.NOTEBOOK_INPUT_CLEAR(state, 'cat');
+            expect(state.notebooks.input.id).toBeUndefined();
+            expect(state.notebooks.input.mode).toBeUndefined();
+            expect(state.notebooks.input.value).toBeUndefined();
+            expect(state.notebooks.input.expanded).toBeUndefined();
+        });
+    });
+
+    describe('NOTEBOOK_INPUT_VALUE', () => {
+        it('sets input value', () => {
+            mutations.NOTEBOOK_INPUT_VALUE(state, 'cat');
+            expect(state.notebooks.input.value).toBe('cat');
+        });
+    });
 });
