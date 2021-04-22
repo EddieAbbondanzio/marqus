@@ -1,11 +1,13 @@
-import GlobalNavigationTagForm from '@/components/GlobalNavigation/GlobalNavigationTagForm.vue';
+import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
+import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/state';
 import { flushPromises, mount } from '@vue/test-utils';
-import { ActionTree, createStore, MutationTree, Store } from 'vuex';
-import { focus } from '@/directives/focus';
-import { GlobalNavigation, GlobalNavigationNotebookSection } from '@/store/modules/app/modules/global-navigation/state';
+import { MutationTree, ActionTree, Store, createStore, GetterTree } from 'vuex';
 
-describe('GlobalNavigationTagForm', () => {
+describe('GlobalNavigationNotebookForm.vue', () => {
+    window.focus = jest.fn();
+
     let mutations: MutationTree<any>;
+    let getters: GetterTree<any, any>;
     let actions: ActionTree<any, any>;
     let state: GlobalNavigation;
     let store: Store<any>;
@@ -23,6 +25,11 @@ describe('GlobalNavigationTagForm', () => {
             }
         };
 
+        getters = {
+            notebookDepth: (s: any) => (n: any) => 1,
+            indentation: (s: any) => (a: any) => '24px'
+        };
+
         store = createStore({
             modules: {
                 app: {
@@ -32,11 +39,12 @@ describe('GlobalNavigationTagForm', () => {
                             namespaced: true,
                             mutations,
                             actions,
-                            state
+                            state,
+                            getters
                         }
                     }
                 },
-                tags: {
+                notebooks: {
                     namespaced: true,
                     state: {
                         values: [
@@ -52,21 +60,21 @@ describe('GlobalNavigationTagForm', () => {
     });
 
     it('emits cancel on escape', () => {
-        const wrapper = mount(GlobalNavigationTagForm, {
+        const wrapper = mount(GlobalNavigationNotebookForm, {
             global: {
                 plugins: [store],
                 directives: { focus }
             }
         });
 
-        const input = wrapper.find('#tagValue');
+        const input = wrapper.find('#notebookValue');
         input.trigger('keyup', { key: 'escape' });
 
         expect(wrapper.emitted('cancel')).toBeTruthy();
     });
 
     it('emits cancel on cancel button click', () => {
-        const wrapper = mount(GlobalNavigationTagForm, {
+        const wrapper = mount(GlobalNavigationNotebookForm, {
             global: {
                 plugins: [store],
                 directives: { focus }
@@ -79,15 +87,15 @@ describe('GlobalNavigationTagForm', () => {
         expect(wrapper.emitted('cancel')).toBeTruthy();
     });
 
-    it('shows error if duplicate tag name', async () => {
-        const wrapper = mount(GlobalNavigationTagForm, {
+    it('shows error if duplicate notebook name', async () => {
+        const wrapper = mount(GlobalNavigationNotebookForm, {
             global: {
                 plugins: [store],
                 directives: { focus }
             }
         });
 
-        const input = wrapper.find('#tagValue');
+        const input = wrapper.find('#notebookValue');
         input.setValue('cat');
 
         await flushPromises();
@@ -96,8 +104,8 @@ describe('GlobalNavigationTagForm', () => {
         expect(errorMessage.exists()).toBeTruthy();
     });
 
-    it('supports initial value via modelValue', () => {
-        const wrapper = mount(GlobalNavigationTagForm, {
+    it('sets initial value from modelValue', () => {
+        const wrapper = mount(GlobalNavigationNotebookForm, {
             global: {
                 plugins: [store],
                 directives: { focus }
@@ -107,12 +115,12 @@ describe('GlobalNavigationTagForm', () => {
             }
         });
 
-        const input = wrapper.find('#tagValue');
+        const input = wrapper.find('#notebookValue');
         expect((<HTMLInputElement>input.element).value).toBe('cat');
     });
 
     it('updates modelValue', () => {
-        const wrapper = mount(GlobalNavigationTagForm, {
+        const wrapper = mount(GlobalNavigationNotebookForm, {
             global: {
                 plugins: [store],
                 directives: { focus }
@@ -122,20 +130,20 @@ describe('GlobalNavigationTagForm', () => {
             }
         });
 
-        const input = wrapper.find('#tagValue');
+        const input = wrapper.find('#notebookValue');
         input.setValue('catdog');
         expect((<HTMLInputElement>input.element).value).toBe('catdog');
     });
 
-    it('cancels input when blurred and value is empty', () => {
-        const wrapper = mount(GlobalNavigationTagForm, {
+    it('cancels input when burred and value is empty', () => {
+        const wrapper = mount(GlobalNavigationNotebookForm, {
             global: {
                 plugins: [store],
                 directives: { focus }
             }
         });
 
-        const input = wrapper.find('#tagValue');
+        const input = wrapper.find('#notebookValue');
         input.trigger('blur');
 
         expect(wrapper.emitted('cancel')).toBeTruthy();
