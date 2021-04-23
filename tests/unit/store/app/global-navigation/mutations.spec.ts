@@ -199,4 +199,32 @@ describe('GlobalNavigation mutations', () => {
             expect(state.notebooks.input.value).toBe('cat');
         });
     });
+
+    describe('NOTEBOOK_DRAGGING', () => {
+        it('sets dragging', () => {
+            const n: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false
+            };
+
+            mutations.NOTEBOOK_DRAGGING(state, n);
+            expect(state.notebooks.dragging).toBe(n);
+        });
+    });
+
+    describe('NOTEBOOK_DRAGGING_CLEAR', () => {
+        it('clears notebook dragging', () => {
+            const n: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false
+            };
+
+            state.notebooks.dragging = n;
+
+            mutations.NOTEBOOK_DRAGGING_CLEAR(state);
+            expect(state.notebooks.dragging).toBeUndefined();
+        });
+    });
 });

@@ -127,5 +127,44 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             commit('notebooks/DELETE', id, { root: true });
             commit('DIRTY', null, { root: true });
         }
+    },
+    notebookDragStart({ commit }, notebook: Notebook) {
+        commit('NOTEBOOK_DRAGGING', notebook);
+        commit('app/CURSOR_TITLE', notebook.value, { root: true });
+    },
+    notebookDragStop({ commit, rootState, state }, endedOnId: string | null) {
+        const dragging = state.notebooks.dragging;
+
+        if (dragging == null) {
+            throw new Error('No drag to finalize.');
+        }
+
+        /*
+         * Don't allow a move if we started and stopped on the same element, or if
+         * we are attempting to move a parent to a child of it.
+         */
+        if (dragging.id !== endedOnId && findNotebookRecursive(dragging.children!, endedOnId!) == null) {
+            // Remove from old location
+            commit('notebooks/DELETE', dragging.id, { root: true });
+
+            let parent: Notebook | undefined;
+
+            if (endedOnId != null) {
+                parent = findNotebookRecursive(rootState.notebooks.values, endedOnId);
+            }
+
+            // Insert into new spot
+            commit('notebooks/CREATE', { id: dragging.id, value: dragging.value, parent }, { root: true });
+
+            if (parent) {
+                commit('NOTEBOOK_EXPANDED', { notebook: parent, expanded: true, bubbleUp: true });
+            }
+
+            commit('NOTEBOOK_DRAGGING_CLEAR');
+            commit('notebooks/SORT', null, { root: true });
+            commit('DIRTY', null, { root: true });
+        }
+
+        commit('app/CURSOR_TITLE_CLEAR', null, { root: true });
     }
 };

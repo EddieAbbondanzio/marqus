@@ -22,11 +22,11 @@ export default defineComponent({
 
         const release = s.subscribe((m, s) => {
             switch (m.type) {
-                case 'app/SET_CURSOR_TITLE':
+                case 'app/CURSOR_TITLE':
                     title.value = m.payload;
                     break;
 
-                case 'app/CLEAR_CURSOR_TITLE':
+                case 'app/CURSOR_TITLE_CLEAR':
                     title.value = null;
                     break;
 

@@ -110,17 +110,6 @@ export default defineComponent({
             set: (v: any) => s.commit('app/globalNavigation/ACTIVE', v)
         });
 
-        const onHold = () => {
-            // s.commit('app/DRAG_NOTEBOOK_START', p.modelValue!);
-            // s.commit('app/SET_CURSOR_TITLE', p.modelValue!.value);
-        };
-
-        const onRelease = (el: HTMLElement, ev: MouseEvent) => {
-            // s.commit('app/DRAG_NOTEBOOK_STOP', (ev.target as HTMLElement).getAttribute('data-id'));
-            // s.commit('app/CLEAR_CURSOR_TITLE');
-            // s.commit('app/SORT_NOTEBOOKS');
-        };
-
         const onClick = () => {
             s.commit('app/globalNavigation/ACTIVE', !p.modelValue!.expanded);
         };
@@ -130,13 +119,22 @@ export default defineComponent({
             set: (v: string) => s.commit('app/globalNavigation/NOTEBOOK_INPUT_VALUE', v)
         });
 
+        const onHold = () => {
+            s.dispatch('app/globalNavigation/notebookDragStart', p.modelValue!);
+        };
+
+        const onRelease = (ev: any) => {
+            const id = ev.target.getAttribute('data-id');
+            s.dispatch('app/globalNavigation/notebookDragStop', id);
+        };
+
         return {
             expanded,
             active,
-            onHold,
-            onRelease,
             onClick,
-            input
+            input,
+            onHold,
+            onRelease
         };
     },
     computed: {
@@ -149,7 +147,11 @@ export default defineComponent({
         ])
     },
     methods: {
-        ...mapActions('app/globalNavigation', { confirm: 'notebookInputConfirm', cancel: 'notebookInputCancel' })
+        ...mapActions('app/globalNavigation', {
+            confirm: 'notebookInputConfirm',
+            cancel: 'notebookInputCancel',
+            onRelease: 'notebookDragStop'
+        })
     },
     components: { Collapse, GlobalNavigationNotebookForm }
 });

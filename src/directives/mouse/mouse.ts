@@ -26,6 +26,7 @@ export const mouse = {
         obj.subscribe(action, button, callback);
         el.mouseObject = obj;
     },
+
     unmounted: function(el: HTMLElement, binding: DirectiveBinding) {
         const obj = mouseObjectManager.get(el);
 
@@ -42,8 +43,6 @@ export const mouse = {
         if (obj.subscriberCount === 0) {
             mouseObjectManager.remove(obj);
         }
-
-        mouseObjectManager.dispose(); // TODO: Will this break things if we have multiple v-mouse directives in use?
     }
 };
 

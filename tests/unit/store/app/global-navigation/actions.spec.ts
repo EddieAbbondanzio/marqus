@@ -23,7 +23,8 @@ describe('GlobalNavigation Actions', () => {
             notebooks: {
                 input: {
                     mode: 'create'
-                }
+                },
+                dragging: undefined as Notebook | undefined
             }
         },
         rootState: {
@@ -257,6 +258,78 @@ describe('GlobalNavigation Actions', () => {
             confirmDeleteMock.mockReturnValue(Promise.resolve(false));
 
             expectAction(actions.notebookDelete, notebook.id, context, []);
+        });
+    });
+
+    describe('notebookDragStart', () => {
+        it('sets dragging, and sets cursor title', async () => {
+            const notebook: Notebook = {
+                id: id(),
+                value: 'cat',
+                expanded: false
+            };
+
+            context.rootState.notebooks.values.push(notebook);
+
+            await expectAction(actions.notebookDragStart, notebook, context, ['NOTEBOOK_DRAGGING', 'app/CURSOR_TITLE']);
+        });
+    });
+
+    describe('notebookDragStop', () => {
+        it('throws error when drag was never started', () => {
+            const commit = jest.fn();
+
+            expect(() => {
+                (actions as any).notebookDragStop({ commit, rootState: context.rootState });
+            }).toThrow();
+        });
+
+        it("won't do anything if we try to drag to a child of what were dragging", () => {
+            const parent: Notebook = {
+                id: id(),
+                value: 'cat',
+                expanded: false,
+                children: []
+            };
+
+            const child: Notebook = {
+                id: id(),
+                value: 'dog',
+                expanded: false
+            };
+
+            parent.children!.push(child);
+            child.parent = parent;
+
+            context.state.notebooks.dragging = parent;
+            expectAction(actions.notebookDragStop, child.id, context, ['app/CURSOR_TITLE_CLEAR']);
+        });
+
+        it('moves notebook', async () => {
+            const n1: Notebook = {
+                id: id(),
+                value: 'cat',
+                expanded: false
+            };
+
+            const n2: Notebook = {
+                id: id(),
+                value: 'dog',
+                expanded: false
+            };
+
+            context.rootState.notebooks.values.push(n1, n2);
+            context.state.notebooks.dragging = n1;
+
+            await expectAction(actions.notebookDragStop, n2.id, context, [
+                'notebooks/DELETE',
+                'notebooks/CREATE',
+                'NOTEBOOK_EXPANDED',
+                'NOTEBOOK_DRAGGING_CLEAR',
+                'notebooks/SORT',
+                'DIRTY',
+                'app/CURSOR_TITLE_CLEAR'
+            ]);
         });
     });
 });
