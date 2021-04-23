@@ -9,7 +9,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Editor from '@/components/Editor/Editor.vue';
-import LocalNavigation from '@/components/LocalNavigation.vue';
+import LocalNavigation from '@/components/LocalNavigation/LocalNavigation.vue';
 import GlobalNavigation from '@/components/GlobalNavigation/GlobalNavigation.vue';
 
 export default defineComponent({

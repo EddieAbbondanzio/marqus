@@ -1,10 +1,16 @@
 <template>
     <button
-        :class="{ button: true, 'is-icon-only': true, 'is-small': true, 'is-xs': size == 'is-xs' }"
+        :class="{
+            button: true,
+            'is-icon-only': true,
+            'mb-0': true,
+            'is-small': size == 'is-small',
+            'is-xs': size == 'is-xs'
+        }"
         :type="type"
         @click="$emit('click')"
     >
-        <span :class="{ icon: true, 'is-small': true, 'is-xs': size == 'is-xs' }">
+        <span :class="{ icon: true, 'is-small': true, 'is-xs': size == 'is-xs', 'is-small': size == 'is-small' }">
             <i :class="classes"></i>
         </span>
     </button>
