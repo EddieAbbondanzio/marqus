@@ -16,6 +16,7 @@
                     v-mouse:click.left="onClick"
                     v-mouse:hold.left="onHold"
                     v-mouse:release.left="onRelease"
+                    @mouseover="onHover"
                 >
                     <p
                         :class="[
@@ -60,6 +61,7 @@
             v-mouse:click.left="onClick"
             v-mouse:hold.left="onHold"
             v-mouse:release.left="onRelease"
+            @mouseover="onHover"
         >
             <p
                 class="global-navigation-notebook global-navigation-item has-background-hover-light is-flex is-align-center"
@@ -128,13 +130,24 @@ export default defineComponent({
             s.dispatch('app/globalNavigation/notebookDragStop', id);
         };
 
+        const onHover = () => {
+            if (s.state.app.globalNavigation.notebooks.dragging && !p.modelValue!.expanded) {
+                s.commit('app/globalNavigation/NOTEBOOK_EXPANDED', {
+                    notebook: p.modelValue!,
+                    expanded: true,
+                    bubbleUp: false
+                });
+            }
+        };
+
         return {
             expanded,
             active,
             onClick,
             input,
             onHold,
-            onRelease
+            onRelease,
+            onHover
         };
     },
     computed: {
