@@ -15,9 +15,28 @@ describe('GlobalNavigation getters', () => {
         };
     });
 
+    describe('isActive', () => {
+        it('returns false if no active element', () => {
+            const a = (getters as any).isActive(state)('1', 'tag');
+            expect(a).toBeFalsy();
+        });
+
+        it('returns false if id matches but type is wrong', () => {
+            state.active = { id: '1', type: 'notebook' };
+            const a = (getters as any).isActive(state)('1', 'tag');
+            expect(a).toBeFalsy();
+        });
+
+        it('returns true if id matches and type is the same', () => {
+            state.active = { id: '1', type: 'notebook' };
+            const a = (getters as any).isActive(state)('1', 'notebook');
+            expect(a).toBeTruthy();
+        });
+    });
+
     describe('indentation', () => {
         it('returns 24px as default', () => {
-            const i = (getters as any).indentation()(1);
+            const i = (getters as any).indentation(state)(1);
             expect(i).toBe('24px');
         });
 

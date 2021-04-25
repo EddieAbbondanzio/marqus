@@ -1,11 +1,15 @@
-export interface LocalNavigationState {
+import { Note } from '@/store/modules/notes/state';
+
+export interface LocalNavigation {
     width: string;
-    files: {
-        input?: { value: string };
+    notes: {
+        input: Partial<Note> & { mode?: 'create' | 'update' };
     };
 }
 
-export const state: LocalNavigationState = {
+export const state: LocalNavigation = {
     width: '200px',
-    files: {}
+    notes: {
+        input: {}
+    }
 };

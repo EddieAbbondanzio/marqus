@@ -14,7 +14,7 @@
                 <li class="is-flex-grow-1" v-if="isTagBeingCreated">
                     <GlobalNavigationTagForm @submit="confirm" @cancel="cancel" v-model="input" />
                 </li>
-                <li v-for="tag in tags" :key="tag.id" :class="{ 'has-background-light': active == tag.id }">
+                <li v-for="tag in tags" :key="tag.id" :class="{ 'has-background-light': isActive(tag.id, 'tag') }">
                     <GlobalNavigationTagForm
                         v-if="isTagBeingUpdated(tag.id)"
                         @submit="confirm"
@@ -25,7 +25,7 @@
                     <a
                         v-else
                         class="no-drag has-text-grey"
-                        @click="() => (active = tag.id)"
+                        @click="() => setActive({ id: tag.id, type: 'tag' })"
                         :stype="{ 'padding-left': indentation(1) }"
                     >
                         <p
@@ -42,12 +42,9 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide, onMounted } from 'vue';
-import { store } from '@/store';
+import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import Collapse from '@/components/Collapse.vue';
-import { useField, Field, ErrorMessage, Form } from 'vee-validate';
-import { isBlank } from '@/utils/is-blank';
 import GlobalNavigationTagForm from '@/components/GlobalNavigation/GlobalNavigationTagForm.vue';
 
 export default defineComponent({
@@ -67,15 +64,9 @@ export default defineComponent({
             set: (v: string) => s.commit('app/globalNavigation/TAG_INPUT_VALUE', v)
         });
 
-        const active = computed({
-            get: () => s.state.app.globalNavigation.active,
-            set: (v: any) => s.commit('app/globalNavigation/ACTIVE', v)
-        });
-
         return {
             expanded,
-            input,
-            active
+            input
         };
     },
     components: { Collapse, GlobalNavigationTagForm },
@@ -83,10 +74,14 @@ export default defineComponent({
         ...mapState('tags', {
             tags: (state: any) => state.values
         }),
-        ...mapGetters('app/globalNavigation', ['isTagBeingUpdated', 'isTagBeingCreated', 'indentation'])
+        ...mapGetters('app/globalNavigation', ['isTagBeingUpdated', 'isTagBeingCreated', 'indentation', 'isActive'])
     },
     methods: {
-        ...mapActions('app/globalNavigation', { confirm: 'tagInputConfirm', cancel: 'tagInputCancel' })
+        ...mapActions('app/globalNavigation', {
+            confirm: 'tagInputConfirm',
+            cancel: 'tagInputCancel',
+            setActive: 'setActive'
+        })
     }
 });
 </script>

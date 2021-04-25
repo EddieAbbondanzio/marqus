@@ -22,7 +22,7 @@
                         :class="[
                             'global-navigation-notebook',
                             'global-navigation-item',
-                            { 'has-background-light': active == modelValue.id },
+                            { 'has-background-light': isActive(modelValue.id, 'notebook') },
                             'is-flex is-align-center'
                         ]"
                         :data-id="modelValue.id"
@@ -46,7 +46,7 @@
         </div>
     </Collapse>
     <!-- Leaf Notebook -->
-    <div v-else class="is-flex-grow-1" :class="{ 'has-background-light': active == modelValue.id }">
+    <div v-else class="is-flex-grow-1" :class="{ 'has-background-light': isActive(modelValue.id, 'notebook') }">
         <!-- Form to update notebook -->
         <GlobalNavigationNotebookForm
             v-if="isNotebookBeingUpdated(modelValue.id)"
@@ -107,13 +107,8 @@ export default defineComponent({
             }
         });
 
-        const active = computed({
-            get: () => s.state.app.globalNavigation.active,
-            set: (v: any) => s.commit('app/globalNavigation/ACTIVE', v)
-        });
-
         const onClick = () => {
-            s.commit('app/globalNavigation/ACTIVE', !p.modelValue!.expanded);
+            s.dispatch('app/globalNavigation/setActive', { id: p.modelValue!.id, type: 'notebook' });
         };
 
         const input = computed({
@@ -142,7 +137,6 @@ export default defineComponent({
 
         return {
             expanded,
-            active,
             onClick,
             input,
             onHold,
@@ -156,7 +150,8 @@ export default defineComponent({
             'isNotebookBeingCreated',
             'indentation',
             'canNotebookBeCollapsed',
-            'notebookDepth'
+            'notebookDepth',
+            'isActive'
         ])
     },
     methods: {

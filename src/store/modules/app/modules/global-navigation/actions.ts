@@ -7,6 +7,10 @@ import { Action, ActionContext, ActionTree } from 'vuex';
 import { GlobalNavigation } from './state';
 
 export const actions: ActionTree<GlobalNavigation, State> = {
+    setActive({ commit }, a: { id: string; type: 'notebook' | 'tag' }) {
+        commit('ACTIVE', a);
+        commit('DIRTY', null, { root: true });
+    },
     tagInputStart({ commit, rootState }, id: string | null = null) {
         let tag: Tag | undefined;
 

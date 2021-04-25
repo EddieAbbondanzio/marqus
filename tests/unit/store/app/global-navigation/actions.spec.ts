@@ -44,6 +44,12 @@ describe('GlobalNavigation Actions', () => {
         context.rootState.tags.values.length = 0;
     });
 
+    describe('setActive', () => {
+        it('sets active, and marks state as dirty', async () => {
+            await expectAction(actions.setActive, { id: '1', type: 'tag' }, context, ['ACTIVE', 'DIRTY']);
+        });
+    });
+
     describe('tagInputStart', () => {
         it('throws error if id passed, but no tag with matching id found', () => {
             const commit = jest.fn();

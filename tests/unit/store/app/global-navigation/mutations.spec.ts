@@ -22,8 +22,8 @@ describe('GlobalNavigation mutations', () => {
 
     describe('ACTIVE', () => {
         it('sets active', () => {
-            mutations.ACTIVE(state, true);
-            expect(state.active).toBeTruthy();
+            mutations.ACTIVE(state, { id: '1', type: 'notebook' });
+            expect(state.active).toStrictEqual({ id: '1', type: 'notebook' });
         });
     });
 

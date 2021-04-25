@@ -1,5 +1,7 @@
 import { State } from '@/store/state';
 import { GetterTree } from 'vuex';
-import { LocalNavigationState } from './state';
+import { LocalNavigation } from './state';
 
-export const getters: GetterTree<LocalNavigationState, State> = {};
+export const getters: GetterTree<LocalNavigation, State> = {
+    isCreatingNote: (s) => s.notes.input?.mode === 'create'
+};

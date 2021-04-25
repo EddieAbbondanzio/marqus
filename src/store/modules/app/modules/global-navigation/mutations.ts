@@ -6,8 +6,8 @@ import { Tag } from '@/store/modules/tags/state';
 import { findNotebookRecursive } from '@/store/modules/notebooks/mutations';
 
 export const mutations: MutationTree<GlobalNavigation> = {
-    ACTIVE(s, id) {
-        s.active = id;
+    ACTIVE(s, a: { id: string; type: 'notebook' | 'tag' }) {
+        s.active = a;
     },
     WIDTH(s, width) {
         s.width = width;

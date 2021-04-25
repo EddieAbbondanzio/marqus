@@ -6,10 +6,13 @@
                 class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-1-dark p-1 has-background-light"
             >
                 <local-navigation-search-bar />
-                <icon-button icon="fa-plus" size="is-small" />
+                <icon-button icon="fa-plus" size="is-small" @click="onCreateClick" />
             </div>
 
             <!-- Files -->
+            <div>
+                <local-navigation-note-form v-if="isCreatingNote" />
+            </div>
         </div>
     </resizable>
 </template>
@@ -19,7 +22,8 @@ import { computed, defineComponent, ref, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import IconButton from '@/components/IconButton.vue';
 import LocalNavigationSearchBar from '@/components/LocalNavigation/LocalNavigationSearchBar.vue';
-import { useStore } from 'vuex';
+import { mapGetters, useStore } from 'vuex';
+import LocalNavigationNoteForm from '@/components/LocalNavigation/LocalNavigationNoteForm.vue';
 
 export default defineComponent({
     setup: function() {
@@ -35,11 +39,19 @@ export default defineComponent({
 
         const save = () => s.dispatch('save');
 
+        const onCreateClick = () => {
+            console.log('FUCK');
+        };
+
         return {
             width,
-            save
+            save,
+            onCreateClick
         };
     },
-    components: { Resizable, LocalNavigationSearchBar, IconButton }
+    computed: {
+        ...mapGetters('localNavigation', ['isCreatingNote'])
+    },
+    components: { Resizable, LocalNavigationSearchBar, IconButton, LocalNavigationNoteForm }
 });
 </script>
