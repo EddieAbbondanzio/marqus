@@ -11,7 +11,7 @@
 
             <!-- Files -->
             <div>
-                <local-navigation-note-form v-if="isCreatingNote" />
+                <local-navigation-note-form v-if="isCreatingNote" v-model="input" @submit="confirm" @cancel="cancel" />
             </div>
         </div>
     </resizable>
@@ -22,7 +22,7 @@ import { computed, defineComponent, ref, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import IconButton from '@/components/IconButton.vue';
 import LocalNavigationSearchBar from '@/components/LocalNavigation/LocalNavigationSearchBar.vue';
-import { mapGetters, useStore } from 'vuex';
+import { mapActions, mapGetters, useStore } from 'vuex';
 import LocalNavigationNoteForm from '@/components/LocalNavigation/LocalNavigationNoteForm.vue';
 
 export default defineComponent({
@@ -37,20 +37,32 @@ export default defineComponent({
             }
         });
 
+        const input = computed({
+            get: () => s.state.app.localNavigation.notes.input.name,
+            set: (v: string) => s.commit('app/localNavigation/NOTE_INPUT_VALUE', v)
+        });
+
         const save = () => s.dispatch('save');
 
         const onCreateClick = () => {
-            console.log('FUCK');
+            s.dispatch('app/localNavigation/noteInputStart', null);
         };
 
         return {
             width,
+            input,
             save,
             onCreateClick
         };
     },
     computed: {
-        ...mapGetters('localNavigation', ['isCreatingNote'])
+        ...mapGetters('app/localNavigation', ['isCreatingNote'])
+    },
+    methods: {
+        ...mapActions('app/localNavigation', {
+            confirm: 'noteInputConfirm',
+            cancel: 'noteInputCancel'
+        })
     },
     components: { Resizable, LocalNavigationSearchBar, IconButton, LocalNavigationNoteForm }
 });

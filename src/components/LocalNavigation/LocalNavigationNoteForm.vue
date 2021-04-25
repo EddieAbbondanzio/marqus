@@ -42,13 +42,13 @@ export default defineComponent({
 
         const unique = (v: any) => {
             if (v == null || isBlank(v)) {
-                return 'Note cannot be empty';
+                return 'Note name cannot be empty';
             }
 
-            const existing = s.state.notes.values.find((t: any) => t.value.toUpperCase() === v.toUpperCase());
+            const existing = s.state.notes.values.find((t: any) => t.name.toUpperCase() === v.toUpperCase());
 
-            if (existing != null && existing.id !== s.state.app.globalNavigation.notes.input.id) {
-                return `Note with value ${v} already exists`;
+            if (existing != null && existing.id !== s.state.app.localNavigation.notes.input.id) {
+                return `Note with name ${v} already exists`;
             }
 
             return true;

@@ -1,7 +1,7 @@
 import { mutations } from '@/store/modules/app/modules/global-navigation/mutations';
 import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/state';
 import { Notebook } from '@/store/modules/notebooks/state';
-import { id } from '@/utils/id';
+import { generateId } from '@/utils/id';
 
 describe('GlobalNavigation mutations', () => {
     let state: GlobalNavigation;
@@ -66,7 +66,7 @@ describe('GlobalNavigation mutations', () => {
 
         it('sets mode to update when id passed', () => {
             const t = {
-                id: id(),
+                id: generateId(),
                 value: 'Cat'
             };
 
@@ -76,7 +76,7 @@ describe('GlobalNavigation mutations', () => {
 
         it('sets id when in update mode', () => {
             const t = {
-                id: id(),
+                id: generateId(),
                 value: 'Cat'
             };
 
@@ -88,7 +88,7 @@ describe('GlobalNavigation mutations', () => {
     describe('TAG_INPUT_CLEAR', () => {
         it('clears input out', () => {
             state.tags.input = {
-                id: id(),
+                id: generateId(),
                 value: 'Cat'
             };
 

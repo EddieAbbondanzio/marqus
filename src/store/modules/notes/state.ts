@@ -1,7 +1,7 @@
 export interface Note {
     id: string;
     name: string;
-    notebook: string;
+    notebooks: string[];
     tags: string[];
     dateCreated: Date;
     dateModified: Date;

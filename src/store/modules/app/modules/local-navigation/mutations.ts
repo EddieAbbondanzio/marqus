@@ -1,5 +1,5 @@
 import { Note } from '@/store/modules/notes/state';
-import { id } from '@/utils/id';
+import { generateId } from '@/utils/id';
 import { MutationTree } from 'vuex';
 import { LocalNavigation } from './state';
 
@@ -13,20 +13,43 @@ export const mutations: MutationTree<LocalNavigation> = {
     NOTE_INPUT_CLEAR(s) {
         s.notes.input = {};
     },
-    NOTE_INPUT_START(s, note: Note | null = null) {
+    NOTE_INPUT_START(s, { note, active }: { note?: Note; active?: { id: string; type: 'notebook' | 'tag' } }) {
         // Create
         if (note == null) {
             s.notes.input = {
-                id: id(),
+                id: generateId(),
+                name: '',
                 dateCreated: new Date(),
                 dateModified: new Date(),
-                name: '',
                 content: '',
                 mode: 'create'
             };
+
+            // If an active record was passed, assign it as a tag, or notebook.
+            if (active != null) {
+                switch (active.type) {
+                    case 'notebook':
+                        s.notes.input.notebooks = [active.id];
+                        break;
+
+                    case 'tag':
+                        s.notes.input.tags = [active.id];
+                        break;
+                }
+            }
         }
         // Update
         else {
+            s.notes.input = {
+                id: note.id,
+                name: note.name,
+                dateCreated: note.dateCreated,
+                dateModified: note.dateModified,
+                content: note.content,
+                tags: note.tags,
+                notebooks: note.notebooks,
+                mode: 'update'
+            };
         }
     }
 };

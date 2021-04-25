@@ -15,6 +15,37 @@ export const actions: ActionTree<LocalNavigation, State> = {
             }
         }
 
-        commit('NOTE_INPUT_START', note);
+        const active = rootState.app.globalNavigation.active;
+        commit('NOTE_INPUT_START', { note, active });
+    },
+    noteInputConfirm({ commit, state }) {
+        const input = state.notes.input;
+
+        const note: Note = {
+            id: input.id!,
+            name: input.name!,
+            dateCreated: input.dateCreated!,
+            dateModified: input.dateModified!,
+            content: input.content!,
+            notebooks: input.notebooks!,
+            tags: input.tags!
+        };
+
+        switch (input.mode) {
+            case 'create':
+                commit('notes/CREATE', note, { root: true });
+                break;
+
+            case 'update':
+                note.dateModified = new Date();
+                commit('notes/UPDATE', note, { root: true });
+                break;
+        }
+
+        commit('NOTE_INPUT_CLEAR');
+        commit('DIRTY', null, { root: true });
+    },
+    noteInputCancel({ commit }) {
+        commit('NOTE_INPUT_CLEAR');
     }
 };

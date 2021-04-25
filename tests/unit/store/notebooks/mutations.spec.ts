@@ -1,6 +1,6 @@
 import { findNotebookRecursive, mutations } from '@/store/modules/notebooks/mutations';
 import { Notebook, NotebookState } from '@/store/modules/notebooks/state';
-import { id } from '@/utils/id';
+import { generateId } from '@/utils/id';
 
 describe('NotebooksStore mutations', () => {
     let state: NotebookState = null!;
@@ -34,8 +34,8 @@ describe('NotebooksStore mutations', () => {
         });
 
         it('sets parent if passed', () => {
-            const parent: Notebook = { id: id(), value: 'cat', expanded: false };
-            const child: Notebook = { id: id(), value: 'dog', parent, expanded: false };
+            const parent: Notebook = { id: generateId(), value: 'cat', expanded: false };
+            const child: Notebook = { id: generateId(), value: 'dog', parent, expanded: false };
 
             mutations.CREATE(state, parent);
             mutations.CREATE(state, child);
@@ -50,7 +50,7 @@ describe('NotebooksStore mutations', () => {
 
     describe('UPDATE', () => {
         it('throws error if value is null', () => {
-            const notebook: Notebook = { id: id(), value: 'cat', expanded: false, children: [] };
+            const notebook: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
             state.values.push(notebook);
 
             expect(() => {
@@ -59,7 +59,7 @@ describe('NotebooksStore mutations', () => {
         });
 
         it('updates value', () => {
-            const notebook: Notebook = { id: id(), value: 'cat', expanded: false, children: [] };
+            const notebook: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
             state.values.push(notebook);
 
             mutations.UPDATE(state, { id: notebook.id, value: 'dog' });
@@ -67,8 +67,8 @@ describe('NotebooksStore mutations', () => {
         });
 
         it('finds nested notebooks', () => {
-            const parent: Notebook = { id: id(), value: 'cat', expanded: false, children: [] };
-            const child: Notebook = { id: id(), value: 'dog', parent, expanded: false };
+            const parent: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
+            const child: Notebook = { id: generateId(), value: 'dog', parent, expanded: false };
 
             state.values.push(parent);
             parent.children!.push(child);
@@ -81,7 +81,7 @@ describe('NotebooksStore mutations', () => {
 
     describe('DELETE', () => {
         it('deletes root notebook', () => {
-            const notebook: Notebook = { id: id(), value: 'cat', expanded: false, children: [] };
+            const notebook: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
             state.values.push(notebook);
 
             mutations.DELETE(state, notebook.id);
@@ -89,8 +89,8 @@ describe('NotebooksStore mutations', () => {
         });
 
         it('finds a nested notebook', () => {
-            const parent: Notebook = { id: id(), value: 'cat', expanded: false, children: [] };
-            const child: Notebook = { id: id(), value: 'dog', parent, expanded: false };
+            const parent: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
+            const child: Notebook = { id: generateId(), value: 'dog', parent, expanded: false };
 
             state.values.push(parent);
             parent.children!.push(child);
@@ -105,10 +105,10 @@ describe('NotebooksStore mutations', () => {
     describe('SORT', () => {
         it('sorts alphabetically by value', () => {
             state.values = [
-                { id: id(), value: 'horse', expanded: false },
-                { id: id(), value: 'correct', expanded: false },
-                { id: id(), value: 'battery', expanded: false },
-                { id: id(), value: 'staple', expanded: false }
+                { id: generateId(), value: 'horse', expanded: false },
+                { id: generateId(), value: 'correct', expanded: false },
+                { id: generateId(), value: 'battery', expanded: false },
+                { id: generateId(), value: 'staple', expanded: false }
             ];
 
             mutations.SORT(state);
@@ -122,13 +122,13 @@ describe('NotebooksStore mutations', () => {
         it('sorts children', () => {
             state.values = [
                 {
-                    id: id(),
+                    id: generateId(),
                     value: 'horse',
                     expanded: false,
                     children: [
-                        { id: id(), value: 'correct', expanded: false },
-                        { id: id(), value: 'battery', expanded: false },
-                        { id: id(), value: 'staple', expanded: false }
+                        { id: generateId(), value: 'correct', expanded: false },
+                        { id: generateId(), value: 'battery', expanded: false },
+                        { id: generateId(), value: 'staple', expanded: false }
                     ]
                 }
             ];
@@ -147,13 +147,13 @@ describe('NotebooksStore mutations', () => {
 describe('findNotebookRecursive()', () => {
     const notebooks = [
         {
-            id: id(),
+            id: generateId(),
             value: 'horse',
             expanded: false,
             children: [
-                { id: id(), value: 'correct', expanded: false },
-                { id: id(), value: 'battery', expanded: false },
-                { id: id(), value: 'staple', expanded: false }
+                { id: generateId(), value: 'correct', expanded: false },
+                { id: generateId(), value: 'battery', expanded: false },
+                { id: generateId(), value: 'staple', expanded: false }
             ]
         }
     ];

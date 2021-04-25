@@ -1,5 +1,6 @@
 import { Notebook } from '../notebooks/state';
 import { Tag } from '../tags/state';
+import { GlobalNavigation } from './modules/global-navigation/state';
 
 interface LocalNavigation {
     width: string;
@@ -14,6 +15,8 @@ export interface AppState {
     mode: 'edit' | 'view';
     activeFile: string | null;
     cursor: Cursor;
+    globalNavigation: GlobalNavigation;
+    localNavigation: LocalNavigation;
 }
 
 export const state: AppState = {
@@ -22,4 +25,4 @@ export const state: AppState = {
     cursor: {
         icon: 'pointer'
     }
-};
+} as any;

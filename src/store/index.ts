@@ -3,6 +3,7 @@ import config from '@/store/modules/config/config';
 import app from '@/store/modules/app';
 import tags from '@/store/modules/tags';
 import notebooks from '@/store/modules/notebooks';
+import notes from '@/store/modules/notes';
 import { PersistPlugin } from './plugins/persist/persist-plugin';
 import { State, state } from './state';
 import { mutations } from '@/store/mutations';
@@ -16,7 +17,8 @@ export const store = createStore<State>({
         app,
         config,
         notebooks,
-        tags
+        tags,
+        notes
     },
     plugins: [PersistPlugin],
     /*

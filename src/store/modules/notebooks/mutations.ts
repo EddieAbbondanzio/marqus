@@ -1,6 +1,6 @@
 import { MutationTree } from 'vuex';
 import { Notebook, NotebookState } from './state';
-import { id as generateId } from '@/utils/id';
+import { generateId } from '@/utils/id';
 
 export const mutations: MutationTree<NotebookState> = {
     CREATE(state, { id, value, parent }: { id?: string; value: string; parent?: Notebook }) {

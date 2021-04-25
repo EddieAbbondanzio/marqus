@@ -1,6 +1,6 @@
 import { mutations } from '@/store/modules/tags/mutations';
 import { TagState } from '@/store/modules/tags/state';
-import { id } from '@/utils/id';
+import { generateId } from '@/utils/id';
 
 describe('TagStore Mutations', () => {
     let state: TagState = null!;
@@ -37,7 +37,7 @@ describe('TagStore Mutations', () => {
     describe('UPDATE()', () => {
         it('throws error if value is null', () => {
             const tag = {
-                id: id(),
+                id: generateId(),
                 value: 'cat'
             };
 
@@ -78,7 +78,11 @@ describe('TagStore Mutations', () => {
 
     describe('TAGS_SORT', () => {
         it('sorts alphabetically', () => {
-            state.values.push({ id: id(), value: 'b' }, { id: id(), value: 'c' }, { id: id(), value: 'a' });
+            state.values.push(
+                { id: generateId(), value: 'b' },
+                { id: generateId(), value: 'c' },
+                { id: generateId(), value: 'a' }
+            );
             mutations.SORT(state);
 
             expect(state.values[0].value).toBe('a');
@@ -87,7 +91,11 @@ describe('TagStore Mutations', () => {
         });
 
         it('ignores case', () => {
-            state.values.push({ id: id(), value: 'B' }, { id: id(), value: 'C' }, { id: id(), value: 'a' });
+            state.values.push(
+                { id: generateId(), value: 'B' },
+                { id: generateId(), value: 'C' },
+                { id: generateId(), value: 'a' }
+            );
             mutations.SORT(state);
 
             expect(state.values[0].value).toBe('a');

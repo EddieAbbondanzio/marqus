@@ -1,7 +1,7 @@
 import { type } from 'node:os';
 import { Mutation, MutationTree } from 'vuex';
 import { TagState } from './state';
-import { id as generateId } from '@/utils/id';
+import { generateId } from '@/utils/id';
 
 export const mutations: MutationTree<TagState> = {
     CREATE(state, { id, value }: { id?: string; value: string }) {

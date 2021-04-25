@@ -1,6 +1,6 @@
 import { actions } from '@/store/modules/app/modules/global-navigation/actions';
 import { Tag } from '@/store/modules/tags/state';
-import { id } from '@/utils/id';
+import { generateId } from '@/utils/id';
 import * as confirmDelete from '@/utils/confirm-delete';
 import { Notebook, NotebookState } from '@/store/modules/notebooks/state';
 
@@ -112,7 +112,7 @@ describe('GlobalNavigation Actions', () => {
 
         it('confirms with user first', async () => {
             const tag: Tag = {
-                id: id(),
+                id: generateId(),
                 value: 'cat'
             };
 
@@ -125,7 +125,7 @@ describe('GlobalNavigation Actions', () => {
 
         it('if user confirms, tag is deleted', () => {
             const tag: Tag = {
-                id: id(),
+                id: generateId(),
                 value: 'cat'
             };
 
@@ -139,7 +139,7 @@ describe('GlobalNavigation Actions', () => {
 
         it('if user says no, stop.', () => {
             const tag: Tag = {
-                id: id(),
+                id: generateId(),
                 value: 'cat'
             };
 
@@ -224,7 +224,7 @@ describe('GlobalNavigation Actions', () => {
 
         it('confirms with user first', async () => {
             const notebook: Notebook = {
-                id: id(),
+                id: generateId(),
                 value: 'cat',
                 expanded: false
             };
@@ -238,7 +238,7 @@ describe('GlobalNavigation Actions', () => {
 
         it('if user confirms, notebook is deleted', () => {
             const notebook: Notebook = {
-                id: id(),
+                id: generateId(),
                 value: 'cat',
                 expanded: false
             };
@@ -253,7 +253,7 @@ describe('GlobalNavigation Actions', () => {
 
         it('if user says no, stop.', () => {
             const notebook: Notebook = {
-                id: id(),
+                id: generateId(),
                 value: 'cat',
                 expanded: false
             };
@@ -270,7 +270,7 @@ describe('GlobalNavigation Actions', () => {
     describe('notebookDragStart', () => {
         it('sets dragging, and sets cursor title', async () => {
             const notebook: Notebook = {
-                id: id(),
+                id: generateId(),
                 value: 'cat',
                 expanded: false
             };
@@ -292,14 +292,14 @@ describe('GlobalNavigation Actions', () => {
 
         it("won't do anything if we try to drag to a child of what were dragging", () => {
             const parent: Notebook = {
-                id: id(),
+                id: generateId(),
                 value: 'cat',
                 expanded: false,
                 children: []
             };
 
             const child: Notebook = {
-                id: id(),
+                id: generateId(),
                 value: 'dog',
                 expanded: false
             };
@@ -313,13 +313,13 @@ describe('GlobalNavigation Actions', () => {
 
         it('moves notebook', async () => {
             const n1: Notebook = {
-                id: id(),
+                id: generateId(),
                 value: 'cat',
                 expanded: false
             };
 
             const n2: Notebook = {
-                id: id(),
+                id: generateId(),
                 value: 'dog',
                 expanded: false
             };
