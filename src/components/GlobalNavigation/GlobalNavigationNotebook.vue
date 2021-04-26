@@ -103,7 +103,6 @@ export default defineComponent({
                     expanded: v,
                     bubbleUp: false
                 });
-                s.commit('DIRTY', null, { root: true });
             }
         });
 

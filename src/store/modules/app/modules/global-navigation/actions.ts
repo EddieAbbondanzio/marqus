@@ -9,7 +9,6 @@ import { GlobalNavigation } from './state';
 export const actions: ActionTree<GlobalNavigation, State> = {
     setActive({ commit }, a: { id: string; type: 'notebook' | 'tag' }) {
         commit('ACTIVE', a);
-        commit('DIRTY', null, { root: true });
     },
     tagInputStart({ commit, rootState }, id: string | null = null) {
         let tag: Tag | undefined;
@@ -48,7 +47,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         commit('TAG_INPUT_CLEAR');
         commit('tags/SORT', null, { root: true });
-        commit('DIRTY', null, { root: true });
     },
     tagInputCancel({ commit }) {
         commit('TAG_INPUT_CLEAR');
@@ -64,7 +62,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         if (confirm) {
             commit('tags/DELETE', id, { root: true });
-            commit('DIRTY', null, { root: true });
         }
     },
     notebookInputStart({ commit, rootState }, { id, parentId }: { id?: string; parentId?: string } = {}) {
@@ -119,7 +116,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         commit('NOTEBOOK_INPUT_CLEAR');
         commit('notebooks/SORT', null, { root: true });
-        commit('DIRTY', null, { root: true });
     },
     notebookInputCancel({ commit }) {
         commit('NOTEBOOK_INPUT_CLEAR');
@@ -129,7 +125,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         if (await confirmDelete('tag', notebook.value)) {
             commit('notebooks/DELETE', id, { root: true });
-            commit('DIRTY', null, { root: true });
         }
     },
     notebookDragStart({ commit }, notebook: Notebook) {
@@ -166,7 +161,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
             commit('NOTEBOOK_DRAGGING_CLEAR');
             commit('notebooks/SORT', null, { root: true });
-            commit('DIRTY', null, { root: true });
         }
 
         commit('app/CURSOR_TITLE_CLEAR', null, { root: true });

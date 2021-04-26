@@ -45,8 +45,8 @@ describe('GlobalNavigation Actions', () => {
     });
 
     describe('setActive', () => {
-        it('sets active, and marks state as dirty', async () => {
-            await expectAction(actions.setActive, { id: '1', type: 'tag' }, context, ['ACTIVE', 'DIRTY']);
+        it('sets active', async () => {
+            await expectAction(actions.setActive, { id: '1', type: 'tag' }, context, ['ACTIVE']);
         });
     });
 
@@ -75,23 +75,13 @@ describe('GlobalNavigation Actions', () => {
         });
 
         it('on create triggers create tag, sorts, and saves', () => {
-            expectAction(actions.tagInputConfirm, null, context, [
-                'tags/CREATE',
-                'TAG_INPUT_CLEAR',
-                'tags/SORT',
-                'DIRTY'
-            ]);
+            expectAction(actions.tagInputConfirm, null, context, ['tags/CREATE', 'TAG_INPUT_CLEAR', 'tags/SORT']);
         });
 
         it('on update triggers update tag, sorts, and saves', () => {
             context.state.tags.input.mode = 'update';
 
-            expectAction(actions.tagInputConfirm, null, context, [
-                'tags/UPDATE',
-                'TAG_INPUT_CLEAR',
-                'tags/SORT',
-                'DIRTY'
-            ]);
+            expectAction(actions.tagInputConfirm, null, context, ['tags/UPDATE', 'TAG_INPUT_CLEAR', 'tags/SORT']);
         });
     });
 
@@ -134,7 +124,7 @@ describe('GlobalNavigation Actions', () => {
             const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
             confirmDeleteMock.mockReturnValue(Promise.resolve(true));
 
-            expectAction(actions.tagDelete, tag.id, context, ['tags/DELETE', 'DIRTY']);
+            expectAction(actions.tagDelete, tag.id, context, ['tags/DELETE']);
         });
 
         it('if user says no, stop.', () => {
@@ -190,8 +180,7 @@ describe('GlobalNavigation Actions', () => {
             expectAction(actions.notebookInputConfirm, null, context, [
                 'notebooks/CREATE',
                 'NOTEBOOK_INPUT_CLEAR',
-                'notebooks/SORT',
-                'DIRTY'
+                'notebooks/SORT'
             ]);
         });
 
@@ -201,8 +190,7 @@ describe('GlobalNavigation Actions', () => {
             expectAction(actions.notebookInputConfirm, null, context, [
                 'notebooks/UPDATE',
                 'NOTEBOOK_INPUT_CLEAR',
-                'notebooks/SORT',
-                'DIRTY'
+                'notebooks/SORT'
             ]);
         });
     });
@@ -248,7 +236,7 @@ describe('GlobalNavigation Actions', () => {
             const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
             confirmDeleteMock.mockReturnValue(Promise.resolve(true));
 
-            expectAction(actions.notebookDelete, notebook.id, context, ['notebooks/DELETE', 'DIRTY']);
+            expectAction(actions.notebookDelete, notebook.id, context, ['notebooks/DELETE']);
         });
 
         it('if user says no, stop.', () => {
@@ -333,7 +321,6 @@ describe('GlobalNavigation Actions', () => {
                 'NOTEBOOK_EXPANDED',
                 'NOTEBOOK_DRAGGING_CLEAR',
                 'notebooks/SORT',
-                'DIRTY',
                 'app/CURSOR_TITLE_CLEAR'
             ]);
         });

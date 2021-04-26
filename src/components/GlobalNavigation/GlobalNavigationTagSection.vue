@@ -55,7 +55,6 @@ export default defineComponent({
             get: () => s.state.app.globalNavigation.tags.expanded,
             set: (v: any) => {
                 s.commit('app/globalNavigation/TAGS_EXPANDED', v);
-                s.commit('DIRTY', null, { root: true });
             }
         });
 

@@ -73,7 +73,6 @@ export default defineComponent({
             get: () => s.state.app.globalNavigation.width as string,
             set: (w: any) => {
                 s.commit('app/globalNavigation/WIDTH', w);
-                s.commit('DIRTY', null, { root: true });
             }
         });
 
@@ -81,7 +80,6 @@ export default defineComponent({
             get: () => s.state.app.globalNavigation.active,
             set: (v: any) => {
                 s.commit('app/globalNavigation/ACTIVE', v);
-                s.commit('DIRTY', null, { root: true });
             }
         });
 

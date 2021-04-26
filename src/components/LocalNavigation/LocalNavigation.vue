@@ -33,7 +33,6 @@ export default defineComponent({
             get: () => s.state.app.localNavigation.width as string,
             set: (w: any) => {
                 s.commit('app/localNavigation/WIDTH', w);
-                s.commit('DIRTY', null, { root: true });
             }
         });
 

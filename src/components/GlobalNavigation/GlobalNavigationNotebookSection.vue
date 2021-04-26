@@ -38,7 +38,6 @@ export default defineComponent({
             get: () => s.state.app.globalNavigation.notebooks.expanded,
             set: (v: any) => {
                 s.commit('app/globalNavigation/NOTEBOOKS_EXPANDED', v);
-                s.commit('DIRTY', null, { root: true });
             }
         });
 

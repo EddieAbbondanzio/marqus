@@ -42,7 +42,6 @@ export const actions: ActionTree<LocalNavigation, State> = {
         }
 
         commit('NOTE_INPUT_CLEAR');
-        commit('DIRTY', null, { root: true });
     },
     noteInputCancel({ commit }) {
         commit('NOTE_INPUT_CLEAR');

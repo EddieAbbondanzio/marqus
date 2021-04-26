@@ -14,8 +14,11 @@ export const persist = {
     plugin(store: Store<State>) {
         store.subscribe(
             function(this: typeof persist, p: MutationPayload, s: State) {
+                // Split up the mutations full path
+                // Ex: 'app/globalNavigation/INPUT_CLEAR' --> ['app', 'globalNavigation', 'INPUT_CLEAR']
                 const splitType = p.type.split('/');
 
+                // Rejoin the namespaces to support nested namespaces, and get the mutation type.
                 const namespace = splitType.slice(0, -1).join('/');
                 const mutation = splitType.slice(-1)[0];
 
@@ -89,6 +92,12 @@ export const persist = {
     }
 };
 
+/**
+ * Get the file name for saving the module state to JSON.
+ * Checks .fileName first, then defaults to $NAMESPACE.json
+ * @param module The module to determine the filename of.
+ * @returns
+ */
 export function getModuleFileName(module: PersistModule) {
     return module.settings.fileName ?? `${module.settings.namespace}.json`;
 }
