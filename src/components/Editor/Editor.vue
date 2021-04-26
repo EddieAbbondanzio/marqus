@@ -16,7 +16,7 @@ export default defineComponent({
         EditorToolbar
     },
     computed: {
-        mode: () => store.state.app.mode
+        mode: () => ''
     }
 });
 </script>

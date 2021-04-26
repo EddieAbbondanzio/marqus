@@ -57,8 +57,6 @@ export default defineComponent({
     computed: {
         mode: () => (store.state.app as any).mode,
         editButtonClasses: () => ({
-            'has-text-hover-warning': store.state.app.mode === 'view',
-            'has-text-hover-grey': store.state.app.mode === 'edit',
             'button mb-0': true
         })
     }
