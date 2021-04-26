@@ -1,12 +1,37 @@
-import { getModuleFileName } from '@/store/plugins/persist/persist';
+import { getModuleFileName, persist } from '@/store/plugins/persist/persist';
 
 describe('Persist plugin', () => {
+    beforeEach(() => {
+        persist.modules.length = 0;
+    });
+
     describe('register()', () => {
         it('throws error on duplicate module.', () => {
-            expect(process.env.NODE_ENV).toBe('cat');
+            persist.modules.push({
+                scheduler: null!,
+                settings: {
+                    namespace: 'cat',
+                    initiMutation: ''
+                }
+            });
+
+            expect(() => {
+                persist.register({
+                    namespace: 'cat',
+                    initiMutation: ''
+                });
+            }).toThrow();
         });
 
-        it('adds module to modules array', () => {});
+        it('adds module to modules array', () => {
+            persist.register({
+                namespace: 'cat',
+                initiMutation: 'INIT'
+            });
+
+            expect(persist.modules).toHaveLength(1);
+            expect(persist.modules[0].settings).toHaveProperty('namespace', 'cat');
+        });
     });
 
     describe('getModuleFileName()', () => {
