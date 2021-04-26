@@ -37,6 +37,10 @@ export const persist = {
                         // Apply the transformer to the state if one exists
                         if (subscriber.settings.transformer) {
                             s = subscriber.settings.transformer(s);
+
+                            if (s == null) {
+                                throw Error('No state returned from transformer. Did you forget to return the value?');
+                            }
                         }
 
                         // Save off the file
@@ -75,6 +79,10 @@ export const persist = {
                     // Revive state if needed
                     if (m.settings.reviver) {
                         state = m.settings.reviver(json);
+
+                        if (state == null) {
+                            throw Error('No state returned from reviver. Did you forget to return the value?');
+                        }
                     }
 
                     store.commit(`${m.settings.namespace}/${m.settings.initiMutation}`, state);

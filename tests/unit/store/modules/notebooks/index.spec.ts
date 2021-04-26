@@ -1,4 +1,4 @@
-import { fixNotebookParentReferences } from '@/store/actions';
+import { fixNotebookParentReferences } from '@/store/modules/notebooks';
 import { Notebook } from '@/store/modules/notebooks/state';
 
 describe('fixNotebookParentReferences()', () => {

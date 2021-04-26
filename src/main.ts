@@ -18,17 +18,9 @@ Object.keys(AllRules).forEach((rule) => {
 
 const app = createApp(App);
 
-(async () => {
-    try {
-        // Need to deserialize state first.
-        await store.dispatch('startup');
-        app.use(store)
-            .use(router)
-            .mount('#app');
-    } catch (e) {
-        console.error(e);
-    }
-})();
+app.use(store)
+    .use(router)
+    .mount('#app');
 
 app.directive('focus', focus);
 app.directive('mouse', mouse);
