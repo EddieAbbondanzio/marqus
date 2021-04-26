@@ -4,6 +4,9 @@ import { Notebook } from '../notebooks/state';
 import { AppState } from './state';
 
 export const mutations: MutationTree<AppState> = {
+    INIT(state, s: AppState) {
+        Object.assign(state, s);
+    },
     CURSOR_TITLE(state, title: string) {
         state.cursor.title = title;
     },

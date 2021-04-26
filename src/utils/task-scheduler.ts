@@ -1,5 +1,9 @@
 export type Task = () => Promise<any>;
 
+/**
+ * Scheduler to help run async tasks in a single file manner.
+ * Useful for preventing race conditions.
+ */
 export class TaskScheduler {
     /**
      * Does the scheduler have tasks waiting to be executed?
@@ -11,7 +15,7 @@ export class TaskScheduler {
     /**
      * If the scheduler is currently running a task.
      */
-    hasActiveTask: boolean = false;
+    hasActiveTask = false;
 
     private queue: Task[];
 

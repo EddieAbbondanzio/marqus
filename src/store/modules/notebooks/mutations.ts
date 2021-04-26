@@ -3,6 +3,9 @@ import { Notebook, NotebookState } from './state';
 import { generateId } from '@/utils/id';
 
 export const mutations: MutationTree<NotebookState> = {
+    INIT(state, s: NotebookState) {
+        Object.assign(state, s);
+    },
     CREATE(state, { id, value, parent }: { id?: string; value: string; parent?: Notebook }) {
         if (value == null) {
             throw Error('Value is required.');

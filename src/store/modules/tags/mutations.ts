@@ -4,6 +4,9 @@ import { TagState } from './state';
 import { generateId } from '@/utils/id';
 
 export const mutations: MutationTree<TagState> = {
+    INIT(state, s: TagState) {
+        Object.assign(state, s);
+    },
     CREATE(state, { id, value }: { id?: string; value: string }) {
         if (value == null) {
             throw Error('Value is required.');

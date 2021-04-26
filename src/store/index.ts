@@ -3,10 +3,10 @@ import app from '@/store/modules/app';
 import tags from '@/store/modules/tags';
 import notebooks from '@/store/modules/notebooks';
 import notes from '@/store/modules/notes';
-import { PersistPlugin } from './plugins/persist/persist-plugin';
 import { State, state } from './state';
 import { mutations } from '@/store/mutations';
 import { actions } from '@/store/actions';
+import { persist } from './plugins/persist/persist';
 
 export const store = createStore<State>({
     state: () => state as any,
@@ -18,7 +18,7 @@ export const store = createStore<State>({
         tags,
         notes
     },
-    plugins: [PersistPlugin],
+    plugins: [persist.plugin],
     /*
      * Don't use strict mode in production.
      * Major performance hit.
@@ -26,3 +26,6 @@ export const store = createStore<State>({
      */
     strict: process.env.NODE_ENV !== 'production'
 });
+
+// Load initial state from file
+persist.init(store);
