@@ -15,6 +15,12 @@ export const actions: ActionTree<State, any> = {
             createDirectory(c.state.config.dataDirectory);
         }
 
+        // Create the note directory if needed.
+        const noteDirectory = path.join(c.state.config.dataDirectory, 'notes');
+        if (!doesPathExist(noteDirectory)) {
+            createDirectory(noteDirectory);
+        }
+
         c.dispatch('config/load');
         c.dispatch('load');
     },

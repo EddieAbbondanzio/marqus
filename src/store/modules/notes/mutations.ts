@@ -17,7 +17,7 @@ export const mutations: MutationTree<NoteState> = {
     /**
      * Partial update note via id
      */
-    UPDATE(state, { id, name, content }: { id: string; name?: string; content?: string }) {
+    UPDATE(state, { id, name }: { id: string; name?: string }) {
         const n = state.values.find((n) => n.id === id);
 
         if (n == null) {
@@ -26,10 +26,6 @@ export const mutations: MutationTree<NoteState> = {
 
         if (name != null) {
             n.name = name;
-        }
-
-        if (content != null) {
-            n.content = content;
         }
     },
     DELETE(state, id: string) {

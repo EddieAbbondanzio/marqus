@@ -26,7 +26,6 @@ export const actions: ActionTree<LocalNavigation, State> = {
             name: input.name!,
             dateCreated: input.dateCreated!,
             dateModified: input.dateModified!,
-            content: input.content!,
             notebooks: input.notebooks!,
             tags: input.tags!
         };

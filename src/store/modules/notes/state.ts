@@ -5,7 +5,6 @@ export interface Note {
     tags: string[];
     dateCreated: Date;
     dateModified: Date;
-    content: string;
 }
 
 export interface NoteState {

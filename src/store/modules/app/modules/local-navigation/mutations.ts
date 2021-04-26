@@ -21,7 +21,6 @@ export const mutations: MutationTree<LocalNavigation> = {
                 name: '',
                 dateCreated: new Date(),
                 dateModified: new Date(),
-                content: '',
                 mode: 'create'
             };
 
@@ -45,7 +44,6 @@ export const mutations: MutationTree<LocalNavigation> = {
                 name: note.name,
                 dateCreated: note.dateCreated,
                 dateModified: note.dateModified,
-                content: note.content,
                 tags: note.tags,
                 notebooks: note.notebooks,
                 mode: 'update'
