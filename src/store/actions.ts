@@ -5,18 +5,19 @@ import { Notebook } from './modules/notebooks/state';
 import { State } from './state';
 
 const STATE_FILE_NAME = 'state.json';
+const DATA_DIRECTORY = 'data';
 
 const saving: { current?: Promise<any>; next?: () => Promise<any> } = {};
 
 export const actions: ActionTree<State, any> = {
     startup: function(c) {
         // Create data directory if needed.
-        if (!doesPathExist(c.state.config.dataDirectory)) {
-            createDirectory(c.state.config.dataDirectory);
+        if (!doesPathExist(DATA_DIRECTORY)) {
+            createDirectory(DATA_DIRECTORY);
         }
 
         // Create the note directory if needed.
-        const noteDirectory = path.join(c.state.config.dataDirectory, 'notes');
+        const noteDirectory = path.join(DATA_DIRECTORY, 'notes');
         if (!doesPathExist(noteDirectory)) {
             createDirectory(noteDirectory);
         }

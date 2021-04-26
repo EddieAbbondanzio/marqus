@@ -3,7 +3,7 @@ import { promises as fs, existsSync, mkdirSync } from 'fs';
 /**
  * Helper for reading and writing files to the user's file system.
  */
-export const FileSystem = {
+export const fileSystem = {
     /**
      * Create a new directory in the file systme.
      * @param path The path of the new directory.
@@ -18,7 +18,7 @@ export const FileSystem = {
      * Read a JSON file from the file system.
      * @param path The path to read.
      */
-    readJSON: async (path: string) => {
+    async readJSON(path: string) {
         const contents = await fs.readFile(path, 'utf8');
         return JSON.parse(contents);
     },
@@ -27,7 +27,7 @@ export const FileSystem = {
      * @param path The path to write to.
      * @param content The content of the file to store as JSON.
      */
-    writeJSON: async (path: string, content: any) => {
+    async writeJSON(path: string, content: any) {
         const json = JSON.stringify(content);
         await fs.writeFile(path, json, 'utf8');
     }

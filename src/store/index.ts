@@ -1,5 +1,4 @@
 import { createStore } from 'vuex';
-import config from '@/store/modules/config/config';
 import app from '@/store/modules/app';
 import tags from '@/store/modules/tags';
 import notebooks from '@/store/modules/notebooks';
@@ -15,7 +14,6 @@ export const store = createStore<State>({
     actions,
     modules: {
         app,
-        config,
         notebooks,
         tags,
         notes
