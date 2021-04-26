@@ -14,8 +14,6 @@ export const persist = {
     plugin(store: Store<State>) {
         store.subscribe(
             function(this: typeof persist, p: MutationPayload, s: State) {
-                // Split up the mutations full path
-                // Ex: 'app/globalNavigation/INPUT_CLEAR' --> ['app', 'globalNavigation', 'INPUT_CLEAR']
                 const splitType = p.type.split('/');
 
                 // Rejoin the namespaces to support nested namespaces, and get the mutation type.
@@ -55,6 +53,11 @@ export const persist = {
      * we can find.
      */
     async init(store: Store<State>) {
+        // Don't load files in test
+        if (process.env.NODE_ENV === 'test') {
+            return;
+        }
+
         for (const m of this.modules) {
             const fileName = getModuleFileName(m);
 
@@ -65,15 +68,19 @@ export const persist = {
 
             // Try to load state file
             if (fileSystem.exists(fileName)) {
-                const json = await fileSystem.readJSON(fileName);
-                let state = json;
+                try {
+                    const json = await fileSystem.readJSON(fileName);
+                    let state = json;
 
-                // Revive state if needed
-                if (m.settings.reviver) {
-                    state = m.settings.reviver(json);
+                    // Revive state if needed
+                    if (m.settings.reviver) {
+                        state = m.settings.reviver(json);
+                    }
+
+                    store.commit(`${m.settings.namespace}/${m.settings.initiMutation}`, state);
+                } catch (e) {
+                    console.error(`Failed to load json: ${fileName}`);
                 }
-
-                store.commit(`${m.settings.namespace}/${m.settings.initiMutation}`, state);
             }
         }
     },
@@ -95,9 +102,21 @@ export const persist = {
 /**
  * Get the file name for saving the module state to JSON.
  * Checks .fileName first, then defaults to $NAMESPACE.json
- * @param module The module to determine the filename of.
+ * @param m The module to determine the filename of.
  * @returns
  */
-export function getModuleFileName(module: PersistModule) {
-    return module.settings.fileName ?? `${module.settings.namespace}.json`;
+export function getModuleFileName(m: PersistModule) {
+    // file name is defined
+    if (m.settings.fileName != null) {
+        return m.settings.fileName;
+    }
+
+    // Non-nested namespace
+    if (!m.settings.namespace.includes('/')) {
+        return `${m.settings.namespace}.json`;
+    }
+
+    // Nested
+    const last = m.settings.namespace.split('/').slice(-1);
+    return `${last}.json`;
 }

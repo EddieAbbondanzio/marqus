@@ -59,8 +59,8 @@ describe('GlobalNavigation Actions', () => {
             ).toThrow();
         });
 
-        it('triggers input start, and expands tags section', () => {
-            expectAction(actions.tagInputStart, null, context, ['TAG_INPUT_START', 'TAGS_EXPANDED']);
+        it('triggers input start, and expands tags section', async () => {
+            await expectAction(actions.tagInputStart, null, context, ['TAG_INPUT_START', 'TAGS_EXPANDED']);
         });
     });
 
@@ -74,20 +74,20 @@ describe('GlobalNavigation Actions', () => {
             }).toThrow();
         });
 
-        it('on create triggers create tag, sorts, and saves', () => {
-            expectAction(actions.tagInputConfirm, null, context, ['tags/CREATE', 'TAG_INPUT_CLEAR', 'tags/SORT']);
+        it('on create triggers create tag, sorts, and saves', async () => {
+            await expectAction(actions.tagInputConfirm, null, context, ['tags/CREATE', 'TAG_INPUT_CLEAR', 'tags/SORT']);
         });
 
-        it('on update triggers update tag, sorts, and saves', () => {
+        it('on update triggers update tag, sorts, and saves', async () => {
             context.state.tags.input.mode = 'update';
 
-            expectAction(actions.tagInputConfirm, null, context, ['tags/UPDATE', 'TAG_INPUT_CLEAR', 'tags/SORT']);
+            await expectAction(actions.tagInputConfirm, null, context, ['tags/UPDATE', 'TAG_INPUT_CLEAR', 'tags/SORT']);
         });
     });
 
     describe('tagInputCancel', () => {
-        it('cancels', () => {
-            expectAction(actions.tagInputCancel, null, context, ['TAG_INPUT_CLEAR']);
+        it('cancels', async () => {
+            await expectAction(actions.tagInputCancel, null, context, ['TAG_INPUT_CLEAR']);
         });
     });
 
@@ -95,9 +95,7 @@ describe('GlobalNavigation Actions', () => {
         it('throws error when no tag with matching id found.', async () => {
             const commit = jest.fn();
 
-            await expect(
-                (actions as any).tagDelete({ commit, rootState: context.rootState }, 'not-an-id')
-            ).rejects.toThrow();
+            expect((actions as any).tagDelete({ commit, rootState: context.rootState }, 'not-an-id')).rejects.toThrow();
         });
 
         it('confirms with user first', async () => {
@@ -113,7 +111,7 @@ describe('GlobalNavigation Actions', () => {
             expect(confirmDeleteMock).toHaveBeenCalled();
         });
 
-        it('if user confirms, tag is deleted', () => {
+        it('if user confirms, tag is deleted', async () => {
             const tag: Tag = {
                 id: generateId(),
                 value: 'cat'
@@ -124,10 +122,10 @@ describe('GlobalNavigation Actions', () => {
             const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
             confirmDeleteMock.mockReturnValue(Promise.resolve(true));
 
-            expectAction(actions.tagDelete, tag.id, context, ['tags/DELETE']);
+            await expectAction(actions.tagDelete, tag.id, context, ['tags/DELETE']);
         });
 
-        it('if user says no, stop.', () => {
+        it('if user says no, stop.', async () => {
             const tag: Tag = {
                 id: generateId(),
                 value: 'cat'
@@ -138,7 +136,7 @@ describe('GlobalNavigation Actions', () => {
             const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
             confirmDeleteMock.mockReturnValue(Promise.resolve(false));
 
-            expectAction(actions.tagDelete, tag.id, context, []);
+            await expectAction(actions.tagDelete, tag.id, context, []);
         });
     });
 
@@ -151,8 +149,8 @@ describe('GlobalNavigation Actions', () => {
             ).toThrow();
         });
 
-        it('triggers input start, and expands notebook section', () => {
-            expectAction(actions.notebookInputStart, {}, context, ['NOTEBOOK_INPUT_START', 'NOTEBOOKS_EXPANDED']);
+        it('triggers input start, and expands notebook section', async () => {
+            await expectAction(actions.notebookInputStart, {}, context, ['NOTEBOOK_INPUT_START', 'NOTEBOOKS_EXPANDED']);
         });
 
         it('expands parent if nested notebook', async () => {
@@ -167,7 +165,7 @@ describe('GlobalNavigation Actions', () => {
     });
 
     describe('notebookInputConfirm', () => {
-        it('throws error if invalid input mode', () => {
+        it('throws error if invalid input mode', async () => {
             const commit = jest.fn();
             context.state.notebooks.input.mode = null!;
 
@@ -176,18 +174,18 @@ describe('GlobalNavigation Actions', () => {
             }).toThrow();
         });
 
-        it('on create triggers create notebook, sorts, and save', () => {
-            expectAction(actions.notebookInputConfirm, null, context, [
+        it('on create triggers create notebook, sorts, and save', async () => {
+            await expectAction(actions.notebookInputConfirm, null, context, [
                 'notebooks/CREATE',
                 'NOTEBOOK_INPUT_CLEAR',
                 'notebooks/SORT'
             ]);
         });
 
-        it('on update triggers update notebook, sorts, and save', () => {
+        it('on update triggers update notebook, sorts, and save', async () => {
             context.state.notebooks.input.mode = 'update';
 
-            expectAction(actions.notebookInputConfirm, null, context, [
+            await expectAction(actions.notebookInputConfirm, null, context, [
                 'notebooks/UPDATE',
                 'NOTEBOOK_INPUT_CLEAR',
                 'notebooks/SORT'
@@ -196,8 +194,8 @@ describe('GlobalNavigation Actions', () => {
     });
 
     describe('notebookInputCancel', () => {
-        it('cancels', () => {
-            expectAction(actions.notebookInputCancel, null, context, ['NOTEBOOK_INPUT_CLEAR']);
+        it('cancels', async () => {
+            await expectAction(actions.notebookInputCancel, null, context, ['NOTEBOOK_INPUT_CLEAR']);
         });
     });
 
@@ -224,7 +222,7 @@ describe('GlobalNavigation Actions', () => {
             expect(confirmDeleteMock).toHaveBeenCalled();
         });
 
-        it('if user confirms, notebook is deleted', () => {
+        it('if user confirms, notebook is deleted', async () => {
             const notebook: Notebook = {
                 id: generateId(),
                 value: 'cat',
@@ -236,10 +234,10 @@ describe('GlobalNavigation Actions', () => {
             const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
             confirmDeleteMock.mockReturnValue(Promise.resolve(true));
 
-            expectAction(actions.notebookDelete, notebook.id, context, ['notebooks/DELETE']);
+            await expectAction(actions.notebookDelete, notebook.id, context, ['notebooks/DELETE']);
         });
 
-        it('if user says no, stop.', () => {
+        it('if user says no, stop.', async () => {
             const notebook: Notebook = {
                 id: generateId(),
                 value: 'cat',
@@ -251,7 +249,7 @@ describe('GlobalNavigation Actions', () => {
             const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
             confirmDeleteMock.mockReturnValue(Promise.resolve(false));
 
-            expectAction(actions.notebookDelete, notebook.id, context, []);
+            await expectAction(actions.notebookDelete, notebook.id, context, []);
         });
     });
 
@@ -278,7 +276,7 @@ describe('GlobalNavigation Actions', () => {
             }).toThrow();
         });
 
-        it("won't do anything if we try to drag to a child of what were dragging", () => {
+        it("won't do anything if we try to drag to a child of what were dragging", async () => {
             const parent: Notebook = {
                 id: generateId(),
                 value: 'cat',
@@ -296,7 +294,7 @@ describe('GlobalNavigation Actions', () => {
             child.parent = parent;
 
             context.state.notebooks.dragging = parent;
-            expectAction(actions.notebookDragStop, child.id, context, ['app/CURSOR_TITLE_CLEAR']);
+            await expectAction(actions.notebookDragStop, child.id, context, ['app/CURSOR_TITLE_CLEAR']);
         });
 
         it('moves notebook', async () => {
