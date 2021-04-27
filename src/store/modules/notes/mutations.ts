@@ -17,16 +17,14 @@ export const mutations: MutationTree<NoteState> = {
     /**
      * Partial update note via id
      */
-    UPDATE(state, { id, name }: { id: string; name?: string }) {
+    UPDATE(state, { id, name }: { id: string; name: string }) {
         const n = state.values.find((n) => n.id === id);
 
         if (n == null) {
             throw Error(`No note with ${id} found.`);
         }
 
-        if (name != null) {
-            n.name = name;
-        }
+        n.name = name;
     },
     DELETE(state, id: string) {
         const i = state.values.findIndex((n) => n.id === id);

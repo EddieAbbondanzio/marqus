@@ -50,5 +50,16 @@ export const fileSystem = {
         const fullPath = !root ? p.join(DATA_DIRECTORY, path) : path;
 
         await fs.writeFile(fullPath, json, 'utf8');
+    },
+    async readText(path: string, { root }: { root: boolean } = { root: false }) {
+        const fullPath = !root ? p.join(DATA_DIRECTORY, path) : path;
+        const contents = await fs.readFile(fullPath, 'utf8');
+
+        return contents;
+    },
+    async writeText(path: string, content: string, { root }: { root: boolean } = { root: false }) {
+        const fullPath = !root ? p.join(DATA_DIRECTORY, path) : path;
+
+        await fs.writeFile(fullPath, content, 'utf8');
     }
 };

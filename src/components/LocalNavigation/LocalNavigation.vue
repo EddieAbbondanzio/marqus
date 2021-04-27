@@ -1,6 +1,6 @@
 <template>
     <resizable v-model="width" @resizeStop="save">
-        <div class="has-h-100 has-text-dark">
+        <div class="has-h-100 has-text-dark  is-size-7">
             <!-- Header -->
             <div
                 class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-1-dark p-1 has-background-light"
@@ -12,6 +12,10 @@
             <!-- Files -->
             <div>
                 <local-navigation-note-form v-if="isCreatingNote" v-model="input" @submit="confirm" @cancel="cancel" />
+
+                <div v-for="note in notes" :key="note.id">
+                    {{ note.name }}
+                </div>
             </div>
         </div>
     </resizable>
@@ -22,7 +26,7 @@ import { computed, defineComponent, ref, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import IconButton from '@/components/IconButton.vue';
 import LocalNavigationSearchBar from '@/components/LocalNavigation/LocalNavigationSearchBar.vue';
-import { mapActions, mapGetters, useStore } from 'vuex';
+import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import LocalNavigationNoteForm from '@/components/LocalNavigation/LocalNavigationNoteForm.vue';
 
 export default defineComponent({
@@ -55,7 +59,8 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapGetters('app/localNavigation', ['isCreatingNote'])
+        ...mapGetters('app/localNavigation', ['isCreatingNote']),
+        ...mapState('notes', { notes: 'values' })
     },
     methods: {
         ...mapActions('app/localNavigation', {

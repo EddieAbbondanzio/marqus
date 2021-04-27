@@ -1,6 +1,11 @@
 <template>
     <!-- Root, or mid level notebook with children -->
-    <Collapse v-if="canNotebookBeCollapsed(modelValue)" v-model="expanded" triggerClass="has-background-hover-light">
+    <Collapse
+        v-if="canNotebookBeCollapsed(modelValue)"
+        v-model="expanded"
+        triggerClass="has-background-hover-light"
+        :class="[{ 'has-background-light': isActive(modelValue.id, 'notebook') }]"
+    >
         <!-- Expand / Collapse trigger -->
         <template #trigger>
             <div class="is-flex-grow-1 has-background-transparent">
@@ -19,12 +24,7 @@
                     @mouseover="onHover"
                 >
                     <p
-                        :class="[
-                            'global-navigation-notebook',
-                            'global-navigation-item',
-                            { 'has-background-light': isActive(modelValue.id, 'notebook') },
-                            'is-flex is-align-center'
-                        ]"
+                        :class="['global-navigation-notebook', 'global-navigation-item', 'is-flex is-align-center']"
                         :data-id="modelValue.id"
                         :style="{ 'padding-left': indentation(notebookDepth(modelValue)) }"
                     >
