@@ -1,32 +1,34 @@
 <template>
-    <Form @submit="$emit('submit')">
-        <div class="has-background-light">
-            <div class="is-flex is-flex-row is-align-center has-background-light py-1">
-                <Field name="Tag" :value="modelValue" v-slot="{ field }" :rules="unique">
-                    <input
-                        id="tagValue"
-                        type="text"
-                        v-bind="field"
-                        style="min-width: 0; width: 0; flex-grow: 1;"
-                        v-focus
-                        @input="onInput"
-                        @keyup.esc="$emit('cancel')"
-                        @blur="onBlur"
-                    />
-                    <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
-                    <icon-button
-                        id="cancelButton"
-                        class="has-text-hover-danger"
-                        icon="fa-ban"
-                        @click="$emit('cancel')"
-                    />
-                </Field>
+    <div class="has-background-light" :style="`padding-left: ${indent}!important`">
+        <Form @submit="$emit('submit')">
+            <div>
+                <div class="is-flex is-flex-row is-align-center has-background-light py-1">
+                    <Field name="Tag" :value="modelValue" v-slot="{ field }" :rules="unique">
+                        <input
+                            id="tagValue"
+                            type="text"
+                            v-bind="field"
+                            style="min-width: 0; width: 0; flex-grow: 1;"
+                            v-focus
+                            @input="onInput"
+                            @keyup.esc="$emit('cancel')"
+                            @blur="onBlur"
+                        />
+                        <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
+                        <icon-button
+                            id="cancelButton"
+                            class="has-text-hover-danger"
+                            icon="fa-ban"
+                            @click="$emit('cancel')"
+                        />
+                    </Field>
+                </div>
+                <ErrorMessage name="Tag" v-slot="{ message }">
+                    <p id="errorMessage" class="has-text-danger">{{ message }}</p>
+                </ErrorMessage>
             </div>
-            <ErrorMessage name="Tag" v-slot="{ message }">
-                <p id="errorMessage" class="has-text-danger">{{ message }}</p>
-            </ErrorMessage>
-        </div>
-    </Form>
+        </Form>
+    </div>
 </template>
 
 <script lang="ts">
@@ -75,6 +77,10 @@ export default defineComponent({
         modelValue: {
             type: String,
             default: ''
+        },
+        indent: {
+            type: String,
+            default: '24px'
         }
     },
     emits: ['submit', 'cancel', 'update:modelValue'],

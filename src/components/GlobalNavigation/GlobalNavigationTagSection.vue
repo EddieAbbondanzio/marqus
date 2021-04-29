@@ -10,33 +10,18 @@
                 </div>
             </template>
 
-            <ul class="is-size-7">
-                <li class="is-flex-grow-1" v-if="isTagBeingCreated">
-                    <GlobalNavigationTagForm @submit="confirm" @cancel="cancel" v-model="input" />
-                </li>
-                <li v-for="tag in tags" :key="tag.id" :class="{ 'has-background-light': isActive(tag.id, 'tag') }">
-                    <GlobalNavigationTagForm
-                        v-if="isTagBeingUpdated(tag.id)"
-                        @submit="confirm"
-                        @cancel="cancel"
-                        v-model="input"
-                    />
+            <GlobalNavigationTagForm v-if="isTagBeingCreated" @submit="confirm" @cancel="cancel" v-model="input" />
 
-                    <a
-                        v-else
-                        class="no-drag has-text-grey"
-                        @click="() => setActive({ id: tag.id, type: 'tag' })"
-                        :stype="{ 'padding-left': indentation(1) }"
-                    >
-                        <p
-                            class="global-navigation-tag global-navigation-item has-background-hover-light is-flex is-align-center"
-                            :data-id="tag.id"
-                        >
-                            {{ tag.value }}
-                        </p>
-                    </a>
-                </li>
-            </ul>
+            <menu-list>
+                <menu-item
+                    v-for="tag in tags"
+                    :key="tag.id"
+                    :label="tag.value"
+                    :active="isActive(tag.id, 'tag')"
+                    :indent="indentation(1)"
+                    @click="() => setActive({ id: tag.id, type: 'tag' })"
+                />
+            </menu-list>
         </collapse>
     </li>
 </template>
@@ -46,6 +31,8 @@ import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationTagForm from '@/components/GlobalNavigation/GlobalNavigationTagForm.vue';
+import MenuList from '@/components/Core/MenuList.vue';
+import MenuItem from '@/components/Core/MenuItem.vue';
 
 export default defineComponent({
     setup: function() {
@@ -68,7 +55,6 @@ export default defineComponent({
             input
         };
     },
-    components: { Collapse, GlobalNavigationTagForm },
     computed: {
         ...mapState('tags', {
             tags: (state: any) => state.values
@@ -81,7 +67,8 @@ export default defineComponent({
             cancel: 'tagInputCancel',
             setActive: 'setActive'
         })
-    }
+    },
+    components: { Collapse, GlobalNavigationTagForm, MenuList, MenuItem }
 });
 </script>
 

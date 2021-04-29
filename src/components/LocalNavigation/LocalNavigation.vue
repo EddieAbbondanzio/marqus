@@ -13,9 +13,9 @@
             <div>
                 <local-navigation-note-form v-if="isCreatingNote" v-model="input" @submit="confirm" @cancel="cancel" />
 
-                <div v-for="note in notes" :key="note.id">
-                    {{ note.name }}
-                </div>
+                <menu-list>
+                    <menu-item v-for="note in notes" :key="note.id" :label="note.name" @click="onNoteClick"></menu-item>
+                </menu-list>
             </div>
         </div>
     </resizable>
@@ -26,8 +26,10 @@ import { computed, defineComponent, ref, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import IconButton from '@/components/IconButton.vue';
 import LocalNavigationSearchBar from '@/components/LocalNavigation/LocalNavigationSearchBar.vue';
-import { mapActions, mapGetters, mapState, useStore } from 'vuex';
+import { mapActions, mapGetters, mapMutations, mapState, useStore } from 'vuex';
 import LocalNavigationNoteForm from '@/components/LocalNavigation/LocalNavigationNoteForm.vue';
+import MenuList from '@/components/Core/MenuList.vue';
+import MenuItem from '@/components/Core/MenuItem.vue';
 
 export default defineComponent({
     setup: function() {
@@ -51,11 +53,16 @@ export default defineComponent({
             s.dispatch('app/localNavigation/noteInputStart', null);
         };
 
+        const onNoteClick = () => {
+            console.log('click!');
+        };
+
         return {
             width,
             input,
             save,
-            onCreateClick
+            onCreateClick,
+            onNoteClick
         };
     },
     computed: {
@@ -68,6 +75,6 @@ export default defineComponent({
             cancel: 'noteInputCancel'
         })
     },
-    components: { Resizable, LocalNavigationSearchBar, IconButton, LocalNavigationNoteForm }
+    components: { Resizable, LocalNavigationSearchBar, IconButton, LocalNavigationNoteForm, MenuList, MenuItem }
 });
 </script>
