@@ -34,7 +34,7 @@ import { computed, defineComponent, ref, watch } from 'vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
 import { useStore } from 'vuex';
 import { isBlank } from '@/utils/is-blank';
-import IconButton from '@/components/IconButton.vue';
+import IconButton from '@/components/Core/IconButton.vue';
 
 export default defineComponent({
     setup(p, c) {

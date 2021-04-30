@@ -1,5 +1,7 @@
 <template>
-    <NavigationMenuList
+    <NavigationMenuItem :label="modelValue.value" :active="isActive(modelValue.id, 'notebook')">
+        >te mcff
+    </NavigationMenuItem>
 
     <!-- Root, or mid level notebook with children -->
     <Collapse
@@ -84,10 +86,10 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import Collapse from '@/components/Collapse.vue';
+import Collapse from '@/components/Core/Collapse.vue';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
-import NavigationMenuItem from '../Core/NavigationMenuItem.vue';
+import NavigationMenuItem from '../Core/Navigation/NavigationMenuItem.vue';
 
 export default defineComponent({
     props: {
@@ -166,8 +168,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="sass,
-        NavigationMenuList">
+<style lang="sass">
 .global-navigation-notebook
     height: 30px;
 </style>

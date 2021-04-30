@@ -7,7 +7,7 @@
 import { onBeforeUnmount, onMounted } from 'vue';
 import contextMenu from 'electron-context-menu';
 import { useStore } from 'vuex';
-import Cursor from '@/components/Cursor.vue';
+import Cursor from '@/components/Core/Cursor.vue';
 
 export default {
     setup() {

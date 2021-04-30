@@ -28,13 +28,13 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, WritableComputedRef } from 'vue';
-import Resizable from '@/components/Resizable.vue';
-import IconButton from '@/components/IconButton.vue';
+import Resizable from '@/components/Core/Resizable.vue';
+import IconButton from '@/components/Core/IconButton.vue';
 import LocalNavigationSearchBar from '@/components/LocalNavigation/LocalNavigationSearchBar.vue';
 import { mapActions, mapGetters, mapMutations, mapState, useStore } from 'vuex';
 import LocalNavigationNoteForm from '@/components/LocalNavigation/LocalNavigationNoteForm.vue';
-import NavigationMenuList from '@/components/Core/NavigationMenuList.vue';
-import NavigationMenuItem from '@/components/Core/NavigationMenuItem.vue';
+import NavigationMenuList from '@/components/Core/Navigation/NavigationMenuList.vue';
+import NavigationMenuItem from '@/components/Core/Navigation/NavigationMenuItem.vue';
 
 export default defineComponent({
     setup: function() {

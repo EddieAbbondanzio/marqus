@@ -1,4 +1,4 @@
-import Collapse from '@/components/Collapse.vue';
+import Collapse from '@/components/Core/Collapse.vue';
 import { mount } from '@vue/test-utils';
 import { ref } from 'vue';
 
