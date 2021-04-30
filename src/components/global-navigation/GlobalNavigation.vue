@@ -60,10 +60,10 @@
 
 <script lang="ts">
 import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide, onMounted } from 'vue';
-import Resizable from '@/components/Core/Resizable.vue';
+import Resizable from '@/components/core/Resizable.vue';
 import { useStore } from 'vuex';
-import GlobalNavigationTagSection from '@/components/GlobalNavigation/GlobalNavigationTagSection.vue';
-import GlobalNavigationNotebookSection from '@/components/GlobalNavigation/GlobalNavigationNotebookSection.vue';
+import GlobalNavigationTagSection from '@/components/global-navigation/GlobalNavigationTagSection.vue';
+import GlobalNavigationNotebookSection from '@/components/global-navigation/GlobalNavigationNotebookSection.vue';
 
 export default defineComponent({
     setup: function() {

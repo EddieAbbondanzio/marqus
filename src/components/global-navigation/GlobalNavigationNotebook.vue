@@ -86,10 +86,10 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import Collapse from '@/components/Core/Collapse.vue';
-import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
+import Collapse from '@/components/core/Collapse.vue';
+import GlobalNavigationNotebookForm from '@/components/global-navigation/GlobalNavigationNotebookForm.vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
-import NavigationMenuItem from '../Core/Navigation/NavigationMenuItem.vue';
+import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 
 export default defineComponent({
     props: {

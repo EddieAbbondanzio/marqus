@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import EditorToolbar from '@/components/Editor/EditorToolbar.vue';
+import EditorToolbar from '@/components/editor/EditorToolbar.vue';
 import { store } from '@/store';
 
 export default defineComponent({

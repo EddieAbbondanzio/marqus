@@ -1,6 +1,6 @@
 // window.require = require;
 
-// import EditorToolbar from '@/components/Editor/EditorToolbar.vue';
+// import EditorToolbar from '@/components/editor/EditorToolbar.vue';
 // import { mount } from '@vue/test-utils';
 // import { ActionTree, createStore, MutationTree, Store } from 'vuex';
 

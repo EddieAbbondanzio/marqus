@@ -1,4 +1,4 @@
-import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
+import GlobalNavigationNotebookForm from '@/components/global-navigation/GlobalNavigationNotebookForm.vue';
 import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/state';
 import { flushPromises, mount } from '@vue/test-utils';
 import { MutationTree, ActionTree, Store, createStore, GetterTree } from 'vuex';

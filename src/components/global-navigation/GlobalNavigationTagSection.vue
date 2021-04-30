@@ -29,11 +29,11 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
-import Collapse from '@/components/Core/Collapse.vue';
-import GlobalNavigationTagForm from '@/components/GlobalNavigation/GlobalNavigationTagForm.vue';
-import NavigationMenuList from '@/components/Core/Navigation/NavigationMenuList.vue';
+import Collapse from '@/components/core/Collapse.vue';
+import GlobalNavigationTagForm from '@/components/global-navigation/GlobalNavigationTagForm.vue';
+import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
 import GlobalNavigation from './GlobalNavigation.vue';
-import NavigationMenuItem from '@/components/Core/Navigation/NavigationMenuItem.vue';
+import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 
 export default defineComponent({
     setup: function() {

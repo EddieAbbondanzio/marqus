@@ -1,4 +1,4 @@
-import LocalNavigation from '@/components/LocalNavigation.vue';
+import LocalNavigation from '@/components/local-navigation.vue';
 import { AppState } from '@/store/modules/app/state';
 import { mount } from '@vue/test-utils';
 import { ActionTree, createStore, MutationTree, Store } from 'vuex';

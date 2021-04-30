@@ -1,6 +1,6 @@
 window.require = require;
 
-import Resizable from '@/components/Core/Resizable.vue';
+import Resizable from '@/components/core/Resizable.vue';
 import { store } from '@/store';
 import { mount } from '@vue/test-utils';
 import { mouse } from '@/directives/mouse/mouse';

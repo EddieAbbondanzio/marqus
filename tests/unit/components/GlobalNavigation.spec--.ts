@@ -1,6 +1,6 @@
 // window.require = require;
 
-// import GlobalNavigation from '@/components/GlobalNavigation/GlobalNavigation.vue';
+// import GlobalNavigation from '@/components/global-navigation/GlobalNavigation.vue';
 // import { AppState } from '@/store/modules/app/state';
 // import { mount } from '@vue/test-utils';
 // import { ActionTree, createStore, MutationTree, Store } from 'vuex';

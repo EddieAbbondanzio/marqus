@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, onMounted, Ref, ref, watch } from 'vue';
-import IconButton from '@/components/Core/IconButton.vue';
+import IconButton from '@/components/core/IconButton.vue';
 
 export default defineComponent({
     props: {

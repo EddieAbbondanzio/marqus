@@ -56,6 +56,7 @@ export default defineComponent({
             toggle
         };
     },
-    name: 'menu-item'
+    name: 'menu-item',
+    components: { IconButton }
 });
 </script>

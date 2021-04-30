@@ -1,4 +1,4 @@
-import GlobalNavigationTagForm from '@/components/GlobalNavigation/GlobalNavigationTagForm.vue';
+import GlobalNavigationTagForm from '@/components/global-navigation/GlobalNavigationTagForm.vue';
 import { flushPromises, mount } from '@vue/test-utils';
 import { ActionTree, createStore, MutationTree, Store } from 'vuex';
 import { focus } from '@/directives/focus';

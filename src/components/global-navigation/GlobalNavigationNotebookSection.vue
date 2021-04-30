@@ -25,11 +25,11 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
-import Collapse from '@/components/Core/Collapse.vue';
-import GlobalNavigationNotebook from '@/components/GlobalNavigation/GlobalNavigationNotebook.vue';
-import GlobalNavigationNote from '@/components/GlobalNavigation/GlobalNavigationNote.vue';
-import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
-import NavigationMenuList from '@/components/Core/Navigation/NavigationMenuList.vue';
+import Collapse from '@/components/core/Collapse.vue';
+import GlobalNavigationNotebook from '@/components/global-navigation/GlobalNavigationNotebook.vue';
+import GlobalNavigationNote from '@/components/global-navigation/GlobalNavigationNote.vue';
+import GlobalNavigationNotebookForm from '@/components/global-navigation/GlobalNavigationNotebookForm.vue';
+import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
 
 export default defineComponent({
     setup: function() {

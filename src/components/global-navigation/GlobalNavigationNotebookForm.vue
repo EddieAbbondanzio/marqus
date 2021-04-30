@@ -36,7 +36,7 @@ import { isBlank } from '@/utils/is-blank';
 import { computed, defineComponent, ref, watch } from 'vue';
 import { mapGetters, useStore } from 'vuex';
 import { Field, ErrorMessage, Form, useForm } from 'vee-validate';
-import IconButton from '@/components/Core/IconButton.vue';
+import IconButton from '@/components/core/IconButton.vue';
 
 export default defineComponent({
     setup(p, c) {
