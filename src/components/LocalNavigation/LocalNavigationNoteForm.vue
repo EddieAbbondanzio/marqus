@@ -1,7 +1,7 @@
 <template>
     <Form @submit="$emit('submit')">
-        <div class="has-background-light">
-            <div class="is-flex is-flex-row is-align-center has-background-light py-1">
+        <div class="has-background-light p-1">
+            <div class="is-flex is-flex-row is-align-center has-background-light">
                 <Field name="Note" :value="modelValue" v-slot="{ field }" :rules="unique">
                     <input
                         id="noteValue"

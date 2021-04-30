@@ -1,6 +1,6 @@
 <template>
     <li class="has-text-grey is-size-7">
-        <collapse v-model="expanded" triggerClass="has-background-hover-light">
+        <Collapse v-model="expanded" triggerClass="has-background-hover-light">
             <template #trigger>
                 <div class="is-flex is-align-center global-navigation-title is-flex-grow-1 has-background-transparent">
                     <span class="icon">
@@ -12,8 +12,8 @@
 
             <GlobalNavigationTagForm v-if="isTagBeingCreated" @submit="confirm" @cancel="cancel" v-model="input" />
 
-            <menu-list>
-                <menu-item
+            <NavigationMenuList>
+                <NavigationMenuItem
                     v-for="tag in tags"
                     :key="tag.id"
                     :label="tag.value"
@@ -21,8 +21,8 @@
                     :indent="indentation(1)"
                     @click="() => setActive({ id: tag.id, type: 'tag' })"
                 />
-            </menu-list>
-        </collapse>
+            </NavigationMenuList>
+        </Collapse>
     </li>
 </template>
 
@@ -31,8 +31,9 @@ import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationTagForm from '@/components/GlobalNavigation/GlobalNavigationTagForm.vue';
-import MenuList from '@/components/Core/MenuList.vue';
-import MenuItem from '@/components/Core/MenuItem.vue';
+import NavigationMenuList from '@/components/Core/NavigationMenuList.vue';
+import GlobalNavigation from './GlobalNavigation.vue';
+import NavigationMenuItem from '@/components/Core/NavigationMenuItem.vue';
 
 export default defineComponent({
     setup: function() {
@@ -68,7 +69,7 @@ export default defineComponent({
             setActive: 'setActive'
         })
     },
-    components: { Collapse, GlobalNavigationTagForm, MenuList, MenuItem }
+    components: { Collapse, GlobalNavigationTagForm, NavigationMenuItem, NavigationMenuList }
 });
 </script>
 

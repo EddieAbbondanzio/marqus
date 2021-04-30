@@ -1,24 +1,29 @@
 <template>
-    <resizable v-model="width" @resizeStop="save">
+    <Resizable v-model="width" @resizeStop="save">
         <div class="has-h-100 has-text-dark  is-size-7">
             <!-- Header -->
             <div
                 class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-1-dark p-1 has-background-light"
             >
-                <local-navigation-search-bar />
-                <icon-button icon="fa-plus" size="is-small" @click="onCreateClick" />
+                <LocalNavigationSearchBar />
+                <IconButton icon="fa-plus" size="is-small" @click="onCreateClick" />
             </div>
 
             <!-- Files -->
             <div>
-                <local-navigation-note-form v-if="isCreatingNote" v-model="input" @submit="confirm" @cancel="cancel" />
+                <LocalNavigationNoteForm v-if="isCreatingNote" v-model="input" @submit="confirm" @cancel="cancel" />
 
-                <menu-list>
-                    <menu-item v-for="note in notes" :key="note.id" :label="note.name" @click="onNoteClick"></menu-item>
-                </menu-list>
+                <NavigationMenuList>
+                    <NavigationMenuItem
+                        v-for="note in notes"
+                        :key="note.id"
+                        :label="note.name"
+                        @click="onNoteClick"
+                    ></NavigationMenuItem>
+                </NavigationMenuList>
             </div>
         </div>
-    </resizable>
+    </Resizable>
 </template>
 
 <script lang="ts">
@@ -28,8 +33,8 @@ import IconButton from '@/components/IconButton.vue';
 import LocalNavigationSearchBar from '@/components/LocalNavigation/LocalNavigationSearchBar.vue';
 import { mapActions, mapGetters, mapMutations, mapState, useStore } from 'vuex';
 import LocalNavigationNoteForm from '@/components/LocalNavigation/LocalNavigationNoteForm.vue';
-import MenuList from '@/components/Core/MenuList.vue';
-import MenuItem from '@/components/Core/MenuItem.vue';
+import NavigationMenuList from '@/components/Core/NavigationMenuList.vue';
+import NavigationMenuItem from '@/components/Core/NavigationMenuItem.vue';
 
 export default defineComponent({
     setup: function() {
@@ -75,6 +80,13 @@ export default defineComponent({
             cancel: 'noteInputCancel'
         })
     },
-    components: { Resizable, LocalNavigationSearchBar, IconButton, LocalNavigationNoteForm, MenuList, MenuItem }
+    components: {
+        Resizable,
+        LocalNavigationSearchBar,
+        IconButton,
+        LocalNavigationNoteForm,
+        NavigationMenuList,
+        NavigationMenuItem
+    }
 });
 </script>

@@ -14,9 +14,9 @@
                 <div v-if="isNotebookBeingCreated()">
                     <GlobalNavigationNotebookForm @submit="confirm" @cancel="cancel" v-model="input" />
                 </div>
-                <div v-for="notebook in notebooks" :key="notebook.id">
+                <NavigationMenuList v-for="notebook in notebooks" :key="notebook.id">
                     <GlobalNavigationNotebook :modelValue="notebook" />
-                </div>
+                </NavigationMenuList>
             </div>
         </Collapse>
     </li>
@@ -29,6 +29,7 @@ import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationNotebook from '@/components/GlobalNavigation/GlobalNavigationNotebook.vue';
 import GlobalNavigationNote from '@/components/GlobalNavigation/GlobalNavigationNote.vue';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
+import NavigationMenuList from '@/components/Core/NavigationMenuList.vue';
 
 export default defineComponent({
     setup: function() {
@@ -60,6 +61,6 @@ export default defineComponent({
     methods: {
         ...mapActions('app/globalNavigation', { confirm: 'notebookInputConfirm', cancel: 'notebookInputCancel' })
     },
-    components: { Collapse, GlobalNavigationNotebook, GlobalNavigationNotebookForm }
+    components: { Collapse, GlobalNavigationNotebook, GlobalNavigationNotebookForm, NavigationMenuList }
 });
 </script>

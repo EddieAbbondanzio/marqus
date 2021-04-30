@@ -1,7 +1,7 @@
 <template>
     <div class="has-background-light" :style="{ 'padding-left': indentation(notebookDepth(parent)) }">
         <Form @submit="$emit('submit')">
-            <div class="is-flex is-flex-row is-align-center has-background-light py-1">
+            <div class="is-flex is-flex-row is-align-center has-background-light">
                 <Field name="Notebook" :value="modelValue" v-slot="{ field }" :rules="unique">
                     <input
                         id="notebookValue"

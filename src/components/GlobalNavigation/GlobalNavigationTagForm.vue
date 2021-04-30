@@ -2,7 +2,7 @@
     <div class="has-background-light" :style="`padding-left: ${indent}!important`">
         <Form @submit="$emit('submit')">
             <div>
-                <div class="is-flex is-flex-row is-align-center has-background-light py-1">
+                <div class="is-flex is-flex-row is-align-center has-background-light">
                     <Field name="Tag" :value="modelValue" v-slot="{ field }" :rules="unique">
                         <input
                             id="tagValue"

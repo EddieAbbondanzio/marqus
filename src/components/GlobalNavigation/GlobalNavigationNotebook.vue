@@ -1,4 +1,6 @@
 <template>
+    <NavigationMenuList
+
     <!-- Root, or mid level notebook with children -->
     <Collapse
         v-if="canNotebookBeCollapsed(modelValue)"
@@ -85,7 +87,7 @@ import { computed, defineComponent } from 'vue';
 import Collapse from '@/components/Collapse.vue';
 import GlobalNavigationNotebookForm from '@/components/GlobalNavigation/GlobalNavigationNotebookForm.vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
-import { Notebook } from '@/store/modules/notebooks/state';
+import NavigationMenuItem from '../Core/NavigationMenuItem.vue';
 
 export default defineComponent({
     props: {
@@ -160,11 +162,12 @@ export default defineComponent({
             onRelease: 'notebookDragStop'
         })
     },
-    components: { Collapse, GlobalNavigationNotebookForm }
+    components: { Collapse, GlobalNavigationNotebookForm, NavigationMenuItem }
 });
 </script>
 
-<style lang="sass">
+<style lang="sass,
+        NavigationMenuList">
 .global-navigation-notebook
     height: 30px;
 </style>
