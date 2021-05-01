@@ -1,6 +1,5 @@
 <template>
-    <NavigationMenuItem :label="modelValue.value" :active="isActive(modelValue.id, 'notebook')">
-        >te mcff
+    <NavigationMenuItem :label="modelValue.value" :active="isActive({ id: modelValue.id, type: 'notebook' })">
     </NavigationMenuItem>
 
     <!-- Root, or mid level notebook with children -->
@@ -8,7 +7,7 @@
         v-if="canNotebookBeCollapsed(modelValue)"
         v-model="expanded"
         triggerClass="has-background-hover-light"
-        :class="[{ 'has-background-light': isActive(modelValue.id, 'notebook') }]"
+        :class="[{ 'has-background-light': isActive({ id: modelValue.id, type: 'notebook' }) }]"
     >
         <!-- Expand / Collapse trigger -->
         <template #trigger>
@@ -50,7 +49,11 @@
         </div>
     </Collapse>
     <!-- Leaf Notebook -->
-    <div v-else class="is-flex-grow-1" :class="{ 'has-background-light': isActive(modelValue.id, 'notebook') }">
+    <div
+        v-else
+        class="is-flex-grow-1"
+        :class="{ 'has-background-light': isActive({ id: modelValue.id, type: 'notebook' }) }"
+    >
         <!-- Form to update notebook -->
         <GlobalNavigationNotebookForm
             v-if="isNotebookBeingUpdated(modelValue.id)"

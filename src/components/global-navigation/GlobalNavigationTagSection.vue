@@ -1,29 +1,17 @@
 <template>
     <li class="has-text-grey is-size-7">
-        <Collapse v-model="expanded" triggerClass="has-background-hover-light">
-            <template #trigger>
-                <div class="is-flex is-align-center global-navigation-title is-flex-grow-1 has-background-transparent">
-                    <span class="icon">
-                        <i class="fas fa-tag"></i>
-                    </span>
-                    <span class="is-size-7 is-uppercase">Tags</span>
-                </div>
-            </template>
-
+        <NavigationMenuItem icon="tag" label="TAGS" v-model:expanded="expanded">
             <GlobalNavigationTagForm v-if="isTagBeingCreated" @submit="confirm" @cancel="cancel" v-model="input" />
 
-            <NavigationMenuList>
-                <NavigationMenuItem
-                    v-for="tag in tags"
-                    :key="tag.id"
-                    icon="tag"
-                    :label="tag.value"
-                    :active="isActive(tag.id, 'tag')"
-                    :indent="indentation(1)"
-                    @click="() => setActive({ id: tag.id, type: 'tag' })"
-                />
-            </NavigationMenuList>
-        </Collapse>
+            <NavigationMenuItem
+                v-for="tag in tags"
+                :key="tag.id"
+                :label="tag.value"
+                :active="isActive({ id: tag.id, type: 'tag' })"
+                :indent="indentation(1)"
+                @click="() => setActive({ id: tag.id, type: 'tag' })"
+            />
+        </NavigationMenuItem>
     </li>
 </template>
 
@@ -32,8 +20,6 @@ import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import Collapse from '@/components/core/Collapse.vue';
 import GlobalNavigationTagForm from '@/components/global-navigation/GlobalNavigationTagForm.vue';
-import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
-import GlobalNavigation from './GlobalNavigation.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 
 export default defineComponent({
@@ -70,7 +56,7 @@ export default defineComponent({
             setActive: 'setActive'
         })
     },
-    components: { Collapse, GlobalNavigationTagForm, NavigationMenuItem, NavigationMenuList }
+    components: { Collapse, GlobalNavigationTagForm, NavigationMenuItem }
 });
 </script>
 

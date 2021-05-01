@@ -17,20 +17,32 @@ describe('GlobalNavigation getters', () => {
 
     describe('isActive', () => {
         it('returns false if no active element', () => {
-            const a = (getters as any).isActive(state)('1', 'tag');
+            const a = (getters as any).isActive(state)({ id: '1', type: 'tag' });
             expect(a).toBeFalsy();
         });
 
         it('returns false if id matches but type is wrong', () => {
             state.active = { id: '1', type: 'notebook' };
-            const a = (getters as any).isActive(state)('1', 'tag');
+            const a = (getters as any).isActive(state)({ id: '1', type: 'tag' });
             expect(a).toBeFalsy();
         });
 
         it('returns true if id matches and type is the same', () => {
             state.active = { id: '1', type: 'notebook' };
-            const a = (getters as any).isActive(state)('1', 'notebook');
+            const a = (getters as any).isActive(state)({ id: '1', type: 'notebook' });
             expect(a).toBeTruthy();
+        });
+
+        it('returns false when active is all, but we passed tag', () => {
+            state.active = 'all';
+            const a = (getters as any).isActive(state)({ id: '1', type: 'notebook' });
+            expect(a).toBeFalsy();
+        });
+
+        it('returns false if all is passed but trash is active', () => {
+            state.active = 'trash';
+            const a = (getters as any).isActive(state)('all');
+            expect(a).toBeFalsy();
         });
     });
 

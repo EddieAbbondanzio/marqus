@@ -4,13 +4,14 @@ import { GetterTree } from 'vuex';
 import { GlobalNavigation } from './state';
 
 export const getters: GetterTree<GlobalNavigation, State> = {
-    isActive: (s) => (id: string, type: 'notebook' | 'tag') => {
+    isActive: (s) => (option: 'all' | 'favorites' | 'trash' | { id: string; type: 'notebook' | 'tag' }) => {
         // Check for an active item first
         if (s.active == null) {
             return false;
         }
 
-        return s.active.id === id && s.active.type === type;
+        // Deep equals test
+        return JSON.stringify(s.active) === JSON.stringify(option);
     },
     indentation: (s) => (depth: number) => {
         return `${depth * 24}px`;

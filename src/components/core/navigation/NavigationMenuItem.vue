@@ -2,16 +2,20 @@
     <div>
         <a
             :class="{
+                'px-2': true,
                 'is-block': true,
+                'has-background-hover-light': true,
                 'has-background-light': active
             }"
-            :style="`padding-left: ${indent}!important;`"
         >
             <div
-                class="px-2 has-background-hover-light has-text-grey is-flex is-justify-content-space-between is-align-center"
+                class=" has-text-grey is-flex is-justify-content-space-between is-align-center has-background-transparent"
                 style="height: 30px!important;"
             >
-                <div class="is-flex is-align-center has-background-transparent">
+                <div
+                    class="is-flex is-align-center has-background-transparent"
+                    :style="`padding-left: ${indent}!important;`"
+                >
                     <span class="icon" v-if="icon">
                         <i :class="`fas fa-${icon}`"></i>
                     </span>

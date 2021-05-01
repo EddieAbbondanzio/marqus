@@ -16,7 +16,7 @@ export interface GlobalNavigation {
     width: string;
     notebooks: GlobalNavigationNotebookSection;
     tags: GlobalNavigationTagSection;
-    active?: { id: string; type: 'notebook' | 'tag' };
+    active?: 'all' | 'favorites' | 'trash' | { id: string; type: 'notebook' | 'tag' };
 }
 
 export const state: GlobalNavigation = {

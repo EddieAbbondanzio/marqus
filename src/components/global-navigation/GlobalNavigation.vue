@@ -1,6 +1,7 @@
 <template>
     <resizable class="has-text-dark" v-model="width" minWidth="160px" data-context-menu="globalNavigation">
-        <ul>
+        <NavigationMenuList>
+            <NavigationMenuItem :label="ALL" :active=""
             <li
                 :class="[
                     'global-navigation-item',
@@ -54,7 +55,7 @@
                     </div>
                 </a>
             </li>
-        </ul>
+        </NavigationMenuList>
     </resizable>
 </template>
 
@@ -64,6 +65,8 @@ import Resizable from '@/components/core/Resizable.vue';
 import { useStore } from 'vuex';
 import GlobalNavigationTagSection from '@/components/global-navigation/GlobalNavigationTagSection.vue';
 import GlobalNavigationNotebookSection from '@/components/global-navigation/GlobalNavigationNotebookSection.vue';
+import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
+import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
 
 export default defineComponent({
     setup: function() {
@@ -88,7 +91,13 @@ export default defineComponent({
             active
         };
     },
-    components: { Resizable, GlobalNavigationTagSection, GlobalNavigationNotebookSection }
+    components: {
+        Resizable,
+        GlobalNavigationTagSection,
+        GlobalNavigationNotebookSection,
+        NavigationMenuItem,
+        NavigationMenuList
+    }
 });
 </script>
 
