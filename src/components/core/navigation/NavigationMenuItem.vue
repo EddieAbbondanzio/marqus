@@ -19,6 +19,10 @@
                     <span class="icon" v-if="icon">
                         <i :class="`fas fa-${icon}`"></i>
                     </span>
+                    <!-- Spacer to fill empty icon spot -->
+                    <span style="width: 24px!important" v-else>
+                        &nbsp;
+                    </span>
 
                     <slot name="label">
                         <p class="is-size-7">{{ label }}</p>
