@@ -1,18 +1,15 @@
 <template>
-    <li class="has-text-grey is-size-7">
-        <NavigationMenuItem icon="tag" label="TAGS" v-model:expanded="expanded">
-            <GlobalNavigationTagForm v-if="isTagBeingCreated" @submit="confirm" @cancel="cancel" v-model="input" />
+    <NavigationMenuItem icon="tag" label="TAGS" v-model:expanded="expanded">
+        <GlobalNavigationTagForm v-if="isTagBeingCreated" @submit="confirm" @cancel="cancel" v-model="input" />
 
-            <NavigationMenuItem
-                v-for="tag in tags"
-                :key="tag.id"
-                :label="tag.value"
-                :active="isActive({ id: tag.id, type: 'tag' })"
-                :indent="indentation(1)"
-                @click="() => setActive({ id: tag.id, type: 'tag' })"
-            />
-        </NavigationMenuItem>
-    </li>
+        <NavigationMenuItem
+            v-for="tag in tags"
+            :key="tag.id"
+            :label="tag.value"
+            :active="isActive({ id: tag.id, type: 'tag' })"
+            @click="() => setActive({ id: tag.id, type: 'tag' })"
+        />
+    </NavigationMenuItem>
 </template>
 
 <script lang="ts">

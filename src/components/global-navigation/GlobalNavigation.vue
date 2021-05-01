@@ -1,68 +1,28 @@
 <template>
-    <resizable class="has-text-dark" v-model="width" minWidth="160px" data-context-menu="globalNavigation">
+    <Resizable class="has-text-dark" v-model="width" minWidth="160px" data-context-menu="globalNavigation">
         <NavigationMenuList>
-            <NavigationMenuItem :label="ALL" :active=""
-            <li
-                :class="[
-                    'global-navigation-item',
-                    'has-background-hover-light',
-                    { 'has-background-light': active === 'all' }
-                ]"
-            >
-                <a class="no-drag has-text-grey is-size-7 is-uppercase" @click="() => (active = 'all')">
-                    <div class="is-flex is-align-center has-background-transparent">
-                        <span class="icon">
-                            <i class="fas fa-file-alt"></i>
-                        </span>
-                        <span>All</span>
-                    </div>
-                </a>
-            </li>
+            <NavigationMenuItem icon="file-alt" label="ALL" :active="isActive('all')" @click="ACTIVE('all')" />
 
             <global-navigation-notebook-section />
 
             <global-navigation-tag-section />
 
-            <li
-                :class="[
-                    'global-navigation-item',
-                    'has-background-hover-light',
-                    { 'has-background-light': active === 'favorites' }
-                ]"
-            >
-                <a class="no-drag has-text-grey is-size-7 is-uppercase" @click="() => (active = 'favorites')">
-                    <div class="has-background-transparent">
-                        <span class="icon">
-                            <i class="fas fa-star"></i>
-                        </span>
-                        <span>Favorites</span>
-                    </div>
-                </a>
-            </li>
-            <li
-                :class="[
-                    'global-navigation-item',
-                    'has-background-hover-light',
-                    { 'has-background-light': active === 'trash' }
-                ]"
-            >
-                <a class="no-drag has-text-grey is-size-7 is-uppercase" @click="() => (active = 'trash')">
-                    <div class="has-background-transparent">
-                        <span class="icon">
-                            <i class="fas fa-trash"></i>
-                        </span>
-                        <span>Trash</span>
-                    </div>
-                </a>
-            </li>
+            <NavigationMenuItem
+                icon="star"
+                label="FAVORITES"
+                :active="isActive('favorites')"
+                @click="ACTIVE('favorites')"
+            />
+
+            <NavigationMenuItem icon="trash" label="TRASH" :active="isActive('trash')" @click="ACTIVE('trash')" />
         </NavigationMenuList>
-    </resizable>
+    </Resizable>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide, onMounted } from 'vue';
 import Resizable from '@/components/core/Resizable.vue';
-import { useStore } from 'vuex';
+import { mapGetters, mapMutations, useStore } from 'vuex';
 import GlobalNavigationTagSection from '@/components/global-navigation/GlobalNavigationTagSection.vue';
 import GlobalNavigationNotebookSection from '@/components/global-navigation/GlobalNavigationNotebookSection.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
@@ -79,17 +39,15 @@ export default defineComponent({
             }
         });
 
-        const active = computed({
-            get: () => s.state.app.globalNavigation.active,
-            set: (v: any) => {
-                s.commit('app/globalNavigation/ACTIVE', v);
-            }
-        });
-
         return {
-            width,
-            active
+            width
         };
+    },
+    computed: {
+        ...mapGetters('app/globalNavigation', ['isActive'])
+    },
+    methods: {
+        ...mapMutations('app/globalNavigation', ['ACTIVE'])
     },
     components: {
         Resizable,
@@ -100,15 +58,3 @@ export default defineComponent({
     }
 });
 </script>
-
-<style lang="sass">
-global-navigation-title
-    padding-top: 2px
-    padding-bottom: 2px
-
-.global-navigation-item
-    line-height: 24px
-    height: 30px
-    display: flex
-    align-items: center
-</style>

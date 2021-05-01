@@ -21,7 +21,7 @@
                     </span>
 
                     <slot name="label">
-                        <p>{{ label }}</p>
+                        <p class="is-size-7">{{ label }}</p>
                     </slot>
                 </div>
 
@@ -41,7 +41,7 @@
         </a>
 
         <!-- Children -->
-        <div class="has-background-transparent" v-if="hasChildren">
+        <div class="has-background-transparent" v-if="hasChildren && expanded">
             <slot> </slot>
         </div>
     </div>
