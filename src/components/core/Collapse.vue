@@ -9,7 +9,7 @@
         >
             <slot name="trigger"></slot>
 
-            <icon-button icon="fa-chevron-down" v-if="!modelValue" />
+            <icon-button icon="fa-chevron-down" v-if="modelValue" size="is-xs" />
             <icon-button icon="fa-chevron-up" v-else />
         </a>
 

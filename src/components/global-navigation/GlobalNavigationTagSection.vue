@@ -16,6 +16,7 @@
                 <NavigationMenuItem
                     v-for="tag in tags"
                     :key="tag.id"
+                    icon="tag"
                     :label="tag.value"
                     :active="isActive(tag.id, 'tag')"
                     :indent="indentation(1)"
