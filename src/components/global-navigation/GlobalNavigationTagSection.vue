@@ -15,7 +15,6 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
-import Collapse from '@/components/core/Collapse.vue';
 import GlobalNavigationTagForm from '@/components/global-navigation/GlobalNavigationTagForm.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 
@@ -53,7 +52,7 @@ export default defineComponent({
             setActive: 'setActive'
         })
     },
-    components: { Collapse, GlobalNavigationTagForm, NavigationMenuItem }
+    components: { GlobalNavigationTagForm, NavigationMenuItem }
 });
 </script>
 

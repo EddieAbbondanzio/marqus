@@ -13,7 +13,6 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
-import Collapse from '@/components/core/Collapse.vue';
 import GlobalNavigationNotebook from '@/components/global-navigation/GlobalNavigationNotebook.vue';
 import GlobalNavigationNote from '@/components/global-navigation/GlobalNavigationNote.vue';
 import GlobalNavigationNotebookForm from '@/components/global-navigation/GlobalNavigationNotebookForm.vue';
@@ -49,6 +48,6 @@ export default defineComponent({
     methods: {
         ...mapActions('app/globalNavigation', { confirm: 'notebookInputConfirm', cancel: 'notebookInputCancel' })
     },
-    components: { Collapse, GlobalNavigationNotebook, GlobalNavigationNotebookForm, NavigationMenuItem }
+    components: { GlobalNavigationNotebook, GlobalNavigationNotebookForm, NavigationMenuItem }
 });
 </script>

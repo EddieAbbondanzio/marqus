@@ -16,7 +16,6 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import Collapse from '@/components/core/Collapse.vue';
 import GlobalNavigationNotebookForm from '@/components/global-navigation/GlobalNavigationNotebookForm.vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
@@ -94,7 +93,7 @@ export default defineComponent({
             onRelease: 'notebookDragStop'
         })
     },
-    components: { Collapse, GlobalNavigationNotebookForm, NavigationMenuItem }
+    components: { GlobalNavigationNotebookForm, NavigationMenuItem }
 });
 </script>
 
