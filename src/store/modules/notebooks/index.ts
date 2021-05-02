@@ -66,6 +66,6 @@ export function killNotebookParentReferences(notebook: Notebook) {
         const child = notebook.children[i];
         delete child.parent;
 
-        fixNotebookParentReferences(child);
+        killNotebookParentReferences(child);
     }
 }

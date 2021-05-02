@@ -1,25 +1,13 @@
 <template>
-    <li class="has-text-grey is-size-7">
-        <Collapse v-model="expanded" triggerClass="has-background-hover-light">
-            <template #trigger>
-                <div class="is-flex is-align-center has-background-transparent global-navigation-title">
-                    <span class="icon">
-                        <i class="fas fa-book"></i>
-                    </span>
-                    <span class="is-size-7 is-uppercase">Notebooks</span>
-                </div>
-            </template>
-
-            <div class="is-size-7">
-                <div v-if="isNotebookBeingCreated()">
-                    <GlobalNavigationNotebookForm @submit="confirm" @cancel="cancel" v-model="input" />
-                </div>
-                <NavigationMenuList v-for="notebook in notebooks" :key="notebook.id">
-                    <GlobalNavigationNotebook :modelValue="notebook" />
-                </NavigationMenuList>
-            </div>
-        </Collapse>
-    </li>
+    <NavigationMenuItem icon="book" label="NOTEBOOKS" v-model:expanded="expanded">
+        <GlobalNavigationNotebookForm
+            v-if="isNotebookBeingCreated()"
+            @submit="confirm"
+            @cancel="cancel"
+            v-model="input"
+        />
+        <GlobalNavigationNotebook v-for="notebook in notebooks" :key="notebook.id" :modelValue="notebook" />
+    </NavigationMenuItem>
 </template>
 
 <script lang="ts">
@@ -29,7 +17,7 @@ import Collapse from '@/components/core/Collapse.vue';
 import GlobalNavigationNotebook from '@/components/global-navigation/GlobalNavigationNotebook.vue';
 import GlobalNavigationNote from '@/components/global-navigation/GlobalNavigationNote.vue';
 import GlobalNavigationNotebookForm from '@/components/global-navigation/GlobalNavigationNotebookForm.vue';
-import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
+import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 
 export default defineComponent({
     setup: function() {
@@ -61,6 +49,6 @@ export default defineComponent({
     methods: {
         ...mapActions('app/globalNavigation', { confirm: 'notebookInputConfirm', cancel: 'notebookInputCancel' })
     },
-    components: { Collapse, GlobalNavigationNotebook, GlobalNavigationNotebookForm, NavigationMenuList }
+    components: { Collapse, GlobalNavigationNotebook, GlobalNavigationNotebookForm, NavigationMenuItem }
 });
 </script>

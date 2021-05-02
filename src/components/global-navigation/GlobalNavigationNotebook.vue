@@ -1,90 +1,17 @@
 <template>
-    <NavigationMenuItem :label="modelValue.value" :active="isActive({ id: modelValue.id, type: 'notebook' })">
+    <NavigationMenuItem
+        :label="modelValue.value"
+        :active="isActive({ id: modelValue.id, type: 'notebook' })"
+        :expanded="modelValue.expanded"
+        :hideToggle="modelValue.children == null"
+    >
+        <GlobalNavigationNotebook
+            v-for="child in modelValue.children"
+            :key="child.id"
+            :modelValue="child"
+            :indent="indentation(notebookDepth(child) - 1)"
+        />
     </NavigationMenuItem>
-
-    <!-- Root, or mid level notebook with children -->
-    <Collapse
-        v-if="canNotebookBeCollapsed(modelValue)"
-        v-model="expanded"
-        triggerClass="has-background-hover-light"
-        :class="[{ 'has-background-light': isActive({ id: modelValue.id, type: 'notebook' }) }]"
-    >
-        <!-- Expand / Collapse trigger -->
-        <template #trigger>
-            <div class="is-flex-grow-1 has-background-transparent">
-                <GlobalNavigationNotebookForm
-                    v-if="isNotebookBeingUpdated(modelValue.id)"
-                    @submit="confirm"
-                    @cancel="cancel"
-                    v-model="input"
-                />
-                <a
-                    v-else
-                    class="no-drag has-text-grey"
-                    v-mouse:click.left="onClick"
-                    v-mouse:hold.left="onHold"
-                    v-mouse:release.left="onRelease"
-                    @mouseover="onHover"
-                >
-                    <p
-                        :class="['global-navigation-notebook', 'global-navigation-item', 'is-flex is-align-center']"
-                        :data-id="modelValue.id"
-                        :style="{ 'padding-left': indentation(notebookDepth(modelValue)) }"
-                    >
-                        {{ modelValue.value }}
-                    </p>
-                </a>
-            </div>
-        </template>
-
-        <!-- Root, or mid level notebook children -->
-        <div class="is-size-7">
-            <GlobalNavigationNotebookForm
-                v-if="isNotebookBeingCreated(modelValue.id)"
-                @submit="confirm"
-                @cancel="cancel"
-                v-model="input"
-            />
-            <GlobalNavigationNotebook v-for="child in modelValue.children" :key="child.id" :modelValue="child" />
-        </div>
-    </Collapse>
-    <!-- Leaf Notebook -->
-    <div
-        v-else
-        class="is-flex-grow-1"
-        :class="{ 'has-background-light': isActive({ id: modelValue.id, type: 'notebook' }) }"
-    >
-        <!-- Form to update notebook -->
-        <GlobalNavigationNotebookForm
-            v-if="isNotebookBeingUpdated(modelValue.id)"
-            @submit="confirm"
-            @cancel="cancel"
-            v-model="input"
-        />
-        <!-- Notebook value -->
-        <a
-            v-else
-            class="no-drag has-text-grey"
-            v-mouse:click.left="onClick"
-            v-mouse:hold.left="onHold"
-            v-mouse:release.left="onRelease"
-            @mouseover="onHover"
-        >
-            <p
-                class="global-navigation-notebook global-navigation-item has-background-hover-light is-flex is-align-center"
-                :data-id="modelValue.id"
-                :style="{ 'padding-left': indentation(notebookDepth(modelValue)) }"
-            >
-                {{ modelValue.value }}
-            </p>
-        </a>
-        <GlobalNavigationNotebookForm
-            v-if="isNotebookBeingCreated(modelValue.id)"
-            @submit="confirm"
-            @cancel="cancel"
-            v-model="input"
-        />
-    </div>
 </template>
 
 <script lang="ts">

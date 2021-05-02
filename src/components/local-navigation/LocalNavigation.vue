@@ -17,6 +17,7 @@
                     <NavigationMenuItem
                         v-for="note in notes"
                         :key="note.id"
+                        :hideIcon="true"
                         :label="note.name"
                         @click="onNoteClick"
                     ></NavigationMenuItem>
