@@ -1,5 +1,5 @@
 export function unique(
-    value: any,
+    value: string | null,
     [values, identifier, uniqueValue]: [any[], (v: any) => any, (v: any) => any]
 ): boolean {
     if (value == null) {
@@ -7,7 +7,6 @@ export function unique(
     }
 
     const match = values.find((v) => value === uniqueValue(v));
-
     if (match != null && identifier(value) !== identifier(match)) {
         return false;
     }

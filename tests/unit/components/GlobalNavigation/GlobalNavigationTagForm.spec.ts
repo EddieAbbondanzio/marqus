@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { ActionTree, createStore, MutationTree, Store } from 'vuex';
 import { focus } from '@/directives/focus';
 import { GlobalNavigation, GlobalNavigationNotebookSection } from '@/store/modules/app/modules/global-navigation/state';
+import '@/plugins/vee-validate';
 
 describe('GlobalNavigationTagForm', () => {
     let mutations: MutationTree<any>;
