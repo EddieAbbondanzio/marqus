@@ -3,9 +3,9 @@
         <Form @submit="$emit('submit')">
             <div>
                 <div class="is-flex is-flex-row is-align-center has-background-light">
-                    <Field name="Tag" :value="modelValue" v-slot="{ field }" :rules="rules">
+                    <Field :name="fieldName" :value="modelValue" v-slot="{ field }" :rules="rules">
                         <input
-                            id="tagValue"
+                            id="fieldValue"
                             type="text"
                             v-bind="field"
                             style="min-width: 0; width: 0; flex-grow: 1;"
@@ -23,7 +23,7 @@
                         />
                     </Field>
                 </div>
-                <ErrorMessage name="Tag" v-slot="{ message }">
+                <ErrorMessage :name="fieldName" v-slot="{ message }">
                     <p id="errorMessage" class="has-text-danger">{{ message }}</p>
                 </ErrorMessage>
             </div>
@@ -32,31 +32,33 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from 'vue';
-import { Field, ErrorMessage, Form } from 'vee-validate';
-import { useStore } from 'vuex';
-import { isBlank } from '@/utils/is-blank';
+import { defineComponent } from 'vue';
 import IconButton from '@/components/core/IconButton.vue';
-import { Tag } from '@/store/modules/tags/state';
+import { Field, ErrorMessage, Form } from 'vee-validate';
 
+/**
+ * Inline form for creating values in nav menus that only have 1
+ * field to populate.
+ */
 export default defineComponent({
+    props: {
+        modelValue: {
+            type: String,
+            default: ''
+        },
+        indent: {
+            type: String,
+            default: '0px'
+        },
+        fieldName: {
+            type: String,
+            default: 'Field'
+        },
+        rules: {
+            type: Function
+        }
+    },
     setup(p, c) {
-        const s = useStore();
-
-        const unique = (v: any) => {
-            if (v == null || isBlank(v)) {
-                return 'Tag cannot be empty';
-            }
-
-            const existing = s.state.tags.values.find((t: any) => t.value.toUpperCase() === v.toUpperCase());
-
-            if (existing != null && existing.id !== s.state.app.globalNavigation.tags.input.id) {
-                return `Tag with value ${v} already exists`;
-            }
-
-            return true;
-        };
-
         const onInput = (e: any) => {
             c.emit('update:modelValue', e.target.value);
         };
@@ -68,27 +70,10 @@ export default defineComponent({
             }
         };
 
-        const rules = {
-            required: true,
-            unique: [s.state.tags.values, (t: Tag) => t.id, (t: Tag) => t.value]
-        };
-
         return {
-            unique,
             onInput,
-            onBlur,
-            rules
+            onBlur
         };
-    },
-    props: {
-        modelValue: {
-            type: String,
-            default: ''
-        },
-        indent: {
-            type: String,
-            default: '24px'
-        }
     },
     emits: ['submit', 'cancel', 'update:modelValue'],
     components: { Field, ErrorMessage, Form, IconButton }
