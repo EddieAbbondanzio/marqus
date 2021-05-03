@@ -1,6 +1,13 @@
 <template>
     <NavigationMenuItem icon="tag" label="TAGS" v-model:expanded="expanded">
-        <GlobalNavigationTagForm v-if="isTagBeingCreated" @submit="confirm" @cancel="cancel" v-model="input" />
+        <NavigationMenuForm
+            v-if="isTagBeingCreated"
+            @submit="confirm"
+            @cancel="cancel"
+            v-model="input"
+            fieldName="Tag"
+            :rules="formRules"
+        />
 
         <NavigationMenuItem
             v-for="tag in tags"
@@ -15,8 +22,9 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
-import GlobalNavigationTagForm from '@/components/global-navigation/GlobalNavigationTagForm.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
+import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
+import { Tag } from '@/store/modules/tags/state';
 
 export default defineComponent({
     setup: function() {
@@ -34,9 +42,15 @@ export default defineComponent({
             set: (v: string) => s.commit('app/globalNavigation/TAG_INPUT_VALUE', v)
         });
 
+        const formRules = {
+            required: true,
+            unique: [() => s.state.tags.values, (t: Tag) => t.id, (t: Tag) => t.value]
+        };
+
         return {
             expanded,
-            input
+            input,
+            formRules
         };
     },
     computed: {
@@ -52,7 +66,7 @@ export default defineComponent({
             setActive: 'setActive'
         })
     },
-    components: { GlobalNavigationTagForm, NavigationMenuItem }
+    components: { NavigationMenuItem, NavigationMenuForm }
 });
 </script>
 

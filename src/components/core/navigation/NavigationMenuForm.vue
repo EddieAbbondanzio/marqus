@@ -55,7 +55,7 @@ export default defineComponent({
             default: 'Field'
         },
         rules: {
-            type: Function
+            type: Object
         }
     },
     setup(p, c) {
