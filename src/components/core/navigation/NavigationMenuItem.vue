@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import IconButton from '@/components/core/IconButton.vue';
 
 export default defineComponent({
@@ -124,6 +124,17 @@ export default defineComponent({
         };
 
         const isExpanded = () => localExpanded.value;
+
+        const watchRelease = watch(
+            () => p.expanded,
+            () => {
+                localExpanded.value = p.expanded;
+            }
+        );
+
+        onBeforeUnmount(() => {
+            watchRelease();
+        });
 
         return {
             hasChildren,

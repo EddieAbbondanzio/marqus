@@ -15,6 +15,7 @@
             :label="tag.value"
             :active="isActive({ id: tag.id, type: 'tag' })"
             @click="() => setActive({ id: tag.id, type: 'tag' })"
+            class="global-navigation-tag"
         />
     </NavigationMenuItem>
 </template>
@@ -69,8 +70,3 @@ export default defineComponent({
     components: { NavigationMenuItem, NavigationMenuForm }
 });
 </script>
-
-<style lang="sass">
-.global-navigation-tag
-    padding-left: 24px;
-</style>
