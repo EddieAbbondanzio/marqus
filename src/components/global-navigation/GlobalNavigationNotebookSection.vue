@@ -1,10 +1,12 @@
 <template>
     <NavigationMenuItem icon="book" label="NOTEBOOKS" v-model:expanded="expanded">
-        <GlobalNavigationNotebookForm
+        <NavigationMenuForm
             v-if="isNotebookBeingCreated()"
             @submit="confirm"
             @cancel="cancel"
             v-model="input"
+            fieldName="Notebook"
+            :rules="formRules"
         />
         <GlobalNavigationNotebook v-for="notebook in notebooks" :key="notebook.id" :modelValue="notebook" />
     </NavigationMenuItem>
@@ -15,8 +17,9 @@ import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import GlobalNavigationNotebook from '@/components/global-navigation/GlobalNavigationNotebook.vue';
 import GlobalNavigationNote from '@/components/global-navigation/GlobalNavigationNote.vue';
-import GlobalNavigationNotebookForm from '@/components/global-navigation/GlobalNavigationNotebookForm.vue';
+import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
+import { Notebook } from '@/store/modules/notebooks/state';
 
 export default defineComponent({
     setup: function() {
@@ -34,9 +37,15 @@ export default defineComponent({
             set: (v: string) => s.commit('app/globalNavigation/NOTEBOOK_INPUT_VALUE', v)
         });
 
+        const formRules = {
+            required: true,
+            unique: [() => s.state.notebooks.values, (n: Notebook) => n.id, (n: Notebook) => n.value]
+        };
+
         return {
             expanded,
-            input
+            input,
+            formRules
         };
     },
     computed: {
@@ -48,6 +57,6 @@ export default defineComponent({
     methods: {
         ...mapActions('app/globalNavigation', { confirm: 'notebookInputConfirm', cancel: 'notebookInputCancel' })
     },
-    components: { GlobalNavigationNotebook, GlobalNavigationNotebookForm, NavigationMenuItem }
+    components: { GlobalNavigationNotebook, NavigationMenuForm, NavigationMenuItem }
 });
 </script>

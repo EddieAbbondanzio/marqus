@@ -16,9 +16,9 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import GlobalNavigationNotebookForm from '@/components/global-navigation/GlobalNavigationNotebookForm.vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
+import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
 
 export default defineComponent({
     props: {
@@ -93,7 +93,7 @@ export default defineComponent({
             onRelease: 'notebookDragStop'
         })
     },
-    components: { GlobalNavigationNotebookForm, NavigationMenuItem }
+    components: { NavigationMenuForm, NavigationMenuItem }
 });
 </script>
 
