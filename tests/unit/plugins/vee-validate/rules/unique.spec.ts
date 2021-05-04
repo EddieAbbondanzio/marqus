@@ -2,7 +2,7 @@ import { unique } from '@/plugins/vee-validate/rules/unique';
 
 describe('unique()', () => {
     it('returns true if value is null', () => {
-        var res = unique(null, [['a', 'b', 'c'], (v) => v.id, (v) => v.value]);
+        var res = unique(null, [() => ['a', 'b', 'c'], (v) => v.id, (v) => v.value]);
         expect(res).toBeTruthy();
     });
 
@@ -13,7 +13,7 @@ describe('unique()', () => {
             { id: '3', value: 'horse' }
         ];
 
-        var res = unique('dog', [values, (v) => v.id, (v) => v.value]);
+        var res = unique('dog', [() => values, (v) => v.id, (v) => v.value]);
         expect(res).toBeFalsy();
     });
 
@@ -24,7 +24,7 @@ describe('unique()', () => {
             { id: '3', value: 'horse' }
         ];
 
-        var res = unique('fish', [values, (v) => v.id, (v) => v.value]);
+        var res = unique('fish', [() => values, (v) => v.id, (v) => v.value]);
         expect(res).toBeTruthy();
     });
 });

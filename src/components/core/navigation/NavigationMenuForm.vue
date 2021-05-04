@@ -1,32 +1,33 @@
 <template>
-    <div class="has-background-light" :style="`padding-left: ${indent}!important`">
+    <div
+        :class="{ 'has-background-light': true, 'px-2': indent === '0px' }"
+        :style="indent !== '0px' ? `padding-left: ${indent}!important` : ''"
+    >
         <Form @submit="$emit('submit')">
-            <div>
-                <div class="is-flex is-flex-row is-align-center has-background-light">
-                    <Field :name="fieldName" :value="modelValue" v-slot="{ field }" :rules="rules">
-                        <input
-                            id="fieldValue"
-                            type="text"
-                            v-bind="field"
-                            style="min-width: 0; width: 0; flex-grow: 1;"
-                            v-focus
-                            @input="onInput"
-                            @keyup.esc="$emit('cancel')"
-                            @blur="onBlur"
-                        />
-                        <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
-                        <icon-button
-                            id="cancelButton"
-                            class="has-text-hover-danger"
-                            icon="fa-ban"
-                            @click="$emit('cancel')"
-                        />
-                    </Field>
-                </div>
-                <ErrorMessage :name="fieldName" v-slot="{ message }">
-                    <p id="errorMessage" class="has-text-danger">{{ message }}</p>
-                </ErrorMessage>
+            <div class="is-flex is-flex-row is-align-center has-background-transparent">
+                <Field :name="fieldName" :value="modelValue" v-slot="{ field }" :rules="rules">
+                    <input
+                        id="fieldValue"
+                        type="text"
+                        v-bind="field"
+                        style="min-width: 0; width: 0; flex-grow: 1;"
+                        v-focus
+                        @input="onInput"
+                        @keyup.esc="$emit('cancel')"
+                        @blur="onBlur"
+                    />
+                    <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
+                    <icon-button
+                        id="cancelButton"
+                        class="has-text-hover-danger"
+                        icon="fa-ban"
+                        @click="$emit('cancel')"
+                    />
+                </Field>
             </div>
+            <ErrorMessage :name="fieldName" v-slot="{ message }">
+                <p id="errorMessage" class="has-text-danger">{{ message }}</p>
+            </ErrorMessage>
         </Form>
     </div>
 </template>

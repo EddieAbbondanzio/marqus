@@ -11,7 +11,14 @@
 
             <!-- Files -->
             <div>
-                <LocalNavigationNoteForm v-if="isCreatingNote" v-model="input" @submit="confirm" @cancel="cancel" />
+                <NavigationMenuForm
+                    v-if="isCreatingNote"
+                    v-model="input"
+                    @submit="confirm"
+                    @cancel="cancel"
+                    :rules="formRules"
+                    fieldName="Note"
+                />
 
                 <NavigationMenuList>
                     <NavigationMenuItem
@@ -33,9 +40,10 @@ import Resizable from '@/components/core/Resizable.vue';
 import IconButton from '@/components/core/IconButton.vue';
 import LocalNavigationSearchBar from '@/components/local-navigation/LocalNavigationSearchBar.vue';
 import { mapActions, mapGetters, mapMutations, mapState, useStore } from 'vuex';
-import LocalNavigationNoteForm from '@/components/local-navigation/LocalNavigationNoteForm.vue';
 import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
+import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
+import { Note } from '@/store/modules/notes/state';
 
 export default defineComponent({
     setup: function() {
@@ -63,12 +71,18 @@ export default defineComponent({
             console.log('click!');
         };
 
+        const formRules = {
+            required: true,
+            unique: [() => s.state.notes.values, (n: Note) => n.id, (n: Note) => n.name]
+        };
+
         return {
             width,
             input,
             save,
             onCreateClick,
-            onNoteClick
+            onNoteClick,
+            formRules
         };
     },
     computed: {
@@ -85,9 +99,9 @@ export default defineComponent({
         Resizable,
         LocalNavigationSearchBar,
         IconButton,
-        LocalNavigationNoteForm,
         NavigationMenuList,
-        NavigationMenuItem
+        NavigationMenuItem,
+        NavigationMenuForm
     }
 });
 </script>
