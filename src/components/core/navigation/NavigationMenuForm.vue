@@ -26,7 +26,7 @@
                 </Field>
             </div>
             <ErrorMessage :name="fieldName" v-slot="{ message }">
-                <p id="errorMessage" class="has-text-danger">{{ message }}</p>
+                <p id="errorMessage" class="has-text-danger is-size-7">{{ message }}</p>
             </ErrorMessage>
         </Form>
     </div>
