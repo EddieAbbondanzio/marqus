@@ -33,8 +33,6 @@ export const getters: GetterTree<GlobalNavigation, State> = {
 
         // Lastly, test for a nested notebook create
         if (parentId != null) {
-            console.log('parent id passed: ', parentId);
-            console.log('parent id on file: ', s.notebooks.input.parent?.id);
             return s.notebooks.input.parent?.id === parentId;
         }
 

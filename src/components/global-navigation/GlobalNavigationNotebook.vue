@@ -3,20 +3,22 @@
         :label="modelValue.value"
         :active="isActive({ id: modelValue.id, type: 'notebook' })"
         :expanded="modelValue.expanded"
-        :hideToggle="modelValue.children == null"
+        :hideToggle="modelValue.children == null && !isNotebookBeingCreated(modelValue.id)"
         class="global-navigation-notebook"
         :data-id="modelValue.id"
     >
+        <NavigationMenuForm
+            v-if="isNotebookBeingCreated(modelValue.id)"
+            @submit="confirm"
+            @cancel="cancel"
+            v-model="input"
+            fieldName="Notebook"
+            :rules="formRules"
+            :indent="indentation(notebookDepth(modelValue))"
+        />
+
         <template v-for="child in modelValue.children" :key="child.id">
-            <NavigationMenuForm
-                v-if="isNotebookBeingCreated(modelValue.id)"
-                @submit="confirm"
-                @cancel="cancel"
-                v-model="input"
-                fieldName="Notebook"
-                :rules="formRules"
-            />
-            <GlobalNavigationNotebook v-else :modelValue="child" :indent="indentation(notebookDepth(child) - 1)" />
+            <GlobalNavigationNotebook :modelValue="child" :indent="indentation(notebookDepth(child) - 1)" />
         </template>
     </NavigationMenuItem>
 </template>
@@ -26,6 +28,8 @@ import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
+import { Notebook } from '@/store/modules/notebooks/state';
+import { findNotebookRecursive } from '@/store/modules/notebooks/mutations';
 
 export default defineComponent({
     props: {
@@ -74,13 +78,26 @@ export default defineComponent({
             }
         };
 
+        const formRules = {
+            required: true,
+            unique: [
+                () => {
+                    return findNotebookRecursive(s.state.notebooks.values, p.modelValue!.parent.id)!.children;
+                },
+                (n: Notebook) => n.id,
+                (n: Notebook) => n.value,
+                () => s.state.app.globalNavigation.notebooks.input
+            ]
+        };
+
         return {
             expanded,
             onClick,
             input,
             onHold,
             onRelease,
-            onHover
+            onHover,
+            formRules
         };
     },
     computed: {

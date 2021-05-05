@@ -7,6 +7,7 @@
             v-model="input"
             fieldName="Notebook"
             :rules="formRules"
+            indent="24px"
         />
         <GlobalNavigationNotebook v-for="notebook in notebooks" :key="notebook.id" :modelValue="notebook" />
     </NavigationMenuItem>
