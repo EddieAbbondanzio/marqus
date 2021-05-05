@@ -16,7 +16,7 @@
             :rules="formRules"
         />
 
-        <!-- Renderless v-for  -->
+        <!-- Renderless v-for so we don't end up with a wrapper div -->
         <template v-for="tag in tags" :key="tag.id">
             <NavigationMenuItem
                 v-if="!isTagBeingUpdated(tag.id)"

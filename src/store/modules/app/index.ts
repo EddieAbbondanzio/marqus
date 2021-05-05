@@ -28,5 +28,12 @@ persist.register({
         s.localNavigation.notes.input = {};
 
         return s;
+    },
+    transformer: (s) => {
+        delete s.globalNavigation.notebooks.input;
+        delete s.globalNavigation.tags.input;
+        delete s.localNavigation.notes.input;
+
+        return s;
     }
 });

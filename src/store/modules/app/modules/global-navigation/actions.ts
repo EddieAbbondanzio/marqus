@@ -85,6 +85,8 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             parent = findNotebookRecursive(rootState.notebooks.values, parentId);
         }
 
+        console.log('parent is: ', parent?.id);
+
         commit('NOTEBOOK_INPUT_START', { notebook, parent });
         commit('NOTEBOOKS_EXPANDED');
 

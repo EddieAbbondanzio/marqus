@@ -4,6 +4,8 @@
         :active="isActive({ id: modelValue.id, type: 'notebook' })"
         :expanded="modelValue.expanded"
         :hideToggle="modelValue.children == null"
+        class="global-navigation-notebook"
+        :data-id="modelValue.id"
     >
         <GlobalNavigationNotebook
             v-for="child in modelValue.children"

@@ -20,7 +20,7 @@ export const getters: GetterTree<GlobalNavigation, State> = {
     isTagBeingUpdated: (s) => (id: string) => {
         return s.tags.input.mode === 'update' && s.tags.input.id === id;
     },
-    isNotebookBeingCreated: (s) => (parentId: string) => {
+    isNotebookBeingCreated: (s) => (parentId: string | null) => {
         // Check to see if we are even in create mode first
         if (s.notebooks.input.mode !== 'create') {
             return false;
