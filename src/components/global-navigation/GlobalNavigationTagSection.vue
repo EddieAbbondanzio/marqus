@@ -9,15 +9,24 @@
             :rules="formRules"
         />
 
-        <NavigationMenuItem
-            v-for="tag in tags"
-            :key="tag.id"
-            :label="tag.value"
-            :active="isActive({ id: tag.id, type: 'tag' })"
-            @click="() => setActive({ id: tag.id, type: 'tag' })"
-            :data-id="tag.id"
-            class="global-navigation-tag"
-        />
+        <template v-for="tag in tags" :key="tag.id">
+            <NavigationMenuItem
+                v-if="!isTagBeingUpdated(tag.id)"
+                :label="tag.value"
+                :active="isActive({ id: tag.id, type: 'tag' })"
+                @click="() => setActive({ id: tag.id, type: 'tag' })"
+                :data-id="tag.id"
+                class="global-navigation-tag"
+            />
+            <NavigationMenuForm
+                v-else
+                @submit="confirm"
+                @cancel="cancel"
+                v-model="input"
+                fieldName="Tag"
+                :rules="formRules"
+            />
+        </template>
     </NavigationMenuItem>
 </template>
 
@@ -46,7 +55,12 @@ export default defineComponent({
 
         const formRules = {
             required: true,
-            unique: [() => s.state.tags.values, (t: Tag) => t.id, (t: Tag) => t.value]
+            unique: [
+                () => s.state.tags.values,
+                (t: Tag) => t.id,
+                (t: Tag) => t.value,
+                () => s.state.app.globalNavigation.tags.input
+            ]
         };
 
         return {

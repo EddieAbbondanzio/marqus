@@ -73,7 +73,12 @@ export default defineComponent({
 
         const formRules = {
             required: true,
-            unique: [() => s.state.notes.values, (n: Note) => n.id, (n: Note) => n.name]
+            unique: [
+                () => s.state.notes.values,
+                (n: Note) => n.id,
+                (n: Note) => n.name,
+                () => s.state.app.localNavigation.notes.input
+            ]
         };
 
         return {

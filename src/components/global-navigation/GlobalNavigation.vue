@@ -81,25 +81,19 @@ export default defineComponent({
                         },
                         {
                             label: 'Create Tag',
-                            click: () => {
-                                s.dispatch('app/globalNavigation/tagInputStart');
-                            }
+                            click: () => s.dispatch('app/globalNavigation/tagInputStart')
                         }
                     ];
 
                     if (isElementNotebook) {
                         items.push({
                             label: 'Edit Notebook',
-                            click: () => {
-                                s.dispatch('app/globalNavigation/notebookInputStart', { id });
-                            }
+                            click: () => s.dispatch('app/globalNavigation/notebookInputStart', { id })
                         });
 
                         items.push({
                             label: 'Delete Notebook',
-                            click: () => {
-                                s.dispatch('app/globalNavigation/notebookDelete', id);
-                            }
+                            click: () => s.dispatch('app/globalNavigation/notebookDelete', id)
                         });
                     }
 
@@ -107,16 +101,12 @@ export default defineComponent({
                     if (isElementTag) {
                         items.push({
                             label: 'Edit Tag',
-                            click: () => {
-                                s.dispatch('app/globalNavigation/tagInputStart', id);
-                            }
+                            click: () => s.dispatch('app/globalNavigation/tagInputStart', id)
                         });
 
                         items.push({
                             label: 'Delete Tag',
-                            click: () => {
-                                s.dispatch('app/globalNavigation/tagDelete', id);
-                            }
+                            click: () => s.dispatch('app/globalNavigation/tagDelete', id)
                         });
                     }
                     return items;
