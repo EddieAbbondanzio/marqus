@@ -1,6 +1,13 @@
 <template>
-    <NavigationMenuItem icon="tag" label="TAGS" v-model:expanded="expanded" :toggleAnywhere="true">
+    <NavigationMenuItem
+        id="global-navigation-tag-section"
+        icon="tag"
+        label="TAGS"
+        v-model:expanded="expanded"
+        :toggleAnywhere="true"
+    >
         <NavigationMenuForm
+            id="global-navigation-tag-create-form"
             v-if="isTagBeingCreated"
             @submit="confirm"
             @cancel="cancel"
