@@ -15,6 +15,7 @@
             :label="tag.value"
             :active="isActive({ id: tag.id, type: 'tag' })"
             @click="() => setActive({ id: tag.id, type: 'tag' })"
+            :data-id="tag.id"
             class="global-navigation-tag"
         />
     </NavigationMenuItem>

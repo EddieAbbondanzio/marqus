@@ -1,5 +1,11 @@
 <template>
-    <Resizable class="has-text-dark" v-model="width" minWidth="160px" data-context-menu="globalNavigation">
+    <Resizable
+        id="globalNavigation"
+        class="has-text-dark"
+        v-model="width"
+        minWidth="160px"
+        data-context-menu="globalNavigation"
+    >
         <NavigationMenuList>
             <NavigationMenuItem icon="file-alt" label="ALL" :active="isActive('all')" @click="ACTIVE('all')" />
 
@@ -20,13 +26,15 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, getCurrentInstance, ref, WritableComputedRef, provide, onMounted } from 'vue';
+import { computed, defineComponent, onMounted, onBeforeUnmount } from 'vue';
 import Resizable from '@/components/core/Resizable.vue';
 import { mapGetters, mapMutations, useStore } from 'vuex';
 import GlobalNavigationTagSection from '@/components/global-navigation/GlobalNavigationTagSection.vue';
 import GlobalNavigationNotebookSection from '@/components/global-navigation/GlobalNavigationNotebookSection.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
+import contextMenu from 'electron-context-menu';
+import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
 
 export default defineComponent({
     setup: function() {
@@ -36,6 +44,104 @@ export default defineComponent({
             get: () => s.state.app.globalNavigation.width as string,
             set: (w: any) => {
                 s.commit('app/globalNavigation/WIDTH', w);
+            }
+        });
+
+        let release: (() => void) | null = null;
+
+        onMounted(() => {
+            release = contextMenu({
+                menu: (_, p) => {
+                    const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
+
+                    const isElementNotebook = climbDomHierarchy<boolean>(element, {
+                        match: (el) => el.classList.contains('global-navigation-notebook')
+                    });
+
+                    const isElementTag = climbDomHierarchy<boolean>(element, {
+                        match: (el) => el.classList.contains('global-navigation-tag')
+                    });
+
+                    const id = climbDomHierarchy<string>(element, {
+                        match: (el) => el.hasAttribute('data-id'),
+                        matchValue: (el) => el.getAttribute('data-id')
+                    });
+
+                    // we can inject menu items as needed. This is called each time we right click
+                    const items = [
+                        {
+                            label: 'Create Notebook',
+                            click: () => {
+                                if (isElementNotebook) {
+                                    s.dispatch('app/globalNavigation/notebookInputStart', { parentId: id });
+                                } else {
+                                    s.dispatch('app/globalNavigation/notebookInputStart');
+                                }
+                            }
+                        },
+                        {
+                            label: 'Create Tag',
+                            click: () => {
+                                s.dispatch('app/globalNavigation/tagInputStart');
+                            }
+                        }
+                    ];
+
+                    if (isElementNotebook) {
+                        items.push({
+                            label: 'Edit Notebook',
+                            click: () => {
+                                s.dispatch('app/globalNavigation/notebookInputStart', { id });
+                            }
+                        });
+
+                        items.push({
+                            label: 'Delete Notebook',
+                            click: () => {
+                                s.dispatch('app/globalNavigation/notebookDelete', id);
+                            }
+                        });
+                    }
+
+                    // if tag, offer option to delete
+                    if (isElementTag) {
+                        items.push({
+                            label: 'Edit Tag',
+                            click: () => {
+                                s.dispatch('app/globalNavigation/tagInputStart', id);
+                            }
+                        });
+
+                        items.push({
+                            label: 'Delete Tag',
+                            click: () => {
+                                s.dispatch('app/globalNavigation/tagDelete', id);
+                            }
+                        });
+                    }
+                    return items;
+                },
+                shouldShowMenu: (e, p) => {
+                    let element = document.elementFromPoint(p.x, p.y);
+
+                    // Climb up parent tree until we find our attribute.
+                    while (element != null && !element.hasAttribute('data-context-menu')) {
+                        element = element.parentElement;
+                    }
+
+                    if (element == null) {
+                        return false;
+                    }
+
+                    const menuName = element.getAttribute('data-context-menu');
+                    return menuName === 'globalNavigation';
+                }
+            });
+        });
+
+        onBeforeUnmount(() => {
+            if (release != null) {
+                release();
             }
         });
 
