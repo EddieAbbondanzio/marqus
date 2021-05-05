@@ -6,6 +6,7 @@
         :hideToggle="modelValue.children == null && !isNotebookBeingCreated(modelValue.id)"
         class="global-navigation-notebook"
         :data-id="modelValue.id"
+        :indent="indentation(notebookDepth(modelValue) - 1)"
     >
         <NavigationMenuForm
             v-if="isNotebookBeingCreated(modelValue.id)"
@@ -14,11 +15,11 @@
             v-model="input"
             fieldName="Notebook"
             :rules="formRules"
-            :indent="indentation(notebookDepth(modelValue))"
+            :indent="indentation(notebookDepth(modelValue) + 1)"
         />
 
         <template v-for="child in modelValue.children" :key="child.id">
-            <GlobalNavigationNotebook :modelValue="child" :indent="indentation(notebookDepth(child) - 1)" />
+            <GlobalNavigationNotebook :modelValue="child" />
         </template>
     </NavigationMenuItem>
 </template>
