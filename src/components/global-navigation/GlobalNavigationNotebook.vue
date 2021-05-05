@@ -83,7 +83,12 @@ export default defineComponent({
             required: true,
             unique: [
                 () => {
-                    return findNotebookRecursive(s.state.notebooks.values, p.modelValue!.parent.id)!.children;
+                    /*
+                     * Form is on a child. Therefore, .children of the modelValue will return it's
+                     * siblings even though it seems like we're going to get the wrong notebooks.
+                     */
+                    const siblings = p.modelValue!.children;
+                    return siblings;
                 },
                 (n: Notebook) => n.id,
                 (n: Notebook) => n.value,

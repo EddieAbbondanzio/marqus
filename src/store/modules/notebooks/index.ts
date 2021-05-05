@@ -21,8 +21,6 @@ persist.register({
             fixNotebookParentReferences(n);
         }
 
-        console.log(s);
-
         return s;
     },
     transformer: (s: NotebookState) => {
