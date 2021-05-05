@@ -7,12 +7,17 @@
         class="global-navigation-notebook"
         :data-id="modelValue.id"
     >
-        <GlobalNavigationNotebook
-            v-for="child in modelValue.children"
-            :key="child.id"
-            :modelValue="child"
-            :indent="indentation(notebookDepth(child) - 1)"
-        />
+        <template v-for="child in modelValue.children" :key="child.id">
+            <NavigationMenuForm
+                v-if="isNotebookBeingCreated(modelValue.id)"
+                @submit="confirm"
+                @cancel="cancel"
+                v-model="input"
+                fieldName="Notebook"
+                :rules="formRules"
+            />
+            <GlobalNavigationNotebook v-else :modelValue="child" :indent="indentation(notebookDepth(child) - 1)" />
+        </template>
     </NavigationMenuItem>
 </template>
 
@@ -98,8 +103,3 @@ export default defineComponent({
     components: { NavigationMenuForm, NavigationMenuItem }
 });
 </script>
-
-<style lang="sass">
-.global-navigation-notebook
-    height: 30px;
-</style>
