@@ -1,5 +1,5 @@
 <template>
-    <NavigationMenuItem icon="tag" label="TAGS" v-model:expanded="expanded">
+    <NavigationMenuItem icon="tag" label="TAGS" v-model:expanded="expanded" :toggleAnywhere="true">
         <NavigationMenuForm
             v-if="isTagBeingCreated"
             @submit="confirm"
@@ -9,6 +9,7 @@
             :rules="formRules"
         />
 
+        <!-- Renderless v-for  -->
         <template v-for="tag in tags" :key="tag.id">
             <NavigationMenuItem
                 v-if="!isTagBeingUpdated(tag.id)"

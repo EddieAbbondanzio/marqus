@@ -1,5 +1,5 @@
 <template>
-    <NavigationMenuItem icon="book" label="NOTEBOOKS" v-model:expanded="expanded">
+    <NavigationMenuItem icon="book" label="NOTEBOOKS" v-model:expanded="expanded" :toggleAnywhere="true">
         <NavigationMenuForm
             v-if="isNotebookBeingCreated()"
             @submit="confirm"

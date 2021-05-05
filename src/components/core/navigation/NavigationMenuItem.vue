@@ -5,8 +5,10 @@
                 'px-2': true,
                 'is-block': true,
                 'has-background-hover-light': true,
+                'no-drag': true,
                 'has-background-light': active
             }"
+            @click="onClick"
         >
             <div
                 class=" has-text-grey is-flex is-justify-content-space-between is-align-center has-background-transparent"
@@ -108,6 +110,13 @@ export default defineComponent({
         hideToggle: {
             type: Boolean,
             default: false
+        },
+        /**
+         * If the item should be expanded / collapsed from anywhere by clicking it.
+         */
+        toggleAnywhere: {
+            type: Boolean,
+            default: false
         }
     },
     setup(p, { slots, emit }) {
@@ -132,6 +141,12 @@ export default defineComponent({
             }
         );
 
+        const onClick = () => {
+            if (p.toggleAnywhere) {
+                toggle();
+            }
+        };
+
         onBeforeUnmount(() => {
             watchRelease();
         });
@@ -139,7 +154,8 @@ export default defineComponent({
         return {
             hasChildren,
             toggle,
-            isExpanded
+            isExpanded,
+            onClick
         };
     },
     name: 'menu-item',
