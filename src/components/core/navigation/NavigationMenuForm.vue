@@ -1,29 +1,33 @@
 <template>
     <Form
         @submit="$emit('submit')"
-        class="has-background-light is-flex is-align-center pr-2 is-relative"
-        :style="`height: 30px; padding-left: ${indent}!important`"
+        class="is-flex is-flex-column is-justify-center is-relative"
         v-slot="{ submitCount, meta }"
     >
-        <Field :name="fieldName" :value="modelValue" v-slot="{ field }" :rules="rules">
-            <!-- Padding and margin is adjusted to get the text within the input to match perfectly to a menu item. -->
-            <input
-                id="fieldValue"
-                :class="
-                    `input is-flex-grow-1 is-size-7 ${
-                        (meta.dirty || submitCount > 0) && !meta.valid ? 'is-danger' : ''
-                    }`
-                "
-                type="text"
-                v-bind="field"
-                style="height: 21px!important; min-width: 0; width: 0; flex-grow: 1; padding: 2px 0px!important; margin-left: -2px!important; margin-top: -1px!important"
-                v-focus
-                @input="onInput"
-                @blur="onBlur"
-            />
-            <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
-            <icon-button id="cancelButton" class="has-text-hover-danger" icon="fa-ban" @click="$emit('cancel')" />
-        </Field>
+        <div
+            class="is-flex is-align-center has-background-light pr-2"
+            :style="`height: 30px; padding-left: ${indent}!important`"
+        >
+            <Field :name="fieldName" :value="modelValue" v-slot="{ field }" :rules="rules">
+                <!-- Padding and margin is adjusted to get the text within the input to match perfectly to a menu item. -->
+                <input
+                    id="fieldValue"
+                    :class="
+                        `input is-flex-grow-1 is-size-7 ${
+                            (meta.dirty || submitCount > 0) && !meta.valid ? 'is-danger' : ''
+                        }`
+                    "
+                    type="text"
+                    v-bind="field"
+                    style="height: 21px!important; min-width: 0; width: 0; flex-grow: 1; padding: 2px 0px!important; margin-left: -2px!important; margin-top: -1px!important"
+                    v-focus
+                    @input="onInput"
+                    @blur="onBlur"
+                />
+                <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
+                <icon-button id="cancelButton" class="has-text-hover-danger" icon="fa-ban" @click="$emit('cancel')" />
+            </Field>
+        </div>
 
         <ErrorMessage :name="fieldName" v-slot="{ message }">
             <div
@@ -40,6 +44,11 @@
                 </span>
             </div>
         </ErrorMessage>
+
+        <!-- We need to be able to render children so we can do updates in mid level navigation items -->
+        <div>
+            <slot></slot>
+        </div>
     </Form>
 </template>
 
@@ -71,7 +80,7 @@ export default defineComponent({
             type: Object
         }
     },
-    setup(p, c) {
+    setup(_, c) {
         let isClean = true;
 
         const onInput = (e: any) => {

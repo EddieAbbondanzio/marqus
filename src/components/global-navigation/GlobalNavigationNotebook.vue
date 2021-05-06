@@ -1,5 +1,6 @@
 <template>
     <NavigationMenuItem
+        v-if="!isNotebookBeingUpdated(modelValue.id)"
         :label="modelValue.value"
         :active="isActive({ id: modelValue.id, type: 'notebook' })"
         :expanded="modelValue.expanded"
@@ -22,6 +23,19 @@
             <GlobalNavigationNotebook :modelValue="child" />
         </template>
     </NavigationMenuItem>
+    <NavigationMenuForm
+        v-else
+        @submit="confirm"
+        @cancel="cancel"
+        v-model="input"
+        fieldName="Notebook"
+        :rules="formRules"
+        :indent="indentation(notebookDepth(modelValue))"
+    >
+        <template v-for="child in modelValue.children" :key="child.id">
+            <GlobalNavigationNotebook :modelValue="child" />
+        </template>
+    </NavigationMenuForm>
 </template>
 
 <script lang="ts">
@@ -83,12 +97,12 @@ export default defineComponent({
             required: true,
             unique: [
                 () => {
-                    /*
-                     * Form is on a child. Therefore, the .children prop of the modelValue will return it's
-                     * siblings even though it seems like we're going to get the wrong notebooks.
-                     */
-                    const siblings = p.modelValue!.children;
-                    return siblings;
+                    if (s.state.app.globalNavigation.notebooks.input.mode === 'update') {
+                        return p.modelValue!.parent == null ? s.state.notebooks.values : p.modelValue!.parent.children;
+                    } else {
+                        const siblings = p.modelValue!.children;
+                        return siblings ?? [];
+                    }
                 },
                 (n: Notebook) => n.id,
                 (n: Notebook) => n.value,
