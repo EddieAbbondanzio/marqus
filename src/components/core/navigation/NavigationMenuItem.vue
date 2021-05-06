@@ -11,13 +11,10 @@
             @click="onClick"
         >
             <div
-                class=" has-text-grey is-flex is-justify-content-space-between is-align-center has-background-transparent"
+                class=" has-text-grey is-flex is-justify-content-space-between is-align-center"
                 style="height: 30px!important;"
             >
-                <div
-                    class="is-flex is-align-center has-background-transparent"
-                    :style="`padding-left: ${indent}!important;`"
-                >
+                <div class="is-flex is-align-center" :style="`padding-left: ${indent}!important;`">
                     <span class="icon" v-if="icon">
                         <i :class="`fas fa-${icon}`"></i>
                     </span>
@@ -47,7 +44,7 @@
         </a>
 
         <!-- Children -->
-        <div class="has-background-transparent" v-if="isExpanded() && hasChildren">
+        <div v-if="isExpanded() && hasChildren">
             <slot> </slot>
         </div>
     </div>

@@ -8,6 +8,7 @@
         class="global-navigation-notebook"
         :data-id="modelValue.id"
         :indent="indentation(notebookDepth(modelValue) - 1)"
+        @click.stop="() => setActive({ id: modelValue.id, type: 'notebook' })"
     >
         <NavigationMenuForm
             v-if="isNotebookBeingCreated(modelValue.id)"
@@ -97,9 +98,12 @@ export default defineComponent({
             required: true,
             unique: [
                 () => {
+                    // On an update we're working with the parent notebook.
                     if (s.state.app.globalNavigation.notebooks.input.mode === 'update') {
                         return p.modelValue!.parent == null ? s.state.notebooks.values : p.modelValue!.parent.children;
-                    } else {
+                    }
+                    // On create we're working with a (new) child notebook
+                    else {
                         const siblings = p.modelValue!.children;
                         return siblings ?? [];
                     }
@@ -134,7 +138,8 @@ export default defineComponent({
         ...mapActions('app/globalNavigation', {
             confirm: 'notebookInputConfirm',
             cancel: 'notebookInputCancel',
-            onRelease: 'notebookDragStop'
+            onRelease: 'notebookDragStop',
+            setActive: 'setActive'
         })
     },
     components: { NavigationMenuForm, NavigationMenuItem }

@@ -1,10 +1,5 @@
 <template>
-    <div
-        id="cursor-title"
-        class="is-absolute is-size-7 has-background-transparent"
-        style="left: -100px; top: -100px;"
-        v-if="show"
-    >
+    <div id="cursor-title" class="is-absolute is-size-7" style="left: -100px; top: -100px;" v-if="show">
         {{ title }}
     </div>
 </template>
