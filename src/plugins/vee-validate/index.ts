@@ -15,5 +15,6 @@ configure({
             required: '{field} is required',
             unique: '{field} already exists'
         }
-    })
+    }),
+    validateOnInput: true
 });

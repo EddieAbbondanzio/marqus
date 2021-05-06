@@ -57,6 +57,7 @@ export default defineComponent({
 
     &.is-xs
     padding: 0 8px
+    height: 21px
 
     span
         border: none

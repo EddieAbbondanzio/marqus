@@ -1,41 +1,53 @@
 <template>
-    <div
-        :class="{ 'has-background-light': true, 'px-2': indent === '0px' }"
-        :style="indent !== '0px' ? `padding-left: ${indent}!important` : ''"
+    <Form
+        @submit="$emit('submit')"
+        class="has-background-light is-flex is-align-center pr-2 is-relative"
+        :style="`height: 30px; padding-left: ${indent}!important`"
+        v-slot="{ submitCount, meta }"
     >
-        <Form @submit="$emit('submit')">
-            <div class="is-flex is-flex-row is-align-center has-background-transparent">
-                <Field :name="fieldName" :value="modelValue" v-slot="{ field }" :rules="rules">
-                    <input
-                        id="fieldValue"
-                        type="text"
-                        v-bind="field"
-                        style="min-width: 0; width: 0; flex-grow: 1;"
-                        v-focus
-                        @input="onInput"
-                        @keyup.esc="$emit('cancel')"
-                        @blur="onBlur"
-                    />
-                    <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
-                    <icon-button
-                        id="cancelButton"
-                        class="has-text-hover-danger"
-                        icon="fa-ban"
-                        @click="$emit('cancel')"
-                    />
-                </Field>
+        <Field :name="fieldName" :value="modelValue" v-slot="{ field }" :rules="rules">
+            <!-- Padding and margin is adjusted to get the text within the input to match perfectly to a menu item. -->
+            <input
+                id="fieldValue"
+                :class="
+                    `input is-flex-grow-1 is-size-7 ${
+                        (meta.dirty || submitCount > 0) && !meta.valid ? 'is-danger' : ''
+                    }`
+                "
+                type="text"
+                v-bind="field"
+                style="height: 21px!important; min-width: 0; width: 0; flex-grow: 1; padding: 2px 0px!important; margin-left: -2px!important; margin-top: -1px!important"
+                v-focus
+                @input="onInput"
+                @blur="onBlur"
+            />
+            <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
+            <icon-button id="cancelButton" class="has-text-hover-danger" icon="fa-ban" @click="$emit('cancel')" />
+        </Field>
+
+        <ErrorMessage :name="fieldName" v-slot="{ message }">
+            <div
+                id="errorMessage"
+                class="notification is-danger is-absolute  p-1 is-flex is-align-center"
+                :style="`top: 30px; left: ${indent};  margin-left: -2px;`"
+            >
+                <span class="icon is-small">
+                    <i class="fas fa-exclamation"></i>
+                </span>
+
+                <span class="is-size-7 pr-2">
+                    {{ message }}
+                </span>
             </div>
-            <ErrorMessage :name="fieldName" v-slot="{ message }">
-                <p id="errorMessage" class="has-text-danger is-size-7">{{ message }}</p>
-            </ErrorMessage>
-        </Form>
-    </div>
+        </ErrorMessage>
+    </Form>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onBeforeUnmount, onMounted } from 'vue';
 import IconButton from '@/components/core/IconButton.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
+import { keyCodesByKeyName } from '@vue/test-utils/dist/createDomEvent';
 
 /**
  * Inline form for creating values in nav menus that only have 1
@@ -60,16 +72,33 @@ export default defineComponent({
         }
     },
     setup(p, c) {
+        let isClean = true;
+
         const onInput = (e: any) => {
+            isClean = false;
             c.emit('update:modelValue', e.target.value);
         };
 
         // When input is blurred, check to see if it was empty. If it was empty, cancel.
         const onBlur = (e: any) => {
-            if (e.target.value === '') {
+            if (isClean) {
                 c.emit('cancel');
             }
         };
+
+        const onCancel = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                c.emit('cancel');
+            }
+        };
+
+        onMounted(() => {
+            window.addEventListener('keyup', onCancel);
+        });
+
+        onBeforeUnmount(() => {
+            window.removeEventListener('keyup', onCancel);
+        });
 
         return {
             onInput,

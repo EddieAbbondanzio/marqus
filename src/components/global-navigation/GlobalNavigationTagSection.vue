@@ -14,6 +14,7 @@
             v-model="input"
             fieldName="Tag"
             :rules="formRules"
+            indent="24px"
         />
 
         <!-- Renderless v-for so we don't end up with a wrapper div -->
@@ -33,6 +34,7 @@
                 v-model="input"
                 fieldName="Tag"
                 :rules="formRules"
+                indent="24px"
             />
         </template>
     </NavigationMenuItem>

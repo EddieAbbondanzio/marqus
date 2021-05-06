@@ -2,7 +2,7 @@
     <div>
         <a
             :class="{
-                'px-2': true,
+                'pr-2': true,
                 'is-block': true,
                 'has-background-hover-light': true,
                 'no-drag': true,
