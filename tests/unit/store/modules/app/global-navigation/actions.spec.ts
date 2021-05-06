@@ -323,4 +323,24 @@ describe('GlobalNavigation Actions', () => {
             ]);
         });
     });
+
+    describe('expandAll()', () => {
+        it('sets appropriate mutations', async () => {
+            await expectAction(actions.expandAll, true, context, [
+                'TAGS_EXPANDED',
+                'NOTEBOOKS_EXPANDED',
+                'notebooks/ALL_EXPANDED'
+            ]);
+        });
+    });
+
+    describe('collapseAll()', () => {
+        it('sets appropriate mutations', async () => {
+            await expectAction(actions.collapseAll, true, context, [
+                'TAGS_EXPANDED',
+                'NOTEBOOKS_EXPANDED',
+                'notebooks/ALL_EXPANDED'
+            ]);
+        });
+    });
 });

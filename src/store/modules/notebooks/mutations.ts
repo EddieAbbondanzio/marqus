@@ -95,7 +95,21 @@ export const mutations: MutationTree<NotebookState> = {
         } while (p && bubbleUp);
     },
     ALL_EXPANDED(s, e = false) {
-        let p: Notebook | undefined;
+        for (let i = 0; i < s.values.length; i++) {
+            recursiveStep(s.values[i], e);
+        }
+
+        function recursiveStep(n: Notebook, e: boolean) {
+            n.expanded = e;
+
+            if (n.children == null) {
+                return;
+            }
+
+            for (let i = 0; i < n.children.length; i++) {
+                recursiveStep(n.children[i], e);
+            }
+        }
     }
 };
 

@@ -183,6 +183,34 @@ describe('NotebooksStore mutations', () => {
             expect(notebook.expanded).toBeTruthy();
         });
     });
+
+    describe('ALL_EXPANDED', () => {
+        it('sets root expanded', () => {
+            const parent: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
+            const child: Notebook = { id: generateId(), value: 'dog', parent, expanded: false };
+
+            state.values.push(parent);
+            parent.children!.push(child);
+            child.parent = parent;
+
+            mutations.ALL_EXPANDED(state, true);
+
+            expect(parent.expanded).toBeTruthy();
+        });
+
+        it('sets nested expanded', () => {
+            const parent: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
+            const child: Notebook = { id: generateId(), value: 'dog', parent, expanded: false };
+
+            state.values.push(parent);
+            parent.children!.push(child);
+            child.parent = parent;
+
+            mutations.ALL_EXPANDED(state, true);
+
+            expect(child.expanded).toBeTruthy();
+        });
+    });
 });
 
 describe('findNotebookRecursive()', () => {

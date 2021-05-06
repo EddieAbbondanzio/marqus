@@ -168,6 +168,11 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     expandAll({ commit }) {
         commit('TAGS_EXPANDED', true);
         commit('NOTEBOOKS_EXPANDED', true);
-        commit('NOTEBOOKS_ALL_EXPANDED', true);
+        commit('notebooks/ALL_EXPANDED', true, { root: true });
+    },
+    collapseAll({ commit }) {
+        commit('TAGS_EXPANDED', false);
+        commit('NOTEBOOKS_EXPANDED', false);
+        commit('notebooks/ALL_EXPANDED', false, { root: true });
     }
 };

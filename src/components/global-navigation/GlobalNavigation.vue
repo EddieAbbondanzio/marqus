@@ -94,6 +94,17 @@ export default defineComponent({
                     // we can inject menu items as needed. This is called each time we right click
                     const items = [
                         {
+                            label: 'Expand All',
+                            click: () => s.dispatch('app/globalNavigation/expandAll')
+                        },
+                        {
+                            label: 'Collapse All',
+                            click: () => s.dispatch('app/globalNavigation/collapseAll')
+                        },
+                        {
+                            type: 'separator' as any
+                        },
+                        {
                             label: 'Create Notebook',
                             click: () => {
                                 if (isElementNotebook) {
