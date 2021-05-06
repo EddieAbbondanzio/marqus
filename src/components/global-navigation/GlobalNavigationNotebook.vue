@@ -5,12 +5,14 @@
         :label="modelValue.value"
         :active="isActive({ id: modelValue.id, type: 'notebook' })"
         :expanded="modelValue.expanded"
+        @update:expanded="(v) => (expanded = v)"
         :hideToggle="modelValue.children == null && !isNotebookBeingCreated(modelValue.id)"
         class="global-navigation-notebook"
         :data-id="modelValue.id"
         :indent="indentation(notebookDepth(modelValue) - 1)"
         v-mouse:click.left="() => setActive({ id: modelValue.id, type: 'notebook' })"
         v-mouse:hold.left="onHold"
+        v-mouse:drag.left="onHover"
         v-mouse:release.left="onRelease"
     >
         <NavigationMenuForm
@@ -98,10 +100,28 @@ export default defineComponent({
             s.dispatch('app/globalNavigation/notebookDragStop', id);
         };
 
-        const onHover = () => {
-            if (s.state.app.globalNavigation.notebooks.dragging && !p.modelValue!.expanded) {
+        const onHover = (ev: any) => {
+            const src = document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement;
+
+            // Get the other notebook we dragged over
+            const id = climbDomHierarchy(src, {
+                match: (el) => el.classList.contains('global-navigation-notebook') && el.hasAttribute('data-id'),
+                matchValue: (el) => el.getAttribute('data-id')
+            });
+
+            if (id == null) {
+                return;
+            }
+
+            const otherNotebook: Notebook = s.state.notebooks.values.find((n: Notebook) => n.id === id);
+
+            if (otherNotebook == null) {
+                return;
+            }
+
+            if (s.state.app.globalNavigation.notebooks.dragging && !otherNotebook.expanded) {
                 s.commit('notebooks/EXPANDED', {
-                    notebook: p.modelValue!,
+                    notebook: otherNotebook,
                     expanded: true,
                     bubbleUp: false
                 });

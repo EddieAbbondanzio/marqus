@@ -88,9 +88,12 @@ export const mutations: MutationTree<NotebookState> = {
     ) {
         let p: Notebook | undefined = notebook;
 
+        console.log(p);
+
         // Run up the tree expanding each parent until we hit the root
         do {
             p.expanded = expanded;
+            console.log('expanded: ', p.value, ' e: ', expanded);
             p = p.parent;
         } while (p && bubbleUp);
     },
