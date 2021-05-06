@@ -36,6 +36,8 @@ persist.register({
 
         delete s.localNavigation.notes.input;
 
+        delete s.cursor;
+
         return s;
     }
 });
