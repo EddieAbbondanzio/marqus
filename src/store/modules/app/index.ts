@@ -31,7 +31,9 @@ persist.register({
     },
     transformer: (s) => {
         delete s.globalNavigation.notebooks.input;
+        delete s.globalNavigation.notebooks.dragging;
         delete s.globalNavigation.tags.input;
+
         delete s.localNavigation.notes.input;
 
         return s;

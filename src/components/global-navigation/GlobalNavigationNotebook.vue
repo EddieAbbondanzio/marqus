@@ -1,4 +1,5 @@
 <template>
+    <!-- Normal rendering -->
     <NavigationMenuItem
         v-if="!isNotebookBeingUpdated(modelValue.id)"
         :label="modelValue.value"
@@ -8,7 +9,9 @@
         class="global-navigation-notebook"
         :data-id="modelValue.id"
         :indent="indentation(notebookDepth(modelValue) - 1)"
-        @click.stop="() => setActive({ id: modelValue.id, type: 'notebook' })"
+        v-mouse:click.left="() => setActive({ id: modelValue.id, type: 'notebook' })"
+        v-mouse:hold.left="onHold"
+        v-mouse:release.left="onRelease"
     >
         <NavigationMenuForm
             v-if="isNotebookBeingCreated(modelValue.id)"
@@ -24,6 +27,7 @@
             <GlobalNavigationNotebook :modelValue="child" />
         </template>
     </NavigationMenuItem>
+    <!-- Edit rendering of notebook -->
     <NavigationMenuForm
         v-else
         @submit="confirm"
@@ -46,6 +50,7 @@ import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.
 import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
 import { Notebook } from '@/store/modules/notebooks/state';
 import { findNotebookRecursive } from '@/store/modules/notebooks/mutations';
+import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
 
 export default defineComponent({
     props: {
@@ -80,7 +85,21 @@ export default defineComponent({
         };
 
         const onRelease = (ev: any) => {
-            const id = ev.target.getAttribute('data-id');
+            /**
+             * Try to find the id of the notebook we ended on. We may need to climb the DOM
+             * as target could be nested element of NavigationMenuItem.
+             */
+            const id = climbDomHierarchy<string>(ev.target, {
+                match: (el) => el.classList.contains('global-navigation-notebook') && el.hasAttribute('data-id'),
+                matchValue: (el) => el.getAttribute('data-id'),
+                defaultValue: () => null
+            });
+
+            // Flunked out.
+            if (id == null) {
+                return;
+            }
+
             s.dispatch('app/globalNavigation/notebookDragStop', id);
         };
 
