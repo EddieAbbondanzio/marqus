@@ -95,11 +95,6 @@ export default defineComponent({
                 defaultValue: () => null
             });
 
-            // Flunked out.
-            if (id == null) {
-                return;
-            }
-
             s.dispatch('app/globalNavigation/notebookDragStop', id);
         };
 

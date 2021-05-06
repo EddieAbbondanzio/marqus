@@ -57,6 +57,12 @@ export const mutations: MutationTree<NotebookState> = {
         }
 
         array.splice(index, 1);
+
+        // Remove option to expand / collapse notebook when no children.
+        if (notebook.parent != null && notebook.parent.children!.length === 0) {
+            delete notebook.parent.children;
+            notebook.parent.expanded = false;
+        }
     },
     SORT(state) {
         // Sort nested
