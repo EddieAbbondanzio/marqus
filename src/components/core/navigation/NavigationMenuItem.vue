@@ -28,18 +28,26 @@
                     </slot>
                 </div>
 
-                <!-- Expand / Collapse button -->
-                <slot name="trigger" :toggle="toggle" v-if="hasChildren & !hideToggle">
-                    <a @click.prevent.stop="toggle" class="is-flex">
-                        <icon-button
-                            icon="fa-chevron-down"
-                            v-if="isExpanded()"
-                            class="p-1"
-                            style="height: 30px!important"
-                        />
-                        <icon-button icon="fa-chevron-up" v-else class="p-1" style="height: 30px!important" />
-                    </a>
-                </slot>
+                <div class="is-flex is-align-center">
+                    <slot name="options"> </slot>
+
+                    <!-- Expand / Collapse button -->
+                    <slot name="trigger" :toggle="toggle" v-if="hasChildren & !hideToggle">
+                        <a @click.prevent.stop="toggle" class="is-flex">
+                            <icon-button
+                                icon="fa-angle-down"
+                                v-if="isExpanded()"
+                                class="p-1"
+                                style="height: 30px!important"
+                            />
+                            <icon-button icon="fa-angle-up" v-else class="p-1" style="height: 30px!important" />
+                        </a>
+                    </slot>
+                    <!-- Spacer to keep options lined up even if no collapse trigger visible -->
+                    <span style="width: 16px!important" v-else-if="!hideToggle">
+                        &nbsp;
+                    </span>
+                </div>
             </div>
         </a>
 

@@ -89,7 +89,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('NOTEBOOKS_EXPANDED');
 
         if (parent != null) {
-            commit('NOTEBOOK_EXPANDED', { notebook: parent, bubbleUp: true });
+            commit('notebooks/EXPANDED', { notebook: parent, bubbleUp: true }, { root: true });
         }
     },
     notebookInputConfirm({ commit, state }) {
@@ -156,7 +156,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             commit('notebooks/CREATE', { id: dragging.id, value: dragging.value, parent }, { root: true });
 
             if (parent) {
-                commit('NOTEBOOK_EXPANDED', { notebook: parent, expanded: true, bubbleUp: true });
+                commit('notebooks/EXPANDED', { notebook: parent, expanded: true, bubbleUp: true }, { root: true });
             }
 
             commit('NOTEBOOK_DRAGGING_CLEAR');
@@ -164,5 +164,10 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         }
 
         commit('app/CURSOR_TITLE_CLEAR', null, { root: true });
+    },
+    expandAll({ commit }) {
+        commit('TAGS_EXPANDED', true);
+        commit('NOTEBOOKS_EXPANDED', true);
+        commit('NOTEBOOKS_ALL_EXPANDED', true);
     }
 };

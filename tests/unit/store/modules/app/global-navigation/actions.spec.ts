@@ -159,7 +159,7 @@ describe('GlobalNavigation Actions', () => {
             await expectAction(actions.notebookInputStart, { parentId: '1' }, context, [
                 'NOTEBOOK_INPUT_START',
                 'NOTEBOOKS_EXPANDED',
-                'NOTEBOOK_EXPANDED'
+                'notebooks/EXPANDED'
             ]);
         });
     });
@@ -316,7 +316,7 @@ describe('GlobalNavigation Actions', () => {
             await expectAction(actions.notebookDragStop, n2.id, context, [
                 'notebooks/DELETE',
                 'notebooks/CREATE',
-                'NOTEBOOK_EXPANDED',
+                'notebooks/EXPANDED',
                 'NOTEBOOK_DRAGGING_CLEAR',
                 'notebooks/SORT',
                 'app/CURSOR_TITLE_CLEAR'

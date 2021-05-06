@@ -111,47 +111,6 @@ describe('GlobalNavigation mutations', () => {
         });
     });
 
-    describe('NOTEBOOK_EXPANDED', () => {
-        it('assign notebook.expanded to the parameter', () => {
-            const notebook: Notebook = {
-                id: '1',
-                value: 'cat',
-                expanded: false
-            };
-
-            mutations.NOTEBOOK_EXPANDED(state, { notebook, expanded: true });
-            expect(notebook.expanded).toBeTruthy();
-        });
-
-        it("doesn't bubble up by default", () => {
-            const notebook: Notebook = {
-                id: '1',
-                value: 'cat',
-                expanded: false,
-                children: [{ id: '2', value: 'dog', expanded: false }]
-            };
-
-            notebook.children![0].parent = notebook;
-
-            mutations.NOTEBOOK_EXPANDED(state, { notebook: notebook.children![0], expanded: true });
-            expect(notebook.expanded).toBeFalsy();
-        });
-
-        it('will bubbleUp when requested', () => {
-            const notebook: Notebook = {
-                id: '1',
-                value: 'cat',
-                expanded: false,
-                children: [{ id: '2', value: 'dog', expanded: false }]
-            };
-
-            notebook.children![0].parent = notebook;
-
-            mutations.NOTEBOOK_EXPANDED(state, { notebook: notebook.children![0], expanded: true, bubbleUp: true });
-            expect(notebook.expanded).toBeTruthy();
-        });
-    });
-
     describe('NOTEBOOK_INPUT_START', () => {
         it('sets mode as update when passed notebook is not null', () => {
             const notebook: Notebook = {

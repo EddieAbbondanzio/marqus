@@ -98,7 +98,7 @@ describe('NotebooksStore mutations', () => {
 
             mutations.DELETE(state, child.id);
 
-            expect(parent.children).toHaveLength(0);
+            expect(parent.children).toBeUndefined();
         });
     });
 
@@ -140,6 +140,47 @@ describe('NotebooksStore mutations', () => {
             expect(notebook.children![0]).toHaveProperty('value', 'battery');
             expect(notebook.children![1]).toHaveProperty('value', 'correct');
             expect(notebook.children![2]).toHaveProperty('value', 'staple');
+        });
+    });
+
+    describe('EXPANDED', () => {
+        it('assign notebook.expanded to the parameter', () => {
+            const notebook: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false
+            };
+
+            mutations.EXPANDED(state, { notebook, expanded: true });
+            expect(notebook.expanded).toBeTruthy();
+        });
+
+        it("doesn't bubble up by default", () => {
+            const notebook: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false,
+                children: [{ id: '2', value: 'dog', expanded: false }]
+            };
+
+            notebook.children![0].parent = notebook;
+
+            mutations.EXPANDED(state, { notebook: notebook.children![0], expanded: true });
+            expect(notebook.expanded).toBeFalsy();
+        });
+
+        it('will bubbleUp when requested', () => {
+            const notebook: Notebook = {
+                id: '1',
+                value: 'cat',
+                expanded: false,
+                children: [{ id: '2', value: 'dog', expanded: false }]
+            };
+
+            notebook.children![0].parent = notebook;
+
+            mutations.EXPANDED(state, { notebook: notebook.children![0], expanded: true, bubbleUp: true });
+            expect(notebook.expanded).toBeTruthy();
         });
     });
 });

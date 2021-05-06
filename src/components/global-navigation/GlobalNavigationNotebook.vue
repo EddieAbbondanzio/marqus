@@ -63,7 +63,7 @@ export default defineComponent({
         const expanded = computed({
             get: () => p.modelValue!.expanded,
             set: (v: any) => {
-                s.commit('app/globalNavigation/NOTEBOOK_EXPANDED', {
+                s.commit('notebooks/EXPANDED', {
                     notebook: p.modelValue,
                     expanded: v,
                     bubbleUp: false
@@ -100,7 +100,7 @@ export default defineComponent({
 
         const onHover = () => {
             if (s.state.app.globalNavigation.notebooks.dragging && !p.modelValue!.expanded) {
-                s.commit('app/globalNavigation/NOTEBOOK_EXPANDED', {
+                s.commit('notebooks/EXPANDED', {
                     notebook: p.modelValue!,
                     expanded: true,
                     bubbleUp: false

@@ -7,7 +7,30 @@
         data-context-menu="globalNavigation"
     >
         <NavigationMenuList>
-            <NavigationMenuItem icon="file-alt" label="ALL" :active="isActive('all')" @click="ACTIVE('all')" />
+            <NavigationMenuItem
+                icon="file-alt"
+                label="ALL"
+                :active="isActive('all')"
+                @click="ACTIVE('all')"
+                :hideToggle="true"
+            >
+                <template #options>
+                    <IconButton
+                        icon="fa-angle-double-down"
+                        class="p-1 mr-1"
+                        style="height: 30px!important"
+                        title="Expand all"
+                        @click="expandAll()"
+                    />
+                    <IconButton
+                        icon="fa-angle-double-up"
+                        class="p-1"
+                        style="height: 30px!important"
+                        title="Collapse all"
+                        @click="collapseAll()"
+                    />
+                </template>
+            </NavigationMenuItem>
 
             <global-navigation-notebook-section />
 
@@ -28,13 +51,14 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, onBeforeUnmount } from 'vue';
 import Resizable from '@/components/core/Resizable.vue';
-import { mapGetters, mapMutations, useStore } from 'vuex';
+import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
 import GlobalNavigationTagSection from '@/components/global-navigation/GlobalNavigationTagSection.vue';
 import GlobalNavigationNotebookSection from '@/components/global-navigation/GlobalNavigationNotebookSection.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
 import contextMenu from 'electron-context-menu';
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import IconButton from '@/components/core/IconButton.vue';
 
 export default defineComponent({
     setup: function() {
@@ -143,14 +167,16 @@ export default defineComponent({
         ...mapGetters('app/globalNavigation', ['isActive'])
     },
     methods: {
-        ...mapMutations('app/globalNavigation', ['ACTIVE'])
+        ...mapMutations('app/globalNavigation', ['ACTIVE']),
+        ...mapActions('app/globalNavigation', ['expandAll', 'collapseAll'])
     },
     components: {
         Resizable,
         GlobalNavigationTagSection,
         GlobalNavigationNotebookSection,
         NavigationMenuItem,
-        NavigationMenuList
+        NavigationMenuList,
+        IconButton
     }
 });
 </script>

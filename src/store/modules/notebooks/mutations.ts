@@ -81,6 +81,21 @@ export const mutations: MutationTree<NotebookState> = {
 
         // Sort root
         state.values.sort((a, b) => a.value.localeCompare(b.value));
+    },
+    EXPANDED(
+        s,
+        { notebook, expanded = true, bubbleUp = false }: { notebook: Notebook; expanded: boolean; bubbleUp: boolean }
+    ) {
+        let p: Notebook | undefined = notebook;
+
+        // Run up the tree expanding each parent until we hit the root
+        do {
+            p.expanded = expanded;
+            p = p.parent;
+        } while (p && bubbleUp);
+    },
+    ALL_EXPANDED(s, e = false) {
+        let p: Notebook | undefined;
     }
 };
 
