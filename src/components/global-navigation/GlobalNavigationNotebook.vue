@@ -9,7 +9,7 @@
         :hideToggle="modelValue.children == null && !isNotebookBeingCreated(modelValue.id)"
         class="global-navigation-notebook"
         :data-id="modelValue.id"
-        :indent="indentation(notebookDepth(modelValue) - 1)"
+        :indent="indentation(depth - 1)"
         v-mouse:click.left="() => setActive({ id: modelValue.id, type: 'notebook' })"
         v-mouse:hold.left="onHold"
         v-mouse:drag.left="onHover"
@@ -22,11 +22,11 @@
             v-model="input"
             fieldName="Notebook"
             :rules="formRules"
-            :indent="indentation(notebookDepth(modelValue) + 1)"
+            :indent="indentation(depth + 1)"
         />
 
         <template v-for="child in modelValue.children" :key="child.id">
-            <GlobalNavigationNotebook :modelValue="child" />
+            <GlobalNavigationNotebook :modelValue="child" :depth="depth + 1" />
         </template>
     </NavigationMenuItem>
     <!-- Edit rendering of notebook -->
@@ -37,10 +37,10 @@
         v-model="input"
         fieldName="Notebook"
         :rules="formRules"
-        :indent="indentation(notebookDepth(modelValue))"
+        :indent="indentation(depth)"
     >
         <template v-for="child in modelValue.children" :key="child.id">
-            <GlobalNavigationNotebook :modelValue="child" />
+            <GlobalNavigationNotebook :modelValue="child" :depth="depth + 1" />
         </template>
     </NavigationMenuForm>
 </template>
@@ -56,7 +56,11 @@ import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
 
 export default defineComponent({
     props: {
-        modelValue: Object
+        modelValue: Object,
+        depth: {
+            type: Number,
+            default: 1
+        }
     },
     name: 'GlobalNavigationNotebook',
     setup: function(p, c) {
@@ -148,6 +152,24 @@ export default defineComponent({
             ]
         };
 
+        // const depth = computed(() => {
+        //     if (p.modelValue == null) {
+        //         return 1;
+        //     }
+
+        //     let c = p.modelValue!;
+        //     let count = 1;
+
+        //     while (c.parent != null) {
+        //         c = c.parent;
+        //         count++;
+        //     }
+
+        //     console.log('re calculated for: ', p.modelValue!.value, ' depth: ', count);
+
+        //     return count;
+        // });
+
         return {
             expanded,
             onClick,
@@ -164,7 +186,6 @@ export default defineComponent({
             'isNotebookBeingCreated',
             'indentation',
             'canNotebookBeCollapsed',
-            'notebookDepth',
             'isActive'
         ])
     },

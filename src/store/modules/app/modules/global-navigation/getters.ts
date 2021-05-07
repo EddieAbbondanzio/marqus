@@ -44,20 +44,5 @@ export const getters: GetterTree<GlobalNavigation, State> = {
     },
     canNotebookBeCollapsed: (s) => (n: Notebook) => {
         return (n.children?.length ?? 0) > 0;
-    },
-    notebookDepth: (s) => (n: Notebook | null) => {
-        if (n == null) {
-            return 1;
-        }
-
-        let c: Notebook = n;
-        let count = 1;
-
-        while (c.parent != null) {
-            c = c.parent;
-            count++;
-        }
-
-        return count;
     }
 };
