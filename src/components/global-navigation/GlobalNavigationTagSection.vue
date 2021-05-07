@@ -6,6 +6,10 @@
         v-model:expanded="expanded"
         :toggleAnywhere="true"
     >
+        <template #options>
+            <IconButton icon="fa-plus" class="has-text-grey is-size-7" @click="createTag" />
+        </template>
+
         <NavigationMenuForm
             id="global-navigation-tag-create-form"
             v-if="isTagBeingCreated"
@@ -46,6 +50,7 @@ import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
 import { Tag } from '@/store/modules/tags/state';
+import IconButton from '@/components/core/IconButton.vue';
 
 export default defineComponent({
     setup: function() {
@@ -73,10 +78,15 @@ export default defineComponent({
             ]
         };
 
+        const onCreateClick = () => {
+            console.log('fuck!');
+        };
+
         return {
             expanded,
             input,
-            formRules
+            formRules,
+            onCreateClick
         };
     },
     computed: {
@@ -89,9 +99,10 @@ export default defineComponent({
         ...mapActions('app/globalNavigation', {
             confirm: 'tagInputConfirm',
             cancel: 'tagInputCancel',
-            setActive: 'setActive'
+            setActive: 'setActive',
+            createTag: 'tagInputStart'
         })
     },
-    components: { NavigationMenuItem, NavigationMenuForm }
+    components: { NavigationMenuItem, NavigationMenuForm, IconButton }
 });
 </script>

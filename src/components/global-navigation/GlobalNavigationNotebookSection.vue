@@ -1,5 +1,9 @@
 <template>
     <NavigationMenuItem icon="book" label="NOTEBOOKS" v-model:expanded="expanded" :toggleAnywhere="true">
+        <template #options>
+            <IconButton icon="fa-plus" class="has-text-grey is-size-7" @click="createNotebook" />
+        </template>
+
         <NavigationMenuForm
             v-if="isNotebookBeingCreated()"
             @submit="confirm"
@@ -21,6 +25,7 @@ import GlobalNavigationNote from '@/components/global-navigation/GlobalNavigatio
 import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 import { Notebook } from '@/store/modules/notebooks/state';
+import IconButton from '@/components/core/IconButton.vue';
 
 export default defineComponent({
     setup: function() {
@@ -61,8 +66,12 @@ export default defineComponent({
         ...mapGetters('app/globalNavigation', ['isNotebookBeingCreated'])
     },
     methods: {
-        ...mapActions('app/globalNavigation', { confirm: 'notebookInputConfirm', cancel: 'notebookInputCancel' })
+        ...mapActions('app/globalNavigation', {
+            confirm: 'notebookInputConfirm',
+            cancel: 'notebookInputCancel',
+            createNotebook: 'notebookInputStart'
+        })
     },
-    components: { GlobalNavigationNotebook, NavigationMenuForm, NavigationMenuItem }
+    components: { GlobalNavigationNotebook, NavigationMenuForm, NavigationMenuItem, IconButton }
 });
 </script>

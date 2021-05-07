@@ -8,7 +8,7 @@
             'is-xs': size == 'is-xs'
         }"
         :type="type"
-        @click="$emit('click')"
+        @click.stop.prevent="$emit('click')"
     >
         <span :class="{ icon: true, 'is-small': true, 'is-xs': size == 'is-xs', 'is-small': size == 'is-small' }">
             <i :class="classes"></i>

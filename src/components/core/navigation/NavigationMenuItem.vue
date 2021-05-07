@@ -34,13 +34,8 @@
                     <!-- Expand / Collapse button -->
                     <slot name="trigger" :toggle="toggle" v-if="hasChildren & !hideToggle">
                         <a @click.prevent.stop="toggle" class="is-flex">
-                            <icon-button
-                                icon="fa-angle-down"
-                                v-if="isExpanded()"
-                                class="p-1"
-                                style="height: 30px!important"
-                            />
-                            <icon-button icon="fa-angle-up" v-else class="p-1" style="height: 30px!important" />
+                            <icon-button icon="fa-angle-down" v-if="isExpanded()" />
+                            <icon-button icon="fa-angle-up" v-else />
                         </a>
                     </slot>
                     <!-- Spacer to keep options lined up even if no collapse trigger visible -->

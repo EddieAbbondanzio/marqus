@@ -15,20 +15,8 @@
                 :hideToggle="true"
             >
                 <template #options>
-                    <IconButton
-                        icon="fa-angle-double-down"
-                        class="p-1 mr-1"
-                        style="height: 30px!important"
-                        title="Expand all"
-                        @click="expandAll()"
-                    />
-                    <IconButton
-                        icon="fa-angle-double-up"
-                        class="p-1"
-                        style="height: 30px!important"
-                        title="Collapse all"
-                        @click="collapseAll()"
-                    />
+                    <IconButton icon="fa-angle-double-down" title="Expand all" @click="expandAll()" />
+                    <IconButton icon="fa-angle-double-up" title="Collapse all" @click="collapseAll()" />
                 </template>
             </NavigationMenuItem>
 
