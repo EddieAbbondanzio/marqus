@@ -153,14 +153,16 @@ export const actions: ActionTree<GlobalNavigation, State> = {
                 parent = findNotebookRecursive(rootState.notebooks.values, endedOnId);
             }
 
-            // Check for note with same name
+            /*
+             * Check for a notebook with the same name in the new destination. If one exists,
+             * we'll need to verify with the user that they want to replace it.
+             */
             const newSiblings =
                 endedOnId == null
                     ? rootState.notebooks.values
                     : findNotebookRecursive(rootState.notebooks.values, endedOnId)?.children ?? [];
 
             const duplicate = newSiblings.find((n) => n.value === dragging.value);
-
             if (duplicate != null) {
                 const confirmReplace = await confirmReplaceNote(dragging.value);
 
@@ -170,7 +172,17 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             }
 
             // Insert into new spot
-            commit('notebooks/CREATE', { id: dragging.id, value: dragging.value, parent }, { root: true });
+            commit(
+                'notebooks/CREATE',
+                {
+                    id: dragging.id,
+                    value: dragging.value,
+                    parent,
+                    children: dragging.children,
+                    expanded: dragging.expanded
+                },
+                { root: true }
+            );
 
             if (parent) {
                 commit('notebooks/EXPANDED', { notebook: parent, expanded: true, bubbleUp: true }, { root: true });

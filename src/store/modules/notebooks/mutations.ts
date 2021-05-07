@@ -6,7 +6,16 @@ export const mutations: MutationTree<NotebookState> = {
     INIT(state, s: NotebookState) {
         Object.assign(state, s);
     },
-    CREATE(state, { id, value, parent }: { id?: string; value: string; parent?: Notebook }) {
+    CREATE(
+        state,
+        {
+            id,
+            value,
+            parent,
+            children,
+            expanded
+        }: { id?: string; value: string; parent?: Notebook; children?: Notebook[]; expanded?: boolean }
+    ) {
         if (value == null) {
             throw Error('Value is required.');
         }
@@ -15,7 +24,8 @@ export const mutations: MutationTree<NotebookState> = {
             id: id ?? generateId(),
             value,
             parent,
-            expanded: false
+            children,
+            expanded: expanded ?? false
         };
 
         if (parent != null) {

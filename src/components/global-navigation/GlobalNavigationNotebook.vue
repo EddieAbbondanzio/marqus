@@ -89,7 +89,7 @@ export default defineComponent({
         const onRelease = (ev: any) => {
             /**
              * Try to find the id of the notebook we ended on. We may need to climb the DOM
-             * as target could be nested element of NavigationMenuItem.
+             * as target could be a nested element inside of NavigationMenuItem.
              */
             const id = climbDomHierarchy<string>(ev.target, {
                 match: (el) => el.classList.contains('global-navigation-notebook') && el.hasAttribute('data-id'),
