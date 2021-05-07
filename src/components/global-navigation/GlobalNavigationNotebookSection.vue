@@ -1,7 +1,12 @@
 <template>
     <NavigationMenuItem icon="book" label="NOTEBOOKS" v-model:expanded="expanded" :toggleAnywhere="true">
         <template #options>
-            <IconButton icon="fa-plus" class="has-text-grey is-size-7" @click="createNotebook" />
+            <IconButton
+                icon="fa-plus"
+                class="has-text-grey is-size-7 has-text-hover-success"
+                @click="createNotebook"
+                title="Create new notebook"
+            />
         </template>
 
         <NavigationMenuForm

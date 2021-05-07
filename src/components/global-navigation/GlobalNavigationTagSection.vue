@@ -7,7 +7,12 @@
         :toggleAnywhere="true"
     >
         <template #options>
-            <IconButton icon="fa-plus" class="has-text-grey is-size-7" @click="createTag" />
+            <IconButton
+                icon="fa-plus"
+                class="has-text-grey is-size-7 has-text-hover-success"
+                @click="createTag"
+                title="Create new tag"
+            />
         </template>
 
         <NavigationMenuForm
