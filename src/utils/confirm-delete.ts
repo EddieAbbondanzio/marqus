@@ -2,6 +2,7 @@ const electron = require('electron').remote; // Don't change. Jest doesn't like 
 
 export async function confirmDelete(type: string, name: string): Promise<boolean> {
     const options: any = {
+        type: 'warning',
         buttons: ['Yes', 'No'],
         message: `Are you sure you want to delete ${type} ${name}`
     };

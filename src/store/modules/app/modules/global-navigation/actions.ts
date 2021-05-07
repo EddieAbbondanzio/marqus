@@ -5,6 +5,7 @@ import { State } from '@/store/state';
 import { confirmDelete } from '@/utils/confirm-delete';
 import { Action, ActionContext, ActionTree } from 'vuex';
 import { GlobalNavigation } from './state';
+const electron = require('electron').remote; // Don't change. Jest doesn't like destructuring.
 
 export const actions: ActionTree<GlobalNavigation, State> = {
     setActive({ commit }, a: { id: string; type: 'notebook' | 'tag' }) {
@@ -131,7 +132,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('NOTEBOOK_DRAGGING', notebook);
         commit('app/CURSOR_TITLE', notebook.value, { root: true });
     },
-    notebookDragStop({ commit, rootState, state }, endedOnId: string | null) {
+    async notebookDragStop({ commit, rootState, state }, endedOnId: string | null) {
         const dragging = state.notebooks.dragging;
 
         if (dragging == null) {
@@ -150,6 +151,22 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
             if (endedOnId != null) {
                 parent = findNotebookRecursive(rootState.notebooks.values, endedOnId);
+            }
+
+            // Check for note with same name
+            const newSiblings =
+                endedOnId == null
+                    ? rootState.notebooks.values
+                    : findNotebookRecursive(rootState.notebooks.values, endedOnId)?.children ?? [];
+
+            const duplicate = newSiblings.find((n) => n.value === dragging.value);
+
+            if (duplicate != null) {
+                const confirmReplace = await confirmReplaceNote(dragging.value);
+
+                if (confirmReplace) {
+                    commit('notebooks/DELETE', duplicate.id, { root: true });
+                }
             }
 
             // Insert into new spot
@@ -176,3 +193,17 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('notebooks/ALL_EXPANDED', false, { root: true });
     }
 };
+
+export async function confirmReplaceNote(name: string): Promise<boolean> {
+    const options: any = {
+        type: 'warning',
+        buttons: ['Yes', 'No'],
+        message: `Note with name ${name} already exists. Do you want to replace it?`
+    };
+
+    options.defaultId = 0;
+    options.cancelId = 1;
+
+    const out = await electron.dialog.showMessageBox(options);
+    return out.response === 0; // Index of button clicked. IE: 'Yes'
+}
