@@ -78,6 +78,6 @@ function climb<T>(el: HTMLElement, opts: ClimbOptions<T>): ClimbReturn<T> {
     }
     // If we got to here, we failed. Sorry.
     else {
-        return opts.defaultValue == null ? false : (opts.defaultValue() as any);
+        return opts.defaultValue == null ? (opts.matchValue == null ? false : null) : (opts.defaultValue() as any);
     }
 }

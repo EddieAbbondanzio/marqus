@@ -4,7 +4,7 @@ import { ActionTree } from 'vuex';
 import { LocalNavigation } from './state';
 
 export const actions: ActionTree<LocalNavigation, State> = {
-    noteInputStart({ commit, rootState }, id: string | null = null) {
+    noteInputStart({ commit, rootState }, { id }: { id?: string } = {}) {
         let note: Note | undefined;
 
         if (id != null) {

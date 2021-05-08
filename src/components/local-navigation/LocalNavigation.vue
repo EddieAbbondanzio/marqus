@@ -6,13 +6,13 @@
                 class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-1-dark p-1 has-background-light"
             >
                 <LocalNavigationSearchBar />
-                <IconButton icon="fa-plus" size="is-small" @click="onCreateClick" />
+                <IconButton icon="fa-plus" size="is-small" @click="create" />
             </div>
 
             <!-- Files -->
             <div>
                 <NavigationMenuForm
-                    v-if="isCreatingNote"
+                    v-if="isNoteBeingCreated"
                     v-model="input"
                     @submit="confirm"
                     @cancel="cancel"
@@ -21,16 +21,25 @@
                     indent="0.5rem"
                 />
 
-                <NavigationMenuList>
+                <template v-for="note in notes" :key="note.id">
                     <NavigationMenuItem
-                        v-for="note in notes"
-                        :key="note.id"
+                        v-if="!isNoteBeingUpdated(note.id)"
                         :hideIcon="true"
                         :label="note.name"
                         @click="onNoteClick"
                         indent="0.5rem"
+                        :data-id="note.id"
                     ></NavigationMenuItem>
-                </NavigationMenuList>
+                    <NavigationMenuForm
+                        v-else
+                        @submit="confirm"
+                        @cancel="cancel"
+                        v-model="input"
+                        fieldName="Note"
+                        :rules="formRules"
+                        indent="0.5rem"
+                    />
+                </template>
             </div>
         </div>
     </Resizable>
@@ -42,7 +51,6 @@ import Resizable from '@/components/core/Resizable.vue';
 import IconButton from '@/components/core/IconButton.vue';
 import LocalNavigationSearchBar from '@/components/local-navigation/LocalNavigationSearchBar.vue';
 import { mapActions, mapGetters, mapMutations, mapState, useStore } from 'vuex';
-import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
 import { Note } from '@/store/modules/notes/state';
@@ -67,10 +75,6 @@ export default defineComponent({
 
         const save = () => s.dispatch('save');
 
-        const onCreateClick = () => {
-            s.dispatch('app/localNavigation/noteInputStart', null);
-        };
-
         const onNoteClick = () => {
             console.log('click!');
         };
@@ -90,6 +94,13 @@ export default defineComponent({
         onMounted(() => {
             release = contextMenu({
                 menu: (_, p) => {
+                    const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
+
+                    const id = climbDomHierarchy<string>(element, {
+                        match: (el) => el.hasAttribute('data-id'),
+                        matchValue: (el) => el.getAttribute('data-id')
+                    });
+
                     // we can inject menu items as needed. This is called each time we right click
                     const items = [
                         {
@@ -97,6 +108,13 @@ export default defineComponent({
                             click: () => s.dispatch('app/localNavigation/noteInputStart')
                         }
                     ];
+
+                    if (id != null) {
+                        items.push({
+                            label: 'Edit Note',
+                            click: () => s.dispatch('app/localNavigation/noteInputStart', { id })
+                        });
+                    }
 
                     return items;
                 },
@@ -123,26 +141,25 @@ export default defineComponent({
             width,
             input,
             save,
-            onCreateClick,
             onNoteClick,
             formRules
         };
     },
     computed: {
-        ...mapGetters('app/localNavigation', ['isCreatingNote']),
+        ...mapGetters('app/localNavigation', ['isNoteBeingCreated', 'isNoteBeingUpdated']),
         ...mapState('notes', { notes: 'values' })
     },
     methods: {
         ...mapActions('app/localNavigation', {
             confirm: 'noteInputConfirm',
-            cancel: 'noteInputCancel'
+            cancel: 'noteInputCancel',
+            create: 'noteInputStart'
         })
     },
     components: {
         Resizable,
         LocalNavigationSearchBar,
         IconButton,
-        NavigationMenuList,
         NavigationMenuItem,
         NavigationMenuForm
     }
