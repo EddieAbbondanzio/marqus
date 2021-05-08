@@ -18,6 +18,7 @@
                     @cancel="cancel"
                     :rules="formRules"
                     fieldName="Note"
+                    indent="0.5rem"
                 />
 
                 <NavigationMenuList>
@@ -27,6 +28,7 @@
                         :hideIcon="true"
                         :label="note.name"
                         @click="onNoteClick"
+                        indent="0.5rem"
                     ></NavigationMenuItem>
                 </NavigationMenuList>
             </div>

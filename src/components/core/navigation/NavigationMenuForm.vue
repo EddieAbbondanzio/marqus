@@ -24,7 +24,7 @@
                     @input="onInput"
                     @blur="onBlur"
                 />
-                <icon-button class="has-text-hover-success" type="submit" icon="fa-check" />
+                <icon-button class="has-text-hover-success" type="submit" icon="fa-check" @click="$emit('submit')" />
                 <icon-button id="cancelButton" class="has-text-hover-danger" icon="fa-ban" @click="$emit('cancel')" />
             </Field>
         </div>
