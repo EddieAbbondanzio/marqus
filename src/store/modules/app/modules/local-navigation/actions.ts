@@ -1,5 +1,6 @@
 import { Note } from '@/store/modules/notes/state';
 import { State } from '@/store/state';
+import { confirmDelete } from '@/utils/confirm-delete';
 import { ActionTree } from 'vuex';
 import { LocalNavigation } from './state';
 
@@ -45,5 +46,18 @@ export const actions: ActionTree<LocalNavigation, State> = {
     },
     noteInputCancel({ commit }) {
         commit('NOTE_INPUT_CLEAR');
+    },
+    async noteDelete({ commit, rootState }, id: string) {
+        const note = rootState.notes.values.find((n) => n.id === id);
+
+        if (note == null) {
+            throw Error(`No note with id ${id} found.`);
+        }
+
+        const confirm = await confirmDelete('note', note.name);
+
+        if (confirm) {
+            commit('notes/DELETE', id, { root: true });
+        }
     }
 };

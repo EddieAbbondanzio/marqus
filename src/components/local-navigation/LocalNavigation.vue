@@ -114,6 +114,11 @@ export default defineComponent({
                             label: 'Edit Note',
                             click: () => s.dispatch('app/localNavigation/noteInputStart', { id })
                         });
+
+                        items.push({
+                            label: 'Delete Note',
+                            click: () => s.dispatch('app/localNavigation/noteDelete', id)
+                        });
                     }
 
                     return items;
