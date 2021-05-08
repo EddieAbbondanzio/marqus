@@ -145,18 +145,13 @@ export default defineComponent({
                     return items;
                 },
                 shouldShowMenu: (e, p) => {
-                    let element = document.elementFromPoint(p.x, p.y);
+                    const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
 
-                    // Climb up parent tree until we find our attribute.
-                    while (element != null && !element.hasAttribute('data-context-menu')) {
-                        element = element.parentElement;
-                    }
+                    const menuName = climbDomHierarchy(element, {
+                        match: (el) => el.hasAttribute('data-context-menu'),
+                        matchValue: (el) => el.getAttribute('data-context-menu')
+                    });
 
-                    if (element == null) {
-                        return false;
-                    }
-
-                    const menuName = element.getAttribute('data-context-menu');
                     return menuName === 'globalNavigation';
                 }
             });

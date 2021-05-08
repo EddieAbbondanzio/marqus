@@ -1,5 +1,5 @@
 <template>
-    <Resizable v-model="width" @resizeStop="save">
+    <Resizable v-model="width" @resizeStop="save" data-context-menu="localNavigation">
         <div class="has-h-100 has-text-dark  is-size-7">
             <!-- Header -->
             <div
@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, WritableComputedRef } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, WritableComputedRef } from 'vue';
 import Resizable from '@/components/core/Resizable.vue';
 import IconButton from '@/components/core/IconButton.vue';
 import LocalNavigationSearchBar from '@/components/local-navigation/LocalNavigationSearchBar.vue';
@@ -46,6 +46,8 @@ import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.
 import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
 import { Note } from '@/store/modules/notes/state';
+import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import contextMenu from 'electron-context-menu';
 
 export default defineComponent({
     setup: function() {
@@ -82,6 +84,40 @@ export default defineComponent({
                 () => s.state.app.localNavigation.notes.input
             ]
         };
+
+        let release: (() => void) | null = null;
+
+        onMounted(() => {
+            release = contextMenu({
+                menu: (_, p) => {
+                    // we can inject menu items as needed. This is called each time we right click
+                    const items = [
+                        {
+                            label: 'Create Note',
+                            click: () => s.dispatch('app/localNavigation/noteInputStart')
+                        }
+                    ];
+
+                    return items;
+                },
+                shouldShowMenu: (e, p) => {
+                    const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
+
+                    const menuName = climbDomHierarchy(element, {
+                        match: (el) => el.hasAttribute('data-context-menu'),
+                        matchValue: (el) => el.getAttribute('data-context-menu')
+                    });
+
+                    return menuName === 'localNavigation';
+                }
+            });
+        });
+
+        onBeforeUnmount(() => {
+            if (release != null) {
+                release();
+            }
+        });
 
         return {
             width,
