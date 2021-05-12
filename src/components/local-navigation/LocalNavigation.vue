@@ -89,10 +89,19 @@ export default defineComponent({
             ]
         };
 
-        let release: (() => void) | null = null;
+        let contextMenuRelease: (() => void) | undefined;
+        let watchRelease: (() => void) | undefined;
 
         onMounted(() => {
-            release = contextMenu({
+            watchRelease = s.watch(
+                (s) => s.app.globalNavigation.active,
+                (val: any) => {
+                    console.log(val);
+                }
+            );
+            console.log('watch!');
+
+            contextMenuRelease = contextMenu({
                 menu: (_, p) => {
                     const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
 
@@ -137,9 +146,8 @@ export default defineComponent({
         });
 
         onBeforeUnmount(() => {
-            if (release != null) {
-                release();
-            }
+            contextMenuRelease!();
+            watchRelease!();
         });
 
         return {
