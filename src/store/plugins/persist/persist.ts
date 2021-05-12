@@ -43,9 +43,14 @@ export const persist = {
                             }
                         }
 
-                        // Save off the file
                         const fileName = getModuleFileName(subscriber);
-                        await fileSystem.writeJSON(fileName, s);
+
+                        // Save off the file
+                        if (subscriber.settings.serialize != null) {
+                            await subscriber.settings.serialize(s, { fileName, mutationPayload: p });
+                        } else {
+                            await fileSystem.writeJSON(fileName, s);
+                        }
                     });
                 }
             }.bind(persist)
@@ -63,33 +68,29 @@ export const persist = {
         }
 
         for (const m of this.modules) {
-            const fileName = getModuleFileName(m);
+            let state: undefined | any;
 
-            /**
-             * We don't need to call the scheduler on read since it won't actually
-             * effect anything if we did read twice. Not that that would happen anyways.
-             */
+            if (m.settings.deserialize != null) {
+                state = await m.settings.deserialize();
+            } else {
+                /**
+                 * We don't need to call the scheduler on read since it won't actually
+                 * effect anything if we did read twice. Not that that would happen anyways.
+                 */
+                const fileName = getModuleFileName(m);
+                state = await deserializeJSON(fileName);
+            }
 
-            // Try to load state file
-            if (fileSystem.exists(fileName)) {
-                try {
-                    const json = await fileSystem.readJSON(fileName);
-                    let state = json;
+            // Revive state if needed
+            if (m.settings.reviver) {
+                state = m.settings.reviver(state);
 
-                    // Revive state if needed
-                    if (m.settings.reviver) {
-                        state = m.settings.reviver(json);
-
-                        if (state == null) {
-                            throw Error('No state returned from reviver. Did you forget to return the value?');
-                        }
-                    }
-
-                    store.commit(`${m.settings.namespace}/${m.settings.initiMutation}`, state);
-                } catch (e) {
-                    console.error(`Failed to load json: ${fileName}`);
+                if (state == null) {
+                    throw Error('No state returned from reviver. Did you forget to return the value?');
                 }
             }
+
+            store.commit(`${m.settings.namespace}/${m.settings.initiMutation}`, state);
         }
     },
 
@@ -106,6 +107,14 @@ export const persist = {
         this.modules.push({ scheduler: new TaskScheduler(2), settings: module });
     }
 };
+
+async function deserializeJSON(fileName: string) {
+    if (!fileSystem.exists(fileName)) {
+        return null;
+    }
+
+    return await fileSystem.readJSON(fileName);
+}
 
 /**
  * Get the file name for saving the module state to JSON.

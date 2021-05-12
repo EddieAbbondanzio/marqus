@@ -1,4 +1,5 @@
 import { TaskScheduler } from '@/utils/task-scheduler';
+import { MutationPayload } from 'vuex';
 
 /**
  * Settings for a module that the persist plugin should be tracking.
@@ -13,13 +14,11 @@ export interface PersistModuleSettings {
      */
     filter?: string[];
     /**
-     * Function that modifies the state object before it
-     * is written to file.
+     * Function that modifies the state object before it is written to file.
      */
     transformer?: (s: any) => any;
     /**
-     * Function that modifies the state object after it is
-     * loaded from file.
+     * Function that modifies the state object after it is loaded from file.
      */
     reviver?: (s: any) => any;
     /**
@@ -27,10 +26,17 @@ export interface PersistModuleSettings {
      */
     fileName?: string;
     /**
-     * Mutation to initialize store state. This will be commited
-     * after the json file of the store is loaded and revived.
+     * Mutation to initialize store state. This will be commited after the json file of the store is loaded and revived.
      */
     initiMutation: string;
+    /**
+     * Custom serialization handler. Will be called instead of the default handler that writes a JSON file.
+     */
+    serialize?: (s: any, context: { fileName: string; mutationPayload: MutationPayload }) => Promise<void>;
+    /**
+     * Custom deserialization handler. Will be called instead of the default handler that reads a JSON file.
+     */
+    deserialize?: () => Promise<any>;
 }
 
 export interface PersistModule {

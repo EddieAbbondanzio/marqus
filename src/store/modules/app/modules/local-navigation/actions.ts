@@ -19,7 +19,7 @@ export const actions: ActionTree<LocalNavigation, State> = {
         const active = rootState.app.globalNavigation.active;
         commit('NOTE_INPUT_START', { note, active });
     },
-    noteInputConfirm({ commit, state, dispatch }) {
+    noteInputConfirm({ commit, state }) {
         const input = state.notes.input;
 
         const note: Note = {
@@ -33,12 +33,12 @@ export const actions: ActionTree<LocalNavigation, State> = {
 
         switch (input.mode) {
             case 'create':
-                dispatch('notes/create', note, { root: true });
+                commit('notes/CREATE', note, { root: true });
                 break;
 
             case 'update':
                 note.dateModified = new Date();
-                dispatch('notes/update', note, { root: true });
+                commit('notes/UPDATE', note, { root: true });
                 break;
         }
 
@@ -47,7 +47,7 @@ export const actions: ActionTree<LocalNavigation, State> = {
     noteInputCancel({ commit }) {
         commit('NOTE_INPUT_CLEAR');
     },
-    async noteDelete({ commit, rootState, dispatch }, id: string) {
+    async noteDelete({ commit, rootState }, id: string) {
         const note = rootState.notes.values.find((n) => n.id === id);
 
         if (note == null) {
@@ -57,7 +57,7 @@ export const actions: ActionTree<LocalNavigation, State> = {
         const confirm = await confirmDelete('note', note.name);
 
         if (confirm) {
-            dispatch('notes/delete', id, { root: true });
+            commit('notes/DELETE', id, { root: true });
         }
     }
 };
