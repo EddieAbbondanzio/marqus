@@ -77,7 +77,7 @@ export default defineComponent({
         },
         rules: {
             type: Object,
-            default: {}
+            default: () => ({})
         }
     },
     setup(_, c) {

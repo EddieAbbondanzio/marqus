@@ -40,10 +40,21 @@ describe('getters', () => {
                 values: [
                     { id: '1', name: 'cat', tags: ['5', '6'] },
                     { id: '2', name: 'dog' },
-                    { id: '3', name: 'horse', notebooks: ['7', '8'] }
+                    { id: '3', name: 'horse', notebooks: ['7', '8'] },
+                    { id: '11', name: 'parent-note', notebooks: ['7'] },
+                    { id: '22', name: 'child-note', notebooks: ['8'] }
+                ]
+            },
+            notebooks: {
+                values: [
+                    { id: '7', value: 'parent', children: [{ id: '8', value: 'child' }] },
+                    { id: '9', value: 'other' }
                 ]
             }
         };
+
+        // Fix parent for child note
+        (rootState.notebooks.values[0].children![0] as any).parent = rootState.notebooks.values[0];
 
         it('returns empty array if active is null', () => {
             expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(0);
@@ -52,19 +63,29 @@ describe('getters', () => {
         it('returns entire note array when mode is all', () => {
             rootState.app.globalNavigation.active = 'all';
 
-            expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(3);
+            expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(5);
         });
 
         it('returns notes in notebook when notebook is active', () => {
             rootState.app.globalNavigation.active = { type: 'notebook', id: '7' };
 
-            expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(1);
+            expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(3);
         });
 
         it('returns notes in tag when tag is active', () => {
             rootState.app.globalNavigation.active = { type: 'tag', id: '5' };
 
             expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(1);
+        });
+
+        it('returns notes of children as well', () => {
+            rootState.app.globalNavigation.active = { type: 'notebook', id: '7' };
+
+            const res = (getters as any).activeNotes({}, {}, rootState);
+
+            expect(res).toHaveLength(3);
+            expect(res[1].name).toBe('parent-note');
+            expect(res[2].name).toBe('child-note');
         });
     });
 });

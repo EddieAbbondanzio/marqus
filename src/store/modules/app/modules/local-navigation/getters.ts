@@ -1,3 +1,5 @@
+import { findNotebookRecursive } from '@/store/modules/notebooks/mutations';
+import { Notebook } from '@/store/modules/notebooks/state';
 import { State } from '@/store/state';
 import { GetterTree } from 'vuex';
 import { LocalNavigation } from './state';
@@ -30,7 +32,26 @@ export const getters: GetterTree<LocalNavigation, State> = {
         switch (active.type) {
             case 'notebook':
                 return rootState.notes.values.filter(
-                    (note) => note.notebooks != null && note.notebooks.some((nb) => nb === active.id)
+                    (note) =>
+                        note.notebooks != null &&
+                        note.notebooks.some((id) => {
+                            let notebook = findNotebookRecursive(rootState.notebooks.values, id)!;
+
+                            if (notebook.id === active.id) {
+                                return true;
+                            }
+
+                            // A parent notebook should also show notes for any of it's children.
+                            while (notebook.parent != null) {
+                                notebook = notebook.parent;
+
+                                if (notebook.id === active.id) {
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        })
                 );
             case 'tag':
                 return rootState.notes.values.filter(
