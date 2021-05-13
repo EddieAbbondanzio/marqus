@@ -7,6 +7,7 @@ import { fileSystem } from '@/utils/file-system';
 import path from 'path';
 import moment from 'moment';
 import { regex } from '@/utils/regex';
+import { MutationPayload } from 'vuex';
 
 export default {
     namespaced: true,
@@ -22,47 +23,51 @@ persist.register({
     namespace: 'notes',
     initiMutation: 'INIT',
     filter: ['CREATE', 'UPDATE', 'DELETE'],
-    async serialize(s: NoteState, { mutationPayload }) {
-        switch (mutationPayload.type) {
-            case 'notes/CREATE':
-            case 'notes/UPDATE':
-                await upsertNoteToFileSystem(mutationPayload.payload);
-                break;
-
-            case 'notes/DELETE':
-                console.log('aayyy lmao. Implement the delete bruh');
-                break;
-        }
-    },
-    async deserialize() {
-        const noteDirectories = await fileSystem.readDirectory(NOTES_DIRECTORY);
-        const notes = [];
-
-        for (let i = 0; i < noteDirectories.length; i++) {
-            const noteId = noteDirectories[i];
-
-            // Regex test what we found to ensure it's actually a note. Not that this is a catch all...
-            if (regex.isId(noteId)) {
-                const metaData = await fileSystem.readJSON(path.join(NOTES_DIRECTORY, noteId, 'metadata.json'));
-
-                const note: Note = {
-                    id: noteId,
-                    name: metaData.name,
-                    dateCreated: moment(metaData.dateCreated).toDate(),
-                    dateModified: moment(metaData.dateModified).toDate(),
-                    notebooks: metaData.notebooks,
-                    tags: metaData.tags
-                };
-
-                notes.push(note);
-            }
-        }
-
-        return {
-            values: notes
-        };
-    }
+    serialize,
+    deserialize
 });
+
+export async function serialize(s: NoteState, { mutationPayload }: { mutationPayload: MutationPayload }) {
+    switch (mutationPayload.type) {
+        case 'notes/CREATE':
+        case 'notes/UPDATE':
+            await upsertNoteToFileSystem(mutationPayload.payload);
+            break;
+
+        case 'notes/DELETE':
+            console.log('aayyy lmao. Implement the delete bruh');
+            break;
+    }
+}
+
+export async function deserialize() {
+    const noteDirectories = await fileSystem.readDirectory(NOTES_DIRECTORY);
+    const notes = [];
+
+    for (let i = 0; i < noteDirectories.length; i++) {
+        const noteId = noteDirectories[i];
+
+        // Regex test what we found to ensure it's actually a note. Not that this is a catch all...
+        if (regex.isId(noteId)) {
+            const metaData = await fileSystem.readJSON(path.join(NOTES_DIRECTORY, noteId, 'metadata.json'));
+
+            const note: Note = {
+                id: noteId,
+                name: metaData.name,
+                dateCreated: moment(metaData.dateCreated).toDate(),
+                dateModified: moment(metaData.dateModified).toDate(),
+                notebooks: metaData.notebooks,
+                tags: metaData.tags
+            };
+
+            notes.push(note);
+        }
+    }
+
+    return {
+        values: notes
+    };
+}
 
 export async function upsertNoteToFileSystem(note: Note) {
     const directoryPath = path.join(NOTES_DIRECTORY, note.id);
