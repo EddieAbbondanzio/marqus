@@ -21,7 +21,7 @@
                     indent="0.5rem"
                 />
 
-                <template v-for="note in notes" :key="note.id">
+                <template v-for="note in activeNotes" :key="note.id">
                     <NavigationMenuItem
                         v-if="!isNoteBeingUpdated(note.id)"
                         :hideIcon="true"
@@ -159,8 +159,7 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapGetters('app/localNavigation', ['isNoteBeingCreated', 'isNoteBeingUpdated']),
-        ...mapState('notes', { notes: 'values' })
+        ...mapGetters('app/localNavigation', ['isNoteBeingCreated', 'isNoteBeingUpdated', 'activeNotes'])
     },
     methods: {
         ...mapActions('app/localNavigation', {
