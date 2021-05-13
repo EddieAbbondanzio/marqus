@@ -11,7 +11,7 @@
             <Field :name="fieldName" :value="modelValue" v-slot="{ field }" :rules="rules">
                 <!-- Padding and margin is adjusted to get the text within the input to match perfectly to a menu item. -->
                 <input
-                    id="fieldValue"
+                    id="inputField"
                     :class="
                         `input is-flex-grow-1 is-size-7 ${
                             (meta.dirty || submitCount > 0) && !meta.valid ? 'is-danger' : ''
@@ -24,7 +24,7 @@
                     @input="onInput"
                     @blur="onBlur"
                 />
-                <icon-button class="has-text-hover-success" type="submit" icon="fa-check" @click="$emit('submit')" />
+                <icon-button id="submitButton" class="has-text-hover-success" type="submit" icon="fa-check" />
                 <icon-button id="cancelButton" class="has-text-hover-danger" icon="fa-ban" @click="$emit('cancel')" />
             </Field>
         </div>
@@ -56,7 +56,6 @@
 import { defineComponent, onBeforeUnmount, onMounted } from 'vue';
 import IconButton from '@/components/core/IconButton.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
-import { keyCodesByKeyName } from '@vue/test-utils/dist/createDomEvent';
 
 /**
  * Inline form for creating values in nav menus that only have 1
@@ -77,7 +76,8 @@ export default defineComponent({
             default: 'Field'
         },
         rules: {
-            type: Object
+            type: Object,
+            default: {}
         }
     },
     setup(_, c) {

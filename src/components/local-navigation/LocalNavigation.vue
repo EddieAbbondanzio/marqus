@@ -99,8 +99,6 @@ export default defineComponent({
                     console.log(val);
                 }
             );
-            console.log('watch!');
-
             contextMenuRelease = contextMenu({
                 menu: (_, p) => {
                     const element = document.elementFromPoint(p.x, p.y) as HTMLElement;

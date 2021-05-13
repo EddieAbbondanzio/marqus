@@ -10,7 +10,7 @@
             <IconButton
                 icon="fa-plus"
                 class="has-text-grey is-size-7 has-text-hover-success"
-                @click="createTag"
+                @click.prevent.stop="() => createTag()"
                 title="Create new tag"
             />
         </template>
@@ -83,15 +83,10 @@ export default defineComponent({
             ]
         };
 
-        const onCreateClick = () => {
-            console.log('fuck!');
-        };
-
         return {
             expanded,
             input,
             formRules,
-            onCreateClick
         };
     },
     computed: {

@@ -4,8 +4,8 @@
             <IconButton
                 icon="fa-plus"
                 class="has-text-grey is-size-7 has-text-hover-success"
-                @click="createNotebook"
                 title="Create new notebook"
+                @click.prevent.stop="() => createNotebook()"
             />
         </template>
 
