@@ -6,6 +6,7 @@ import { persist } from '@/store/plugins/persist/persist';
 import { fileSystem } from '@/utils/file-system';
 import path from 'path';
 import moment from 'moment';
+import { regex } from '@/utils/regex';
 
 export default {
     namespaced: true,
@@ -41,8 +42,9 @@ persist.register({
             const noteId = noteDirectories[i];
 
             // Regex test what we found to ensure it's actually a note. Not that this is a catch all...
-            if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(noteId)) {
+            if (regex.isId(noteId)) {
                 const metaData = await fileSystem.readJSON(path.join(NOTES_DIRECTORY, noteId, 'metadata.json'));
+
                 const note: Note = {
                     id: noteId,
                     name: metaData.name,
@@ -71,7 +73,7 @@ export async function upsertNoteToFileSystem(note: Note) {
     }
 
     // Create empty attachment directory if needed
-    const attachmentPath = path.join(directoryPath, '/attachments');
+    const attachmentPath = path.join(directoryPath, 'attachments');
     if (!fileSystem.exists(attachmentPath)) {
         await fileSystem.createDirectory(attachmentPath);
     }
