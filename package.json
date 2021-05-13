@@ -21,6 +21,7 @@
     "bulmaswatch": "^0.8.1",
     "electron-context-menu": "^2.5.0",
     "lodash": "^4.17.21",
+    "moment": "^2.29.1",
     "proper-lockfile": "^4.1.2",
     "uuid": "^8.3.2",
     "vee-validate": "^4.2.3",

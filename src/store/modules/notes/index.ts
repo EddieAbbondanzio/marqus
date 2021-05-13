@@ -5,6 +5,7 @@ import { mutations } from './mutations';
 import { persist } from '@/store/plugins/persist/persist';
 import { fileSystem } from '@/utils/file-system';
 import path from 'path';
+import moment from 'moment';
 
 export default {
     namespaced: true,
@@ -13,6 +14,8 @@ export default {
     actions,
     mutations
 };
+
+const NOTES_DIRECTORY = 'notes';
 
 persist.register({
     namespace: 'notes',
@@ -31,12 +34,36 @@ persist.register({
         }
     },
     async deserialize() {
-        console.log('FUCK');
+        const noteDirectories = await fileSystem.readDirectory(NOTES_DIRECTORY);
+        const notes = [];
+
+        for (let i = 0; i < noteDirectories.length; i++) {
+            const noteId = noteDirectories[i];
+
+            // Regex test what we found to ensure it's actually a note. Not that this is a catch all...
+            if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(noteId)) {
+                const metaData = await fileSystem.readJSON(path.join(NOTES_DIRECTORY, noteId, 'metadata.json'));
+                const note: Note = {
+                    id: noteId,
+                    name: metaData.name,
+                    dateCreated: moment(metaData.dateCreated).toDate(),
+                    dateModified: moment(metaData.dateModified).toDate(),
+                    notebooks: metaData.notebooks,
+                    tags: metaData.tags
+                };
+
+                notes.push(note);
+            }
+        }
+
+        return {
+            values: notes
+        };
     }
 });
 
 export async function upsertNoteToFileSystem(note: Note) {
-    const directoryPath = `notes/${note.id}`;
+    const directoryPath = path.join(NOTES_DIRECTORY, note.id);
 
     // Create parent directory if needed
     if (!fileSystem.exists(directoryPath)) {

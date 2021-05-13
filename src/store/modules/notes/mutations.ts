@@ -3,6 +3,9 @@ import { MutationTree } from 'vuex';
 import { Note, NoteState } from './state';
 
 export const mutations: MutationTree<NoteState> = {
+    INIT(state, s: NoteState) {
+        Object.assign(state, s);
+    },
     CREATE(state, note: Note) {
         if (note.name == null) {
             throw Error('Name is required.');

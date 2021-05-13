@@ -16,7 +16,7 @@ export const fileSystem = {
      * @param options If the path should be defaulted under the data directory
      */
     createDirectory(path: string, { root }: { root: boolean } = { root: false }) {
-        const fullPath = !root ? p.join(DATA_DIRECTORY, path) : path;
+        const fullPath = generateFullPath(path, root);
         mkdirSync(fullPath);
     },
     /**
@@ -25,7 +25,7 @@ export const fileSystem = {
      * @param options If the path should be defaulted under the data directory
      */
     exists(path: string, { root }: { root: boolean } = { root: false }) {
-        const fullPath = !root ? p.join(DATA_DIRECTORY, path) : path;
+        const fullPath = generateFullPath(path, root);
         return existsSync(fullPath);
     },
     /**
@@ -34,10 +34,20 @@ export const fileSystem = {
      * @param options If the path should be defaulted under the data directory
      */
     async readJSON(path: string, { root }: { root: boolean } = { root: false }) {
-        const fullPath = !root ? p.join(DATA_DIRECTORY, path) : path;
-        const contents = await fs.readFile(fullPath, 'utf8');
+        const fullPath = generateFullPath(path, root);
 
+        const contents = await fs.readFile(fullPath, 'utf8');
         return JSON.parse(contents);
+    },
+    /**
+     * Read all of the directories / files under a directory.
+     * @param path The path to read.
+     * @param options If the path should be defaulted under the data directory
+     * @returns List of directory or file names.
+     */
+    async readDirectory(path: string, { root }: { root: boolean } = { root: false }) {
+        const fullPath = generateFullPath(path, root);
+        return await fs.readdir(fullPath);
     },
     /**
      * Write a JSON file to the file system.
@@ -46,20 +56,24 @@ export const fileSystem = {
      * @param options If the path should be defaulted under the data directory
      */
     async writeJSON(path: string, content: any, { root }: { root: boolean } = { root: false }) {
-        const json = JSON.stringify(content);
-        const fullPath = !root ? p.join(DATA_DIRECTORY, path) : path;
+        const fullPath = generateFullPath(path, root);
 
+        const json = JSON.stringify(content);
         await fs.writeFile(fullPath, json, 'utf8');
     },
     async readText(path: string, { root }: { root: boolean } = { root: false }) {
-        const fullPath = !root ? p.join(DATA_DIRECTORY, path) : path;
+        const fullPath = generateFullPath(path, root);
         const contents = await fs.readFile(fullPath, 'utf8');
 
         return contents;
     },
     async writeText(path: string, content: string, { root }: { root: boolean } = { root: false }) {
-        const fullPath = !root ? p.join(DATA_DIRECTORY, path) : path;
+        const fullPath = generateFullPath(path, root);
 
         await fs.writeFile(fullPath, content, 'utf8');
     }
 };
+
+export function generateFullPath(path: string, root: boolean) {
+    return !root ? p.join(DATA_DIRECTORY, path) : path;
+}
