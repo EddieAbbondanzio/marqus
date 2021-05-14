@@ -12,7 +12,7 @@
         >
             <div
                 class=" has-text-grey is-flex is-justify-content-space-between is-align-center"
-                style="height: 30px!important;"
+                style="height: 30px!important; "
             >
                 <div class="is-flex is-align-center" :style="`padding-left: ${indent}!important;`">
                     <span class="icon" v-if="icon">
@@ -33,9 +33,15 @@
 
                     <!-- Expand / Collapse button -->
                     <slot name="trigger" :toggle="toggle" v-if="hasChildren & !hideToggle">
-                        <div class="is-flex">
-                            <icon-button class="has-text-grey" icon="fa-angle-down" v-if="isExpanded()" />
-                            <icon-button class="has-text-grey" icon="fa-angle-up" v-else />
+                        <!-- Stops on mouse events is needed to prevent v-mouse from breaking. -->
+                        <div class="is-flex" @mouseup.stop @mousedown.stop>
+                            <icon-button
+                                class="has-text-grey"
+                                icon="fa-angle-down"
+                                v-if="isExpanded()"
+                                @click.stop="toggle()"
+                            />
+                            <icon-button class="has-text-grey" icon="fa-angle-up" v-else @click.stop="toggle()" />
                         </div>
                     </slot>
                     <!-- Spacer to keep options lined up even if no collapse trigger visible -->

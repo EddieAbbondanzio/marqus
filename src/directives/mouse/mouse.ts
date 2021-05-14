@@ -15,11 +15,12 @@ export const mouse = {
         const action = getAction(binding.arg);
         const callback = getCallback(binding.value);
         const button = getButton(binding.modifiers);
+        const self = binding.modifiers.self;
 
         let obj = mouseObjectManager.get(el);
 
         if (obj == null) {
-            obj = new MouseObject(el, mouseObjectManager);
+            obj = new MouseObject(el, self, mouseObjectManager);
             mouseObjectManager.add(obj);
         }
 

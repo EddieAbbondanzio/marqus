@@ -7,20 +7,24 @@ export class MouseObjectManager {
     active: MouseObject | null = null;
 
     onMouseMoveListener: (e: MouseEvent) => any;
-    onMouseUpListener: (e: MouseEvent) => any;
+    onClickListener: (e: MouseEvent) => any;
 
     constructor() {
         this.objects = [];
 
         this.onMouseMoveListener = this.onMouseMove.bind(this);
-        this.onMouseUpListener = this.onMouseUp.bind(this);
+        this.onClickListener = this.onMouseUp.bind(this);
 
-        window.addEventListener('mouseup', this.onMouseUpListener);
+        /**
+         * Click event is used instead of mouseup because then we can stop
+         * events from bubbling up from children if desired.
+         */
+        window.addEventListener('click', this.onClickListener);
         window.addEventListener('mousemove', this.onMouseMoveListener);
     }
 
     dispose() {
-        window.removeEventListener('mouseup', this.onMouseUpListener);
+        window.removeEventListener('click', this.onClickListener);
         window.removeEventListener('mousemove', this.onMouseMoveListener);
     }
 
@@ -43,6 +47,11 @@ export class MouseObjectManager {
      */
     onMouseMove(event: MouseEvent) {
         if (this.active == null) {
+            return;
+        }
+
+        // Don't trigger event if self option is set, and trigger element was different.
+        if (this.active.self && this.active.element !== event.target) {
             return;
         }
 
@@ -69,6 +78,13 @@ export class MouseObjectManager {
      */
     onMouseUp(event: MouseEvent) {
         if (this.active == null) {
+            return;
+        }
+
+        // Don't trigger event if self option is set, and trigger element was different.
+        if (this.active.self && this.active.element !== event.target) {
+            console.log('active: ', this.active.element);
+            console.log('target: ', event.target);
             return;
         }
 

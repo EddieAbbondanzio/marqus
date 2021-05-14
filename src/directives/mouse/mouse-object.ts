@@ -14,11 +14,13 @@ export class MouseObject {
     mouseDown = false;
     holding = false;
     moved = false;
+    self = false;
 
     subscribers: MouseObjectSubscriber[];
 
-    constructor(element: HTMLElement, manager: MouseObjectManager) {
+    constructor(element: HTMLElement, self: boolean, manager: MouseObjectManager) {
         this.element = element;
+        this.self = self;
         this.subscribers = [];
 
         (this.element as any).mouseObject = this;

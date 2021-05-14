@@ -10,8 +10,8 @@ describe('MouseObjectManager', () => {
             const m = new MouseObjectManager();
 
             expect(mockAddEventListener).toHaveBeenCalledTimes(2);
-            expect(mockAddEventListener.mock.calls[0][0]).toBe('mouseup');
-            expect(mockAddEventListener.mock.calls[0][1]).toBe(m.onMouseUpListener);
+            expect(mockAddEventListener.mock.calls[0][0]).toBe('click');
+            expect(mockAddEventListener.mock.calls[0][1]).toBe(m.onClickListener);
             expect(mockAddEventListener.mock.calls[1][0]).toBe('mousemove');
             expect(mockAddEventListener.mock.calls[1][1]).toBe(m.onMouseMoveListener);
         });
@@ -28,8 +28,8 @@ describe('MouseObjectManager', () => {
             m.dispose();
 
             expect(mockRemoveEventListener).toHaveBeenCalledTimes(2);
-            expect(mockRemoveEventListener.mock.calls[0][0]).toBe('mouseup');
-            expect(mockRemoveEventListener.mock.calls[0][1]).toBe(m.onMouseUpListener);
+            expect(mockRemoveEventListener.mock.calls[0][0]).toBe('click');
+            expect(mockRemoveEventListener.mock.calls[0][1]).toBe(m.onClickListener);
             expect(mockRemoveEventListener.mock.calls[1][0]).toBe('mousemove');
             expect(mockRemoveEventListener.mock.calls[1][1]).toBe(m.onMouseMoveListener);
         });
@@ -48,7 +48,7 @@ describe('MouseObjectManager', () => {
         it('returns mouse object by matching html element', () => {
             const m = new MouseObjectManager();
             const el = document.createElement('div');
-            const obj = new MouseObject(el, m);
+            const obj = new MouseObject(el, false, m);
             m.add(obj);
 
             const found = m.get(el);
@@ -68,10 +68,10 @@ describe('MouseObjectManager', () => {
         it('removes object from array', () => {
             const m = new MouseObjectManager();
             const el = document.createElement('div');
-            const obj = new MouseObject(el, m);
+            const obj = new MouseObject(el, false, m);
             m.add(obj);
 
-            const obj2 = new MouseObject(document.createElement('a'), m);
+            const obj2 = new MouseObject(document.createElement('a'), false, m);
             m.add(obj2);
 
             m.remove(obj);
@@ -82,7 +82,7 @@ describe('MouseObjectManager', () => {
         it('calls dispose of object to prevent memory leak', () => {
             const m = new MouseObjectManager();
             const el = document.createElement('div');
-            const obj = new MouseObject(el, m);
+            const obj = new MouseObject(el, false, m);
             obj.dispose = jest.fn();
 
             m.add(obj);
@@ -112,7 +112,7 @@ describe('MouseObjectManager', () => {
             } as any;
 
             // Set active as a quick hack
-            const obj = new MouseObject(document.createElement('a'), manager);
+            const obj = new MouseObject(document.createElement('a'), false, manager);
             manager.active = obj;
 
             manager.onMouseMove(mockEvent);
@@ -127,7 +127,7 @@ describe('MouseObjectManager', () => {
                 stopImmediatePropagation: jest.fn()
             } as any;
 
-            const obj = new MouseObject(document.createElement('a'), manager);
+            const obj = new MouseObject(document.createElement('a'), false, manager);
             obj.notify = jest.fn();
 
             manager.active = obj;
@@ -143,7 +143,7 @@ describe('MouseObjectManager', () => {
                 stopImmediatePropagation: jest.fn()
             } as any;
 
-            const obj = new MouseObject(document.createElement('a'), manager);
+            const obj = new MouseObject(document.createElement('a'), false, manager);
             const mockNotify = jest.fn();
             obj.notify = mockNotify;
             obj.mouseDown = true;
@@ -164,7 +164,7 @@ describe('MouseObjectManager', () => {
                 stopImmediatePropagation: jest.fn()
             } as any;
 
-            const obj = new MouseObject(document.createElement('a'), manager);
+            const obj = new MouseObject(document.createElement('a'), false, manager);
             const mockNotify = jest.fn();
             obj.notify = mockNotify;
             obj.mouseDown = true;
@@ -200,7 +200,7 @@ describe('MouseObjectManager', () => {
             } as any;
 
             // Set active as a quick hack
-            const obj = new MouseObject(document.createElement('a'), m);
+            const obj = new MouseObject(document.createElement('a'), false, m);
             m.active = obj;
 
             m.onMouseUp(mockEvent);
@@ -215,7 +215,7 @@ describe('MouseObjectManager', () => {
             } as any;
 
             // Set active as a quick hack
-            const obj = new MouseObject(document.createElement('a'), m);
+            const obj = new MouseObject(document.createElement('a'), false, m);
             const mockNotify = jest.fn();
             obj.notify = mockNotify;
 
@@ -234,7 +234,7 @@ describe('MouseObjectManager', () => {
             } as any;
 
             // Set active as a quick hack
-            const obj = new MouseObject(document.createElement('a'), m);
+            const obj = new MouseObject(document.createElement('a'), false, m);
             const mockNotify = jest.fn();
             obj.notify = mockNotify;
             obj.holding = true;
@@ -254,7 +254,7 @@ describe('MouseObjectManager', () => {
             } as any;
 
             // Set active as a quick hack
-            const obj = new MouseObject(document.createElement('a'), m);
+            const obj = new MouseObject(document.createElement('a'), false, m);
             obj.holding = true;
 
             m.active = obj;

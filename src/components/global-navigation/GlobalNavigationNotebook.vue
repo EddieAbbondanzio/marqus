@@ -152,24 +152,6 @@ export default defineComponent({
             ]
         };
 
-        // const depth = computed(() => {
-        //     if (p.modelValue == null) {
-        //         return 1;
-        //     }
-
-        //     let c = p.modelValue!;
-        //     let count = 1;
-
-        //     while (c.parent != null) {
-        //         c = c.parent;
-        //         count++;
-        //     }
-
-        //     console.log('re calculated for: ', p.modelValue!.value, ' depth: ', count);
-
-        //     return count;
-        // });
-
         return {
             expanded,
             onClick,

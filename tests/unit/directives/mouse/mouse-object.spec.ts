@@ -9,7 +9,7 @@ describe('MouseObject', () => {
         it('returns length of subscribers', () => {
             const el = document.createElement('div');
 
-            const obj = new MouseObject(el, mouseObjectManager);
+            const obj = new MouseObject(el, false, mouseObjectManager);
             obj.subscribers.push(null!);
             obj.subscribers.push(null!);
 
@@ -24,7 +24,7 @@ describe('MouseObject', () => {
                 removeEventListener: jest.fn()
             } as any) as HTMLElement;
 
-            const obj = new MouseObject(el, mouseObjectManager);
+            const obj = new MouseObject(el, false, mouseObjectManager);
             obj.dispose();
 
             expect(el.removeEventListener).toHaveBeenCalled();
@@ -34,7 +34,7 @@ describe('MouseObject', () => {
     describe('notify()', () => {
         it('triggers callbatch of matches', () => {
             const el = document.createElement('div');
-            const obj = new MouseObject(el, mouseObjectManager);
+            const obj = new MouseObject(el, false, mouseObjectManager);
             const sub = new MouseObjectSubscriber('click', 'left', jest.fn());
 
             obj.subscribers.push(sub);
@@ -45,7 +45,7 @@ describe('MouseObject', () => {
 
         it("skips subscribers that don' match", () => {
             const el = document.createElement('div');
-            const obj = new MouseObject(el, mouseObjectManager);
+            const obj = new MouseObject(el, false, mouseObjectManager);
             const sub = new MouseObjectSubscriber('click', 'right', jest.fn());
 
             obj.subscribers.push(sub);
@@ -58,7 +58,7 @@ describe('MouseObject', () => {
     describe('subscribe()', () => {
         it('adds subscriber', () => {
             const el = document.createElement('div');
-            const obj = new MouseObject(el, mouseObjectManager);
+            const obj = new MouseObject(el, false, mouseObjectManager);
 
             const cb = jest.fn();
 
@@ -69,7 +69,7 @@ describe('MouseObject', () => {
 
         it('throws if duplicate found', () => {
             const el = document.createElement('div');
-            const obj = new MouseObject(el, mouseObjectManager);
+            const obj = new MouseObject(el, false, mouseObjectManager);
 
             const cb = jest.fn();
 
@@ -84,7 +84,7 @@ describe('MouseObject', () => {
     describe('unsubscribe()', () => {
         it('removes subscriber that matches', () => {
             const el = document.createElement('div');
-            const obj = new MouseObject(el, mouseObjectManager);
+            const obj = new MouseObject(el, false, mouseObjectManager);
 
             const cb = jest.fn();
             const cb2 = jest.fn();
@@ -102,7 +102,7 @@ describe('MouseObject', () => {
         it("doesn't set active if no subscribers have button pressed", () => {
             const el = document.createElement('a');
             const manager = {} as any;
-            const obj = new MouseObject(el, manager);
+            const obj = new MouseObject(el, false, manager);
 
             obj.onMouseDown({ button: 0 } as MouseEvent);
             expect(manager.active).toBeFalsy();
@@ -111,7 +111,7 @@ describe('MouseObject', () => {
         it('sets active if any subscribers have the button that was pressed', () => {
             const el = document.createElement('a');
             const manager = {} as any;
-            const obj = new MouseObject(el, manager);
+            const obj = new MouseObject(el, false, manager);
             obj.subscribe('click', 'left', () => {});
 
             obj.onMouseDown(({ button: 0, stopImmediatePropagation: jest.fn() } as any) as MouseEvent);
