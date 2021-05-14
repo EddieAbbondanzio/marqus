@@ -14,6 +14,7 @@
         v-mouse:hold.left="onHold"
         v-mouse:drag.left="onHover"
         v-mouse:release.left="onRelease"
+        @click.stop
     >
         <NavigationMenuForm
             v-if="isNotebookBeingCreated(modelValue.id)"
@@ -91,15 +92,19 @@ export default defineComponent({
         };
 
         const onRelease = (ev: any) => {
+            const src = document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement;
+
             /**
              * Try to find the id of the notebook we ended on. We may need to climb the DOM
              * as target could be a nested element inside of NavigationMenuItem.
              */
-            const id = climbDomHierarchy<string>(ev.target, {
+            const id = climbDomHierarchy<string>(src, {
                 match: (el) => el.classList.contains('global-navigation-notebook') && el.hasAttribute('data-id'),
                 matchValue: (el) => el.getAttribute('data-id'),
                 defaultValue: () => null
             });
+
+            console.log(ev.target);
 
             s.dispatch('app/globalNavigation/notebookDragStop', id);
         };
