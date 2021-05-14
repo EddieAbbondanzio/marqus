@@ -164,7 +164,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
             const duplicate = newSiblings.find((n) => n.value === dragging.value);
             if (duplicate != null) {
-                const confirmReplace = await confirmReplaceNote(dragging.value);
+                const confirmReplace = await confirmReplaceNotebook(dragging.value);
 
                 if (confirmReplace) {
                     commit('notebooks/DELETE', duplicate.id, { root: true });
@@ -206,11 +206,11 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     }
 };
 
-export async function confirmReplaceNote(name: string): Promise<boolean> {
+export async function confirmReplaceNotebook(name: string): Promise<boolean> {
     const options: any = {
         type: 'warning',
         buttons: ['Yes', 'No'],
-        message: `Note with name ${name} already exists. Do you want to replace it?`
+        message: `Notebook with name ${name} already exists in destination. Do you want to replace it?`
     };
 
     options.defaultId = 0;

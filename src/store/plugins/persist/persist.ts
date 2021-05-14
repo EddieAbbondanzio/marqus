@@ -82,7 +82,7 @@ export const persist = {
             }
 
             // Revive state if needed
-            if (m.settings.reviver) {
+            if (state != null && m.settings.reviver) {
                 state = m.settings.reviver(state);
 
                 if (state == null) {
