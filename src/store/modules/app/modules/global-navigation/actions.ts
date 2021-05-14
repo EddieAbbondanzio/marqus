@@ -124,7 +124,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     async notebookDelete({ commit, rootState }, id: string) {
         const notebook = findNotebookRecursive(rootState.notebooks.values, id)!;
 
-        if (await confirmDelete('tag', notebook.value)) {
+        if (await confirmDelete('notebook', notebook.value)) {
             commit('notebooks/DELETE', id, { root: true });
         }
     },

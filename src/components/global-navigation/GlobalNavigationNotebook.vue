@@ -14,7 +14,6 @@
         v-mouse:hold.left="onHold"
         v-mouse:drag.left="onHover"
         v-mouse:release.left="onRelease"
-        @click.stop
     >
         <NavigationMenuForm
             v-if="isNotebookBeingCreated(modelValue.id)"
