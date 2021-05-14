@@ -140,14 +140,17 @@ export default defineComponent({
             required: true,
             unique: [
                 () => {
-                    // On an update we're working with the parent notebook.
-                    if (s.state.app.globalNavigation.notebooks.input.mode === 'update') {
-                        return p.modelValue!.parent == null ? s.state.notebooks.values : p.modelValue!.parent.children;
-                    }
-                    // On create we're working with a (new) child notebook
-                    else {
-                        const siblings = p.modelValue!.children;
-                        return siblings ?? [];
+                    switch (s.state.app.globalNavigation.notebooks.input.mode) {
+                        case 'update':
+                            return p.modelValue!.parent == null
+                                ? s.state.notebooks.values
+                                : p.modelValue!.parent.children;
+
+                        case 'create':
+                            return p.modelValue!.children ?? [];
+
+                        default:
+                            throw Error();
                     }
                 },
                 (n: Notebook) => n.id,
