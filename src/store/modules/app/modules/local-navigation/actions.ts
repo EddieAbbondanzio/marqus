@@ -1,6 +1,6 @@
 import { Note } from '@/store/modules/notes/state';
 import { State } from '@/store/state';
-import { confirmDelete } from '@/utils/confirm-delete';
+import { confirmDelete } from '@/utils/prompts/confirm-delete';
 import { ActionTree } from 'vuex';
 import { LocalNavigation } from './state';
 

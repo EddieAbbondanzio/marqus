@@ -5,6 +5,7 @@ export interface Note {
     tags: string[];
     dateCreated: Date;
     dateModified: Date;
+    trashed?: boolean;
 }
 
 export interface NoteState {

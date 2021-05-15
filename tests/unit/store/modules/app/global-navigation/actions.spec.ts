@@ -1,7 +1,7 @@
 import { actions } from '@/store/modules/app/modules/global-navigation/actions';
 import { Tag } from '@/store/modules/tags/state';
 import { generateId } from '@/utils/id';
-import * as confirmDelete from '@/utils/confirm-delete';
+import * as confirmDelete from '@/utils/prompts/confirm-delete';
 import { Notebook, NotebookState } from '@/store/modules/notebooks/state';
 
 jest.mock('electron', () => ({

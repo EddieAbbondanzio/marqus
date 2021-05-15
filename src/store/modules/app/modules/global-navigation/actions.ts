@@ -2,10 +2,10 @@ import { findNotebookRecursive } from '@/store/modules/notebooks/mutations';
 import { Notebook } from '@/store/modules/notebooks/state';
 import { Tag } from '@/store/modules/tags/state';
 import { State } from '@/store/state';
-import { confirmDelete } from '@/utils/confirm-delete';
+import { confirmDelete } from '@/utils/prompts/confirm-delete';
+import { confirmReplaceNotebook } from '@/utils/prompts/confirm-replace-notebook';
 import { Action, ActionContext, ActionTree } from 'vuex';
 import { GlobalNavigation } from './state';
-const electron = require('electron').remote; // Don't change. Jest doesn't like destructuring.
 
 export const actions: ActionTree<GlobalNavigation, State> = {
     setActive({ commit }, a: { id: string; type: 'notebook' | 'tag' }) {
@@ -215,17 +215,3 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('notebooks/ALL_EXPANDED', false, { root: true });
     }
 };
-
-export async function confirmReplaceNotebook(name: string): Promise<boolean> {
-    const options: any = {
-        type: 'warning',
-        buttons: ['Yes', 'No'],
-        message: `Notebook with name ${name} already exists in destination. Do you want to replace it?`
-    };
-
-    options.defaultId = 0;
-    options.cancelId = 1;
-
-    const out = await electron.dialog.showMessageBox(options);
-    return out.response === 0; // Index of button clicked. IE: 'Yes'
-}
