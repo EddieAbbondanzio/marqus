@@ -63,6 +63,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         if (confirm) {
             commit('tags/DELETE', id, { root: true });
+            commit('notes/REMOVE_TAG', { tagId: id }, { root: true });
         }
     },
     notebookInputStart({ commit, rootState }, { id, parentId }: { id?: string; parentId?: string } = {}) {
@@ -126,6 +127,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         if (await confirmDelete('notebook', notebook.value)) {
             commit('notebooks/DELETE', id, { root: true });
+            commit('notes/REMOVE_NOTEBOOK', { notebookId: id }, { root: true });
         }
     },
     notebookDragStart({ commit }, notebook: Notebook) {

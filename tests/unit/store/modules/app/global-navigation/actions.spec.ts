@@ -123,7 +123,7 @@ describe('GlobalNavigation Actions', () => {
             const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
             confirmDeleteMock.mockReturnValue(Promise.resolve(true));
 
-            await expectAction(actions.tagDelete, tag.id, context, ['tags/DELETE']);
+            await expectAction(actions.tagDelete, tag.id, context, ['tags/DELETE', 'notes/REMOVE_TAG']);
         });
 
         it('if user says no, stop.', async () => {
@@ -235,7 +235,10 @@ describe('GlobalNavigation Actions', () => {
             const confirmDeleteMock = jest.spyOn(confirmDelete, 'confirmDelete');
             confirmDeleteMock.mockReturnValue(Promise.resolve(true));
 
-            await expectAction(actions.notebookDelete, notebook.id, context, ['notebooks/DELETE']);
+            await expectAction(actions.notebookDelete, notebook.id, context, [
+                'notebooks/DELETE',
+                'notes/REMOVE_NOTEBOOK'
+            ]);
         });
 
         it('if user says no, stop.', async () => {
