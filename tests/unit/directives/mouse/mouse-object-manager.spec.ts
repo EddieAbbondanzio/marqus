@@ -1,7 +1,15 @@
 import { MouseObject } from '@/directives/mouse/mouse-object';
 import { MouseObjectManager } from '@/directives/mouse/mouse-object-manager';
+import { store } from '@/store';
 
 describe('MouseObjectManager', () => {
+    const mockCommit = jest.fn();
+    store.commit = mockCommit;
+
+    beforeEach(() => {
+        mockCommit.mockReset();
+    });
+
     describe('ctor()', () => {
         it('adds event listener on mouse up', () => {
             const mockAddEventListener = jest.fn();
@@ -9,11 +17,13 @@ describe('MouseObjectManager', () => {
 
             const m = new MouseObjectManager();
 
-            expect(mockAddEventListener).toHaveBeenCalledTimes(2);
+            expect(mockAddEventListener).toHaveBeenCalledTimes(3);
             expect(mockAddEventListener.mock.calls[0][0]).toBe('click');
             expect(mockAddEventListener.mock.calls[0][1]).toBe(m.onClickListener);
             expect(mockAddEventListener.mock.calls[1][0]).toBe('mousemove');
             expect(mockAddEventListener.mock.calls[1][1]).toBe(m.onMouseMoveListener);
+            expect(mockAddEventListener.mock.calls[2][0]).toBe('keyup');
+            expect(mockAddEventListener.mock.calls[2][1]).toBe(m.onKeyUpListener);
         });
     });
 
@@ -27,11 +37,13 @@ describe('MouseObjectManager', () => {
             const m = new MouseObjectManager();
             m.dispose();
 
-            expect(mockRemoveEventListener).toHaveBeenCalledTimes(2);
+            expect(mockRemoveEventListener).toHaveBeenCalledTimes(3);
             expect(mockRemoveEventListener.mock.calls[0][0]).toBe('click');
             expect(mockRemoveEventListener.mock.calls[0][1]).toBe(m.onClickListener);
             expect(mockRemoveEventListener.mock.calls[1][0]).toBe('mousemove');
             expect(mockRemoveEventListener.mock.calls[1][1]).toBe(m.onMouseMoveListener);
+            expect(mockRemoveEventListener.mock.calls[2][0]).toBe('keyup');
+            expect(mockRemoveEventListener.mock.calls[2][1]).toBe(m.onKeyUpListener);
         });
     });
 
@@ -89,6 +101,77 @@ describe('MouseObjectManager', () => {
             m.remove(obj);
 
             expect(obj.dispose).toHaveBeenCalled();
+        });
+    });
+
+    describe('onKeyUp()', () => {
+        it('does nothing if active is null', () => {
+            const m = new MouseObjectManager();
+
+            m.onKeyUp({ key: 'Escape' } as any);
+            expect(m.cancelled).toBeFalsy();
+        });
+
+        it('does nothing if not holding', () => {
+            const m = new MouseObjectManager();
+            const el = document.createElement('div');
+
+            const obj = new MouseObject(el, false, m);
+
+            m.active = obj;
+
+            m.onKeyUp({ key: 'Escape' } as any);
+            expect(m.cancelled).toBeFalsy();
+        });
+
+        it('sets cancelled as true when escape is pressed', () => {
+            const m = new MouseObjectManager();
+            const el = document.createElement('div');
+
+            const obj = new MouseObject(el, false, m);
+            obj.holding = true;
+
+            m.active = obj;
+
+            m.onKeyUp({ key: 'Escape' } as any);
+            expect(m.cancelled).toBeTruthy();
+        });
+
+        it('notifies active of dragcancel event', () => {
+            const m = new MouseObjectManager();
+            const el = document.createElement('div');
+
+            const obj = new MouseObject(el, false, m);
+            obj.holding = true;
+
+            const mockNotify = jest.fn();
+
+            obj.notify = mockNotify;
+
+            m.active = obj;
+
+            m.onKeyUp({ key: 'Escape' } as any);
+            expect(mockNotify).toHaveBeenCalled();
+            expect(mockNotify.mock.calls[0][0]).toBe('dragcancel');
+        });
+
+        it('resets cursor icon', () => {
+            const m = new MouseObjectManager();
+            const el = document.createElement('div');
+
+            const obj = new MouseObject(el, false, m);
+            obj.holding = true;
+
+            const mockNotify = jest.fn();
+
+            obj.notify = mockNotify;
+
+            m.active = obj;
+
+            m.onKeyUp({ key: 'Escape' } as any);
+
+            expect(mockCommit).toHaveBeenCalled();
+            expect(mockCommit.mock.calls[0][0]).toBe('app/RESET_CURSOR_ICON');
         });
     });
 
@@ -263,7 +346,30 @@ describe('MouseObjectManager', () => {
 
             expect(obj.holding).toBeFalsy();
             expect(obj.mouseDown).toBeFalsy();
+            expect(obj.activeButton).toBeUndefined();
             expect(m.active).toBeFalsy();
+            expect(m.cancelled).toBeFalsy();
+        });
+
+        it('does not notify release event subscribers if cancelled', () => {
+            const m = new MouseObjectManager();
+            const mockEvent = {
+                stopImmediatePropagation: jest.fn()
+            } as any;
+
+            // Set active as a quick hack
+            const obj = new MouseObject(document.createElement('a'), false, m);
+            const mockNotify = jest.fn();
+            obj.notify = mockNotify;
+            obj.holding = true;
+
+            m.active = obj;
+
+            m.cancelled = true;
+
+            m.onMouseUp(mockEvent);
+
+            expect(mockNotify).not.toHaveBeenCalledTimes(1);
         });
     });
 });

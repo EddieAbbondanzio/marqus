@@ -197,6 +197,11 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         commit('app/CURSOR_TITLE_CLEAR', null, { root: true });
     },
+    noteDragCancel({ commit }) {
+        console.log('drag cancelled!');
+        commit('NOTEBOOK_DRAGGING_CLEAR');
+        commit('app/CURSOR_TITLE_CLEAR', null, { root: true });
+    },
     expandAll({ commit }) {
         commit('TAGS_EXPANDED', true);
         commit('NOTEBOOKS_EXPANDED', true);

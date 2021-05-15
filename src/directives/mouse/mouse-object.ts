@@ -15,6 +15,7 @@ export class MouseObject {
     holding = false;
     moved = false;
     self = false;
+    activeButton: MouseButton | undefined;
 
     subscribers: MouseObjectSubscriber[];
 
@@ -79,6 +80,7 @@ export class MouseObject {
 
             this.mouseDown = true;
             this.manager.active = this;
+            this.activeButton = button;
         }
     }
 }

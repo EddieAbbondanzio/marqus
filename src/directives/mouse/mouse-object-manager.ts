@@ -1,5 +1,5 @@
 import { MouseObject } from './mouse-object';
-import { getButton } from './mouse-button';
+import { getButton, MouseButton } from './mouse-button';
 import { store } from '@/store';
 
 export class MouseObjectManager {
@@ -8,12 +8,16 @@ export class MouseObjectManager {
 
     onMouseMoveListener: (e: MouseEvent) => any;
     onClickListener: (e: MouseEvent) => any;
+    onKeyUpListener: (e: KeyboardEvent) => any;
+
+    cancelled = false;
 
     constructor() {
         this.objects = [];
 
         this.onMouseMoveListener = this.onMouseMove.bind(this);
         this.onClickListener = this.onMouseUp.bind(this);
+        this.onKeyUpListener = this.onKeyUp.bind(this);
 
         /**
          * Click event is used instead of mouseup because then we can stop
@@ -21,11 +25,13 @@ export class MouseObjectManager {
          */
         window.addEventListener('click', this.onClickListener);
         window.addEventListener('mousemove', this.onMouseMoveListener);
+        window.addEventListener('keyup', this.onKeyUpListener);
     }
 
     dispose() {
         window.removeEventListener('click', this.onClickListener);
         window.removeEventListener('mousemove', this.onMouseMoveListener);
+        window.removeEventListener('keyup', this.onKeyUpListener);
     }
 
     add(obj: MouseObject) {
@@ -39,6 +45,19 @@ export class MouseObjectManager {
     remove(obj: MouseObject) {
         this.objects = this.objects.filter((o) => o !== obj);
         obj.dispose();
+    }
+
+    onKeyUp(event: KeyboardEvent) {
+        if (this.active == null || !this.active.holding) {
+            return;
+        }
+
+        if (event.key === 'Escape') {
+            this.cancelled = true;
+
+            this.active.notify('dragcancel', this.active.activeButton!, null!);
+            store.commit('app/RESET_CURSOR_ICON');
+        }
     }
 
     /**
@@ -83,8 +102,6 @@ export class MouseObjectManager {
 
         // Don't trigger event if self option is set, and trigger element was different.
         if (this.active.self && this.active.element !== event.target) {
-            console.log('active: ', this.active.element);
-            console.log('target: ', event.target);
             return;
         }
 
@@ -94,12 +111,17 @@ export class MouseObjectManager {
         if (!this.active.holding) {
             this.active.notify('click', button, event);
         } else {
-            this.active.notify('release', button, event);
+            if (!this.cancelled) {
+                this.active.notify('release', button, event);
+            }
+
             store.commit('app/RESET_CURSOR_ICON');
         }
 
         this.active.holding = false;
         this.active.mouseDown = false;
+        this.active.activeButton = undefined;
         this.active = null;
+        this.cancelled = false;
     }
 }
