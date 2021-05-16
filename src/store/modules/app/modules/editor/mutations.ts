@@ -53,10 +53,19 @@ export const mutations: MutationTree<Editor> = {
         s.tabs.values.length = 0;
     },
     TAB_DRAGGING(s, dragging?: Tab) {
-        if (dragging != null) {
-            s.tabs.dragging = dragging;
-        } else {
-            delete s.tabs.dragging;
+        s.tabs.dragging = dragging;
+    },
+    TAB_DRAGGING_NEW_INDEX(s, newIndex: number) {
+        if (s.tabs.dragging == null) {
+            throw Error('No dragging tab to update.');
         }
+
+        const oldIndex = s.tabs.values.findIndex((t) => t.id === s.tabs.dragging!.id);
+
+        // Remove tab from old spot
+        const tab = s.tabs.values.splice(oldIndex, 1)[0];
+
+        // Insert it in at the new one.
+        s.tabs.values.splice(newIndex, 0, tab);
     }
 };

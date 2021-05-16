@@ -1,7 +1,7 @@
 <template>
     <li
         :key="modelValue.id"
-        :class="isTabActive(modelValue.id) ? 'is-active' : ''"
+        :class="isTabActive(modelValue.id) ? 'editor-tab is-active' : 'editor-tab'"
         :title="noteName(modelValue.noteId)"
         :data-index="index"
     >
@@ -29,6 +29,8 @@
 import { defineComponent } from 'vue';
 import { mapGetters, mapMutations, mapState, useStore } from 'vuex';
 import IconButton from '@/components/core/IconButton.vue';
+import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { off } from 'node:process';
 
 export default defineComponent({
     props: {
@@ -51,10 +53,36 @@ export default defineComponent({
         };
 
         const onMoveEnd = (e: MouseEvent) => {
-            const endedOnElement = document.elementFromPoint(e.x, e.y);
+            const endedOnElement = document.elementFromPoint(e.x, e.y) as HTMLElement;
+            const tabContainer = climbDomHierarchy(endedOnElement, {
+                match: (e) => e.id === 'editor-tabs',
+                matchValue: (e) => e
+            });
 
-            console.log(endedOnElement);
-            s.dispatch('app/editor/tabDragStop');
+            // If we can't find the tab container, we didn't finish our drag within it. Stop.
+            if (tabContainer == null) {
+                return;
+            }
+
+            const endedAtXPositioned = e.offsetX;
+            const tabs = document.querySelectorAll('#editor-tabs .editor-tab');
+
+            let tabIndex = 0;
+            let tabXPosition = 0;
+
+            // Find the index of the last tab to the left our end position based off local x coordinate.
+            while (tabXPosition < endedAtXPositioned && tabs.length > tabIndex) {
+                const tab = tabs.item(tabIndex) as HTMLElement;
+                const box = tab.getBoundingClientRect();
+
+                tabXPosition += box.width;
+                tabIndex++;
+            }
+
+            // Gotta minus 1 since the loop incremented preemptively.
+            tabIndex--;
+
+            s.dispatch('app/editor/tabDragStop', tabIndex);
         };
 
         return {

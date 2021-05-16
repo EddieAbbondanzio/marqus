@@ -40,6 +40,8 @@ persist.register({
 
         delete s.cursor;
 
+        delete s.editor.tabs.dragging;
+
         return s;
     }
 });

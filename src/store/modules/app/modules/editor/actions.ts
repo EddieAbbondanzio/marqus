@@ -7,7 +7,8 @@ export const actions: ActionTree<Editor, State> = {
         commit('ACTIVE', tab.id); // We set it as active, to render it nicer on cursor dragging
         commit('TAB_DRAGGING', tab);
     },
-    tabDragStop({ commit }) {
+    tabDragStop({ commit }, newIndex: number) {
+        commit('TAB_DRAGGING_NEW_INDEX', newIndex);
         commit('TAB_DRAGGING');
     }
 };
