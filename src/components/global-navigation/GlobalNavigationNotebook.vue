@@ -13,7 +13,7 @@
         v-mouse:click.left="() => setActive({ id: modelValue.id, type: 'notebook' })"
         v-mouse:hold.left="onHold"
         v-mouse:drag.left="onHover"
-        v-mouse:dragcancel.left="() => noteDragCancel()"
+        v-mouse:dragcancel.left="() => notebookDragCancel()"
         v-mouse:release.left="onRelease"
     >
         <NavigationMenuForm
@@ -185,7 +185,7 @@ export default defineComponent({
             cancel: 'notebookInputCancel',
             onRelease: 'notebookDragStop',
             setActive: 'setActive',
-            noteDragCancel: 'noteDragCancel'
+            notebookDragCancel: 'notebookDragCancel'
         })
     },
     components: { NavigationMenuForm, NavigationMenuItem }

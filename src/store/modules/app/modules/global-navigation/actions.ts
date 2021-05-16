@@ -133,7 +133,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     },
     notebookDragStart({ commit }, notebook: Notebook) {
         commit('NOTEBOOK_DRAGGING', notebook);
-        commit('app/CURSOR_TITLE', notebook.value, { root: true });
     },
     async notebookDragStop({ commit, rootState, state }, endedOnId: string | null) {
         const dragging = state.notebooks.dragging;
@@ -191,15 +190,12 @@ export const actions: ActionTree<GlobalNavigation, State> = {
                 commit('notebooks/EXPANDED', { notebook: parent, expanded: true, bubbleUp: true }, { root: true });
             }
 
-            commit('NOTEBOOK_DRAGGING_CLEAR');
+            commit('NOTEBOOK_DRAGGING');
             commit('notebooks/SORT', null, { root: true });
         }
-
-        commit('app/CURSOR_TITLE_CLEAR', null, { root: true });
     },
-    noteDragCancel({ commit }) {
-        commit('NOTEBOOK_DRAGGING_CLEAR');
-        commit('app/CURSOR_TITLE_CLEAR', null, { root: true });
+    notebookDragCancel({ commit }) {
+        commit('NOTEBOOK_DRAGGING');
     },
     expandAll({ commit }) {
         commit('TAGS_EXPANDED', true);

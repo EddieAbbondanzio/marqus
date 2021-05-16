@@ -12,7 +12,7 @@
     <Teleport to="#cursor-dragging" v-if="isDragging">
         <div class="tabs is-boxed is-small mb-0 has-border-bottom-0" style="padding-top: 7px; height: 39px; ">
             <ul>
-                <EditorTabItem :modelValue="dragging" style="z-index: 1!important; pointer-events: none!important" />
+                <EditorTabItem :modelValue="dragging" />
             </ul>
         </div>
     </Teleport>

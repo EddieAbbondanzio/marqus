@@ -69,8 +69,5 @@ export const mutations: MutationTree<GlobalNavigation> = {
     },
     NOTEBOOK_DRAGGING(state, dragging: Notebook) {
         state.notebooks.dragging = dragging;
-    },
-    NOTEBOOK_DRAGGING_CLEAR(state) {
-        delete state.notebooks.dragging;
     }
 };

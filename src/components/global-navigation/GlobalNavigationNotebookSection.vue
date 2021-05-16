@@ -20,6 +20,10 @@
         />
         <GlobalNavigationNotebook v-for="notebook in notebooks" :key="notebook.id" :modelValue="notebook" />
     </NavigationMenuItem>
+
+    <Teleport to="#cursor-dragging" v-if="isNotebookBeingDragged">
+        <GlobalNavigationNotebook :modelValue="dragging" class="has-background-white" />
+    </Teleport>
 </template>
 
 <script lang="ts">
@@ -68,7 +72,8 @@ export default defineComponent({
         ...mapState('notebooks', {
             notebooks: (state: any) => state.values
         }),
-        ...mapGetters('app/globalNavigation', ['isNotebookBeingCreated'])
+        ...mapState('app/globalNavigation', { dragging: (s: any) => s.notebooks.dragging }),
+        ...mapGetters('app/globalNavigation', ['isNotebookBeingCreated', 'isNotebookBeingDragged'])
     },
     methods: {
         ...mapActions('app/globalNavigation', {

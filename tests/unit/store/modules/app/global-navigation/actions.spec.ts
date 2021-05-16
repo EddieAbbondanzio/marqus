@@ -270,7 +270,7 @@ describe('GlobalNavigation Actions', () => {
 
             context.rootState.notebooks.values.push(notebook);
 
-            await expectAction(actions.notebookDragStart, notebook, context, ['NOTEBOOK_DRAGGING', 'app/CURSOR_TITLE']);
+            await expectAction(actions.notebookDragStart, notebook, context, ['NOTEBOOK_DRAGGING']);
         });
     });
 
@@ -301,7 +301,7 @@ describe('GlobalNavigation Actions', () => {
             child.parent = parent;
 
             context.state.notebooks.dragging = parent;
-            await expectAction(actions.notebookDragStop, child.id, context, ['app/CURSOR_TITLE_CLEAR']);
+            await expectAction(actions.notebookDragStop, child.id, context, []);
         });
 
         it('moves notebook', async () => {
@@ -324,9 +324,8 @@ describe('GlobalNavigation Actions', () => {
                 'notebooks/DELETE',
                 'notebooks/CREATE',
                 'notebooks/EXPANDED',
-                'NOTEBOOK_DRAGGING_CLEAR',
-                'notebooks/SORT',
-                'app/CURSOR_TITLE_CLEAR'
+                'NOTEBOOK_DRAGGING',
+                'notebooks/SORT'
             ]);
         });
     });

@@ -60,6 +60,7 @@ export default defineComponent({
 <style lang="sass">
 #cursor-dragging
     pointer-events: none!important
+    z-index: 9001!important
 
 .has-cursor-default
     cursor: default!important

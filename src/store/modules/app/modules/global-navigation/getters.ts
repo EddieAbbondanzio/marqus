@@ -42,6 +42,7 @@ export const getters: GetterTree<GlobalNavigation, State> = {
     isNotebookBeingUpdated: (s) => (id: string) => {
         return s.notebooks.input.mode === 'update' && s.notebooks.input.id === id;
     },
+    isNotebookBeingDragged: (s) => s.notebooks.dragging != null,
     canNotebookBeCollapsed: (s) => (n: Notebook) => {
         return (n.children?.length ?? 0) > 0;
     }
