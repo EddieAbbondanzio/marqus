@@ -1,13 +1,19 @@
 <template>
     <div class="tabs is-boxed is-small mb-0 has-border-bottom-0" style="padding-top: 7px; height: 39px;">
         <ul>
-            <li v-for="tab in tabs" :key="tab.id" :class="isTabActive(tab.id) ? 'is-active' : ''">
+            <li
+                v-for="tab in tabs"
+                :key="tab.id"
+                :class="isTabActive(tab.id) ? 'is-active' : ''"
+                :title="noteName(tab.noteId)"
+            >
                 <a class="is-flex is-flex-row is-justify-space-between is-align-center px-2" @click="onClick(tab.id)">
-                    <span :class="{ 'mr-1': true, 'is-italic': tab.state === 'preview' }"
+                    <span :class="{ 'editor-tab-label': true, 'mr-1': true, 'is-italic': tab.state === 'preview' }"
                         >{{ noteName(tab.noteId) }}{{ tab.state === 'dirty' ? '*' : '' }}</span
                     >
 
                     <IconButton
+                        title="Close"
                         icon="fa-times"
                         class="has-text-hover-danger has-text-grey"
                         @click="CLOSE_TAB(tab.id)"
@@ -49,3 +55,10 @@ export default defineComponent({
     components: { IconButton }
 });
 </script>
+
+<style lang="sass" scoped>
+.editor-tab-label
+        max-width: 120px
+        overflow: hidden
+        text-overflow: ellipsis
+</style>

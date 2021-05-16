@@ -12,9 +12,9 @@
         >
             <div
                 class=" has-text-grey is-flex is-justify-content-space-between is-align-center"
-                style="height: 30px!important; "
+                style="height: 30px!important;"
             >
-                <div class="is-flex is-align-center" :style="`padding-left: ${indent}!important;`">
+                <div class="is-flex is-align-center" :style="`padding-left: ${indent}!important; min-width: 0px;`">
                     <span class="icon" v-if="icon">
                         <i :class="`fas fa-${icon}`"></i>
                     </span>
@@ -24,7 +24,7 @@
                     </span>
 
                     <slot name="label">
-                        <p class="is-size-7">{{ label }}</p>
+                        <span class="navigation-menu-item-label is-size-7">{{ label }}</span>
                     </slot>
                 </div>
 
@@ -169,3 +169,10 @@ export default defineComponent({
     components: { IconButton }
 });
 </script>
+
+<style lang="sass" scoped>
+.navigation-menu-item-label
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+</style>

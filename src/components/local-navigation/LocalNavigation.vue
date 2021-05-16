@@ -1,6 +1,6 @@
 <template>
     <Resizable v-model="width" @resizeStop="save" data-context-menu="localNavigation">
-        <div class="has-h-100 has-text-dark  is-size-7">
+        <div class="has-h-100 has-text-dark  is-size-7" style="min-width: 0px;">
             <!-- Header -->
             <div
                 class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-0 p-1 has-background-light"
@@ -26,6 +26,7 @@
                         v-if="!isNoteBeingUpdated(note.id)"
                         :hideIcon="true"
                         :label="note.name"
+                        :title="note.name"
                         :active="isActive(note.id)"
                         @click="() => setActive(note.id)"
                         indent="0.5rem"
