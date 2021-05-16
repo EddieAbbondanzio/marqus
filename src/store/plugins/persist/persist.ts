@@ -47,7 +47,11 @@ export const persist = {
 
                         // Save off the file
                         if (subscriber.settings.serialize != null) {
-                            await subscriber.settings.serialize(s, { fileName, mutationPayload: p });
+                            await subscriber.settings.serialize(s, {
+                                rootState: store.state,
+                                fileName,
+                                mutationPayload: p
+                            });
                         } else {
                             await fileSystem.writeJSON(fileName, s);
                         }

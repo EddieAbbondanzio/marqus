@@ -16,9 +16,7 @@ describe('notes store', () => {
                 notebooks: ['1', '2'],
                 tags: ['3', '4']
             });
-
             const notes = await deserialize();
-
             expect(notes.values).toHaveLength(1);
             expect(notes.values[0].name).toBe('cat');
             expect(notes.values[0].dateCreated).toBeInstanceOf(Date);

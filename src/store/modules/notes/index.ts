@@ -8,6 +8,7 @@ import path from 'path';
 import moment from 'moment';
 import { regex } from '@/utils/regex';
 import { MutationPayload } from 'vuex';
+import { State } from '@/store/state';
 
 export default {
     namespaced: true,
@@ -22,16 +23,20 @@ const NOTES_DIRECTORY = 'notes';
 persist.register({
     namespace: 'notes',
     initiMutation: 'INIT',
-    filter: ['CREATE', 'UPDATE', 'DELETE'],
     serialize,
     deserialize
 });
 
-export async function serialize(s: NoteState, { mutationPayload }: { mutationPayload: MutationPayload }) {
+export async function serialize(
+    s: NoteState,
+    { rootState, mutationPayload }: { rootState: State; mutationPayload: MutationPayload }
+) {
     switch (mutationPayload.type) {
         case 'notes/CREATE':
         case 'notes/UPDATE':
-            await upsertNoteToFileSystem(mutationPayload.payload);
+        case 'notes/MOVE_TO_TRASH':
+        case 'notes/RESTORE_TO_TRASH':
+            await upsertNoteToFileSystem(rootState, mutationPayload.payload);
             break;
 
         case 'notes/DELETE':
@@ -57,7 +62,8 @@ export async function deserialize() {
                 dateCreated: moment(metaData.dateCreated).toDate(),
                 dateModified: moment(metaData.dateModified).toDate(),
                 notebooks: metaData.notebooks,
-                tags: metaData.tags
+                tags: metaData.tags,
+                trashed: metaData.trashed
             };
 
             notes.push(note);
@@ -69,7 +75,15 @@ export async function deserialize() {
     };
 }
 
-export async function upsertNoteToFileSystem(note: Note) {
+export async function upsertNoteToFileSystem(rootState: State, noteOrId: Note | string) {
+    let note: Note;
+
+    if (typeof noteOrId === 'string') {
+        note = rootState.notes.values.find((n) => n.id === noteOrId)!;
+    } else {
+        note = noteOrId;
+    }
+
     const directoryPath = path.join(NOTES_DIRECTORY, note.id);
 
     // Create parent directory if needed
@@ -94,7 +108,8 @@ export async function upsertNoteToFileSystem(note: Note) {
         dateCreated: note.dateCreated,
         dateModified: note.dateModified,
         notebooks: note.notebooks,
-        tags: note.tags
+        tags: note.tags,
+        trashed: note.trashed
     };
 
     await fileSystem.writeJSON(path.join(directoryPath, 'metadata.json'), json);

@@ -1,3 +1,4 @@
+import { State } from '@/store/state';
 import { TaskScheduler } from '@/utils/task-scheduler';
 import { MutationPayload } from 'vuex';
 
@@ -32,7 +33,10 @@ export interface PersistModuleSettings {
     /**
      * Custom serialization handler. Will be called instead of the default handler that writes a JSON file.
      */
-    serialize?: (s: any, context: { fileName: string; mutationPayload: MutationPayload }) => Promise<void>;
+    serialize?: (
+        s: any,
+        context: { rootState: State; fileName: string; mutationPayload: MutationPayload }
+    ) => Promise<void>;
     /**
      * Custom deserialization handler. Will be called instead of the default handler that reads a JSON file.
      */

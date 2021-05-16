@@ -337,4 +337,49 @@ describe('note mutations', () => {
             expect(state.values[1].tags).toHaveLength(0);
         });
     });
+
+    describe('MOVE_TO_TRASH()', () => {
+        it('throws error if no note found', () => {
+            expect(() => {
+                mutations.MOVE_TO_TRASH(state, '1');
+            }).toThrow();
+        });
+
+        it('sets trashed to true', () => {
+            state.values.push({
+                id: '1',
+                name: 'foo',
+                notebooks: [],
+                tags: ['a'],
+                dateCreated: new Date(),
+                dateModified: new Date()
+            });
+
+            mutations.MOVE_TO_TRASH(state, '1');
+            expect(state.values[0].trashed).toBeTruthy();
+        });
+    });
+
+    describe('RESTORE_FROM_TRASH', () => {
+        it('throws error if no note found', () => {
+            expect(() => {
+                mutations.RESTORE_FROM_TRASH(state, '1');
+            }).toThrow();
+        });
+
+        it('sets trashed to undefined', () => {
+            state.values.push({
+                id: '1',
+                name: 'foo',
+                notebooks: [],
+                tags: ['a'],
+                dateCreated: new Date(),
+                dateModified: new Date(),
+                trashed: true
+            });
+
+            mutations.RESTORE_FROM_TRASH(state, '1');
+            expect(state.values[0].trashed).toBeUndefined();
+        });
+    });
 });

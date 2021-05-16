@@ -141,5 +141,23 @@ export const mutations: MutationTree<NoteState> = {
                 note.tags.splice(i, 1);
             }
         }
+    },
+    MOVE_TO_TRASH(state, id: string) {
+        const note = state.values.find((n) => n.id === id);
+
+        if (note == null) {
+            throw Error(`No note found with id ${id}`);
+        }
+
+        note.trashed = true;
+    },
+    RESTORE_FROM_TRASH(state, id: string) {
+        const note = state.values.find((n) => n.id === id);
+
+        if (note == null) {
+            throw Error(`No note found with id ${id}`);
+        }
+
+        delete note.trashed;
     }
 };
