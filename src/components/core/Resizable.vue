@@ -1,6 +1,8 @@
 <template>
     <div class="resizable-wrapper" ref="wrapper" :style="style">
-        <slot></slot>
+        <div style="max-width: calc(100% - 2px);">
+            <slot></slot>
+        </div>
         <div
             class="resizable-handle"
             v-mouse:hold.left="onHandleMouseDown"

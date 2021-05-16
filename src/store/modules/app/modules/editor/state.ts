@@ -6,10 +6,15 @@ export interface Tab {
 }
 
 export interface Editor {
-    activeTab?: string;
-    tabs: Tab[];
+    tabs: {
+        active?: string;
+        dragging?: Tab;
+        values: Tab[];
+    };
 }
 
 export const state: Editor = {
-    tabs: []
+    tabs: {
+        values: []
+    }
 };

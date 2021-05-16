@@ -18,5 +18,8 @@ export const mutations: MutationTree<AppState> = {
     },
     RESET_CURSOR_ICON(state) {
         state.cursor.icon = 'pointer';
+    },
+    CURSOR_DRAGGING(state, dragging) {
+        state.cursor.dragging = dragging;
     }
 };

@@ -5,6 +5,7 @@ import { LocalNavigation } from './modules/local-navigation/state';
 interface Cursor {
     icon: string;
     title?: string;
+    dragging?: boolean;
 }
 
 export interface AppState {

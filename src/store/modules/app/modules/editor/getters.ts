@@ -8,10 +8,11 @@ export const getters: GetterTree<Editor, State> = {
         return note?.name ?? '';
     },
     isTabActive: (s) => (tabId: string) => {
-        if (s.activeTab == null) {
+        if (s.tabs.active == null) {
             return false;
         }
 
-        return s.activeTab === tabId;
-    }
+        return s.tabs.active === tabId;
+    },
+    isDragging: (s) => s.tabs.dragging != null
 };

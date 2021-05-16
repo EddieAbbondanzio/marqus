@@ -1,64 +1,35 @@
 <template>
-    <div class="tabs is-boxed is-small mb-0 has-border-bottom-0" style="padding-top: 7px; height: 39px;">
+    <div
+        id="editor-tabs"
+        class="tabs is-boxed is-small mb-0 has-border-bottom-0"
+        style="padding-top: 7px; height: 39px;"
+    >
         <ul>
-            <li
-                v-for="tab in tabs"
-                :key="tab.id"
-                :class="isTabActive(tab.id) ? 'is-active' : ''"
-                :title="noteName(tab.noteId)"
-            >
-                <a class="is-flex is-flex-row is-justify-space-between is-align-center px-2" @click="onClick(tab.id)">
-                    <span :class="{ 'editor-tab-label': true, 'mr-1': true, 'is-italic': tab.state === 'preview' }"
-                        >{{ noteName(tab.noteId) }}{{ tab.state === 'dirty' ? '*' : '' }}</span
-                    >
-
-                    <IconButton
-                        title="Close"
-                        icon="fa-times"
-                        class="has-text-hover-danger has-text-grey"
-                        @click="CLOSE_TAB(tab.id)"
-                    />
-                </a>
-            </li>
+            <EditorTabItem v-for="(tab, i) in tabs" :key="tab.id" :modelValue="tab" :index="i" />
         </ul>
     </div>
+
+    <Teleport to="#cursor-dragging" v-if="isDragging">
+        <div class="tabs is-boxed is-small mb-0 has-border-bottom-0" style="padding-top: 7px; height: 39px; ">
+            <ul>
+                <EditorTabItem :modelValue="dragging" style="z-index: 1!important; pointer-events: none!important" />
+            </ul>
+        </div>
+    </Teleport>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapGetters, mapMutations, mapState, useStore } from 'vuex';
-import IconButton from '@/components/core/IconButton.vue';
+import EditorTabItem from '@/components/editor/EditorTabItem.vue';
+import { mapGetters, mapState } from 'vuex';
 
 export default defineComponent({
-    setup: (p, c) => {
-        const s = useStore();
-
-        const onClick = (tabId: string) => {
-            if (s.state.app.editor.activeTab === tabId) {
-                s.commit('app/editor/EXIT_PREVIEW', tabId);
-            } else {
-                s.commit('app/editor/ACTIVE', tabId);
-            }
-        };
-
-        return {
-            onClick
-        };
-    },
-    methods: {
-        ...mapMutations('app/editor', ['CLOSE_TAB'])
-    },
     computed: {
-        ...mapState('app/editor', ['tabs']),
-        ...mapGetters('app/editor', ['noteName', 'isTabActive'])
+        ...mapState('app/editor', { tabs: (s: any) => s.tabs.values, dragging: (s: any) => s.tabs.dragging }),
+        ...mapGetters('app/editor', ['isDragging'])
     },
-    components: { IconButton }
+    components: {
+        EditorTabItem
+    }
 });
 </script>
-
-<style lang="sass" scoped>
-.editor-tab-label
-        max-width: 120px
-        overflow: hidden
-        text-overflow: ellipsis
-</style>

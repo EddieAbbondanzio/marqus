@@ -120,7 +120,7 @@ describe('GlobalNavigationTagSection.vue', () => {
         const tag = wrapper.find('.global-navigation-tag');
         expect(tag.exists());
 
-        const p = tag.find('p');
-        expect(p.element.innerHTML).toBe('Cat');
+        const span = tag.find('.navigation-menu-item-label');
+        expect(span.element.innerHTML).toBe('Cat');
     });
 });

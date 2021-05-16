@@ -151,7 +151,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             commit('notebooks/DELETE', dragging.id, { root: true });
 
             let parent: Notebook | undefined;
-            console.log('ended on id: ', endedOnId);
 
             if (endedOnId != null) {
                 parent = findNotebookRecursive(rootState.notebooks.values, endedOnId);
@@ -188,8 +187,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
                 { root: true }
             );
 
-            console.log('parent is: ', parent);
-
             if (parent) {
                 commit('notebooks/EXPANDED', { notebook: parent, expanded: true, bubbleUp: true }, { root: true });
             }
@@ -201,7 +198,6 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('app/CURSOR_TITLE_CLEAR', null, { root: true });
     },
     noteDragCancel({ commit }) {
-        console.log('drag cancelled!');
         commit('NOTEBOOK_DRAGGING_CLEAR');
         commit('app/CURSOR_TITLE_CLEAR', null, { root: true });
     },

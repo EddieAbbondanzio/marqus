@@ -27,17 +27,33 @@ describe('Editor getters', () => {
 
     describe('isTabActive()', () => {
         it('returns false if activeTab is null', () => {
-            const active = (getters as any).isTabActive({})('1');
+            const state = {
+                tabs: {}
+            };
+
+            const active = (getters as any).isTabActive(state)('1');
             expect(active).toBeFalsy();
         });
 
         it('returns true if active tab id matches passed id', () => {
-            const active = (getters as any).isTabActive({ activeTab: '1' })('1');
+            const state = {
+                tabs: {
+                    active: '1'
+                }
+            };
+
+            const active = (getters as any).isTabActive(state)('1');
             expect(active).toBeTruthy();
         });
 
         it('returns false if active tab id does not match passed id', () => {
-            const active = (getters as any).isTabActive({ activeTab: '1' })('2');
+            const state = {
+                tabs: {
+                    active: '1'
+                }
+            };
+
+            const active = (getters as any).isTabActive(state)('2');
             expect(active).toBeFalsy();
         });
     });
