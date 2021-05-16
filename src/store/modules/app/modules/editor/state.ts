@@ -1,7 +1,7 @@
 export interface Tab {
     id: string;
     noteId: string;
-    state: 'preview' | 'clean' | 'dirty';
+    state: 'preview' | 'normal' | 'dirty';
     content: string;
 }
 

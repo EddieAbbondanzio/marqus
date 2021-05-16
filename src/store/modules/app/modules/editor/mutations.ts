@@ -6,13 +6,20 @@ export const mutations: MutationTree<Editor> = {
     ACTIVE(s, tabId) {
         s.activeTab = tabId;
     },
+    EXIT_PREVIEW(s, tabId) {
+        const tab = s.tabs.find((t) => t.id === tabId);
+
+        if (tab != null) {
+            tab.state = 'normal';
+        }
+    },
     OPEN_TAB(s, { noteId, content, preview = true }: { noteId: string; content: string; preview: boolean }) {
         // See if we haven't already opened this tab.
         const existing = s.tabs.find((t) => t.noteId === noteId);
         if (existing != null) {
             // Switch it to normal if it was in preview.
             if (existing.state === 'preview') {
-                existing.state = 'clean';
+                existing.state = 'normal';
             }
 
             s.activeTab = existing.id;
@@ -29,7 +36,7 @@ export const mutations: MutationTree<Editor> = {
             id: newTabId,
             content,
             noteId,
-            state: preview ? 'preview' : 'clean'
+            state: preview ? 'preview' : 'normal'
         });
 
         // Set newly opened tab to active

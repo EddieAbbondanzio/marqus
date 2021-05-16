@@ -11,10 +11,21 @@ describe('Editor mutations', () => {
         });
     });
 
+    describe('EXIT_PREVIEW()', () => {
+        it('sets state as normal', () => {
+            const state: Editor = {
+                tabs: [{ id: 'a', noteId: '1', state: 'preview', content: '' }]
+            };
+
+            mutations.EXIT_PREVIEW(state, 'a');
+            expect(state.tabs[0].state).toBe('normal');
+        });
+    });
+
     describe('OPEN_TAB()', () => {
         it('stops if existing tab is already open', () => {
             const state: Editor = {
-                tabs: [{ id: 'a', noteId: '1', state: 'clean', content: '' }]
+                tabs: [{ id: 'a', noteId: '1', state: 'normal', content: '' }]
             };
 
             mutations.OPEN_TAB(state, { noteId: '1', content: '' });
@@ -30,12 +41,12 @@ describe('Editor mutations', () => {
             mutations.OPEN_TAB(state, { noteId: '1', content: '' });
 
             expect(state.tabs).toHaveLength(1);
-            expect(state.tabs[0].state).toBe('clean');
+            expect(state.tabs[0].state).toBe('normal');
         });
 
         it('sets existing tab as active', () => {
             const state: Editor = {
-                tabs: [{ id: 'a', noteId: '1', state: 'clean', content: '' }]
+                tabs: [{ id: 'a', noteId: '1', state: 'normal', content: '' }]
             };
 
             mutations.OPEN_TAB(state, { noteId: '1', content: '' });
