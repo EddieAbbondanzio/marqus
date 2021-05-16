@@ -1,5 +1,5 @@
 <template>
-    <Resizable v-model="width" @resizeStop="save" data-context-menu="localNavigation">
+    <Resizable v-model="width" data-context-menu="localNavigation">
         <div class="has-h-100 has-text-dark  is-size-7" style="min-width: 0px;">
             <!-- Header -->
             <div
@@ -74,8 +74,6 @@ export default defineComponent({
             get: () => s.state.app.localNavigation.notes.input.name,
             set: (v: string) => s.commit('app/localNavigation/NOTE_INPUT_VALUE', v)
         });
-
-        const save = () => s.dispatch('save');
 
         const formRules = {
             required: true,
@@ -160,7 +158,6 @@ export default defineComponent({
         return {
             width,
             input,
-            save,
             formRules
         };
     },
