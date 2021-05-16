@@ -36,7 +36,7 @@ export async function serialize(
         case 'notes/UPDATE':
         case 'notes/MOVE_TO_TRASH':
         case 'notes/RESTORE_TO_TRASH':
-            await upsertNoteToFileSystem(rootState, mutationPayload.payload);
+            await saveNoteToFileSystem(rootState, mutationPayload.payload);
             break;
 
         case 'notes/DELETE':
@@ -79,7 +79,11 @@ export async function deserialize() {
     };
 }
 
-export async function upsertNoteToFileSystem(rootState: State, noteOrId: Note | string) {
+export async function loadNoteContentFromFileSystem(noteId: string) {
+    return await fileSystem.readText(path.join(NOTES_DIRECTORY, noteId, 'index.md'));
+}
+
+export async function saveNoteToFileSystem(rootState: State, noteOrId: Note | string) {
     let note: Note;
 
     if (typeof noteOrId === 'string') {

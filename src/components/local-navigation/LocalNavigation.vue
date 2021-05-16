@@ -3,7 +3,7 @@
         <div class="has-h-100 has-text-dark  is-size-7">
             <!-- Header -->
             <div
-                class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-1-dark p-1 has-background-light"
+                class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-0 p-1 has-background-light"
             >
                 <LocalNavigationSearchBar />
                 <IconButton icon="fa-plus" size="is-small" @click="create" />
@@ -26,7 +26,8 @@
                         v-if="!isNoteBeingUpdated(note.id)"
                         :hideIcon="true"
                         :label="note.name"
-                        @click="onNoteClick"
+                        :active="isActive(note.id)"
+                        @click="() => setActive(note.id)"
                         indent="0.5rem"
                         :data-id="note.id"
                     ></NavigationMenuItem>
@@ -74,10 +75,6 @@ export default defineComponent({
         });
 
         const save = () => s.dispatch('save');
-
-        const onNoteClick = () => {
-            console.log('click!');
-        };
 
         const formRules = {
             required: true,
@@ -163,18 +160,18 @@ export default defineComponent({
             width,
             input,
             save,
-            onNoteClick,
             formRules
         };
     },
     computed: {
-        ...mapGetters('app/localNavigation', ['isNoteBeingCreated', 'isNoteBeingUpdated', 'activeNotes'])
+        ...mapGetters('app/localNavigation', ['isNoteBeingCreated', 'isNoteBeingUpdated', 'activeNotes', 'isActive'])
     },
     methods: {
         ...mapActions('app/localNavigation', {
             confirm: 'noteInputConfirm',
             cancel: 'noteInputCancel',
-            create: 'noteInputStart'
+            create: 'noteInputStart',
+            setActive: 'setActive'
         })
     },
     components: {

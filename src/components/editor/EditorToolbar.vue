@@ -1,5 +1,5 @@
 <template>
-    <div class="has-background-light has-border-bottom-1-dark p-1 is-flex is-align-center">
+    <div class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center">
         <div class="buttons has-addons mb-0 mx-1">
             <button id="editButton" :class="editButtonClasses" style="height: 30px" title="Edit" @click="toggleMode">
                 <span class="icon is-small" v-if="mode === 'view'">

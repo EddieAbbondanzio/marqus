@@ -1,3 +1,4 @@
+import { loadNoteContentFromFileSystem } from '@/store/modules/notes';
 import { Note } from '@/store/modules/notes/state';
 import { State } from '@/store/state';
 import { confirmDelete } from '@/utils/prompts/confirm-delete';
@@ -65,6 +66,22 @@ export const actions: ActionTree<LocalNavigation, State> = {
             case 'trash':
                 commit('notes/MOVE_TO_TRASH', id, { root: true });
                 break;
+        }
+    },
+    async setActive({ commit }, id?: string) {
+        commit('ACTIVE', id);
+
+        if (id != null) {
+            const noteContent = await loadNoteContentFromFileSystem(id);
+
+            commit(
+                'app/editor/OPEN_TAB',
+                {
+                    noteId: id,
+                    content: noteContent
+                },
+                { root: true }
+            );
         }
     }
 };

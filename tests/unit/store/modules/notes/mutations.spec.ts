@@ -382,4 +382,32 @@ describe('note mutations', () => {
             expect(state.values[0].trashed).toBeUndefined();
         });
     });
+
+    describe('EMPTY_TRASH()', () => {
+        it('only removes notes with trashed set to true', () => {
+            state.values.push({
+                id: '1',
+                name: 'foo',
+                notebooks: [],
+                tags: ['a'],
+                dateCreated: new Date(),
+                dateModified: new Date(),
+                trashed: true
+            });
+
+            state.values.push({
+                id: '1',
+                name: 'bar',
+                notebooks: [],
+                tags: ['a'],
+                dateCreated: new Date(),
+                dateModified: new Date()
+            });
+
+            mutations.EMPTY_TRASH(state);
+
+            expect(state.values).toHaveLength(1);
+            expect(state.values[0].name).toBe('bar');
+        });
+    });
 });

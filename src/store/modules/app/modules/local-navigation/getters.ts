@@ -10,6 +10,7 @@ export const getters: GetterTree<LocalNavigation, State> = {
     isNoteBeingUpdated: (s) => (id: string) => {
         return s.notes.input.mode === 'update' && s.notes.input.id === id;
     },
+    isActive: (s) => (id: string) => s.active === id,
     activeNotes: (_s, _g, rootState) => {
         const active = rootState.app.globalNavigation.active;
 

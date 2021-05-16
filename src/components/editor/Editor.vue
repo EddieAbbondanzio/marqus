@@ -1,15 +1,14 @@
 <template>
     <div class="has-background-light is-flex-grow-1 has-text-dark">
+        <editor-tabs />
         <editor-toolbar />
-        <textarea class="has-w-100 has-h-100" v-if="mode === 'edit'" />
-        <div class="content" v-else></div>
+        <div class="content"></div>
     </div>
-
-    {{ notebooks }}
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, onMounted } from 'vue';
+import EditorTabs from '@/components/editor/EditorTabs.vue';
 import EditorToolbar from '@/components/editor/EditorToolbar.vue';
 import { store } from '@/store';
 import { useStore } from 'vuex';
@@ -17,19 +16,10 @@ import { useStore } from 'vuex';
 export default defineComponent({
     setup: (p, c) => {
         const s = useStore();
-        const notebooks = computed(() =>
-            s.state.notebooks.values.map((n: any) => ({ name: n.value, expanded: n.expanded }))
-        );
-
-        return {
-            notebooks
-        };
     },
     components: {
-        EditorToolbar
-    },
-    computed: {
-        mode: () => ''
+        EditorToolbar,
+        EditorTabs
     }
 });
 </script>

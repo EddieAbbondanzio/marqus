@@ -1,5 +1,4 @@
-import { Notebook } from '../notebooks/state';
-import { Tag } from '../tags/state';
+import { Editor } from '@/store/modules/app/modules/editor/state';
 import { GlobalNavigation } from './modules/global-navigation/state';
 import { LocalNavigation } from './modules/local-navigation/state';
 
@@ -12,6 +11,7 @@ export interface AppState {
     cursor: Cursor;
     globalNavigation: GlobalNavigation;
     localNavigation: LocalNavigation;
+    editor: Editor;
 }
 
 export const state: AppState = {

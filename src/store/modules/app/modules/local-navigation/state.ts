@@ -5,6 +5,7 @@ export interface LocalNavigation {
     notes: {
         input: Partial<Note> & { mode?: 'create' | 'update' };
     };
+    active?: string;
 }
 
 export const state: LocalNavigation = {

@@ -46,8 +46,11 @@ describe('GlobalNavigation Actions', () => {
     });
 
     describe('setActive', () => {
-        it('sets active', async () => {
-            await expectAction(actions.setActive, { id: '1', type: 'tag' }, context, ['ACTIVE']);
+        it('sets active, and resets local navigation active.', async () => {
+            await expectAction(actions.setActive, { id: '1', type: 'tag' }, context, [
+                'ACTIVE',
+                'app/localNavigation/ACTIVE'
+            ]);
         });
     });
 

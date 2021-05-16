@@ -49,5 +49,8 @@ export const mutations: MutationTree<LocalNavigation> = {
                 mode: 'update'
             };
         }
+    },
+    ACTIVE(s, active?: string) {
+        s.active = s.active === active ? undefined : active;
     }
 };

@@ -5,6 +5,7 @@ import { mutations } from './mutations';
 import globalNavigation from '@/store/modules/app/modules/global-navigation/';
 import localNavigation from '@/store/modules/app/modules/local-navigation/';
 import { persist } from '@/store/plugins/persist/persist';
+import editor from '@/store/modules/app/modules/editor';
 
 export default {
     namespaced: true,
@@ -14,7 +15,8 @@ export default {
     mutations,
     modules: {
         globalNavigation,
-        localNavigation
+        localNavigation,
+        editor
     }
 };
 
