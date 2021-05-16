@@ -126,17 +126,17 @@ export default defineComponent({
                                 label: 'Edit Note',
                                 click: () => s.dispatch('app/localNavigation/noteInputStart', { id })
                             });
-
-                            items.push({
-                                label: 'Delete Note',
-                                click: () => s.dispatch('app/localNavigation/noteDelete', id)
-                            });
                         } else {
                             items.push({
                                 label: 'Restore Note',
                                 click: () => s.commit('notes/RESTORE_FROM_TRASH', id)
                             });
                         }
+
+                        items.push({
+                            label: 'Delete Note',
+                            click: () => s.dispatch('app/localNavigation/noteDelete', id)
+                        });
                     }
 
                     return items;

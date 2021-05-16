@@ -159,5 +159,8 @@ export const mutations: MutationTree<NoteState> = {
         }
 
         delete note.trashed;
+    },
+    EMPTY_TRASH(state) {
+        state.values = state.values.filter((n) => !n.trashed);
     }
 };

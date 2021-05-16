@@ -42,6 +42,10 @@ export async function serialize(
         case 'notes/DELETE':
             await fileSystem.deleteDirectory(path.join(NOTES_DIRECTORY, mutationPayload.payload));
             break;
+
+        case 'notes/EMPTY_TRASH':
+            await fileSystem.deleteDirectory(NOTES_DIRECTORY);
+            await fileSystem.createDirectory(NOTES_DIRECTORY);
     }
 }
 

@@ -213,5 +213,10 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         commit('TAGS_EXPANDED', false);
         commit('NOTEBOOKS_EXPANDED', false);
         commit('notebooks/ALL_EXPANDED', false, { root: true });
+    },
+    async emptyTrash({ commit }) {
+        if (await confirmDelete('the trash', 'permanently')) {
+            commit('notes/EMPTY_TRASH', null!, { root: true });
+        }
     }
 };

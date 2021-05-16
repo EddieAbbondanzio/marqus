@@ -142,6 +142,11 @@ export default defineComponent({
                             click: () => s.dispatch('app/globalNavigation/tagDelete', id)
                         });
                     }
+
+                    items.push({
+                        label: 'Empty Trash',
+                        click: () => s.dispatch('app/globalNavigation/emptyTrash')
+                    });
                     return items;
                 },
                 shouldShowMenu: (e, p) => {
