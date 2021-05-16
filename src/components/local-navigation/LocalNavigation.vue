@@ -109,23 +109,34 @@ export default defineComponent({
                     });
 
                     // we can inject menu items as needed. This is called each time we right click
-                    const items = [
-                        {
+                    const items = [] as any[];
+
+                    if (s.state.app.globalNavigation.active !== 'trash') {
+                        items.push({
                             label: 'Create Note',
                             click: () => s.dispatch('app/localNavigation/noteInputStart')
-                        }
-                    ];
+                        });
+                    }
 
                     if (id != null) {
-                        items.push({
-                            label: 'Edit Note',
-                            click: () => s.dispatch('app/localNavigation/noteInputStart', { id })
-                        });
+                        const note = s.state.notes.values.find((n: Note) => n.id === id) as Note;
 
-                        items.push({
-                            label: 'Delete Note',
-                            click: () => s.dispatch('app/localNavigation/noteDelete', id)
-                        });
+                        if (!note.trashed) {
+                            items.push({
+                                label: 'Edit Note',
+                                click: () => s.dispatch('app/localNavigation/noteInputStart', { id })
+                            });
+
+                            items.push({
+                                label: 'Delete Note',
+                                click: () => s.dispatch('app/localNavigation/noteDelete', id)
+                            });
+                        } else {
+                            items.push({
+                                label: 'Restore Note',
+                                click: () => s.commit('notes/RESTORE_FROM_TRASH', id)
+                            });
+                        }
                     }
 
                     return items;

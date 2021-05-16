@@ -71,6 +71,10 @@ export const fileSystem = {
         const fullPath = generateFullPath(path, root);
 
         await fs.writeFile(fullPath, content, 'utf8');
+    },
+    async deleteDirectory(path: string, { root }: { root: boolean } = { root: false }) {
+        const fullPath = generateFullPath(path, root);
+        await fs.rmdir(fullPath, { recursive: true });
     }
 };
 

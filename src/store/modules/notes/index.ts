@@ -40,7 +40,7 @@ export async function serialize(
             break;
 
         case 'notes/DELETE':
-            console.log('aayyy lmao. Implement the delete bruh');
+            await fileSystem.deleteDirectory(path.join(NOTES_DIRECTORY, mutationPayload.payload));
             break;
     }
 }
