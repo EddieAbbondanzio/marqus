@@ -109,4 +109,41 @@ describe('Editor mutations', () => {
             expect(state.tabs.values).toHaveLength(0);
         });
     });
+
+    describe('TAB_DRAGGING()', () => {
+        it('sets dragging as passed', () => {
+            const state: Editor = {
+                tabs: { values: [] }
+            };
+
+            mutations.TAB_DRAGGING(state, { id: '1' });
+            expect(state.tabs.dragging!.id).toBe('1');
+        });
+    });
+
+    describe('TAB_DRAGGING_NEW_INDEX()', () => {
+        it('throws if not dragging', () => {
+            const state: Editor = {
+                tabs: { values: [] }
+            };
+
+            expect(() => {
+                mutations.TAB_DRAGGING_NEW_INDEX(state);
+            }).toThrow();
+        });
+    });
+
+    describe('it moves tab to new index', () => {
+        const state: Editor = {
+            tabs: { values: [{ id: '1' }, { id: '2' }, { id: '3' }] as any[] }
+        };
+
+        mutations.TAB_DRAGGING(state, { id: '1' });
+        mutations.TAB_DRAGGING_NEW_INDEX(state, 2);
+
+        expect(state.tabs.values).toHaveLength(3);
+        expect(state.tabs.values[0].id).toBe('2');
+        expect(state.tabs.values[1].id).toBe('3');
+        expect(state.tabs.values[2].id).toBe('1');
+    });
 });

@@ -57,4 +57,27 @@ describe('Editor getters', () => {
             expect(active).toBeFalsy();
         });
     });
+
+    describe('isDragging()', () => {
+        it('returns false if tabs.dragging is null', () => {
+            const state = {
+                tabs: {
+                    active: '1'
+                }
+            };
+
+            expect((getters as any).isDragging(state)).toBeFalsy();
+        });
+
+        it('returns true if tabs.dragging is not null', () => {
+            const state = {
+                tabs: {
+                    active: '1',
+                    dragging: {}
+                }
+            };
+
+            expect((getters as any).isDragging(state)).toBeTruthy();
+        });
+    });
 });

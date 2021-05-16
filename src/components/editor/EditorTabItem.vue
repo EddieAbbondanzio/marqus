@@ -70,7 +70,7 @@ export default defineComponent({
             let tabIndex = 0;
             let tabXPosition = 0;
 
-            // Find the index of the last tab to the left our end position based off local x coordinate.
+            // Find the index of the last tab to the left of the drag end position based off local x coordinate.
             while (tabXPosition < endedAtXPositioned && tabs.length > tabIndex) {
                 const tab = tabs.item(tabIndex) as HTMLElement;
                 const box = tab.getBoundingClientRect();
@@ -104,7 +104,7 @@ export default defineComponent({
 
 <style lang="sass" scoped>
 .editor-tab-label
-        max-width: 120px
-        overflow: hidden
-        text-overflow: ellipsis
+    max-width: 120px
+    overflow: hidden
+    text-overflow: ellipsis
 </style>
