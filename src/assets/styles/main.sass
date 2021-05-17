@@ -27,3 +27,11 @@ body
 
 .is-absolute
     position: absolute
+
+.is-focusable
+    @extend %input
+
+    height: auto!important
+
+    &:focus-within
+        @extend .is-focused

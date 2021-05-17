@@ -41,7 +41,7 @@ export default defineComponent({
         const s = useStore();
 
         const onClick = (tabId: string) => {
-            if (s.state.app.editor.activeTab === tabId) {
+            if (s.state.app.editor.tabs.active === tabId) {
                 s.commit('app/editor/EXIT_PREVIEW', tabId);
             } else {
                 s.commit('app/editor/ACTIVE', tabId);

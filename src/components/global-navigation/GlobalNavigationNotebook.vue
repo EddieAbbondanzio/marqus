@@ -104,8 +104,6 @@ export default defineComponent({
                 defaultValue: () => null
             });
 
-            console.log(ev.target);
-
             s.dispatch('app/globalNavigation/notebookDragStop', id);
         };
 
