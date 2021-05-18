@@ -16,9 +16,9 @@
 
                 <div :class="`control ${icon != null ? 'has-icons-left' : ''}`">
                     <input
+                        id="tag-input"
                         v-model="inputValue"
                         class="input is-small"
-                        type="email"
                         :placeholder="placeholder"
                         ref="inputRef"
                         @input="onInput"
@@ -43,9 +43,6 @@
                     >
                         {{ tag.value }}
                     </a>
-                    <!-- <a href="#" class="dropdown-item is-active">
-                        Active dropdown item
-                    </a> -->
                 </div>
             </div>
         </div>
@@ -68,7 +65,7 @@ export default defineComponent({
         },
         size: {
             type: String,
-            default: ''
+            default: 'is-small'
         },
         values: {
             type: Array,

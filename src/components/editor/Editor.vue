@@ -20,7 +20,7 @@ import EditorTabs from '@/components/editor/EditorTabs.vue';
 import EditorToolbar from '@/components/editor/EditorToolbar.vue';
 import { store } from '@/store';
 import { useStore } from 'vuex';
-import TagInput from '@/components/core/TagInput.vue';
+import TagInput from '@/components/core/form/TagInput.vue';
 
 export default defineComponent({
     setup: (p, c) => {
