@@ -11,6 +11,16 @@
                 v-model:values="available"
             />
         </div>
+
+        <Dropdown>
+            <template v-slot:trigger="{ toggle }">
+                <button @click="toggle">Trigger me brah</button>
+            </template>
+
+            <template #content>
+                content!
+            </template>
+        </Dropdown>
     </div>
 </template>
 
@@ -21,6 +31,7 @@ import EditorToolbar from '@/components/editor/EditorToolbar.vue';
 import { store } from '@/store';
 import { useStore } from 'vuex';
 import TagInput from '@/components/core/form/TagInput.vue';
+import Dropdown from '@/components/core/Dropdown.vue';
 
 export default defineComponent({
     setup: (p, c) => {
@@ -56,7 +67,8 @@ export default defineComponent({
     components: {
         EditorToolbar,
         EditorTabs,
-        TagInput
+        TagInput,
+        Dropdown
     }
 });
 </script>

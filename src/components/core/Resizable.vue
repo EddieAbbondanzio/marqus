@@ -18,6 +18,9 @@
 import { computed, defineComponent, getCurrentInstance, onMounted, onUnmounted, Ref, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
+/**
+ * Horizontal resizable that allows content to be dragged via the mouse to adjust it's width.
+ */
 export default defineComponent({
     setup(p, c) {
         const style = computed(() => ({ width: p.modelValue, minWidth: p.minWidth }));
