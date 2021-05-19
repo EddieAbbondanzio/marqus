@@ -39,6 +39,11 @@ export async function serialize(
             await saveNoteToFileSystem(rootState, mutationPayload.payload);
             break;
 
+        case 'notes/ADD_TAG':
+        case 'notes/REMOVE_TAG':
+            await saveNoteToFileSystem(rootState, mutationPayload.payload.noteId);
+            break;
+
         case 'notes/DELETE':
             await fileSystem.deleteDirectory(path.join(NOTES_DIRECTORY, mutationPayload.payload));
             break;
@@ -65,8 +70,8 @@ export async function deserialize() {
                 name: metaData.name,
                 dateCreated: moment(metaData.dateCreated).toDate(),
                 dateModified: moment(metaData.dateModified).toDate(),
-                notebooks: metaData.notebooks,
-                tags: metaData.tags,
+                notebooks: metaData.notebooks ?? [],
+                tags: metaData.tags ?? [],
                 trashed: metaData.trashed
             };
 

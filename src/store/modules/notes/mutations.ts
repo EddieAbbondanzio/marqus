@@ -1,3 +1,4 @@
+import Vue from '*.vue';
 import { generateId } from '@/utils/id';
 import { MutationTree } from 'vuex';
 import { Note, NoteState } from './state';

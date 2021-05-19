@@ -92,6 +92,8 @@ export default defineComponent({
         const onAddSelectedTag = (tag: any) => {
             const newSelected = [...p.selected, tag];
             c.emit('update:selected', newSelected);
+
+            inputValue.value = '';
         };
 
         const inputRef = (ref(null) as any) as HTMLElement;
@@ -120,6 +122,10 @@ export default defineComponent({
                     if (keyboardIndex.value > -1) {
                         onAddSelectedTag(available.value[keyboardIndex.value]);
                         keyboardIndex.value = -1;
+                    }
+                    // If only 1 filtered option left, allow select of it via enter
+                    else if (available.value.length === 1) {
+                        onAddSelectedTag(available.value[0]);
                     }
                     break;
             }

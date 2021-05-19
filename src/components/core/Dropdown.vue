@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
-import { defineComponent, onBeforeUnmount, onMounted, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
     props: {
@@ -25,7 +25,7 @@ export default defineComponent({
             default: false
         }
     },
-    setup(p) {
+    setup(p, c) {
         const isActive = ref(p.active);
         const toggle = (e: Event) => {
             e.stopPropagation();
@@ -38,7 +38,7 @@ export default defineComponent({
                 window.removeEventListener('click', listenForBlur);
             }
 
-            isActive.value = newValue;
+            setIsActive(newValue);
         };
 
         const listenForBlur = (e: MouseEvent) => {
@@ -48,14 +48,20 @@ export default defineComponent({
 
             // User clicked outside of dropdown menu. Hide it.
             if (!isWithinMenu) {
-                isActive.value = false;
+                setIsActive(false);
             }
+        };
+
+        const setIsActive = (v: boolean) => {
+            c.emit('update:active', v);
+            isActive.value = v;
         };
 
         return {
             isActive,
             toggle
         };
-    }
+    },
+    emits: ['update:active']
 });
 </script>

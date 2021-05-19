@@ -12,15 +12,8 @@
             />
         </div>
 
-        <Dropdown>
-            <template v-slot:trigger="{ toggle }">
-                <button @click="toggle">Trigger me brah</button>
-            </template>
-
-            <template #content>
-                content!
-            </template>
-        </Dropdown>
+        Active tab:
+        {{ activeTab }}
     </div>
 </template>
 
@@ -29,7 +22,7 @@ import { computed, defineComponent, nextTick, onMounted, ref } from 'vue';
 import EditorTabs from '@/components/editor/EditorTabs.vue';
 import EditorToolbar from '@/components/editor/EditorToolbar.vue';
 import { store } from '@/store';
-import { useStore } from 'vuex';
+import { mapState, useStore } from 'vuex';
 import TagInput from '@/components/core/form/TagInput.vue';
 import Dropdown from '@/components/core/Dropdown.vue';
 
@@ -69,6 +62,9 @@ export default defineComponent({
         EditorTabs,
         TagInput,
         Dropdown
+    },
+    computed: {
+        ...mapState('app/editor', { activeTab: (s: any) => s.tabs.active })
     }
 });
 </script>
