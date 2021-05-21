@@ -1,21 +1,35 @@
 <template>
     <Dropdown v-model:active="active">
         <template #trigger="{toggle}">
-            <button @click="toggle" class="button mb-0 has-text-hover-grey" title="Notebooks" style="height: 30px">
+            <button
+                @click="
+                    (e) => {
+                        toggle(e);
+                        onToggle();
+                    }
+                "
+                class="button mb-0 has-text-hover-grey"
+                title="Notebooks"
+                style="height: 30px"
+            >
                 <span class="icon is-small">
                     <i class="fas fa-book"></i>
                 </span>
             </button>
         </template>
 
-        <template #content>
-            <TagInput
-                :values="notebooks"
-                :selected="notebooksForNote(note)"
-                @update:selected="onNotebookInput"
-                ref="notebookInput"
-                placeholder="Type to add notebook"
-            />
+        <template #menu>
+            <div class="dropdown-menu p-0">
+                <div class="dropdown-content p-0">
+                    <TagInput
+                        :values="notebooks"
+                        :selected="notebooksForNote(note)"
+                        @update:selected="onNotebookInput"
+                        ref="notebookInput"
+                        placeholder="Type to add notebook"
+                    />
+                </div>
+            </div>
         </template>
     </Dropdown>
 </template>
@@ -23,7 +37,7 @@
 <script lang="ts">
 import { Notebook } from '@/store/modules/notebooks/state';
 import { Note } from '@/store/modules/notes/state';
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import { mapGetters, mapState, useStore } from 'vuex';
 import _ from 'lodash';
 import Dropdown from '@/components/core/Dropdown.vue';
@@ -75,9 +89,18 @@ export default defineComponent({
             }
         });
 
+        const notebookInput = ref(null) as any;
+
+        const onToggle = () => {
+            console.log(notebookInput);
+            notebookInput.value.focus();
+        };
+
         return {
             active,
-            onNotebookInput
+            onNotebookInput,
+            notebookInput,
+            onToggle
         };
     },
     computed: {

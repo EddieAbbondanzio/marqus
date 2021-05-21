@@ -1,21 +1,35 @@
 <template>
     <Dropdown v-model:active="active">
         <template #trigger="{toggle}">
-            <button @click="toggle" class="button mb-0 has-text-hover-grey" title="Tags" style="height: 30px">
+            <button
+                @click="
+                    (e) => {
+                        toggle(e);
+                        onToggle();
+                    }
+                "
+                class="button mb-0 has-text-hover-grey"
+                title="Tags"
+                style="height: 30px"
+            >
                 <span class="icon is-small">
                     <i class="fas fa-tag"></i>
                 </span>
             </button>
         </template>
 
-        <template #content>
-            <TagInput
-                :values="tags"
-                :selected="tagsForNote(note)"
-                @update:selected="onTagInput"
-                ref="tagInput"
-                placeholder="Type to add tag"
-            />
+        <template #menu>
+            <div class="dropdown-menu p-0">
+                <div class="dropdown-content p-0">
+                    <TagInput
+                        :values="tags"
+                        :selected="tagsForNote(note)"
+                        @update:selected="onTagInput"
+                        ref="tagInput"
+                        placeholder="Type to add tag"
+                    />
+                </div>
+            </div>
         </template>
     </Dropdown>
 </template>
@@ -65,9 +79,18 @@ export default defineComponent({
             }
         });
 
+        const tagInput = ref(null) as any;
+
+        const onToggle = () => {
+            console.log(tagInput);
+            tagInput.value.focus();
+        };
+
         return {
             active,
-            onTagInput
+            onTagInput,
+            onToggle,
+            tagInput
         };
     },
     computed: {

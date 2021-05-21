@@ -1,55 +1,61 @@
 <template>
     <div :class="`tag-input ${size}`">
         <Dropdown>
-            <template v-slot:trigger="{ toggle }">
-                <label class="label" v-if="label != null">{{ label }}</label>
+            <template #trigger="{ toggle }">
+                <div class="is-focusable is-flex is-flex-column is-align-start" @click="inputRef.focus()">
+                    <label class="label" v-if="label != null">{{ label }}</label>
 
-                <template v-for="tag in selected" :key="tag.id">
-                    <span class="tag mx-1">
-                        {{ tag.value }}
-                        <button
-                            class="pl-1 delete is-small"
-                            @mousedown.prevent.stop="onDeleteSelectedTag(tag)"
-                            @click="toggle"
-                        ></button>
-                    </span>
-                </template>
+                    <div class="is-block" v-for="tag in selected" :key="tag.id">
+                        <span class="tag mx-1">
+                            {{ tag.value }}
+                            <button
+                                class="pl-1 delete is-small"
+                                @mousedown.prevent.stop="onDeleteSelectedTag(tag)"
+                                @click="toggle"
+                            ></button>
+                        </span>
+                    </div>
 
-                <div :class="`control ${icon != null ? 'has-icons-left' : ''}`">
-                    <input
-                        id="tag-input"
-                        v-model="inputValue"
-                        class="input is-small"
-                        :placeholder="placeholder"
-                        ref="inputRef"
-                        @input="onInput"
-                        @keyup="onKeyUp"
-                        @focus="setActive(true)"
-                        @blur="setActive(false)"
-                    />
-                    <span class="icon is-small is-left" v-if="icon">
-                        <i :class="`fas ${icon}`"></i>
-                    </span>
+                    <div :class="`control ${icon != null ? 'has-icons-left' : ''}`">
+                        <input
+                            id="tag-input"
+                            v-model="inputValue"
+                            class="input is-small"
+                            :placeholder="placeholder"
+                            ref="inputRef"
+                            @input="onInput"
+                            @keyup="onKeyUp"
+                            @focus="setActive(true)"
+                            @blur="setActive(false)"
+                        />
+                        <span class="icon is-small is-left" v-if="icon">
+                            <i :class="`fas ${icon}`"></i>
+                        </span>
+                    </div>
                 </div>
             </template>
 
-            <template #content>
-                <a
-                    href="#"
-                    @mousedown.prevent="onAddSelectedTag(tag)"
-                    v-for="(tag, i) in available"
-                    :key="tag.id"
-                    :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
-                >
-                    {{ tag.value }}
-                </a>
+            <template #menu>
+                <div class="dropdown-menu p-0 mt-1" :style="!localActive ? 'display: none!important' : ''">
+                    <div class="dropdown-content p-0">
+                        <a
+                            href="#"
+                            @mousedown.prevent="onAddSelectedTag(tag)"
+                            v-for="(tag, i) in available"
+                            :key="tag.id"
+                            :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
+                        >
+                            {{ tag.value }}
+                        </a>
+                    </div>
+                </div>
             </template>
         </Dropdown>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, Ref, ref } from 'vue';
+import { computed, defineComponent, nextTick, Ref, ref } from 'vue';
 import Dropdown from '@/components/core/Dropdown.vue';
 
 export default defineComponent({
@@ -80,9 +86,9 @@ export default defineComponent({
         const localActive = ref(p.active);
 
         const setActive = (v: boolean) => {
+            console.log('setActive()');
             localActive.value = v;
             c.emit('update:active', localActive.value);
-            console.log('set active!');
         };
 
         const onDeleteSelectedTag = (tag: any) => {
@@ -125,11 +131,16 @@ export default defineComponent({
                         keyboardIndex.value = -1;
                     }
                     // If only 1 filtered option left, allow select of it via enter
-                    else if (available.value.length === 1) {
+                    else if (available.value.length === 1 && inputValue.value !== '') {
                         onAddSelectedTag(available.value[0]);
                     }
                     break;
             }
+        };
+
+        const focus = async () => {
+            await nextTick();
+            inputRef.value.focus();
         };
 
         return {
@@ -142,7 +153,8 @@ export default defineComponent({
             inputValue,
             onInput,
             onKeyUp,
-            keyboardIndex
+            keyboardIndex,
+            focus
         };
     },
     emits: ['update:active', 'update:selected'],

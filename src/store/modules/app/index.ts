@@ -42,6 +42,11 @@ persist.register({
 
         delete s.editor.tabs.dragging;
 
+        for (let i = 0; i < s.editor.tabs.values.length; i++) {
+            delete s.editor.tabs.values[i].tagDropdownActive;
+            delete s.editor.tabs.values[i].notebookDropdownActive;
+        }
+
         return s;
     }
 });
