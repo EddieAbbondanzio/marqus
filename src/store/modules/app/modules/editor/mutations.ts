@@ -95,5 +95,15 @@ export const mutations: MutationTree<Editor> = {
         if (active) {
             tab.tagDropdownActive = false;
         }
+    },
+    RESET_TAB(s, id: string) {
+        const tab = s.tabs.values.find((t) => t.id === id);
+
+        if (tab == null) {
+            throw Error(`No tag found with id ${id}`);
+        }
+
+        delete tab.notebookDropdownActive;
+        delete tab.tagDropdownActive;
     }
 };

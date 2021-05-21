@@ -13,6 +13,10 @@ export const actions: ActionTree<Editor, State> = {
         commit('TAB_DRAGGING_NEW_INDEX', newIndex);
         commit('TAB_DRAGGING');
     },
+    tabSwitch({ commit, state }, tabId: string) {
+        commit('ACTIVE', tabId);
+        commit('RESET_TAB', state.tabs.active);
+    },
     async deleteActiveNote({ commit, rootState, rootGetters }) {
         const { id } = rootGetters['app/editor/activeNote'] as Note;
         const note = rootState.notes.values.find((n) => n.id === id);

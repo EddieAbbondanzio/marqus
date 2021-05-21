@@ -82,7 +82,6 @@ export default defineComponent({
         const tagInput = ref(null) as any;
 
         const onToggle = () => {
-            console.log(tagInput);
             tagInput.value.focus();
         };
 

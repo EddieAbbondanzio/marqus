@@ -131,19 +131,38 @@ describe('Editor mutations', () => {
                 mutations.TAB_DRAGGING_NEW_INDEX(state);
             }).toThrow();
         });
+
+        it('it moves tab to new index', () => {
+            const state: Editor = {
+                tabs: { values: [{ id: '1' }, { id: '2' }, { id: '3' }] as any[] }
+            };
+
+            mutations.TAB_DRAGGING(state, { id: '1' });
+            mutations.TAB_DRAGGING_NEW_INDEX(state, 2);
+
+            expect(state.tabs.values).toHaveLength(3);
+            expect(state.tabs.values[0].id).toBe('2');
+            expect(state.tabs.values[1].id).toBe('3');
+            expect(state.tabs.values[2].id).toBe('1');
+        });
     });
 
-    describe('it moves tab to new index', () => {
-        const state: Editor = {
-            tabs: { values: [{ id: '1' }, { id: '2' }, { id: '3' }] as any[] }
-        };
+    describe('RESET_TAB', () => {
+        it('deletes notebook drop down active state, and tag drop down active state', () => {
+            const state: Editor = {
+                tabs: {
+                    active: '1',
+                    values: [
+                        { id: '1', notebookDropdownActive: true, tagDropdownActive: true },
+                        { id: '2' },
+                        { id: '3' }
+                    ] as any[]
+                }
+            };
 
-        mutations.TAB_DRAGGING(state, { id: '1' });
-        mutations.TAB_DRAGGING_NEW_INDEX(state, 2);
-
-        expect(state.tabs.values).toHaveLength(3);
-        expect(state.tabs.values[0].id).toBe('2');
-        expect(state.tabs.values[1].id).toBe('3');
-        expect(state.tabs.values[2].id).toBe('1');
+            mutations.RESET_TAB(state, '1');
+            expect(state.tabs.values[0].notebookDropdownActive).toBeUndefined();
+            expect(state.tabs.values[0].tagDropdownActive).toBeUndefined();
+        });
     });
 });

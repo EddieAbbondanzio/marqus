@@ -44,7 +44,7 @@ export default defineComponent({
             if (s.state.app.editor.tabs.active === tabId) {
                 s.commit('app/editor/EXIT_PREVIEW', tabId);
             } else {
-                s.commit('app/editor/ACTIVE', tabId);
+                s.dispatch('app/editor/tabSwitch', tabId);
             }
         };
 

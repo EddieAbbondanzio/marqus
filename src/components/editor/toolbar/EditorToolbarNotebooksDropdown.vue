@@ -92,7 +92,6 @@ export default defineComponent({
         const notebookInput = ref(null) as any;
 
         const onToggle = () => {
-            console.log(notebookInput);
             notebookInput.value.focus();
         };
 

@@ -86,7 +86,6 @@ export default defineComponent({
         const localActive = ref(p.active);
 
         const setActive = (v: boolean) => {
-            console.log('setActive()');
             localActive.value = v;
             c.emit('update:active', localActive.value);
         };
