@@ -6,6 +6,7 @@ export interface Note {
     dateCreated: Date;
     dateModified: Date;
     trashed?: boolean;
+    favorited?: boolean;
 }
 
 export interface NoteState {

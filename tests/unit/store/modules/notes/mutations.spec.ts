@@ -410,4 +410,49 @@ describe('note mutations', () => {
             expect(state.values[0].name).toBe('bar');
         });
     });
+
+    describe('FAVORITE', () => {
+        it('throws if id not found', () => {
+            expect(() => {
+                mutations.FAVORITE(state, '1');
+            }).toThrow();
+        });
+
+        it('sets favorited to true', () => {
+            state.values.push({
+                id: '1',
+                name: 'bar',
+                notebooks: [],
+                tags: ['a'],
+                dateCreated: new Date(),
+                dateModified: new Date()
+            });
+
+            mutations.FAVORITE(state, '1');
+            expect(state.values[0].favorited).toBeTruthy();
+        });
+    });
+
+    describe('UNFAVORITE', () => {
+        it('throws if id not found.', () => {
+            expect(() => {
+                mutations.UNFAVORITE(state, '1');
+            }).toThrow();
+        });
+
+        it('sets favorited to false', () => {
+            state.values.push({
+                id: '1',
+                name: 'bar',
+                notebooks: [],
+                tags: ['a'],
+                dateCreated: new Date(),
+                dateModified: new Date(),
+                favorited: true
+            });
+
+            mutations.UNFAVORITE(state, '1');
+            expect(state.values[0].favorited).toBeFalsy();
+        });
+    });
 });

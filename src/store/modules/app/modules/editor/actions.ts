@@ -1,5 +1,7 @@
 import { Editor, Tab } from '@/store/modules/app/modules/editor/state';
+import { Note } from '@/store/modules/notes/state';
 import { State } from '@/store/state';
+import { confirmDeleteOrTrash } from '@/utils/prompts/confirm-delete-or-trash';
 import { ActionTree } from 'vuex';
 
 export const actions: ActionTree<Editor, State> = {
@@ -10,5 +12,25 @@ export const actions: ActionTree<Editor, State> = {
     tabDragStop({ commit }, newIndex: number) {
         commit('TAB_DRAGGING_NEW_INDEX', newIndex);
         commit('TAB_DRAGGING');
+    },
+    async deleteActiveNote({ commit, rootState, rootGetters }) {
+        const { id } = rootGetters['app/editor/activeNote'] as Note;
+        const note = rootState.notes.values.find((n) => n.id === id);
+
+        if (note == null) {
+            throw Error(`No note with id ${id} found.`);
+        }
+
+        const confirm = await confirmDeleteOrTrash('note', note.name);
+
+        switch (confirm) {
+            case 'delete':
+                commit('notes/DELETE', id, { root: true });
+                break;
+
+            case 'trash':
+                commit('notes/MOVE_TO_TRASH', id, { root: true });
+                break;
+        }
     }
 };

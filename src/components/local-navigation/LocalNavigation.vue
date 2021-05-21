@@ -133,6 +133,18 @@ export default defineComponent({
                             label: 'Delete Note',
                             click: () => s.dispatch('app/localNavigation/noteDelete', id)
                         });
+
+                        if (!note.favorited) {
+                            items.push({
+                                label: 'Favorite',
+                                click: () => s.commit('notes/FAVORITE', id)
+                            });
+                        } else {
+                            items.push({
+                                label: 'Unfavorite',
+                                click: () => s.commit('notes/UNFAVORITE', id)
+                            });
+                        }
                     }
 
                     return items;

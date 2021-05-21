@@ -9,7 +9,6 @@ export const getters: GetterTree<TagState, State> = {
             return [];
         }
 
-        console.log(note.tags);
         return s.values.filter((t) => note.tags.some((tagId) => t.id === tagId));
     }
 };

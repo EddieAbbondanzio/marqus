@@ -1,6 +1,60 @@
 import { getters } from '@/store/modules/app/modules/editor/getters';
 
 describe('Editor getters', () => {
+    describe('activeNote', () => {
+        it('returns null if active tab is null', () => {
+            const state: any = {
+                tabs: {}
+            };
+
+            const activeNote = getters['activeNote'](state, null, null!, null);
+            expect(activeNote).toBeNull();
+        });
+
+        it('returns active note by matching noteId of active tab', () => {
+            const state: any = {
+                tabs: {
+                    active: 'tab-id',
+                    values: [{ id: 'tab-id', noteId: '1' }]
+                }
+            };
+
+            const rootState: any = {
+                notes: {
+                    values: [{ id: '1' }]
+                }
+            };
+
+            const activeNote = getters['activeNote'](state, null, rootState, null);
+            expect(activeNote).toHaveProperty('id', '1');
+        });
+    });
+
+    describe('activeTab', () => {
+        it('returns null if no active tab', () => {
+            const state: any = {
+                tabs: {
+                    active: null
+                }
+            };
+
+            const activeNote = getters['activeTab'](state, null, null!, null);
+            expect(activeNote).toBeNull();
+        });
+
+        it('returns active tab', () => {
+            const state: any = {
+                tabs: {
+                    active: '2',
+                    values: [{ id: '1' }, { id: '2' }]
+                }
+            };
+
+            const activeNote = getters['activeTab'](state, null, null!, null);
+            expect(activeNote).toHaveProperty('id', '2');
+        });
+    });
+
     describe('noteName()', () => {
         it('returns note name via id', () => {
             const rootState = {

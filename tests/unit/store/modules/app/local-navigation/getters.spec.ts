@@ -41,11 +41,11 @@ describe('getters', () => {
                 },
                 notes: {
                     values: [
-                        { id: '1', name: 'cat', tags: ['5', '6'] },
+                        { id: '1', name: 'cat', tags: ['5', '6'], favorited: true },
                         { id: '2', name: 'dog' },
                         { id: '3', name: 'horse', notebooks: ['7', '8'] },
-                        { id: '11', name: 'parent-note', notebooks: ['7'] },
-                        { id: '22', name: 'child-note', notebooks: ['8'] }
+                        { id: '11', name: 'parent-note', notebooks: ['7'], favorited: true },
+                        { id: '22', name: 'child-note', notebooks: ['8'], favorited: true }
                     ] as any[]
                 },
                 notebooks: {
@@ -130,6 +130,30 @@ describe('getters', () => {
 
             rootState.app.globalNavigation.active = { type: 'tag', id: '5' };
             expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(1);
+        });
+
+        it('returns favorited', () => {
+            rootState.app.globalNavigation.active = 'favorites';
+
+            const res = (getters as any).activeNotes({}, {}, rootState);
+            expect(res).toHaveLength(3);
+            expect(res[0]).toHaveProperty('id', '1');
+            expect(res[1]).toHaveProperty('id', '11');
+            expect(res[2]).toHaveProperty('id', '22');
+        });
+
+        it('excludes trash from favorites', () => {
+            rootState.notes.values.push({
+                id: '420',
+                name: 'useless',
+                trashed: true,
+                tags: ['5'],
+                notebooks: []
+            });
+
+            rootState.app.globalNavigation.active = 'favorites';
+            const res = (getters as any).activeNotes({}, {}, rootState);
+            expect(res).toHaveLength(3);
         });
     });
 });

@@ -1,4 +1,5 @@
 import Vue from '*.vue';
+import { ensure } from '@/utils/ensure';
 import { generateId } from '@/utils/id';
 import { MutationTree } from 'vuex';
 import { Note, NoteState } from './state';
@@ -15,6 +16,9 @@ export const mutations: MutationTree<NoteState> = {
         if (note.id == null) {
             note.id = generateId();
         }
+
+        if (note.tags == null) note.tags = [];
+        if (note.notebooks == null) note.notebooks = [];
 
         state.values.push(note);
     },
@@ -163,5 +167,21 @@ export const mutations: MutationTree<NoteState> = {
     },
     EMPTY_TRASH(state) {
         state.values = state.values.filter((n) => !n.trashed);
+    },
+    FAVORITE(state, id: string) {
+        const note = ensure(
+            state.values.find((n) => n.id === id),
+            `No note with id ${id} found.`
+        );
+
+        note.favorited = true;
+    },
+    UNFAVORITE(state, id: string) {
+        const note = ensure(
+            state.values.find((n) => n.id === id),
+            `No note with id ${id} found.`
+        );
+
+        note.favorited = false;
     }
 };

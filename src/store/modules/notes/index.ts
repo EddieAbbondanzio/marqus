@@ -32,15 +32,20 @@ export async function serialize(
     { rootState, mutationPayload }: { rootState: State; mutationPayload: MutationPayload }
 ) {
     switch (mutationPayload.type) {
+        // id was passed
         case 'notes/CREATE':
         case 'notes/UPDATE':
         case 'notes/MOVE_TO_TRASH':
         case 'notes/RESTORE_TO_TRASH':
+        case 'notes/FAVORITE':
+        case 'notes/UNFAVORITE':
             await saveNoteToFileSystem(rootState, mutationPayload.payload);
             break;
 
         case 'notes/ADD_TAG':
+        case 'notes/ADD_NOTEBOOK':
         case 'notes/REMOVE_TAG':
+        case 'notes/REMOVE_NOTEBOOK':
             await saveNoteToFileSystem(rootState, mutationPayload.payload.noteId);
             break;
 
@@ -55,6 +60,10 @@ export async function serialize(
 }
 
 export async function deserialize() {
+    if (!fileSystem.exists(NOTES_DIRECTORY)) {
+        fileSystem.createDirectory(NOTES_DIRECTORY);
+    }
+
     const noteDirectories = await fileSystem.readDirectory(NOTES_DIRECTORY);
     const notes = [];
 
@@ -72,7 +81,8 @@ export async function deserialize() {
                 dateModified: moment(metaData.dateModified).toDate(),
                 notebooks: metaData.notebooks ?? [],
                 tags: metaData.tags ?? [],
-                trashed: metaData.trashed
+                trashed: metaData.trashed,
+                favorited: metaData.favorited
             };
 
             notes.push(note);
@@ -122,7 +132,8 @@ export async function saveNoteToFileSystem(rootState: State, noteOrId: Note | st
         dateModified: note.dateModified,
         notebooks: note.notebooks,
         tags: note.tags,
-        trashed: note.trashed
+        trashed: note.trashed,
+        favorited: note.favorited
     };
 
     await fileSystem.writeJSON(path.join(directoryPath, 'metadata.json'), json);

@@ -39,6 +39,7 @@ export default defineComponent({
             }
 
             setIsActive(newValue);
+            return newValue;
         };
 
         const listenForBlur = (e: MouseEvent) => {

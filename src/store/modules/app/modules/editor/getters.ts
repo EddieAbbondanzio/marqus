@@ -11,6 +11,13 @@ export const getters: GetterTree<Editor, State> = {
         const activeTab = s.tabs.values.find((t) => t.id === s.tabs.active)!;
         return r.notes.values.find((n) => n.id === activeTab.noteId);
     },
+    activeTab: (s) => {
+        if (s.tabs.active == null) {
+            return null;
+        } else {
+            return s.tabs.values.find((t) => t.id === s.tabs.active);
+        }
+    },
     noteName: (_s, _g, r) => (noteId: string) => {
         const note = r.notes.values.find((n) => n.id === noteId);
         return note?.name ?? '';

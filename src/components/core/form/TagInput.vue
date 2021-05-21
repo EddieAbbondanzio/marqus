@@ -32,7 +32,8 @@
                 </div>
             </div>
 
-            <div class="dropdown-menu" id="dropdown-menu" role="menu">
+            <!-- v-if seems redundant but is needed to neste dropdown. -->
+            <div class="dropdown-menu" id="dropdown-menu" role="menu" v-if="localActive">
                 <div class="dropdown-content">
                     <a
                         href="#"
@@ -96,7 +97,7 @@ export default defineComponent({
             inputValue.value = '';
         };
 
-        const inputRef = (ref(null) as any) as HTMLElement;
+        const inputRef = ref(null) as any;
         const inputValue = ref('');
 
         const available = computed(() => {

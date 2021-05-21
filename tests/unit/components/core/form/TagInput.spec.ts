@@ -32,7 +32,8 @@ describe('TagInput.vue', () => {
                     { id: '1', value: 'foo' },
                     { id: '2', value: 'bar' },
                     { id: '3', value: 'baz' }
-                ]
+                ],
+                active: true
             }
         });
 
@@ -52,7 +53,8 @@ describe('TagInput.vue', () => {
                     { id: '2', value: 'bar' },
                     { id: '3', value: 'baz' }
                 ],
-                selected: [{ id: '2', value: 'bar' }]
+                selected: [{ id: '2', value: 'bar' }],
+                active: true
             }
         });
 

@@ -1,5 +1,5 @@
 import { State } from '@/store/state';
-import { fileSystem } from '@/utils/file-system';
+import { DATA_DIRECTORY, fileSystem } from '@/utils/file-system';
 import { TaskScheduler } from '@/utils/task-scheduler';
 import { MutationPayload, Store } from 'vuex';
 import * as _ from 'lodash';

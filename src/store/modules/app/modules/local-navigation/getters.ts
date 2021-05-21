@@ -35,16 +35,13 @@ export const getters: GetterTree<LocalNavigation, State> = {
                                 let notebook: Notebook | undefined = findNotebookRecursive(
                                     rootState.notebooks.values,
                                     id
-                                )!;
+                                );
 
                                 // A parent notebook should also show notes for any of it's children.
-                                do {
-                                    if (notebook!.id === active.id) {
-                                        return true;
-                                    }
-
+                                while (notebook != null) {
+                                    if (notebook.id === active.id) return true;
                                     notebook = notebook!.parent;
-                                } while (notebook != null);
+                                }
 
                                 return false;
                             })
@@ -55,6 +52,8 @@ export const getters: GetterTree<LocalNavigation, State> = {
                     notes = rootState.notes.values.filter((note) => (note.tags ?? []).some((tag) => tag === active.id));
                     break;
             }
+        } else if (active === 'favorites') {
+            notes = notes.filter((n) => n.favorited);
         }
 
         // Remove any notes that are in the trash

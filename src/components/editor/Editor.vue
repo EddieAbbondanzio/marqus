@@ -20,7 +20,7 @@
 <script lang="ts">
 import { computed, defineComponent, nextTick, onMounted, ref } from 'vue';
 import EditorTabs from '@/components/editor/EditorTabs.vue';
-import EditorToolbar from '@/components/editor/EditorToolbar.vue';
+import EditorToolbar from '@/components/editor/toolbar/EditorToolbar.vue';
 import { store } from '@/store';
 import { mapState, useStore } from 'vuex';
 import TagInput from '@/components/core/form/TagInput.vue';
