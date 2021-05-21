@@ -1,5 +1,5 @@
 <template>
-    <Dropdown>
+    <Dropdown v-model:active="active">
         <template #trigger="{toggle}">
             <button @click="toggle" class="button mb-0 has-text-hover-grey" title="Tags" style="height: 30px">
                 <span class="icon is-small">
@@ -21,13 +21,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
 import _ from 'lodash';
 import Dropdown from '@/components/core/Dropdown.vue';
 import TagInput from '@/components/core/form/TagInput.vue';
 import { mapGetters, mapState, useStore } from 'vuex';
 import { Tag } from '@/store/modules/tags/state';
 import { Note } from '@/store/modules/notes/state';
+import { Tab } from '@/store/modules/app/modules/editor/state';
 
 export default defineComponent({
     setup: function() {
@@ -53,7 +54,19 @@ export default defineComponent({
             }
         };
 
+        const active = computed({
+            get: () => {
+                const tab: Tab = s.getters['app/editor/activeTab'] as Tab;
+                return tab?.tagDropdownActive ?? false;
+            },
+            set: (v: boolean) => {
+                const tab: Tab = s.getters['app/editor/activeTab'] as Tab;
+                s.commit('app/editor/TAG_DROPDOWN_ACTIVE', { id: tab.id, active: v });
+            }
+        });
+
         return {
+            active,
             onTagInput
         };
     },

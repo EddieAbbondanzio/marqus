@@ -32,13 +32,11 @@ export const getters: GetterTree<NotebookState, State> = {
     },
     notebooksForNote: (s) => (note: Note) => {
         if (note == null) {
-            console.log('was null!');
             return [];
         }
 
         const notebooks = (getters as any).flatten(s);
         const res = notebooks.filter((n: any) => note.notebooks.some((notebookId: string) => notebookId === n.id));
-        console.log('matched: ', res);
         return res;
     }
 };

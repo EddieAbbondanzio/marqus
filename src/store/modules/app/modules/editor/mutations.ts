@@ -67,5 +67,33 @@ export const mutations: MutationTree<Editor> = {
 
         // Insert it in at the new one.
         s.tabs.values.splice(newIndex, 0, tab);
+    },
+    TAG_DROPDOWN_ACTIVE(s, { id, active }: { id: string; active: boolean }) {
+        const tab = s.tabs.values.find((t) => t.id === id);
+
+        if (tab == null) {
+            throw Error(`No tag found with id ${id}`);
+        }
+
+        tab.tagDropdownActive = active;
+
+        // Only allow one drop down active a atime.
+        if (active) {
+            tab.notebookDropdownActive = false;
+        }
+    },
+    NOTEBOOK_DROPDOWN_ACTIVE(s, { id, active }: { id: string; active: boolean }) {
+        const tab = s.tabs.values.find((t) => t.id === id);
+
+        if (tab == null) {
+            throw Error(`No tag found with id ${id}`);
+        }
+
+        tab.notebookDropdownActive = active;
+
+        // Only allow one drop down active a atime.
+        if (active) {
+            tab.tagDropdownActive = false;
+        }
     }
 };

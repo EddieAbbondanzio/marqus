@@ -3,6 +3,8 @@ export interface Tab {
     noteId: string;
     state: 'preview' | 'normal' | 'dirty';
     content: string;
+    tagDropdownActive?: boolean;
+    notebookDropdownActive?: boolean;
 }
 
 export interface Editor {

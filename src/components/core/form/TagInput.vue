@@ -1,15 +1,16 @@
 <template>
     <div :class="`tag-input ${size}`">
-        <div :class="`dropdown ${localActive ? 'is-active' : ''}`">
-            <label class="label" v-if="label != null">{{ label }}</label>
+        <Dropdown>
+            <template v-slot:trigger="{ toggle }">
+                <label class="label" v-if="label != null">{{ label }}</label>
 
-            <div class="dropdown-trigger is-focusable" @click="inputRef.focus()">
                 <template v-for="tag in selected" :key="tag.id">
                     <span class="tag mx-1">
                         {{ tag.value }}
                         <button
                             class="pl-1 delete is-small"
                             @mousedown.prevent.stop="onDeleteSelectedTag(tag)"
+                            @click="toggle"
                         ></button>
                     </span>
                 </template>
@@ -30,28 +31,26 @@
                         <i :class="`fas ${icon}`"></i>
                     </span>
                 </div>
-            </div>
+            </template>
 
-            <!-- v-if seems redundant but is needed to neste dropdown. -->
-            <div class="dropdown-menu" id="dropdown-menu" role="menu" v-if="localActive">
-                <div class="dropdown-content">
-                    <a
-                        href="#"
-                        @mousedown.prevent="onAddSelectedTag(tag)"
-                        v-for="(tag, i) in available"
-                        :key="tag.id"
-                        :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
-                    >
-                        {{ tag.value }}
-                    </a>
-                </div>
-            </div>
-        </div>
+            <template #content>
+                <a
+                    href="#"
+                    @mousedown.prevent="onAddSelectedTag(tag)"
+                    v-for="(tag, i) in available"
+                    :key="tag.id"
+                    :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
+                >
+                    {{ tag.value }}
+                </a>
+            </template>
+        </Dropdown>
     </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, Ref, ref } from 'vue';
+import Dropdown from '@/components/core/Dropdown.vue';
 
 export default defineComponent({
     props: {
@@ -83,6 +82,7 @@ export default defineComponent({
         const setActive = (v: boolean) => {
             localActive.value = v;
             c.emit('update:active', localActive.value);
+            console.log('set active!');
         };
 
         const onDeleteSelectedTag = (tag: any) => {
@@ -145,7 +145,10 @@ export default defineComponent({
             keyboardIndex
         };
     },
-    emits: ['update:active', 'update:selected']
+    emits: ['update:active', 'update:selected'],
+    components: {
+        Dropdown
+    }
 });
 </script>
 

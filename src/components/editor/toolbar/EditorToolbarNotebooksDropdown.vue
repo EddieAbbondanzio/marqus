@@ -1,5 +1,5 @@
 <template>
-    <Dropdown>
+    <Dropdown v-model:active="active">
         <template #trigger="{toggle}">
             <button @click="toggle" class="button mb-0 has-text-hover-grey" title="Notebooks" style="height: 30px">
                 <span class="icon is-small">
@@ -23,11 +23,12 @@
 <script lang="ts">
 import { Notebook } from '@/store/modules/notebooks/state';
 import { Note } from '@/store/modules/notes/state';
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { mapGetters, mapState, useStore } from 'vuex';
 import _ from 'lodash';
 import Dropdown from '@/components/core/Dropdown.vue';
 import TagInput from '@/components/core/form/TagInput.vue';
+import { Tab } from '@/store/modules/app/modules/editor/state';
 
 export default defineComponent({
     setup() {
@@ -63,7 +64,19 @@ export default defineComponent({
             }
         };
 
+        const active = computed({
+            get: () => {
+                const tab: Tab = s.getters['app/editor/activeTab'] as Tab;
+                return tab?.notebookDropdownActive ?? false;
+            },
+            set: (v: boolean) => {
+                const tab: Tab = s.getters['app/editor/activeTab'] as Tab;
+                s.commit('app/editor/NOTEBOOK_DROPDOWN_ACTIVE', { id: tab.id, active: v });
+            }
+        });
+
         return {
+            active,
             onNotebookInput
         };
     },

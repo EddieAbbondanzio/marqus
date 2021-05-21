@@ -31,7 +31,16 @@
                         @click="() => setActive(note.id)"
                         indent="0.5rem"
                         :data-id="note.id"
-                    ></NavigationMenuItem>
+                    >
+                        <template #options>
+                            <div class="item-options">
+                                <span class="icon has-text-grey-lighter mr-2" v-if="note.favorited">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                                <span v-else>&nbsp;</span>
+                            </div>
+                        </template>
+                    </NavigationMenuItem>
                     <NavigationMenuForm
                         v-else
                         @submit="confirm"
@@ -193,3 +202,10 @@ export default defineComponent({
     }
 });
 </script>
+
+<style lang="sass" scoped>
+.item-options
+    .icon
+        height: 12!important
+        width: 12px!important
+</style>

@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 
 export default defineComponent({
     props: {
@@ -57,6 +57,13 @@ export default defineComponent({
             c.emit('update:active', v);
             isActive.value = v;
         };
+
+        watch(
+            () => p.active,
+            (v: boolean) => {
+                isActive.value = v;
+            }
+        );
 
         return {
             isActive,

@@ -35,7 +35,8 @@
                 @click="() => setActive({ id: tag.id, type: 'tag' })"
                 :data-id="tag.id"
                 class="global-navigation-tag"
-            />
+            >
+            </NavigationMenuItem>
             <NavigationMenuForm
                 v-else
                 @submit="confirm"
