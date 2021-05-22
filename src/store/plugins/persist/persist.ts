@@ -3,16 +3,17 @@ import { DATA_DIRECTORY, fileSystem } from '@/utils/file-system';
 import { TaskScheduler } from '@/utils/task-scheduler';
 import { MutationPayload, Store } from 'vuex';
 import * as _ from 'lodash';
-import { PersistModule, PersistModuleSettings } from './persist-module';
+import { PersistModule, PersistModuleSettings } from './types';
+
+let release: () => void;
 
 /**
  * Vuex plugin to handle saving state to file.
  */
 export const persist = {
     modules: [] as PersistModule[],
-
     plugin(store: Store<State>) {
-        store.subscribe(
+        release = store.subscribe(
             function(this: typeof persist, p: MutationPayload, s: State) {
                 const splitType = p.type.split('/');
 
@@ -100,15 +101,21 @@ export const persist = {
 
     /**
      * Register a module that the persist plugin should track.
-     * @param module The module to register
+     * @param pModule The module to register
      */
-    register(module: PersistModuleSettings) {
+    register(pModule: PersistModuleSettings) {
         // Check for duplicate
-        if (this.modules.some((m) => m.settings.namespace === module.namespace)) {
-            throw Error(`Duplicate module registered ${module.namespace}`);
+        if (this.modules.some((m) => m.settings.namespace === pModule.namespace)) {
+            throw Error(`Duplicate module registered ${pModule.namespace}`);
         }
 
-        this.modules.push({ scheduler: new TaskScheduler(2), settings: module });
+        this.modules.push({ scheduler: new TaskScheduler(2), settings: pModule });
+    },
+
+    release() {
+        if (release != null) {
+            release();
+        }
     }
 };
 

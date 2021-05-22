@@ -26,6 +26,3 @@ export const store = createStore<State>({
      */
     strict: process.env.NODE_ENV !== 'production'
 });
-
-// Load initial state from file
-persist.init(store);

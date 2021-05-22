@@ -11,8 +11,12 @@ export interface Entity {
  * @param name What to call the entity in case an error needs to be thrown.
  * @returns The entity passed, or one that matches the id passed.
  */
-export function getEntity<T>(idOrEntity: string | T, findPredicate: (id: string) => T, name: string = 'Entity'): T {
-    let entity: T = typeof idOrEntity === 'string' ? findPredicate(idOrEntity) : idOrEntity;
+export function getEntity<T>(
+    idOrEntity: string | T,
+    findPredicate: (id: string) => T | undefined | null,
+    name = 'Entity'
+): T {
+    const entity: T | null | undefined = typeof idOrEntity === 'string' ? findPredicate(idOrEntity) : idOrEntity;
 
     if (entity == null) {
         throw Error(`${name} with id ${idOrEntity} not found.`);

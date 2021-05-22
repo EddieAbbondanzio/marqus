@@ -1,5 +1,5 @@
 import Vue from '*.vue';
-import { generateId } from '@/store/core/entity';
+import { generateId, getEntity } from '@/store/core/entity';
 import { MutationTree } from 'vuex';
 import { Note, NoteState } from './state';
 
@@ -25,7 +25,7 @@ export const mutations: MutationTree<NoteState> = {
      * Update the name of a note
      */
     NAME(state, { id, name }: { id: string | Note; name: string }) {
-        const note = getNote(state, id);
+        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
         note.name = name;
     },
     DELETE(state, id: string) {
@@ -142,36 +142,22 @@ export const mutations: MutationTree<NoteState> = {
         }
     },
     MOVE_TO_TRASH(state, id: string) {
-        const note = getNote(state, id);
+        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
         note.trashed = true;
     },
     RESTORE_FROM_TRASH(state, id: string) {
-        const note = getNote(state, id);
+        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
         delete note.trashed;
     },
     EMPTY_TRASH(state) {
         state.values = state.values.filter((n) => !n.trashed);
     },
     FAVORITE(state, id: string | Note) {
-        const note = getNote(state, id);
+        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
         note.favorited = true;
     },
     UNFAVORITE(state, id: string | Note) {
-        const note = getNote(state, id);
+        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
         note.favorited = false;
     }
 };
-
-function getNote(state: NoteState, noteOrId: Note | string): Note {
-    if (typeof noteOrId === 'string') {
-        const note = state.values.find((n) => n.id === noteOrId);
-
-        if (note == null) {
-            throw Error(`No note with id ${noteOrId} found.`);
-        }
-
-        return note;
-    } else {
-        return noteOrId;
-    }
-}
