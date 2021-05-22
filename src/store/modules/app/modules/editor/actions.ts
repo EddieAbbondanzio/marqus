@@ -1,4 +1,5 @@
 import { Editor, EditorMode, Tab } from '@/store/modules/app/modules/editor/state';
+import { loadNoteContentFromFileSystem } from '@/store/modules/notes';
 import { Note } from '@/store/modules/notes/state';
 import { State } from '@/store/state';
 import { confirmDeleteOrTrash } from '@/utils/prompts/confirm-delete-or-trash';
@@ -12,6 +13,10 @@ export const actions: ActionTree<Editor, State> = {
     tabDragStop({ commit }, newIndex: number) {
         commit('TAB_DRAGGING_NEW_INDEX', newIndex);
         commit('TAB_DRAGGING');
+    },
+    async tabOpen({ commit }, noteId: string) {
+        const content = await loadNoteContentFromFileSystem(noteId);
+        commit('OPEN_TAB', { noteId, content });
     },
     tabSwitch({ commit, state }, tabId: string) {
         commit('ACTIVE', tabId);

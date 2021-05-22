@@ -2,6 +2,7 @@ import { state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
+import { mediator } from '@/store/plugins/mediator/mediator';
 
 export default {
     namespaced: true,
@@ -10,3 +11,13 @@ export default {
     actions,
     mutations
 };
+
+mediator.subscribe('app/localNavigation/ACTIVE', ({ payload: noteId }, store) => {
+    const existingTab = store.state.app.editor.tabs.values.find((t) => t.noteId === noteId);
+
+    if (existingTab != null) {
+        store.dispatch('app/editor/tabSwitch', existingTab.id);
+    } else {
+        store.dispatch('app/editor/tabOpen', noteId);
+    }
+});

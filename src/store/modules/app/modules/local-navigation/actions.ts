@@ -67,25 +67,5 @@ export const actions: ActionTree<LocalNavigation, State> = {
                 commit('notes/MOVE_TO_TRASH', id, { root: true });
                 break;
         }
-    },
-    async setActive({ commit, rootState }, id?: string) {
-        commit('ACTIVE', id);
-
-        if (id != null) {
-            const note = rootState.notes.values.find((n) => n.id === id)!;
-
-            // if (note.content == null) {
-            //     note.content = await loadNoteContentFromFileSystem(id);
-            // }
-
-            // commit(
-            //     'app/editor/OPEN_TAB',
-            //     {
-            //         noteId: id,
-            //         content: note.content
-            //     },
-            //     { root: true }
-            // );
-        }
     }
 };

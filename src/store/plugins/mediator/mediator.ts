@@ -2,14 +2,16 @@ import { State } from '@/store/state';
 import { MutationPayload, Store } from 'vuex';
 
 let release: () => void;
+let store: Store<State>;
 
-type Subscriber = (mutation: MutationPayload, state: State) => any;
+type Subscriber = (mutation: MutationPayload, store: Store<State>) => any;
 
 export const mediator = {
     subscribers: {} as { [mutationType: string]: Subscriber[] },
 
-    plugin(store: Store<State>) {
-        release = store.subscribe(mediator.notify.bind(mediator));
+    plugin(s: Store<State>) {
+        release = s.subscribe(mediator.notify.bind(mediator));
+        store = s;
     },
 
     notify(p: MutationPayload, s: State) {
@@ -20,7 +22,7 @@ export const mediator = {
         }
 
         for (let i = 0; i < subsToNotify.length; i++) {
-            subsToNotify[i](p, s);
+            subsToNotify[i](p, store);
         }
     },
 
