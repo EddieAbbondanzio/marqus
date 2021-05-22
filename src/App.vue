@@ -9,6 +9,7 @@ import contextMenu from 'electron-context-menu';
 import { useStore } from 'vuex';
 import Cursor from '@/components/core/Cursor.vue';
 import { persist } from '@/store/plugins/persist/persist';
+import { mediator } from '@/store/plugins/mediator/mediator';
 
 export default {
     components: { Cursor },
@@ -21,6 +22,7 @@ export default {
 
         onBeforeUnmount(() => {
             persist.release();
+            mediator.release();
         });
     }
 };

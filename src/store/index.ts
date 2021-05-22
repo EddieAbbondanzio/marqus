@@ -7,6 +7,7 @@ import { State, state } from './state';
 import { mutations } from '@/store/mutations';
 import { actions } from '@/store/actions';
 import { persist } from './plugins/persist/persist';
+import { mediator } from '@/store/plugins/mediator/mediator';
 
 export const store = createStore<State>({
     state: () => state as any,
@@ -18,7 +19,7 @@ export const store = createStore<State>({
         tags,
         notes
     },
-    plugins: [persist.plugin],
+    plugins: [persist.plugin, mediator.plugin],
     /*
      * Don't use strict mode in production.
      * Major performance hit.
