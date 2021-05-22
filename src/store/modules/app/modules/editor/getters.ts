@@ -29,5 +29,6 @@ export const getters: GetterTree<Editor, State> = {
 
         return s.tabs.active === tabId;
     },
-    isDragging: (s) => s.tabs.dragging != null
+    isDragging: (s) => s.tabs.dragging != null,
+    isEmpty: (s) => s.tabs.values.length === 0
 };

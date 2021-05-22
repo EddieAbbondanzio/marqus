@@ -28,7 +28,7 @@ describe('note mutations', () => {
         });
     });
 
-    describe('UPDATE()', () => {
+    describe('NAME()', () => {
         it('throws error if no note found', () => {
             expect(() => {
                 mutations.UPDATE(state, { id: '1' });
@@ -45,7 +45,7 @@ describe('note mutations', () => {
                 dateModified: new Date()
             });
 
-            mutations.UPDATE(state, { id: '1', name: 'dog' });
+            mutations.NAME(state, { id: '1', name: 'dog' });
 
             expect(state.values[0].name).toBe('dog');
         });

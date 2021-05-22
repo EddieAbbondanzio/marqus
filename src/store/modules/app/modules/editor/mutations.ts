@@ -1,4 +1,4 @@
-import { Editor, Tab } from '@/store/modules/app/modules/editor/state';
+import { Editor, EditorMode, Tab } from '@/store/modules/app/modules/editor/state';
 import { generateId } from '@/utils/id';
 import { MutationTree } from 'vuex';
 
@@ -105,5 +105,12 @@ export const mutations: MutationTree<Editor> = {
 
         delete tab.notebookDropdownActive;
         delete tab.tagDropdownActive;
+    },
+    MODE(s, m: EditorMode) {
+        if (m == null) {
+            throw Error(`Mode cannot be null`);
+        }
+
+        s.mode = m;
     }
 };

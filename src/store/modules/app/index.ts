@@ -29,6 +29,10 @@ persist.register({
         s.globalNavigation.tags.input = {};
         s.localNavigation.notes.input = {};
 
+        if (s.editor.mode == null) {
+            s.editor.mode = 'view';
+        }
+
         return s;
     },
     transformer: (s) => {

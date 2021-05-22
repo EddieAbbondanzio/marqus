@@ -1,11 +1,11 @@
 <template>
     <div class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center">
         <div class="buttons has-addons mb-0 mx-1">
-            <button id="editButton" :class="editButtonClasses" style="height: 30px" title="Edit" @click="toggleMode">
-                <span class="icon is-small" v-if="mode === 'view'">
+            <button id="editButton" :class="editButtonClasses" style="height: 30px" @click="toggleMode">
+                <span v-if="mode !== 'split'" :class="`icon is-small ${mode === 'edit' ? 'has-text-warning' : ''}`">
                     <i class="fas fa-edit"></i>
                 </span>
-                <span class="icon is-small" v-else>
+                <span v-else class="icon is-small">
                     <i class="fas fa-save"></i>
                 </span>
             </button>
@@ -49,6 +49,7 @@ import EditorToolbarNotebooksDropdown from '@/components/editor/toolbar/EditorTo
 import { defineComponent } from 'vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
 import { Note } from '@/store/modules/notes/state';
+import { EditorMode } from '@/store/modules/app/modules/editor/state';
 
 export default defineComponent({
     setup: function() {
@@ -56,16 +57,7 @@ export default defineComponent({
 
         const onFavoriteClick = () => {
             const note: Note = s.getters['app/editor/activeNote'];
-
-            if (note == null) {
-                return;
-            }
-
-            if (!note.favorited) {
-                s.commit('notes/FAVORITE', note.id);
-            } else {
-                s.commit('notes/UNFAVORITE', note.id);
-            }
+            s.dispatch('notes/toggleFavorite', note);
         };
 
         return {
@@ -73,7 +65,7 @@ export default defineComponent({
         };
     },
     computed: {
-        mode: () => (store.state.app as any).mode,
+        mode: () => (store.state.app.editor as any).mode,
         editButtonClasses: () => ({
             'button mb-0': true
         }),
@@ -82,7 +74,7 @@ export default defineComponent({
         })
     },
     methods: {
-        ...mapActions('app/editor', ['deleteActiveNote'])
+        ...mapActions('app/editor', ['deleteActiveNote', 'toggleMode'])
     },
     components: {
         EditorToolbarNotebooksDropdown,

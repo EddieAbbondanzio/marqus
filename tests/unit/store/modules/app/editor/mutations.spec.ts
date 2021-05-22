@@ -4,7 +4,7 @@ import { Editor } from '@/store/modules/app/modules/editor/state';
 describe('Editor mutations', () => {
     describe('ACTIVE()', () => {
         it('sets activeTab', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: {} as any
             };
 
@@ -15,7 +15,7 @@ describe('Editor mutations', () => {
 
     describe('EXIT_PREVIEW()', () => {
         it('sets state as normal', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: {
                     values: [{ id: 'a', noteId: '1', state: 'preview', content: '' }]
                 }
@@ -28,7 +28,7 @@ describe('Editor mutations', () => {
 
     describe('OPEN_TAB()', () => {
         it('stops if existing tab is already open', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: { values: [{ id: 'a', noteId: '1', state: 'normal', content: '' }] }
             };
 
@@ -38,7 +38,7 @@ describe('Editor mutations', () => {
         });
 
         it('changes existing preview tab to normal', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: { values: [{ id: 'a', noteId: '1', state: 'preview', content: '' }] }
             };
 
@@ -49,7 +49,7 @@ describe('Editor mutations', () => {
         });
 
         it('sets existing tab as active', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: {
                     values: [{ id: 'a', noteId: '1', state: 'normal', content: '' }]
                 }
@@ -62,7 +62,7 @@ describe('Editor mutations', () => {
         });
 
         it('closes any existing preview tabs when opening a new preview tab', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: { values: [{ id: 'a', noteId: '1', state: 'preview', content: '' }] }
             };
 
@@ -73,7 +73,7 @@ describe('Editor mutations', () => {
         });
 
         it('sets newly opened tab as active', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: {
                     values: []
                 }
@@ -87,7 +87,7 @@ describe('Editor mutations', () => {
 
     describe('CLOSE_TAB()', () => {
         it('removes tab from array', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: { values: [{ id: '1' } as any, { id: '2' }] }
             };
 
@@ -100,7 +100,7 @@ describe('Editor mutations', () => {
 
     describe('CLOSE_ALL_TABS()', () => {
         it('empties out tab array', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: { values: [{} as any, {} as any] }
             };
 
@@ -112,7 +112,7 @@ describe('Editor mutations', () => {
 
     describe('TAB_DRAGGING()', () => {
         it('sets dragging as passed', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: { values: [] }
             };
 
@@ -123,7 +123,7 @@ describe('Editor mutations', () => {
 
     describe('TAB_DRAGGING_NEW_INDEX()', () => {
         it('throws if not dragging', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: { values: [] }
             };
 
@@ -133,7 +133,7 @@ describe('Editor mutations', () => {
         });
 
         it('it moves tab to new index', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: { values: [{ id: '1' }, { id: '2' }, { id: '3' }] as any[] }
             };
 
@@ -149,7 +149,7 @@ describe('Editor mutations', () => {
 
     describe('RESET_TAB', () => {
         it('deletes notebook drop down active state, and tag drop down active state', () => {
-            const state: Editor = {
+            const state: any = {
                 tabs: {
                     active: '1',
                     values: [
@@ -163,6 +163,21 @@ describe('Editor mutations', () => {
             mutations.RESET_TAB(state, '1');
             expect(state.tabs.values[0].notebookDropdownActive).toBeUndefined();
             expect(state.tabs.values[0].tagDropdownActive).toBeUndefined();
+        });
+    });
+
+    describe('MODE', () => {
+        it('throws if mode passed is null', () => {
+            const state: any = {};
+
+            expect(() => mutations.MODE(state, null!)).toThrow();
+        });
+
+        it('sets mode', () => {
+            const state: any = {};
+            mutations.MODE(state, 'view');
+
+            expect(state.mode).toBe('view');
         });
     });
 });

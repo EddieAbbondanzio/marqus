@@ -134,4 +134,26 @@ describe('Editor getters', () => {
             expect((getters as any).isDragging(state)).toBeTruthy();
         });
     });
+
+    describe('isEmpty', () => {
+        it('returns true if no open tabs', () => {
+            const state = {
+                tabs: {
+                    values: []
+                }
+            };
+
+            expect((getters as any).isEmpty(state)).toBeTruthy();
+        });
+
+        it('returns false if open tabs', () => {
+            const state = {
+                tabs: {
+                    values: [{}, {}]
+                }
+            };
+
+            expect((getters as any).isEmpty(state)).toBeFalsy();
+        });
+    });
 });

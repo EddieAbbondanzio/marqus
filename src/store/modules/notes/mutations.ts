@@ -1,5 +1,4 @@
 import Vue from '*.vue';
-import { ensure } from '@/utils/ensure';
 import { generateId } from '@/utils/id';
 import { MutationTree } from 'vuex';
 import { Note, NoteState } from './state';
@@ -23,16 +22,11 @@ export const mutations: MutationTree<NoteState> = {
         state.values.push(note);
     },
     /**
-     * Partial update note via id
+     * Update the name of a note
      */
-    UPDATE(state, note: Note) {
-        const n = state.values.find((n) => n.id === note.id);
-
-        if (n == null) {
-            throw Error(`No note with ${note.id} found.`);
-        }
-
-        n.name = note.name;
+    NAME(state, { id, name }: { id: string | Note; name: string }) {
+        const note = getNote(state, id);
+        note.name = name;
     },
     DELETE(state, id: string) {
         const i = state.values.findIndex((n) => n.id === id);
@@ -148,40 +142,36 @@ export const mutations: MutationTree<NoteState> = {
         }
     },
     MOVE_TO_TRASH(state, id: string) {
-        const note = state.values.find((n) => n.id === id);
-
-        if (note == null) {
-            throw Error(`No note found with id ${id}`);
-        }
-
+        const note = getNote(state, id);
         note.trashed = true;
     },
     RESTORE_FROM_TRASH(state, id: string) {
-        const note = state.values.find((n) => n.id === id);
-
-        if (note == null) {
-            throw Error(`No note found with id ${id}`);
-        }
-
+        const note = getNote(state, id);
         delete note.trashed;
     },
     EMPTY_TRASH(state) {
         state.values = state.values.filter((n) => !n.trashed);
     },
-    FAVORITE(state, id: string) {
-        const note = ensure(
-            state.values.find((n) => n.id === id),
-            `No note with id ${id} found.`
-        );
-
+    FAVORITE(state, id: string | Note) {
+        const note = getNote(state, id);
         note.favorited = true;
     },
-    UNFAVORITE(state, id: string) {
-        const note = ensure(
-            state.values.find((n) => n.id === id),
-            `No note with id ${id} found.`
-        );
-
+    UNFAVORITE(state, id: string | Note) {
+        const note = getNote(state, id);
         note.favorited = false;
     }
 };
+
+function getNote(state: NoteState, noteOrId: Note | string): Note {
+    if (typeof noteOrId === 'string') {
+        const note = state.values.find((n) => n.id === noteOrId);
+
+        if (note == null) {
+            throw Error(`No note with id ${noteOrId} found.`);
+        }
+
+        return note;
+    } else {
+        return noteOrId;
+    }
+}

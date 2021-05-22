@@ -1,5 +1,6 @@
-export interface Tag {
-    id: string;
+import { Entity } from '@/store/core/entity';
+
+export interface Tag extends Entity {
     value: string;
 }
 

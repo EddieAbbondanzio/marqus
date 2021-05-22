@@ -1,19 +1,15 @@
 <template>
-    <div class="has-background-light is-flex-grow-1 has-text-dark">
-        <editor-tabs />
-        <editor-toolbar />
-        <div class="has-w-50">
-            <tag-input
-                icon="fa-tag"
-                placeholder="Start typing tags"
-                v-model:expanded="active"
-                v-model:selected="selected"
-                v-model:values="available"
-            />
+    <div class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark">
+        <template v-if="!isEmpty">
+            <editor-tabs />
+            <editor-toolbar />
+            <markdown-editor />
+        </template>
+        <div v-else class="is-flex is-align-center is-justify-center is-flex-grow-1 has-w-100">
+            <div>
+                There's nothing here!
+            </div>
         </div>
-
-        Active tab:
-        {{ activeTab }}
     </div>
 </template>
 
@@ -22,49 +18,22 @@ import { computed, defineComponent, nextTick, onMounted, ref } from 'vue';
 import EditorTabs from '@/components/editor/EditorTabs.vue';
 import EditorToolbar from '@/components/editor/toolbar/EditorToolbar.vue';
 import { store } from '@/store';
-import { mapState, useStore } from 'vuex';
+import { mapGetters, mapState, useStore } from 'vuex';
 import TagInput from '@/components/core/form/TagInput.vue';
 import Dropdown from '@/components/core/Dropdown.vue';
+import MarkdownEditor from '@/components/editor/MarkdownEditor.vue';
 
 export default defineComponent({
-    setup: (p, c) => {
-        const s = useStore();
-
-        const active = ref(false);
-
-        const selected = ref([
-            { id: '1', value: 'Cat' },
-            { id: '2', value: 'Dog' }
-        ]);
-
-        const available = ref([
-            { id: '1', value: 'Cat' },
-            { id: '2', value: 'Dog' },
-            { id: '3', value: 'Horse' },
-            { id: '4', value: 'Fish' },
-            { id: '5', value: 'Goat' },
-            { id: '6', value: 'Goat2' },
-            { id: '8', value: 'Bat' },
-            { id: '9', value: 'Zebra' },
-            { id: '10', value: 'Cow' },
-            { id: '11', value: 'Donkey' },
-            { id: '12', value: 'Giraffe' }
-        ]);
-
-        return {
-            active,
-            selected,
-            available
-        };
-    },
     components: {
         EditorToolbar,
         EditorTabs,
         TagInput,
-        Dropdown
+        Dropdown,
+        MarkdownEditor
     },
     computed: {
-        ...mapState('app/editor', { activeTab: (s: any) => s.tabs.active })
+        ...mapState('app/editor', { activeTab: (s: any) => s.tabs.active }),
+        ...mapGetters('app/editor', ['isEmpty'])
     }
 });
 </script>
@@ -73,4 +42,5 @@ export default defineComponent({
 textarea
     outline: none!important
     border: none!important
+    resize: none!important
 </style>

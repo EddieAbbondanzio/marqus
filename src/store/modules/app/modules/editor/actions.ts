@@ -1,4 +1,4 @@
-import { Editor, Tab } from '@/store/modules/app/modules/editor/state';
+import { Editor, EditorMode, Tab } from '@/store/modules/app/modules/editor/state';
 import { Note } from '@/store/modules/notes/state';
 import { State } from '@/store/state';
 import { confirmDeleteOrTrash } from '@/utils/prompts/confirm-delete-or-trash';
@@ -36,5 +36,24 @@ export const actions: ActionTree<Editor, State> = {
                 commit('notes/MOVE_TO_TRASH', id, { root: true });
                 break;
         }
+    },
+    toggleMode({ commit, state }) {
+        let newMode: EditorMode;
+
+        switch (state.mode) {
+            case 'view':
+                newMode = 'edit';
+                break;
+
+            case 'edit':
+                newMode = 'view';
+                break;
+            case 'split':
+            case 'zen':
+                newMode = state.mode;
+                break;
+        }
+
+        commit('MODE', newMode);
     }
 };

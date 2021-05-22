@@ -1,5 +1,6 @@
-export interface Note {
-    id: string;
+import { Entity } from '@/store/core/entity';
+
+export interface Note extends Entity {
     name: string;
     notebooks: string[];
     tags: string[];

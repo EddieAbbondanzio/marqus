@@ -1,5 +1,6 @@
-export interface Notebook {
-    id: string;
+import { Entity } from '@/store/core/entity';
+
+export interface Notebook extends Entity {
     value: string;
     parent?: Notebook;
     children?: Notebook[];
