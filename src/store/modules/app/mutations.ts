@@ -1,4 +1,4 @@
-import { generateId } from '@/utils/id';
+import { generateId } from '@/store/core/entity';
 import { MutationTree } from 'vuex';
 import { Notebook } from '../notebooks/state';
 import { AppState } from './state';

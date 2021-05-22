@@ -1,6 +1,6 @@
 import { mutations } from '@/store/modules/tags/mutations';
 import { TagState } from '@/store/modules/tags/state';
-import { generateId } from '@/utils/id';
+import { generateId } from '@/store/core/entity';
 
 describe('TagStore Mutations', () => {
     let state: TagState = null!;

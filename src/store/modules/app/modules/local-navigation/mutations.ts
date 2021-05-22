@@ -1,5 +1,5 @@
 import { Note } from '@/store/modules/notes/state';
-import { generateId } from '@/utils/id';
+import { generateId } from '@/store/core/entity';
 import { MutationTree } from 'vuex';
 import { LocalNavigation } from './state';
 

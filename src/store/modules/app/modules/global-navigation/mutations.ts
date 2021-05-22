@@ -1,7 +1,7 @@
 import { MutationTree } from 'vuex';
 import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/state';
 import { Notebook, NotebookState } from '@/store/modules/notebooks/state';
-import { generateId } from '@/utils/id';
+import { generateId } from '@/store/core/entity';
 import { Tag } from '@/store/modules/tags/state';
 import { findNotebookRecursive } from '@/store/modules/notebooks/mutations';
 

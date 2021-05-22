@@ -1,6 +1,6 @@
 import { MutationTree } from 'vuex';
 import { Notebook, NotebookState } from './state';
-import { generateId } from '@/utils/id';
+import { generateId } from '@/store/core/entity';
 
 export const mutations: MutationTree<NotebookState> = {
     INIT(state, s: NotebookState) {

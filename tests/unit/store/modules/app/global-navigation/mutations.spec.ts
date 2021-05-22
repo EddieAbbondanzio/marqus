@@ -1,7 +1,7 @@
 import { mutations } from '@/store/modules/app/modules/global-navigation/mutations';
 import { GlobalNavigation } from '@/store/modules/app/modules/global-navigation/state';
 import { Notebook } from '@/store/modules/notebooks/state';
-import { generateId } from '@/utils/id';
+import { generateId } from '@/store/core/entity';
 
 describe('GlobalNavigation mutations', () => {
     let state: GlobalNavigation;
