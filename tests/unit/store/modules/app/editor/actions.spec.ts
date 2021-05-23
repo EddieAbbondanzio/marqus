@@ -13,7 +13,7 @@ describe('Editor actions', () => {
                         }
                     }
                 },
-                ['ACTIVE', 'RESET_TAB']
+                ['SWITCH_TAB']
             );
         });
     });

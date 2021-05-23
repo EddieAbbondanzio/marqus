@@ -8,7 +8,12 @@ export const getters: GetterTree<Editor, State> = {
             return null;
         }
 
-        const activeTab = s.tabs.values.find((t) => t.id === s.tabs.active)!;
+        const activeTab = s.tabs.values.find((t) => t.id === s.tabs.active);
+
+        if (activeTab == null) {
+            return null;
+        }
+
         return r.notes.values.find((n) => n.id === activeTab.noteId);
     },
     activeTab: (s) => {

@@ -32,8 +32,7 @@ export default defineComponent({
         MarkdownEditor
     },
     computed: {
-        ...mapState('app/editor', { activeTab: (s: any) => s.tabs.active }),
-        ...mapGetters('app/editor', ['isEmpty'])
+        ...mapGetters('app/editor', ['isEmpty', 'activeTab'])
     }
 });
 </script>

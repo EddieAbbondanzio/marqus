@@ -7,6 +7,9 @@ export const mutations: MutationTree<NoteState> = {
     INIT(state, s: NoteState) {
         Object.assign(state, s);
     },
+    EMPTY_TRASH(state) {
+        state.values = state.values.filter((n) => !n.trashed);
+    },
     CREATE(state, note: Note) {
         if (note.name == null) {
             throw Error('Name is required.');
@@ -148,9 +151,6 @@ export const mutations: MutationTree<NoteState> = {
     RESTORE_FROM_TRASH(state, id: string) {
         const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
         delete note.trashed;
-    },
-    EMPTY_TRASH(state) {
-        state.values = state.values.filter((n) => !n.trashed);
     },
     FAVORITE(state, id: string | Note) {
         const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');

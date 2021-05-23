@@ -39,7 +39,7 @@ describe('Editor mutations', () => {
 
         it('changes existing preview tab to normal', () => {
             const state: any = {
-                tabs: { values: [{ id: 'a', noteId: '1', state: 'preview', content: '' }] }
+                tabs: { values: [{ id: 'a', noteId: '1', state: 'preview', content: '' }], active: 'a' }
             };
 
             mutations.OPEN_TAB(state, { noteId: '1', content: '' });
@@ -61,15 +61,21 @@ describe('Editor mutations', () => {
             expect(state.tabs.active).toBe('a');
         });
 
-        it('closes any existing preview tabs when opening a new preview tab', () => {
+        it('replaces existing preview tab when opening a new preview tab', () => {
             const state: any = {
-                tabs: { values: [{ id: 'a', noteId: '1', state: 'preview', content: '' }] }
+                tabs: {
+                    values: [
+                        { id: 'a', noteId: '1', state: 'preview', content: '' },
+                        { id: 'b', noteId: '2', state: 'readonly', content: '' },
+                        { id: 'c', noteId: '3', state: 'readonly', content: '' }
+                    ]
+                }
             };
 
-            mutations.OPEN_TAB(state, { noteId: '2', content: '' });
+            mutations.OPEN_TAB(state, { noteId: '4', content: '' });
 
-            expect(state.tabs.values).toHaveLength(1);
-            expect(state.tabs.values[0].noteId).toBe('2');
+            expect(state.tabs.values).toHaveLength(3);
+            expect(state.tabs.values[0].noteId).toBe('4');
         });
 
         it('sets newly opened tab as active', () => {
@@ -147,24 +153,24 @@ describe('Editor mutations', () => {
         });
     });
 
-    describe('RESET_TAB', () => {
-        it('deletes notebook drop down active state, and tag drop down active state', () => {
-            const state: any = {
-                tabs: {
-                    active: '1',
-                    values: [
-                        { id: '1', notebookDropdownActive: true, tagDropdownActive: true },
-                        { id: '2' },
-                        { id: '3' }
-                    ] as any[]
-                }
-            };
+    // describe('SWITCH_TAB', () => {
+    //     it('deletes notebook drop down active state, and tag drop down active state', () => {
+    //         const state: any = {
+    //             tabs: {
+    //                 active: '1',
+    //                 values: [
+    //                     { id: '1', notebookDropdownActive: true, tagDropdownActive: true },
+    //                     { id: '2' },
+    //                     { id: '3' }
+    //                 ] as any[]
+    //             }
+    //         };
 
-            mutations.RESET_TAB(state, '1');
-            expect(state.tabs.values[0].notebookDropdownActive).toBeUndefined();
-            expect(state.tabs.values[0].tagDropdownActive).toBeUndefined();
-        });
-    });
+    //         mutations.SWITCH_TAB(state, '1');
+    //         expect(state.tabs.values[0].notebookDropdownActive).toBeUndefined();
+    //         expect(state.tabs.values[0].tagDropdownActive).toBeUndefined();
+    //     });
+    // });
 
     describe('MODE', () => {
         it('throws if mode passed is null', () => {

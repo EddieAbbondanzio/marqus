@@ -23,11 +23,5 @@ describe('LocalNavigation Mutations', () => {
             mutations.ACTIVE(state, '1');
             expect(state.active).toBe('1');
         });
-
-        it('sets active to undefined, if same active is set twice', () => {
-            mutations.ACTIVE(state, '1');
-            mutations.ACTIVE(state, '1');
-            expect(state.active).toBeUndefined();
-        });
     });
 });

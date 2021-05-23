@@ -18,9 +18,8 @@ export const actions: ActionTree<Editor, State> = {
         const content = await loadNoteContentFromFileSystem(noteId);
         commit('OPEN_TAB', { noteId, content });
     },
-    tabSwitch({ commit, state }, tabId: string) {
-        commit('ACTIVE', tabId);
-        commit('RESET_TAB', state.tabs.active);
+    tabSwitch({ commit }, tabId: string) {
+        commit('SWITCH_TAB', tabId);
     },
     async deleteActiveNote({ commit, rootState, rootGetters }) {
         const { id } = rootGetters['app/editor/activeNote'] as Note;
@@ -46,15 +45,14 @@ export const actions: ActionTree<Editor, State> = {
         let newMode: EditorMode;
 
         switch (state.mode) {
-            case 'view':
+            case 'readonly':
                 newMode = 'edit';
                 break;
 
             case 'edit':
-                newMode = 'view';
+                newMode = 'readonly';
                 break;
             case 'split':
-            case 'zen':
                 newMode = state.mode;
                 break;
         }

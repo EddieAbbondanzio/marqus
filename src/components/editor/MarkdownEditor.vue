@@ -1,5 +1,5 @@
 <template>
-    <textarea class="editor-textarea" v-model="v"></textarea>
+    <textarea class="editor-textarea" :value="content" @input="onInput"></textarea>
 </template>
 
 <script lang="ts">
@@ -10,14 +10,24 @@ import { useStore } from 'vuex';
 export default defineComponent({
     setup: () => {
         const s = useStore();
-        const activeTab: Tab = s.getters['app/editor/activeTab'];
 
-        const v = computed({
-            get: () => activeTab.content!,
-            set: (v: string) => s.commit('notes/CONTENT', { id: activeTab.noteId, content: v })
-        });
+        let id = s.state.app.editor.tabs.active;
+        const content = ref('');
+        content.value = s.state.app.editor.tabs.values.find((t: any) => t.id === id).content;
 
-        return { v };
+        watch(
+            () => s.state.app.editor.tabs.active,
+            () => {
+                id = s.state.app.editor.tabs.active;
+                content.value = s.state.app.editor.tabs.values.find((t: any) => t.id === id).content;
+            }
+        );
+
+        const onInput = (e: InputEvent) => {
+            s.commit('app/editor/TAB_CONTENT', { id, content: (e.target as HTMLTextAreaElement).value });
+        };
+
+        return { content, onInput };
     }
 });
 </script>

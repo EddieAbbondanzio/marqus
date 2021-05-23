@@ -8,7 +8,7 @@ export interface Tab extends Entity {
     notebookDropdownActive?: boolean;
 }
 
-export type EditorMode = 'view' | 'edit' | 'split' | 'zen';
+export type EditorMode = 'readonly' | 'edit' | 'split';
 
 export interface Editor {
     tabs: {
@@ -17,11 +17,12 @@ export interface Editor {
         values: Tab[];
     };
     mode: EditorMode;
+    isFocus?: boolean;
 }
 
 export const state: Editor = {
     tabs: {
         values: []
     },
-    mode: 'view'
+    mode: 'readonly'
 };

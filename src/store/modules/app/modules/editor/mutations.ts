@@ -1,10 +1,14 @@
 import { Editor, EditorMode, Tab } from '@/store/modules/app/modules/editor/state';
-import { generateId } from '@/store/core/entity';
+import { generateId, getEntity } from '@/store/core/entity';
 import { MutationTree } from 'vuex';
 
 export const mutations: MutationTree<Editor> = {
     ACTIVE(s, tabId) {
         s.tabs.active = tabId;
+    },
+    TAB_CONTENT(s, { id, content }: { id: string; content: string }) {
+        const tab = getEntity<Tab>(id, (id) => s.tabs.values.find((t) => t.id === id), 'Tab');
+        tab.content = content;
     },
     EXIT_PREVIEW(s, tabId) {
         const tab = s.tabs.values.find((t) => t.id === tabId);
@@ -18,7 +22,7 @@ export const mutations: MutationTree<Editor> = {
         const existing = s.tabs.values.find((t) => t.noteId === noteId);
         if (existing != null) {
             // Switch it to normal if it was in preview.
-            if (existing.state === 'preview') {
+            if (existing.state === 'preview' && s.tabs.active === existing.id) {
                 existing.state = 'normal';
             }
 
@@ -26,21 +30,52 @@ export const mutations: MutationTree<Editor> = {
             return;
         }
 
-        // If we're opening a new preview tab, remove any existing ones. Only 1 can be open a time.
+        let index: number;
+        let deleteCount: number;
+        let tab: Tab;
+
         if (preview) {
-            s.tabs.values = s.tabs.values.filter((t) => t.state !== 'preview');
+            index = s.tabs.values.findIndex((t) => t.state === 'preview');
+            deleteCount = 1;
+            tab = {
+                id: generateId(),
+                content,
+                noteId,
+                state: 'preview'
+            };
+        } else {
+            index = s.tabs.values.length - 1;
+            deleteCount = 0;
+            tab = {
+                id: generateId(),
+                content,
+                noteId,
+                state: 'normal'
+            };
         }
 
-        const newTabId = generateId();
-        s.tabs.values.push({
-            id: newTabId,
-            content,
-            noteId,
-            state: preview ? 'preview' : 'normal'
-        });
+        s.tabs.values.splice(index, deleteCount, tab);
 
         // Set newly opened tab to active
-        s.tabs.active = newTabId;
+        s.tabs.active = tab.id;
+    },
+    SWITCH_TAB(s, id: string) {
+        const tab = s.tabs.values.find((t) => t.id === id);
+
+        if (tab == null) {
+            console.log(s.tabs.values);
+            throw Error(`No tab found with id ${id}`);
+        }
+
+        // When active tab is preview, and they click it again. Assume they want to switch to normal mode.
+        if (tab.state === 'preview' && s.tabs.active === tab.id) {
+            tab.state = 'normal';
+        }
+
+        s.tabs.active = tab.id;
+
+        delete tab.notebookDropdownActive;
+        delete tab.tagDropdownActive;
     },
     CLOSE_TAB(s, tabId) {
         const tabIndex = s.tabs.values.findIndex((t) => t.id === tabId);
@@ -95,16 +130,6 @@ export const mutations: MutationTree<Editor> = {
         if (active) {
             tab.tagDropdownActive = false;
         }
-    },
-    RESET_TAB(s, id: string) {
-        const tab = s.tabs.values.find((t) => t.id === id);
-
-        if (tab == null) {
-            throw Error(`No tag found with id ${id}`);
-        }
-
-        delete tab.notebookDropdownActive;
-        delete tab.tagDropdownActive;
     },
     MODE(s, m: EditorMode) {
         if (m == null) {

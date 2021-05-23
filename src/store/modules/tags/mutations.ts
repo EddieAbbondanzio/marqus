@@ -39,7 +39,7 @@ export const mutations: MutationTree<TagState> = {
 
         state.values.splice(i, 1);
     },
-    SORT(s) {
-        s.values.sort((a, b) => a.value.localeCompare(b.value));
+    SORT(state) {
+        state.values.sort((a, b) => a.value.localeCompare(b.value));
     }
 };

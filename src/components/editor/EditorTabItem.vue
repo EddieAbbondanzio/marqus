@@ -19,7 +19,7 @@
                 title="Close"
                 icon="fa-times"
                 class="has-text-hover-danger has-text-grey"
-                @click="CLOSE_TAB(modelValue.id)"
+                @click.stop="CLOSE_TAB(modelValue.id)"
             />
         </a>
     </li>
