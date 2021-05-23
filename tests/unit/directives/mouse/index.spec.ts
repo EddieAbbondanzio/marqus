@@ -1,4 +1,4 @@
-import { mouse, mouseObjectManager, getAction, getButton, getCallback } from '@/directives/mouse/mouse';
+import { mouse, mouseObjectManager, getAction, getButton, getCallback } from '@/directives/mouse';
 import { DirectiveBinding } from 'vue';
 
 describe('v-mouse', () => {

@@ -83,6 +83,10 @@ export const mutations: MutationTree<Editor> = {
         if (tabIndex !== -1) {
             s.tabs.values.splice(tabIndex, 1);
         }
+
+        if (s.tabs.values.length === 0) {
+            s.mode = 'readonly';
+        }
     },
     CLOSE_ALL_TABS(s) {
         s.tabs.values.length = 0;

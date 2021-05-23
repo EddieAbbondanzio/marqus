@@ -1,9 +1,13 @@
 <template>
-    <div class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark">
+    <div class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark" v-shortcut>
         <template v-if="!isEmpty">
             <editor-tabs />
             <editor-toolbar />
-            <markdown-editor />
+
+            <div class="is-flex is-flex-row is-flex-grow-1">
+                <markdown-editor v-if="mode === 'edit' || mode === 'split'" class="is-flex-basis-0 is-flex-grow-1" />
+                <markdown-renderer v-if="mode !== 'edit'" class="is-flex-basis-0 is-flex-grow-1" />
+            </div>
         </template>
         <div v-else class="is-flex is-align-center is-justify-center is-flex-grow-1 has-w-100">
             <div>
@@ -22,6 +26,7 @@ import { mapGetters, mapState, useStore } from 'vuex';
 import TagInput from '@/components/core/form/TagInput.vue';
 import Dropdown from '@/components/core/Dropdown.vue';
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue';
+import MarkdownRenderer from '@/components/editor/MarkdownRenderer.vue';
 
 export default defineComponent({
     components: {
@@ -29,10 +34,12 @@ export default defineComponent({
         EditorTabs,
         TagInput,
         Dropdown,
-        MarkdownEditor
+        MarkdownEditor,
+        MarkdownRenderer
     },
     computed: {
-        ...mapGetters('app/editor', ['isEmpty', 'activeTab'])
+        ...mapGetters('app/editor', ['isEmpty', 'activeTab']),
+        ...mapState('app/editor', ['mode', 'isFocus'])
     }
 });
 </script>

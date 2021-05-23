@@ -1,7 +1,13 @@
 <template>
     <div class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center">
         <div class="buttons has-addons mb-0 mx-1">
-            <button id="editButton" :class="editButtonClasses" style="height: 30px" @click="toggleMode">
+            <button
+                id="editButton"
+                :class="editButtonClasses"
+                style="height: 30px"
+                @click="toggleMode"
+                v-if="mode != 'split'"
+            >
                 <span v-if="mode !== 'split'" :class="`icon is-small ${mode === 'edit' ? 'has-text-warning' : ''}`">
                     <i class="fas fa-edit"></i>
                 </span>

@@ -3,7 +3,7 @@ window.require = require;
 import Resizable from '@/components/core/Resizable.vue';
 import { store } from '@/store';
 import { mount } from '@vue/test-utils';
-import { mouse } from '@/directives/mouse/mouse';
+import { mouse } from '@/directives/mouse';
 
 describe('Resizable.vue', () => {
     it('sets width, and minWidth on mounted', () => {
