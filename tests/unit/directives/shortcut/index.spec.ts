@@ -38,7 +38,6 @@ describe('v-shortcut', () => {
             } as any);
 
             expect(shortcutManager.subscribers['name']).toHaveLength(1);
-            expect((el as any).subscriber).toBeTruthy();
         });
     });
 
@@ -59,10 +58,9 @@ describe('v-shortcut', () => {
 
             expect(shortcutManager.subscribers['name']).toHaveLength(1);
 
-            shortcut.unmounted(el, {} as any);
+            shortcut.unmounted(el, { arg: 'name' } as any);
 
             expect(shortcutManager.subscribers['name']).toHaveLength(0);
-            expect((el as any).subscriber).toBeUndefined();
         });
     });
 

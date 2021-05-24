@@ -87,6 +87,20 @@ describe('ShortcutManager', () => {
         });
     });
 
+    describe('getSubscribersByElement', () => {
+        it('returns proper subs', () => {
+            const m = new ShortcutManager();
+            const el1 = document.createElement('div');
+            const el2 = document.createElement('div');
+
+            m.subscribe('test', () => {}, el1);
+            m.subscribe('test', () => {}, el2);
+
+            const subs = m.getSubscribersByElement(el1);
+            expect(subs).toHaveLength(1);
+        });
+    });
+
     describe('subscribe()', () => {
         it('creates new subscriber array for empty shortcut', () => {
             const m = new ShortcutManager();

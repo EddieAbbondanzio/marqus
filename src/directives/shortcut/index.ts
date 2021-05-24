@@ -18,17 +18,16 @@ export const shortcut = {
             throw Error('No callback for the shortcut specified.');
         }
 
-        const subscriber = shortcutManager.subscribe(shortcutName, callback);
-        (el as any).subscriber = subscriber;
+        const subscriber = shortcutManager.subscribe(shortcutName, callback, el);
     },
     unmounted: function(el: HTMLElement, binding: DirectiveBinding) {
-        const subscriber = (el as any).subscriber;
+        const subscribers = shortcutManager.getSubscribersByElement(el);
+        const subscriber = subscribers.find((s) => s.shortcutName === binding.arg);
 
         if (subscriber == null) {
             throw Error('No subscriber to remove');
         }
 
         shortcutManager.unsubscribe(subscriber);
-        delete (el as any).subscriber;
     }
 };

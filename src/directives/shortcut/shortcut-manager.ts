@@ -55,8 +55,8 @@ export class ShortcutManager {
         this.shortcuts.push(new Shortcut(shortcutName, keys));
     }
 
-    subscribe(shortcutName: string, callback: (shortcutName: string) => any): ShortcutSubscriber {
-        const sub = new ShortcutSubscriber(shortcutName, callback);
+    subscribe(shortcutName: string, callback: (shortcutName: string) => any, el?: HTMLElement): ShortcutSubscriber {
+        const sub = new ShortcutSubscriber(shortcutName, callback, el);
 
         if (this.subscribers[shortcutName] == null) {
             this.subscribers[shortcutName] = [sub];
@@ -70,6 +70,11 @@ export class ShortcutManager {
     unsubscribe(subscriber: ShortcutSubscriber) {
         const shortcutName = subscriber.shortcutName;
         this.subscribers[shortcutName] = this.subscribers[shortcutName].filter((s) => s !== subscriber);
+    }
+
+    getSubscribersByElement(el: HTMLElement) {
+        const subs = Object.values(this.subscribers).flat();
+        return subs.filter((s) => s.el === el);
     }
 
     reset() {
