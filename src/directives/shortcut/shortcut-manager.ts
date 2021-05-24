@@ -12,8 +12,11 @@ export class ShortcutManager {
         this.activeKeys = {};
         this.subscribers = {};
 
-        window.addEventListener('keydown', this._onKeyDown.bind(this));
-        window.addEventListener('keyup', this._onKeyUp.bind(this));
+        this._onKeyDown.bind(this);
+        this._onKeyUp.bind(this);
+
+        window.addEventListener('keydown', this._onKeyDown);
+        window.addEventListener('keyup', this._onKeyUp);
     }
 
     _onKeyDown(e: KeyboardEvent) {
@@ -57,10 +60,8 @@ export class ShortcutManager {
 
         if (this.subscribers[shortcutName] == null) {
             this.subscribers[shortcutName] = [sub];
-            console.log('created');
         } else {
             this.subscribers[shortcutName].push(sub);
-            console.log('added');
         }
 
         return sub;
@@ -71,8 +72,14 @@ export class ShortcutManager {
         this.subscribers[shortcutName] = this.subscribers[shortcutName].filter((s) => s !== subscriber);
     }
 
+    reset() {
+        this.subscribers = {};
+        this.activeKeys = {};
+        this.shortcuts = [];
+    }
+
     dispose() {
-        window.addEventListener('keydown', this._onKeyDown);
-        window.addEventListener('keyup', this._onKeyUp);
+        window.removeEventListener('keydown', this._onKeyDown);
+        window.removeEventListener('keyup', this._onKeyUp);
     }
 }

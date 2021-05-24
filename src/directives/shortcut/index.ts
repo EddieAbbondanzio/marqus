@@ -29,5 +29,6 @@ export const shortcut = {
         }
 
         shortcutManager.unsubscribe(subscriber);
+        delete (el as any).subscriber;
     }
 };

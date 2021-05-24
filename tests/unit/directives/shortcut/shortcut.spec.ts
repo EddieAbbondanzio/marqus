@@ -5,12 +5,12 @@ describe('Shortcut {}', () => {
     describe('ctor', () => {
         it('throws if duplicate keys', () => {
             expect(() => {
-                new Shortcut([KeyCode.LetterX, KeyCode.LetterX]);
+                new Shortcut('', [KeyCode.LetterX, KeyCode.LetterX]);
             }).toThrow();
         });
 
         it('sets modifiers first', () => {
-            const s = new Shortcut([KeyCode.LetterW, KeyCode.Shift, KeyCode.Alt, KeyCode.Control]);
+            const s = new Shortcut('', [KeyCode.LetterW, KeyCode.Shift, KeyCode.Alt, KeyCode.Control]);
 
             expect(s.keys[0]).toBe(KeyCode.Control);
             expect(s.keys[1]).toBe(KeyCode.Shift);
@@ -21,7 +21,7 @@ describe('Shortcut {}', () => {
 
     describe('isMatch()', () => {
         it('returns true when keys match', () => {
-            const a = new Shortcut([KeyCode.Shift, KeyCode.LetterU]);
+            const a = new Shortcut('', [KeyCode.Shift, KeyCode.LetterU]);
 
             const isMatch = a.isMatch([KeyCode.Shift, KeyCode.LetterU]);
 
@@ -29,7 +29,7 @@ describe('Shortcut {}', () => {
         });
 
         it('can have out of order keys', () => {
-            const a = new Shortcut([KeyCode.Shift, KeyCode.LetterU]);
+            const a = new Shortcut('', [KeyCode.Shift, KeyCode.LetterU]);
 
             const isMatch = a.isMatch([KeyCode.LetterU, KeyCode.Shift]);
 
@@ -37,7 +37,7 @@ describe('Shortcut {}', () => {
         });
 
         it('returns false if not match', () => {
-            const a = new Shortcut([KeyCode.Shift, KeyCode.LetterU]);
+            const a = new Shortcut('', [KeyCode.Shift, KeyCode.LetterU]);
 
             const isMatch = a.isMatch([KeyCode.LetterU, KeyCode.Shift, KeyCode.ArrowLeft]);
 
@@ -47,7 +47,7 @@ describe('Shortcut {}', () => {
 
     describe('toString()', () => {
         it('makes readable strings', () => {
-            const s = new Shortcut([KeyCode.LetterW, KeyCode.Shift, KeyCode.Alt, KeyCode.Control]);
+            const s = new Shortcut('', [KeyCode.LetterW, KeyCode.Shift, KeyCode.Alt, KeyCode.Control]);
             expect(s.toString()).toBe('ctrl+shift+alt+w');
         });
     });
