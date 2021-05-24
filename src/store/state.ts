@@ -1,3 +1,4 @@
+import { ShortcutState } from '@/store/modules/shortcuts/state';
 import { AppState } from './modules/app/state';
 import { NotebookState } from './modules/notebooks/state';
 import { NoteState } from './modules/notes/state';
@@ -8,6 +9,7 @@ export interface State {
     tags: TagState;
     notebooks: NotebookState;
     notes: NoteState;
+    shortcuts: ShortcutState;
 }
 
 export const state = {};

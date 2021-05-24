@@ -8,6 +8,7 @@ import { mutations } from '@/store/mutations';
 import { actions } from '@/store/actions';
 import { persist } from './plugins/persist/persist';
 import { mediator } from '@/store/plugins/mediator/mediator';
+import shortcuts from '@/store/modules/shortcuts';
 
 export const store = createStore<State>({
     state: () => state as any,
@@ -17,7 +18,8 @@ export const store = createStore<State>({
         app,
         notebooks,
         tags,
-        notes
+        notes,
+        shortcuts
     },
     plugins: [persist.plugin, mediator.plugin],
     /*

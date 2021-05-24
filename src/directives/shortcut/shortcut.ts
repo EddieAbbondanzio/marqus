@@ -6,7 +6,7 @@ export const SHORTCUT_STRING_DELIMITER = '+';
 export class Shortcut {
     public readonly keys: ReadonlyArray<KeyCode>;
 
-    constructor(public name: string, keys: KeyCode[]) {
+    constructor(public name: string, keys: KeyCode[], public isUserDefined = false) {
         if (new Set(keys).size !== keys.length) {
             throw Error('Duplicate keys detected in shortcut');
         }

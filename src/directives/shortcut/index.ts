@@ -2,6 +2,11 @@ import { parseKey } from '@/directives/shortcut/key-code';
 import { ShortcutManager } from '@/directives/shortcut/shortcut-manager';
 import { DirectiveBinding } from 'vue';
 
+export * from './key-code';
+export * from './shortcut';
+export * from './shortcut-manager';
+export * from './shortcut-subscriber';
+
 export const shortcutManager: ShortcutManager = new ShortcutManager();
 
 export const shortcut = {

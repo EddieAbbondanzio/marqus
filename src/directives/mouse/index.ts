@@ -4,6 +4,13 @@ import { MouseActionFunction } from './mouse-action-function';
 import { MouseObject } from './mouse-object';
 import { MouseObjectManager } from './mouse-object-manager';
 
+export * from './mouse-action';
+export * from './mouse-action-function';
+export * from './mouse-button';
+export * from './mouse-object';
+export * from './mouse-object-manager';
+export * from './mouse-object-subscriber';
+
 export const mouseObjectManager = new MouseObjectManager();
 
 /**
