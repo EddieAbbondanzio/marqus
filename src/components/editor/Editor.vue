@@ -1,5 +1,5 @@
 <template>
-    <div class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark" v-shortcut>
+    <div class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark">
         <template v-if="!isEmpty">
             <editor-tabs />
             <editor-toolbar />

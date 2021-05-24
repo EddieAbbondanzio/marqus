@@ -6,8 +6,8 @@ export const SHORTCUT_STRING_DELIMITER = '+';
 export class Shortcut {
     public readonly keys: ReadonlyArray<KeyCode>;
 
-    constructor(keys: KeyCode[]) {
-        if (new Set(keys).size != keys.length) {
+    constructor(public name: string, keys: KeyCode[]) {
+        if (new Set(keys).size !== keys.length) {
             throw Error('Duplicate keys detected in shortcut');
         }
 
@@ -66,7 +66,7 @@ export class Shortcut {
  * @param shortcutString The shortcut string to parse.
  * @returns The extracted shortcut.
  */
-export function shortcutFromString(shortcutString: string): Shortcut {
+export function shortcutFromString(name: string, shortcutString: string): Shortcut {
     // Split up the keys, and remove any duplicates.
     const rawKeys = _.uniq(shortcutString.split(SHORTCUT_STRING_DELIMITER));
     const keys: KeyCode[] = [];
@@ -79,7 +79,7 @@ export function shortcutFromString(shortcutString: string): Shortcut {
         keys.push(parseKey(key));
     }
 
-    return new Shortcut(keys);
+    return new Shortcut(name, keys);
 }
 
 /**
@@ -87,6 +87,6 @@ export function shortcutFromString(shortcutString: string): Shortcut {
  * @param keys Keys to build the shortcut from.
  * @returns
  */
-export function shortcutFromKeys(...keys: KeyCode[]): Shortcut {
-    return new Shortcut(keys);
+export function shortcutFromKeys(name: string, ...keys: KeyCode[]): Shortcut {
+    return new Shortcut(name, keys);
 }

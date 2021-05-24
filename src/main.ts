@@ -9,9 +9,10 @@ import '@fortawesome/fontawesome-free/js/all.js';
 import { mouse } from './directives/mouse';
 import { focus } from './directives/focus';
 import '@/plugins/vee-validate';
-import { shortcut } from '@/directives/shortcut';
-import { shortcutFromKeys, shortcutFromString } from '@/directives/shortcut/shortcut';
+import { shortcut, shortcutManager } from '@/directives/shortcut';
+import { Shortcut, shortcutFromKeys, shortcutFromString } from '@/directives/shortcut/shortcut';
 import { KeyCode } from '@/directives/shortcut/key-code';
+import { ShortcutManager } from '@/directives/shortcut/shortcut-manager';
 
 const app = createApp(App);
 
@@ -23,4 +24,4 @@ app.directive('focus', focus);
 app.directive('mouse', mouse);
 app.directive('shortcut', shortcut);
 
-console.log(shortcutFromString('alt+shift+ctrl+a'));
+shortcutManager.define('catdog', [KeyCode.Control, KeyCode.LetterS]);
