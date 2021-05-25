@@ -6,7 +6,7 @@ export const SHORTCUT_STRING_DELIMITER = '+';
 export class Shortcut {
     public readonly keys: ReadonlyArray<KeyCode>;
 
-    constructor(public name: string, keys: KeyCode[], public isUserDefined = false) {
+    constructor(public name: string, keys: KeyCode[]) {
         if (new Set(keys).size !== keys.length) {
             throw Error('Duplicate keys detected in shortcut');
         }
@@ -79,14 +79,5 @@ export function shortcutFromString(name: string, shortcutString: string): Shortc
         keys.push(parseKey(key));
     }
 
-    return new Shortcut(name, keys);
-}
-
-/**
- *
- * @param keys Keys to build the shortcut from.
- * @returns
- */
-export function shortcutFromKeys(name: string, ...keys: KeyCode[]): Shortcut {
     return new Shortcut(name, keys);
 }

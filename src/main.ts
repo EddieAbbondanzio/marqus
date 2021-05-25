@@ -10,7 +10,6 @@ import { mouse } from './directives/mouse';
 import { focus } from './directives/focus';
 import '@/plugins/vee-validate';
 import { shortcut, shortcutManager } from '@/directives/shortcut';
-import { Shortcut, shortcutFromKeys, shortcutFromString } from '@/directives/shortcut/shortcut';
 import { KeyCode } from '@/directives/shortcut/key-code';
 import { ShortcutManager } from '@/directives/shortcut/shortcut-manager';
 
