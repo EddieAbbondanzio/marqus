@@ -1,8 +1,10 @@
 import { Editor, EditorMode, Tab } from '@/store/modules/app/modules/editor/state';
-import { loadNoteContentFromFileSystem } from '@/store/modules/notes';
+import { NOTES_DIRECTORY } from '@/store/modules/notes';
 import { Note } from '@/store/modules/notes/state';
 import { State } from '@/store/state';
+import { fileSystem } from '@/utils/file-system';
 import { confirmDeleteOrTrash } from '@/utils/prompts/confirm-delete-or-trash';
+import path from 'path';
 import { ActionTree } from 'vuex';
 
 export const actions: ActionTree<Editor, State> = {
@@ -17,6 +19,12 @@ export const actions: ActionTree<Editor, State> = {
     async tabOpen({ commit }, noteId: string) {
         const content = await loadNoteContentFromFileSystem(noteId);
         commit('OPEN_TAB', { noteId, content });
+    },
+    async saveTab({ commit, state }, noteId: string) {
+        const tab = state.tabs.values.find((t) => t.noteId === noteId)!;
+
+        await saveNoteContent(tab.noteId, tab.content);
+        commit('TAB_STATE', { tab, state: 'clean' });
     },
     tabSwitch({ commit }, tabId: string) {
         commit('SWITCH_TAB', tabId);
@@ -60,3 +68,11 @@ export const actions: ActionTree<Editor, State> = {
         commit('MODE', newMode);
     }
 };
+
+export async function loadNoteContentFromFileSystem(noteId: string) {
+    return await fileSystem.readText(path.join(NOTES_DIRECTORY, noteId, 'index.md'));
+}
+
+export async function saveNoteContent(noteId: string, content: string) {
+    await fileSystem.writeText(path.join(NOTES_DIRECTORY, noteId, 'index.md'), content);
+}

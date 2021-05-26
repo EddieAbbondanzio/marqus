@@ -1,4 +1,4 @@
-import { Editor, EditorMode, Tab } from '@/store/modules/app/modules/editor/state';
+import { Editor, EditorMode, Tab, TabState } from '@/store/modules/app/modules/editor/state';
 import { generateId, getEntity } from '@/store/core/entity';
 import { MutationTree } from 'vuex';
 
@@ -6,9 +6,14 @@ export const mutations: MutationTree<Editor> = {
     ACTIVE(s, tabId) {
         s.tabs.active = tabId;
     },
-    TAB_CONTENT(s, { id, content }: { id: string; content: string }) {
-        const tab = getEntity<Tab>(id, (id) => s.tabs.values.find((t) => t.id === id), 'Tab');
-        tab.content = content;
+    TAB_CONTENT(s, { tab, content }: { tab: string | Tab; content: string }) {
+        const t = getEntity<Tab>(tab, (id) => s.tabs.values.find((t) => t.id === id), 'Tab');
+        t.content = content;
+        t.state = 'dirty';
+    },
+    TAB_STATE(s, { tab, state }: { tab: string | Tab; state: TabState }) {
+        const t = getEntity<Tab>(tab, (id) => s.tabs.values.find((t) => t.id === id), 'Tab');
+        t.state = state;
     },
     EXIT_PREVIEW(s, tabId) {
         const tab = s.tabs.values.find((t) => t.id === tabId);
@@ -30,7 +35,7 @@ export const mutations: MutationTree<Editor> = {
             return;
         }
 
-        let tab: Tab = {
+        const tab: Tab = {
             id: generateId(),
             content,
             noteId,

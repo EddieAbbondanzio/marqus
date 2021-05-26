@@ -1,8 +1,10 @@
 import { Entity } from '@/store/core/entity';
 
+export type TabState = 'preview' | 'normal' | 'dirty';
+
 export interface Tab extends Entity {
     noteId: string;
-    state: 'preview' | 'normal' | 'dirty';
+    state: TabState;
     content: string;
     tagDropdownActive?: boolean;
     notebookDropdownActive?: boolean;

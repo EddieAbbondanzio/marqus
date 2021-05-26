@@ -1,4 +1,3 @@
-import { loadNoteContentFromFileSystem } from '@/store/modules/notes';
 import { Note } from '@/store/modules/notes/state';
 import { State } from '@/store/state';
 import { confirmDelete } from '@/utils/prompts/confirm-delete';

@@ -13,6 +13,33 @@ describe('Editor mutations', () => {
         });
     });
 
+    describe('TAB_CONTENT', () => {
+        it('sets content and marks as dirty', () => {
+            const state: any = {
+                tabs: {
+                    values: [{ id: '1', content: 'foo' }]
+                }
+            };
+
+            mutations.TAB_CONTENT(state, { tab: '1', content: 'bar' });
+            expect(state.tabs.values[0].content).toBe('bar');
+            expect(state.tabs.values[0].state).toBe('dirty');
+        });
+    });
+
+    describe('TAB_STATE', () => {
+        it('sets state', () => {
+            const state: any = {
+                tabs: {
+                    values: [{ id: '1', content: 'foo' }]
+                }
+            };
+
+            mutations.TAB_STATE(state, { tab: '1', state: 'preview' });
+            expect(state.tabs.values[0].state).toBe('preview');
+        });
+    });
+
     describe('EXIT_PREVIEW()', () => {
         it('sets state as normal', () => {
             const state: any = {

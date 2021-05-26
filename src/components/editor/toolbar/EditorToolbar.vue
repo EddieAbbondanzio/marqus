@@ -7,12 +7,22 @@
                 style="height: 30px"
                 @click="toggleMode"
                 v-shortcut:editorToggleMode="toggleMode"
-                v-if="mode != 'split'"
+                v-show="mode != 'split'"
             >
-                <span v-if="mode !== 'split'" :class="`icon is-small ${mode === 'edit' ? 'has-text-warning' : ''}`">
+                <span class="icon is-small has-text-hover-warning">
                     <i class="fas fa-edit"></i>
                 </span>
-                <span v-else class="icon is-small">
+            </button>
+
+            <button
+                id="saveButton"
+                class="button mb-0"
+                style="height: 30px"
+                @click="() => saveTab(note.id)"
+                v-shortcut:editorSave="() => saveTab(note.id)"
+                v-show="mode !== 'readonly'"
+            >
+                <span class="icon is-small">
                     <i class="fas fa-save"></i>
                 </span>
             </button>
@@ -54,7 +64,7 @@ import { store } from '@/store';
 import EditorToolbarTagsDropdown from '@/components/editor/toolbar/EditorToolbarTagsDropdown.vue';
 import EditorToolbarNotebooksDropdown from '@/components/editor/toolbar/EditorToolbarNotebooksDropdown.vue';
 import { defineComponent } from 'vue';
-import { mapActions, mapGetters, useStore } from 'vuex';
+import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
 import { Note } from '@/store/modules/notes/state';
 import { EditorMode } from '@/store/modules/app/modules/editor/state';
 
@@ -67,12 +77,7 @@ export default defineComponent({
             s.dispatch('notes/toggleFavorite', note);
         };
 
-        const test = () => {
-            console.log('FUCK');
-        };
-
         return {
-            test,
             onFavoriteClick
         };
     },
@@ -86,7 +91,7 @@ export default defineComponent({
         })
     },
     methods: {
-        ...mapActions('app/editor', ['deleteActiveNote', 'toggleMode'])
+        ...mapActions('app/editor', ['deleteActiveNote', 'toggleMode', 'saveTab'])
     },
     components: {
         EditorToolbarNotebooksDropdown,

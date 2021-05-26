@@ -18,7 +18,7 @@ export default {
     mutations
 };
 
-const NOTES_DIRECTORY = 'notes';
+export const NOTES_DIRECTORY = 'notes';
 
 persist.register({
     namespace: 'notes',
@@ -39,6 +39,7 @@ export async function serialize(
         case 'notes/RESTORE_TO_TRASH':
         case 'notes/FAVORITE':
         case 'notes/UNFAVORITE':
+        case 'notes/SAVE':
             await saveNoteToFileSystem(rootState, mutationPayload.payload);
             break;
 
@@ -92,10 +93,6 @@ export async function deserialize() {
     return {
         values: notes
     };
-}
-
-export async function loadNoteContentFromFileSystem(noteId: string) {
-    return await fileSystem.readText(path.join(NOTES_DIRECTORY, noteId, 'index.md'));
 }
 
 export async function saveNoteToFileSystem(rootState: State, noteOrId: Note | string) {

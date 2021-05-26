@@ -24,7 +24,7 @@ export default defineComponent({
         );
 
         const onInput = (e: InputEvent) => {
-            s.commit('app/editor/TAB_CONTENT', { id, content: (e.target as HTMLTextAreaElement).value });
+            s.commit('app/editor/TAB_CONTENT', { tab: id, content: (e.target as HTMLTextAreaElement).value });
         };
 
         return { content, onInput };
