@@ -1,12 +1,16 @@
 import { isModifier, isValidKeyCode, KeyCode, parseKey } from '@/directives/shortcut/key-code';
-import _ from 'lodash';
+import _, { trim } from 'lodash';
 
 export const SHORTCUT_STRING_DELIMITER = '+';
 
 export class Shortcut {
     public readonly keys: ReadonlyArray<KeyCode>;
 
-    constructor(public name: string, keys: KeyCode[]) {
+    constructor(public name: string, keys: ReadonlyArray<KeyCode>, public isUserDefined = false) {
+        if (keys.length === 0) {
+            throw Error('Shortcut must have at least 1 key');
+        }
+
         if (new Set(keys).size !== keys.length) {
             throw Error('Duplicate keys detected in shortcut');
         }
@@ -14,6 +18,8 @@ export class Shortcut {
         const shortcutKeys: KeyCode[] = [];
 
         const [modifiers, normalKeys] = _.partition(keys, isModifier);
+
+        // Map the values in the array into an object for O(1) lookup.
         const modifierFlags = modifiers.reduce(
             (accumulator: any, modifier) => ({ ...accumulator, [modifier]: true }),
             {}
@@ -23,7 +29,7 @@ export class Shortcut {
          * Modifiers should always be first, and in a specific order.
          */
 
-        if (modifierFlags.ctrl) {
+        if (modifierFlags.control) {
             shortcutKeys.push(KeyCode.Control);
         }
 
@@ -66,18 +72,20 @@ export class Shortcut {
  * @param shortcutString The shortcut string to parse.
  * @returns The extracted shortcut.
  */
-export function shortcutFromString(name: string, shortcutString: string): Shortcut {
+export function shortcutFromString(name: string, shortcutString: string, isUserDefined = false): Shortcut {
     // Split up the keys, and remove any duplicates.
     const rawKeys = _.uniq(shortcutString.split(SHORTCUT_STRING_DELIMITER));
     const keys: KeyCode[] = [];
 
     for (const key of rawKeys) {
-        if (!isValidKeyCode(key)) {
-            throw Error(`Invalid key code: ${key}`);
+        const trimmedKey = key.trim();
+
+        if (!isValidKeyCode(trimmedKey)) {
+            throw Error(`Invalid key code: ${trimmedKey}`);
         }
 
-        keys.push(parseKey(key));
+        keys.push(trimmedKey);
     }
 
-    return new Shortcut(name, keys);
+    return new Shortcut(name, keys, isUserDefined);
 }

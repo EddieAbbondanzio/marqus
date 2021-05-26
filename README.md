@@ -4,6 +4,11 @@ Marker is a minimalistic markdown based note taking app. It's heavily inspired f
 
 The app itself is currently under double secret ~~probation~~ alpha development and not yet ready for use. The current roadmap estimates version 1.0.0 will be ready by July.
 
+## Tech Stack
+
+
+
+
 ## Project setup
 
 ```

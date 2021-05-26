@@ -22,7 +22,7 @@ const NOTES_DIRECTORY = 'notes';
 
 persist.register({
     namespace: 'notes',
-    initiMutation: 'INIT',
+    initMutation: 'INIT',
     serialize,
     deserialize
 });

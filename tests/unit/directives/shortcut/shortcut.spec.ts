@@ -3,6 +3,12 @@ import { Shortcut } from '@/directives/shortcut/shortcut';
 
 describe('Shortcut {}', () => {
     describe('ctor', () => {
+        it('throws if no keys', () => {
+            expect(() => {
+                new Shortcut('', []);
+            }).toThrow();
+        });
+
         it('throws if duplicate keys', () => {
             expect(() => {
                 new Shortcut('', [KeyCode.LetterX, KeyCode.LetterX]);
@@ -48,7 +54,7 @@ describe('Shortcut {}', () => {
     describe('toString()', () => {
         it('makes readable strings', () => {
             const s = new Shortcut('', [KeyCode.LetterW, KeyCode.Shift, KeyCode.Alt, KeyCode.Control]);
-            expect(s.toString()).toBe('ctrl+shift+alt+w');
+            expect(s.toString()).toBe('control+shift+alt+w');
         });
     });
 });

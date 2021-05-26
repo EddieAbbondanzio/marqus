@@ -43,7 +43,7 @@ export enum KeyCode {
     Comma = ',',
     Period = '.',
     Slash = '/',
-    Control = 'ctrl',
+    Control = 'control',
     Meta = 'meta',
     Alt = 'alt',
     ArrowUp = 'up',
@@ -295,9 +295,9 @@ export function parseKey(code: string): KeyCode {
 }
 
 export function isModifier(key: KeyCode) {
-    return key === 'ctrl' || key === 'alt' || key === 'shift';
+    return key === 'control' || key === 'alt' || key === 'shift';
 }
 
-export function isValidKeyCode(key: string) {
+export function isValidKeyCode(key: string): key is KeyCode {
     return Object.values<string>(KeyCode).includes(key);
 }

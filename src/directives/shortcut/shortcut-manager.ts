@@ -12,8 +12,8 @@ export class ShortcutManager {
         this.activeKeys = {};
         this.subscribers = {};
 
-        this._onKeyDown.bind(this);
-        this._onKeyUp.bind(this);
+        this._onKeyDown = this._onKeyDown.bind(this);
+        this._onKeyUp = this._onKeyUp.bind(this);
 
         window.addEventListener('keydown', this._onKeyDown);
         window.addEventListener('keyup', this._onKeyUp);

@@ -15,5 +15,5 @@ export default {
 persist.register({
     namespace: 'tags',
     fileName: 'tags.json',
-    initiMutation: 'INIT'
+    initMutation: 'INIT'
 });

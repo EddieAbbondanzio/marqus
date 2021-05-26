@@ -11,14 +11,14 @@ describe('Persist plugin', () => {
                 scheduler: null!,
                 settings: {
                     namespace: 'cat',
-                    initiMutation: ''
+                    initMutation: ''
                 }
             });
 
             expect(() => {
                 persist.register({
                     namespace: 'cat',
-                    initiMutation: ''
+                    initMutation: ''
                 });
             }).toThrow();
         });
@@ -26,7 +26,7 @@ describe('Persist plugin', () => {
         it('adds module to modules array', () => {
             persist.register({
                 namespace: 'cat',
-                initiMutation: 'INIT'
+                initMutation: 'INIT'
             });
 
             expect(persist.modules).toHaveLength(1);
@@ -37,7 +37,7 @@ describe('Persist plugin', () => {
     describe('getModuleFileName()', () => {
         it('returns fileName if defined', () => {
             const name = getModuleFileName({
-                settings: { namespace: 'cat', fileName: 'dog.json', initiMutation: '' },
+                settings: { namespace: 'cat', fileName: 'dog.json', initMutation: '' },
                 scheduler: null!
             });
 
@@ -46,7 +46,7 @@ describe('Persist plugin', () => {
 
         it('returns namespace if no fileName specified.', () => {
             const name = getModuleFileName({
-                settings: { namespace: 'cat', initiMutation: '' },
+                settings: { namespace: 'cat', initMutation: '' },
                 scheduler: null!
             });
 
@@ -55,7 +55,7 @@ describe('Persist plugin', () => {
 
         it('returns deepest namespace if nested namespace', () => {
             const name = getModuleFileName({
-                settings: { namespace: 'super/nested/cat', initiMutation: '' },
+                settings: { namespace: 'super/nested/cat', initMutation: '' },
                 scheduler: null!
             });
 

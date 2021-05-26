@@ -10,5 +10,6 @@ export const state: ShortcutState = {
 
 export const DEFAULT_SHORCUTS: ReadonlyArray<Shortcut> = [
     new Shortcut('escape', [KeyCode.Escape]),
-    new Shortcut('save', [KeyCode.Control, KeyCode.LetterS])
+    new Shortcut('editorSaveTab', [KeyCode.Control, KeyCode.LetterS]),
+    new Shortcut('editorToggleEditMode', [KeyCode.Control, KeyCode.LetterE])
 ];

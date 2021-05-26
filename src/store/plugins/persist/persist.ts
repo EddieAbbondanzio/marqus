@@ -95,7 +95,7 @@ export const persist = {
                 }
             }
 
-            store.commit(`${m.settings.namespace}/${m.settings.initiMutation}`, state);
+            store.commit(`${m.settings.namespace}/${m.settings.initMutation}`, state);
         }
     },
 

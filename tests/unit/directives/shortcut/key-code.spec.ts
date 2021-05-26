@@ -103,8 +103,8 @@ describe('parseKey()', () => {
     });
 
     it('returns control', () => {
-        expect(parseKey('ControlLeft')).toBe('ctrl');
-        expect(parseKey('ControlRight')).toBe('ctrl');
+        expect(parseKey('ControlLeft')).toBe('control');
+        expect(parseKey('ControlRight')).toBe('control');
     });
 
     it('returns alt', () => {
