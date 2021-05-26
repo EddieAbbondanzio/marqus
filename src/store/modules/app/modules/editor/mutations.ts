@@ -30,31 +30,21 @@ export const mutations: MutationTree<Editor> = {
             return;
         }
 
-        let index: number;
-        let deleteCount: number;
-        let tab: Tab;
+        let tab: Tab = {
+            id: generateId(),
+            content,
+            noteId,
+            state: preview ? 'preview' : 'normal'
+        };
 
-        if (preview) {
-            index = s.tabs.values.findIndex((t) => t.state === 'preview');
-            deleteCount = 1;
-            tab = {
-                id: generateId(),
-                content,
-                noteId,
-                state: 'preview'
-            };
+        const existingPreviewTab = s.tabs.values.findIndex((t) => t.state === 'preview');
+
+        // When opening a new preview tab, and one already exists, replace it.
+        if (preview && existingPreviewTab !== -1) {
+            s.tabs.values.splice(existingPreviewTab, 1, tab);
         } else {
-            index = s.tabs.values.length - 1;
-            deleteCount = 0;
-            tab = {
-                id: generateId(),
-                content,
-                noteId,
-                state: 'normal'
-            };
+            s.tabs.values.push(tab);
         }
-
-        s.tabs.values.splice(index, deleteCount, tab);
 
         // Set newly opened tab to active
         s.tabs.active = tab.id;

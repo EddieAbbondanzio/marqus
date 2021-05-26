@@ -89,6 +89,20 @@ describe('Editor mutations', () => {
 
             expect(state.tabs.active).toBe(state.tabs.values[0].id);
         });
+
+        it('will add preview tab to end of tab array if no existing preview tab.', () => {
+            const state: any = {
+                tabs: {
+                    values: [{ id: 'b', noteId: '2', state: 'readonly', content: '' }]
+                }
+            };
+
+            mutations.OPEN_TAB(state, { noteId: '3', preview: true });
+
+            expect(state.tabs.values).toHaveLength(2);
+            expect(state.tabs.values[0]).toHaveProperty('noteId', '2');
+            expect(state.tabs.values[1]).toHaveProperty('noteId', '3');
+        });
     });
 
     describe('CLOSE_TAB()', () => {
