@@ -6,6 +6,7 @@
                 :class="editButtonClasses"
                 style="height: 30px"
                 @click="toggleMode"
+                v-shortcut:editorToggleMode="toggleMode"
                 v-if="mode != 'split'"
             >
                 <span v-if="mode !== 'split'" :class="`icon is-small ${mode === 'edit' ? 'has-text-warning' : ''}`">
@@ -66,7 +67,12 @@ export default defineComponent({
             s.dispatch('notes/toggleFavorite', note);
         };
 
+        const test = () => {
+            console.log('FUCK');
+        };
+
         return {
+            test,
             onFavoriteClick
         };
     },

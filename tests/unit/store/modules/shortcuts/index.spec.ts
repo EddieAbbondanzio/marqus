@@ -1,6 +1,10 @@
 import { KeyCode, Shortcut } from '@/directives/shortcut';
 import { reviver, transformer } from '@/store/modules/shortcuts';
-import { ShortcutState } from '@/store/modules/shortcuts/state';
+import { DEFAULT_SHORTCUTS, ShortcutState } from '@/store/modules/shortcuts/state';
+
+jest.mock('@/store/modules/shortcuts/state', () => ({
+    DEFAULT_SHORTCUTS: [new Shortcut('mockDefaultShortcut', [KeyCode.LetterL, KeyCode.Shift])]
+}));
 
 describe('transformer()', () => {
     it('only returns shortcuts that are user defined.', () => {
@@ -40,8 +44,9 @@ describe('reviver()', () => {
         };
 
         const { values } = reviver(raw);
-        expect(values).toHaveLength(2);
+        expect(values).toHaveLength(3);
         expect(values[0]).toHaveProperty('keys', [KeyCode.Control, KeyCode.Shift, KeyCode.LetterC]);
         expect(values[1]).toHaveProperty('keys', [KeyCode.Control, KeyCode.Shift, KeyCode.LetterV]);
+        expect(values[2]).toHaveProperty('keys', [KeyCode.Shift, KeyCode.LetterL]); // Mock default shortcut
     });
 });

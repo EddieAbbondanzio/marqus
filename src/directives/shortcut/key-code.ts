@@ -97,8 +97,10 @@ export enum KeyCode {
     PageUp = 'page_up'
 }
 
-/*
- * Convert the native code from KeyboardEvent.code into our key identifier.
+/**
+ * Parse a DOM key code from the .code property of a KeyboardEvent.
+ * @param code The raw dom key code to parse.
+ * @returns Our typesafe KeyCode.
  */
 export function parseKey(code: string): KeyCode {
     switch (code) {
@@ -294,10 +296,20 @@ export function parseKey(code: string): KeyCode {
     }
 }
 
+/**
+ * If the key is modifier such as control, alt, or shift.
+ * @param key The key to check.
+ * @returns
+ */
 export function isModifier(key: KeyCode) {
     return key === 'control' || key === 'alt' || key === 'shift';
 }
 
+/**
+ * Checks to see if the KeyCode enum contains the passed value.
+ * @param key The key code to check.
+ * @returns True if the key passed was a valid option.
+ */
 export function isValidKeyCode(key: string): key is KeyCode {
     return Object.values<string>(KeyCode).includes(key);
 }

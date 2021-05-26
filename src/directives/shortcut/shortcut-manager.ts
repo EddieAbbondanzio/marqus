@@ -35,7 +35,6 @@ export class ShortcutManager {
             // Did we hit a match? TODO: Refactor this for performance reasons?
             if (s.isMatch(activeKeys as any[])) {
                 const subsToNotify = this.subscribers[s.name];
-
                 // Notify the listeners for the shortcut.
                 if (subsToNotify != null) {
                     for (const sub of subsToNotify) {
@@ -51,8 +50,12 @@ export class ShortcutManager {
         delete this.activeKeys[key];
     }
 
-    define(shortcutName: string, keys: KeyCode[]) {
-        this.shortcuts.push(new Shortcut(shortcutName, keys));
+    register(shortcut: Shortcut | Shortcut[]) {
+        if (Array.isArray(shortcut)) {
+            this.shortcuts.push(...shortcut);
+        } else {
+            this.shortcuts.push(shortcut);
+        }
     }
 
     subscribe(shortcutName: string, callback: (shortcutName: string) => any, el?: HTMLElement): ShortcutSubscriber {

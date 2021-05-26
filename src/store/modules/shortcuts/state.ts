@@ -1,4 +1,5 @@
 import { KeyCode, Shortcut } from '@/directives/shortcut';
+import _ from 'lodash';
 
 export interface ShortcutState {
     values: Shortcut[];
@@ -8,8 +9,8 @@ export const state: ShortcutState = {
     values: []
 };
 
-export const DEFAULT_SHORCUTS: ReadonlyArray<Shortcut> = [
+export const DEFAULT_SHORTCUTS: ReadonlyArray<Shortcut> = [
     new Shortcut('escape', [KeyCode.Escape]),
-    new Shortcut('editorSaveTab', [KeyCode.Control, KeyCode.LetterS]),
-    new Shortcut('editorToggleEditMode', [KeyCode.Control, KeyCode.LetterE])
+    new Shortcut('editorSave', [KeyCode.Control, KeyCode.LetterS]),
+    new Shortcut('editorToggleMode', [KeyCode.Control, KeyCode.LetterE])
 ];

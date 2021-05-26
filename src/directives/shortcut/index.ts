@@ -23,7 +23,7 @@ export const shortcut = {
             throw Error('No callback for the shortcut specified.');
         }
 
-        const subscriber = shortcutManager.subscribe(shortcutName, callback, el);
+        shortcutManager.subscribe(shortcutName, callback, el);
     },
     unmounted: function(el: HTMLElement, binding: DirectiveBinding) {
         const subscribers = shortcutManager.getSubscribersByElement(el);

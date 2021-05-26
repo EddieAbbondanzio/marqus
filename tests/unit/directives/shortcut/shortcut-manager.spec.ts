@@ -80,7 +80,7 @@ describe('ShortcutManager', () => {
             const m = new ShortcutManager();
 
             expect(m.shortcuts).toHaveLength(0);
-            m.define('test', [KeyCode.Space, KeyCode.LetterA]);
+            m.register(new Shortcut('test', [KeyCode.Space, KeyCode.LetterA]));
             expect(m.shortcuts).toHaveLength(1);
 
             m.dispose();
