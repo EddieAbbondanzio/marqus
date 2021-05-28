@@ -1,6 +1,10 @@
 import { EventBase } from '@/store/core/event-base';
 import { EventHistory } from '@/store/core/event-history';
 
+/**
+ * Generates the APPLY, UNDO, and REDO mutations to support event sourcing. Will also handle all
+ * state logic for moving back and forth in time when the user wants to jump back or forward.
+ */
 export function mapEventSourcedMutations<S, T extends EventBase>({
     apply,
     undo,
@@ -14,7 +18,7 @@ export function mapEventSourcedMutations<S, T extends EventBase>({
     UNDO: (state: S) => void;
     REDO: (state: S) => void;
 } {
-    const obj = {
+    return {
         APPLY(state: S, event: T) {
             const h = history(state);
 
@@ -38,6 +42,4 @@ export function mapEventSourcedMutations<S, T extends EventBase>({
             }
         }
     };
-
-    return obj;
 }
