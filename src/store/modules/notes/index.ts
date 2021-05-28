@@ -34,7 +34,7 @@ export async function serialize(
     switch (mutationPayload.type) {
         // id was passed
         case 'notes/CREATE':
-        case 'notes/UPDATE':
+        case 'notes/NAME':
         case 'notes/MOVE_TO_TRASH':
         case 'notes/RESTORE_TO_TRASH':
         case 'notes/FAVORITE':

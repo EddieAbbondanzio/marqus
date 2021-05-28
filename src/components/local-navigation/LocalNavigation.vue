@@ -75,13 +75,13 @@ export default defineComponent({
         const width = computed({
             get: () => s.state.app.localNavigation.width as string,
             set: (w: any) => {
-                s.commit('app/localNavigation/WIDTH', w);
+                s.dispatch('app/localNavigation/widthUpdated', w);
             }
         });
 
         const input = computed({
             get: () => s.state.app.localNavigation.notes.input.name,
-            set: (v: string) => s.commit('app/localNavigation/NOTE_INPUT_VALUE', v)
+            set: (v: string) => s.dispatch('app/localNavigation/noteInputUpdate', v)
         });
 
         const formRules = {

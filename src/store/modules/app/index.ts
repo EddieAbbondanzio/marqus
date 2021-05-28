@@ -36,6 +36,11 @@ persist.register({
 
         if (s.localNavigation.history == null) {
             s.localNavigation.history = new EventHistory();
+        } else {
+            s.localNavigation.history = new EventHistory(
+                s.localNavigation.history.events,
+                s.localNavigation.history.currentIndex
+            );
         }
 
         return s;

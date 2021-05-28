@@ -26,10 +26,22 @@ export const actions: ActionTree<LocalNavigation, State> = {
             }
         }
 
+        let active: any;
+
+        if (
+            rootState.app.globalNavigation.active != null &&
+            typeof rootState.app.globalNavigation.active !== 'string'
+        ) {
+            active = {
+                id: rootState.app.globalNavigation.active.id,
+                type: rootState.app.globalNavigation.active.type
+            };
+        }
+
         const event: LocalNavigationEvent = {
             type: 'noteInputStarted',
-            active: rootState.app.globalNavigation.active,
-            note: note
+            active,
+            note
         };
 
         commit('APPLY', event);
@@ -62,7 +74,7 @@ export const actions: ActionTree<LocalNavigation, State> = {
 
             case 'update':
                 note.dateModified = new Date();
-                commit('notes/UPDATE', note, { root: true });
+                commit('notes/NAME', note, { root: true });
                 break;
         }
 
@@ -99,5 +111,15 @@ export const actions: ActionTree<LocalNavigation, State> = {
                 commit('notes/MOVE_TO_TRASH', id, { root: true });
                 break;
         }
+    },
+
+    widthUpdated({ commit, state }, width: string) {
+        const e: LocalNavigationEvent = {
+            type: 'widthUpdated',
+            newValue: width,
+            oldValue: state.width
+        };
+
+        commit('APPLY', e);
     }
 };

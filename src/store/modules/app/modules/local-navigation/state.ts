@@ -1,6 +1,5 @@
 import { EventBase } from '@/store/core/event-base';
 import { EventHistory } from '@/store/core/event-history';
-import { GlobalNavigationActive } from '@/store/modules/app/modules/global-navigation/state';
 import { Note } from '@/store/modules/notes/state';
 
 export type LocalNavigationEvent =
@@ -17,7 +16,7 @@ export type LocalNavigationEvent =
     | {
           type: 'noteInputStarted';
           note?: Note;
-          active?: GlobalNavigationActive;
+          active?: { id: string; type: 'notebook' | 'tag' };
       }
     | {
           type: 'noteInputCleared';

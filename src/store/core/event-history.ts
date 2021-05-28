@@ -4,13 +4,7 @@ import { EventBase } from '@/store/core/event-base';
  * It's like a VCR but for events
  */
 export class EventHistory<T extends EventBase> {
-    events: T[];
-    currentIndex: number;
-
-    constructor() {
-        this.events = [];
-        this.currentIndex = -1;
-    }
+    constructor(public events: T[] = [], public currentIndex: number = -1) {}
 
     /**
      * Add a new event to the history.
