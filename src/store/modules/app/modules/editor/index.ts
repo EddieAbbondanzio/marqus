@@ -3,6 +3,7 @@ import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
 import { mediator } from '@/store/plugins/mediator/mediator';
+import { shortcutManager } from '@/directives/shortcut';
 
 export default {
     namespaced: true,

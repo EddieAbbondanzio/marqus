@@ -6,6 +6,7 @@ import globalNavigation from '@/store/modules/app/modules/global-navigation/';
 import localNavigation from '@/store/modules/app/modules/local-navigation/';
 import { persist } from '@/store/plugins/persist/persist';
 import editor from '@/store/modules/app/modules/editor';
+import { EventHistory } from '@/store/core/event-history';
 
 export default {
     namespaced: true,
@@ -31,6 +32,10 @@ persist.register({
 
         if (s.editor.mode == null) {
             s.editor.mode = 'view';
+        }
+
+        if (s.localNavigation.history == null) {
+            s.localNavigation.history = new EventHistory();
         }
 
         return s;

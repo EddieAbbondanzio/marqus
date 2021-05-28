@@ -6,8 +6,11 @@ The app itself is currently under double secret ~~probation~~ alpha development 
 
 ## Tech Stack
 
+The app itself is running on Electron and is written in Vue 3. It uses TypeScript for compile time type safety to help prevent errors, and Vuex is used for state management. Markdown rendering is done thanks to Marked, and Bulma is used for styling.
 
+The code itself is kept lean as possible and the domain logic is kept agnostic of any data persistence thanks to a custom Vuex plugin. Testing is done with Jest. The project doesn't have full test coverage (and won't for awhile) but all of the state management logic (Vuex) and what not has good coverage to help prevent any regressions.
 
+Things that interact or modify the DOM in anyway don't have much (if any) tests right now because the look of the app will likely change over the next month or so. Components won't have tests until the app supports custom CSS themes.
 
 ## Project setup
 

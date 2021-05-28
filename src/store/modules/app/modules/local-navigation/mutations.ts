@@ -1,56 +1,88 @@
 import { Note } from '@/store/modules/notes/state';
 import { generateId } from '@/store/core/entity';
 import { MutationTree } from 'vuex';
-import { LocalNavigation } from './state';
+import { LocalNavigation, LocalNavigationEvent } from './state';
+import { mapEventSourcedMutations } from '@/store/core/map-event-sourced-mutations';
 
 export const mutations: MutationTree<LocalNavigation> = {
-    WIDTH(s, width) {
-        s.width = width;
-    },
-    NOTE_INPUT_VALUE(s, value: string) {
-        s.notes.input.name = value;
-    },
-    NOTE_INPUT_CLEAR(s) {
-        s.notes.input = {};
-    },
-    NOTE_INPUT_START(s, { note, active }: { note?: Note; active?: { id: string; type: 'notebook' | 'tag' } }) {
-        // Create
-        if (note == null) {
-            s.notes.input = {
-                id: generateId(),
-                name: '',
-                dateCreated: new Date(),
-                dateModified: new Date(),
-                mode: 'create'
-            };
+    ...mapEventSourcedMutations<LocalNavigation, LocalNavigationEvent>({
+        history: (s) => s.history,
+        apply: (state, event) => {
+            switch (event.type) {
+                case 'activeChanged':
+                    state.active = event.newValue;
+                    break;
 
-            // If an active record was passed, assign it as a tag, or notebook.
-            if (active != null) {
-                switch (active.type) {
-                    case 'notebook':
-                        s.notes.input.notebooks = [active.id];
-                        break;
+                case 'noteInputStarted':
+                    // Create
+                    if (event.note == null) {
+                        state.notes.input = {
+                            id: generateId(),
+                            name: '',
+                            dateCreated: new Date(),
+                            dateModified: new Date(),
+                            mode: 'create'
+                        };
 
-                    case 'tag':
-                        s.notes.input.tags = [active.id];
-                        break;
-                }
+                        // If an active record was passed, assign it as a tag, or notebook.
+                        if (event.active != null && typeof event.active !== 'string') {
+                            switch (event.active.type) {
+                                case 'notebook':
+                                    state.notes.input.notebooks = [event.active.id];
+                                    break;
+
+                                case 'tag':
+                                    state.notes.input.tags = [event.active.id];
+                                    break;
+                            }
+                        }
+                    }
+                    // Update
+                    else {
+                        state.notes.input = {
+                            id: event.note.id,
+                            name: event.note.name,
+                            dateCreated: event.note.dateCreated,
+                            dateModified: event.note.dateModified,
+                            tags: event.note.tags,
+                            notebooks: event.note.notebooks,
+                            mode: 'update'
+                        };
+                    }
+
+                    break;
+
+                case 'noteInputUpdated':
+                    state.notes.input.name = event.newValue;
+                    break;
+
+                case 'noteInputCleared':
+                    state.notes.input = {};
+                    break;
+
+                case 'widthUpdated':
+                    state.width = event.newValue;
+                    break;
+            }
+        },
+        undo: (state, event) => {
+            switch (event.type) {
+                case 'activeChanged':
+                    state.active = event.oldValue;
+                    break;
+
+                case 'noteInputStarted':
+                    state.notes.input = {};
+                    break;
+
+                case 'noteInputUpdated':
+                    state.notes.input.name = event.oldValue;
+                    break;
+
+                case 'widthUpdated':
+                    state.width = event.oldValue;
+                    break;
             }
         }
-        // Update
-        else {
-            s.notes.input = {
-                id: note.id,
-                name: note.name,
-                dateCreated: note.dateCreated,
-                dateModified: note.dateModified,
-                tags: note.tags,
-                notebooks: note.notebooks,
-                mode: 'update'
-            };
-        }
-    },
-    ACTIVE(s, active?: string) {
-        s.active = active;
-    }
+    })
 };

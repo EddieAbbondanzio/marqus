@@ -3,9 +3,18 @@ import { State } from '@/store/state';
 import { confirmDelete } from '@/utils/prompts/confirm-delete';
 import { confirmDeleteOrTrash } from '@/utils/prompts/confirm-delete-or-trash';
 import { ActionTree } from 'vuex';
-import { LocalNavigation } from './state';
+import { LocalNavigation, LocalNavigationEvent } from './state';
 
 export const actions: ActionTree<LocalNavigation, State> = {
+    setActive({ commit, state }, id: string) {
+        const event: LocalNavigationEvent = {
+            type: 'activeChanged',
+            newValue: id,
+            oldValue: state.active
+        };
+
+        commit('APPLY', event);
+    },
     noteInputStart({ commit, rootState }, { id }: { id?: string } = {}) {
         let note: Note | undefined;
 
@@ -17,8 +26,22 @@ export const actions: ActionTree<LocalNavigation, State> = {
             }
         }
 
-        const active = rootState.app.globalNavigation.active;
-        commit('NOTE_INPUT_START', { note, active });
+        const event: LocalNavigationEvent = {
+            type: 'noteInputStarted',
+            active: rootState.app.globalNavigation.active,
+            note: note
+        };
+
+        commit('APPLY', event);
+    },
+    noteInputUpdate({ commit, state }, value: string) {
+        const event: LocalNavigationEvent = {
+            type: 'noteInputUpdated',
+            newValue: value,
+            oldValue: state.notes.input.name
+        };
+
+        commit('APPLY', event);
     },
     noteInputConfirm({ commit, state }) {
         const input = state.notes.input;
@@ -43,10 +66,20 @@ export const actions: ActionTree<LocalNavigation, State> = {
                 break;
         }
 
-        commit('NOTE_INPUT_CLEAR');
+        const event: LocalNavigationEvent = {
+            type: 'noteInputCleared',
+            oldValue: note.name
+        };
+
+        commit('APPLY', event);
     },
-    noteInputCancel({ commit }) {
-        commit('NOTE_INPUT_CLEAR');
+    noteInputCancel({ commit, state }) {
+        const event: LocalNavigationEvent = {
+            type: 'noteInputCleared',
+            oldValue: state.notes.input.name
+        };
+
+        commit('APPLY', event);
     },
     async noteDelete({ commit, rootState }, id: string) {
         const note = rootState.notes.values.find((n) => n.id === id);

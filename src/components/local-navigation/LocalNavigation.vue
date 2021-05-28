@@ -189,10 +189,8 @@ export default defineComponent({
         ...mapActions('app/localNavigation', {
             confirm: 'noteInputConfirm',
             cancel: 'noteInputCancel',
-            create: 'noteInputStart'
-        }),
-        ...mapMutations('app/localNavigation', {
-            setActive: 'ACTIVE'
+            create: 'noteInputStart',
+            setActive: 'setActive'
         })
     },
     components: {

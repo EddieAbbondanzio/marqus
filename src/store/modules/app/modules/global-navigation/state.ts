@@ -12,11 +12,13 @@ export interface GlobalNavigationTagSection {
     input: Partial<Tag> & { mode?: 'create' | 'update' };
 }
 
+export type GlobalNavigationActive = 'all' | 'favorites' | 'trash' | { id: string; type: 'notebook' | 'tag' };
+
 export interface GlobalNavigation {
     width: string;
     notebooks: GlobalNavigationNotebookSection;
     tags: GlobalNavigationTagSection;
-    active?: 'all' | 'favorites' | 'trash' | { id: string; type: 'notebook' | 'tag' };
+    active?: GlobalNavigationActive;
 }
 
 export const state: GlobalNavigation = {
