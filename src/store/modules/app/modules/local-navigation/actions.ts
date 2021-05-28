@@ -94,6 +94,10 @@ export const actions: ActionTree<LocalNavigation, State> = {
         commit('APPLY', event);
     },
     async noteDelete({ commit, rootState }, id: string) {
+        if (id == null) {
+            throw Error();
+        }
+
         const note = rootState.notes.values.find((n) => n.id === id);
 
         if (note == null) {
