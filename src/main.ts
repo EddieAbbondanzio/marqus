@@ -6,11 +6,10 @@ import '@/assets/styles/main.sass';
 import { store } from './store';
 import '@fortawesome/fontawesome-free/css/all.css';
 import '@fortawesome/fontawesome-free/js/all.js';
-import { mouse } from './directives/mouse';
-import { focus } from './directives/focus';
+import { mouse } from './core/directives/mouse';
+import { focus } from '@/core/directives/focus';
 import '@/plugins/vee-validate';
-import { shortcut, shortcutManager } from '@/directives/shortcut';
-import { KeyCode } from '@/directives/shortcut/key-code';
+import { shortcut, shortcutManager } from '@/modules/shortcuts/directives/shortcut';
 
 const app = createApp(App);
 

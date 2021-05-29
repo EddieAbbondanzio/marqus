@@ -1,6 +1,5 @@
-import { generateId } from '@/store/core/entity';
+import { generateId } from '@/core/store/entity';
 import { MutationTree } from 'vuex';
-import { Notebook } from '../notebooks/state';
 import { AppState } from './state';
 
 export const mutations: MutationTree<AppState> = {

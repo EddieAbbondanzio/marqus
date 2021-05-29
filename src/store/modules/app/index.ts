@@ -2,11 +2,11 @@ import { state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
-import globalNavigation from '@/store/modules/app/modules/global-navigation/';
-import localNavigation from '@/store/modules/app/modules/local-navigation/';
-import { persist } from '@/store/plugins/persist/persist';
-import editor from '@/store/modules/app/modules/editor';
-import { EventHistory } from '@/store/core/event-history';
+import globalNavigation from '@/modules/global-navigation/store';
+import localNavigation from '@/modules/local-navigation/store';
+import { persist } from '@/core/store/plugins/persist/persist';
+import editor from '@/modules/editor/store';
+import { EventHistory } from '@/core/store/event-history';
 
 export default {
     namespaced: true,
