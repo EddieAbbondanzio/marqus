@@ -4,7 +4,7 @@
             <editor-tabs />
             <editor-toolbar />
 
-            <div class="is-flex is-flex-row is-flex-grow-1">
+            <div class="is-flex is-flex-row is-flex-grow-1 m-3">
                 <markdown-editor v-if="mode === 'edit' || mode === 'split'" class="is-flex-basis-0 is-flex-grow-1" />
                 <markdown-renderer v-if="mode !== 'edit'" class="is-flex-basis-0 is-flex-grow-1" />
             </div>

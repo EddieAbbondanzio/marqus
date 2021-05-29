@@ -5,7 +5,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import marked from 'marked';
-import { useStore } from 'vuex';
+import { mapMutations, useStore } from 'vuex';
 
 export default defineComponent({
     setup: () => {

@@ -11,7 +11,6 @@ import Cursor from '@/components/core/Cursor.vue';
 import { persist } from '@/store/plugins/persist/persist';
 import { mediator } from '@/store/plugins/mediator/mediator';
 import { mouseObjectManager } from '@/directives/mouse';
-import { ShortcutManager } from '@/directives/shortcut/shortcut-manager';
 import { shortcutManager } from '@/directives/shortcut';
 
 export default {
