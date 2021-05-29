@@ -56,7 +56,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, nextTick, Ref, ref } from 'vue';
-import Dropdown from '@/components/core/Dropdown.vue';
+import Dropdown from '@/core/components/Dropdown.vue';
 
 export default defineComponent({
     props: {

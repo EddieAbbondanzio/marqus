@@ -49,11 +49,10 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
-import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
-import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
-import { Notebook } from '@/store/modules/notebooks/state';
-import { findNotebookRecursive } from '@/store/modules/notebooks/mutations';
+import NavigationMenuItem from '@/core/components/navigation/NavigationMenuItem.vue';
+import NavigationMenuForm from '@/core/components/navigation/NavigationMenuForm.vue';
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { Notebook } from '@/modules/notebooks/common/notebook';
 
 export default defineComponent({
     props: {

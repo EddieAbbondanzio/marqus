@@ -1,14 +1,14 @@
 import { createStore } from 'vuex';
 import app from '@/store/modules/app';
-import tags from '@/store/modules/tags';
-import notebooks from '@/store/modules/notebooks';
-import notes from '@/store/modules/notes';
+import tags from '@/modules/tags/store';
+import notebooks from '@/modules/notebooks/store';
+import notes from '@/modules/notes/store';
 import { State, state } from './state';
 import { mutations } from '@/store/mutations';
 import { actions } from '@/store/actions';
-import { persist } from './plugins/persist/persist';
-import { mediator } from '@/store/plugins/mediator/mediator';
-import shortcuts from '@/store/modules/shortcuts';
+import { persist } from '../core/store/plugins/persist/persist';
+import { mediator } from '@/core/store/plugins/mediator/mediator';
+import shortcuts from '@/modules/shortcuts/store';
 
 export const store = createStore<State>({
     state: () => state as any,

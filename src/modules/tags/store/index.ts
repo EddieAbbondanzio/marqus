@@ -2,7 +2,7 @@ import { state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
-import { persist } from '@/store/plugins/persist/persist';
+import { persist } from '@/core/store/plugins/persist/persist';
 
 export default {
     namespaced: true,

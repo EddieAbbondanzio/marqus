@@ -30,11 +30,11 @@
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import GlobalNavigationNotebook from '@/modules/global-navigation/components/GlobalNavigationNotebook.vue';
-import GlobalNavigationNote from '@/components/global-navigation/GlobalNavigationNote.vue';
-import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
-import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
+import GlobalNavigationNote from '@/global-navigation/components/GlobalNavigationNote.vue';
+import NavigationMenuForm from '@/core/components/navigation/NavigationMenuForm.vue';
+import NavigationMenuItem from '@/core/components/navigation/NavigationMenuItem.vue';
 import { Notebook } from '@/modules/notebooks/common/notebook';
-import IconButton from '@/components/core/IconButton.vue';
+import IconButton from '@/core/components/IconButton.vue';
 
 export default defineComponent({
     setup: function() {

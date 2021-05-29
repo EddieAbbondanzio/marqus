@@ -1,4 +1,4 @@
-import { Entity } from '@/store/core/entity';
+import { Entity } from '@/core/store/entity';
 
 export type TabState = 'preview' | 'normal' | 'dirty';
 

@@ -53,10 +53,10 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
-import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
-import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
-import { Tag } from '@/store/modules/tags/state';
-import IconButton from '@/components/core/IconButton.vue';
+import NavigationMenuItem from '@/core/components/navigation/NavigationMenuItem.vue';
+import NavigationMenuForm from '@/core/components/navigation/NavigationMenuForm.vue';
+import IconButton from '@/core/components/IconButton.vue';
+import { Tag } from '@/modules/tags/common/tag';
 
 export default defineComponent({
     setup: function() {

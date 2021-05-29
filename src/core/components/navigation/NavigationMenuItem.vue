@@ -61,7 +61,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, reactive, ref, watch } from 'vue';
-import IconButton from '@/components/core/IconButton.vue';
+import IconButton from '@/core/components/IconButton.vue';
 
 export default defineComponent({
     props: {

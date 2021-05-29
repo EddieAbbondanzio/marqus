@@ -1,6 +1,6 @@
 import { MutationTree } from 'vuex';
-import { ShortcutState } from '@/store/modules/shortcuts/state';
-import { shortcutManager } from '@/directives/shortcut';
+import { ShortcutState } from '@/modules/shortcuts/store/state';
+import { shortcutManager } from '@/modules/shortcuts/directives/shortcut';
 
 export const mutations: MutationTree<ShortcutState> = {
     INIT(state, s: ShortcutState) {

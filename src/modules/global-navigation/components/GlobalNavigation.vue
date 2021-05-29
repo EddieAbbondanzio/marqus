@@ -48,15 +48,15 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, onBeforeUnmount } from 'vue';
-import Resizable from '@/components/core/Resizable.vue';
+import Resizable from '@/core/components/Resizable.vue';
 import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
-import GlobalNavigationTagSection from '@/components/global-navigation/GlobalNavigationTagSection.vue';
-import GlobalNavigationNotebookSection from '@/components/global-navigation/GlobalNavigationNotebookSection.vue';
-import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
-import NavigationMenuList from '@/components/core/navigation/NavigationMenuList.vue';
+import GlobalNavigationTagSection from '@/modules/global-navigation/components/GlobalNavigationTagSection.vue';
+import GlobalNavigationNotebookSection from '@/modules/global-navigation/components/GlobalNavigationNotebookSection.vue';
+import NavigationMenuItem from '@/core/components/navigation/NavigationMenuItem.vue';
+import NavigationMenuList from '@/core/components/navigation/NavigationMenuList.vue';
 import contextMenu from 'electron-context-menu';
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
-import IconButton from '@/components/core/IconButton.vue';
+import IconButton from '@/core/components/IconButton.vue';
 
 export default defineComponent({
     setup: function() {

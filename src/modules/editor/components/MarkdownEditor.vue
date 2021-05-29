@@ -3,7 +3,6 @@
 </template>
 
 <script lang="ts">
-import { Tab } from '@/store/modules/app/modules/editor/state';
 import { computed, defineComponent, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 

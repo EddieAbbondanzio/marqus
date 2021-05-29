@@ -1,6 +1,7 @@
+import { Note } from '@/modules/notes/common/note';
+import { NoteState } from '@/modules/notes/store/state';
 import { State } from '@/store/state';
 import { ActionTree } from 'vuex';
-import { Note, NoteState } from './state';
 
 export const actions: ActionTree<NoteState, State> = {
     toggleFavorite({ commit, state }, note: string | Note) {

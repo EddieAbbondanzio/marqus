@@ -1,5 +1,5 @@
-import { EventBase } from '@/store/core/event-base';
-import { EventHistory } from '@/store/core/event-history';
+import { EventBase } from '@/core/store/event-base';
+import { EventHistory } from '@/core/store/event-history';
 
 /**
  * Generates the APPLY, UNDO, and REDO mutations to support event sourcing. Will also handle all

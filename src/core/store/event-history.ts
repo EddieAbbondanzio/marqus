@@ -1,4 +1,4 @@
-import { EventBase } from '@/store/core/event-base';
+import { EventBase } from '@/core/store/event-base';
 
 /**
  * It's like a VCR but for events

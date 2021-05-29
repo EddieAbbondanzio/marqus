@@ -61,12 +61,11 @@
 
 <script lang="ts">
 import { store } from '@/store';
-import EditorToolbarTagsDropdown from '@/components/editor/toolbar/EditorToolbarTagsDropdown.vue';
-import EditorToolbarNotebooksDropdown from '@/components/editor/toolbar/EditorToolbarNotebooksDropdown.vue';
+import EditorToolbarTagsDropdown from '@/modules/editor/components/toolbar/EditorToolbarTagsDropdown.vue';
+import EditorToolbarNotebooksDropdown from '@/modules/editor/components/toolbar/EditorToolbarNotebooksDropdown.vue';
 import { defineComponent } from 'vue';
 import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
-import { Note } from '@/store/modules/notes/state';
-import { EditorMode } from '@/store/modules/app/modules/editor/state';
+import { Note } from '@/modules/notes/common/note';
 
 export default defineComponent({
     setup: function() {

@@ -37,12 +37,12 @@
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'vue';
 import _ from 'lodash';
-import Dropdown from '@/components/core/Dropdown.vue';
-import TagInput from '@/components/core/form/TagInput.vue';
+import Dropdown from '@/core/components/Dropdown.vue';
+import TagInput from '@/core/components/form/TagInput.vue';
 import { mapGetters, mapState, useStore } from 'vuex';
-import { Tag } from '@/store/modules/tags/state';
-import { Note } from '@/store/modules/notes/state';
-import { Tab } from '@/store/modules/app/modules/editor/state';
+import { Tab } from '@/modules/editor/store/state';
+import { Note } from '@/modules/notes/common/note';
+import { Tag } from '@/modules/tags/common/tag';
 
 export default defineComponent({
     setup: function() {

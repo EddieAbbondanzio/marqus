@@ -19,14 +19,14 @@
 
 <script lang="ts">
 import { computed, defineComponent, nextTick, onMounted, ref } from 'vue';
-import EditorTabs from '@/components/editor/EditorTabs.vue';
-import EditorToolbar from '@/components/editor/toolbar/EditorToolbar.vue';
+import EditorTabs from '@/modules/editor/components/EditorTabs.vue';
+import EditorToolbar from '@/modules/editor/components/toolbar/EditorToolbar.vue';
 import { store } from '@/store';
 import { mapGetters, mapState, useStore } from 'vuex';
-import TagInput from '@/components/core/form/TagInput.vue';
-import Dropdown from '@/components/core/Dropdown.vue';
-import MarkdownEditor from '@/components/editor/MarkdownEditor.vue';
-import MarkdownRenderer from '@/components/editor/MarkdownRenderer.vue';
+import TagInput from '@/core/components/form/TagInput.vue';
+import Dropdown from '@/core/components/Dropdown.vue';
+import MarkdownEditor from '@/modules/editor/components/MarkdownEditor.vue';
+import MarkdownRenderer from '@/modules/editor/components/MarkdownRenderer.vue';
 
 export default defineComponent({
     components: {

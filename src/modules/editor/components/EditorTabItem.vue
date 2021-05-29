@@ -28,7 +28,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapGetters, mapMutations, mapState, useStore } from 'vuex';
-import IconButton from '@/components/core/IconButton.vue';
+import IconButton from '@/core/components/IconButton.vue';
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
 import { off } from 'node:process';
 

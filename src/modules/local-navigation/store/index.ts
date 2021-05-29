@@ -2,7 +2,7 @@ import { state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
-import { mediator } from '@/store/plugins/mediator/mediator';
+import { mediator } from '@/core/store/plugins/mediator/mediator';
 
 export default {
     namespaced: true,

@@ -35,14 +35,14 @@
 </template>
 
 <script lang="ts">
-import { Notebook } from '@/store/modules/notebooks/state';
-import { Note } from '@/store/modules/notes/state';
 import { computed, defineComponent, ref } from 'vue';
 import { mapGetters, mapState, useStore } from 'vuex';
 import _ from 'lodash';
-import Dropdown from '@/components/core/Dropdown.vue';
-import TagInput from '@/components/core/form/TagInput.vue';
-import { Tab } from '@/store/modules/app/modules/editor/state';
+import Dropdown from '@/core/components/Dropdown.vue';
+import TagInput from '@/core/components/form/TagInput.vue';
+import { Tab } from '@/modules/editor/store/state';
+import { Notebook } from '@/modules/notebooks/common/notebook';
+import { Note } from '@/modules/notes/common/note';
 
 export default defineComponent({
     setup() {

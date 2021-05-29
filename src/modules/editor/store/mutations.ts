@@ -1,5 +1,5 @@
-import { Editor, EditorMode, Tab, TabState } from '@/store/modules/app/modules/editor/state';
-import { generateId, getEntity } from '@/store/core/entity';
+import { Editor, EditorMode, Tab, TabState } from '@/modules/editor/store/state';
+import { generateId, getEntity } from '@/core/store/entity';
 import { MutationTree } from 'vuex';
 
 export const mutations: MutationTree<Editor> = {

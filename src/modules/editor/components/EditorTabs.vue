@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import EditorTabItem from '@/components/editor/EditorTabItem.vue';
+import EditorTabItem from '@/modules/editor/components/EditorTabItem.vue';
 import { mapGetters, mapState } from 'vuex';
 
 export default defineComponent({

@@ -58,12 +58,12 @@
 
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, WritableComputedRef } from 'vue';
-import Resizable from '@/components/core/Resizable.vue';
-import IconButton from '@/components/core/IconButton.vue';
-import LocalNavigationSearchBar from '@/components/local-navigation/LocalNavigationSearchBar.vue';
+import Resizable from '@/core/components/Resizable.vue';
+import IconButton from '@/core/components/IconButton.vue';
+import LocalNavigationSearchBar from '@/modules/local-navigation/components/LocalNavigationSearchBar.vue';
 import { mapActions, mapGetters, mapMutations, mapState, useStore } from 'vuex';
-import NavigationMenuItem from '@/components/core/navigation/NavigationMenuItem.vue';
-import NavigationMenuForm from '@/components/core/navigation/NavigationMenuForm.vue';
+import NavigationMenuItem from '@/core/components/navigation/NavigationMenuItem.vue';
+import NavigationMenuForm from '@/core/components/navigation/NavigationMenuForm.vue';
 import { Note } from '@/modules/notes/common/note';
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
 import contextMenu from 'electron-context-menu';

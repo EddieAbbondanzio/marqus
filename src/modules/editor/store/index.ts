@@ -2,8 +2,8 @@ import { state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
-import { mediator } from '@/store/plugins/mediator/mediator';
-import { shortcutManager } from '@/directives/shortcut';
+import { mediator } from '@/core/store/plugins/mediator/mediator';
+import { shortcutManager } from '@/modules/shortcuts/directives/shortcut';
 
 export default {
     namespaced: true,
