@@ -1,5 +1,5 @@
 <template>
-    <textarea class="editor-textarea" :value="content" @input="onInput"></textarea>
+    <textarea class="editor-textarea p-3" :value="content" @input="onInput"></textarea>
 </template>
 
 <script lang="ts">
