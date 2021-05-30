@@ -6,9 +6,6 @@ export const mutations: MutationTree<AppState> = {
     INIT(state, s: AppState) {
         Object.assign(state, s);
     },
-    FOCUSED(state, name?: 'editor' | 'globalNavigation' | 'localNavigation') {
-        state.focused = name;
-    },
     SET_CURSOR_ICON(state, icon: string) {
         state.cursor.icon = icon;
     },

@@ -9,7 +9,6 @@ interface Cursor {
 }
 
 export interface AppState {
-    focused?: 'globalNavigation' | 'localNavigation' | 'editor';
     cursor: Cursor;
     globalNavigation: GlobalNavigation;
     localNavigation: LocalNavigation;

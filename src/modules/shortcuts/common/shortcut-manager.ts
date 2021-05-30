@@ -60,7 +60,7 @@ export class ShortcutManager {
     }
 
     subscribe(shortcutName: string, callback: (shortcutName: string) => any, el?: HTMLElement): ShortcutSubscriber {
-        const sub = new ShortcutSubscriber(shortcutName, callback, el);
+        const sub = new ShortcutSubscriber(shortcutName, callback);
 
         if (this.subscribers[shortcutName] == null) {
             this.subscribers[shortcutName] = [sub];
