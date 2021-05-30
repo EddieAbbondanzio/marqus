@@ -1,4 +1,4 @@
-import { getters } from '@/modules/app/global-navigation/store/getters';
+import { getters } from '@/modules/app/store/modules/global-navigation/getters';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 
 describe('GlobalNavigation getters', () => {

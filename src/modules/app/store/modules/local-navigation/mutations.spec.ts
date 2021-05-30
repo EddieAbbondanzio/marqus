@@ -1,5 +1,5 @@
-import { apply } from '@/modules/app/local-navigation/store/mutations';
-import { LocalNavigation } from '@/modules/app/local-navigation/store/state';
+import { apply } from '@/modules/app/store/modules/local-navigation/mutations';
+import { LocalNavigation } from '@/modules/app/store/modules/local-navigation/state';
 
 describe('LocalNavigation mutations', () => {
     describe('apply', () => {

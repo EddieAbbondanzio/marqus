@@ -1,5 +1,4 @@
-import { mutations } from '@/modules/app/editor/store/mutations';
-import { Editor } from '@/modules/app/editor/store/state';
+import { mutations } from '@/modules/app/store/modules/editor/mutations';
 
 describe('Editor mutations', () => {
     describe('ACTIVE()', () => {

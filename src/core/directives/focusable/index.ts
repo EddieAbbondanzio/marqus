@@ -1,9 +1,8 @@
 import { FocusManager } from '@/core/directives/focusable/focus-manager';
+import { FOCUSABLE_ATTRIBUTE_NAME } from '@/core/directives/focusable/focusable';
 import { Directive, DirectiveBinding } from '@vue/runtime-core';
 
 export const focusManager = new FocusManager();
-
-export const FOCUSABLE_ATTRIBUTE_NAME = 'data-focusable';
 
 export const focusable: Directive = {
     mounted: (el: HTMLElement, binding: DirectiveBinding) => {

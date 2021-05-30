@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue';
+import { computed, onBeforeUnmount, onMounted } from 'vue';
 import contextMenu from 'electron-context-menu';
 import { useStore } from 'vuex';
 import Cursor from '@/core/components/Cursor.vue';
@@ -21,10 +21,6 @@ export default {
 
         onMounted(() => {
             persist.init(s);
-
-            focusManager.onChange = (name, el) => {
-                s.commit('app/FOCUSED', name);
-            };
         });
 
         onBeforeUnmount(() => {

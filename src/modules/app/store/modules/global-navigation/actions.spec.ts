@@ -1,4 +1,4 @@
-import { actions } from '@/modules/app/global-navigation/store/actions';
+import { actions } from '@/modules/app/store/modules/global-navigation/actions';
 import { generateId } from '@/core/store/entity';
 import * as confirmDelete from '@/utils/prompts/confirm-delete';
 import { Notebook } from '@/modules/notebooks/common/notebook';

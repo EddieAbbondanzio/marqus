@@ -1,3 +1,5 @@
+import { actions } from '@/modules/app/store/modules/local-navigation/actions';
+
 describe('LocalNavigation Actions', () => {
     describe('setActive', () => {
         it('passes newValue and oldValue', () => {
@@ -120,63 +122,6 @@ describe('LocalNavigation Actions', () => {
             });
 
             expect(commit.mock.calls[0][1].type).toBe('noteInputCleared');
-        });
-    });
-
-    describe('noteDelete', () => {
-        it('confirms delete with user', () => {
-            (cdot as any).confirmDeleteOrTrash = jest.fn();
-
-            (actions as any).noteDelete(
-                {
-                    commit: jest.fn(),
-                    rootState: {
-                        notes: {
-                            values: [{ id: '1' }]
-                        }
-                    }
-                },
-                '1'
-            );
-
-            expect(cdot.confirmDeleteOrTrash).toHaveBeenCalled();
-        });
-
-        it('on hard delete it triggers delete', async () => {
-            (cdot as any).confirmDeleteOrTrash = jest.fn().mockReturnValue('delete');
-            const commit = jest.fn();
-
-            await (actions as any).noteDelete(
-                {
-                    commit,
-                    rootState: {
-                        notes: {
-                            values: [{ id: '1' }]
-                        }
-                    }
-                },
-                '1'
-            );
-            expect(commit.mock.calls[0][0]).toBe('notes/DELETE');
-        });
-
-        it('on soft delete moves to trash', async () => {
-            (cdot as any).confirmDeleteOrTrash = jest.fn().mockReturnValue('trash');
-            const commit = jest.fn();
-
-            await (actions as any).noteDelete(
-                {
-                    commit,
-                    rootState: {
-                        notes: {
-                            values: [{ id: '1' }]
-                        }
-                    }
-                },
-                '1'
-            );
-
-            expect(commit.mock.calls[0][0]).toBe('notes/MOVE_TO_TRASH');
         });
     });
 

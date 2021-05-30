@@ -1,9 +1,10 @@
+import { DEFAULT_SHORTCUTS } from '@/modules/shortcuts/common/default-shortcuts';
 import { KeyCode } from '@/modules/shortcuts/common/key-code';
 import { Shortcut } from '@/modules/shortcuts/common/shortcut';
 import { reviver, transformer } from '@/modules/shortcuts/store';
-import { DEFAULT_SHORTCUTS, ShortcutState } from '@/modules/shortcuts/store/state';
+import { ShortcutState } from '@/modules/shortcuts/store/state';
 
-jest.mock('@/modules/shortcuts/store/state', () => ({
+jest.mock('@/modules/shortcuts/common/default-shortcuts', () => ({
     DEFAULT_SHORTCUTS: [new Shortcut('mockDefaultShortcut', [KeyCode.LetterL, KeyCode.Shift])]
 }));
 

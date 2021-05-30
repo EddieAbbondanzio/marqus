@@ -1,4 +1,4 @@
-import { getters } from '@/modules/app/local-navigation/store/getters';
+import { getters } from '@/modules/app/store/modules/local-navigation/getters';
 
 describe('getters', () => {
     describe('isNoteBeingCreated()', () => {

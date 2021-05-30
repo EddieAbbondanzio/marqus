@@ -1,4 +1,4 @@
-import { focusable, FOCUSABLE_ATTRIBUTE_NAME } from '@/core/directives/focusable';
+import { Focusable, FOCUSABLE_ATTRIBUTE_NAME } from '@/core/directives/focusable/focusable';
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
 
 /**
@@ -6,8 +6,8 @@ import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
  * via a method call.
  */
 export class FocusManager {
-    focusables: { name: string; el: HTMLElement }[] = [];
-    onChange?: (name?: string | null, el?: HTMLElement | null) => any;
+    focusables: Focusable[] = [];
+    active?: Focusable;
 
     constructor() {
         this.onFocusIn = this.onFocusIn.bind(this);
@@ -63,11 +63,11 @@ export class FocusManager {
             matchValue: (el) => el
         });
 
-        const focusableName = focusableEl?.getAttribute(FOCUSABLE_ATTRIBUTE_NAME);
-
-        // Notify subscriber (if any).
-        if (this.onChange != null) {
-            this.onChange(focusableName, focusableEl);
+        if (focusableEl == null) {
+            delete this.active;
+        } else {
+            const name = focusableEl.getAttribute(FOCUSABLE_ATTRIBUTE_NAME)!;
+            this.active = { name, el: focusableEl };
         }
     }
 }

@@ -1,4 +1,4 @@
-import { actions } from '@/modules/app/editor/store/actions';
+import { actions } from '@/modules/app/store/modules/editor/actions';
 
 describe('Editor actions', () => {
     describe('tabSwitch', () => {
