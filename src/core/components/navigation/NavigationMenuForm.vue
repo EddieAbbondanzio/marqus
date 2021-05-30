@@ -80,6 +80,13 @@ export default defineComponent({
             default: () => ({})
         }
     },
+    directives: {
+        focus: {
+            mounted(el, binding, vnode) {
+                el.focus();
+            }
+        }
+    },
     setup(_, c) {
         let isClean = true;
 

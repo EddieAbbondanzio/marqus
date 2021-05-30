@@ -7,9 +7,9 @@ import { store } from './store';
 import '@fortawesome/fontawesome-free/css/all.css';
 import '@fortawesome/fontawesome-free/js/all.js';
 import { mouse } from './core/directives/mouse';
-import { focus } from '@/core/directives/focus';
 import '@/plugins/vee-validate';
 import { shortcut, shortcutManager } from '@/modules/shortcuts/directives/shortcut';
+import { focusable } from '@/core/directives/focusable';
 
 const app = createApp(App);
 
@@ -17,8 +17,8 @@ app.use(store)
     .use(router)
     .mount('#app');
 
-app.directive('focus', focus);
 app.directive('mouse', mouse);
 app.directive('shortcut', shortcut);
+app.directive('focusable', focusable);
 
 shortcutManager.subscribe('editorToggleSplitView', () => store.commit('app/editor/TOGGLE_SPLIT_VIEW'));

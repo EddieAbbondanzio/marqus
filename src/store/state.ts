@@ -1,5 +1,5 @@
 import { ShortcutState } from '@/modules/shortcuts/store/state';
-import { AppState } from './modules/app/state';
+import { AppState } from '../modules/app/store/state';
 import { NotebookState } from '../modules/notebooks/store/state';
 import { NoteState } from '../modules/notes/store/state';
 import { TagState } from '../modules/tags/store/state';

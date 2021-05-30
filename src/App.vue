@@ -12,6 +12,7 @@ import { mouseObjectManager } from '@/core/directives/mouse';
 import { mediator } from '@/core/store/plugins/mediator/mediator';
 import { persist } from '@/core/store/plugins/persist/persist';
 import { shortcutManager } from '@/modules/shortcuts/directives/shortcut';
+import { focusManager } from '@/core/directives/focusable';
 
 export default {
     components: { Cursor },
@@ -20,12 +21,17 @@ export default {
 
         onMounted(() => {
             persist.init(s);
+
+            focusManager.onChange = (name, el) => {
+                s.commit('app/FOCUSED', name);
+            };
         });
 
         onBeforeUnmount(() => {
             persist.release();
             mediator.release();
 
+            focusManager.dispose();
             mouseObjectManager.dispose();
             shortcutManager.dispose();
         });
