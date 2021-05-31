@@ -21,7 +21,6 @@ export function mapEventSourcedMutations<S, T extends EventBase>({
     return {
         APPLY(state: S, event: T) {
             const h = history(state);
-            console.log(h);
 
             apply(state, event);
             h.push(event);
