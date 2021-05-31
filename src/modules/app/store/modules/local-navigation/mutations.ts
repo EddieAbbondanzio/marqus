@@ -21,10 +21,7 @@ export function apply(state: LocalNavigation, event: LocalNavigationEvent) {
             // Create
             if (event.note == null) {
                 state.notes.input = {
-                    id: generateId(),
                     name: '',
-                    dateCreated: new Date(),
-                    dateModified: new Date(),
                     mode: 'create'
                 };
 
@@ -46,10 +43,6 @@ export function apply(state: LocalNavigation, event: LocalNavigationEvent) {
                 state.notes.input = {
                     id: event.note.id,
                     name: event.note.name,
-                    dateCreated: event.note.dateCreated,
-                    dateModified: event.note.dateModified,
-                    tags: event.note.tags,
-                    notebooks: event.note.notebooks,
                     mode: 'update'
                 };
             }
@@ -57,11 +50,11 @@ export function apply(state: LocalNavigation, event: LocalNavigationEvent) {
             break;
 
         case 'noteInputUpdated':
-            state.notes.input.name = event.newValue;
+            state.notes.input!.name = event.newValue;
             break;
 
         case 'noteInputCleared':
-            state.notes.input = {};
+            delete state.notes.input;
             break;
 
         case 'widthUpdated':
@@ -77,11 +70,11 @@ export function undo(state: LocalNavigation, event: LocalNavigationEvent) {
             break;
 
         case 'noteInputStarted':
-            state.notes.input = {};
+            delete state.notes.input;
             break;
 
         case 'noteInputUpdated':
-            state.notes.input.name = event.oldValue;
+            state.notes.input!.name = event.oldValue;
             break;
 
         case 'noteInputCleared':

@@ -9,7 +9,7 @@ describe('LocalNavigation mutations', () => {
                     active: '1',
                     width: '1px',
                     history: null!,
-                    notes: { input: {} }
+                    notes: {}
                 };
 
                 apply(s, {
@@ -25,9 +25,7 @@ describe('LocalNavigation mutations', () => {
             it('on create it defaults properties', () => {
                 const s: LocalNavigation = {
                     history: null!,
-                    notes: {
-                        input: {}
-                    },
+                    notes: {},
                     width: null!
                 };
 
@@ -35,17 +33,15 @@ describe('LocalNavigation mutations', () => {
                     type: 'noteInputStarted'
                 });
 
-                expect(s.notes.input.id).not.toBeNull();
-                expect(s.notes.input.name).toBe('');
-                expect(s.notes.input.dateCreated).toBeInstanceOf(Date);
-                expect(s.notes.input.dateModified).toBeInstanceOf(Date);
-                expect(s.notes.input.mode).toBe('create');
+                expect(s.notes.input!.id).not.toBeNull();
+                expect(s.notes.input!.name).toBe('');
+                expect(s.notes.input!.mode).toBe('create');
             });
 
             it('on create sets notebook when notebook is active', () => {
                 const s: LocalNavigation = {
                     history: null!,
-                    notes: { input: {} },
+                    notes: {},
                     width: null!
                 };
 
@@ -57,16 +53,14 @@ describe('LocalNavigation mutations', () => {
                     }
                 });
 
-                expect(s.notes.input.notebooks).toHaveLength(1);
-                expect(s.notes.input.notebooks![0]).toBe('1');
+                expect(s.notes.input!.notebooks).toHaveLength(1);
+                expect(s.notes.input!.notebooks![0]).toBe('1');
             });
 
             it("on create sets tag when tag is active'", () => {
                 const s: LocalNavigation = {
                     history: null!,
-                    notes: {
-                        input: {}
-                    },
+                    notes: {},
                     width: null!
                 };
 
@@ -78,16 +72,14 @@ describe('LocalNavigation mutations', () => {
                     }
                 });
 
-                expect(s.notes.input.tags).toHaveLength(1);
-                expect(s.notes.input.tags![0]).toBe('1');
+                expect(s.notes.input!.tags).toHaveLength(1);
+                expect(s.notes.input!.tags![0]).toBe('1');
             });
 
             it('sets update properties', () => {
                 const s: LocalNavigation = {
                     history: null!,
-                    notes: {
-                        input: {}
-                    },
+                    notes: {},
                     width: null!
                 };
 
@@ -103,12 +95,8 @@ describe('LocalNavigation mutations', () => {
                     }
                 });
 
-                expect(s.notes.input.id).toBe('1');
-                expect(s.notes.input.dateCreated).not.toBeNull();
-                expect(s.notes.input.dateModified).not.toBeNull();
-                expect(s.notes.input.tags).toEqual(['1', '2']);
-                expect(s.notes.input.name).toBe('name');
-                expect(s.notes.input.notebooks).toEqual(['3', '4']);
+                expect(s.notes.input!.id).toBe('1');
+                expect(s.notes.input!.name).toBe('name');
             });
         });
 
@@ -117,17 +105,20 @@ describe('LocalNavigation mutations', () => {
                 const s: LocalNavigation = {
                     history: null!,
                     notes: {
-                        input: {}
+                        input: {
+                            name: ''
+                        }
                     },
                     width: null!
                 };
 
                 apply(s, {
                     type: 'noteInputUpdated',
-                    newValue: 'cat'
+                    newValue: 'cat',
+                    oldValue: 'horse'
                 });
 
-                expect(s.notes.input.name).toBe('cat');
+                expect(s.notes.input!.name).toBe('cat');
             });
         });
 
@@ -135,18 +126,16 @@ describe('LocalNavigation mutations', () => {
             it('clears input', () => {
                 const s: LocalNavigation = {
                     history: null!,
-                    notes: {
-                        input: {}
-                    },
+                    notes: {},
                     width: null!
                 };
 
                 apply(s, {
                     type: 'noteInputCleared',
-                    oldValue: s.notes.input
+                    oldValue: s.notes.input!
                 });
 
-                expect(s.notes.input).toEqual({});
+                expect(s.notes.input).toBeUndefined();
             });
         });
 
@@ -154,9 +143,7 @@ describe('LocalNavigation mutations', () => {
             it('sets width', () => {
                 const s: LocalNavigation = {
                     history: null!,
-                    notes: {
-                        input: {}
-                    },
+                    notes: {},
                     width: null!
                 };
 
@@ -177,9 +164,7 @@ describe('LocalNavigation mutations', () => {
                 const state: LocalNavigation = {
                     history: null!,
                     width: '100px',
-                    notes: {
-                        input: {}
-                    }
+                    notes: {}
                 };
 
                 undo(state, {
@@ -208,7 +193,7 @@ describe('LocalNavigation mutations', () => {
                     type: 'noteInputStarted'
                 });
 
-                expect(state.notes.input).toStrictEqual({});
+                expect(state.notes.input).toBeUndefined();
             });
         });
 
@@ -226,10 +211,11 @@ describe('LocalNavigation mutations', () => {
 
                 undo(state, {
                     type: 'noteInputUpdated',
+                    newValue: '',
                     oldValue: 'bar'
                 });
 
-                expect(state.notes.input.name).toBe('bar');
+                expect(state.notes.input!.name).toBe('bar');
             });
         });
 
@@ -238,9 +224,7 @@ describe('LocalNavigation mutations', () => {
                 const state: LocalNavigation = {
                     history: null!,
                     width: '100px',
-                    notes: {
-                        input: {}
-                    }
+                    notes: {}
                 };
 
                 undo(state, {
@@ -251,8 +235,8 @@ describe('LocalNavigation mutations', () => {
                     }
                 });
 
-                expect(state.notes.input.id).toBe('1');
-                expect(state.notes.input.name).toBe('foobar');
+                expect(state.notes.input!.id).toBe('1');
+                expect(state.notes.input!.name).toBe('foobar');
             });
         });
 
@@ -261,9 +245,7 @@ describe('LocalNavigation mutations', () => {
                 const state: LocalNavigation = {
                     history: null!,
                     width: '100px',
-                    notes: {
-                        input: {}
-                    }
+                    notes: {}
                 };
 
                 undo(state, {

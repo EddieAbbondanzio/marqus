@@ -1,3 +1,5 @@
+import { generateId } from '@/core/store/entity';
+import { findNotebookRecursive } from '@/modules/notebooks/store/mutations';
 import { Note } from '@/modules/notes/common/note';
 import { State } from '@/store/state';
 import { confirmDeleteOrTrash } from '@/utils/prompts/confirm-delete-or-trash';
@@ -49,28 +51,49 @@ export const actions: ActionTree<LocalNavigation, State> = {
         const event: LocalNavigationEvent = {
             type: 'noteInputUpdated',
             newValue: value,
-            oldValue: state.notes.input.name
+            oldValue: state.notes.input!.name
         };
 
         commit('APPLY', event);
     },
-    noteInputConfirm({ commit, state }) {
-        const note: Note = Object.assign({} as Note, state.notes.input);
+    noteInputConfirm({ commit, state, rootState }) {
+        const input = state.notes.input!;
+        let note: Note;
+        let old: Note | undefined;
 
-        switch (state.notes.input.mode) {
+        switch (input.mode) {
             case 'create':
+                note = {
+                    id: generateId(),
+                    dateCreated: new Date(),
+                    dateModified: new Date(),
+                    name: input.name,
+                    notebooks: input.notebooks ?? [],
+                    tags: input.tags ?? []
+                };
+
                 commit('notes/CREATE', note, { root: true });
                 break;
 
             case 'update':
-                note.dateModified = new Date();
+                old = rootState.notes.values.find((n) => n.id === input.id!)!;
+
+                note = {
+                    id: old.id,
+                    dateCreated: old.dateCreated,
+                    dateModified: new Date(),
+                    name: input.name,
+                    notebooks: old.notebooks,
+                    tags: old.tags
+                };
+
                 commit('notes/NAME', note, { root: true });
                 break;
         }
 
         const event: LocalNavigationEvent = {
             type: 'noteInputCleared',
-            oldValue: note
+            oldValue: note!
         };
 
         commit('APPLY', event);
@@ -78,7 +101,7 @@ export const actions: ActionTree<LocalNavigation, State> = {
     noteInputCancel({ commit, state }) {
         const event: LocalNavigationEvent = {
             type: 'noteInputCleared',
-            oldValue: state.notes.input
+            oldValue: state.notes.input!
         };
 
         commit('APPLY', event);

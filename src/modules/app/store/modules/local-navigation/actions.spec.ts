@@ -96,8 +96,15 @@ describe('LocalNavigation Actions', () => {
                 state: {
                     notes: {
                         input: {
+                            id: '1',
+                            name: 'cat',
                             mode: 'update'
                         }
+                    }
+                },
+                rootState: {
+                    notes: {
+                        values: [{ id: '1', name: 'dog' }]
                     }
                 }
             });
