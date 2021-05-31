@@ -1,9 +1,4 @@
 import { MutationTree } from 'vuex';
-import { NotebookState } from '@/modules/notebooks/store/state';
-import { generateId } from '@/core/store/entity';
-import { findNotebookRecursive } from '@/modules/notebooks/store/mutations';
-import { Tag } from '@/modules/tags/common/tag';
-import { Notebook } from '@/modules/notebooks/common/notebook';
 import { GlobalNavigation, GlobalNavigationEvent } from '@/modules/app/store/modules/global-navigation/state';
 import { mapEventSourcedMutations } from '@/core/store/map-event-sourced-mutations';
 
