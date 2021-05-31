@@ -84,6 +84,10 @@ export function undo(state: LocalNavigation, event: LocalNavigationEvent) {
             state.notes.input.name = event.oldValue;
             break;
 
+        case 'noteInputCleared':
+            state.notes.input = event.oldValue;
+            break;
+
         case 'widthUpdated':
             state.width = event.oldValue;
             break;

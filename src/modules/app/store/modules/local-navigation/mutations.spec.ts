@@ -142,7 +142,8 @@ describe('LocalNavigation mutations', () => {
                 };
 
                 apply(s, {
-                    type: 'noteInputCleared'
+                    type: 'noteInputCleared',
+                    oldValue: s.notes.input
                 });
 
                 expect(s.notes.input).toEqual({});

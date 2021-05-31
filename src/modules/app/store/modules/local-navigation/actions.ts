@@ -55,18 +55,9 @@ export const actions: ActionTree<LocalNavigation, State> = {
         commit('APPLY', event);
     },
     noteInputConfirm({ commit, state }) {
-        const input = state.notes.input;
+        const note: Note = Object.assign({} as Note, state.notes.input);
 
-        const note: Note = {
-            id: input.id!,
-            name: input.name!,
-            dateCreated: input.dateCreated!,
-            dateModified: input.dateModified!,
-            notebooks: input.notebooks!,
-            tags: input.tags!
-        };
-
-        switch (input.mode) {
+        switch (state.notes.input.mode) {
             case 'create':
                 commit('notes/CREATE', note, { root: true });
                 break;
@@ -79,7 +70,7 @@ export const actions: ActionTree<LocalNavigation, State> = {
 
         const event: LocalNavigationEvent = {
             type: 'noteInputCleared',
-            oldValue: note.name
+            oldValue: note
         };
 
         commit('APPLY', event);
@@ -87,7 +78,7 @@ export const actions: ActionTree<LocalNavigation, State> = {
     noteInputCancel({ commit, state }) {
         const event: LocalNavigationEvent = {
             type: 'noteInputCleared',
-            oldValue: state.notes.input.name
+            oldValue: state.notes.input
         };
 
         commit('APPLY', event);

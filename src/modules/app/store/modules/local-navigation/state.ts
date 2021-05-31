@@ -20,7 +20,7 @@ export type LocalNavigationEvent =
       }
     | {
           type: 'noteInputCleared';
-          oldValue?: string;
+          oldValue: LocalNavigationNoteInput;
       }
     | {
           type: 'activeChanged';
@@ -30,11 +30,13 @@ export type LocalNavigationEvent =
 
 export type LocalNavigationEventType = LocalNavigationEvent['type'];
 
+export type LocalNavigationNoteInput = Partial<Note> & { mode?: 'create' | 'update' };
+
 export interface LocalNavigation {
     history: EventHistory<LocalNavigationEvent>;
     width: string;
     notes: {
-        input: Partial<Note> & { mode?: 'create' | 'update' };
+        input: LocalNavigationNoteInput;
     };
     active?: string;
 }
