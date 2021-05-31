@@ -65,13 +65,13 @@ export default defineComponent({
         const expanded = computed({
             get: () => s.state.app.globalNavigation.tags.expanded,
             set: (v: any) => {
-                s.commit('app/globalNavigation/TAGS_EXPANDED', v);
+                s.dispatch('app/globalNavigation/setTagsExpanded', v);
             }
         });
 
         const input = computed({
             get: () => s.state.app.globalNavigation.tags.input.value,
-            set: (v: string) => s.commit('app/globalNavigation/TAG_INPUT_VALUE', v)
+            set: (v: string) => s.dispatch('app/globalNavigation/tagInputUpdated', v)
         });
 
         const formRules = {

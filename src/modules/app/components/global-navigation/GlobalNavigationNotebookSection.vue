@@ -43,13 +43,13 @@ export default defineComponent({
         const expanded = computed({
             get: () => s.state.app.globalNavigation.notebooks.expanded,
             set: (v: any) => {
-                s.commit('app/globalNavigation/NOTEBOOKS_EXPANDED', v);
+                s.dispatch('app/globalNavigation/setNotebooksExpanded', v);
             }
         });
 
         const input = computed({
             get: () => s.state.app.globalNavigation.notebooks.input.value,
-            set: (v: string) => s.commit('app/globalNavigation/NOTEBOOK_INPUT_VALUE', v)
+            set: (v: string) => s.dispatch('app/globalNavigation/notebookInputUpdated', v)
         });
 
         const formRules = {

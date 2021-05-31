@@ -34,6 +34,15 @@ persist.register({
             s.editor.mode = 'view';
         }
 
+        if (s.globalNavigation.history == null) {
+            s.globalNavigation.history = new EventHistory();
+        } else {
+            s.globalNavigation.history = new EventHistory(
+                s.globalNavigation.history.events,
+                s.globalNavigation.history.currentIndex
+            );
+        }
+
         if (s.localNavigation.history == null) {
             s.localNavigation.history = new EventHistory();
         } else {

@@ -12,7 +12,7 @@
                 icon="file-alt"
                 label="ALL"
                 :active="isActive('all')"
-                @click="ACTIVE('all')"
+                @click="setActive('all')"
                 :hideToggle="true"
             >
                 <template #options>
@@ -39,10 +39,10 @@
                 icon="star"
                 label="FAVORITES"
                 :active="isActive('favorites')"
-                @click="ACTIVE('favorites')"
+                @click="setActive('favorites')"
             />
 
-            <NavigationMenuItem icon="trash" label="TRASH" :active="isActive('trash')" @click="ACTIVE('trash')" />
+            <NavigationMenuItem icon="trash" label="TRASH" :active="isActive('trash')" @click="setActive('trash')" />
         </NavigationMenuList>
     </Resizable>
 </template>
@@ -66,7 +66,7 @@ export default defineComponent({
         const width = computed({
             get: () => s.state.app.globalNavigation.width as string,
             set: (w: any) => {
-                s.commit('app/globalNavigation/WIDTH', w);
+                s.dispatch('app/globalNavigation/setWidth', w);
             }
         });
 
@@ -177,8 +177,7 @@ export default defineComponent({
         ...mapGetters('app/globalNavigation', ['isActive'])
     },
     methods: {
-        ...mapMutations('app/globalNavigation', ['ACTIVE']),
-        ...mapActions('app/globalNavigation', ['expandAll', 'collapseAll'])
+        ...mapActions('app/globalNavigation', ['expandAll', 'collapseAll', 'setActive'])
     },
     components: {
         Resizable,

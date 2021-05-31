@@ -97,6 +97,7 @@ describe('ShortcutManager', () => {
             m.subscribe('test', () => {}, el2);
 
             const subs = m.getSubscribersByElement(el1);
+            console.log(subs);
             expect(subs).toHaveLength(1);
         });
     });

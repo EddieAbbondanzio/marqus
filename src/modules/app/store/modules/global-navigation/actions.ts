@@ -18,6 +18,15 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         commit('APPLY', event);
     },
+    setWidth({ commit, state }, width: string) {
+        const event: GlobalNavigationEvent = {
+            type: 'widthUpdated',
+            newValue: width,
+            oldValue: state.width
+        };
+
+        commit('APPLY', event);
+    },
     tagInputStart({ commit, rootState, state }, { id }: { id?: string } = {}) {
         let tag: Tag | undefined;
 
@@ -43,6 +52,15 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         };
 
         commit('APPLY', expandedEvent);
+    },
+    tagInputUpdated({ commit, state }, val: string) {
+        const event: GlobalNavigationEvent = {
+            type: 'tagInputUpdated',
+            newValue: val,
+            oldValue: state.tags.input.value!
+        };
+
+        commit('APPLY', event);
     },
     tagInputConfirm({ commit, state }) {
         const tag = Object.assign({} as Tag, state.tags.input);
@@ -91,6 +109,15 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             commit('notes/REMOVE_TAG', { tagId: id }, { root: true });
         }
     },
+    setTagsExpanded({ commit, state }, expanded: boolean) {
+        const event: GlobalNavigationEvent = {
+            type: 'tagsExpanded',
+            newValue: expanded,
+            oldValue: state.tags.expanded
+        };
+
+        commit('APPLY', event);
+    },
     notebookInputStart({ commit, rootState, state }, { id, parentId }: { id?: string; parentId?: string } = {}) {
         let notebook: Notebook | undefined;
         let parent: Notebook | undefined;
@@ -130,6 +157,15 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             commit('notebooks/EXPANDED', { notebook: parent, bubbleUp: true }, { root: true });
         }
     },
+    notebookInputUpdated({ commit, state }, val: string) {
+        const event: GlobalNavigationEvent = {
+            type: 'notebookInputUpdated',
+            newValue: val,
+            oldValue: state.notebooks.input.value!
+        };
+
+        commit('APPLY', event);
+    },
     notebookInputConfirm({ commit, state }) {
         const notebook = Object.assign({} as Notebook, state.notebooks.input);
 
@@ -166,6 +202,15 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             commit('notebooks/DELETE', id, { root: true });
             commit('notes/REMOVE_NOTEBOOK', { notebookId: id }, { root: true });
         }
+    },
+    setNotebooksExpanded({ commit, state }, expanded: boolean) {
+        const event: GlobalNavigationEvent = {
+            type: 'notebooksExpanded',
+            newValue: expanded,
+            oldValue: state.notebooks.expanded
+        };
+
+        commit('APPLY', event);
     },
     notebookDragStart({ commit }, notebook: Notebook) {
         const event: GlobalNavigationEvent = {
