@@ -36,7 +36,7 @@ export const persist = {
                         let s = _.cloneDeep(state);
 
                         // Apply the transformer to the state if one exists
-                        if (subscriber.settings.transformer) {
+                        if (subscriber.settings.transformer != null) {
                             s = subscriber.settings.transformer(s);
 
                             if (s == null) {
@@ -54,7 +54,12 @@ export const persist = {
                                 mutationPayload: p
                             });
                         } else {
-                            await fileSystem.writeJSON(fileName, s);
+                            try {
+                                await fileSystem.writeJSON(fileName, s);
+                            } catch (e) {
+                                console.error('Failed to serialize state', e);
+                                console.log('State: ', s);
+                            }
                         }
                     });
                 }

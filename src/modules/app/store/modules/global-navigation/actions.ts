@@ -1,4 +1,4 @@
-import { getEntity } from '@/core/store/entity';
+import { generateId, getEntity } from '@/core/store/entity';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 import { findNotebookRecursive } from '@/modules/notebooks/store/mutations';
 import { Tag } from '@/modules/tags/common/tag';
@@ -57,7 +57,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         const event: GlobalNavigationEvent = {
             type: 'tagInputUpdated',
             newValue: val,
-            oldValue: state.tags.input.value!
+            oldValue: state.tags.input!.value!
         };
 
         commit('APPLY', event);
@@ -65,7 +65,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     tagInputConfirm({ commit, state }) {
         const tag = Object.assign({} as Tag, state.tags.input);
 
-        switch (state.tags.input.mode) {
+        switch (state.tags.input!.mode) {
             case 'create':
                 commit('tags/CREATE', tag, { root: true });
                 break;
@@ -75,14 +75,14 @@ export const actions: ActionTree<GlobalNavigation, State> = {
                 break;
 
             default:
-                throw Error(`Invalid tag input mode: ${state.tags.input.mode}`);
+                throw Error(`Invalid tag input mode: ${state.tags.input!.mode}`);
         }
 
         commit('tags/SORT', null, { root: true });
 
         const clearEvent: GlobalNavigationEvent = {
             type: 'tagInputCleared',
-            oldValue: state.tags.input
+            oldValue: state.tags.input!
         };
 
         commit('APPLY', clearEvent);
@@ -90,7 +90,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     tagInputCancel({ commit, state }) {
         const clearEvent: GlobalNavigationEvent = {
             type: 'tagInputCleared',
-            oldValue: state.tags.input
+            oldValue: state.tags.input!
         };
 
         commit('APPLY', clearEvent);
@@ -141,9 +141,15 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         const inputEvent: GlobalNavigationEvent = {
             type: 'notebookInputStarted',
-            notebook,
-            parent
+            parentId: parent?.id
         };
+
+        if (notebook != null) {
+            inputEvent.notebook = {
+                id: notebook.id,
+                value: notebook.value
+            };
+        }
 
         commit('APPLY', inputEvent);
 
@@ -161,25 +167,47 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         const event: GlobalNavigationEvent = {
             type: 'notebookInputUpdated',
             newValue: val,
-            oldValue: state.notebooks.input.value!
+            oldValue: state.notebooks.input!.value!
         };
 
         commit('APPLY', event);
     },
-    notebookInputConfirm({ commit, state }) {
-        const notebook = Object.assign({} as Notebook, state.notebooks.input);
+    notebookInputConfirm({ commit, state, rootState }) {
+        const input = state.notebooks.input!;
+        let notebook: Notebook;
+        let old: Notebook | undefined;
 
-        switch (state.notebooks.input.mode) {
+        switch (state.notebooks.input?.mode) {
             case 'create':
+                notebook = {
+                    id: generateId(),
+                    value: input.value,
+                    expanded: false
+                };
+
+                if (input.parentId != null) {
+                    notebook.parent = findNotebookRecursive(rootState.notebooks.values, input.parentId)!;
+                }
+
                 commit('notebooks/CREATE', notebook, { root: true });
                 break;
 
             case 'update':
+                old = rootState.notebooks.values.find((n) => n.id === input.id)!;
+
+                notebook = {
+                    id: old.id,
+                    value: input.value,
+                    expanded: old.expanded,
+                    children: old.children,
+                    parent: old.parent
+                };
+
                 commit('notebooks/UPDATE', notebook, { root: true });
                 break;
 
             default:
-                throw new Error(`Invalid notebook input mode ${state.notebooks.input.mode}`);
+                throw new Error(`Invalid notebook input mode ${state.notebooks.input?.mode}`);
         }
 
         commit('APPLY', {
@@ -215,14 +243,14 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     notebookDragStart({ commit }, notebook: Notebook) {
         const event: GlobalNavigationEvent = {
             type: 'notebookDraggingUpdated',
-            newValue: notebook,
+            newValue: notebook.id,
             oldValue: undefined
         };
 
         commit('APPLY', event);
     },
     async notebookDragStop({ commit, rootState, state }, endedOnId: string | null) {
-        const dragging = state.notebooks.dragging;
+        const dragging: Notebook = findNotebookRecursive(rootState.notebooks.values, state.notebooks.dragging!)!;
 
         if (dragging == null) {
             throw new Error('No drag to finalize.');

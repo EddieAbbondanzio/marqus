@@ -2,6 +2,11 @@ import { EventHistory } from '@/core/store/event-history';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 import { Tag } from '@/modules/tags/common/tag';
 
+/*
+ * Don't pass notebooks around in events or else we risk creating circular dependencies
+ * that cause the JSON serializer to go BOOM when saving to file.
+ */
+
 export type GlobalNavigationEvent =
     | {
           type: 'activeChanged';
@@ -47,30 +52,39 @@ export type GlobalNavigationEvent =
       }
     | {
           type: 'notebookInputStarted';
-          notebook?: Notebook;
-          parent?: Notebook;
+          notebook?: { id: string; value: string };
+          parentId?: string;
       }
     | {
           type: 'notebookDraggingUpdated';
-          newValue?: Notebook;
-          oldValue?: Notebook;
+          newValue?: string;
+          oldValue?: string;
       };
 
 export type GlobalNavigationEventType = GlobalNavigationEvent['type'];
 
-export type GlobalNavigationNotebookInput = Partial<Notebook> & { mode?: 'create' | 'update' };
+export interface GlobalNavigationNotebookInput {
+    id?: string;
+    value: string;
+    parentId?: string;
+    mode: 'create' | 'update';
+}
+
+export interface GlobalNavigationTagInput {
+    id?: string;
+    value: string;
+    mode: 'create' | 'update';
+}
 
 export interface GlobalNavigationNotebookSection {
     expanded: boolean;
-    input: GlobalNavigationNotebookInput;
-    dragging?: Notebook;
+    input?: GlobalNavigationNotebookInput;
+    dragging?: string;
 }
-
-export type GlobalNavigationTagInput = Partial<Tag> & { mode?: 'create' | 'update' };
 
 export interface GlobalNavigationTagSection {
     expanded: boolean;
-    input: GlobalNavigationTagInput;
+    input?: GlobalNavigationTagInput;
 }
 
 export type GlobalNavigationActive = 'all' | 'favorites' | 'trash' | { id: string; type: 'notebook' | 'tag' };
@@ -86,12 +100,10 @@ export interface GlobalNavigation {
 export const state: GlobalNavigation = {
     history: new EventHistory(),
     notebooks: {
-        expanded: false,
-        input: {}
+        expanded: false
     },
     tags: {
-        expanded: false,
-        input: {}
+        expanded: false
     },
     width: '300px'
 };

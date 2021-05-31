@@ -22,7 +22,7 @@
     </NavigationMenuItem>
 
     <Teleport to="#cursor-dragging" v-if="isNotebookBeingDragged">
-        <GlobalNavigationNotebook :modelValue="dragging" class="has-background-white" />
+        <GlobalNavigationNotebook :modelValue="getNotebookById(dragging)" class="has-background-white" />
     </Teleport>
 </template>
 
@@ -35,6 +35,7 @@ import NavigationMenuForm from '@/core/components/navigation/NavigationMenuForm.
 import NavigationMenuItem from '@/core/components/navigation/NavigationMenuItem.vue';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 import IconButton from '@/core/components/IconButton.vue';
+import { findNotebookRecursive } from '@/modules/notebooks/store/mutations';
 
 export default defineComponent({
     setup: function() {
@@ -62,10 +63,14 @@ export default defineComponent({
             ]
         };
 
+        // Hack
+        const getNotebookById = (id: string) => findNotebookRecursive(s.state.notebooks.values, id)!;
+
         return {
             expanded,
             input,
-            formRules
+            formRules,
+            getNotebookById
         };
     },
     computed: {

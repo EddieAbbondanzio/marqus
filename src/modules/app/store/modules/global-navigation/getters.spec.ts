@@ -130,7 +130,7 @@ describe('GlobalNavigation getters', () => {
 
         it('returns true if parent id was passed, and matches', () => {
             state.notebooks.input.mode = 'create';
-            state.notebooks.input.parent = { id: '1' };
+            state.notebooks.input.parentId = '1';
 
             const res = (getters as any).isNotebookBeingCreated(state)('1');
             expect(res).toBeTruthy();
@@ -138,7 +138,7 @@ describe('GlobalNavigation getters', () => {
 
         it("returns false if parent id was passed, but doens't match.", () => {
             state.notebooks.input.mode = 'create';
-            state.notebooks.input.parent = { id: '1' };
+            state.notebooks.input.parentId = '1';
 
             const res = (getters as any).isNotebookBeingCreated(state)('2');
             expect(res).toBeFalsy();
@@ -146,7 +146,7 @@ describe('GlobalNavigation getters', () => {
 
         it('returns false if no parent id was passed, but input has parent', () => {
             state.notebooks.input.mode = 'create';
-            state.notebooks.input.parent = { id: '1' };
+            state.notebooks.input.parentId = '1';
 
             const res = (getters as any).isNotebookBeingCreated(state)();
             expect(res).toBeFalsy();

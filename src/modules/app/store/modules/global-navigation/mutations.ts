@@ -30,29 +30,26 @@ export function apply(state: GlobalNavigation, event: GlobalNavigationEvent) {
             break;
 
         case 'tagInputUpdated':
-            state.tags.input.value = event.newValue;
+            state.tags.input!.value = event.newValue;
             break;
 
         case 'tagInputStarted':
-            // Create
             if (event.tag == null) {
                 state.tags.input = {
-                    id: generateId(),
-                    mode: 'create'
+                    mode: 'create',
+                    value: ''
                 };
-            }
-            // Update
-            else {
+            } else {
                 state.tags.input = {
+                    mode: 'update',
                     id: event.tag.id,
-                    value: event.tag.value,
-                    mode: 'update'
+                    value: event.tag.value
                 };
             }
             break;
 
         case 'tagInputCleared':
-            state.tags.input = {};
+            delete state.tags.input;
             break;
 
         case 'notebooksExpanded':
@@ -60,31 +57,28 @@ export function apply(state: GlobalNavigation, event: GlobalNavigationEvent) {
             break;
 
         case 'notebookInputStarted':
-            // Update
             if (event.notebook != null) {
                 state.notebooks.input = {
+                    mode: 'update',
                     id: event.notebook.id,
                     value: event.notebook.value,
-                    mode: 'update',
-                    parent: event.parent
+                    parentId: event.parentId
                 };
-            }
-            // Create
-            else {
+            } else {
                 state.notebooks.input = {
-                    id: generateId(),
                     mode: 'create',
-                    parent: event.parent
+                    value: '',
+                    parentId: event.parentId
                 };
             }
             break;
 
         case 'notebookInputCleared':
-            state.notebooks.input = {};
+            delete state.notebooks.input;
             break;
 
         case 'notebookInputUpdated':
-            state.notebooks.input.value = event.newValue;
+            state.notebooks.input!.value = event.newValue;
             break;
 
         case 'notebookDraggingUpdated':
@@ -108,11 +102,11 @@ export function undo(state: GlobalNavigation, event: GlobalNavigationEvent) {
             break;
 
         case 'tagInputUpdated':
-            state.tags.input.value = event.oldValue;
+            state.tags.input!.value = event.oldValue;
             break;
 
         case 'tagInputStarted':
-            state.tags.input = {};
+            delete state.tags.input;
             break;
 
         case 'tagInputCleared':
@@ -124,7 +118,7 @@ export function undo(state: GlobalNavigation, event: GlobalNavigationEvent) {
             break;
 
         case 'notebookInputStarted':
-            state.notebooks.input = {};
+            delete state.notebooks.input;
             break;
 
         case 'notebookInputCleared':
@@ -132,7 +126,7 @@ export function undo(state: GlobalNavigation, event: GlobalNavigationEvent) {
             break;
 
         case 'notebookInputUpdated':
-            state.notebooks.input.value = event.oldValue;
+            state.notebooks.input!.value = event.oldValue;
             break;
 
         case 'notebookDraggingUpdated':
