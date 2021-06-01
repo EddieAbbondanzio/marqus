@@ -33,6 +33,15 @@ import MarkdownEditor from '@/modules/app/components/editor/MarkdownEditor.vue';
 import MarkdownRenderer from '@/modules/app/components/editor/MarkdownRenderer.vue';
 
 export default defineComponent({
+    setup: () => {
+        const test = () => {
+            console.log('TEST!');
+        };
+
+        return {
+            test
+        };
+    },
     components: {
         EditorToolbar,
         EditorTabs,

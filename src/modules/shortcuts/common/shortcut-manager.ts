@@ -1,6 +1,6 @@
 import { parseKey } from '@/modules/shortcuts/common/key-code';
 import { Shortcut } from '@/modules/shortcuts/common/shortcut';
-import { ShortcutSubscriber } from '@/modules/shortcuts/common/shortcut-subscriber';
+import { ShortcutCallback, ShortcutSubscriber } from '@/modules/shortcuts/common/shortcut-subscriber';
 
 export class ShortcutManager {
     shortcuts: Shortcut[];
@@ -21,7 +21,6 @@ export class ShortcutManager {
 
     _onKeyDown(e: KeyboardEvent) {
         const key = parseKey(e.code);
-        console.log(e.target);
 
         if (this.activeKeys[key] != null) {
             return;
@@ -39,7 +38,9 @@ export class ShortcutManager {
                 // Notify the listeners for the shortcut.
                 if (subsToNotify != null) {
                     for (const sub of subsToNotify) {
-                        sub.notify();
+                        if (sub.when == null || sub.when()) {
+                            sub.notify();
+                        }
                     }
                 }
             }
@@ -59,8 +60,12 @@ export class ShortcutManager {
         }
     }
 
-    subscribe(shortcutName: string, callback: (shortcutName: string) => any, el?: HTMLElement): ShortcutSubscriber {
-        const sub = new ShortcutSubscriber(shortcutName, callback, el);
+    subscribe(
+        shortcutName: string,
+        callback: ShortcutCallback,
+        { el, when }: { el?: HTMLElement; when?: () => boolean } = {}
+    ): ShortcutSubscriber {
+        const sub = new ShortcutSubscriber(shortcutName, callback, el, when);
 
         if (this.subscribers[shortcutName] == null) {
             this.subscribers[shortcutName] = [sub];

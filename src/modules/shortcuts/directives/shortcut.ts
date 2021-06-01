@@ -1,5 +1,8 @@
 import { ShortcutManager } from '@/modules/shortcuts/common/shortcut-manager';
+import { ShortcutCallback } from '@/modules/shortcuts/common/shortcut-subscriber';
 import { DirectiveBinding } from 'vue';
+
+export type ShortcutDirectiveValue = ShortcutCallback | { callback: ShortcutCallback; when: () => boolean };
 
 export const shortcutManager: ShortcutManager = new ShortcutManager();
 
@@ -11,13 +14,23 @@ export const shortcut = {
             throw Error('No shortcut name specified.');
         }
 
-        const callback = binding.value;
+        const value: ShortcutDirectiveValue = binding.value;
 
-        if (callback == null) {
+        if (value == null) {
             throw Error('No callback for the shortcut specified.');
         }
 
-        shortcutManager.subscribe(shortcutName, callback, el);
+        let callback;
+        let when;
+
+        if (typeof value === 'function') {
+            callback = value;
+        } else {
+            callback = value.callback;
+            when = value.when;
+        }
+
+        shortcutManager.subscribe(shortcutName, callback, { el, when });
     },
     unmounted: function(el: HTMLElement, binding: DirectiveBinding) {
         const subscribers = shortcutManager.getSubscribersByElement(el);

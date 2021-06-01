@@ -1,8 +1,11 @@
+export type ShortcutCallback = (shortcutName: string) => any;
+
 export class ShortcutSubscriber {
     constructor(
         public shortcutName: string,
-        private callback: (shortcutName: string) => void,
-        public el?: HTMLElement
+        private callback: ShortcutCallback,
+        public el?: HTMLElement,
+        public when?: () => boolean
     ) {}
 
     notify() {

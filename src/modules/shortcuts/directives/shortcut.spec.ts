@@ -39,6 +39,18 @@ describe('v-shortcut', () => {
 
             expect(shortcutManager.subscribers['name']).toHaveLength(1);
         });
+
+        it('sets when', () => {
+            const el = document.createElement('div');
+            const when = () => false;
+
+            shortcut.beforeMount(el, {
+                arg: 'name',
+                value: { el, when }
+            } as any);
+
+            expect(shortcutManager.subscribers['name'][0].when).toBe(when);
+        });
     });
 
     describe('unmounted()', () => {
