@@ -42,7 +42,7 @@ export const actions: ActionTree<LocalNavigation, State> = {
         const event: LocalNavigationEvent = {
             type: 'noteInputStarted',
             active,
-            note
+            note: note != null ? { id: note?.id, name: note?.name } : undefined
         };
 
         commit('APPLY', event);

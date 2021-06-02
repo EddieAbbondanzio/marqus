@@ -39,9 +39,12 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         }
 
         const inputEvent: GlobalNavigationEvent = {
-            type: 'tagInputStarted',
-            tag: tag
+            type: 'tagInputStarted'
         };
+
+        if (tag != null) {
+            inputEvent.tag = { id: tag.id, value: tag.value };
+        }
 
         commit('APPLY', inputEvent);
 

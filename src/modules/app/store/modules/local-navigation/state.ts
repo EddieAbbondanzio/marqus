@@ -17,7 +17,7 @@ export type LocalNavigationEvent =
       }
     | {
           type: 'noteInputStarted';
-          note?: Note;
+          note?: { id: string; name: string };
           active?: { id: string; type: 'notebook' | 'tag' };
       }
     | {

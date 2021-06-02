@@ -30,7 +30,7 @@ export type GlobalNavigationEvent =
       }
     | {
           type: 'tagInputStarted';
-          tag?: Tag;
+          tag?: { id: string; value: string };
       }
     | {
           type: 'tagInputCleared';
