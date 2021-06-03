@@ -1,4 +1,4 @@
-import { generateId, getEntity } from '@/core/store/entity';
+import { generateId } from '@/core/store/entity';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 import { findNotebookRecursive } from '@/modules/notebooks/store/mutations';
 import { Tag } from '@/modules/tags/common/tag';

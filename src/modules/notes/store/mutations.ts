@@ -1,5 +1,5 @@
 import Vue from '*.vue';
-import { generateId, getEntity } from '@/core/store/entity';
+import { generateId } from '@/core/store/entity';
 import { Note } from '@/modules/notes/common/note';
 import { MutationTree } from 'vuex';
 import { NoteState } from './state';
@@ -29,7 +29,7 @@ export const mutations: MutationTree<NoteState> = {
      * Update the name of a note
      */
     NAME(state, { id, name }: { id: string | Note; name: string }) {
-        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
+        const note = state.values.find((n) => n.id === id)!;
         note.name = name;
     },
     DELETE(state, id: string) {
@@ -146,19 +146,19 @@ export const mutations: MutationTree<NoteState> = {
         }
     },
     MOVE_TO_TRASH(state, id: string) {
-        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
+        const note = state.values.find((n) => n.id === id)!;
         note.trashed = true;
     },
     RESTORE_FROM_TRASH(state, id: string) {
-        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
+        const note = state.values.find((n) => n.id === id)!;
         delete note.trashed;
     },
     FAVORITE(state, id: string | Note) {
-        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
+        const note = state.values.find((n) => n.id === id)!;
         note.favorited = true;
     },
     UNFAVORITE(state, id: string | Note) {
-        const note = getEntity<Note>(id, (id) => state.values.find((n) => n.id === id), 'Note');
+        const note = state.values.find((n) => n.id === id)!;
         note.favorited = false;
     }
 };
