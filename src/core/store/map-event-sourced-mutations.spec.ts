@@ -1,4 +1,4 @@
-import { EventHistory } from '@/core/store/event-history';
+import { EventHistory } from '@/core/store/plugins/undo/event-history';
 import { mapEventSourcedMutations } from '@/core/store/map-event-sourced-mutations';
 
 describe('mapEventSourcedMutations()', () => {

@@ -1,88 +1,54 @@
 import { generateId } from '@/core/store/entity';
 import { MutationTree } from 'vuex';
-import { LocalNavigation, LocalNavigationEvent } from './state';
+import { LocalNavigation } from './state';
 import { mapEventSourcedMutations } from '@/core/store/map-event-sourced-mutations';
 
 export const mutations: MutationTree<LocalNavigation> = {
-    ...mapEventSourcedMutations<LocalNavigation, LocalNavigationEvent>({
-        history: (s) => s.history,
-        apply,
-        undo
-    })
-};
+    ACTIVE_UPDATED(s, newValue: string) {
+        s.active = newValue;
+    },
+    NOTE_INPUT_NAME_UPDATED(s, newValue: string) {
+        s.notes.input!.name = newValue;
+    },
+    NOTE_INPUT_CLEARED(s) {
+        delete s.notes.input;
+    },
+    WIDTH_UPDATED(s, newValue: string) {
+        s.width = newValue;
+    },
+    NOTE_INPUT_STARTED(
+        s,
+        {
+            note,
+            globalNavigationActive
+        }: { note?: { id: string; name: string }; globalNavigationActive?: { id: string; type: 'notebook' | 'tag' } }
+    ) {
+        if (note == null) {
+            s.notes.input = {
+                name: '',
+                mode: 'create'
+            };
 
-export function apply(state: LocalNavigation, event: LocalNavigationEvent) {
-    switch (event.type) {
-        case 'activeChanged':
-            state.active = event.newValue;
-            break;
+            // If an active record was passed, assign it as a tag, or notebook.
+            if (globalNavigationActive != null && typeof globalNavigationActive !== 'string') {
+                switch (globalNavigationActive.type) {
+                    case 'notebook':
+                        s.notes.input.notebooks = [globalNavigationActive.id];
+                        break;
 
-        case 'noteInputStarted':
-            // Create
-            if (event.note == null) {
-                state.notes.input = {
-                    name: '',
-                    mode: 'create'
-                };
-
-                // If an active record was passed, assign it as a tag, or notebook.
-                if (event.active != null && typeof event.active !== 'string') {
-                    switch (event.active.type) {
-                        case 'notebook':
-                            state.notes.input.notebooks = [event.active.id];
-                            break;
-
-                        case 'tag':
-                            state.notes.input.tags = [event.active.id];
-                            break;
-                    }
+                    case 'tag':
+                        s.notes.input.tags = [globalNavigationActive.id];
+                        break;
                 }
             }
-            // Update
-            else {
-                state.notes.input = {
-                    id: event.note.id,
-                    name: event.note.name,
-                    mode: 'update'
-                };
-            }
-
-            break;
-
-        case 'noteInputUpdated':
-            state.notes.input!.name = event.newValue;
-            break;
-
-        case 'noteInputCleared':
-            delete state.notes.input;
-            break;
-
-        case 'widthUpdated':
-            state.width = event.newValue;
-            break;
+        }
+        // Update
+        else {
+            s.notes.input = {
+                id: note.id,
+                name: note.name,
+                mode: 'update'
+            };
+        }
     }
-}
-
-export function undo(state: LocalNavigation, event: LocalNavigationEvent) {
-    switch (event.type) {
-        case 'activeChanged':
-            state.active = event.oldValue;
-            break;
-
-        case 'noteInputStarted':
-            delete state.notes.input;
-            break;
-
-        case 'noteInputUpdated':
-            state.notes.input!.name = event.oldValue;
-            break;
-
-        case 'noteInputCleared':
-            state.notes.input = event.oldValue;
-            break;
-
-        case 'widthUpdated':
-            state.width = event.oldValue;
-            break;
-    }
-}
+};

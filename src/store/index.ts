@@ -9,6 +9,7 @@ import { actions } from '@/store/actions';
 import { persist } from '../core/store/plugins/persist/persist';
 import { mediator } from '@/core/store/plugins/mediator/mediator';
 import shortcuts from '@/modules/shortcuts/store';
+import { undo } from '@/core/store/plugins/undo/undo';
 
 export const store = createStore<State>({
     state: () => state as any,
@@ -21,7 +22,7 @@ export const store = createStore<State>({
         notes,
         shortcuts
     },
-    plugins: [persist.plugin, mediator.plugin],
+    plugins: [persist.plugin, mediator.plugin, undo.plugin],
     /*
      * Don't use strict mode in production.
      * Major performance hit.

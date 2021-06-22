@@ -1,4 +1,4 @@
-import { EventHistory } from '@/core/store/event-history';
+import { EventHistory } from '@/core/store/plugins/undo/event-history';
 
 describe('EventHistory {}', () => {
     let history: EventHistory<any>;

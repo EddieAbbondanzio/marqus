@@ -6,7 +6,7 @@ import globalNavigation from '@/modules/app/store/modules/global-navigation';
 import localNavigation from '@/modules/app/store/modules/local-navigation';
 import { persist } from '@/core/store/plugins/persist/persist';
 import editor from '@/modules/app/store/modules/editor';
-import { EventHistory } from '@/core/store/event-history';
+import { EventHistory } from '@/core/store/plugins/undo/event-history';
 
 export default {
     namespaced: true,

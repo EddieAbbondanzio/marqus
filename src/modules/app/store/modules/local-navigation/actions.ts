@@ -4,17 +4,11 @@ import { Note } from '@/modules/notes/common/note';
 import { State } from '@/store/state';
 import { confirmDeleteOrTrash } from '@/utils/prompts/confirm-delete-or-trash';
 import { ActionTree } from 'vuex';
-import { LocalNavigation, LocalNavigationEvent } from './state';
+import { LocalNavigation } from './state';
 
 export const actions: ActionTree<LocalNavigation, State> = {
     setActive({ commit, state }, id: string) {
-        const event: LocalNavigationEvent = {
-            type: 'activeChanged',
-            newValue: id,
-            oldValue: state.active
-        };
-
-        commit('APPLY', event);
+        commit('ACTIVE_UPDATED', id);
     },
     noteInputStart({ commit, rootState }, { id }: { id?: string } = {}) {
         let note: Note | undefined;
@@ -39,22 +33,13 @@ export const actions: ActionTree<LocalNavigation, State> = {
             };
         }
 
-        const event: LocalNavigationEvent = {
-            type: 'noteInputStarted',
+        commit('NOTE_INPUT_STARTED', {
             active,
-            note: note != null ? { id: note?.id, name: note?.name } : undefined
-        };
-
-        commit('APPLY', event);
+            note: { id: note?.id, name: note?.name }
+        });
     },
     noteInputUpdate({ commit, state }, value: string) {
-        const event: LocalNavigationEvent = {
-            type: 'noteInputUpdated',
-            newValue: value,
-            oldValue: state.notes.input!.name
-        };
-
-        commit('APPLY', event);
+        commit('NOTE_INPUT_NAME_UPDATED', value);
     },
     noteInputConfirm({ commit, state, rootState }) {
         const input = state.notes.input!;
@@ -91,20 +76,10 @@ export const actions: ActionTree<LocalNavigation, State> = {
                 break;
         }
 
-        const event: LocalNavigationEvent = {
-            type: 'noteInputCleared',
-            oldValue: note!
-        };
-
-        commit('APPLY', event);
+        commit('NOTE_INPUT_CLEARED');
     },
     noteInputCancel({ commit, state }) {
-        const event: LocalNavigationEvent = {
-            type: 'noteInputCleared',
-            oldValue: state.notes.input!
-        };
-
-        commit('APPLY', event);
+        commit('NOTE_INPUT_CLEARED');
     },
     async noteDelete({ commit, rootState }, id: string) {
         if (id == null) {
@@ -131,12 +106,6 @@ export const actions: ActionTree<LocalNavigation, State> = {
     },
 
     widthUpdated({ commit, state }, width: string) {
-        const e: LocalNavigationEvent = {
-            type: 'widthUpdated',
-            newValue: width,
-            oldValue: state.width
-        };
-
-        commit('APPLY', e);
+        commit('WIDTH_UPDATED', width);
     }
 };

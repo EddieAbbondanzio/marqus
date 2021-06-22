@@ -13,7 +13,7 @@ import { mediator } from '@/core/store/plugins/mediator/mediator';
 import { persist } from '@/core/store/plugins/persist/persist';
 import { shortcutManager } from '@/modules/shortcuts/directives/shortcut';
 import { focusManager } from '@/core/directives/focusable';
-
+import { undo } from '@/core/store/plugins/undo/undo';
 export default {
     components: { Cursor },
     setup: () => {
@@ -21,6 +21,7 @@ export default {
 
         onMounted(() => {
             persist.init(s);
+            undo.init();
         });
 
         onBeforeUnmount(() => {

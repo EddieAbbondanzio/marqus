@@ -1,16 +1,21 @@
 import { EventBase } from '@/core/store/event-base';
+import { MutationPayload } from 'vuex';
+
+export interface UndoHistoryEvent {
+    payload: MutationPayload;
+}
 
 /**
- * It's like a VCR but for events
+ * It's like a VCR but for mutations
  */
-export class EventHistory<T extends EventBase> {
-    constructor(public events: T[] = [], public currentIndex: number = -1) {}
+export class UndoHistory {
+    constructor(public events: UndoHistoryEvent[] = [], public currentIndex: number = -1) {}
 
     /**
      * Add a new event to the history.
      * @param e The event to add.
      */
-    push(e: T) {
+    push(e: UndoHistoryEvent) {
         // Did we rewind and go off in a new direction? Wipe out no longer needed events.
         if (this.currentIndex >= 0 && this.events.length - 1 > this.currentIndex) {
             this.events.splice(this.currentIndex + 1);
@@ -24,7 +29,7 @@ export class EventHistory<T extends EventBase> {
      * Step back in time and move to the previous event.
      * @returns The event to undo.
      */
-    rewind(): T {
+    rewind(): UndoHistoryEvent {
         if (!this.canRewind()) {
             throw Error('Nothing to rewind');
         }
@@ -36,7 +41,7 @@ export class EventHistory<T extends EventBase> {
      * Jump into the future, and move back to the next event.
      * @returns The event to apply.
      */
-    fastForward(): T {
+    fastForward(): UndoHistoryEvent {
         if (!this.canFastForward()) {
             throw Error('Nothing to fastforward');
         }

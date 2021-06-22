@@ -1,4 +1,4 @@
-import { EventHistory } from '@/core/store/event-history';
+import { EventHistory } from '@/core/store/plugins/undo/event-history';
 import { apply, undo } from '@/modules/app/store/modules/global-navigation/mutations';
 import { GlobalNavigation, GlobalNavigationEvent } from '@/modules/app/store/modules/global-navigation/state';
 

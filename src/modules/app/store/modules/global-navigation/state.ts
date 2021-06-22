@@ -1,4 +1,4 @@
-import { EventHistory } from '@/core/store/event-history';
+import { EventHistory } from '@/core/store/plugins/undo/event-history';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 import { Tag } from '@/modules/tags/common/tag';
 

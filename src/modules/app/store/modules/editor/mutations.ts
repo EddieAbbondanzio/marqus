@@ -1,140 +1,219 @@
 import { generateId } from '@/core/store/entity';
-import { Editor, Tab, TabState, EditorMode } from '@/modules/app/store/modules/editor/state';
-import { MutationTree } from 'vuex';
+import { Editor, Tab, TabState, EditorMode, EditorEvent } from '@/modules/app/store/modules/editor/state';
 
-export const mutations: MutationTree<Editor> = {
-    ACTIVE(s, tabId) {
-        s.tabs.active = tabId;
-    },
-    TAB_CONTENT(s, { tab, content }: { tab: string; content: string }) {
-        const t = s.tabs.values.find((t) => t.id === tab)!;
-        t.content = content;
-        t.state = 'dirty';
-    },
-    TAB_STATE(s, { tab, state }: { tab: string; state: TabState }) {
-        const t = s.tabs.values.find((t) => t.id === tab)!;
-        t.state = state;
-    },
-    EXIT_PREVIEW(s, tabId) {
-        const tab = s.tabs.values.find((t) => t.id === tabId);
+export function apply(state: Editor, event: EditorEvent) {
+    let tab: Tab | undefined;
+    let index: number | undefined;
+    let existing: Tab | undefined;
+    let existingPreviewTabIndex: number;
 
-        if (tab != null) {
-            tab.state = 'normal';
-        }
-    },
-    OPEN_TAB(s, { noteId, content, preview = true }: { noteId: string; content: string; preview: boolean }) {
-        // See if we haven't already opened this tab.
-        const existing = s.tabs.values.find((t) => t.noteId === noteId);
-        if (existing != null) {
-            // Switch it to normal if it was in preview.
-            if (existing.state === 'preview' && s.tabs.active === existing.id) {
-                existing.state = 'normal';
+    switch (event.type) {
+        case 'activeUpdated':
+            state.tabs.active = event.newValue;
+            break;
+
+        case 'editorModeUpdated':
+            state.mode = event.newValue;
+            break;
+
+        case 'notebookDropdownActiveUpdated':
+            tab = state.tabs.values.find((t) => t.id === state.tabs.active);
+
+            if (tab == null) {
+                throw Error(`No active tab.`);
             }
 
-            s.tabs.active = existing.id;
-            return;
-        }
+            tab.notebookDropdownActive = event.newValue;
+            break;
 
-        const tab: Tab = {
-            id: generateId(),
-            content,
-            noteId,
-            state: preview ? 'preview' : 'normal'
-        };
+        case 'tagDropdownActiveUpdated':
+            tab = state.tabs.values.find((t) => t.id === state.tabs.active);
 
-        const existingPreviewTab = s.tabs.values.findIndex((t) => t.state === 'preview');
+            if (tab == null) {
+                throw Error(`No active tab.`);
+            }
 
-        // When opening a new preview tab, and one already exists, replace it.
-        if (preview && existingPreviewTab !== -1) {
-            s.tabs.values.splice(existingPreviewTab, 1, tab);
-        } else {
-            s.tabs.values.push(tab);
-        }
+            tab.tagDropdownActive = event.newValue;
+            break;
 
-        // Set newly opened tab to active
-        s.tabs.active = tab.id;
-    },
-    SWITCH_TAB(s, id: string) {
-        const tab = s.tabs.values.find((t) => t.id === id);
+        case 'tabContentUpdated':
+            tab = state.tabs.values.find((t) => t.id === state.tabs.active);
 
-        if (tab == null) {
-            console.log(s.tabs.values);
-            throw Error(`No tab found with id ${id}`);
-        }
+            if (tab == null) {
+                throw Error(`No active tab.`);
+            }
 
-        // When active tab is preview, and they click it again. Assume they want to switch to normal mode.
-        if (tab.state === 'preview' && s.tabs.active === tab.id) {
-            tab.state = 'normal';
-        }
+            tab.content = event.newValue;
+            tab.state = 'dirty';
+            break;
 
-        s.tabs.active = tab.id;
+        case 'tabStateUpdated':
+            tab = state.tabs.values.find((t) => t.id === state.tabs.active);
 
-        delete tab.notebookDropdownActive;
-        delete tab.tagDropdownActive;
-    },
-    CLOSE_TAB(s, tabId) {
-        const tabIndex = s.tabs.values.findIndex((t) => t.id === tabId);
+            if (tab == null) {
+                throw Error(`No active tab.`);
+            }
 
-        if (tabIndex !== -1) {
-            s.tabs.values.splice(tabIndex, 1);
-        }
+            tab.state = event.newValue;
+            break;
 
-        if (s.tabs.values.length === 0) {
-            s.mode = 'readonly';
-        }
-    },
-    CLOSE_ALL_TABS(s) {
-        s.tabs.values.length = 0;
-    },
-    TAB_DRAGGING(s, dragging?: Tab) {
-        s.tabs.dragging = dragging;
-    },
-    TAB_DRAGGING_NEW_INDEX(s, newIndex: number) {
-        if (s.tabs.dragging == null) {
-            throw Error('No dragging tab to update.');
-        }
+        case 'tabClosed':
+            index = state.tabs.values.findIndex((t) => t.id === event.id);
 
-        const oldIndex = s.tabs.values.findIndex((t) => t.id === s.tabs.dragging!.id);
+            if (index !== -1) {
+                state.tabs.values.splice(index, 1);
+            }
 
-        // Remove tab from old spot
-        const tab = s.tabs.values.splice(oldIndex, 1)[0];
+            // If there is no tabs left open, switch the editor out of edit mode.
+            if (state.tabs.values.length === 0) {
+                state.mode = 'readonly';
+            }
+            break;
 
-        // Insert it in at the new one.
-        s.tabs.values.splice(newIndex, 0, tab);
-    },
-    TAG_DROPDOWN_ACTIVE(s, { id, active }: { id: string; active: boolean }) {
-        const tab = s.tabs.values.find((t) => t.id === id);
+        case 'tabsCloseAll':
+            state.tabs.values.length = 0;
+            state.tabs.active = undefined;
+            break;
 
-        if (tab == null) {
-            throw Error(`No tag found with id ${id}`);
-        }
+        case 'tabDraggingUpdated':
+            if (event.newValue == null) {
+                state.tabs.dragging = undefined;
+            } else {
+                state.tabs.dragging = state.tabs.values.find((t) => t.id === event.newValue);
+            }
+            break;
 
-        tab.tagDropdownActive = active;
+        case 'tabDraggingIndexUpdated':
+            if (state.tabs.dragging == null) {
+                throw Error('No dragging tab to update.');
+            }
 
-        // Only allow one drop down active a atime.
-        if (active) {
-            tab.notebookDropdownActive = false;
-        }
-    },
-    NOTEBOOK_DROPDOWN_ACTIVE(s, { id, active }: { id: string; active: boolean }) {
-        const tab = s.tabs.values.find((t) => t.id === id);
+            index = state.tabs.values.findIndex((t) => t.id === state.tabs.dragging!.id);
 
-        if (tab == null) {
-            throw Error(`No tag found with id ${id}`);
-        }
+            // Remove tab from old spot
+            tab = state.tabs.values.splice(index, 1)[0];
 
-        tab.notebookDropdownActive = active;
+            // Insert it in at the new one.
+            state.tabs.values.splice(event.newValue, 0, tab);
+            break;
 
-        // Only allow one drop down active a atime.
-        if (active) {
-            tab.tagDropdownActive = false;
-        }
-    },
-    MODE(s, m: EditorMode) {
-        if (m == null) {
-            throw Error(`Mode cannot be null`);
-        }
+        case 'tabOpened':
+            // See if we haven't already opened this tab.
+            existing = state.tabs.values.find((t) => t.noteId === event.noteId);
+            if (existing != null) {
+                // Switch it to normal if it was in preview.
+                if (existing.state === 'preview' && state.tabs.active === existing.id) {
+                    existing.state = 'normal';
+                }
 
-        s.mode = m;
+                state.tabs.active = existing.id;
+                return;
+            }
+
+            tab = {
+                id: generateId(),
+                content: event.content,
+                noteId: event.noteId,
+                state: event.preview ? 'preview' : 'normal'
+            };
+
+            existingPreviewTabIndex = state.tabs.values.findIndex((t) => t.state === 'preview');
+
+            // When opening a new preview tab, and one already exists, replace it.
+            if (event.preview && existingPreviewTabIndex !== -1) {
+                state.tabs.values.splice(existingPreviewTabIndex, 1, tab);
+            } else {
+                state.tabs.values.push(tab);
+            }
+
+            // Set newly opened tab to active
+            state.tabs.active = tab.id;
+
+            delete tab.notebookDropdownActive;
+            delete tab.tagDropdownActive;
     }
-};
+}
+
+export function undo(state: Editor, event: EditorEvent) {
+    let tab: Tab | undefined;
+    let index: number | undefined;
+
+    switch (event.type) {
+        case 'activeUpdated':
+            state.tabs.active = event.oldValue;
+            break;
+
+        case 'editorModeUpdated':
+            state.mode = event.oldValue;
+            break;
+
+        case 'notebookDropdownActiveUpdated':
+            tab = state.tabs.values.find((t) => t.id === state.tabs.active);
+
+            if (tab == null) {
+                throw Error(`No active tab.`);
+            }
+
+            tab.notebookDropdownActive = event.oldValue;
+            break;
+
+        case 'tagDropdownActiveUpdated':
+            tab = state.tabs.values.find((t) => t.id === state.tabs.active);
+
+            if (tab == null) {
+                throw Error(`No active tab.`);
+            }
+
+            tab.tagDropdownActive = event.oldValue;
+            break;
+
+        case 'tabContentUpdated':
+            tab = state.tabs.values.find((t) => t.id === state.tabs.active);
+
+            if (tab == null) {
+                throw Error(`No active tab.`);
+            }
+
+            tab.content = event.oldValue;
+            tab.state = event.oldState;
+            break;
+
+        case 'tabStateUpdated':
+            tab = state.tabs.values.find((t) => t.id === state.tabs.active);
+
+            if (tab == null) {
+                throw Error(`No active tab.`);
+            }
+
+            tab.state = event.oldValue;
+            break;
+
+        case 'tabClosed':
+            throw Error();
+
+        case 'tabsCloseAll':
+            throw Error();
+
+        case 'tabDraggingUpdated':
+            if (event.oldValue == null) {
+                state.tabs.dragging = undefined;
+            } else {
+                state.tabs.dragging = state.tabs.values.find((t) => t.id === event.oldValue);
+            }
+            break;
+
+        case 'tabDraggingIndexUpdated':
+            if (state.tabs.dragging == null) {
+                throw Error('No dragging tab to update.');
+            }
+
+            index = state.tabs.values.findIndex((t) => t.id === state.tabs.dragging!.id);
+
+            // Remove tab from old spot
+            tab = state.tabs.values.splice(index, 1)[0];
+
+            // Insert it in at the new one.
+            state.tabs.values.splice(event.oldValue, 0, tab);
+            break;
+    }
+}
