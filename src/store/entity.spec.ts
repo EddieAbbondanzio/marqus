@@ -1,4 +1,4 @@
-import { Entity, generateId } from '@/core/store/entity';
+import { generateId } from '@/store/entity';
 import { regex } from '@/utils/regex';
 
 describe('generateId()', () => {

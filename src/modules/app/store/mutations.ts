@@ -1,4 +1,3 @@
-import { generateId } from '@/core/store/entity';
 import { MutationTree } from 'vuex';
 import { AppState } from './state';
 

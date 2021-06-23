@@ -1,6 +1,6 @@
-import { generateId } from '@/core/store/entity';
 import { findNotebookRecursive } from '@/modules/notebooks/store/mutations';
 import { Note } from '@/modules/notes/common/note';
+import { generateId } from '@/store';
 import { State } from '@/store/state';
 import { confirmDeleteOrTrash } from '@/utils/prompts/confirm-delete-or-trash';
 import { ActionTree } from 'vuex';

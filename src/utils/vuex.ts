@@ -7,7 +7,7 @@ export function splitMutationAndNamespace(m: string): [string, string] {
     const lastSlash = m.lastIndexOf('/');
 
     // Root mutation case.
-    if (lastSlash == -1) {
+    if (lastSlash === -1) {
         return ['', m];
     }
 

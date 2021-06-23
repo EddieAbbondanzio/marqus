@@ -4,9 +4,8 @@ import { actions } from './actions';
 import { mutations } from './mutations';
 import globalNavigation from '@/modules/app/store/modules/global-navigation';
 import localNavigation from '@/modules/app/store/modules/local-navigation';
-import { persist } from '@/core/store/plugins/persist/persist';
+import { persist } from '@/store/plugins/persist/persist';
 import editor from '@/modules/app/store/modules/editor';
-import { EventHistory } from '@/core/store/plugins/undo/event-history';
 
 export default {
     namespaced: true,
@@ -32,24 +31,6 @@ persist.register({
 
         if (s.editor.mode == null) {
             s.editor.mode = 'view';
-        }
-
-        if (s.globalNavigation.history == null) {
-            s.globalNavigation.history = new EventHistory();
-        } else {
-            s.globalNavigation.history = new EventHistory(
-                s.globalNavigation.history.events,
-                s.globalNavigation.history.currentIndex
-            );
-        }
-
-        if (s.localNavigation.history == null) {
-            s.localNavigation.history = new EventHistory();
-        } else {
-            s.localNavigation.history = new EventHistory(
-                s.localNavigation.history.events,
-                s.localNavigation.history.currentIndex
-            );
         }
 
         return s;

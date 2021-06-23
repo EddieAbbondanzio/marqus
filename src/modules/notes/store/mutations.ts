@@ -1,6 +1,6 @@
 import Vue from '*.vue';
-import { generateId } from '@/core/store/entity';
 import { Note } from '@/modules/notes/common/note';
+import { generateId } from '@/store';
 import { MutationTree } from 'vuex';
 import { NoteState } from './state';
 

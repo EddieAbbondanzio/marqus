@@ -1,6 +1,6 @@
+import { generateId } from '@/store';
 import { Mutation, MutationTree } from 'vuex';
 import { TagState } from './state';
-import { generateId } from '@/core/store/entity';
 
 export const mutations: MutationTree<TagState> = {
     INIT(state, s: TagState) {

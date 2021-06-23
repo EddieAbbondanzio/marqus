@@ -2,7 +2,7 @@ import { NotebookState, state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
-import { persist } from '@/core/store/plugins/persist/persist';
+import { persist } from '@/store/plugins/persist/persist';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 
 export default {

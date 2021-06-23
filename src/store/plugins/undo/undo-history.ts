@@ -1,4 +1,3 @@
-import { EventBase } from '@/core/store/event-base';
 import { MutationPayload } from 'vuex';
 
 export interface UndoHistoryEvent {

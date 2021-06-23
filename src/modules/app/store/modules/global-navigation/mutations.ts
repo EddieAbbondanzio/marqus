@@ -1,131 +1,73 @@
 import { MutationTree } from 'vuex';
-import { GlobalNavigation, GlobalNavigationEvent } from '@/modules/app/store/modules/global-navigation/state';
-import { mapEventSourcedMutations } from '@/core/store/map-event-sourced-mutations';
+import { GlobalNavigation, GlobalNavigationActive } from '@/modules/app/store/modules/global-navigation/state';
 
 export const mutations: MutationTree<GlobalNavigation> = {
-    ...mapEventSourcedMutations<GlobalNavigation, GlobalNavigationEvent>({
-        history: (s) => s.history,
-        apply,
-        undo
-    })
+    ACTIVE_UPDATED(s, newValue: GlobalNavigationActive) {
+        s.active = newValue;
+    },
+    WIDTH_UPDATED(s, newValue: string) {
+        s.width = newValue;
+    },
+    TAGS_EXPANDED_UPDATED(s, newValue: boolean) {
+        s.tags.expanded = newValue;
+    },
+    TAGS_INPUT_UPDATED(s, newValue: string) {
+        if (s.tags.input == null) {
+            throw Error('No tag input to update.');
+        }
+
+        s.tags.input.value = newValue;
+    },
+    TAGS_INPUT_STARTED(s, tag: { id: string; value: string }) {
+        if (tag == null) {
+            s.tags.input = {
+                mode: 'create',
+                value: ''
+            };
+        } else {
+            s.tags.input = {
+                mode: 'update',
+                id: tag.id,
+                value: tag.value
+            };
+        }
+    },
+    TAGS_INPUT_CLEARED(s) {
+        delete s.tags.input;
+    },
+    NOTEBOOKS_EXPANDED(s, newValue: boolean) {
+        s.notebooks.expanded = newValue;
+    },
+    NOTEBOOKS_INPUT_UPDATED(s, newValue: string) {
+        if (s.notebooks.input == null) {
+            throw Error('No notebook input to update.');
+        }
+
+        s.notebooks.input.value = newValue;
+    },
+    NOTEBOOKS_INPUT_STARTED(
+        s,
+        { notebook, parentId }: { notebook?: { id: string; value: string }; parentId?: string }
+    ) {
+        if (notebook != null) {
+            s.notebooks.input = {
+                mode: 'update',
+                id: notebook.id,
+                value: notebook.value,
+                parentId
+            };
+        } else {
+            s.notebooks.input = {
+                mode: 'create',
+                value: '',
+                parentId
+            };
+        }
+    },
+    NOTEBOOKS_INPUT_CLEARED(s) {
+        delete s.notebooks.input;
+    },
+    NOTEBOOKS_DRAGGING_UPDATED(s, newValue: string) {
+        s.notebooks.dragging = newValue;
+    }
 };
-
-export function apply(state: GlobalNavigation, event: GlobalNavigationEvent) {
-    switch (event.type) {
-        case 'activeChanged':
-            state.active = event.newValue;
-            break;
-
-        case 'tagsExpanded':
-            state.tags.expanded = event.newValue;
-            break;
-
-        case 'widthUpdated':
-            state.width = event.newValue;
-            break;
-
-        case 'tagInputUpdated':
-            state.tags.input!.value = event.newValue;
-            break;
-
-        case 'tagInputStarted':
-            if (event.tag == null) {
-                state.tags.input = {
-                    mode: 'create',
-                    value: ''
-                };
-            } else {
-                state.tags.input = {
-                    mode: 'update',
-                    id: event.tag.id,
-                    value: event.tag.value
-                };
-            }
-            break;
-
-        case 'tagInputCleared':
-            delete state.tags.input;
-            break;
-
-        case 'notebooksExpanded':
-            state.notebooks.expanded = event.newValue;
-            break;
-
-        case 'notebookInputStarted':
-            if (event.notebook != null) {
-                state.notebooks.input = {
-                    mode: 'update',
-                    id: event.notebook.id,
-                    value: event.notebook.value,
-                    parentId: event.parentId
-                };
-            } else {
-                state.notebooks.input = {
-                    mode: 'create',
-                    value: '',
-                    parentId: event.parentId
-                };
-            }
-            break;
-
-        case 'notebookInputCleared':
-            delete state.notebooks.input;
-            break;
-
-        case 'notebookInputUpdated':
-            state.notebooks.input!.value = event.newValue;
-            break;
-
-        case 'notebookDraggingUpdated':
-            state.notebooks.dragging = event.newValue;
-            break;
-    }
-}
-
-export function undo(state: GlobalNavigation, event: GlobalNavigationEvent) {
-    switch (event.type) {
-        case 'activeChanged':
-            state.active = event.oldValue;
-            break;
-
-        case 'tagsExpanded':
-            state.tags.expanded = event.oldValue;
-            break;
-
-        case 'widthUpdated':
-            state.width = event.oldValue;
-            break;
-
-        case 'tagInputUpdated':
-            state.tags.input!.value = event.oldValue;
-            break;
-
-        case 'tagInputStarted':
-            delete state.tags.input;
-            break;
-
-        case 'tagInputCleared':
-            state.tags.input = event.oldValue;
-            break;
-
-        case 'notebooksExpanded':
-            state.notebooks.expanded = event.oldValue;
-            break;
-
-        case 'notebookInputStarted':
-            delete state.notebooks.input;
-            break;
-
-        case 'notebookInputCleared':
-            state.notebooks.input = event.oldValue;
-            break;
-
-        case 'notebookInputUpdated':
-            state.notebooks.input!.value = event.oldValue;
-            break;
-
-        case 'notebookDraggingUpdated':
-            state.notebooks.dragging = event.oldValue;
-            break;
-    }
-}

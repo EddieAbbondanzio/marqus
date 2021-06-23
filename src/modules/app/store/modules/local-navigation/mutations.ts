@@ -1,7 +1,5 @@
-import { generateId } from '@/core/store/entity';
 import { MutationTree } from 'vuex';
 import { LocalNavigation } from './state';
-import { mapEventSourcedMutations } from '@/core/store/map-event-sourced-mutations';
 
 export const mutations: MutationTree<LocalNavigation> = {
     ACTIVE_UPDATED(s, newValue: string) {

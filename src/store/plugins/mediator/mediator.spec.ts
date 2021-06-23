@@ -1,4 +1,4 @@
-import { mediator } from '@/core/store/plugins/mediator/mediator';
+import { mediator } from '@/store/plugins/mediator/mediator';
 
 describe('mediator plugin', () => {
     beforeEach(() => {

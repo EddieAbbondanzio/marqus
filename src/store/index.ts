@@ -6,10 +6,10 @@ import notes from '@/modules/notes/store';
 import { State, state } from './state';
 import { mutations } from '@/store/mutations';
 import { actions } from '@/store/actions';
-import { persist } from '../core/store/plugins/persist/persist';
-import { mediator } from '@/core/store/plugins/mediator/mediator';
+import { persist } from './plugins/persist/persist';
+import { mediator } from '@/store/plugins/mediator/mediator';
 import shortcuts from '@/modules/shortcuts/store';
-import { undo } from '@/core/store/plugins/undo/undo';
+import { undo } from '@/store/plugins/undo/undo';
 
 export const store = createStore<State>({
     state: () => state as any,
@@ -30,3 +30,5 @@ export const store = createStore<State>({
      */
     strict: process.env.NODE_ENV !== 'production'
 });
+
+export * from './entity';

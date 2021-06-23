@@ -1,4 +1,4 @@
-import { getModuleFileName, persist } from '@/core/store/plugins/persist/persist';
+import { getModuleFileName, persist } from '@/store/plugins/persist/persist';
 
 describe('Persist plugin', () => {
     beforeEach(() => {

@@ -2,7 +2,7 @@ import { NoteState, state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
-import { persist } from '@/core/store/plugins/persist/persist';
+import { persist } from '@/store/plugins/persist/persist';
 import { fileSystem } from '@/utils/file-system';
 import path from 'path';
 import moment from 'moment';

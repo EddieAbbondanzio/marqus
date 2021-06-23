@@ -1,10 +1,10 @@
-import { UndoHistory, UndoHistoryEvent } from '@/core/store/plugins/undo/undo-history';
+import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { fileSystem } from '@/utils/file-system';
 import { TaskScheduler } from '@/utils/task-scheduler';
 import { splitMutationAndNamespace } from '@/utils/vuex';
 import { MutationPayload, Store } from 'vuex';
 
-let state: UndoState = { modules: {}, schedulers: {} };
+const state: UndoState = { modules: {}, schedulers: {} };
 
 export const UNDO_HISTORY_DIRECTORY = 'history';
 

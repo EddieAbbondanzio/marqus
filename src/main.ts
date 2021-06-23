@@ -10,7 +10,6 @@ import { mouse } from './core/directives/mouse';
 import '@/plugins/vee-validate';
 import { shortcut, shortcutManager } from '@/modules/shortcuts/directives/shortcut';
 import { focusable } from '@/core/directives/focusable';
-import { GlobalNavigation, GlobalNavigationEventType } from '@/modules/app/store/modules/global-navigation/state';
 
 const app = createApp(App);
 

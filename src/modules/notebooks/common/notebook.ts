@@ -1,4 +1,4 @@
-import { Entity } from '@/core/store/entity';
+import { Entity } from '@/store';
 
 export interface Notebook extends Entity {
     value: string;

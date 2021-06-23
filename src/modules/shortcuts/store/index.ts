@@ -2,7 +2,7 @@ import { ShortcutState, state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
-import { persist } from '@/core/store/plugins/persist/persist';
+import { persist } from '@/store/plugins/persist/persist';
 import { shortcutFromString } from '@/modules/shortcuts/common/shortcut';
 import { DEFAULT_SHORTCUTS } from '@/modules/shortcuts/common/default-shortcuts';
 
