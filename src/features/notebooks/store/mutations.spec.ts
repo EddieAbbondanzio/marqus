@@ -1,7 +1,7 @@
 import { findNotebookRecursive, mutations } from '@/features/notebooks/store/mutations';
-import { generateId } from '@/common/store/entity';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { NotebookState } from '@/features/notebooks/store/state';
+import { generateId } from '@/store';
 
 describe('NotebooksStore mutations', () => {
     let state: NotebookState = null!;
