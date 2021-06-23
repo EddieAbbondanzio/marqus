@@ -2,13 +2,18 @@ import { MutationPayload } from 'vuex';
 
 export interface UndoHistoryEvent {
     payload: MutationPayload;
+    // TODO: Add extra fields like sequence
 }
 
 /**
  * It's like a VCR but for mutations
  */
 export class UndoHistory {
-    constructor(public events: UndoHistoryEvent[] = [], public currentIndex: number = -1) {}
+    constructor(public events: UndoHistoryEvent[] = [], public currentIndex: number = -1) {
+        if (currentIndex < -1 || currentIndex > events.length) {
+            throw Error(`Current index ${currentIndex} out of range.`);
+        }
+    }
 
     /**
      * Add a new event to the history.
