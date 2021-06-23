@@ -1,5 +1,5 @@
 import { State } from '@/store/state';
-import { TaskScheduler } from '@/shared/utils/task-scheduler';
+import { TaskScheduler } from '@/utils/task-scheduler';
 import { MutationPayload } from 'vuex';
 
 /**

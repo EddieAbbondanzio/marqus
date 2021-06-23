@@ -1,8 +1,8 @@
-import { ShortcutState } from '@/modules/shortcuts/store/state';
-import { AppState } from '../modules/app/store/state';
-import { NotebookState } from '../modules/notebooks/store/state';
-import { NoteState } from '../modules/notes/store/state';
-import { TagState } from '../modules/tags/store/state';
+import { ShortcutState } from '@/features/shortcuts/store/state';
+import { AppState } from '../features/ui/store/state';
+import { NotebookState } from '../features/notebooks/store/state';
+import { NoteState } from '../features/notes/store/state';
+import { TagState } from '../features/tags/store/state';
 
 export interface State {
     app: AppState;
