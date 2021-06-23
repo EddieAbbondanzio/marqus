@@ -27,8 +27,8 @@ import EditorTabs from '@/modules/app/components/editor/EditorTabs.vue';
 import EditorToolbar from '@/modules/app/components/editor/toolbar/EditorToolbar.vue';
 import { store } from '@/store';
 import { mapGetters, mapState, useStore } from 'vuex';
-import TagInput from '@/core/components/form/TagInput.vue';
-import Dropdown from '@/core/components/Dropdown.vue';
+import TagInput from '@/common/components/form/TagInput.vue';
+import Dropdown from '@/common/components/Dropdown.vue';
 import MarkdownEditor from '@/modules/app/components/editor/MarkdownEditor.vue';
 import MarkdownRenderer from '@/modules/app/components/editor/MarkdownRenderer.vue';
 

@@ -1,4 +1,4 @@
-import { FocusManager } from '@/core/directives/focusable/focus-manager';
+import { FocusManager } from '@/shared/directives/focusable/focus-manager';
 
 describe('FocusManager {}', () => {
     describe('ctor()', () => {

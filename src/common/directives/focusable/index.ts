@@ -1,5 +1,5 @@
-import { FocusManager } from '@/core/directives/focusable/focus-manager';
-import { FOCUSABLE_ATTRIBUTE_NAME } from '@/core/directives/focusable/focusable';
+import { FocusManager } from '@/common/directives/focusable/focus-manager';
+import { FOCUSABLE_ATTRIBUTE_NAME } from '@/common/directives/focusable/focusable';
 import { Directive, DirectiveBinding } from '@vue/runtime-core';
 
 export const focusManager = new FocusManager();

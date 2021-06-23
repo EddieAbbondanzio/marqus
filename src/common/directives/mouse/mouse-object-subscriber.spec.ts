@@ -1,4 +1,4 @@
-import { MouseObjectSubscriber } from '@/core/directives/mouse/mouse-object-subscriber';
+import { MouseObjectSubscriber } from '@/shared/directives/mouse/mouse-object-subscriber';
 
 describe('MouseObjectSubscriber', () => {
     describe('isMatch()', () => {

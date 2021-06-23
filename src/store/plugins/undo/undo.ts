@@ -1,7 +1,7 @@
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
-import { fileSystem } from '@/utils/file-system';
-import { TaskScheduler } from '@/utils/task-scheduler';
-import { splitMutationAndNamespace } from '@/utils/vuex';
+import { fileSystem } from '@/shared/utils/file-system';
+import { TaskScheduler } from '@/shared/utils/task-scheduler';
+import { splitMutationAndNamespace } from '@/shared/utils/vuex';
 import { MutationPayload, Store } from 'vuex';
 
 const state: UndoState = { modules: {}, schedulers: {} };

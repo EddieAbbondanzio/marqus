@@ -1,4 +1,4 @@
-import NavigationMenuForm from '@/core/components/navigation/NavigationMenuForm.vue';
+import NavigationMenuForm from '@/common/components/navigation/NavigationMenuForm.vue';
 import { mount } from '@vue/test-utils';
 import AllRules from '@vee-validate/rules';
 import { configure, defineRule } from 'vee-validate';

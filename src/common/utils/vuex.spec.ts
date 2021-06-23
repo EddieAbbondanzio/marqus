@@ -1,4 +1,4 @@
-import { splitMutationAndNamespace } from '@/utils/vuex';
+import { splitMutationAndNamespace } from '@/shared/utils/vuex';
 
 describe('splitMutationAndNamespace()', () => {
     it('handles root mutation', () => {

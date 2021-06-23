@@ -1,5 +1,5 @@
 import { findNotebookRecursive, mutations } from '@/modules/notebooks/store/mutations';
-import { generateId } from '@/core/store/entity';
+import { generateId } from '@/common/store/entity';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 import { NotebookState } from '@/modules/notebooks/store/state';
 

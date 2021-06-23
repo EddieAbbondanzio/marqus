@@ -1,6 +1,6 @@
-import { MouseObject } from '@/core/directives/mouse/mouse-object';
-import { MouseObjectManager } from '@/core/directives/mouse/mouse-object-manager';
-import { MouseObjectSubscriber } from '@/core/directives/mouse/mouse-object-subscriber';
+import { MouseObject } from '@/shared/directives/mouse/mouse-object';
+import { MouseObjectManager } from '@/shared/directives/mouse/mouse-object-manager';
+import { MouseObjectSubscriber } from '@/shared/directives/mouse/mouse-object-subscriber';
 
 describe('MouseObject', () => {
     const mouseObjectManager = new MouseObjectManager();

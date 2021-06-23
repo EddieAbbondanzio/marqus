@@ -31,10 +31,10 @@ import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import GlobalNavigationNotebook from '@/modules/app/components/global-navigation/GlobalNavigationNotebook.vue';
 import GlobalNavigationNote from '@/global-navigation/components/GlobalNavigationNote.vue';
-import NavigationMenuForm from '@/core/components/navigation/NavigationMenuForm.vue';
-import NavigationMenuItem from '@/core/components/navigation/NavigationMenuItem.vue';
+import NavigationMenuForm from '@/common/components/navigation/NavigationMenuForm.vue';
+import NavigationMenuItem from '@/common/components/navigation/NavigationMenuItem.vue';
 import { Notebook } from '@/modules/notebooks/common/notebook';
-import IconButton from '@/core/components/IconButton.vue';
+import IconButton from '@/common/components/IconButton.vue';
 import { findNotebookRecursive } from '@/modules/notebooks/store/mutations';
 
 export default defineComponent({

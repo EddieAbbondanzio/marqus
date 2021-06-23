@@ -49,9 +49,9 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
-import NavigationMenuItem from '@/core/components/navigation/NavigationMenuItem.vue';
-import NavigationMenuForm from '@/core/components/navigation/NavigationMenuForm.vue';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import NavigationMenuItem from '@/common/components/navigation/NavigationMenuItem.vue';
+import NavigationMenuForm from '@/common/components/navigation/NavigationMenuForm.vue';
+import { climbDomHierarchy } from '@/common/utils/dom/climb-dom-hierarchy';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 
 export default defineComponent({

@@ -1,5 +1,5 @@
-import { MouseObject } from '@/core/directives/mouse/mouse-object';
-import { MouseObjectManager } from '@/core/directives/mouse/mouse-object-manager';
+import { MouseObject } from '@/shared/directives/mouse/mouse-object';
+import { MouseObjectManager } from '@/shared/directives/mouse/mouse-object-manager';
 import { store } from '@/store';
 
 describe('MouseObjectManager', () => {

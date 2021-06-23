@@ -38,8 +38,8 @@
 import { computed, defineComponent, ref } from 'vue';
 import { mapGetters, mapState, useStore } from 'vuex';
 import _ from 'lodash';
-import Dropdown from '@/core/components/Dropdown.vue';
-import TagInput from '@/core/components/form/TagInput.vue';
+import Dropdown from '@/common/components/Dropdown.vue';
+import TagInput from '@/common/components/form/TagInput.vue';
 import { Notebook } from '@/modules/notebooks/common/notebook';
 import { Note } from '@/modules/notes/common/note';
 import { Tab } from '@/modules/app/store/modules/editor/state';

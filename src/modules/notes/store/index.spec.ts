@@ -1,5 +1,5 @@
 import { deserialize } from '@/modules/notes/store';
-import { fileSystem } from '@/utils/file-system';
+import { fileSystem } from '@/shared/utils/file-system';
 
 describe('notes store', () => {
     beforeEach(() => {

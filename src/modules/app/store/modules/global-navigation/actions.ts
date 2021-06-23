@@ -3,8 +3,8 @@ import { Notebook } from '@/modules/notebooks/common/notebook';
 import { findNotebookRecursive } from '@/modules/notebooks/store/mutations';
 import { Tag } from '@/modules/tags/common/tag';
 import { State } from '@/store/state';
-import { confirmDelete } from '@/utils/prompts/confirm-delete';
-import { confirmReplaceNotebook } from '@/utils/prompts/confirm-replace-notebook';
+import { confirmDelete } from '@/shared/utils/prompts/confirm-delete';
+import { confirmReplaceNotebook } from '@/shared/utils/prompts/confirm-replace-notebook';
 import { Action, ActionContext, ActionTree } from 'vuex';
 import { GlobalNavigation } from './state';
 

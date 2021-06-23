@@ -1,4 +1,4 @@
-import IconButton from '@/core/components/IconButton.vue';
+import IconButton from '@/common/components/IconButton.vue';
 import { mount } from '@vue/test-utils';
 
 describe('IconButton.vue', () => {

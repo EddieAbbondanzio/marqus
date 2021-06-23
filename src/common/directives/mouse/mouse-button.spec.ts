@@ -1,4 +1,4 @@
-import { getButton } from '@/core/directives/mouse/mouse-button';
+import { getButton } from '@/shared/directives/mouse/mouse-button';
 
 describe('getButton', () => {
     it('returns left for 0', () => {

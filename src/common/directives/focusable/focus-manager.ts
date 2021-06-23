@@ -1,5 +1,5 @@
-import { Focusable, FOCUSABLE_ATTRIBUTE_NAME } from '@/core/directives/focusable/focusable';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { Focusable, FOCUSABLE_ATTRIBUTE_NAME } from '@/common/directives/focusable/focusable';
+import { climbDomHierarchy } from '@/common/utils/dom/climb-dom-hierarchy';
 
 /**
  * Utility that helps track focused section of the app, and allows for changing focus
