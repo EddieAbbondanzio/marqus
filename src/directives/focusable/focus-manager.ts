@@ -45,6 +45,10 @@ export class FocusManager {
         focusable.el.focus();
     }
 
+    isFocused(name: string) {
+        return this.active?.name === name;
+    }
+
     /**
      * Release the event listener.
      */

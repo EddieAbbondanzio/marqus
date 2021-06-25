@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import app from '@/features/app/store';
+import app from '@/features/ui/store';
 import tags from '@/features/tags/store';
 import notebooks from '@/features/notebooks/store';
 import notes from '@/features/notes/store';

@@ -3,6 +3,8 @@
         id="editor"
         class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark"
         v-focusable:editor
+        v-shortcut:undo="undoHandler"
+        v-shortcut:redo="redoHandler"
     >
         <template v-if="!isEmpty">
             <editor-tabs />
@@ -31,6 +33,8 @@ import TagInput from '@/components/form/TagInput.vue';
 import Dropdown from '@/components/Dropdown.vue';
 import MarkdownEditor from '@/features/ui/components/editor/MarkdownEditor.vue';
 import MarkdownRenderer from '@/features/ui/components/editor/MarkdownRenderer.vue';
+import { focusManager } from '@/directives/focusable';
+import { undo } from '@/store/plugins/undo/undo';
 
 export default defineComponent({
     setup: () => {
@@ -38,8 +42,30 @@ export default defineComponent({
             console.log('TEST!');
         };
 
+        const undoHandler = () => {
+            if (focusManager.isFocused('editor')) {
+                const m = undo.getModule('editor');
+
+                if (m.canUndo()) {
+                    m.undo();
+                }
+            }
+        };
+
+        const redoHandler = () => {
+            if (focusManager.isFocused('editor')) {
+                const m = undo.getModule('editor');
+
+                if (m.canRedo()) {
+                    m.redo();
+                }
+            }
+        };
+
         return {
-            test
+            test,
+            undoHandler,
+            redoHandler
         };
     },
     components: {

@@ -2,10 +2,10 @@ import { state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
-import globalNavigation from '@/features/app/store/modules/global-navigation';
-import localNavigation from '@/features/app/store/modules/local-navigation';
+import globalNavigation from '@/features/ui/store/modules/global-navigation';
+import localNavigation from '@/features/ui/store/modules/local-navigation';
 import { persist } from '@/store/plugins/persist/persist';
-import editor from '@/features/app/store/modules/editor';
+import editor from '@/features/ui/store/modules/editor';
 
 export default {
     namespaced: true,

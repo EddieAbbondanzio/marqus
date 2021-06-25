@@ -1,5 +1,5 @@
 import { MutationTree } from 'vuex';
-import { GlobalNavigation, GlobalNavigationActive } from '@/features/app/store/modules/global-navigation/state';
+import { GlobalNavigation, GlobalNavigationActive } from '@/features/ui/store/modules/global-navigation/state';
 
 export const mutations: MutationTree<GlobalNavigation> = {
     ACTIVE_UPDATED(s, newValue: GlobalNavigationActive) {

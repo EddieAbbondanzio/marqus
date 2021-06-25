@@ -1,6 +1,6 @@
-import { Editor } from '@/features/app/store/modules/editor/state';
-import { GlobalNavigation } from '@/features/app/store/modules/global-navigation/state';
-import { LocalNavigation } from '@/features/app/store/modules/local-navigation/state';
+import { Editor } from '@/features/ui/store/modules/editor/state';
+import { GlobalNavigation } from '@/features/ui/store/modules/global-navigation/state';
+import { LocalNavigation } from '@/features/ui/store/modules/local-navigation/state';
 
 interface Cursor {
     icon: string;

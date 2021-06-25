@@ -1,4 +1,4 @@
-import { Editor, EditorMode, Tab } from '@/features/app/store/modules/editor/state';
+import { Editor, EditorMode, Tab } from '@/features/ui/store/modules/editor/state';
 import { Note } from '@/features/notes/common/note';
 import { NOTES_DIRECTORY } from '@/features/notes/store';
 import { State } from '@/store/state';
@@ -30,7 +30,7 @@ export const actions: ActionTree<Editor, State> = {
         commit('SWITCH_TAB', tabId);
     },
     async deleteActiveNote({ commit, rootState, rootGetters }) {
-        const { id } = rootGetters['app/editor/activeNote'] as Note;
+        const { id } = rootGetters['ui/editor/activeNote'] as Note;
         const note = rootState.notes.values.find((n) => n.id === id);
 
         if (note == null) {

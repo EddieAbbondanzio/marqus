@@ -1,5 +1,12 @@
 <template>
-    <Resizable v-model="width" data-context-menu="localNavigation" id="local-navigation" v-focusable:localNavigation>
+    <Resizable
+        v-model="width"
+        data-context-menu="localNavigation"
+        id="local-navigation"
+        v-focusable:localNavigation
+        v-shortcut:undo="onUndo"
+        v-shortcut:redo="onRedo"
+    >
         <div class="has-h-100 has-text-dark  is-size-7" style="min-width: 0px;">
             <!-- Header -->
             <div
@@ -67,6 +74,8 @@ import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import { Note } from '@/features/notes/common/note';
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
 import contextMenu from 'electron-context-menu';
+import { focusManager } from '@/directives/focusable';
+import { undo } from '@/store/plugins/undo/undo';
 
 export default defineComponent({
     setup: function() {
@@ -176,10 +185,32 @@ export default defineComponent({
             watchRelease!();
         });
 
+        const onUndo = () => {
+            if (focusManager.isFocused('localNavigation')) {
+                const m = undo.getModule('localNavigation');
+
+                if (m.canUndo()) {
+                    m.undo();
+                }
+            }
+        };
+
+        const onRedo = () => {
+            if (focusManager.isFocused('localNavigation')) {
+                const m = undo.getModule('localNavigation');
+
+                if (m.canRedo()) {
+                    m.redo();
+                }
+            }
+        };
+
         return {
             width,
             input,
-            formRules
+            formRules,
+            onUndo,
+            onRedo
         };
     },
     computed: {

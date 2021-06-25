@@ -1,4 +1,4 @@
-import { getters } from '@/features/app/store/modules/editor/getters';
+import { getters } from '@/features/ui/store/modules/editor/getters';
 
 describe('Editor getters', () => {
     describe('activeNote', () => {

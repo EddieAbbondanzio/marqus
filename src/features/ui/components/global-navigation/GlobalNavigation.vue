@@ -6,6 +6,8 @@
         minWidth="160px"
         data-context-menu="globalNavigation"
         v-focusable:globalNavigation
+        v-shortcut:undo="onUndo"
+        v-shortcut:redo="onRedo"
     >
         <NavigationMenuList>
             <NavigationMenuItem
@@ -58,6 +60,8 @@ import NavigationMenuList from '@/components/navigation/NavigationMenuList.vue';
 import contextMenu from 'electron-context-menu';
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
 import IconButton from '@/components/IconButton.vue';
+import { focusManager } from '@/directives/focusable';
+import { undo } from '@/store/plugins/undo/undo';
 
 export default defineComponent({
     setup: function() {
@@ -169,8 +173,30 @@ export default defineComponent({
             }
         });
 
+        const onUndo = () => {
+            if (focusManager.isFocused('globalNavigation')) {
+                const m = undo.getModule('globalNavigation');
+
+                if (m.canUndo()) {
+                    m.undo();
+                }
+            }
+        };
+
+        const onRedo = () => {
+            if (focusManager.isFocused('globalNavigation')) {
+                const m = undo.getModule('globalNavigation');
+
+                if (m.canRedo()) {
+                    m.redo();
+                }
+            }
+        };
+
         return {
-            width
+            width,
+            onUndo,
+            onRedo
         };
     },
     computed: {

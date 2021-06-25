@@ -1,5 +1,5 @@
 import { generateId } from '@/store';
-import { Editor } from '@/features/app/store/modules/editor/state';
+import { Editor } from '@/features/ui/store/modules/editor/state';
 import { MutationTree } from 'vuex';
 
 export const mutations: MutationTree<Editor> = {};
