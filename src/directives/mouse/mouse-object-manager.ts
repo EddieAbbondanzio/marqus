@@ -56,7 +56,7 @@ export class MouseObjectManager {
             this.cancelled = true;
 
             this.active.notify('dragcancel', this.active.activeButton!, null!);
-            store.dispatch('app/cursorDraggingStop');
+            store.dispatch('ui/cursorDraggingStop');
         }
     }
 
@@ -84,7 +84,7 @@ export class MouseObjectManager {
                 this.active.holding = true;
                 this.active.notify('hold', button, event);
 
-                store.dispatch('app/cursorDraggingStart');
+                store.dispatch('ui/cursorDraggingStart');
             }
 
             this.active.notify('drag', button, event);
@@ -115,7 +115,7 @@ export class MouseObjectManager {
                 this.active.notify('release', button, event);
             }
 
-            store.dispatch('app/cursorDraggingStop');
+            store.dispatch('ui/cursorDraggingStop');
         }
 
         this.active.holding = false;

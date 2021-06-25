@@ -42,14 +42,14 @@ export default defineComponent({
 
         const onClick = (tabId: string) => {
             if (s.state.app.editor.tabs.active === tabId) {
-                s.commit('app/editor/EXIT_PREVIEW', tabId);
+                s.commit('ui/editor/EXIT_PREVIEW', tabId);
             } else {
-                s.dispatch('app/editor/tabSwitch', tabId);
+                s.dispatch('ui/editor/tabSwitch', tabId);
             }
         };
 
         const onMoveStart = () => {
-            s.dispatch('app/editor/tabDragStart', p.modelValue!);
+            s.dispatch('ui/editor/tabDragStart', p.modelValue!);
         };
 
         const onMoveEnd = (e: MouseEvent) => {
@@ -82,7 +82,7 @@ export default defineComponent({
             // Gotta minus 1 since the loop incremented preemptively.
             tabIndex--;
 
-            s.dispatch('app/editor/tabDragStop', tabIndex);
+            s.dispatch('ui/editor/tabDragStop', tabIndex);
         };
 
         return {
@@ -92,11 +92,11 @@ export default defineComponent({
         };
     },
     methods: {
-        ...mapMutations('app/editor', ['CLOSE_TAB'])
+        ...mapMutations('ui/editor', ['CLOSE_TAB'])
     },
     computed: {
-        ...mapState('app/editor', ['tabs']),
-        ...mapGetters('app/editor', ['noteName', 'isTabActive'])
+        ...mapState('ui/editor', ['tabs']),
+        ...mapGetters('ui/editor', ['noteName', 'isTabActive'])
     },
     components: { IconButton }
 });

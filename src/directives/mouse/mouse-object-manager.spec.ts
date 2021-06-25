@@ -171,7 +171,7 @@ describe('MouseObjectManager', () => {
             m.onKeyUp({ key: 'Escape' } as any);
 
             expect(mockCommit).toHaveBeenCalled();
-            expect(mockCommit.mock.calls[0][0]).toBe('app/RESET_CURSOR_ICON');
+            expect(mockCommit.mock.calls[0][0]).toBe('ui/RESET_CURSOR_ICON');
         });
     });
 

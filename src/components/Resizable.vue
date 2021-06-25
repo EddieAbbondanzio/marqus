@@ -30,7 +30,7 @@ export default defineComponent({
 
         const onHandleMouseDown = function() {
             c.emit('resizeStart');
-            store.commit('app/SET_CURSOR_ICON', 'ew-resize');
+            store.commit('ui/SET_CURSOR_ICON', 'ew-resize');
         };
 
         const wrapper = ref(null) as any;
@@ -51,7 +51,7 @@ export default defineComponent({
         };
 
         const onMouseUp = function() {
-            store.commit('app/SET_CURSOR_ICON', 'default');
+            store.commit('ui/SET_CURSOR_ICON', 'default');
             c.emit('resizeStop');
         };
 

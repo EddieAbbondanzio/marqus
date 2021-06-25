@@ -65,13 +65,13 @@ export default defineComponent({
         const expanded = computed({
             get: () => s.state.app.globalNavigation.tags.expanded,
             set: (v: any) => {
-                s.dispatch('app/globalNavigation/setTagsExpanded', v);
+                s.dispatch('ui/globalNavigation/setTagsExpanded', v);
             }
         });
 
         const input = computed({
             get: () => s.state.app.globalNavigation.tags.input.value,
-            set: (v: string) => s.dispatch('app/globalNavigation/tagInputUpdated', v)
+            set: (v: string) => s.dispatch('ui/globalNavigation/tagInputUpdated', v)
         });
 
         const formRules = {
@@ -94,10 +94,10 @@ export default defineComponent({
         ...mapState('tags', {
             tags: (state: any) => state.values
         }),
-        ...mapGetters('app/globalNavigation', ['isTagBeingUpdated', 'isTagBeingCreated', 'indentation', 'isActive'])
+        ...mapGetters('ui/globalNavigation', ['isTagBeingUpdated', 'isTagBeingCreated', 'indentation', 'isActive'])
     },
     methods: {
-        ...mapActions('app/globalNavigation', {
+        ...mapActions('ui/globalNavigation', {
             confirm: 'tagInputConfirm',
             cancel: 'tagInputCancel',
             setActive: 'setActive',

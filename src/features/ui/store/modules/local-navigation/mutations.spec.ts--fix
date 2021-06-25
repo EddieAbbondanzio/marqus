@@ -1,5 +1,5 @@
-// import { apply, undo } from '@/features/app/store/modules/local-navigation/mutations';
-// import { LocalNavigation, LocalNavigationEvent } from '@/features/app/store/modules/local-navigation/state';
+// import { apply, undo } from '@/features/ui/store/modules/local-navigation/mutations';
+// import { LocalNavigation, LocalNavigationEvent } from '@/features/ui/store/modules/local-navigation/state';
 
 // describe('LocalNavigation mutations', () => {
 //     describe('apply', () => {

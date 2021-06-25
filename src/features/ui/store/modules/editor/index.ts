@@ -3,6 +3,7 @@ import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
 import { mediator } from '@/store/plugins/mediator/mediator';
+import { undo } from '@/store/plugins/undo/undo';
 
 export default {
     namespaced: true,
@@ -12,7 +13,7 @@ export default {
     mutations
 };
 
-mediator.subscribe('app/localNavigation/APPLY', ({ payload }, store) => {
+mediator.subscribe('ui/localNavigation/APPLY', ({ payload }, store) => {
     if (payload.type !== 'activeChanged') {
         return;
     }
@@ -22,8 +23,10 @@ mediator.subscribe('app/localNavigation/APPLY', ({ payload }, store) => {
     const existingTab = store.state.app.editor.tabs.values.find((t) => t.noteId === noteId);
 
     if (existingTab != null) {
-        store.dispatch('app/editor/tabSwitch', existingTab.id);
+        store.dispatch('ui/editor/tabSwitch', existingTab.id);
     } else {
-        store.dispatch('app/editor/tabOpen', noteId);
+        store.dispatch('ui/editor/tabOpen', noteId);
     }
 });
+
+undo.registerModule('editor');

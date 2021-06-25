@@ -1,4 +1,4 @@
-// import { GlobalNavigation } from '@/features/app/store/modules/global-navigation/state';
+// import { GlobalNavigation } from '@/features/ui/store/modules/global-navigation/state';
 
 // describe('GlobalNavigation mutations', () => {
 //     let state: GlobalNavigation;

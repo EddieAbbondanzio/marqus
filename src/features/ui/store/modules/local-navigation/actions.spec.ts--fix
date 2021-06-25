@@ -1,4 +1,4 @@
-// import { actions } from '@/features/app/store/modules/local-navigation/actions';
+// import { actions } from '@/features/ui/store/modules/local-navigation/actions';
 
 // describe('LocalNavigation Actions', () => {
 //     describe('setActive', () => {

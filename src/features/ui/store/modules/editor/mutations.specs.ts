@@ -1,4 +1,4 @@
-// import { mutations } from '@/features/app/store/modules/editor/mutations';
+// import { mutations } from '@/features/ui/store/modules/editor/mutations';
 
 // describe('Editor mutations', () => {
 //     describe('ACTIVE()', () => {

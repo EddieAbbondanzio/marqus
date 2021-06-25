@@ -42,14 +42,14 @@ import Dropdown from '@/components/Dropdown.vue';
 import TagInput from '@/components/form/TagInput.vue';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { Note } from '@/features/notes/common/note';
-import { Tab } from '@/features/app/store/modules/editor/state';
+import { Tab } from '@/features/ui/store/modules/editor/state';
 
 export default defineComponent({
     setup() {
         const s = useStore();
 
         const onNotebookInput = (newNotebooks: Notebook[]) => {
-            const note: Note = s.getters['app/editor/activeNote'];
+            const note: Note = s.getters['ui/editor/activeNote'];
             const oldNotebooks: Notebook[] = s.getters['notebooks/notebooksForNote'](note);
             const delta = oldNotebooks.length - newNotebooks.length;
             let notebook: Notebook;
@@ -80,12 +80,12 @@ export default defineComponent({
 
         const active = computed({
             get: () => {
-                const tab: Tab = s.getters['app/editor/activeTab'] as Tab;
+                const tab: Tab = s.getters['ui/editor/activeTab'] as Tab;
                 return tab?.notebookDropdownActive ?? false;
             },
             set: (v: boolean) => {
-                const tab: Tab = s.getters['app/editor/activeTab'] as Tab;
-                s.commit('app/editor/NOTEBOOK_DROPDOWN_ACTIVE', { id: tab.id, active: v });
+                const tab: Tab = s.getters['ui/editor/activeTab'] as Tab;
+                s.commit('ui/editor/NOTEBOOK_DROPDOWN_ACTIVE', { id: tab.id, active: v });
             }
         });
 
@@ -107,7 +107,7 @@ export default defineComponent({
             notebooks: 'flatten',
             notebooksForNote: 'notebooksForNote'
         }),
-        ...mapGetters('app/editor', {
+        ...mapGetters('ui/editor', {
             note: 'activeNote'
         })
     },

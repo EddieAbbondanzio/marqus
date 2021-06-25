@@ -10,7 +10,7 @@ import { mapMutations, useStore } from 'vuex';
 export default defineComponent({
     setup: () => {
         const s = useStore();
-        const activeTab = s.getters['app/editor/activeTab'];
+        const activeTab = s.getters['ui/editor/activeTab'];
 
         const content = marked(activeTab.content);
 

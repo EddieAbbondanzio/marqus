@@ -61,8 +61,8 @@
 
 <script lang="ts">
 import { store } from '@/store';
-import EditorToolbarTagsDropdown from '@/features/app/components/editor/toolbar/EditorToolbarTagsDropdown.vue';
-import EditorToolbarNotebooksDropdown from '@/features/app/components/editor/toolbar/EditorToolbarNotebooksDropdown.vue';
+import EditorToolbarTagsDropdown from '@/features/ui/components/editor/toolbar/EditorToolbarTagsDropdown.vue';
+import EditorToolbarNotebooksDropdown from '@/features/ui/components/editor/toolbar/EditorToolbarNotebooksDropdown.vue';
 import { defineComponent } from 'vue';
 import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
 import { Note } from '@/features/notes/common/note';
@@ -72,7 +72,7 @@ export default defineComponent({
         const s = useStore();
 
         const onFavoriteClick = () => {
-            const note: Note = s.getters['app/editor/activeNote'];
+            const note: Note = s.getters['ui/editor/activeNote'];
             s.dispatch('notes/toggleFavorite', note);
         };
 
@@ -85,12 +85,12 @@ export default defineComponent({
         editButtonClasses: () => ({
             'button mb-0': true
         }),
-        ...mapGetters('app/editor', {
+        ...mapGetters('ui/editor', {
             note: 'activeNote'
         })
     },
     methods: {
-        ...mapActions('app/editor', ['deleteActiveNote', 'toggleMode', 'saveTab'])
+        ...mapActions('ui/editor', ['deleteActiveNote', 'toggleMode', 'saveTab'])
     },
     components: {
         EditorToolbarNotebooksDropdown,

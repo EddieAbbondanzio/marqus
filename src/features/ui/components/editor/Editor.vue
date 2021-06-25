@@ -23,14 +23,14 @@
 
 <script lang="ts">
 import { computed, defineComponent, nextTick, onMounted, Ref, ref } from 'vue';
-import EditorTabs from '@/features/app/components/editor/EditorTabs.vue';
-import EditorToolbar from '@/features/app/components/editor/toolbar/EditorToolbar.vue';
+import EditorTabs from '@/features/ui/components/editor/EditorTabs.vue';
+import EditorToolbar from '@/features/ui/components/editor/toolbar/EditorToolbar.vue';
 import { store } from '@/store';
 import { mapGetters, mapState, useStore } from 'vuex';
 import TagInput from '@/components/form/TagInput.vue';
 import Dropdown from '@/components/Dropdown.vue';
-import MarkdownEditor from '@/features/app/components/editor/MarkdownEditor.vue';
-import MarkdownRenderer from '@/features/app/components/editor/MarkdownRenderer.vue';
+import MarkdownEditor from '@/features/ui/components/editor/MarkdownEditor.vue';
+import MarkdownRenderer from '@/features/ui/components/editor/MarkdownRenderer.vue';
 
 export default defineComponent({
     setup: () => {
@@ -51,8 +51,8 @@ export default defineComponent({
         MarkdownRenderer
     },
     computed: {
-        ...mapGetters('app/editor', ['isEmpty', 'activeTab']),
-        ...mapState('app/editor', ['mode', 'isFocus'])
+        ...mapGetters('ui/editor', ['isEmpty', 'activeTab']),
+        ...mapState('ui/editor', ['mode', 'isFocus'])
     }
 });
 </script>

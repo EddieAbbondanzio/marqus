@@ -20,13 +20,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import EditorTabItem from '@/features/app/components/editor/EditorTabItem.vue';
+import EditorTabItem from '@/features/ui/components/editor/EditorTabItem.vue';
 import { mapGetters, mapState } from 'vuex';
 
 export default defineComponent({
     computed: {
-        ...mapState('app/editor', { tabs: (s: any) => s.tabs.values, dragging: (s: any) => s.tabs.dragging }),
-        ...mapGetters('app/editor', ['isDragging'])
+        ...mapState('ui/editor', { tabs: (s: any) => s.tabs.values, dragging: (s: any) => s.tabs.dragging }),
+        ...mapGetters('ui/editor', ['isDragging'])
     },
     components: {
         EditorTabItem

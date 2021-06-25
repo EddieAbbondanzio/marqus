@@ -51,8 +51,8 @@
 import { computed, defineComponent, onMounted, onBeforeUnmount } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
-import GlobalNavigationTagSection from '@/features/app/components/global-navigation/GlobalNavigationTagSection.vue';
-import GlobalNavigationNotebookSection from '@/features/app/components/global-navigation/GlobalNavigationNotebookSection.vue';
+import GlobalNavigationTagSection from '@/features/ui/components/global-navigation/GlobalNavigationTagSection.vue';
+import GlobalNavigationNotebookSection from '@/features/ui/components/global-navigation/GlobalNavigationNotebookSection.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuList from '@/components/navigation/NavigationMenuList.vue';
 import contextMenu from 'electron-context-menu';
@@ -66,7 +66,7 @@ export default defineComponent({
         const width = computed({
             get: () => s.state.app.globalNavigation.width as string,
             set: (w: any) => {
-                s.dispatch('app/globalNavigation/setWidth', w);
+                s.dispatch('ui/globalNavigation/setWidth', w);
             }
         });
 
@@ -94,11 +94,11 @@ export default defineComponent({
                     const items = [
                         {
                             label: 'Expand All',
-                            click: () => s.dispatch('app/globalNavigation/expandAll')
+                            click: () => s.dispatch('ui/globalNavigation/expandAll')
                         },
                         {
                             label: 'Collapse All',
-                            click: () => s.dispatch('app/globalNavigation/collapseAll')
+                            click: () => s.dispatch('ui/globalNavigation/collapseAll')
                         },
                         {
                             type: 'separator' as any
@@ -107,27 +107,27 @@ export default defineComponent({
                             label: 'Create Notebook',
                             click: () => {
                                 if (isElementNotebook) {
-                                    s.dispatch('app/globalNavigation/notebookInputStart', { parentId: id });
+                                    s.dispatch('ui/globalNavigation/notebookInputStart', { parentId: id });
                                 } else {
-                                    s.dispatch('app/globalNavigation/notebookInputStart');
+                                    s.dispatch('ui/globalNavigation/notebookInputStart');
                                 }
                             }
                         },
                         {
                             label: 'Create Tag',
-                            click: () => s.dispatch('app/globalNavigation/tagInputStart')
+                            click: () => s.dispatch('ui/globalNavigation/tagInputStart')
                         }
                     ];
 
                     if (isElementNotebook) {
                         items.push({
                             label: 'Edit Notebook',
-                            click: () => s.dispatch('app/globalNavigation/notebookInputStart', { id })
+                            click: () => s.dispatch('ui/globalNavigation/notebookInputStart', { id })
                         });
 
                         items.push({
                             label: 'Delete Notebook',
-                            click: () => s.dispatch('app/globalNavigation/notebookDelete', id)
+                            click: () => s.dispatch('ui/globalNavigation/notebookDelete', id)
                         });
                     }
 
@@ -135,18 +135,18 @@ export default defineComponent({
                     if (isElementTag) {
                         items.push({
                             label: 'Edit Tag',
-                            click: () => s.dispatch('app/globalNavigation/tagInputStart', id)
+                            click: () => s.dispatch('ui/globalNavigation/tagInputStart', id)
                         });
 
                         items.push({
                             label: 'Delete Tag',
-                            click: () => s.dispatch('app/globalNavigation/tagDelete', id)
+                            click: () => s.dispatch('ui/globalNavigation/tagDelete', id)
                         });
                     }
 
                     items.push({
                         label: 'Empty Trash',
-                        click: () => s.dispatch('app/globalNavigation/emptyTrash')
+                        click: () => s.dispatch('ui/globalNavigation/emptyTrash')
                     });
                     return items;
                 },
@@ -174,10 +174,10 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapGetters('app/globalNavigation', ['isActive'])
+        ...mapGetters('ui/globalNavigation', ['isActive'])
     },
     methods: {
-        ...mapActions('app/globalNavigation', ['expandAll', 'collapseAll', 'setActive'])
+        ...mapActions('ui/globalNavigation', ['expandAll', 'collapseAll', 'setActive'])
     },
     components: {
         Resizable,

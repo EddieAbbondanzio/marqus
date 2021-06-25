@@ -29,7 +29,7 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
-import GlobalNavigationNotebook from '@/features/app/components/global-navigation/GlobalNavigationNotebook.vue';
+import GlobalNavigationNotebook from '@/features/ui/components/global-navigation/GlobalNavigationNotebook.vue';
 import GlobalNavigationNote from '@/global-navigation/components/GlobalNavigationNote.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
@@ -44,13 +44,13 @@ export default defineComponent({
         const expanded = computed({
             get: () => s.state.app.globalNavigation.notebooks.expanded,
             set: (v: any) => {
-                s.dispatch('app/globalNavigation/setNotebooksExpanded', v);
+                s.dispatch('ui/globalNavigation/setNotebooksExpanded', v);
             }
         });
 
         const input = computed({
             get: () => s.state.app.globalNavigation.notebooks.input.value,
-            set: (v: string) => s.dispatch('app/globalNavigation/notebookInputUpdated', v)
+            set: (v: string) => s.dispatch('ui/globalNavigation/notebookInputUpdated', v)
         });
 
         const formRules = {
@@ -77,11 +77,11 @@ export default defineComponent({
         ...mapState('notebooks', {
             notebooks: (state: any) => state.values
         }),
-        ...mapState('app/globalNavigation', { dragging: (s: any) => s.notebooks.dragging }),
-        ...mapGetters('app/globalNavigation', ['isNotebookBeingCreated', 'isNotebookBeingDragged'])
+        ...mapState('ui/globalNavigation', { dragging: (s: any) => s.notebooks.dragging }),
+        ...mapGetters('ui/globalNavigation', ['isNotebookBeingCreated', 'isNotebookBeingDragged'])
     },
     methods: {
-        ...mapActions('app/globalNavigation', {
+        ...mapActions('ui/globalNavigation', {
             confirm: 'notebookInputConfirm',
             cancel: 'notebookInputCancel',
             createNotebook: 'notebookInputStart'

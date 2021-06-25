@@ -42,14 +42,14 @@ import TagInput from '@/components/form/TagInput.vue';
 import { mapGetters, mapState, useStore } from 'vuex';
 import { Note } from '@/features/notes/common/note';
 import { Tag } from '@/features/tags/common/tag';
-import { Tab } from '@/features/app/store/modules/editor/state';
+import { Tab } from '@/features/ui/store/modules/editor/state';
 
 export default defineComponent({
     setup: function() {
         const s = useStore(); // Need this to be able to unit test
 
         const onTagInput = (newTags: Tag[]) => {
-            const note: Note = s.getters['app/editor/activeNote'];
+            const note: Note = s.getters['ui/editor/activeNote'];
             const oldTags: Tag[] = s.getters['tags/tagsForNote'](note);
 
             const delta = oldTags.length - newTags.length;
@@ -70,12 +70,12 @@ export default defineComponent({
 
         const active = computed({
             get: () => {
-                const tab: Tab = s.getters['app/editor/activeTab'] as Tab;
+                const tab: Tab = s.getters['ui/editor/activeTab'] as Tab;
                 return tab?.tagDropdownActive ?? false;
             },
             set: (v: boolean) => {
-                const tab: Tab = s.getters['app/editor/activeTab'] as Tab;
-                s.commit('app/editor/TAG_DROPDOWN_ACTIVE', { id: tab.id, active: v });
+                const tab: Tab = s.getters['ui/editor/activeTab'] as Tab;
+                s.commit('ui/editor/TAG_DROPDOWN_ACTIVE', { id: tab.id, active: v });
             }
         });
 
@@ -96,7 +96,7 @@ export default defineComponent({
         ...mapState('tags', {
             tags: 'values'
         }),
-        ...mapGetters('app/editor', {
+        ...mapGetters('ui/editor', {
             note: 'activeNote'
         }),
         ...mapGetters('tags', ['tagsForNote'])

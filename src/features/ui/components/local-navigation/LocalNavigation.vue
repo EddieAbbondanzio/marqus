@@ -60,7 +60,7 @@
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import IconButton from '@/components/IconButton.vue';
-import LocalNavigationSearchBar from '@/features/app/components/local-navigation/LocalNavigationSearchBar.vue';
+import LocalNavigationSearchBar from '@/features/ui/components/local-navigation/LocalNavigationSearchBar.vue';
 import { mapActions, mapGetters, mapMutations, mapState, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
@@ -75,13 +75,13 @@ export default defineComponent({
         const width = computed({
             get: () => s.state.app.localNavigation.width as string,
             set: (w: any) => {
-                s.dispatch('app/localNavigation/widthUpdated', w);
+                s.dispatch('ui/localNavigation/widthUpdated', w);
             }
         });
 
         const input = computed({
             get: () => s.state.app.localNavigation.notes.input.name,
-            set: (v: string) => s.dispatch('app/localNavigation/noteInputUpdate', v)
+            set: (v: string) => s.dispatch('ui/localNavigation/noteInputUpdate', v)
         });
 
         const formRules = {
@@ -119,7 +119,7 @@ export default defineComponent({
                     if (s.state.app.globalNavigation.active !== 'trash') {
                         items.push({
                             label: 'Create Note',
-                            click: () => s.dispatch('app/localNavigation/noteInputStart')
+                            click: () => s.dispatch('ui/localNavigation/noteInputStart')
                         });
                     }
 
@@ -129,7 +129,7 @@ export default defineComponent({
                         if (!note.trashed) {
                             items.push({
                                 label: 'Edit Note',
-                                click: () => s.dispatch('app/localNavigation/noteInputStart', { id })
+                                click: () => s.dispatch('ui/localNavigation/noteInputStart', { id })
                             });
                         } else {
                             items.push({
@@ -140,7 +140,7 @@ export default defineComponent({
 
                         items.push({
                             label: 'Delete Note',
-                            click: () => s.dispatch('app/localNavigation/noteDelete', id)
+                            click: () => s.dispatch('ui/localNavigation/noteDelete', id)
                         });
 
                         if (!note.favorited) {
@@ -183,10 +183,10 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapGetters('app/localNavigation', ['isNoteBeingCreated', 'isNoteBeingUpdated', 'activeNotes', 'isActive'])
+        ...mapGetters('ui/localNavigation', ['isNoteBeingCreated', 'isNoteBeingUpdated', 'activeNotes', 'isActive'])
     },
     methods: {
-        ...mapActions('app/localNavigation', {
+        ...mapActions('ui/localNavigation', {
             confirm: 'noteInputConfirm',
             cancel: 'noteInputCancel',
             create: 'noteInputStart',

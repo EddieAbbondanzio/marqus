@@ -15,7 +15,7 @@ export default defineComponent({
 
         const release = s.subscribe((m, s) => {
             switch (m.type) {
-                case 'app/SET_CURSOR_ICON':
+                case 'ui/SET_CURSOR_ICON':
                     // Remove old one first
                     document.body.classList.remove(cursorClass);
 
@@ -23,7 +23,7 @@ export default defineComponent({
                     document.body.classList.add(cursorClass);
                     break;
 
-                case 'app/RESET_CURSOR_ICON':
+                case 'ui/RESET_CURSOR_ICON':
                     // Remove old one first
                     document.body.classList.remove(cursorClass);
 

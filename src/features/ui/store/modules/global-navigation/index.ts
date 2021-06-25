@@ -2,6 +2,7 @@ import { state } from './state';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
+import { undo } from '@/store/plugins/undo/undo';
 
 export default {
     namespaced: true,
@@ -10,3 +11,5 @@ export default {
     actions,
     mutations
 };
+
+undo.registerModule('globalNavigation');

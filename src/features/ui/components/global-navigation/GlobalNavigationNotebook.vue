@@ -78,16 +78,16 @@ export default defineComponent({
         });
 
         const onClick = () => {
-            s.dispatch('app/globalNavigation/setActive', { id: p.modelValue!.id, type: 'notebook' });
+            s.dispatch('ui/globalNavigation/setActive', { id: p.modelValue!.id, type: 'notebook' });
         };
 
         const input = computed({
             get: () => s.state.app.globalNavigation.notebooks.input.value,
-            set: (v: string) => s.dispatch('app/globalNavigation/notebookInputUpdated', v)
+            set: (v: string) => s.dispatch('ui/globalNavigation/notebookInputUpdated', v)
         });
 
         const onHold = () => {
-            s.dispatch('app/globalNavigation/notebookDragStart', p.modelValue!);
+            s.dispatch('ui/globalNavigation/notebookDragStart', p.modelValue!);
         };
 
         const onRelease = (ev: any) => {
@@ -103,7 +103,7 @@ export default defineComponent({
                 defaultValue: () => null
             });
 
-            s.dispatch('app/globalNavigation/notebookDragStop', id);
+            s.dispatch('ui/globalNavigation/notebookDragStop', id);
         };
 
         const onHover = (ev: any) => {
@@ -168,7 +168,7 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapGetters('app/globalNavigation', [
+        ...mapGetters('ui/globalNavigation', [
             'isNotebookBeingUpdated',
             'isNotebookBeingCreated',
             'indentation',
@@ -177,7 +177,7 @@ export default defineComponent({
         ])
     },
     methods: {
-        ...mapActions('app/globalNavigation', {
+        ...mapActions('ui/globalNavigation', {
             confirm: 'notebookInputConfirm',
             cancel: 'notebookInputCancel',
             onRelease: 'notebookDragStop',
