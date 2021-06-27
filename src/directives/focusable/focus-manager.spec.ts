@@ -53,6 +53,27 @@ describe('FocusManager {}', () => {
         });
     });
 
+    describe('isFocused()', () => {
+        it('returns false if nothing is focused', () => {
+            const m = new FocusManager();
+            expect(m.isFocused('cat')).toBeFalsy();
+        });
+
+        it('returns false if name does not match', () => {
+            const m = new FocusManager();
+            m.active = { name: 'foo', el: null! };
+
+            expect(m.isFocused('bar')).toBeFalsy();
+        });
+
+        it('returns true if name matches', () => {
+            const m = new FocusManager();
+            m.active = { name: 'foo', el: null! };
+
+            expect(m.isFocused('foo')).toBeTruthy();
+        });
+    });
+
     describe('dispose()', () => {
         it('removes event listener', () => {
             const m = new FocusManager();
