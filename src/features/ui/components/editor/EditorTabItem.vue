@@ -30,7 +30,6 @@ import { defineComponent } from 'vue';
 import { mapGetters, mapMutations, mapState, useStore } from 'vuex';
 import IconButton from '@/components/IconButton.vue';
 import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
-import { off } from 'node:process';
 
 export default defineComponent({
     props: {
@@ -41,7 +40,7 @@ export default defineComponent({
         const s = useStore();
 
         const onClick = (tabId: string) => {
-            if (s.state.app.editor.tabs.active === tabId) {
+            if (s.state.ui.editor.tabs.active === tabId) {
                 s.commit('ui/editor/EXIT_PREVIEW', tabId);
             } else {
                 s.dispatch('ui/editor/tabSwitch', tabId);

@@ -12,7 +12,7 @@ export const getters: GetterTree<LocalNavigation, State> = {
     },
     isActive: (s) => (id: string) => s.active === id,
     activeNotes: (_s, _g, rootState) => {
-        const active = rootState.app.globalNavigation.active;
+        const active = rootState.ui.globalNavigation.active;
 
         if (active == null) {
             return [];

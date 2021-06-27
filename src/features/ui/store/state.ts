@@ -8,14 +8,14 @@ interface Cursor {
     dragging?: boolean;
 }
 
-export interface AppState {
+export interface UserInterface {
     cursor: Cursor;
     globalNavigation: GlobalNavigation;
     localNavigation: LocalNavigation;
     editor: Editor;
 }
 
-export const state: AppState = {
+export const state: UserInterface = {
     cursor: {
         icon: 'pointer'
     }

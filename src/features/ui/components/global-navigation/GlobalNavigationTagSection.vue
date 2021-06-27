@@ -63,14 +63,14 @@ export default defineComponent({
         const s = useStore();
 
         const expanded = computed({
-            get: () => s.state.app.globalNavigation.tags.expanded,
+            get: () => s.state.ui.globalNavigation.tags.expanded,
             set: (v: any) => {
                 s.dispatch('ui/globalNavigation/setTagsExpanded', v);
             }
         });
 
         const input = computed({
-            get: () => s.state.app.globalNavigation.tags.input.value,
+            get: () => s.state.ui.globalNavigation.tags.input.value,
             set: (v: string) => s.dispatch('ui/globalNavigation/tagInputUpdated', v)
         });
 
@@ -80,7 +80,7 @@ export default defineComponent({
                 () => s.state.tags.values,
                 (t: Tag) => t.id,
                 (t: Tag) => t.value,
-                () => s.state.app.globalNavigation.tags.input
+                () => s.state.ui.globalNavigation.tags.input
             ]
         };
 

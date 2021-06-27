@@ -42,14 +42,14 @@ export default defineComponent({
         const s = useStore();
 
         const expanded = computed({
-            get: () => s.state.app.globalNavigation.notebooks.expanded,
+            get: () => s.state.ui.globalNavigation.notebooks.expanded,
             set: (v: any) => {
                 s.dispatch('ui/globalNavigation/setNotebooksExpanded', v);
             }
         });
 
         const input = computed({
-            get: () => s.state.app.globalNavigation.notebooks.input.value,
+            get: () => s.state.ui.globalNavigation.notebooks.input.value,
             set: (v: string) => s.dispatch('ui/globalNavigation/notebookInputUpdated', v)
         });
 
@@ -59,7 +59,7 @@ export default defineComponent({
                 () => s.state.notebooks.values,
                 (n: Notebook) => n.id,
                 (n: Notebook) => n.value,
-                () => s.state.app.globalNavigation.notebooks.input
+                () => s.state.ui.globalNavigation.notebooks.input
             ]
         };
 

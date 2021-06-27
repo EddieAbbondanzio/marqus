@@ -124,6 +124,11 @@ export const mutations: MutationTree<NoteState> = {
             throw Error('No tagId passed.');
         }
 
+        // Handle empty case
+        if (state.values.length === 0) {
+            return;
+        }
+
         let notes: Note[];
 
         if (noteId != null) {

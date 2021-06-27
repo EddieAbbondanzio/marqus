@@ -34,7 +34,7 @@ export default defineComponent({
         });
 
         const calculateCursorDraggingPosition = (e: MouseEvent) => {
-            if (!s.state.app.cursor.dragging) return;
+            if (!s.state.ui.cursor.dragging) return;
 
             const div = document.getElementById('cursor-dragging')!;
 
@@ -52,7 +52,7 @@ export default defineComponent({
         });
     },
     computed: {
-        ...mapState('app', { dragging: (s: any) => s.cursor.dragging })
+        ...mapState('ui', { dragging: (s: any) => s.cursor.dragging })
     }
 });
 </script>

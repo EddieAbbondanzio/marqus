@@ -20,7 +20,7 @@ mediator.subscribe('ui/localNavigation/APPLY', ({ payload }, store) => {
 
     const noteId = payload.newValue;
 
-    const existingTab = store.state.app.editor.tabs.values.find((t) => t.noteId === noteId);
+    const existingTab = store.state.ui.editor.tabs.values.find((t) => t.noteId === noteId);
 
     if (existingTab != null) {
         store.dispatch('ui/editor/tabSwitch', existingTab.id);

@@ -82,7 +82,7 @@ export default defineComponent({
         };
 
         const input = computed({
-            get: () => s.state.app.globalNavigation.notebooks.input.value,
+            get: () => s.state.ui.globalNavigation.notebooks.input.value,
             set: (v: string) => s.dispatch('ui/globalNavigation/notebookInputUpdated', v)
         });
 
@@ -125,7 +125,7 @@ export default defineComponent({
                 return;
             }
 
-            if (s.state.app.globalNavigation.notebooks.dragging && !otherNotebook.expanded) {
+            if (s.state.ui.globalNavigation.notebooks.dragging && !otherNotebook.expanded) {
                 s.commit('notebooks/EXPANDED', {
                     notebook: otherNotebook,
                     expanded: true,
@@ -138,7 +138,7 @@ export default defineComponent({
             required: true,
             unique: [
                 () => {
-                    switch (s.state.app.globalNavigation.notebooks.input.mode) {
+                    switch (s.state.ui.globalNavigation.notebooks.input.mode) {
                         case 'update':
                             return p.modelValue!.parent == null
                                 ? s.state.notebooks.values
@@ -153,7 +153,7 @@ export default defineComponent({
                 },
                 (n: Notebook) => n.id,
                 (n: Notebook) => n.value,
-                () => s.state.app.globalNavigation.notebooks.input
+                () => s.state.ui.globalNavigation.notebooks.input
             ]
         };
 

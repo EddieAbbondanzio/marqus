@@ -23,13 +23,10 @@ export const actions: ActionTree<LocalNavigation, State> = {
 
         let active: any;
 
-        if (
-            rootState.app.globalNavigation.active != null &&
-            typeof rootState.app.globalNavigation.active !== 'string'
-        ) {
+        if (rootState.ui.globalNavigation.active != null && typeof rootState.ui.globalNavigation.active !== 'string') {
             active = {
-                id: rootState.app.globalNavigation.active.id,
-                type: rootState.app.globalNavigation.active.type
+                id: rootState.ui.globalNavigation.active.id,
+                type: rootState.ui.globalNavigation.active.type
             };
         }
 

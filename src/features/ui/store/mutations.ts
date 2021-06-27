@@ -1,8 +1,8 @@
 import { MutationTree } from 'vuex';
-import { AppState } from './state';
+import { UserInterface } from './state';
 
-export const mutations: MutationTree<AppState> = {
-    INIT(state, s: AppState) {
+export const mutations: MutationTree<UserInterface> = {
+    INIT(state, s: UserInterface) {
         Object.assign(state, s);
     },
     SET_CURSOR_ICON(state, icon: string) {

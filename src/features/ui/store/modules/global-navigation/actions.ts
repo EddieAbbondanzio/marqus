@@ -15,7 +15,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     setWidth({ commit, state }, width: string) {
         commit('WIDTH_UPDATED', width);
     },
-    tagInputStart({ commit, rootState, state }, { id }: { id?: string } = {}) {
+    tagInputStart({ commit, rootState }, { id }: { id?: string } = {}) {
         let tag: Tag | undefined;
 
         if (id != null) {
@@ -26,7 +26,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             }
         }
 
-        commit('TAG_INPUT_STARTED', { id: tag!.id, value: tag!.value });
+        commit('TAGS_INPUT_STARTED', tag);
         commit('TAGS_EXPANDED_UPDATED', true);
     },
     tagInputUpdated({ commit, state }, val: string) {

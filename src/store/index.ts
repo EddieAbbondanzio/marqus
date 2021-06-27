@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import app from '@/features/ui/store';
+import ui from '@/features/ui/store';
 import tags from '@/features/tags/store';
 import notebooks from '@/features/notebooks/store';
 import notes from '@/features/notes/store';
@@ -16,7 +16,7 @@ export const store = createStore<State>({
     mutations,
     actions,
     modules: {
-        app,
+        ui,
         notebooks,
         tags,
         notes,
@@ -31,4 +31,4 @@ export const store = createStore<State>({
     strict: process.env.NODE_ENV !== 'production'
 });
 
-export * from './entity';
+export * from './types/entity';

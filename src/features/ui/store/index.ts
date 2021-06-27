@@ -21,8 +21,8 @@ export default {
 };
 
 persist.register({
-    namespace: 'app',
-    fileName: 'app.json',
+    namespace: 'ui',
+    fileName: 'ui.json',
     initMutation: 'INIT',
     reviver: (s) => {
         s.globalNavigation.notebooks.input = {};

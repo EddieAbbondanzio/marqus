@@ -82,14 +82,14 @@ export default defineComponent({
         const s = useStore();
 
         const width = computed({
-            get: () => s.state.app.localNavigation.width as string,
+            get: () => s.state.ui.localNavigation.width as string,
             set: (w: any) => {
                 s.dispatch('ui/localNavigation/widthUpdated', w);
             }
         });
 
         const input = computed({
-            get: () => s.state.app.localNavigation.notes.input.name,
+            get: () => s.state.ui.localNavigation.notes.input.name,
             set: (v: string) => s.dispatch('ui/localNavigation/noteInputUpdate', v)
         });
 
@@ -99,7 +99,7 @@ export default defineComponent({
                 () => s.state.notes.values,
                 (n: Note) => n.id,
                 (n: Note) => n.name,
-                () => s.state.app.localNavigation.notes.input
+                () => s.state.ui.localNavigation.notes.input
             ]
         };
 
@@ -108,7 +108,7 @@ export default defineComponent({
 
         onMounted(() => {
             watchRelease = s.watch(
-                (s) => s.app.globalNavigation.active,
+                (s) => s.ui.globalNavigation.active,
                 (val: any) => {
                     console.log(val);
                 }
@@ -125,7 +125,7 @@ export default defineComponent({
                     // we can inject menu items as needed. This is called each time we right click
                     const items = [] as any[];
 
-                    if (s.state.app.globalNavigation.active !== 'trash') {
+                    if (s.state.ui.globalNavigation.active !== 'trash') {
                         items.push({
                             label: 'Create Note',
                             click: () => s.dispatch('ui/localNavigation/noteInputStart')

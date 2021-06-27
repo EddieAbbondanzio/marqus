@@ -68,7 +68,7 @@ export default defineComponent({
         const s = useStore();
 
         const width = computed({
-            get: () => s.state.app.globalNavigation.width as string,
+            get: () => s.state.ui.globalNavigation.width as string,
             set: (w: any) => {
                 s.dispatch('ui/globalNavigation/setWidth', w);
             }
@@ -139,7 +139,7 @@ export default defineComponent({
                     if (isElementTag) {
                         items.push({
                             label: 'Edit Tag',
-                            click: () => s.dispatch('ui/globalNavigation/tagInputStart', id)
+                            click: () => s.dispatch('ui/globalNavigation/tagInputStart', { id })
                         });
 
                         items.push({

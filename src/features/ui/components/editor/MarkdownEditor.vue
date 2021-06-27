@@ -10,15 +10,15 @@ export default defineComponent({
     setup: () => {
         const s = useStore();
 
-        let id = s.state.app.editor.tabs.active;
+        let id = s.state.ui.editor.tabs.active;
         const content = ref('');
-        content.value = s.state.app.editor.tabs.values.find((t: any) => t.id === id).content;
+        content.value = s.state.ui.editor.tabs.values.find((t: any) => t.id === id).content;
 
         watch(
-            () => s.state.app.editor.tabs.active,
+            () => s.state.ui.editor.tabs.active,
             () => {
-                id = s.state.app.editor.tabs.active;
-                content.value = s.state.app.editor.tabs.values.find((t: any) => t.id === id).content;
+                id = s.state.ui.editor.tabs.active;
+                content.value = s.state.ui.editor.tabs.values.find((t: any) => t.id === id).content;
             }
         );
 

@@ -81,7 +81,7 @@ export default defineComponent({
         };
     },
     computed: {
-        mode: () => (store.state.app.editor as any).mode,
+        mode: () => (store.state.ui.editor as any).mode,
         editButtonClasses: () => ({
             'button mb-0': true
         }),

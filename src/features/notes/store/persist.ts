@@ -26,8 +26,6 @@ export async function serialize(
 
         case 'notes/ADD_TAG':
         case 'notes/ADD_NOTEBOOK':
-        case 'notes/REMOVE_TAG':
-        case 'notes/REMOVE_NOTEBOOK':
             await saveNoteToFileSystem(rootState, mutationPayload.payload.noteId);
             break;
 
@@ -38,6 +36,7 @@ export async function serialize(
         case 'notes/EMPTY_TRASH':
             await fileSystem.deleteDirectory(NOTES_DIRECTORY);
             await fileSystem.createDirectory(NOTES_DIRECTORY);
+            break;
     }
 }
 
@@ -78,6 +77,10 @@ export async function deserialize() {
 
 export async function saveNoteToFileSystem(rootState: State, noteOrId: Note | string) {
     let note: Note;
+
+    if (noteOrId == null) {
+        throw Error('No note or id passed');
+    }
 
     if (typeof noteOrId === 'string') {
         note = rootState.notes.values.find((n) => n.id === noteOrId)!;
