@@ -25,10 +25,7 @@ export const mutations: MutationTree<NoteState> = {
 
         state.values.push(note);
     },
-    /**
-     * Update the name of a note
-     */
-    NAME(state, { id, name }: { id: string | Note; name: string }) {
+    SET_NAME(state, { id, name }: { id: string | Note; name: string }) {
         const note = state.values.find((n) => n.id === id)!;
         note.name = name;
     },
@@ -59,6 +56,7 @@ export const mutations: MutationTree<NoteState> = {
             // Check to see if the notebook is already present to prevent duplicates.
             if (!note.notebooks.some((n) => n === notebookId)) {
                 note.notebooks.push(notebookId);
+                note.hasUnsavedChanges = true;
             }
         }
     },
@@ -80,6 +78,7 @@ export const mutations: MutationTree<NoteState> = {
             // Check to see if the tag is already present first to prevent duplicates.
             if (!note.tags.some((t) => t === tagId)) {
                 note.tags.push(tagId);
+                note.hasUnsavedChanges = true;
             }
         }
     },
@@ -111,6 +110,7 @@ export const mutations: MutationTree<NoteState> = {
             const i = note.notebooks.findIndex((n) => n === notebookId);
             if (i !== -1) {
                 note.notebooks.splice(i, 1);
+                note.hasUnsavedChanges = true;
             }
         }
     },
@@ -147,23 +147,28 @@ export const mutations: MutationTree<NoteState> = {
             const i = note.tags.findIndex((t) => t === tagId);
             if (i !== -1) {
                 note.tags.splice(i, 1);
+                note.hasUnsavedChanges = true;
             }
         }
     },
     MOVE_TO_TRASH(state, id: string) {
         const note = state.values.find((n) => n.id === id)!;
         note.trashed = true;
+        note.hasUnsavedChanges = true;
     },
     RESTORE_FROM_TRASH(state, id: string) {
         const note = state.values.find((n) => n.id === id)!;
         delete note.trashed;
+        note.hasUnsavedChanges = true;
     },
     FAVORITE(state, id: string | Note) {
         const note = state.values.find((n) => n.id === id)!;
         note.favorited = true;
+        note.hasUnsavedChanges = true;
     },
     UNFAVORITE(state, id: string | Note) {
         const note = state.values.find((n) => n.id === id)!;
         note.favorited = false;
+        note.hasUnsavedChanges = true;
     }
 };

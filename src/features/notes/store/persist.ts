@@ -15,18 +15,8 @@ export async function serialize(
     switch (mutationPayload.type) {
         // id was passed
         case 'notes/CREATE':
-        case 'notes/NAME':
-        case 'notes/MOVE_TO_TRASH':
-        case 'notes/RESTORE_TO_TRASH':
-        case 'notes/FAVORITE':
-        case 'notes/UNFAVORITE':
         case 'notes/SAVE':
             await saveNoteToFileSystem(rootState, mutationPayload.payload);
-            break;
-
-        case 'notes/ADD_TAG':
-        case 'notes/ADD_NOTEBOOK':
-            await saveNoteToFileSystem(rootState, mutationPayload.payload.noteId);
             break;
 
         case 'notes/DELETE':
@@ -34,8 +24,12 @@ export async function serialize(
             break;
 
         case 'notes/EMPTY_TRASH':
-            await fileSystem.deleteDirectory(NOTES_DIRECTORY);
-            await fileSystem.createDirectory(NOTES_DIRECTORY);
+            throw Error('Not implmeneted');
+            break;
+
+        // Catch-all so we don't have to keep explicitly adding new cases
+        default:
+            await saveChangedNotes(rootState);
             break;
     }
 }
@@ -51,7 +45,7 @@ export async function deserialize() {
     for (let i = 0; i < noteDirectories.length; i++) {
         const noteId = noteDirectories[i];
 
-        // Regex test what we found to ensure it's actually a note. Not that this is a catch all...
+        // Regex test what we found to ensure it's actually a note. This is not a catch all...
         if (regex.isId(noteId)) {
             const metaData = await fileSystem.readJSON(path.join(NOTES_DIRECTORY, noteId, 'metadata.json'));
 
@@ -73,6 +67,15 @@ export async function deserialize() {
     return {
         values: notes
     };
+}
+
+export async function saveChangedNotes(rootState: State) {
+    const notes = rootState.notes.values.filter((n) => n.hasUnsavedChanges);
+
+    for (const note of notes) {
+        await saveNoteToFileSystem(rootState, note);
+        note.hasUnsavedChanges = false;
+    }
 }
 
 export async function saveNoteToFileSystem(rootState: State, noteOrId: Note | string) {
