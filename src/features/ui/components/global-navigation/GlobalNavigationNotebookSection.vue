@@ -35,7 +35,7 @@ import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import IconButton from '@/components/IconButton.vue';
-import { findNotebookRecursive } from '@/features/notebooks/store/mutations';
+import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 
 export default defineComponent({
     setup: function() {

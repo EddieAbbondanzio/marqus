@@ -215,3 +215,10 @@ export default defineComponent({
     }
 });
 </script>
+
+<style lang="sass" scoped>
+#global-navigation
+    outline: none!important
+    border: none!important
+    resize: none!important
+</style>

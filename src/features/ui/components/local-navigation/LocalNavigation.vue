@@ -239,4 +239,9 @@ export default defineComponent({
     .icon
         height: 12!important
         width: 12px!important
+
+#local-navigation
+    outline: none!important
+    border: none!important
+    resize: none!important
 </style>

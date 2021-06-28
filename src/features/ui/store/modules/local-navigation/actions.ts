@@ -1,4 +1,3 @@
-import { findNotebookRecursive } from '@/features/notebooks/store/mutations';
 import { Note } from '@/features/notes/common/note';
 import { generateId } from '@/store';
 import { State } from '@/store/state';

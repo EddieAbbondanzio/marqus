@@ -29,8 +29,6 @@ import EditorTabs from '@/features/ui/components/editor/EditorTabs.vue';
 import EditorToolbar from '@/features/ui/components/editor/toolbar/EditorToolbar.vue';
 import { store } from '@/store';
 import { mapGetters, mapState, useStore } from 'vuex';
-import TagInput from '@/components/form/TagInput.vue';
-import Dropdown from '@/components/Dropdown.vue';
 import MarkdownEditor from '@/features/ui/components/editor/MarkdownEditor.vue';
 import MarkdownRenderer from '@/features/ui/components/editor/MarkdownRenderer.vue';
 import { focusManager } from '@/directives/focusable';
@@ -71,8 +69,6 @@ export default defineComponent({
     components: {
         EditorToolbar,
         EditorTabs,
-        TagInput,
-        Dropdown,
         MarkdownEditor,
         MarkdownRenderer
     },
@@ -84,6 +80,11 @@ export default defineComponent({
 </script>
 
 <style lang="sass" scoped>
+#editor
+    outline: none!important
+    border: none!important
+    resize: none!important
+
 textarea
     outline: none!important
     border: none!important

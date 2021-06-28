@@ -1,12 +1,12 @@
 import { generateId } from '@/store';
 import { Notebook } from '@/features/notebooks/common/notebook';
-import { findNotebookRecursive } from '@/features/notebooks/store/mutations';
 import { Tag } from '@/features/tags/common/tag';
 import { State } from '@/store/state';
 import { confirmDelete } from '@/utils/prompts/confirm-delete';
 import { confirmReplaceNotebook } from '@/utils/prompts/confirm-replace-notebook';
 import { Action, ActionContext, ActionTree } from 'vuex';
 import { GlobalNavigation } from './state';
+import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 
 export const actions: ActionTree<GlobalNavigation, State> = {
     setActive({ commit }, a: { id: string; type: 'notebook' | 'tag' }) {
