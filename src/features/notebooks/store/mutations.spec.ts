@@ -1,4 +1,4 @@
-import { findNotebookRecursive, mutations } from '@/features/notebooks/store/mutations';
+import { mutations } from '@/features/notebooks/store/mutations';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { NotebookState } from '@/features/notebooks/store/state';
 import { generateId } from '@/store';
@@ -24,11 +24,6 @@ describe('NotebooksStore mutations', () => {
             expect(state.values[0].id).toBe('1234');
         });
 
-        it('genenerates id if none passed', () => {
-            mutations.CREATE(state, { value: 'cat' });
-            expect(state.values[0].id).toBeTruthy();
-        });
-
         it('sets value', () => {
             mutations.CREATE(state, { value: 'cat' });
             expect(state.values[0].value).toBe('cat');
@@ -49,13 +44,13 @@ describe('NotebooksStore mutations', () => {
         });
     });
 
-    describe('UPDATE', () => {
+    describe('SET_NAME', () => {
         it('throws error if value is null', () => {
             const notebook: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
             state.values.push(notebook);
 
             expect(() => {
-                mutations.UPDATE(state, { id: notebook.id });
+                mutations.SET_NAME(state, { id: notebook.id });
             }).toThrow();
         });
 
@@ -63,7 +58,7 @@ describe('NotebooksStore mutations', () => {
             const notebook: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
             state.values.push(notebook);
 
-            mutations.UPDATE(state, { id: notebook.id, value: 'dog' });
+            mutations.SET_NAME(state, { id: notebook.id, value: 'dog' });
             expect(notebook.value).toBe('dog');
         });
 
@@ -75,7 +70,7 @@ describe('NotebooksStore mutations', () => {
             parent.children!.push(child);
             child.parent = parent;
 
-            mutations.UPDATE(state, { id: child.id, value: 'horse' });
+            mutations.SET_NAME(state, { id: child.id, value: 'horse' });
             expect(child.value).toBe('horse');
         });
     });
@@ -144,7 +139,7 @@ describe('NotebooksStore mutations', () => {
         });
     });
 
-    describe('EXPANDED', () => {
+    describe('SET_EXPANDED', () => {
         it('assign notebook.expanded to the parameter', () => {
             const notebook: Notebook = {
                 id: '1',
@@ -152,7 +147,7 @@ describe('NotebooksStore mutations', () => {
                 expanded: false
             };
 
-            mutations.EXPANDED(state, { notebook, expanded: true });
+            mutations.SET_EXPANDED(state, { notebook, expanded: true });
             expect(notebook.expanded).toBeTruthy();
         });
 
@@ -166,7 +161,7 @@ describe('NotebooksStore mutations', () => {
 
             notebook.children![0].parent = notebook;
 
-            mutations.EXPANDED(state, { notebook: notebook.children![0], expanded: true });
+            mutations.SET_EXPANDED(state, { notebook: notebook.children![0], expanded: true });
             expect(notebook.expanded).toBeFalsy();
         });
 
@@ -180,12 +175,12 @@ describe('NotebooksStore mutations', () => {
 
             notebook.children![0].parent = notebook;
 
-            mutations.EXPANDED(state, { notebook: notebook.children![0], expanded: true, bubbleUp: true });
+            mutations.SET_EXPANDED(state, { notebook: notebook.children![0], expanded: true, bubbleUp: true });
             expect(notebook.expanded).toBeTruthy();
         });
     });
 
-    describe('ALL_EXPANDED', () => {
+    describe('SET_ALL_EXPANDED', () => {
         it('sets root expanded', () => {
             const parent: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
             const child: Notebook = { id: generateId(), value: 'dog', parent, expanded: false };
@@ -194,7 +189,7 @@ describe('NotebooksStore mutations', () => {
             parent.children!.push(child);
             child.parent = parent;
 
-            mutations.ALL_EXPANDED(state, true);
+            mutations.SET_ALL_EXPANDED(state, true);
 
             expect(parent.expanded).toBeTruthy();
         });
@@ -207,44 +202,9 @@ describe('NotebooksStore mutations', () => {
             parent.children!.push(child);
             child.parent = parent;
 
-            mutations.ALL_EXPANDED(state, true);
+            mutations.SET_ALL_EXPANDED(state, true);
 
             expect(child.expanded).toBeTruthy();
         });
-    });
-});
-
-describe('findNotebookRecursive()', () => {
-    const notebooks = [
-        {
-            id: generateId(),
-            value: 'horse',
-            expanded: false,
-            children: [
-                { id: generateId(), value: 'correct', expanded: false },
-                { id: generateId(), value: 'battery', expanded: false },
-                { id: generateId(), value: 'staple', expanded: false }
-            ]
-        }
-    ];
-
-    it('returns nothing if no notebooks passed', () => {
-        const match = findNotebookRecursive(null!, '1');
-        expect(match).toBeUndefined();
-    });
-
-    it('can find a root match', () => {
-        const match = findNotebookRecursive(notebooks, notebooks[0].id);
-        expect(match).toHaveProperty('id', notebooks[0].id);
-    });
-
-    it('can find a nested notebook', () => {
-        const match = findNotebookRecursive(notebooks, notebooks[0].children[2].id);
-        expect(match).toHaveProperty('id', notebooks[0].children[2].id);
-    });
-
-    it('returns nothing if no match found after searching', () => {
-        const match = findNotebookRecursive(notebooks, '1');
-        expect(match).toBeUndefined();
     });
 });

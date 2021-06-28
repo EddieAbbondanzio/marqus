@@ -2,45 +2,33 @@ import { MutationTree } from 'vuex';
 import { NotebookState } from './state';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { generateId } from '@/store';
+import { isBlank } from '@/utils/string/is-blank';
+import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 
 export const mutations: MutationTree<NotebookState> = {
     INIT(state, s: NotebookState) {
         Object.assign(state, s);
     },
-    CREATE(
-        state,
-        {
-            id,
-            value,
-            parent,
-            children,
-            expanded
-        }: { id?: string; value: string; parent?: Notebook; children?: Notebook[]; expanded?: boolean }
-    ) {
-        if (value == null) {
+    CREATE(state, props: { id: string; value: string; parent?: Notebook; children?: Notebook[]; expanded?: boolean }) {
+        // Check that the name isn't null, or just whitespace.
+        if (isBlank(props.value)) {
             throw Error('Value is required.');
         }
 
-        const notebook = {
-            id: id ?? generateId(),
-            value,
-            parent,
-            children,
-            expanded: expanded ?? false
-        };
+        const notebook: Notebook = Object.assign({}, props);
 
-        if (parent != null) {
+        if (props.parent != null) {
             // Jest doesn't like logical assignments ??=
-            if (parent.children == null) {
-                parent.children = [];
+            if (props.parent.children == null) {
+                props.parent.children = [];
             }
 
-            parent.children.push(notebook);
+            props.parent.children.push(notebook);
         } else {
             state.values.push(notebook);
         }
     },
-    UPDATE(state, { id, value }: { id: string; value: string }) {
+    SET_NAME(state, { id, value }: { id: string; value: string }) {
         const notebook = findNotebookRecursive(state.values, id);
 
         if (notebook == null) {
@@ -93,7 +81,7 @@ export const mutations: MutationTree<NotebookState> = {
         // Sort root
         state.values.sort((a, b) => a.value.localeCompare(b.value));
     },
-    EXPANDED(
+    SET_EXPANDED(
         s,
         { notebook, expanded = true, bubbleUp = false }: { notebook: Notebook; expanded: boolean; bubbleUp: boolean }
     ) {
@@ -105,7 +93,7 @@ export const mutations: MutationTree<NotebookState> = {
             p = p.parent;
         } while (p && bubbleUp);
     },
-    ALL_EXPANDED(s, e = false) {
+    SET_ALL_EXPANDED(s, e = false) {
         for (let i = 0; i < s.values.length; i++) {
             recursiveStep(s.values[i], e);
         }
@@ -123,28 +111,3 @@ export const mutations: MutationTree<NotebookState> = {
         }
     }
 };
-
-/**
- * Search through a group of notebooks, and their children in an attempt
- * to find a notebook via it's id.
- * @param notebooks Collection of notebooks to look in.
- * @param id The id to look for.
- * @returns The matching notebook (if any)
- */
-export function findNotebookRecursive(notebooks: Notebook[], id: string): Notebook | undefined {
-    if (notebooks == null) {
-        return undefined;
-    }
-
-    for (let i = 0; i < notebooks.length; i++) {
-        if (notebooks[i].id === id) {
-            return notebooks[i];
-        } else if (notebooks[i].children?.length) {
-            const r = findNotebookRecursive(notebooks[i].children!, id);
-
-            if (r != null) {
-                return r;
-            }
-        }
-    }
-}

@@ -4,7 +4,7 @@ export interface Notebook extends Entity {
     value: string;
     parent?: Notebook;
     children?: Notebook[];
-    expanded: boolean;
+    expanded?: boolean;
 }
 
 /**

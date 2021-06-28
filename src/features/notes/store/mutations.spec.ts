@@ -45,7 +45,7 @@ describe('note mutations', () => {
                 dateModified: new Date()
             });
 
-            mutations.NAME(state, { id: '1', name: 'dog' });
+            mutations.SET_NAME(state, { id: '1', name: 'dog' });
 
             expect(state.values[0].name).toBe('dog');
         });

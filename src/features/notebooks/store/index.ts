@@ -3,11 +3,7 @@ import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
 import { persist } from '@/store/plugins/persist/persist';
-import {
-    fixNotebookParentReferences,
-    killNotebookParentReferences,
-    Notebook
-} from '@/features/notebooks/common/notebook';
+import { fixNotebookParentReferences, killNotebookParentReferences } from '@/features/notebooks/common/notebook';
 
 export default {
     namespaced: true,

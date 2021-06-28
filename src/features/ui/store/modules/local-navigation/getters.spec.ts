@@ -34,7 +34,7 @@ describe('getters', () => {
 
         beforeEach(() => {
             rootState = {
-                app: {
+                ui: {
                     globalNavigation: {
                         active: null as any
                     }
