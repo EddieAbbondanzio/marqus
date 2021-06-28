@@ -34,7 +34,7 @@ describe('TagStore Mutations', () => {
         });
     });
 
-    describe('UPDATE()', () => {
+    describe('SET_NAME()', () => {
         it('throws error if value is null', () => {
             const tag = {
                 id: generateId(),
@@ -50,13 +50,13 @@ describe('TagStore Mutations', () => {
 
         it('throws error if no tag found.', () => {
             expect(() => {
-                mutations.UPDATE(state, { id: '1', value: 'cat' });
+                mutations.SET_NAME(state, { id: '1', value: 'cat' });
             }).toThrowError();
         });
 
         it('updates value', () => {
             mutations.CREATE(state, { id: '1', value: 'cat' });
-            mutations.UPDATE(state, { id: '1', value: 'cat2' });
+            mutations.SET_NAME(state, { id: '1', value: 'cat2' });
 
             expect(state.values[0].value).toBe('cat2');
         });

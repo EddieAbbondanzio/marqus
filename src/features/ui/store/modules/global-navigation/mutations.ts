@@ -2,23 +2,23 @@ import { MutationTree } from 'vuex';
 import { GlobalNavigation, GlobalNavigationActive } from '@/features/ui/store/modules/global-navigation/state';
 
 export const mutations: MutationTree<GlobalNavigation> = {
-    ACTIVE_UPDATED(s, newValue: GlobalNavigationActive) {
+    SET_ACTIVE(s, newValue: GlobalNavigationActive) {
         s.active = newValue;
     },
-    WIDTH_UPDATED(s, newValue: string) {
+    SET_WIDTH(s, newValue: string) {
         s.width = newValue;
     },
-    TAGS_EXPANDED_UPDATED(s, newValue: boolean) {
+    SET_TAGS_EXPANDED(s, newValue: boolean) {
         s.tags.expanded = newValue;
     },
-    TAGS_INPUT_UPDATED(s, newValue: string) {
+    SET_TAGS_INPUT(s, newValue: string) {
         if (s.tags.input == null) {
             throw Error('No tag input to update.');
         }
 
         s.tags.input.value = newValue;
     },
-    TAGS_INPUT_STARTED(s, tag: { id: string; value: string }) {
+    START_TAGS_INPUT(s, tag: { id: string; value: string }) {
         if (tag == null) {
             s.tags.input = {
                 mode: 'create',
@@ -32,23 +32,20 @@ export const mutations: MutationTree<GlobalNavigation> = {
             };
         }
     },
-    TAGS_INPUT_CLEARED(s) {
+    CLEAR_TAGS_INPUT(s) {
         delete s.tags.input;
     },
-    NOTEBOOKS_EXPANDED(s, newValue: boolean) {
+    SET_NOTEBOOKS_EXPANDED(s, newValue: boolean) {
         s.notebooks.expanded = newValue;
     },
-    NOTEBOOKS_INPUT_UPDATED(s, newValue: string) {
+    SET_NOTEBOOKS_INPUT(s, newValue: string) {
         if (s.notebooks.input == null) {
             throw Error('No notebook input to update.');
         }
 
         s.notebooks.input.value = newValue;
     },
-    NOTEBOOKS_INPUT_STARTED(
-        s,
-        { notebook, parentId }: { notebook?: { id: string; value: string }; parentId?: string }
-    ) {
+    START_NOTEBOOKS_INPUT(s, { notebook, parentId }: { notebook?: { id: string; value: string }; parentId?: string }) {
         if (notebook != null) {
             s.notebooks.input = {
                 mode: 'update',
@@ -64,10 +61,10 @@ export const mutations: MutationTree<GlobalNavigation> = {
             };
         }
     },
-    NOTEBOOKS_INPUT_CLEARED(s) {
+    CLEAR_NOTEBOOKS_INPUT(s) {
         delete s.notebooks.input;
     },
-    NOTEBOOKS_DRAGGING_UPDATED(s, newValue: string) {
+    SET_NOTEBOOKS_DRAGGING(s, newValue: string) {
         s.notebooks.dragging = newValue;
     }
 };

@@ -2,19 +2,19 @@ import { MutationTree } from 'vuex';
 import { LocalNavigation } from './state';
 
 export const mutations: MutationTree<LocalNavigation> = {
-    ACTIVE_UPDATED(s, newValue: string) {
+    SET_ACTIVE(s, newValue: string) {
         s.active = newValue;
     },
-    NOTE_INPUT_NAME_UPDATED(s, newValue: string) {
+    SET_NOTE_INPUT_NAME(s, newValue: string) {
         s.notes.input!.name = newValue;
     },
-    NOTE_INPUT_CLEARED(s) {
+    CLEAR_NOTE_INPUT(s) {
         delete s.notes.input;
     },
-    WIDTH_UPDATED(s, newValue: string) {
+    SET_WIDTH(s, newValue: string) {
         s.width = newValue;
     },
-    NOTE_INPUT_STARTED(
+    START_NOTE_INPUT(
         s,
         {
             note,

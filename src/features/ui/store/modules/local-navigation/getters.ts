@@ -1,5 +1,5 @@
+import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { Notebook } from '@/features/notebooks/common/notebook';
-import { findNotebookRecursive } from '@/features/notebooks/store/mutations';
 import { Note } from '@/features/notes/common/note';
 import { State } from '@/store/state';
 import { GetterTree } from 'vuex';

@@ -1,9 +1,9 @@
 import { Note } from '@/features/notes/common/note';
 import { NOTES_DIRECTORY } from '@/features/notes/store';
 import { NoteState } from '@/features/notes/store/state';
+import { isId } from '@/store';
 import { State } from '@/store/state';
 import { fileSystem } from '@/utils/file-system';
-import { regex } from '@/utils/regex';
 import moment from 'moment';
 import path from 'path';
 import { MutationPayload } from 'vuex';
@@ -46,7 +46,7 @@ export async function deserialize() {
         const noteId = noteDirectories[i];
 
         // Regex test what we found to ensure it's actually a note. This is not a catch all...
-        if (regex.isId(noteId)) {
+        if (isId(noteId)) {
             const metaData = await fileSystem.readJSON(path.join(NOTES_DIRECTORY, noteId, 'metadata.json'));
 
             const note: Note = {
