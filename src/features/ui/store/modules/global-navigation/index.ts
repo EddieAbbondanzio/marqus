@@ -12,4 +12,4 @@ export default {
     mutations
 };
 
-undo.registerModule('globalNavigation');
+undo.registerModule({ namespace: 'globalNavigation', setStateMutation: 'SET_STATE' });

@@ -2,6 +2,9 @@ import { MutationTree } from 'vuex';
 import { LocalNavigation } from './state';
 
 export const mutations: MutationTree<LocalNavigation> = {
+    SET_STATE(state, s: LocalNavigation) {
+        Object.assign(state, s);
+    },
     SET_ACTIVE(s, newValue: string) {
         s.active = newValue;
     },

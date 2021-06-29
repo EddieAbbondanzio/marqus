@@ -16,7 +16,7 @@ export default {
 
 persist.register({
     namespace: 'shortcuts',
-    initMutation: 'INIT',
+    initMutation: 'SET_STATE',
     transformer,
     reviver
 });

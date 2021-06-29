@@ -6,7 +6,7 @@ import { isBlank } from '@/utils/string/is-blank';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 
 export const mutations: MutationTree<NotebookState> = {
-    INIT(state, s: NotebookState) {
+    SET_STATE(state, s: NotebookState) {
         Object.assign(state, s);
     },
     CREATE(state, props: { id: string; value: string; parent?: Notebook; children?: Notebook[]; expanded?: boolean }) {

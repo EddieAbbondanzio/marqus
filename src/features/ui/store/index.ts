@@ -23,7 +23,7 @@ export default {
 persist.register({
     namespace: 'ui',
     fileName: 'ui.json',
-    initMutation: 'INIT',
+    initMutation: 'SET_STATE',
     reviver: (s) => {
         s.globalNavigation.notebooks.input = {};
         s.globalNavigation.tags.input = {};

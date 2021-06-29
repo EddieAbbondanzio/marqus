@@ -26,7 +26,7 @@ describe('Persist plugin', () => {
         it('adds module to modules array', () => {
             persist.register({
                 namespace: 'cat',
-                initMutation: 'INIT'
+                initMutation: 'SET_STATE'
             });
 
             expect(persist.modules).toHaveLength(1);

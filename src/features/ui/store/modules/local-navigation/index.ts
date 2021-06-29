@@ -12,4 +12,4 @@ export default {
     mutations
 };
 
-undo.registerModule('localNavigation');
+undo.registerModule({ namespace: 'localNavigation', setStateMutation: 'SET_STATE' });

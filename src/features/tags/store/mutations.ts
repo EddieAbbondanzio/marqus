@@ -4,7 +4,7 @@ import { Mutation, MutationTree } from 'vuex';
 import { TagState } from './state';
 
 export const mutations: MutationTree<TagState> = {
-    INIT(state, s: TagState) {
+    SET_STATE(state, s: TagState) {
         Object.assign(state, s);
     },
     CREATE(state, props: { id?: string; value: string }) {

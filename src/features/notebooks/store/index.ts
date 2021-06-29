@@ -16,7 +16,7 @@ export default {
 persist.register({
     namespace: 'notebooks',
     fileName: 'notebooks.json',
-    initMutation: 'INIT',
+    initMutation: 'SET_STATE',
     reviver: (s: NotebookState) => {
         for (const n of s.values) {
             fixNotebookParentReferences(n);

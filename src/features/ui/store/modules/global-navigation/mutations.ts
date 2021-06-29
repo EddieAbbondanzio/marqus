@@ -2,6 +2,9 @@ import { MutationTree } from 'vuex';
 import { GlobalNavigation, GlobalNavigationActive } from '@/features/ui/store/modules/global-navigation/state';
 
 export const mutations: MutationTree<GlobalNavigation> = {
+    SET_STATE(state, s: GlobalNavigation) {
+        Object.assign(state, s);
+    },
     SET_ACTIVE(s, newValue: GlobalNavigationActive) {
         s.active = newValue;
     },

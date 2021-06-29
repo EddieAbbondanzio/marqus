@@ -1,15 +1,19 @@
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
+import { UndoModule, UndoModuleSettings } from '@/store/plugins/undo/undo-module';
 import { splitMutationAndNamespace } from '@/store/utils/split-mutation-and-namespace';
 import { fileSystem } from '@/utils/file-system';
 import { TaskScheduler } from '@/utils/task-scheduler';
 import { MutationPayload, Store } from 'vuex';
 
 const state: UndoState = { modules: {}, schedulers: {} };
+let vuexStore: Store<any>;
 
 export const UNDO_HISTORY_DIRECTORY = 'history';
 
 export const undo = {
     plugin<S>(store: Store<S>): UndoState {
+        vuexStore = store;
+
         const release = store.subscribe((m, s) => {
             const [namespace] = splitMutationAndNamespace(m.type);
 
@@ -18,12 +22,10 @@ export const undo = {
             }
 
             // Add event to the modules history
-            state.modules[namespace].push({
-                payload: m
-            });
+            state.modules[namespace].cache(m);
 
             state.schedulers[namespace].schedule(
-                // TODO: type error if unwrapped.
+                // TODO: fix type error if unwrapped.
                 async () => await fileSystem.writeJSON(`${namespace}.json`, state.modules[namespace])
             );
         });
@@ -51,12 +53,12 @@ export const undo = {
                 const events = await fileSystem.readJSON(file);
 
                 // TODO: Add some validation lol.
-                state.modules[moduleName].events = events;
+                state.modules[moduleName].history.events = events;
             }
         }
     },
-    registerModule(namespace: string) {
-        state.modules[namespace] = new UndoHistory();
+    registerModule(settings: UndoModuleSettings) {
+        state.modules[settings.namespace] = new UndoModule(vuexStore, settings);
     },
     getModule(namespace: string): UndoModule {
         if (state.modules[namespace] == null) {
@@ -65,28 +67,12 @@ export const undo = {
 
         const m = state.modules[namespace];
 
-        return {
-            canRedo: m.canFastForward,
-            canUndo: m.canRewind,
-            redo: m.fastForward,
-            undo: m.rewind
-        };
+        return m;
     }
 };
 
-export interface UndoModule {
-    canUndo(): boolean;
-    canRedo(): boolean;
-    undo(): void;
-    redo(): void;
-}
-
 export interface UndoState {
     release?: () => void;
-    modules: UndoModules;
+    modules: { [namespace: string]: UndoModule };
     schedulers: { [namespace: string]: TaskScheduler };
-}
-
-export interface UndoModules {
-    [namespace: string]: UndoHistory;
 }

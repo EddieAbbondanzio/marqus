@@ -1,4 +1,4 @@
-import { createStore } from 'vuex';
+import { createLogger, createStore } from 'vuex';
 import ui from '@/features/ui/store';
 import tags from '@/features/tags/store';
 import notebooks from '@/features/notebooks/store';
@@ -22,7 +22,7 @@ export const store = createStore<State>({
         notes,
         shortcuts
     },
-    plugins: [persist.plugin, mediator.plugin, undo.plugin],
+    plugins: [createLogger(), persist.plugin, mediator.plugin, undo.plugin],
     /*
      * Don't use strict mode in production.
      * Major performance hit.

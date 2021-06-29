@@ -17,7 +17,7 @@ export const NOTES_DIRECTORY = 'notes';
 
 persist.register({
     namespace: 'notes',
-    initMutation: 'INIT',
+    initMutation: 'SET_STATE',
     serialize,
     deserialize
 });

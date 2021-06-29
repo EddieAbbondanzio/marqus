@@ -33,25 +33,25 @@ export class UndoHistory {
      * Step back in time and move to the previous event.
      * @returns The event to undo.
      */
-    rewind(): UndoHistoryEvent {
+    rewind(): UndoHistoryEvent[] {
         if (!this.canRewind()) {
             throw Error('Nothing to rewind');
         }
 
-        return this.events[this.currentIndex--];
+        return this.events.slice(0, this.currentIndex--);
     }
 
     /**
      * Jump into the future, and move back to the next event.
      * @returns The event to apply.
      */
-    fastForward(): UndoHistoryEvent {
+    fastForward(): UndoHistoryEvent[] {
         if (!this.canFastForward()) {
             throw Error('Nothing to fastforward');
         }
 
         // Pre-increment so we get the event ahead of our current position.
-        return this.events[++this.currentIndex];
+        return this.events.slice(0, ++this.currentIndex);
     }
 
     /**

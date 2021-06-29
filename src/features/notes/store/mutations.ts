@@ -5,7 +5,7 @@ import { MutationTree } from 'vuex';
 import { NoteState } from './state';
 
 export const mutations: MutationTree<NoteState> = {
-    INIT(state, s: NoteState) {
+    SET_STATE(state, s: NoteState) {
         Object.assign(state, s);
     },
     EMPTY_TRASH(state) {
