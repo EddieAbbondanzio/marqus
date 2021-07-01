@@ -86,7 +86,7 @@ export class UndoModule {
      * @param events The events to set.
      * @param currentIndex The current position in history.
      */
-    setEvents(events: UndoHistoryEvent[], currentIndex: number = 0) {
+    setEvents(events: UndoHistoryEvent[], currentIndex = 0) {
         this._history.setEvents(events, currentIndex);
     }
 

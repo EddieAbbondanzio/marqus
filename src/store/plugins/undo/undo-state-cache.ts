@@ -32,7 +32,7 @@ export class UndoStateCache {
      * @param index The index to delete after.
      */
     deleteAfter(index: number) {
-        for (let [key, value] of this._cache) {
+        for (const [key] of this._cache) {
             if (key > index) {
                 this._cache.delete(key);
             }

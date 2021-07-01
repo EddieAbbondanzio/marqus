@@ -1,6 +1,4 @@
-import { Queue } from '@/store/plugins/undo/queue';
 import { UndoGroup, UndoHistoryEvent, UndoItem } from '@/store/plugins/undo/types';
-import { MutationPayload } from 'vuex';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -29,7 +27,7 @@ export class UndoHistory {
      * @param _events The events that have occured.
      * @param _currentIndex The current position in the history.
      */
-    constructor(private _events: UndoHistoryEvent[] = [], private _currentIndex: number = -1) {
+    constructor(private _events: UndoHistoryEvent[] = [], private _currentIndex = -1) {
         if (_currentIndex < -1 || _currentIndex > _events.length) {
             throw Error(`Current index ${_currentIndex} out of range.`);
         }
@@ -102,6 +100,7 @@ export class UndoHistory {
     canFastForward() {
         return this._events.length > 0 && this._currentIndex < this._events.length - 1;
     }
+
     /**
      * Start a new group. Basically a unit of work, but for undo / redo.
      * @returns The id of the group being started.
@@ -112,6 +111,7 @@ export class UndoHistory {
 
         return id;
     }
+
     /**
      * Finish off a group so no more mutations can be added.
      * @param id The id of the group to finish.
@@ -129,7 +129,7 @@ export class UndoHistory {
      * @param events The new event history
      * @param currentIndex The new current index.
      */
-    setEvents(events: UndoHistoryEvent[], currentIndex: number = 0) {
+    setEvents(events: UndoHistoryEvent[], currentIndex = 0) {
         this._events = events;
         this._currentIndex = currentIndex;
 
