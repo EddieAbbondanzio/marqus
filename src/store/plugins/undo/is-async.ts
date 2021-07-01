@@ -1,10 +1,10 @@
 const AsyncFunction = (async () => {}).constructor;
 
 /**
- * Check if a function is asyncrhonous.
+ * Check if a function is asynchronous.
  * @param fn The function to check.
  * @returns True if it's an async function
  */
-function isAsync(fn: () => any): boolean {
+export function isAsync(fn: (...args: any[]) => any): boolean {
     return fn instanceof AsyncFunction;
 }

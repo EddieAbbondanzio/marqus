@@ -27,9 +27,9 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             }
         }
 
-        undo.group('globalNavigation', () => {
-            commit('START_TAGS_INPUT', tag);
-            commit('SET_TAGS_EXPANDED', true);
+        undo.group('globalNavigation', (undoGroup) => {
+            commit('START_TAGS_INPUT', { tag, undoGroup });
+            commit('SET_TAGS_EXPANDED', { val: true, undoGroup });
         });
     },
     tagInputUpdated({ commit, state }, val: string) {

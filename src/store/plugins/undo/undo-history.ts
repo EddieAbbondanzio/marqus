@@ -7,11 +7,31 @@ import { v4 as uuidv4 } from 'uuid';
  * It's like a VCR but for mutations
  */
 export class UndoHistory {
-    activeGroups: { [id: string]: UndoGroup } = {};
+    private _activeGroups: { [id: string]: UndoGroup } = {};
 
-    constructor(public events: UndoHistoryEvent[] = [], public currentIndex: number = -1) {
-        if (currentIndex < -1 || currentIndex > events.length) {
-            throw Error(`Current index ${currentIndex} out of range.`);
+    /**
+     * Readonly access of the current index
+     */
+    get currentIndex(): number {
+        return this._currentIndex;
+    }
+
+    /**
+     * Readonly access of the underlying events.
+     * (Can still be modified if not careful)
+     */
+    get events(): ReadonlyArray<UndoHistoryEvent> {
+        return this._events;
+    }
+
+    /**
+     * Create a new undo history.
+     * @param _events The events that have occured.
+     * @param _currentIndex The current position in the history.
+     */
+    constructor(private _events: UndoHistoryEvent[] = [], private _currentIndex: number = -1) {
+        if (_currentIndex < -1 || _currentIndex > _events.length) {
+            throw Error(`Current index ${_currentIndex} out of range.`);
         }
     }
 
@@ -22,7 +42,7 @@ export class UndoHistory {
     push(e: UndoItem) {
         // Grouped mutation
         if (e.undoGroup != null) {
-            const g = this.activeGroups[e.undoGroup];
+            const g = this._activeGroups[e.undoGroup];
 
             if (g == null) {
                 throw Error(`No undo group ${e.undoGroup} found. Did you wrap the commit inside a undoGroup?`);
@@ -33,12 +53,12 @@ export class UndoHistory {
         // Normal mutation
         else {
             // Did we rewind and go off in a new direction? Wipe out no longer needed events.
-            if (this.currentIndex >= 0 && this.events.length - 1 > this.currentIndex) {
-                this.events.splice(this.currentIndex + 1);
+            if (this._currentIndex >= 0 && this._events.length - 1 > this._currentIndex) {
+                this._events.splice(this._currentIndex + 1);
             }
 
-            this.events.push(e);
-            this.currentIndex++;
+            this._events.push(e);
+            this._currentIndex++;
         }
     }
 
@@ -51,7 +71,7 @@ export class UndoHistory {
             throw Error('Nothing to rewind');
         }
 
-        return this.events.slice(0, this.currentIndex--);
+        return this._events.slice(0, this._currentIndex--);
     }
 
     /**
@@ -64,7 +84,7 @@ export class UndoHistory {
         }
 
         // Pre-increment so we get the event ahead of our current position.
-        return this.events.slice(0, ++this.currentIndex);
+        return this._events.slice(0, ++this._currentIndex);
     }
 
     /**
@@ -72,7 +92,7 @@ export class UndoHistory {
      * @returns True if there are events in the history behind our current position.
      */
     canRewind() {
-        return this.currentIndex >= 0;
+        return this._currentIndex >= 0;
     }
 
     /**
@@ -80,7 +100,7 @@ export class UndoHistory {
      * @returns True if there are events ahead of our current position.
      */
     canFastForward() {
-        return this.events.length > 0 && this.currentIndex < this.events.length - 1;
+        return this._events.length > 0 && this._currentIndex < this._events.length - 1;
     }
     /**
      * Start a new group. Basically a unit of work, but for undo / redo.
@@ -88,7 +108,7 @@ export class UndoHistory {
      */
     startGroup(): string {
         const id = uuidv4();
-        this.activeGroups[id] = { id, mutations: [] };
+        this._activeGroups[id] = { id, mutations: [] };
 
         return id;
     }
@@ -97,10 +117,26 @@ export class UndoHistory {
      * @param id The id of the group to finish.
      */
     stopGroup(id: string) {
-        if (this.activeGroups[id] == null) {
+        if (this._activeGroups[id] == null) {
             throw Error(`No group with id ${id} to stop.`);
         }
 
-        delete this.activeGroups[id];
+        delete this._activeGroups[id];
+    }
+
+    /**
+     * Set the event history and current index.
+     * @param events The new event history
+     * @param currentIndex The new current index.
+     */
+    setEvents(events: UndoHistoryEvent[], currentIndex: number = 0) {
+        this._events = events;
+        this._currentIndex = currentIndex;
+
+        /*
+         * We don't need to bother supporting activeGroups because if we called this method it means
+         * we loaded some state from file. Any active groups would be from the last time the app was open
+         * therefore nothing would be active technically.
+         */
     }
 }

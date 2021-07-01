@@ -1,4 +1,5 @@
-import { UndoHistory, UndoHistoryEvent } from '@/store/plugins/undo/undo-history';
+import { UndoHistoryEvent } from '@/store/plugins/undo/types';
+import { UndoHistory } from '@/store/plugins/undo/undo-history';
 
 describe('UndoHistory', () => {
     describe('ctor()', () => {
@@ -15,119 +16,133 @@ describe('UndoHistory', () => {
         });
     });
 
-    describe('push()', () => {
-        it('adds event to end of list', () => {
-            const events: UndoHistoryEvent[] = [
-                { payload: { type: 'a', payload: 1 } },
-                { payload: { type: 'b', payload: 2 } },
-                { payload: { type: 'c', payload: 3 } }
-            ];
+    // describe('push()', () => {
+    //     it('adds event to end of list', () => {
+    //         const events: UndoHistoryEvent[] = [
+    //             { payload: { type: 'a', payload: 1 } },
+    //             { payload: { type: 'b', payload: 2 } },
+    //             { payload: { type: 'c', payload: 3 } }
+    //         ];
 
-            const history = new UndoHistory(events, 2);
-            history.push({ payload: { type: 'd', payload: 4 } });
+    //         const history = new UndoHistory(events, 2);
+    //         history.push({ payload: { type: 'd', payload: 4 } });
 
-            expect(history.events[3].payload).toHaveProperty('type', 'd');
-            expect(history.currentIndex).toBe(3);
-        });
+    //         expect(history._events[3].payload).toHaveProperty('type', 'd');
+    //         expect(history.currentIndex).toBe(3);
+    //     });
 
-        it('trims off extra if we rewind and go in a different direction', () => {
-            const events: UndoHistoryEvent[] = [
-                { payload: { type: 'a', payload: 1 } },
-                { payload: { type: 'b', payload: 2 } },
-                { payload: { type: 'c', payload: 3 } }
-            ];
+    //     it('trims off extra if we rewind and go in a different direction', () => {
+    //         const events: UndoHistoryEvent[] = [
+    //             { payload: { type: 'a', payload: 1 } },
+    //             { payload: { type: 'b', payload: 2 } },
+    //             { payload: { type: 'c', payload: 3 } }
+    //         ];
 
-            const history = new UndoHistory(events, 1);
-            history.push({ payload: { type: 'd', payload: 4 } });
+    //         const history = new UndoHistory(events, 1);
+    //         history.push({ payload: { type: 'd', payload: 4 } });
 
-            expect(history.events).toHaveLength(3);
-        });
-    });
+    //         expect(history._events).toHaveLength(3);
+    //     });
 
-    describe('rewind()', () => {
-        it("throws if we can't rewind", () => {
-            expect(() => {
-                const h = new UndoHistory();
-                h.rewind();
-            }).toThrow();
-        });
+    //     it('throws if no existing group was found and mutation was grouped', () => {});
 
-        it('rewinds current position', () => {
-            const events: UndoHistoryEvent[] = [
-                { payload: { type: 'a', payload: 1 } },
-                { payload: { type: 'b', payload: 2 } },
-                { payload: { type: 'c', payload: 3 } }
-            ];
+    //     it('adds to existing group when grouped', () => {});
+    // });
 
-            const h = new UndoHistory(events, 0);
-            h.rewind();
-            expect(h.currentIndex).toBe(-1);
-        });
-    });
+    // describe('rewind()', () => {
+    //     it("throws if we can't rewind", () => {
+    //         expect(() => {
+    //             const h = new UndoHistory();
+    //             h.rewind();
+    //         }).toThrow();
+    //     });
 
-    describe('fastForward()', () => {
-        it("throws if we can't fast forward", () => {
-            expect(new UndoHistory().fastForward).toThrow();
-        });
+    //     it('rewinds current position', () => {
+    //         const events: UndoHistoryEvent[] = [
+    //             { payload: { type: 'a', payload: 1 } },
+    //             { payload: { type: 'b', payload: 2 } },
+    //             { payload: { type: 'c', payload: 3 } }
+    //         ];
 
-        it('moves current position forward', () => {
-            const events: UndoHistoryEvent[] = [
-                { payload: { type: 'a', payload: 1 } },
-                { payload: { type: 'b', payload: 2 } },
-                { payload: { type: 'c', payload: 3 } }
-            ];
+    //         const h = new UndoHistory(events, 0);
+    //         h.rewind();
+    //         expect(h.currentIndex).toBe(-1);
+    //     });
+    // });
 
-            const h = new UndoHistory(events, 0);
-            h.fastForward();
-            expect(h.currentIndex).toBe(1);
-        });
-    });
+    // describe('fastForward()', () => {
+    //     it("throws if we can't fast forward", () => {
+    //         expect(new UndoHistory().fastForward).toThrow();
+    //     });
 
-    describe('canRewind()', () => {
-        it('returns true when we can.', () => {
-            const events: UndoHistoryEvent[] = [
-                { payload: { type: 'a', payload: 1 } },
-                { payload: { type: 'b', payload: 2 } },
-                { payload: { type: 'c', payload: 3 } }
-            ];
+    //     it('moves current position forward', () => {
+    //         const events: UndoHistoryEvent[] = [
+    //             { payload: { type: 'a', payload: 1 } },
+    //             { payload: { type: 'b', payload: 2 } },
+    //             { payload: { type: 'c', payload: 3 } }
+    //         ];
 
-            const h = new UndoHistory(events, 0);
-            expect(h.canRewind()).toBeTruthy();
-        });
+    //         const h = new UndoHistory(events, 0);
+    //         h.fastForward();
+    //         expect(h.currentIndex).toBe(1);
+    //     });
+    // });
 
-        it('returns false when we are at the start', () => {
-            const events: UndoHistoryEvent[] = [
-                { payload: { type: 'a', payload: 1 } },
-                { payload: { type: 'b', payload: 2 } },
-                { payload: { type: 'c', payload: 3 } }
-            ];
+    // describe('canRewind()', () => {
+    //     it('returns true when we can.', () => {
+    //         const events: UndoHistoryEvent[] = [
+    //             { payload: { type: 'a', payload: 1 } },
+    //             { payload: { type: 'b', payload: 2 } },
+    //             { payload: { type: 'c', payload: 3 } }
+    //         ];
 
-            const h = new UndoHistory(events, -1);
-            expect(h.canRewind()).toBeFalsy();
-        });
-    });
+    //         const h = new UndoHistory(events, 0);
+    //         expect(h.canRewind()).toBeTruthy();
+    //     });
 
-    describe('canFastForward()', () => {
-        it('returns true if we can', () => {
-            const events: UndoHistoryEvent[] = [
-                { payload: { type: 'a', payload: 1 } },
-                { payload: { type: 'b', payload: 2 } },
-                { payload: { type: 'c', payload: 3 } }
-            ];
+    //     it('returns false when we are at the start', () => {
+    //         const events: UndoHistoryEvent[] = [
+    //             { payload: { type: 'a', payload: 1 } },
+    //             { payload: { type: 'b', payload: 2 } },
+    //             { payload: { type: 'c', payload: 3 } }
+    //         ];
 
-            const h = new UndoHistory(events, 0);
-            expect(h.canFastForward()).toBeTruthy();
-        });
+    //         const h = new UndoHistory(events, -1);
+    //         expect(h.canRewind()).toBeFalsy();
+    //     });
+    // });
 
-        it('returns false if we are at the end', () => {
-            const events: UndoHistoryEvent[] = [
-                { payload: { type: 'a', payload: 1 } },
-                { payload: { type: 'b', payload: 2 } },
-                { payload: { type: 'c', payload: 3 } }
-            ];
+    // describe('canFastForward()', () => {
+    //     it('returns true if we can', () => {
+    //         const events: UndoHistoryEvent[] = [
+    //             { payload: { type: 'a', payload: 1 } },
+    //             { payload: { type: 'b', payload: 2 } },
+    //             { payload: { type: 'c', payload: 3 } }
+    //         ];
 
-            const h = new UndoHistory(events, 2);
-            expect(h.canFastForward()).toBeFalsy();
-        });
-    });
+    //         const h = new UndoHistory(events, 0);
+    //         expect(h.canFastForward()).toBeTruthy();
+    //     });
+
+    //     it('returns false if we are at the end', () => {
+    //         const events: UndoHistoryEvent[] = [
+    //             { payload: { type: 'a', payload: 1 } },
+    //             { payload: { type: 'b', payload: 2 } },
+    //             { payload: { type: 'c', payload: 3 } }
+    //         ];
+
+    //         const h = new UndoHistory(events, 2);
+    //         expect(h.canFastForward()).toBeFalsy();
+    //     });
+    // });
+
+    // describe('startGroup()', () => {
+    //     it('adds group to active cache', () => {});
+    // });
+
+    // describe('stopGroup()', () => {
+    //     it("throws if group wasn't active", () => {});
+
+    //     it('removes group from active', () => {});
+    // });
 });

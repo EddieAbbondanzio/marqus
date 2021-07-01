@@ -1,10 +1,11 @@
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
-import { UndoModule, UndoModuleSettings } from '@/store/plugins/undo/undo-module';
+import { UndoModule } from '@/store/plugins/undo/undo-module';
 import { splitMutationAndNamespace } from '@/store/utils/split-mutation-and-namespace';
 import { fileSystem } from '@/utils/file-system';
 import { TaskScheduler } from '@/utils/task-scheduler';
 import { MutationPayload, Store } from 'vuex';
-import { UndoGroup, UndoHistoryEvent } from '@/store/plugins/undo/types';
+import { UndoGroup, UndoHistoryEvent, UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
+import { isAsync } from '@/store/plugins/undo/is-async';
 
 const state: UndoState = { modules: {}, schedulers: {} };
 let vuexStore: Store<any>;
@@ -31,7 +32,7 @@ export const undo = {
             }
 
             // Add event to the modules history
-            state.modules[namespace].cache(m);
+            state.modules[namespace].push(m);
 
             state.schedulers[namespace].schedule(
                 // TODO: fix type error if unwrapped.
@@ -63,10 +64,10 @@ export const undo = {
         for (const file of files) {
             if (file.endsWith('.json')) {
                 const moduleName = file.slice(0, -5); // Trim off .json ending
-                const events = await fileSystem.readJSON(file);
+                const { events, currentIndex } = await fileSystem.readJSON(file);
 
                 // TODO: Add some validation lol.
-                state.modules[moduleName].history.events = events;
+                state.modules[moduleName].setEvents(events, currentIndex);
             }
         }
     },
@@ -84,7 +85,7 @@ export const undo = {
      */
     getModule(namespace: string): UndoModule {
         if (state.modules[namespace] == null) {
-            throw Error(`No module ${namespace} registered with undo plugin`);
+            throw Error(`No module with namespace ${namespace} found. Did you register it with the plugin?`);
         }
 
         const m = state.modules[namespace];
@@ -96,28 +97,22 @@ export const undo = {
      * @param moduleNamespace The namespace of the module to put it under.
      * @param handle The callback that will contain the commits of the group.
      */
-    async group(moduleNamespace: string, handle: () => any) {
+    async group(moduleNamespace: string, handle: (undoGroup: string) => any) {
         const m = state.modules[moduleNamespace];
 
         if (m == null) {
             throw Error(`No module for namespace ${moduleNamespace} found.`);
         }
 
-        const groupId = m.history.startGroup();
+        const groupId = m.startGroup();
 
         // Handles can be async, or sync because not all actions will be async
         if (isAsync(handle)) {
-            await handle();
+            await handle(groupId);
         } else {
-            handle();
+            handle(groupId);
         }
 
-        m.history.stopGroup(groupId);
+        m.stopGroup(groupId);
     }
 };
-
-export interface UndoState {
-    release?: () => void;
-    modules: { [namespace: string]: UndoModule };
-    schedulers: { [namespace: string]: TaskScheduler };
-}

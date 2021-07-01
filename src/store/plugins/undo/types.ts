@@ -1,4 +1,18 @@
+import { UndoModule } from '@/store/plugins/undo/undo-module';
+import { TaskScheduler } from '@/utils/task-scheduler';
 import { MutationPayload } from 'vuex';
+
+export interface UndoState {
+    release?: () => void;
+    modules: { [namespace: string]: UndoModule };
+    schedulers: { [namespace: string]: TaskScheduler };
+}
+
+export interface UndoModuleSettings {
+    namespace: string;
+    setStateMutation: string;
+    stateCacheInterval: number;
+}
 
 /**
  * Unit of work group that can contain 1 or more mutations.
