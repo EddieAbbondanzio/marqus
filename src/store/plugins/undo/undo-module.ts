@@ -1,3 +1,5 @@
+import { Queue } from '@/store/plugins/undo/queue';
+import { isUndoGroup } from '@/store/plugins/undo/types';
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { MutationPayload, Store } from 'vuex';
 
@@ -10,7 +12,11 @@ export class UndoModule {
     }
 
     cache(mutation: MutationPayload) {
-        this.history.push(mutation);
+        // Check to see if it was grouped
+        if (mutation.payload.undoGroup != null) {
+        } else {
+            this.history.push(mutation);
+        }
     }
 
     canUndo() {
@@ -29,7 +35,13 @@ export class UndoModule {
 
         // Replay up to, but not the last mutation
         for (const m of mutations) {
-            this.store.commit(`${this.settings.namespace}/${m.payload.type}`, m.payload.payload);
+            if (isUndoGroup(m)) {
+                m.mutations.forEach((mut) =>
+                    this.store.commit(`${this.settings.namespace}/${mut.payload.type}`, mut.payload.payload)
+                );
+            } else {
+                this.store.commit(`${this.settings.namespace}/${m.payload.type}`, m.payload.payload);
+            }
         }
     }
 
@@ -41,7 +53,13 @@ export class UndoModule {
 
         // Replay up to, but not the last mutation
         for (const m of mutations) {
-            this.store.commit(`${this.settings.namespace}/${m.payload.type}`, m.payload.payload);
+            if (isUndoGroup(m)) {
+                m.mutations.forEach((mut) =>
+                    this.store.commit(`${this.settings.namespace}/${mut.payload.type}`, mut.payload.payload)
+                );
+            } else {
+                this.store.commit(`${this.settings.namespace}/${m.payload.type}`, m.payload.payload);
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ export const mutations: MutationTree<UserInterface> = {
     RESET_CURSOR_ICON(state) {
         state.cursor.icon = 'pointer';
     },
-    CURSOR_DRAGGING(state, dragging) {
+    CURSOR_DRAGGING(state, dragging?: boolean) {
         state.cursor.dragging = dragging;
     }
 };

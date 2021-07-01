@@ -7,6 +7,7 @@ import { confirmReplaceNotebook } from '@/utils/prompts/confirm-replace-notebook
 import { Action, ActionContext, ActionTree } from 'vuex';
 import { GlobalNavigation } from './state';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
+import { undo } from '@/store/plugins/undo/undo';
 
 export const actions: ActionTree<GlobalNavigation, State> = {
     setActive({ commit }, a: { id: string; type: 'notebook' | 'tag' }) {
@@ -26,8 +27,10 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             }
         }
 
-        commit('START_TAGS_INPUT', tag);
-        commit('SET_TAGS_EXPANDED', true);
+        undo.group('globalNavigation', () => {
+            commit('START_TAGS_INPUT', tag);
+            commit('SET_TAGS_EXPANDED', true);
+        });
     },
     tagInputUpdated({ commit, state }, val: string) {
         commit('SET_TAGS_INPUT', val);
