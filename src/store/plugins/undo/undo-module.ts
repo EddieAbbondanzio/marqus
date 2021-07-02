@@ -8,6 +8,10 @@ import { MutationPayload, Store } from 'vuex';
  * conjunction with the undo plugin.
  */
 export class UndoModule {
+    get settings(): Readonly<UndoModuleSettings> {
+        return this._settings;
+    }
+
     /**
      * History cache of all the mutations / groups.
      */
@@ -18,14 +22,9 @@ export class UndoModule {
      */
     private _stateCache: UndoStateCache;
 
-    /**
-     * Create a new undo module.
-     * @param _store The active vuex store.
-     * @param _settings Module specific settings
-     */
-    constructor(private _store: Store<any>, private _settings: UndoModuleSettings) {
+    constructor(initialState: any, private _store: () => Store<any>, private _settings: UndoModuleSettings) {
         this._history = new UndoHistory();
-        this._stateCache = new UndoStateCache();
+        this._stateCache = new UndoStateCache(initialState);
     }
 
     /**
@@ -42,7 +41,7 @@ export class UndoModule {
 
         // Update state cache if needed.
         if (this._history.currentIndex % this._settings.stateCacheInterval === 0) {
-            this._stateCache.push(this._store.state[this._settings.namespace]);
+            this._stateCache.push(this._store().state[this._settings.namespace]);
         }
     }
 
@@ -67,7 +66,8 @@ export class UndoModule {
      */
     undo() {
         const closestCachedState = this._stateCache.getLast(this._history.currentIndex);
-        this._store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, closestCachedState);
+        console.log('cached state was: ', closestCachedState);
+        this._store().commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, closestCachedState);
 
         const mutations = this._history.rewind();
         this.replayMutations(mutations);
@@ -79,15 +79,6 @@ export class UndoModule {
     redo() {
         const mutations = this._history.fastForward();
         this.replayMutations(mutations);
-    }
-
-    /**
-     * Set the event history of the module.
-     * @param events The events to set.
-     * @param currentIndex The current position in history.
-     */
-    setEvents(events: UndoHistoryEvent[], currentIndex = 0) {
-        this._history.setEvents(events, currentIndex);
     }
 
     /**
@@ -115,13 +106,10 @@ export class UndoModule {
         for (const event of mutations) {
             if (isUndoGroup(event)) {
                 for (const mutation of event.mutations) {
-                    this._store.commit(
-                        `${this._settings.namespace}/${mutation.payload.type}`,
-                        mutation.payload.payload
-                    );
+                    this._store().commit(mutation.payload.type, mutation.payload.payload);
                 }
             } else {
-                this._store.commit(`${this._settings.namespace}/${event.payload.type}`, event.payload.payload);
+                this._store().commit(event.type, event.payload.payload);
             }
         }
     }

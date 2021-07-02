@@ -65,11 +65,12 @@ export class UndoHistory {
      * @returns The event to undo.
      */
     rewind(): UndoHistoryEvent[] {
+        console.log(this.events);
         if (!this.canRewind()) {
             throw Error('Nothing to rewind');
         }
-
-        return this._events.slice(0, this._currentIndex--);
+        const i = --this._currentIndex;
+        return this._events.slice(0, i);
     }
 
     /**
@@ -122,21 +123,5 @@ export class UndoHistory {
         }
 
         delete this._activeGroups[id];
-    }
-
-    /**
-     * Set the event history and current index.
-     * @param events The new event history
-     * @param currentIndex The new current index.
-     */
-    setEvents(events: UndoHistoryEvent[], currentIndex = 0) {
-        this._events = events;
-        this._currentIndex = currentIndex;
-
-        /*
-         * We don't need to bother supporting activeGroups because if we called this method it means
-         * we loaded some state from file. Any active groups would be from the last time the app was open
-         * therefore nothing would be active technically.
-         */
     }
 }

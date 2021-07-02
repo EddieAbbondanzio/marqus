@@ -29,4 +29,9 @@ mediator.subscribe('ui/localNavigation/APPLY', ({ payload }, store) => {
     }
 });
 
-undo.registerModule({ namespace: 'editor', setStateMutation: 'SET_STATE', stateCacheInterval: 1000 });
+undo.registerModule(state, {
+    name: 'editor',
+    namespace: 'ui/editor',
+    setStateMutation: 'SET_STATE',
+    stateCacheInterval: 1000
+});

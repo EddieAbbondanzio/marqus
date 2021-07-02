@@ -21,7 +21,6 @@ export default {
 
         onMounted(() => {
             persist.init(s);
-            undo.init();
         });
 
         onBeforeUnmount(() => {

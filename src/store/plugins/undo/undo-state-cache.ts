@@ -2,12 +2,12 @@
  * Fixed interval cache for storing previous store states.
  */
 export class UndoStateCache {
-    /**
-     *
-     * @param _cache
-     * @param interval
-     */
-    constructor(private _cache: Map<number, any> = new Map(), public readonly interval: number = 100) {}
+    private _cache: Map<number, any>;
+
+    constructor(initialState: any, public readonly interval: number = 100) {
+        this._cache = new Map();
+        this._cache.set(0, initialState);
+    }
 
     /**
      * Cache another state.
@@ -15,6 +15,7 @@ export class UndoStateCache {
      */
     push(state: any) {
         const nextIndex = this.calculateNextIndex();
+        this._cache.set(nextIndex, state);
     }
 
     /**

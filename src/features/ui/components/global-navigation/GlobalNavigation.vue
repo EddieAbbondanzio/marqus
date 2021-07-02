@@ -178,7 +178,7 @@ export default defineComponent({
                 const m = undo.getModule('globalNavigation');
 
                 if (m.canUndo()) {
-                    console.log('can undo!');
+                    console.log('undo!');
                     m.undo();
                 } else {
                     console.log('nothing to undo');

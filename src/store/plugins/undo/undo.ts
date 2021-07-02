@@ -7,8 +7,8 @@ import { MutationPayload, Store } from 'vuex';
 import { UndoGroup, UndoHistoryEvent, UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
 import { isAsync } from '@/store/plugins/undo/is-async';
 
-const state: UndoState = { modules: {}, schedulers: {} };
-let vuexStore: Store<any>;
+const state: UndoState = { modules: {} };
+const cache: { store: Store<any> } = {} as any;
 
 export const UNDO_HISTORY_DIRECTORY = 'history';
 
@@ -22,7 +22,7 @@ export const undo = {
      * @returns
      */
     plugin<S>(store: Store<S>): UndoState {
-        vuexStore = store;
+        cache.store = store;
 
         const release = store.subscribe((m, s) => {
             const [namespace] = splitMutationAndNamespace(m.type);
@@ -33,11 +33,6 @@ export const undo = {
 
             // Add event to the modules history
             state.modules[namespace].push(m);
-
-            state.schedulers[namespace].schedule(
-                // TODO: fix type error if unwrapped.
-                async () => await fileSystem.writeJSON(`${namespace}.json`, state.modules[namespace])
-            );
         });
 
         state.release = release;
@@ -46,51 +41,37 @@ export const undo = {
         return state;
     },
     /**
-     * Initialization. Should be called at the start of the app after registering
-     * the plugin.
-     */
-    async init(): Promise<void> {
-        // Create the history parent directory if it doesn't exist.
-        if (!fileSystem.exists(UNDO_HISTORY_DIRECTORY)) {
-            fileSystem.createDirectory(UNDO_HISTORY_DIRECTORY);
-
-            // If we created the directory that means it will be empty AKA nothing to read in.
-            return;
-        }
-
-        const files = await fileSystem.readDirectory(UNDO_HISTORY_DIRECTORY);
-
-        // Try to load in any json files we can find.
-        for (const file of files) {
-            if (file.endsWith('.json')) {
-                const moduleName = file.slice(0, -5); // Trim off .json ending
-                const { events, currentIndex } = await fileSystem.readJSON(file);
-
-                // TODO: Add some validation lol.
-                state.modules[moduleName].setEvents(events, currentIndex);
-            }
-        }
-    },
-    /**
      * Register a module with the undo plugin.
+     * @param moduleState Initial state of the module.
      * @param settings The settings of the module.
      */
-    registerModule(settings: UndoModuleSettings) {
-        state.modules[settings.namespace] = new UndoModule(vuexStore, settings);
+    registerModule(moduleState: any, settings: UndoModuleSettings) {
+        // Check for duplicate name first
+        if (
+            Object.values(state.modules)
+                .filter((m) => m.settings.name != null)
+                .some((m) => m.settings.name === settings.name)
+        ) {
+            throw Error(`Duplicate undo module name ${settings.name}`);
+        }
+
+        state.modules[settings.namespace] = new UndoModule(moduleState, () => cache.store, settings);
     },
     /**
      * Retrieve an undo module from the plugin. Throws if not found.
-     * @param namespace The namespace of the module to retrieve.
+     * @param name The name of the module to retrieve.
      * @returns The desired module.
      */
-    getModule(namespace: string): UndoModule {
-        if (state.modules[namespace] == null) {
-            throw Error(`No module with namespace ${namespace} found. Did you register it with the plugin?`);
+    getModule(name: string): UndoModule {
+        const module = Object.values(state.modules)
+            .filter((m) => m.settings.name != null)
+            .find((m) => m.settings.name === name);
+
+        if (module == null) {
+            throw Error(`No module with name ${name} found.`);
         }
 
-        const m = state.modules[namespace];
-
-        return m;
+        return module;
     },
     /**
      * Create a new undo group that bunches multiple commits into one undo.
