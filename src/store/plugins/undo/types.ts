@@ -1,5 +1,5 @@
 import { UndoModule } from '@/store/plugins/undo/undo-module';
-import { MutationPayload } from 'vuex';
+import { Commit, MutationPayload } from 'vuex';
 
 export interface UndoState {
     release?: () => void;
@@ -11,6 +11,7 @@ export interface UndoModuleSettings {
     namespace: string;
     setStateMutation: string;
     stateCacheInterval: number;
+    ignore?: string[];
 }
 
 /**
@@ -21,9 +22,9 @@ export interface UndoGroup {
     mutations: MutationPayload[];
 }
 
-export type UndoItem = MutationPayload & { undoGroup?: string };
+export type UndoItem = MutationPayload & { id: string; undoGroup?: string };
 
-export type UndoHistoryEvent = UndoGroup | MutationPayload;
+export type UndoHistoryEvent = UndoGroup | UndoItem;
 
 /**
  * Type discriminator for undo groups and mutations.
@@ -31,7 +32,7 @@ export type UndoHistoryEvent = UndoGroup | MutationPayload;
  * @returns True if the parameter passed is a group.
  */
 export function isUndoGroup(e: UndoHistoryEvent): e is UndoGroup {
-    if ((e as any).id != null) {
+    if ((e as any).mutations != null) {
         return true;
     } else {
         return false;

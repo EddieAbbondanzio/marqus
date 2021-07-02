@@ -1,16 +1,11 @@
-import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { UndoModule } from '@/store/plugins/undo/undo-module';
 import { splitMutationAndNamespace } from '@/store/utils/split-mutation-and-namespace';
-import { fileSystem } from '@/utils/file-system';
-import { TaskScheduler } from '@/utils/task-scheduler';
-import { MutationPayload, Store } from 'vuex';
-import { UndoGroup, UndoHistoryEvent, UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
+import { UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
 import { isAsync } from '@/store/plugins/undo/is-async';
+import { Store } from 'vuex';
 
 const state: UndoState = { modules: {} };
 const cache: { store: Store<any> } = {} as any;
-
-export const UNDO_HISTORY_DIRECTORY = 'history';
 
 /**
  * Undo / redo vuex plugin
@@ -24,15 +19,22 @@ export const undo = {
     plugin<S>(store: Store<S>): UndoState {
         cache.store = store;
 
-        const release = store.subscribe((m, s) => {
-            const [namespace] = splitMutationAndNamespace(m.type);
+        const release = store.subscribe((mutation, s) => {
+            const [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
+            const module = state.modules[namespace];
 
-            if (state.modules[namespace] == null) {
+            // If no module was found, we're not tracking it. Stop.
+            if (module == null) {
+                return;
+            }
+
+            // Check it's not on the mutation ignore list for the module
+            if (state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
                 return;
             }
 
             // Add event to the modules history
-            state.modules[namespace].push(m);
+            state.modules[namespace].push(mutation);
         });
 
         state.release = release;
@@ -55,6 +57,15 @@ export const undo = {
             throw Error(`Duplicate undo module name ${settings.name}`);
         }
 
+        // Add set state commit to ignore list
+        settings.ignore ??= [];
+        settings.ignore.push(`${settings.namespace}/${settings.setStateMutation}`);
+
+        /*
+         * Store is null when modules are registered. Because of this, we need to pass in a method
+         * that will return the store when called otherwise we'll just be giving the module a null value
+         * that doesn't update when the store is set.
+         */
         state.modules[settings.namespace] = new UndoModule(moduleState, () => cache.store, settings);
     },
     /**

@@ -27,8 +27,8 @@ export class UndoHistory {
      * @param _events The events that have occured.
      * @param _currentIndex The current position in the history.
      */
-    constructor(private _events: UndoHistoryEvent[] = [], private _currentIndex = -1) {
-        if (_currentIndex < -1 || _currentIndex > _events.length) {
+    constructor(private _events: UndoHistoryEvent[] = [], private _currentIndex = 0) {
+        if (_currentIndex < 0 || _currentIndex > _events.length) {
             throw Error(`Current index ${_currentIndex} out of range.`);
         }
     }
@@ -51,12 +51,12 @@ export class UndoHistory {
         // Normal mutation
         else {
             // Did we rewind and go off in a new direction? Wipe out no longer needed events.
-            if (this._currentIndex >= 0 && this._events.length - 1 > this._currentIndex) {
-                this._events.splice(this._currentIndex + 1);
+            if (this._events.length > this._currentIndex && this._events[this._currentIndex + 1].id === e.id) {
+                this._events = this._events.slice(0, this._currentIndex);
+            } else {
+                this._events.push(e);
+                this._currentIndex++;
             }
-
-            this._events.push(e);
-            this._currentIndex++;
         }
     }
 
@@ -64,13 +64,16 @@ export class UndoHistory {
      * Step back in time and move to the previous event.
      * @returns The event to undo.
      */
-    rewind(): UndoHistoryEvent[] {
-        console.log(this.events);
+    rewind(index: number): UndoHistoryEvent[] {
         if (!this.canRewind()) {
             throw Error('Nothing to rewind');
         }
-        const i = --this._currentIndex;
-        return this._events.slice(0, i);
+        const toReplay = this._events.slice(index, this.currentIndex - 1);
+
+        // Jump back to what we rewinded to before
+        this._currentIndex = index;
+
+        return toReplay;
     }
 
     /**
@@ -91,7 +94,7 @@ export class UndoHistory {
      * @returns True if there are events in the history behind our current position.
      */
     canRewind() {
-        return this._currentIndex >= 0;
+        return this._currentIndex > 0;
     }
 
     /**

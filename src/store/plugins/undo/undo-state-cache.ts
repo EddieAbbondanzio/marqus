@@ -23,9 +23,9 @@ export class UndoStateCache {
      * @param index The index to base it off.
      * @returns The closest previously cached state.
      */
-    getLast(index: number): any {
+    getLast(index: number): { state: any; index: number } {
         const lastIndex = this.calculateLast(index);
-        return this._cache.get(lastIndex);
+        return { state: this._cache.get(lastIndex), index: lastIndex };
     }
 
     /**

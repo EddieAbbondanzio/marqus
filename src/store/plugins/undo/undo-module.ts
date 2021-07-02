@@ -1,7 +1,8 @@
-import { isUndoGroup, UndoHistoryEvent, UndoModuleSettings } from '@/store/plugins/undo/types';
+import { isUndoGroup, UndoHistoryEvent, UndoItem, UndoModuleSettings } from '@/store/plugins/undo/types';
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { UndoStateCache } from '@/store/plugins/undo/undo-state-cache';
 import { MutationPayload, Store } from 'vuex';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Module that retains it's own history state and handles undo / redo. Used in
@@ -13,6 +14,11 @@ export class UndoModule {
     }
 
     /**
+     * Getter so we can access the vuex store
+     */
+    private _getStore: () => Store<any>;
+
+    /**
      * History cache of all the mutations / groups.
      */
     private _history: UndoHistory;
@@ -22,7 +28,8 @@ export class UndoModule {
      */
     private _stateCache: UndoStateCache;
 
-    constructor(initialState: any, private _store: () => Store<any>, private _settings: UndoModuleSettings) {
+    constructor(initialState: any, getStore: () => Store<any>, private _settings: UndoModuleSettings) {
+        this._getStore = getStore;
         this._history = new UndoHistory();
         this._stateCache = new UndoStateCache(initialState);
     }
@@ -31,17 +38,22 @@ export class UndoModule {
      * Add a new mutation to the history.
      * @param mutation The mutation to add to the history.
      */
-    push(mutation: MutationPayload) {
+    push(mutation: MutationPayload | UndoItem) {
         // Check to see if we need to purge the cache of state that is no longer needed. IE undo and change directions.
         if (this._history.canFastForward()) {
             this._stateCache.deleteAfter(this._history.currentIndex);
         }
 
-        this._history.push(mutation);
+        // If this is a mutation we haven't seen before, give it an id for easier comparison later on.
+        const item = mutation as UndoItem;
+        item.id ??= uuidv4();
+
+        this._history.push(item);
 
         // Update state cache if needed.
         if (this._history.currentIndex % this._settings.stateCacheInterval === 0) {
-            this._stateCache.push(this._store().state[this._settings.namespace]);
+            const store = this._getStore();
+            this._stateCache.push(store.state[this._settings.namespace]);
         }
     }
 
@@ -66,10 +78,13 @@ export class UndoModule {
      */
     undo() {
         const closestCachedState = this._stateCache.getLast(this._history.currentIndex);
-        console.log('cached state was: ', closestCachedState);
-        this._store().commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, closestCachedState);
+        const store = this._getStore();
+        store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, closestCachedState.state);
 
-        const mutations = this._history.rewind();
+        console.log('count before rewind: ', this._history.currentIndex);
+        console.log('rewind to: ', closestCachedState.index);
+        const mutations = this._history.rewind(closestCachedState.index);
+        console.log('to replay: ', mutations);
         this.replayMutations(mutations);
     }
 
@@ -103,13 +118,15 @@ export class UndoModule {
      * @param mutations The mutations to reapply.
      */
     private replayMutations(mutations: UndoHistoryEvent[]) {
+        const store = this._getStore();
+
         for (const event of mutations) {
             if (isUndoGroup(event)) {
                 for (const mutation of event.mutations) {
-                    this._store().commit(mutation.payload.type, mutation.payload.payload);
+                    store.commit(mutation.type, mutation.payload);
                 }
             } else {
-                this._store().commit(event.type, event.payload.payload);
+                store.commit(event.type, event.payload);
             }
         }
     }
