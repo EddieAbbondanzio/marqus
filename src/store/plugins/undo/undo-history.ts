@@ -102,7 +102,7 @@ export class UndoHistory {
             throw Error('Nothing to fastforward');
         }
         // Pre-increment so we get the event ahead of our current position.
-        const nextIndex = this._currentIndex + 1;
+        const nextIndex = this._currentIndex;
         const toReplay = this._events[nextIndex];
 
         if (isUndoGroup(toReplay)) {
@@ -128,7 +128,7 @@ export class UndoHistory {
      * @returns True if there are events ahead of our current position.
      */
     canFastForward() {
-        return this._events.length > 0 && this._currentIndex + 1 < this._events.length;
+        return this._events.length > 0 && this._currentIndex < this._events.length;
     }
 
     /**

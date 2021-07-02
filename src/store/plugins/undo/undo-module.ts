@@ -78,9 +78,7 @@ export class UndoModule {
         store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
         const mutations = this._history.rewind(cached.index);
-        console.log('mutations to replay: ', mutations);
         this.replayMutations(mutations);
-        console.log('undo done');
     }
 
     /**
