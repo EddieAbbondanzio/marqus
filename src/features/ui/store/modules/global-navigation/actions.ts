@@ -29,7 +29,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
 
         undo.group('globalNavigation', (undoGroup) => {
             commit('START_TAGS_INPUT', { tag, undoGroup });
-            commit('SET_TAGS_EXPANDED', { val: true, undoGroup });
+            commit('SET_TAGS_EXPANDED', { value: true, undoGroup });
         });
     },
     tagInputUpdated({ commit, state }, val: string) {
@@ -72,7 +72,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         }
     },
     setTagsExpanded({ commit, state }, expanded: boolean) {
-        commit('SET_TAGS_EXPANDED', expanded);
+        commit('SET_TAGS_EXPANDED', { value: expanded });
     },
     notebookInputStart({ commit, rootState, state }, { id, parentId }: { id?: string; parentId?: string } = {}) {
         let notebook: Notebook | undefined;
@@ -170,7 +170,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         }
     },
     setNotebooksExpanded({ commit, state }, expanded: boolean) {
-        commit('SET_NOTEBOOKS_EXPANDED', expanded);
+        commit('SET_NOTEBOOKS_EXPANDED', { value: expanded });
     },
     notebookDragStart({ commit }, notebook: Notebook) {
         commit('SET_NOTEBOOKS_DRAGGING', notebook.id);

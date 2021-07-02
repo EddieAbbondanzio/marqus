@@ -1,4 +1,4 @@
-import { isUndoGroup, UndoHistoryEvent, UndoItem, UndoModuleSettings } from '@/store/plugins/undo/types';
+import { isUndoGroup, UndoItemOrGroup, UndoModuleSettings } from '@/store/plugins/undo/types';
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { UndoStateCache } from '@/store/plugins/undo/undo-state-cache';
 import { MutationPayload, Store } from 'vuex';
@@ -38,17 +38,14 @@ export class UndoModule {
      * Add a new mutation to the history.
      * @param mutation The mutation to add to the history.
      */
-    push(mutation: MutationPayload | UndoItem) {
+    push(mutation: MutationPayload) {
         // Check to see if we need to purge the cache of state that is no longer needed. IE undo and change directions.
         if (this._history.canFastForward()) {
             this._stateCache.deleteAfter(this._history.currentIndex);
         }
 
         // If this is a mutation we haven't seen before, give it an id for easier comparison later on.
-        const item = mutation as UndoItem;
-        item.id ??= uuidv4();
-
-        this._history.push(item);
+        this._history.push(mutation);
 
         // Update state cache if needed.
         if (this._history.currentIndex % this._settings.stateCacheInterval === 0) {
@@ -77,14 +74,11 @@ export class UndoModule {
      * Undo the last mutation, or group. Throws if none.
      */
     undo() {
-        const closestCachedState = this._stateCache.getLast(this._history.currentIndex);
+        const cached = this._stateCache.getLast(this._history.currentIndex);
         const store = this._getStore();
-        store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, closestCachedState.state);
+        store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
-        console.log('count before rewind: ', this._history.currentIndex);
-        console.log('rewind to: ', closestCachedState.index);
-        const mutations = this._history.rewind(closestCachedState.index);
-        console.log('to replay: ', mutations);
+        const mutations = this._history.rewind(cached.index);
         this.replayMutations(mutations);
     }
 
@@ -92,8 +86,8 @@ export class UndoModule {
      * Redo the last undone mutation or group. Throws if none.
      */
     redo() {
-        const mutations = this._history.fastForward();
-        this.replayMutations(mutations);
+        const mutation = this._history.fastForward();
+        this.replayMutations([mutation]);
     }
 
     /**
@@ -117,7 +111,7 @@ export class UndoModule {
      * Replay the mutations in the order they came in.
      * @param mutations The mutations to reapply.
      */
-    private replayMutations(mutations: UndoHistoryEvent[]) {
+    private replayMutations(mutations: UndoItemOrGroup[]) {
         const store = this._getStore();
 
         for (const event of mutations) {

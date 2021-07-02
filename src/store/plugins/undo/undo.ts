@@ -33,7 +33,19 @@ export const undo = {
                 return;
             }
 
+            if (mutation.payload == null) {
+                mutation.payload = {}
+            }
+            // Throw if the payload was not an object. Required so we can add some metadata to it.
+            else if (typeof mutation.payload !== 'object') {
+                throw Error(
+                    `Undo plugin requires that all mutation payloads be wrapped objects. 
+                    Mutation ${mutation.type} must have an object parameter, or be added to the ignore list.`
+                );
+            }
+
             // Add event to the modules history
+            console.log('mutation to push: ', mutation)
             state.modules[namespace].push(mutation);
         });
 
@@ -57,9 +69,9 @@ export const undo = {
             throw Error(`Duplicate undo module name ${settings.name}`);
         }
 
-        // Add set state commit to ignore list
-        settings.ignore ??= [];
-        settings.ignore.push(`${settings.namespace}/${settings.setStateMutation}`);
+        // Add set state commit to ignore list, and fully qualify user provided ones.
+        settings.ignore ??= [settings.setStateMutation];
+        settings.ignore = settings.ignore.map(m => `${settings.namespace}/${m}`);
 
         /*
          * Store is null when modules are registered. Because of this, we need to pass in a method
@@ -86,14 +98,14 @@ export const undo = {
     },
     /**
      * Create a new undo group that bunches multiple commits into one undo.
-     * @param moduleNamespace The namespace of the module to put it under.
+     * @param moduleName The name of the module to put it under.
      * @param handle The callback that will contain the commits of the group.
      */
-    async group(moduleNamespace: string, handle: (undoGroup: string) => any) {
-        const m = state.modules[moduleNamespace];
+    async group(moduleName: string, handle: (undoGroup: string) => any) {
+        const m = Object.values(state.modules).find(m => m.settings.name === moduleName);
 
         if (m == null) {
-            throw Error(`No module for namespace ${moduleNamespace} found.`);
+            throw Error(`No module with name ${moduleName} found.`);
         }
 
         const groupId = m.startGroup();

@@ -29,7 +29,7 @@ export const mutations: MutationTree<NoteState> = {
         const note = state.values.find((n) => n.id === id)!;
         note.name = name;
     },
-    DELETE(state, id: string) {
+    DELETE(state, { id }: { id: string }) {
         const i = state.values.findIndex((n) => n.id === id);
 
         if (i === -1) {
@@ -151,22 +151,22 @@ export const mutations: MutationTree<NoteState> = {
             }
         }
     },
-    MOVE_TO_TRASH(state, id: string) {
+    MOVE_TO_TRASH(state, { id }: { id: string }) {
         const note = state.values.find((n) => n.id === id)!;
         note.trashed = true;
         note.hasUnsavedChanges = true;
     },
-    RESTORE_FROM_TRASH(state, id: string) {
+    RESTORE_FROM_TRASH(state, { id }: { id: string }) {
         const note = state.values.find((n) => n.id === id)!;
         delete note.trashed;
         note.hasUnsavedChanges = true;
     },
-    FAVORITE(state, id: string | Note) {
+    FAVORITE(state, { id }: { id: string }) {
         const note = state.values.find((n) => n.id === id)!;
         note.favorited = true;
         note.hasUnsavedChanges = true;
     },
-    UNFAVORITE(state, id: string | Note) {
+    UNFAVORITE(state, { id }: { id: string }) {
         const note = state.values.find((n) => n.id === id)!;
         note.favorited = false;
         note.hasUnsavedChanges = true;

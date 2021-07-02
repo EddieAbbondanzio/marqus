@@ -4,6 +4,16 @@ Undo is a plugin for Vuex that adds modular support for undo / redo. The undo pl
 
 # How To Use
 
+There's a few side effects we have to be cautious about when using this plugin. Since we need to be able to send data around on the mutation payload, primitive types such as numbers, bools, or strings are not allowed. Instead you'll need to wrap them.
+
+```
+// Bad
+commit('mutationA', 1);
+
+// Good
+commit('mutationA', {val: 1 });
+```
+
 ## Groups
 
 Sometimes we'll want to group together mutations such that an undo or redo doesn't leave the app in a weird partial state. This is why groups were added.

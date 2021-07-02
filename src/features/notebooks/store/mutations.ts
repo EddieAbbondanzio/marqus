@@ -41,7 +41,7 @@ export const mutations: MutationTree<NotebookState> = {
 
         notebook.value = value;
     },
-    DELETE(state, id: string) {
+    DELETE(state, { id }: { id: string }) {
         const notebook = findNotebookRecursive(state.values, id);
 
         if (notebook == null) {

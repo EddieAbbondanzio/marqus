@@ -22,7 +22,7 @@ export const store = createStore<State>({
         notes,
         shortcuts
     },
-    plugins: [createLogger(), persist.plugin, mediator.plugin, undo.plugin],
+    plugins: [persist.plugin, mediator.plugin, undo.plugin],
     /*
      * Don't use strict mode in production.
      * Major performance hit.

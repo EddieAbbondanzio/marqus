@@ -30,7 +30,7 @@ export const mutations: MutationTree<TagState> = {
 
         t.value = value;
     },
-    DELETE(state, id: string) {
+    DELETE(state, { id }: { id: string }) {
         const i = state.values.findIndex((t) => t.id === id);
 
         if (i === -1) {

@@ -1,4 +1,4 @@
-import { UndoHistoryEvent } from '@/store/plugins/undo/types';
+import { UndoItemOrGroup } from '@/store/plugins/undo/types';
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
 
 describe('UndoHistory', () => {

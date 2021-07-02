@@ -11,8 +11,8 @@ export const mutations: MutationTree<GlobalNavigation> = {
     SET_WIDTH(s, newValue: string) {
         s.width = newValue;
     },
-    SET_TAGS_EXPANDED(s, newValue: boolean) {
-        s.tags.expanded = newValue;
+    SET_TAGS_EXPANDED(s, { value }: { value: boolean }) {
+        s.tags.expanded = value;
     },
     SET_TAGS_INPUT(s, newValue: string) {
         if (s.tags.input == null) {
@@ -38,7 +38,7 @@ export const mutations: MutationTree<GlobalNavigation> = {
     CLEAR_TAGS_INPUT(s) {
         delete s.tags.input;
     },
-    SET_NOTEBOOKS_EXPANDED(s, newValue: boolean) {
+    SET_NOTEBOOKS_EXPANDED(s, { value: newValue }: { value: boolean }) {
         s.notebooks.expanded = newValue;
     },
     SET_NOTEBOOKS_INPUT(s, newValue: string) {

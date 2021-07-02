@@ -14,6 +14,11 @@ export interface UndoModuleSettings {
     ignore?: string[];
 }
 
+export interface UndoMetadata {
+    groupId?: string;
+    isRedo?: boolean;
+}
+
 /**
  * Unit of work group that can contain 1 or more mutations.
  */
@@ -22,16 +27,14 @@ export interface UndoGroup {
     mutations: MutationPayload[];
 }
 
-export type UndoItem = MutationPayload & { id: string; undoGroup?: string };
-
-export type UndoHistoryEvent = UndoGroup | UndoItem;
+export type UndoItemOrGroup = MutationPayload | UndoGroup;
 
 /**
  * Type discriminator for undo groups and mutations.
  * @param e The event to check.
  * @returns True if the parameter passed is a group.
  */
-export function isUndoGroup(e: UndoHistoryEvent): e is UndoGroup {
+export function isUndoGroup(e: UndoItemOrGroup): e is UndoGroup {
     if ((e as any).mutations != null) {
         return true;
     } else {

@@ -1,5 +1,6 @@
-import { UndoGroup, UndoHistoryEvent, UndoItem } from '@/store/plugins/undo/types';
+import { UndoGroup, UndoItemOrGroup, isUndoGroup, UndoMetadata } from '@/store/plugins/undo/types';
 import { v4 as uuidv4 } from 'uuid';
+import { MutationPayload } from 'vuex';
 
 /**
  * It's like a VCR but for mutations
@@ -18,7 +19,7 @@ export class UndoHistory {
      * Readonly access of the underlying events.
      * (Can still be modified if not careful)
      */
-    get events(): ReadonlyArray<UndoHistoryEvent> {
+    get events(): ReadonlyArray<UndoItemOrGroup> {
         return this._events;
     }
 
@@ -27,7 +28,7 @@ export class UndoHistory {
      * @param _events The events that have occured.
      * @param _currentIndex The current position in the history.
      */
-    constructor(private _events: UndoHistoryEvent[] = [], private _currentIndex = 0) {
+    constructor(private _events: UndoItemOrGroup[] = [], private _currentIndex = 0) {
         if (_currentIndex < 0 || _currentIndex > _events.length) {
             throw Error(`Current index ${_currentIndex} out of range.`);
         }
@@ -37,13 +38,14 @@ export class UndoHistory {
      * Add a new event to the history.
      * @param e The event to add.
      */
-    push(e: UndoItem) {
+    push(e: MutationPayload) {
+        console.log('pushing e: ', e);
         // Grouped mutation
-        if (e.undoGroup != null) {
-            const g = this._activeGroups[e.undoGroup];
+        if (e.payload.__undo__?.groupId != null) {
+            const g = this._activeGroups[e.payload.__undo__.groupId];
 
             if (g == null) {
-                throw Error(`No undo group ${e.undoGroup} found. Did you wrap the commit inside a undoGroup?`);
+                throw Error(`No undo group ${e.payload.__undo__.groupId} found. Did you wrap the commit inside a undoGroup?`);
             }
 
             g.mutations.push(e);
@@ -51,20 +53,22 @@ export class UndoHistory {
         // Normal mutation
         else {
             // Did we rewind and go off in a new direction? Wipe out no longer needed events.
-            if (this._events.length > this._currentIndex && this._events[this._currentIndex + 1].id === e.id) {
-                this._events = this._events.slice(0, this._currentIndex);
+            if (this._events.length > this._currentIndex && !(e.payload.__undo__?.isRedo ?? false)) {
+                this._events.splice(this.currentIndex + 1);
             } else {
                 this._events.push(e);
                 this._currentIndex++;
             }
         }
+
+        console.log('events now: ', this.events);
     }
 
     /**
      * Step back in time and move to the previous event.
      * @returns The event to undo.
      */
-    rewind(index: number): UndoHistoryEvent[] {
+    rewind(index: number): UndoItemOrGroup[] {
         if (!this.canRewind()) {
             throw Error('Nothing to rewind');
         }
@@ -80,13 +84,22 @@ export class UndoHistory {
      * Jump into the future, and move back to the next event.
      * @returns The event to apply.
      */
-    fastForward(): UndoHistoryEvent[] {
+    fastForward(): UndoItemOrGroup {
         if (!this.canFastForward()) {
             throw Error('Nothing to fastforward');
         }
-
         // Pre-increment so we get the event ahead of our current position.
-        return this._events.slice(0, ++this._currentIndex);
+        const nextIndex = this._currentIndex + 1;
+        const toReplay = this._events[nextIndex];
+
+        if (isUndoGroup(toReplay)) {
+            toReplay.mutations.forEach(m => (m.payload.__undo__ = { isRedo: true } as UndoMetadata));
+        } else {
+            toReplay.payload.__undo__ ??= {};
+            toReplay.payload.__undo.isRedo = true;
+        }
+
+        return toReplay;
     }
 
     /**
@@ -102,7 +115,7 @@ export class UndoHistory {
      * @returns True if there are events ahead of our current position.
      */
     canFastForward() {
-        return this._events.length > 0 && this._currentIndex < this._events.length - 1;
+        return this._events.length > 0 && this._currentIndex + 1 < this._events.length;
     }
 
     /**

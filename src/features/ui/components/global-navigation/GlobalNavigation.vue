@@ -190,7 +190,10 @@ export default defineComponent({
                 const m = undo.getModule('globalNavigation');
 
                 if (m.canRedo()) {
+                    console.log('redo');
                     m.redo();
+                } else {
+                    console.log('nothing to redo');
                 }
             }
         };
