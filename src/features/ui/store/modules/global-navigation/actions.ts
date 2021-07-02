@@ -5,12 +5,12 @@ import { State } from '@/store/state';
 import { confirmDelete } from '@/utils/prompts/confirm-delete';
 import { confirmReplaceNotebook } from '@/utils/prompts/confirm-replace-notebook';
 import { Action, ActionContext, ActionTree } from 'vuex';
-import { GlobalNavigation } from './state';
+import { GlobalNavigation, GlobalNavigationActive } from './state';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { undo } from '@/store/plugins/undo/undo';
 
 export const actions: ActionTree<GlobalNavigation, State> = {
-    setActive({ commit }, a: { id: string; type: 'notebook' | 'tag' }) {
+    setActive({ commit }, a: GlobalNavigationActive) {
         commit('SET_ACTIVE', a);
     },
     setWidth({ commit, state }, width: string) {

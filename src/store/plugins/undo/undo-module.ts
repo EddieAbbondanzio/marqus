@@ -3,6 +3,8 @@ import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { UndoStateCache } from '@/store/plugins/undo/undo-state-cache';
 import { MutationPayload, Store } from 'vuex';
 import { v4 as uuidv4 } from 'uuid';
+import { getNamespacedState } from '@/store/utils/get-namespaced-state';
+import _ from 'lodash';
 
 /**
  * Module that retains it's own history state and handles undo / redo. Used in
@@ -14,11 +16,6 @@ export class UndoModule {
     }
 
     /**
-     * Getter so we can access the vuex store
-     */
-    private _getStore: () => Store<any>;
-
-    /**
      * History cache of all the mutations / groups.
      */
     private _history: UndoHistory;
@@ -28,8 +25,7 @@ export class UndoModule {
      */
     private _stateCache: UndoStateCache;
 
-    constructor(initialState: any, getStore: () => Store<any>, private _settings: UndoModuleSettings) {
-        this._getStore = getStore;
+    constructor(initialState: any, private _getStore: () => Store<any>, private _settings: UndoModuleSettings) {
         this._history = new UndoHistory();
         this._stateCache = new UndoStateCache(initialState);
     }
@@ -39,19 +35,22 @@ export class UndoModule {
      * @param mutation The mutation to add to the history.
      */
     push(mutation: MutationPayload) {
-        // Check to see if we need to purge the cache of state that is no longer needed. IE undo and change directions.
-        if (this._history.canFastForward()) {
-            this._stateCache.deleteAfter(this._history.currentIndex);
-        }
-
-        // If this is a mutation we haven't seen before, give it an id for easier comparison later on.
-        this._history.push(mutation);
-
-        // Update state cache if needed.
-        if (this._history.currentIndex % this._settings.stateCacheInterval === 0) {
+        // Update state cache if needed
+        if (this._history.currentIndex > 0 && this._history.currentIndex % this._settings.stateCacheInterval === 0) {
             const store = this._getStore();
-            this._stateCache.push(store.state[this._settings.namespace]);
+
+            /*
+             * We have to deep clone the state to cache otherwise we'll won't have a copy of the old data
+             * since our reference will point to the current state that is being modified.
+             */
+            const state = getNamespacedState(store, this._settings.namespace);
+            const clonedState = _.cloneDeep(state);
+            console.log('cache the state!', clonedState);
+
+            this._stateCache.push(clonedState);
         }
+
+        this._history.push(mutation);
     }
 
     /**
@@ -79,7 +78,9 @@ export class UndoModule {
         store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
         const mutations = this._history.rewind(cached.index);
+        console.log('mutations to replay: ', mutations);
         this.replayMutations(mutations);
+        console.log('undo done');
     }
 
     /**
@@ -88,6 +89,7 @@ export class UndoModule {
     redo() {
         const mutation = this._history.fastForward();
         this.replayMutations([mutation]);
+        console.log('redo done');
     }
 
     /**

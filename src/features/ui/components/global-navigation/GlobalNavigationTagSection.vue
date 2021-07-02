@@ -32,7 +32,7 @@
                 v-if="!isTagBeingUpdated(tag.id)"
                 :label="tag.value"
                 :active="isActive({ id: tag.id, type: 'tag' })"
-                @click="() => setActive({ id: tag.id, type: 'tag' })"
+                @click="() => setActive({ id: tag.id, section: 'tag' })"
                 :data-id="tag.id"
                 class="global-navigation-tag"
             >

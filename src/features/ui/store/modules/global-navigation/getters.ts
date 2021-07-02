@@ -1,17 +1,21 @@
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { State } from '@/store/state';
 import { GetterTree } from 'vuex';
-import { GlobalNavigation } from './state';
+import { GlobalNavigation, GlobalNavigationActive } from './state';
 
 export const getters: GetterTree<GlobalNavigation, State> = {
-    isActive: (s) => (option: 'all' | 'favorites' | 'trash' | { id: string; type: 'notebook' | 'tag' }) => {
-        // Check for an active item first
-        if (s.active == null) {
-            return false;
+    isActive: (s) => (active: GlobalNavigationActive) => {
+        switch (s.active?.section) {
+            case 'all':
+            case 'favorites':
+            case 'trash':
+                return active.section === s.active.section;
+            case 'notebook':
+            case 'tag':
+                return active.section === s.active.section && active.id === s.active.id;
+            default:
+                return false;
         }
-
-        // Deep equals test
-        return JSON.stringify(s.active) === JSON.stringify(option);
     },
     indentation: (s) => (depth: number) => {
         return `${depth * 24}px`;

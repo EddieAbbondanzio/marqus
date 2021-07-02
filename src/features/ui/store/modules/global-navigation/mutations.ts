@@ -3,9 +3,11 @@ import { GlobalNavigation, GlobalNavigationActive } from '@/features/ui/store/mo
 
 export const mutations: MutationTree<GlobalNavigation> = {
     SET_STATE(state, s: GlobalNavigation) {
+        console.log('set state to: ', s);
         Object.assign(state, s);
     },
     SET_ACTIVE(s, newValue: GlobalNavigationActive) {
+        console.log('new active: ', newValue);
         s.active = newValue;
     },
     SET_WIDTH(s, newValue: string) {

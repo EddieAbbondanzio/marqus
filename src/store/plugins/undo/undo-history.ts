@@ -39,29 +39,33 @@ export class UndoHistory {
      * @param e The event to add.
      */
     push(e: MutationPayload) {
-        console.log('pushing e: ', e);
+        // Populate empty metadata in case it's missing. Not really needed, but makes our life easier.
+        e.payload._undo ??= {};
+
         // Grouped mutation
-        if (e.payload.__undo__?.groupId != null) {
-            const g = this._activeGroups[e.payload.__undo__.groupId];
+        if (e.payload._undo.groupId != null) {
+            const g = this._activeGroups[e.payload._undo.groupId];
 
             if (g == null) {
-                throw Error(`No undo group ${e.payload.__undo__.groupId} found. Did you wrap the commit inside a undoGroup?`);
+                throw Error(`No undo group ${e.payload._undo.groupId} found. Did you wrap the commit inside a undoGroup?`);
             }
 
             g.mutations.push(e);
         }
         // Normal mutation
         else {
-            // Did we rewind and go off in a new direction? Wipe out no longer needed events.
-            if (this._events.length > this._currentIndex && !(e.payload.__undo__?.isRedo ?? false)) {
-                this._events.splice(this.currentIndex + 1);
+            // Did we rewind?
+            if (this._events.length > this._currentIndex) {
+                if (!e.payload._undo.isReplay) {
+                    this._events.splice(this.currentIndex + 1);
+                } else {
+                    this._currentIndex++;
+                }
             } else {
-                this._events.push(e);
-                this._currentIndex++;
+                    this._events.push(e);
+                    this._currentIndex++;
+                }
             }
-        }
-
-        console.log('events now: ', this.events);
     }
 
     /**
@@ -73,6 +77,15 @@ export class UndoHistory {
             throw Error('Nothing to rewind');
         }
         const toReplay = this._events.slice(index, this.currentIndex - 1);
+
+        for (const mutation of toReplay) {
+            if (isUndoGroup(mutation)) {
+                mutation.mutations.forEach(m => (m.payload._undo = { isReplay: true } as UndoMetadata));
+            } else {
+                mutation.payload._undo ??= {};
+                mutation.payload._undo.isReplay = true;
+            }
+        }
 
         // Jump back to what we rewinded to before
         this._currentIndex = index;
@@ -93,10 +106,10 @@ export class UndoHistory {
         const toReplay = this._events[nextIndex];
 
         if (isUndoGroup(toReplay)) {
-            toReplay.mutations.forEach(m => (m.payload.__undo__ = { isRedo: true } as UndoMetadata));
+            toReplay.mutations.forEach(m => (m.payload._undo = { isReplay: true } as UndoMetadata));
         } else {
-            toReplay.payload.__undo__ ??= {};
-            toReplay.payload.__undo.isRedo = true;
+            toReplay.payload._undo ??= {};
+            toReplay.payload._undo.isReplay = true;
         }
 
         return toReplay;

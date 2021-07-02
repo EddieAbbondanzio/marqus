@@ -13,8 +13,8 @@
             <NavigationMenuItem
                 icon="file-alt"
                 label="ALL"
-                :active="isActive('all')"
-                @click="setActive('all')"
+                :active="isActive({ section: 'all' })"
+                @click="setActive({ section: 'all' })"
                 :hideToggle="true"
             >
                 <template #options>
@@ -40,11 +40,16 @@
             <NavigationMenuItem
                 icon="star"
                 label="FAVORITES"
-                :active="isActive('favorites')"
-                @click="setActive('favorites')"
+                :active="isActive({ section: 'favorites' })"
+                @click="setActive({ section: 'favorites' })"
             />
 
-            <NavigationMenuItem icon="trash" label="TRASH" :active="isActive('trash')" @click="setActive('trash')" />
+            <NavigationMenuItem
+                icon="trash"
+                label="TRASH"
+                :active="isActive({ section: 'trash' })"
+                @click="setActive({ section: 'trash' })"
+            />
         </NavigationMenuList>
     </Resizable>
 </template>

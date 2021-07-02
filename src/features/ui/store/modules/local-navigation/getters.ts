@@ -18,7 +18,7 @@ export const getters: GetterTree<LocalNavigation, State> = {
             return [];
         }
 
-        if (active === 'trash') {
+        if (active.section === 'trash') {
             return rootState.notes.values.filter((n) => n.trashed);
         }
 
@@ -26,7 +26,7 @@ export const getters: GetterTree<LocalNavigation, State> = {
 
         // Handle object cases
         if (typeof active === 'object') {
-            switch (active.type) {
+            switch (active.section) {
                 case 'notebook':
                     notes = rootState.notes.values.filter(
                         (note) =>

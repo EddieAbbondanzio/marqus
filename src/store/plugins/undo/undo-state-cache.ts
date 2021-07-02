@@ -5,8 +5,7 @@ export class UndoStateCache {
     private _cache: Map<number, any>;
 
     constructor(initialState: any, public readonly interval: number = 100) {
-        this._cache = new Map();
-        this._cache.set(0, initialState);
+        this._cache = new Map([[0, initialState]]);
     }
 
     /**

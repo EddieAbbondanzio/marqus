@@ -16,7 +16,7 @@ export interface UndoModuleSettings {
 
 export interface UndoMetadata {
     groupId?: string;
-    isRedo?: boolean;
+    isReplay?: boolean;
 }
 
 /**

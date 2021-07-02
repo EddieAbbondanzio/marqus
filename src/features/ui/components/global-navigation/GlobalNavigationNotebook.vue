@@ -10,7 +10,7 @@
         class="global-navigation-notebook"
         :data-id="modelValue.id"
         :indent="indentation(depth - 1)"
-        v-mouse:click.left="() => setActive({ id: modelValue.id, type: 'notebook' })"
+        v-mouse:click.left="() => setActive({ id: modelValue.id, section: 'notebook' })"
         v-mouse:hold.left="onHold"
         v-mouse:drag.left="onHover"
         v-mouse:dragcancel.left="() => notebookDragCancel()"

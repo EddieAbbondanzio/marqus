@@ -22,16 +22,21 @@ export interface GlobalNavigationTagSection {
     input?: GlobalNavigationTagInput;
 }
 
-export type GlobalNavigationActive = 'all' | 'favorites' | 'trash' | { id: string; type: 'notebook' | 'tag' };
+export type GlobalNavigationActive =
+    | { section: 'all' | 'favorites' | 'trash' }
+    | { section: 'notebook' | 'tag'; id: string };
 
 export interface GlobalNavigation {
     width: string;
     notebooks: GlobalNavigationNotebookSection;
     tags: GlobalNavigationTagSection;
-    active?: GlobalNavigationActive;
+    active: GlobalNavigationActive;
 }
 
 export const state: GlobalNavigation = {
+    active: {
+        section: 'all'
+    },
     notebooks: {
         expanded: false
     },

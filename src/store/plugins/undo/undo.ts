@@ -45,7 +45,6 @@ export const undo = {
             }
 
             // Add event to the modules history
-            console.log('mutation to push: ', mutation)
             state.modules[namespace].push(mutation);
         });
 
@@ -56,10 +55,9 @@ export const undo = {
     },
     /**
      * Register a module with the undo plugin.
-     * @param moduleState Initial state of the module.
      * @param settings The settings of the module.
      */
-    registerModule(moduleState: any, settings: UndoModuleSettings) {
+    registerModule(initialState: any, settings: UndoModuleSettings) {
         // Check for duplicate name first
         if (
             Object.values(state.modules)
@@ -78,7 +76,7 @@ export const undo = {
          * that will return the store when called otherwise we'll just be giving the module a null value
          * that doesn't update when the store is set.
          */
-        state.modules[settings.namespace] = new UndoModule(moduleState, () => cache.store, settings);
+        state.modules[settings.namespace] = new UndoModule(initialState, () => cache.store, settings);
     },
     /**
      * Retrieve an undo module from the plugin. Throws if not found.
