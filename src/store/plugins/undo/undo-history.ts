@@ -56,8 +56,13 @@ export class UndoHistory {
         else {
             // Did we rewind?
             if (this._events.length > this._currentIndex) {
+                // Edge case of changing directions. IE undid 1 or more mutations, and then proceeded to add new mutations
                 if (!e.payload._undo.isReplay) {
-                    this._events.splice(this.currentIndex + 1);
+                    const keep = this._events.slice(0, this.currentIndex);
+                    keep.push(e);
+
+                    this._events = keep;
+                    this._currentIndex = this._events.length;
                 } else {
                     this._currentIndex++;
                 }

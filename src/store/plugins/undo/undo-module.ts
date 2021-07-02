@@ -35,7 +35,13 @@ export class UndoModule {
      * @param mutation The mutation to add to the history.
      */
     push(mutation: MutationPayload) {
-        // Update state cache if needed
+        this._history.push(mutation);
+
+        /*
+         * Cache off a recent copy of state as needed. Initial state is passed into the module constructor
+         * because since we're working in a plugin we don't get to react until AFTER mutations are done. This
+         * means if we tried to get initial state here, it would actually be the state after the first mutation.
+         */
         if (this._history.currentIndex > 0 && this._history.currentIndex % this._settings.stateCacheInterval === 0) {
             const store = this._getStore();
 
@@ -45,12 +51,9 @@ export class UndoModule {
              */
             const state = getNamespacedState(store, this._settings.namespace);
             const clonedState = _.cloneDeep(state);
-            console.log('cache the state!', clonedState);
 
             this._stateCache.push(clonedState);
         }
-
-        this._history.push(mutation);
     }
 
     /**
