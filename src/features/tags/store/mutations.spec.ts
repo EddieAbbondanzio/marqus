@@ -71,7 +71,7 @@ describe('TagStore Mutations', () => {
 
         it('deletes tag from state', () => {
             mutations.CREATE(state, { id: '1', value: 'cat' });
-            mutations.DELETE(state, '1');
+            mutations.DELETE(state, { id: '1' });
             expect(state.values).toHaveLength(0);
         });
     });

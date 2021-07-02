@@ -65,7 +65,7 @@ describe('getters', () => {
         });
 
         it('returns entire note array when mode is all', () => {
-            rootState.ui.globalNavigation.active = 'all';
+            rootState.ui.globalNavigation.active = { section: 'all' };
 
             expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(5);
         });
@@ -78,19 +78,19 @@ describe('getters', () => {
                 tags: [],
                 notebooks: []
             });
-            rootState.ui.globalNavigation.active = 'all';
+            rootState.ui.globalNavigation.active = { section: 'all' };
 
             expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(5);
         });
 
         it('returns notes in notebook when notebook is active', () => {
-            rootState.ui.globalNavigation.active = { type: 'notebook', id: '7' };
+            rootState.ui.globalNavigation.active = { section: 'notebook', id: '7' };
 
             expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(3);
         });
 
         it('returns notes of children as well', () => {
-            rootState.ui.globalNavigation.active = { type: 'notebook', id: '7' };
+            rootState.ui.globalNavigation.active = { section: 'notebook', id: '7' };
 
             const res = (getters as any).activeNotes({}, {}, rootState);
 
@@ -108,13 +108,13 @@ describe('getters', () => {
                 notebooks: ['7']
             });
 
-            rootState.ui.globalNavigation.active = { type: 'notebook', id: '7' };
+            rootState.ui.globalNavigation.active = { section: 'notebook', id: '7' };
             const res = (getters as any).activeNotes({}, {}, rootState);
             expect(res).toHaveLength(3);
         });
 
         it('returns notes in tag when tag is active', () => {
-            rootState.ui.globalNavigation.active = { type: 'tag', id: '5' };
+            rootState.ui.globalNavigation.active = { section: 'tag', id: '5' };
 
             expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(1);
         });
@@ -128,12 +128,12 @@ describe('getters', () => {
                 notebooks: []
             });
 
-            rootState.ui.globalNavigation.active = { type: 'tag', id: '5' };
+            rootState.ui.globalNavigation.active = { section: 'tag', id: '5' };
             expect((getters as any).activeNotes({}, {}, rootState)).toHaveLength(1);
         });
 
         it('returns favorited', () => {
-            rootState.ui.globalNavigation.active = 'favorites';
+            rootState.ui.globalNavigation.active = { section: 'favorites' };
 
             const res = (getters as any).activeNotes({}, {}, rootState);
             expect(res).toHaveLength(3);
@@ -151,7 +151,7 @@ describe('getters', () => {
                 notebooks: []
             });
 
-            rootState.ui.globalNavigation.active = 'favorites';
+            rootState.ui.globalNavigation.active = { section: 'favorites' };
             const res = (getters as any).activeNotes({}, {}, rootState);
             expect(res).toHaveLength(3);
         });

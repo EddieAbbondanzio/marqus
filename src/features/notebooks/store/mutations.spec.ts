@@ -80,7 +80,7 @@ describe('NotebooksStore mutations', () => {
             const notebook: Notebook = { id: generateId(), value: 'cat', expanded: false, children: [] };
             state.values.push(notebook);
 
-            mutations.DELETE(state, notebook.id);
+            mutations.DELETE(state, { id: notebook.id });
             expect(state.values).toHaveLength(0);
         });
 
@@ -92,7 +92,7 @@ describe('NotebooksStore mutations', () => {
             parent.children!.push(child);
             child.parent = parent;
 
-            mutations.DELETE(state, child.id);
+            mutations.DELETE(state, { id: child.id });
 
             expect(parent.children).toBeUndefined();
         });

@@ -68,7 +68,7 @@ describe('note mutations', () => {
                 dateModified: new Date()
             });
 
-            mutations.DELETE(state, '1');
+            mutations.DELETE(state, { id: '1' });
 
             expect(state.values).toHaveLength(0);
         });
@@ -355,7 +355,7 @@ describe('note mutations', () => {
                 dateModified: new Date()
             });
 
-            mutations.MOVE_TO_TRASH(state, '1');
+            mutations.MOVE_TO_TRASH(state, { id: '1' });
             expect(state.values[0].trashed).toBeTruthy();
         });
     });
@@ -363,7 +363,7 @@ describe('note mutations', () => {
     describe('RESTORE_FROM_TRASH', () => {
         it('throws error if no note found', () => {
             expect(() => {
-                mutations.RESTORE_FROM_TRASH(state, '1');
+                mutations.RESTORE_FROM_TRASH(state, { id: '1' });
             }).toThrow();
         });
 
@@ -378,7 +378,7 @@ describe('note mutations', () => {
                 trashed: true
             });
 
-            mutations.RESTORE_FROM_TRASH(state, '1');
+            mutations.RESTORE_FROM_TRASH(state, { id: '1' });
             expect(state.values[0].trashed).toBeUndefined();
         });
     });
@@ -414,7 +414,7 @@ describe('note mutations', () => {
     describe('FAVORITE', () => {
         it('throws if id not found', () => {
             expect(() => {
-                mutations.FAVORITE(state, '1');
+                mutations.FAVORITE(state, { id: '1' });
             }).toThrow();
         });
 
@@ -428,7 +428,7 @@ describe('note mutations', () => {
                 dateModified: new Date()
             });
 
-            mutations.FAVORITE(state, '1');
+            mutations.FAVORITE(state, { id: '1' });
             expect(state.values[0].favorited).toBeTruthy();
         });
     });
@@ -436,7 +436,7 @@ describe('note mutations', () => {
     describe('UNFAVORITE', () => {
         it('throws if id not found.', () => {
             expect(() => {
-                mutations.UNFAVORITE(state, '1');
+                mutations.UNFAVORITE(state, { id: '1' });
             }).toThrow();
         });
 
@@ -451,7 +451,7 @@ describe('note mutations', () => {
                 favorited: true
             });
 
-            mutations.UNFAVORITE(state, '1');
+            mutations.UNFAVORITE(state, { id: '1' });
             expect(state.values[0].favorited).toBeFalsy();
         });
     });

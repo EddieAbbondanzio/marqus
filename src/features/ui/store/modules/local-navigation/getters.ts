@@ -14,51 +14,41 @@ export const getters: GetterTree<LocalNavigation, State> = {
     activeNotes: (_s, _g, rootState) => {
         const active = rootState.ui.globalNavigation.active;
 
-        if (active == null) {
-            return [];
+        switch (active?.section) {
+            case 'all':
+                return rootState.notes.values.filter((note) => !note.trashed);
+
+            case 'notebook':
+                return rootState.notes.values.filter(
+                    (note) =>
+                        !note.trashed &&
+                        note.notebooks != null &&
+                        note.notebooks.some((id) => {
+                            let notebook: Notebook | undefined = findNotebookRecursive(rootState.notebooks.values, id);
+
+                            // A parent notebook should also show notes for any of it's children.
+                            while (notebook != null) {
+                                if (notebook.id === active.id) return true;
+                                notebook = notebook!.parent;
+                            }
+
+                            return false;
+                        })
+                );
+
+            case 'tag':
+                return rootState.notes.values.filter(
+                    (note) => !note.trashed && (note.tags ?? []).some((tag) => tag === active.id)
+                );
+
+            case 'favorites':
+                return rootState.notes.values.filter((note) => !note.trashed && note.favorited);
+
+            case 'trash':
+                return rootState.notes.values.filter((n) => n.trashed);
+
+            default:
+                return [];
         }
-
-        if (active.section === 'trash') {
-            return rootState.notes.values.filter((n) => n.trashed);
-        }
-
-        let notes: Note[] = rootState.notes.values;
-
-        // Handle object cases
-        if (typeof active === 'object') {
-            switch (active.section) {
-                case 'notebook':
-                    notes = rootState.notes.values.filter(
-                        (note) =>
-                            note.notebooks != null &&
-                            note.notebooks.some((id) => {
-                                let notebook: Notebook | undefined = findNotebookRecursive(
-                                    rootState.notebooks.values,
-                                    id
-                                );
-
-                                // A parent notebook should also show notes for any of it's children.
-                                while (notebook != null) {
-                                    if (notebook.id === active.id) return true;
-                                    notebook = notebook!.parent;
-                                }
-
-                                return false;
-                            })
-                    );
-                    break;
-
-                case 'tag':
-                    notes = rootState.notes.values.filter((note) => (note.tags ?? []).some((tag) => tag === active.id));
-                    break;
-            }
-        } else if (active === 'favorites') {
-            notes = notes.filter((n) => n.favorited);
-        }
-
-        // Remove any notes that are in the trash
-        notes = notes.filter((n) => !n.trashed);
-
-        return notes;
     }
 };

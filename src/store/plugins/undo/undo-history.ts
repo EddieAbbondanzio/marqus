@@ -58,19 +58,16 @@ export class UndoHistory {
             if (this._events.length > this._currentIndex) {
                 // Edge case of changing directions. IE undid 1 or more mutations, and then proceeded to add new mutations
                 if (!e.payload._undo.isReplay) {
-                    const keep = this._events.slice(0, this.currentIndex);
-                    keep.push(e);
-
-                    this._events = keep;
+                    this._events = [...this._events.slice(0, this.currentIndex), e];
                     this._currentIndex = this._events.length;
                 } else {
                     this._currentIndex++;
                 }
             } else {
-                    this._events.push(e);
-                    this._currentIndex++;
-                }
+                this._events.push(e);
+                this._currentIndex++;
             }
+        }
     }
 
     /**
@@ -104,7 +101,7 @@ export class UndoHistory {
      */
     fastForward(): UndoItemOrGroup {
         if (!this.canFastForward()) {
-            throw Error('Nothing to fastforward');
+            throw Error('Nothing to fast forward');
         }
         // Pre-increment so we get the event ahead of our current position.
         const nextIndex = this._currentIndex;
