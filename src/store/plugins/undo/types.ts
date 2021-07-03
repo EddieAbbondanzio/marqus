@@ -1,8 +1,9 @@
 import { UndoModule } from '@/store/plugins/undo/undo-module';
-import { Commit, MutationPayload } from 'vuex';
+import { Commit, MutationPayload, Store } from 'vuex';
 
 export interface UndoState {
     release?: () => void;
+    store: Store<any>;
     modules: { [namespace: string]: UndoModule };
 }
 
