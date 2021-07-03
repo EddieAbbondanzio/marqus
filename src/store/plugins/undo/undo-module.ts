@@ -76,12 +76,14 @@ export class UndoModule {
      * Undo the last mutation, or group. Throws if none.
      */
     undo() {
+        // Roll back to most recently cached state
         const cached = this._stateCache.getLast(this._history.currentIndex);
         const store = this._getStore();
         store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
+        // Reapply (N - 1) mutations to get to the desired state.
         const mutations = this._history.rewind(cached.index);
-        this.replayMutations(mutations);
+        this._replayMutations(mutations);
     }
 
     /**
@@ -89,8 +91,7 @@ export class UndoModule {
      */
     redo() {
         const mutation = this._history.fastForward();
-        this.replayMutations([mutation]);
-        console.log('redo done');
+        this._replayMutations([mutation]);
     }
 
     /**
@@ -114,7 +115,7 @@ export class UndoModule {
      * Replay the mutations in the order they came in.
      * @param mutations The mutations to reapply.
      */
-    private replayMutations(mutations: UndoItemOrGroup[]) {
+    private _replayMutations(mutations: UndoItemOrGroup[]) {
         const store = this._getStore();
 
         for (const event of mutations) {
