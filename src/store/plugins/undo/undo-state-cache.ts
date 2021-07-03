@@ -2,9 +2,15 @@
  * Fixed interval cache for storing previous store states.
  */
 export class UndoStateCache {
+    static readonly DEFAULT_INTERVAL = 100;
+
+    get cache(): ReadonlyMap<number, any> {
+        return this._cache;
+    }
+
     private _cache: Map<number, any>;
 
-    constructor(initialState: any, public readonly interval: number = 100) {
+    constructor(initialState: any, public readonly interval: number = UndoStateCache.DEFAULT_INTERVAL) {
         this._cache = new Map([[0, initialState]]);
     }
 
@@ -13,7 +19,7 @@ export class UndoStateCache {
      * @param state The next state to cache.
      */
     push(state: any) {
-        const nextIndex = this.calculateNextIndex();
+        const nextIndex = this._calculateNextIndex();
         this._cache.set(nextIndex, state);
     }
 
@@ -23,7 +29,7 @@ export class UndoStateCache {
      * @returns The closest previously cached state.
      */
     getLast(index: number): { state: any; index: number } {
-        const lastIndex = this.calculateLast(index);
+        const lastIndex = this._calculateLast(index);
         return { state: this._cache.get(lastIndex), index: lastIndex };
     }
 
@@ -40,18 +46,10 @@ export class UndoStateCache {
     }
 
     /**
-     * Custom JSON.stringify serialization.
-     * @returns The entries within the cache
-     */
-    toJSON() {
-        return this._cache.entries();
-    }
-
-    /**
      * Calculate the next index to cache at.
      * @returns The next index to be cached at.
      */
-    private calculateNextIndex() {
+    private _calculateNextIndex() {
         // Since we start at 0, size is already +1
         return this._cache.size * this.interval;
     }
@@ -61,7 +59,7 @@ export class UndoStateCache {
      * @param index The index to calculate from.
      * @returns The closest index of previously cached state.
      */
-    private calculateLast(index: number) {
+    private _calculateLast(index: number) {
         return index - (index % this.interval);
     }
 }

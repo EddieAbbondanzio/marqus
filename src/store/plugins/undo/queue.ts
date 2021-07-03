@@ -1,16 +1,16 @@
-const UNLIMITED = -1;
-
 /**
  * First in, first out (FIFO) data structure. Useful for processing things in the order they
  * were inserted in.
  */
 export class Queue<T> {
+    static readonly UNLIMITED = -1;
+
     /**
      * Create a new queue.
      * @param items Contents of the queue
      * @param limit The maximum number of items allowed in the queue.
      */
-    constructor(public items: T[] = [], public limit = UNLIMITED) {
+    constructor(public items: T[] = [], public limit = Queue.UNLIMITED) {
         if (this.limit <= 0 && this.limit !== -1) {
             throw Error('Limit must be 1 or greater');
         }
@@ -24,7 +24,7 @@ export class Queue<T> {
         this.items.push(item);
 
         // If the queue is over it's limit, remove the first item to bring it back into spec.
-        if (this.limit !== UNLIMITED && this.limit < this.items.length) {
+        if (this.limit !== Queue.UNLIMITED && this.limit < this.items.length) {
             this.items.shift();
         }
     }

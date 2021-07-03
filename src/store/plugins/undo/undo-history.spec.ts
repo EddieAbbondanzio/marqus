@@ -1,11 +1,12 @@
-import { UndoItemOrGroup } from '@/store/plugins/undo/types';
+import { UndoItemOrGroup, UndoMetadata } from '@/store/plugins/undo/types';
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
+import { MutationPayload } from 'vuex';
 
 describe('UndoHistory', () => {
     describe('ctor()', () => {
-        it('throws if index is less than -1', () => {
+        it('throws if index is less than 0', () => {
             expect(() => {
-                new UndoHistory([], -2);
+                new UndoHistory([], -1);
             }).toThrow();
         });
 
@@ -16,133 +17,179 @@ describe('UndoHistory', () => {
         });
     });
 
-    // describe('push()', () => {
-    //     it('adds event to end of list', () => {
-    //         const events: UndoHistoryEvent[] = [
-    //             { payload: { type: 'a', payload: 1 } },
-    //             { payload: { type: 'b', payload: 2 } },
-    //             { payload: { type: 'c', payload: 3 } }
-    //         ];
+    describe('push()', () => {
+        it('adds a grouped mutation to the active group', () => {
+            const history = new UndoHistory();
+            const id = history.startGroup();
 
-    //         const history = new UndoHistory(events, 2);
-    //         history.push({ payload: { type: 'd', payload: 4 } });
+            const mut: MutationPayload = {
+                type: 'foo',
+                payload: {
+                    _undo: {
+                        groupId: id
+                    }
+                }
+            };
 
-    //         expect(history._events[3].payload).toHaveProperty('type', 'd');
-    //         expect(history.currentIndex).toBe(3);
-    //     });
+            history.push(mut);
+            const group = history['_activeGroups'][id];
 
-    //     it('trims off extra if we rewind and go in a different direction', () => {
-    //         const events: UndoHistoryEvent[] = [
-    //             { payload: { type: 'a', payload: 1 } },
-    //             { payload: { type: 'b', payload: 2 } },
-    //             { payload: { type: 'c', payload: 3 } }
-    //         ];
+            expect(group.mutations[0]).toHaveProperty('type', 'foo');
+        });
 
-    //         const history = new UndoHistory(events, 1);
-    //         history.push({ payload: { type: 'd', payload: 4 } });
+        it('throws if no group found', () => {
+            const history = new UndoHistory();
 
-    //         expect(history._events).toHaveLength(3);
-    //     });
+            const mut: MutationPayload = {
+                type: 'foo',
+                payload: {
+                    _undo: {
+                        groupId: '1234'
+                    }
+                }
+            };
 
-    //     it('throws if no existing group was found and mutation was grouped', () => {});
+            expect(() => history.push(mut)).toThrow();
+        });
 
-    //     it('adds to existing group when grouped', () => {});
-    // });
+        it('adds event to end on normal push', () => {
+            const history = new UndoHistory();
+            history.push({
+                type: 'foo',
+                payload: { value: 1 }
+            });
 
-    // describe('rewind()', () => {
-    //     it("throws if we can't rewind", () => {
-    //         expect(() => {
-    //             const h = new UndoHistory();
-    //             h.rewind();
-    //         }).toThrow();
-    //     });
+            expect(history['_events'][0]).toHaveProperty('type', 'foo');
+        });
 
-    //     it('rewinds current position', () => {
-    //         const events: UndoHistoryEvent[] = [
-    //             { payload: { type: 'a', payload: 1 } },
-    //             { payload: { type: 'b', payload: 2 } },
-    //             { payload: { type: 'c', payload: 3 } }
-    //         ];
+        it('on replay, it only increments current index', () => {
+            const history = new UndoHistory([{} as any, {} as any], 0);
 
-    //         const h = new UndoHistory(events, 0);
-    //         h.rewind();
-    //         expect(h.currentIndex).toBe(-1);
-    //     });
-    // });
+            history.push({
+                type: 'foo',
+                payload: { value: 1, _undo: { isReplay: true } as UndoMetadata }
+            });
 
-    // describe('fastForward()', () => {
-    //     it("throws if we can't fast forward", () => {
-    //         expect(new UndoHistory().fastForward).toThrow();
-    //     });
+            expect(history['_events']).toHaveLength(2);
+            expect(history.currentIndex).toBe(1);
+        });
 
-    //     it('moves current position forward', () => {
-    //         const events: UndoHistoryEvent[] = [
-    //             { payload: { type: 'a', payload: 1 } },
-    //             { payload: { type: 'b', payload: 2 } },
-    //             { payload: { type: 'c', payload: 3 } }
-    //         ];
+        it('on changing directions it removes old future events and adds new one', () => {
+            const history = new UndoHistory([{} as any, {} as any], 0);
 
-    //         const h = new UndoHistory(events, 0);
-    //         h.fastForward();
-    //         expect(h.currentIndex).toBe(1);
-    //     });
-    // });
+            history.push({
+                type: 'foo',
+                payload: { value: 1 }
+            });
 
-    // describe('canRewind()', () => {
-    //     it('returns true when we can.', () => {
-    //         const events: UndoHistoryEvent[] = [
-    //             { payload: { type: 'a', payload: 1 } },
-    //             { payload: { type: 'b', payload: 2 } },
-    //             { payload: { type: 'c', payload: 3 } }
-    //         ];
+            expect(history['_events']).toHaveLength(1);
+            expect(history.currentIndex).toBe(1);
+        });
+    });
 
-    //         const h = new UndoHistory(events, 0);
-    //         expect(h.canRewind()).toBeTruthy();
-    //     });
+    describe('rewind()', () => {
+        it("throws if can't rewind", () => {
+            const history = new UndoHistory();
+            expect(history.rewind).toThrow();
+        });
 
-    //     it('returns false when we are at the start', () => {
-    //         const events: UndoHistoryEvent[] = [
-    //             { payload: { type: 'a', payload: 1 } },
-    //             { payload: { type: 'b', payload: 2 } },
-    //             { payload: { type: 'c', payload: 3 } }
-    //         ];
+        it('returns mutations to replay', () => {
+            const history = new UndoHistory(
+                [
+                    { type: 'foo', payload: {} },
+                    { type: 'bar', payload: {} }
+                ],
+                2
+            );
+            const toReplay = history.rewind(0);
 
-    //         const h = new UndoHistory(events, -1);
-    //         expect(h.canRewind()).toBeFalsy();
-    //     });
-    // });
+            expect(toReplay).toHaveLength(1);
+            expect((toReplay[0] as MutationPayload).payload._undo).toHaveProperty('isReplay', true);
+        });
+    });
 
-    // describe('canFastForward()', () => {
-    //     it('returns true if we can', () => {
-    //         const events: UndoHistoryEvent[] = [
-    //             { payload: { type: 'a', payload: 1 } },
-    //             { payload: { type: 'b', payload: 2 } },
-    //             { payload: { type: 'c', payload: 3 } }
-    //         ];
+    describe('fastForward()', () => {
+        it("throws if can't fast forward", () => {
+            const history = new UndoHistory();
+            expect(history.fastForward).toThrow();
+        });
 
-    //         const h = new UndoHistory(events, 0);
-    //         expect(h.canFastForward()).toBeTruthy();
-    //     });
+        it('returns mutation to replay', () => {
+            const history = new UndoHistory(
+                [
+                    { type: 'foo', payload: {} },
+                    { type: 'bar', payload: {} }
+                ],
+                0
+            );
 
-    //     it('returns false if we are at the end', () => {
-    //         const events: UndoHistoryEvent[] = [
-    //             { payload: { type: 'a', payload: 1 } },
-    //             { payload: { type: 'b', payload: 2 } },
-    //             { payload: { type: 'c', payload: 3 } }
-    //         ];
+            const mut = history.fastForward();
+            expect(mut).toHaveProperty('type', 'foo');
+            expect((mut as MutationPayload).payload._undo).toHaveProperty('isReplay', true);
+        });
+    });
 
-    //         const h = new UndoHistory(events, 2);
-    //         expect(h.canFastForward()).toBeFalsy();
-    //     });
-    // });
+    describe('canRewind()', () => {
+        it('returns true if current index > 0', () => {
+            const history = new UndoHistory();
+            history.push({ payload: {} } as any);
+            expect(history.canRewind()).toBeTruthy();
+        });
 
-    // describe('startGroup()', () => {
-    //     it('adds group to active cache', () => {});
-    // });
+        it('returns false if currentIndex is 0', () => {
+            const history = new UndoHistory();
+            expect(history.canRewind()).toBeFalsy();
+        });
+    });
 
-    // describe('stopGroup()', () => {
-    //     it("throws if group wasn't active", () => {});
+    describe('canFastForward()', () => {
+        it('returns true if events length > 0, and current index is less than events length', () => {
+            const history = new UndoHistory();
+            history.push({ payload: {} } as any);
+            history.push({ payload: {} } as any);
+            history.push({ payload: {} } as any);
 
-    //     it('removes group from active', () => {});
-    // });
+            history['_currentIndex'] = 1;
+            expect(history.canFastForward()).toBeTruthy();
+        });
+
+        it('returns false if events is 0', () => {
+            const history = new UndoHistory();
+            expect(history.canFastForward()).toBeFalsy();
+        });
+
+        it('returns false if current index is not less than events length', () => {
+            const history = new UndoHistory();
+            history.push({ payload: {} } as any);
+            history.push({ payload: {} } as any);
+            history.push({ payload: {} } as any);
+
+            expect(history.canFastForward()).toBeFalsy();
+        });
+    });
+
+    describe('startGroup()', () => {
+        it('creates new active group on map', () => {
+            const history = new UndoHistory();
+            const id = history.startGroup();
+
+            expect(typeof id).toBe('string');
+            expect(history['_activeGroups'][id]).not.toBeNull();
+        });
+    });
+
+    describe('stopGroup()', () => {
+        it('throws if no group to stop', () => {
+            const history = new UndoHistory();
+            expect(() => history.stopGroup('foo')).toThrow();
+        });
+
+        it('deletes group', () => {
+            const history = new UndoHistory();
+            const id = history.startGroup();
+
+            history.stopGroup(id);
+            expect(history['_activeGroups'][id]).toBeUndefined();
+        });
+    });
 });
