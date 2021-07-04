@@ -14,6 +14,7 @@ import { persist } from '@/store/plugins/persist/persist';
 import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
 import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';
+import { testModule } from '@/store/class-modules/decorators';
 export default {
     components: { Cursor },
     setup: () => {
@@ -31,6 +32,8 @@ export default {
             mouseObjectManager.dispose();
             shortcutManager.dispose();
         });
+
+        testModule.method();
     }
 };
 </script>
