@@ -43,12 +43,12 @@ export const mutations: MutationTree<GlobalNavigation> = {
     SET_NOTEBOOKS_EXPANDED(s, { value: newValue }: { value: boolean }) {
         s.notebooks.expanded = newValue;
     },
-    SET_NOTEBOOKS_INPUT(s, newValue: string) {
+    SET_NOTEBOOKS_INPUT(s, { value }: { value: string }) {
         if (s.notebooks.input == null) {
             throw Error('No notebook input to update.');
         }
 
-        s.notebooks.input.value = newValue;
+        s.notebooks.input.value = value;
     },
     START_NOTEBOOKS_INPUT(s, { notebook, parentId }: { notebook?: { id: string; value: string }; parentId?: string }) {
         if (notebook != null) {
@@ -69,7 +69,7 @@ export const mutations: MutationTree<GlobalNavigation> = {
     CLEAR_NOTEBOOKS_INPUT(s) {
         delete s.notebooks.input;
     },
-    SET_NOTEBOOKS_DRAGGING(s, newValue: string) {
-        s.notebooks.dragging = newValue;
+    SET_NOTEBOOKS_DRAGGING(s, { value }: { value: string }) {
+        s.notebooks.dragging = value;
     }
 };
