@@ -107,7 +107,7 @@ describe('UndoModule', () => {
 
             // Check that N - 1 mutations was replayed
             expect(commit.mock.calls[1][0]).toBe('a');
-            expect(commit.mock.calls[1][1]._undo.isReplay).toBe(true);
+            expect(commit.mock.calls[1][1].undo.isReplay).toBe(true);
         });
     });
 
@@ -134,9 +134,10 @@ describe('UndoModule', () => {
         });
     });
 
-    describe('startGroup()', () => {
-        it('calls startGroup() on history and returns id', () => {
-            const getStore = () => ({ commit: jest.fn() as any } as Store<any>);
+    describe('group()', () => {
+        it('starts and stops group with the module', async () => {
+            const commit = jest.fn() as any;
+            const getStore = () => ({ commit } as Store<any>);
 
             const undoModule = new UndoModule({}, getStore, {
                 name: 'foo',
@@ -145,34 +146,12 @@ describe('UndoModule', () => {
                 stateCacheInterval: 10
             });
 
-            undoModule.push({ type: 'a', payload: {} });
-            undoModule['_history']['_currentIndex'] = 0;
+            const startSpy = jest.spyOn(UndoHistory.prototype as any, 'startGroup');
+            const stopSpy = jest.spyOn(UndoHistory.prototype as any, 'stopGroup');
 
-            const spy = jest.spyOn(UndoHistory.prototype as any, 'startGroup');
-            const id = undoModule.startGroup();
-            expect(spy).toBeCalled();
-        });
-    });
-
-    describe('stopGroup()', () => {
-        it('calls stopGroup() on history', () => {
-            const getStore = () => ({ commit: jest.fn() as any } as Store<any>);
-
-            const undoModule = new UndoModule({}, getStore, {
-                name: 'foo',
-                namespace: 'foo',
-                setStateMutation: 'SET_STATE',
-                stateCacheInterval: 10
-            });
-
-            undoModule.push({ type: 'a', payload: {} });
-            undoModule['_history']['_currentIndex'] = 0;
-
-            const id = undoModule.startGroup();
-
-            const spy = jest.spyOn(UndoHistory.prototype as any, 'stopGroup');
-            undoModule.stopGroup(id);
-            expect(spy).toBeCalled();
+            await undoModule.group(getStore);
+            expect(startSpy).toHaveBeenCalled();
+            expect(stopSpy).toHaveBeenCalled();
         });
     });
 
@@ -301,7 +280,7 @@ describe('UndoModule', () => {
             const mut: MutationPayload = {
                 type: 'foo',
                 payload: {
-                    _undo: {
+                    undo: {
                         redoCallback: redoCB,
                         undoCallback: undoCB
                     }
@@ -331,7 +310,7 @@ describe('UndoModule', () => {
             const mut: MutationPayload = {
                 type: 'foo',
                 payload: {
-                    _undo: {
+                    undo: {
                         redoCallback: redoCB,
                         undoCallback: undoCB
                     }

@@ -102,20 +102,21 @@ export class UndoModule {
     }
 
     /**
-     * Start a new mutation group. A mutation group is a unit of work that will be undone,
-     * redone all at once.
-     * @returns The id of the newly created mutation group.
+     * Create a new undo group that bunches multiple commits into one undo.
+     * @param handle The callback that will contain the commits of the group.
      */
-    startGroup(): string {
-        return this._history.startGroup();
-    }
+    async group(handle: (undo: UndoMetadata) => any) {
+        const groupId = this._history.startGroup();
+        const metaData: UndoMetadata = { groupId };
 
-    /**
-     * Stop an undo mutation group so no more mutations can be added to it.
-     * @param id The id of the active mutation group to finalize
-     */
-    stopGroup(id: string) {
-        this._history.stopGroup(id);
+        // Handles can be async, or sync because not all actions will be async
+        if (isAsync(handle)) {
+            await handle(metaData);
+        } else {
+            handle(metaData);
+        }
+
+        this._history.stopGroup(groupId);
     }
 
     /**
@@ -145,7 +146,7 @@ export class UndoModule {
      * @param mode If the replay is an undo, or redo.
      */
     private async _notifyCallbacks(mutation: MutationPayload, mode: UndoReplayMode) {
-        const metadata = mutation.payload._undo as UndoMetadata;
+        const metadata = mutation.payload.undo as UndoMetadata;
         let callback;
 
         // Stop if no metadata

@@ -110,43 +110,6 @@ describe('undo vuex plugin', () => {
         });
     });
 
-    describe('group()', () => {
-        // it('throws if no module found', async () => {
-        //     const s = undo.plugin({ commit: jest.fn(), subscribe: jest.fn() } as any);
-        //     undo.registerModule(
-        //         { foo: 1 },
-        //         {
-        //             name: 'foo',
-        //             namespace: 'fooNamespace',
-        //             setStateMutation: 'SET_STATE',
-        //             stateCacheInterval: 100
-        //         }
-        //     );
-
-        //     await expect(async () => await undo.group('bar', () => {})).toThrow();
-        // });
-
-        it('starts and stops group with the module', async () => {
-            const s = undo.plugin({ commit: jest.fn(), subscribe: jest.fn() } as any);
-            undo.registerModule(
-                { foo: 1 },
-                {
-                    name: 'foo',
-                    namespace: 'fooNamespace',
-                    setStateMutation: 'SET_STATE',
-                    stateCacheInterval: 100
-                }
-            );
-
-            const startSpy = jest.spyOn(UndoHistory.prototype as any, 'startGroup');
-            const stopSpy = jest.spyOn(UndoHistory.prototype as any, 'stopGroup');
-
-            await undo.group('foo', () => {});
-            expect(startSpy).toHaveBeenCalled();
-            expect(stopSpy).toHaveBeenCalled();
-        });
-    });
-
     describe('onMutation()', () => {
         it('does nothing on non tracked module', () => {
             const s = undo.plugin({ commit: jest.fn(), subscribe: jest.fn() } as any);
@@ -227,10 +190,7 @@ describe('undo vuex plugin', () => {
                 }
             );
 
-            undo.onMutation(
-                { type: 'fooNamespace/SAVE_THAT', payload: { val: 1, _undo: { ignore: true } } },
-                {} as any
-            );
+            undo.onMutation({ type: 'fooNamespace/SAVE_THAT', payload: { val: 1, undo: { ignore: true } } }, {} as any);
 
             const m = undo.getModule('foo');
             expect(m['_history'].events).toHaveLength(0);

@@ -40,14 +40,14 @@ export class UndoHistory {
      */
     push(e: MutationPayload) {
         // Populate empty metadata in case it's missing. Not really needed, but makes our life easier.
-        e.payload._undo ??= {};
+        e.payload.undo ??= {};
 
         // Grouped mutation
-        if (e.payload._undo.groupId != null) {
-            const g = this._activeGroups[e.payload._undo.groupId];
+        if (e.payload.undo.groupId != null) {
+            const g = this._activeGroups[e.payload.undo.groupId];
 
             if (g == null) {
-                throw Error(`No undo group ${e.payload._undo.groupId} found. Did you wrap the commit inside a undoGroup?`);
+                throw Error(`No undo group ${e.payload.undo.groupId} found. Did you wrap the commit inside a undoGroup?`);
             }
 
             g.mutations.push(e);
@@ -63,7 +63,7 @@ export class UndoHistory {
             // Did we rewind?
             if (this._events.length > this._currentIndex) {
                 // Edge case of changing directions. IE undid 1 or more mutations, and then proceeded to add new mutations
-                if (!e.payload._undo.isReplay) {
+                if (!e.payload.undo.isReplay) {
                     this._events = [...this._events.slice(0, this.currentIndex), e];
                     this._currentIndex = this._events.length;
                 } else {
@@ -89,10 +89,10 @@ export class UndoHistory {
 
         for (const mutation of toReplay) {
             if (isUndoGroup(mutation)) {
-                mutation.mutations.forEach(m => (m.payload._undo = { isReplay: true } as UndoMetadata));
+                mutation.mutations.forEach(m => (m.payload.undo = { isReplay: true } as UndoMetadata));
             } else {
-                mutation.payload._undo ??= {};
-                mutation.payload._undo.isReplay = true;
+                mutation.payload.undo ??= {};
+                mutation.payload.undo.isReplay = true;
             }
         }
 
@@ -115,10 +115,10 @@ export class UndoHistory {
         const toReplay = this._events[nextIndex];
 
         if (isUndoGroup(toReplay)) {
-            toReplay.mutations.forEach(m => (m.payload._undo = { isReplay: true } as UndoMetadata));
+            toReplay.mutations.forEach(m => (m.payload.undo = { isReplay: true } as UndoMetadata));
         } else {
-            toReplay.payload._undo ??= {};
-            toReplay.payload._undo.isReplay = true;
+            toReplay.payload.undo ??= {};
+            toReplay.payload.undo.isReplay = true;
         }
 
         return toReplay;

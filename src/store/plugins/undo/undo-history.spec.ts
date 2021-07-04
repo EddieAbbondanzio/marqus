@@ -25,7 +25,7 @@ describe('UndoHistory', () => {
             const mut: MutationPayload = {
                 type: 'foo',
                 payload: {
-                    _undo: {
+                    undo: {
                         groupId: id
                     }
                 }
@@ -43,7 +43,7 @@ describe('UndoHistory', () => {
             const mut: MutationPayload = {
                 type: 'foo',
                 payload: {
-                    _undo: {
+                    undo: {
                         groupId: '1234'
                     }
                 }
@@ -67,7 +67,7 @@ describe('UndoHistory', () => {
 
             history.push({
                 type: 'foo',
-                payload: { value: 1, _undo: { isReplay: true } as UndoMetadata }
+                payload: { value: 1, undo: { isReplay: true } as UndoMetadata }
             });
 
             expect(history['_events']).toHaveLength(2);
@@ -104,7 +104,7 @@ describe('UndoHistory', () => {
             const toReplay = history.rewind(0);
 
             expect(toReplay).toHaveLength(1);
-            expect((toReplay[0] as MutationPayload).payload._undo).toHaveProperty('isReplay', true);
+            expect((toReplay[0] as MutationPayload).payload.undo).toHaveProperty('isReplay', true);
         });
     });
 
@@ -125,7 +125,7 @@ describe('UndoHistory', () => {
 
             const mut = history.fastForward();
             expect(mut).toHaveProperty('type', 'foo');
-            expect((mut as MutationPayload).payload._undo).toHaveProperty('isReplay', true);
+            expect((mut as MutationPayload).payload.undo).toHaveProperty('isReplay', true);
         });
     });
 

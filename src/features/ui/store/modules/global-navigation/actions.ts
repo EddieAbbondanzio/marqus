@@ -7,7 +7,11 @@ import { confirmReplaceNotebook } from '@/utils/prompts/confirm-replace-notebook
 import { Action, ActionContext, ActionTree } from 'vuex';
 import { GlobalNavigation, GlobalNavigationActive } from './state';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
-import { undo } from '@/store/plugins/undo/undo';
+import { undo as undoPlugin } from '@/store/plugins/undo/undo';
+import { UndoMetadata } from '@/store/plugins/undo/types';
+import { generateUndoGroupUtil } from '@/store/plugins/undo/generate-undo-group-utility';
+
+const group = generateUndoGroupUtil('globalNavigation');
 
 export const actions: ActionTree<GlobalNavigation, State> = {
     setActive({ commit }, a: GlobalNavigationActive) {
@@ -27,9 +31,9 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             }
         }
 
-        undo.group('globalNavigation', (undoGroup) => {
-            commit('START_TAGS_INPUT', { tag, undoGroup });
-            commit('SET_TAGS_EXPANDED', { value: true, undoGroup });
+        group((undo) => {
+            commit('START_TAGS_INPUT', { tag, undo });
+            commit('SET_TAGS_EXPANDED', { value: true, undo });
         });
     },
     tagInputUpdated({ commit, state }, val: string) {
@@ -38,21 +42,23 @@ export const actions: ActionTree<GlobalNavigation, State> = {
     tagInputConfirm({ commit, state }) {
         const tag = Object.assign({} as Tag, state.tags.input);
 
-        switch (state.tags.input!.mode) {
-            case 'create':
-                commit('tags/CREATE', tag, { root: true });
-                break;
+        group((undo) => {
+            switch (state.tags.input!.mode) {
+                case 'create':
+                    commit('tags/CREATE', tag, { root: true });
+                    break;
 
-            case 'update':
-                commit('tags/SET_NAME', tag, { root: true });
-                break;
+                case 'update':
+                    commit('tags/SET_NAME', tag, { root: true });
+                    break;
 
-            default:
-                throw Error(`Invalid tag input mode: ${state.tags.input!.mode}`);
-        }
+                default:
+                    throw Error(`Invalid tag input mode: ${state.tags.input!.mode}`);
+            }
 
-        commit('tags/SORT', null, { root: true });
-        commit('CLEAR_TAGS_INPUT');
+            commit('tags/SORT', null, { root: true });
+            commit('CLEAR_TAGS_INPUT');
+        });
     },
     tagInputCancel({ commit, state }) {
         commit('CLEAR_TAGS_INPUT');

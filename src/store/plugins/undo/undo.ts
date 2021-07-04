@@ -1,6 +1,6 @@
 import { UndoModule } from '@/store/plugins/undo/undo-module';
 import { splitMutationAndNamespace } from '@/store/utils/split-mutation-and-namespace';
-import { UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
+import { UndoMetadata, UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
 import { isAsync } from '@/store/plugins/undo/is-async';
 import { MutationPayload, Store } from 'vuex';
 
@@ -64,35 +64,12 @@ export const undo = {
 
         return module;
     },
-    /**
-     * Create a new undo group that bunches multiple commits into one undo.
-     * @param moduleName The name of the module to put it under.
-     * @param handle The callback that will contain the commits of the group.
-     */
-    async group(moduleName: string, handle: (undoGroup: string) => any) {
-        const m = Object.values(state.modules).find(m => m.settings.name === moduleName);
-
-        if (m == null) {
-            throw Error(`No module with name ${moduleName} found.`);
-        }
-
-        const groupId = m.startGroup();
-
-        // Handles can be async, or sync because not all actions will be async
-        if (isAsync(handle)) {
-            await handle(groupId);
-        } else {
-            handle(groupId);
-        }
-
-        m.stopGroup(groupId);
-    },
     onMutation(mutation: MutationPayload, s: Store<any>) {
         const [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
         const module = state.modules[namespace];
 
         mutation.payload ??= {}
-        mutation.payload._undo ??= {};
+        mutation.payload.undo ??= {};
 
         // If no module was found, we're not tracking it. Stop.
         if (module == null) {
@@ -100,7 +77,7 @@ export const undo = {
         }
 
         // Check it's not on the mutation ignore list for the module
-        if (mutation.payload._undo.ignore || state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
+        if (mutation.payload.undo.ignore || state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
             return;
         }
 
