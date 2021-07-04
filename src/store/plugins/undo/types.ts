@@ -15,9 +15,16 @@ export interface UndoModuleSettings {
     ignore?: string[];
 }
 
+export type UndoReplayMode = 'undo' | 'redo';
+
+export type UndoCallback = (mutation: MutationPayload) => Promise<any>;
+
 export interface UndoMetadata {
     groupId?: string;
     isReplay?: boolean;
+    ignore?: boolean;
+    undoCallback?: UndoCallback;
+    redoCallback?: UndoCallback;
 }
 
 /**

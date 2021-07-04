@@ -53,7 +53,7 @@ export class UndoHistory {
             g.mutations.push(e);
 
             // On first mutation added, add it to the event history
-            if(g.mutations.length == 1) {
+            if (g.mutations.length === 1) {
                 this._events.push(g);
                 this._currentIndex++;
             }

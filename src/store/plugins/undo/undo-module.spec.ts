@@ -2,7 +2,7 @@ import { UndoItemOrGroup } from '@/store/plugins/undo/types';
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { UndoModule } from '@/store/plugins/undo/undo-module';
 import { UndoStateCache } from '@/store/plugins/undo/undo-state-cache';
-import { Store } from 'vuex';
+import { MutationPayload, Store } from 'vuex';
 
 describe('UndoModule', () => {
     describe('push()', () => {
@@ -193,8 +193,8 @@ describe('UndoModule', () => {
                 { type: 'b', payload: {} }
             ];
 
-            undoModule['_replayMutations'](mutations);
-            expect(commit).toHaveBeenCalledTimes(2);
+            undoModule['_replayMutations'](mutations, 'redo');
+            expect(commit).toHaveBeenCalled();
         });
 
         it('commits group mutations', () => {
@@ -218,8 +218,137 @@ describe('UndoModule', () => {
                 }
             ];
 
-            undoModule['_replayMutations'](mutations);
-            expect(commit).toHaveBeenCalledTimes(2);
+            undoModule['_replayMutations'](mutations, 'redo');
+            expect(commit).toHaveBeenCalled();
+        });
+
+        it('notifies a single callbacks', () => {
+            const commit = jest.fn() as any;
+            const getStore = () => ({ commit } as Store<any>);
+            const spy = jest.spyOn(UndoModule.prototype as any, '_notifyCallbacks');
+
+            const mutations: UndoItemOrGroup[] = [
+                { type: 'a', payload: {} },
+                { type: 'b', payload: {} }
+            ];
+
+            const undoModule = new UndoModule({}, getStore, {
+                name: 'foo',
+                namespace: 'foo',
+                setStateMutation: 'SET_STATE',
+                stateCacheInterval: 10
+            });
+
+            undoModule['_replayMutations'](mutations, 'undo');
+            expect(spy).toHaveBeenCalled();
+        });
+
+        it('notifies callbacks on each group of a mutation', () => {
+            const commit = jest.fn() as any;
+            const getStore = () => ({ commit } as Store<any>);
+            const spy = jest.spyOn(UndoModule.prototype as any, '_notifyCallbacks');
+
+            const undoModule = new UndoModule({}, getStore, {
+                name: 'foo',
+                namespace: 'foo',
+                setStateMutation: 'SET_STATE',
+                stateCacheInterval: 10
+            });
+
+            const mutations: UndoItemOrGroup[] = [
+                {
+                    id: '1',
+                    mutations: [
+                        { type: 'a', payload: {} },
+                        { type: 'b', payload: {} }
+                    ]
+                }
+            ];
+
+            undoModule['_replayMutations'](mutations, 'redo');
+            expect(spy).toHaveBeenCalled();
+        });
+    });
+
+    describe('_notifyCallbacks()', () => {
+        it('stops when metadata is null', () => {
+            const commit = jest.fn() as any;
+            const getStore = () => ({ commit } as Store<any>);
+            const mut: MutationPayload = {
+                type: 'foo',
+                payload: {}
+            };
+
+            const undoModule = new UndoModule({}, getStore, {
+                name: 'foo',
+                namespace: 'foo',
+                setStateMutation: 'SET_STATE',
+                stateCacheInterval: 10
+            });
+
+            expect(() => {
+                undoModule['_notifyCallbacks'](mut, 'undo');
+            }).not.toThrow();
+        });
+
+        it('calls redo callback', () => {
+            const commit = jest.fn() as any;
+            const getStore = () => ({ commit } as Store<any>);
+
+            const redoCB = jest.fn();
+            const undoCB = jest.fn();
+
+            const mut: MutationPayload = {
+                type: 'foo',
+                payload: {
+                    _undo: {
+                        redoCallback: redoCB,
+                        undoCallback: undoCB
+                    }
+                }
+            };
+
+            const undoModule = new UndoModule({}, getStore, {
+                name: 'foo',
+                namespace: 'foo',
+                setStateMutation: 'SET_STATE',
+                stateCacheInterval: 10
+            });
+
+            undoModule['_notifyCallbacks'](mut, 'redo');
+
+            expect(redoCB).toHaveBeenCalled();
+            expect(undoCB).not.toHaveBeenCalled();
+        });
+
+        it('calls undo callback', () => {
+            const commit = jest.fn() as any;
+            const getStore = () => ({ commit } as Store<any>);
+
+            const redoCB = jest.fn();
+            const undoCB = jest.fn();
+
+            const mut: MutationPayload = {
+                type: 'foo',
+                payload: {
+                    _undo: {
+                        redoCallback: redoCB,
+                        undoCallback: undoCB
+                    }
+                }
+            };
+
+            const undoModule = new UndoModule({}, getStore, {
+                name: 'foo',
+                namespace: 'foo',
+                setStateMutation: 'SET_STATE',
+                stateCacheInterval: 10
+            });
+
+            undoModule['_notifyCallbacks'](mut, 'undo');
+
+            expect(undoCB).toHaveBeenCalled();
+            expect(redoCB).not.toHaveBeenCalled();
         });
     });
 });

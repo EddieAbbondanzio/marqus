@@ -1,10 +1,17 @@
-import { isUndoGroup, UndoItemOrGroup, UndoModuleSettings } from '@/store/plugins/undo/types';
+import {
+    isUndoGroup,
+    UndoItemOrGroup,
+    UndoMetadata,
+    UndoModuleSettings,
+    UndoReplayMode
+} from '@/store/plugins/undo/types';
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { UndoStateCache } from '@/store/plugins/undo/undo-state-cache';
 import { MutationPayload, Store } from 'vuex';
 import { v4 as uuidv4 } from 'uuid';
 import { getNamespacedState } from '@/store/utils/get-namespaced-state';
 import _ from 'lodash';
+import { isAsync } from '@/store/plugins/undo/is-async';
 
 /**
  * Module that retains it's own history state and handles undo / redo. Used in
@@ -75,7 +82,7 @@ export class UndoModule {
     /**
      * Undo the last mutation, or group. Throws if none.
      */
-    undo() {
+    async undo() {
         // Roll back to most recently cached state
         const cached = this._stateCache.getLast(this._history.currentIndex);
         const store = this._getStore();
@@ -83,15 +90,15 @@ export class UndoModule {
 
         // Reapply (N - 1) mutations to get to the desired state.
         const mutations = this._history.rewind(cached.index);
-        this._replayMutations(mutations);
+        await this._replayMutations(mutations, 'undo');
     }
 
     /**
      * Redo the last undone mutation or group. Throws if none.
      */
-    redo() {
+    async redo() {
         const mutation = this._history.fastForward();
-        this._replayMutations([mutation]);
+        await this._replayMutations([mutation], 'redo');
     }
 
     /**
@@ -114,17 +121,53 @@ export class UndoModule {
     /**
      * Replay the mutations in the order they came in.
      * @param mutations The mutations to reapply.
+     * @param mode If the replay is an undo, or redo.
      */
-    private _replayMutations(mutations: UndoItemOrGroup[]) {
+    private async _replayMutations(mutations: UndoItemOrGroup[], mode: UndoReplayMode) {
         const store = this._getStore();
 
         for (const event of mutations) {
             if (isUndoGroup(event)) {
                 for (const mutation of event.mutations) {
                     store.commit(mutation.type, mutation.payload);
+                    await this._notifyCallbacks(mutation, mode);
                 }
             } else {
                 store.commit(event.type, event.payload);
+                await this._notifyCallbacks(event, mode);
+            }
+        }
+    }
+
+    /**
+     * Notify the undo / redo callback of a mutation depending on the mode.
+     * @param mutation The mutation to notify callbacks of.
+     * @param mode If the replay is an undo, or redo.
+     */
+    private async _notifyCallbacks(mutation: MutationPayload, mode: UndoReplayMode) {
+        const metadata = mutation.payload._undo as UndoMetadata;
+        let callback;
+
+        // Stop if no metadata
+        if (metadata == null) {
+            return;
+        }
+
+        switch (mode) {
+            case 'redo':
+                callback = metadata.redoCallback;
+                break;
+
+            case 'undo':
+                callback = metadata.undoCallback;
+                break;
+        }
+
+        if (callback != null) {
+            if (isAsync(callback)) {
+                await callback(mutation);
+            } else {
+                callback(mutation);
             }
         }
     }

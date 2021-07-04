@@ -213,6 +213,28 @@ describe('undo vuex plugin', () => {
             const m = undo.getModule('foo');
             expect(m['_history'].events).toHaveLength(1);
         });
+
+        it('ignores if metadata has ignore flag set', () => {
+            const s = undo.plugin({ commit: jest.fn(), subscribe: jest.fn() } as any);
+            undo.registerModule(
+                { foo: 1 },
+                {
+                    name: 'foo',
+                    namespace: 'fooNamespace',
+                    setStateMutation: 'SET_STATE',
+                    stateCacheInterval: 100,
+                    ignore: ['IGNORED_MUT']
+                }
+            );
+
+            undo.onMutation(
+                { type: 'fooNamespace/SAVE_THAT', payload: { val: 1, _undo: { ignore: true } } },
+                {} as any
+            );
+
+            const m = undo.getModule('foo');
+            expect(m['_history'].events).toHaveLength(0);
+        });
     });
 
     describe('reset()', () => {

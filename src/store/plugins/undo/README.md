@@ -29,6 +29,8 @@ undo.group('namespaceFoo', (undoGroup) => {
 });
 ```
 
+## Callbacks
+
 # A Word of Caution
 
 The plugin itself is written in a slightly complex manner because there are a few edge cases that need to be considered. For example, since mutations can be commited async (IE in an action, or async method) we can't always guarantee they were commited in a sequential order. A long running task that commits several mutations over a few seconds could be executed at the same time as other taks.

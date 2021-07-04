@@ -87,22 +87,22 @@ export const undo = {
 
         m.stopGroup(groupId);
     },
-    onMutation(mutation: MutationPayload, s: Store<any>)  {
+    onMutation(mutation: MutationPayload, s: Store<any>) {
         const [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
         const module = state.modules[namespace];
-    
+
+        mutation.payload ??= {}
+        mutation.payload._undo ??= {};
+
         // If no module was found, we're not tracking it. Stop.
         if (module == null) {
             return;
         }
-    
+
         // Check it's not on the mutation ignore list for the module
-        if (state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
+        if (mutation.payload._undo.ignore || state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
             return;
         }
-        
-        
-        mutation.payload ??= {}
 
         // Throw if the payload was not an object. Required so we can add some metadata to it.
         if (typeof mutation.payload !== 'object') {
@@ -111,7 +111,7 @@ export const undo = {
                 Mutation ${mutation.type} must have an object parameter, or be added to the ignore list.`
             );
         }
-    
+
         // Add event to the modules history
         state.modules[namespace].push(mutation);
     },
