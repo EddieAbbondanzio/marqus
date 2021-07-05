@@ -1,11 +1,52 @@
-import { store } from '@/store';
-import { ModuleConstructor, VuexModule } from '@/store/class-modules/module-definition';
-import { moduleRegistry } from '@/store/class-modules/module-registry';
+import { createVuexModule } from '@/store/class-modules/create-vuex-module';
+import { VuexModule, VuexModuleConstructor, VuexModuleOptions } from '@/store/class-modules/vuex-module-definition';
+import { moduleRegistry } from '@/store/class-modules/vuex-module-registry';
 import { Store } from 'vuex';
 
-export function Module(namespace: string) {
-    return (target: ModuleConstructor) => {
-        moduleRegistry.add(namespace, target);
+/**
+ * Specify options such as namespace of a vuex module class.
+ * @param options Various options for the module.
+ */
+export function Module(options: VuexModuleOptions) {
+    /*
+     * This decorator may feel a little useless, but it's so we can keep our module constructor
+     * type definition simple.
+     */
+    return (target: VuexModuleConstructor) => {
+        const m = moduleRegistry.getDefinition(target);
+        m.namespace = options.namespace;
+    };
+}
+
+export function Mutation(options?: { name?: string }) {
+    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+        const m = moduleRegistry.getDefinition(target);
+
+        const name = options?.name ?? propertyKey;
+
+        // Check we don't have a duplicate.
+        if (m.mutations[name] != null) {
+            throw Error(`Mutation with name ${name} already exists for module ${m.namespace}`);
+        }
+
+        // Save off a reference to the method
+        m.mutations[name] = target[propertyKey];
+    };
+}
+
+export function Action(options: { name?: string }) {
+    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+        const m = moduleRegistry.getDefinition(target);
+
+        const name = options?.name ?? propertyKey;
+
+        // Check we don't have a duplicate.
+        if (m.actions[name] != null) {
+            throw Error(`Action with name ${name} already exists for module ${m.namespace}`);
+        }
+
+        // Save off a reference to the method
+        m.actions[name] = target[propertyKey];
     };
 }
 
@@ -13,23 +54,11 @@ export function Module(namespace: string) {
 //     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {};
 // }
 
-// export function Action() {
-//     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {};
-// }
-
 // export function Getter() {
 //     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {};
 // }
 
-export function Mutation() {
-    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-        console.log('target: ', target);
-        console.log('propertyKey: ', propertyKey);
-        console.log('descriptor: ', descriptor);
-    };
-}
-
-@Module('test')
+@Module({ namespace: 'test' })
 export class TestClass extends VuexModule {
     testProperty = 'fish goes blub blub';
 
@@ -44,4 +73,4 @@ export class TestClass extends VuexModule {
     }
 }
 
-export const testModule = new TestClass(store);
+export const testModule = createVuexModule(TestClass);
