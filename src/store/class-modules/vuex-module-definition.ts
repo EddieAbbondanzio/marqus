@@ -11,6 +11,8 @@ export type MutationFunction = (arg: any) => void;
 export type ActionFunction = (arg: any) => void | Promise<void>;
 
 export abstract class VuexModule {
+    [property: string]: any;
+
     constructor(store: Store<any>) {
         // the store parameter is just a trick so we can get our module decorators to fire.
     }

@@ -21,7 +21,9 @@ export default {
         const s = useStore();
 
         onMounted(() => {
+            const i = testModule.testProperty;
             persist.init(s);
+            s.commit('test/TEST_MUTATION');
         });
 
         onBeforeUnmount(() => {
@@ -32,8 +34,6 @@ export default {
             mouseObjectManager.dispose();
             shortcutManager.dispose();
         });
-
-        testModule.method();
     }
 };
 </script>

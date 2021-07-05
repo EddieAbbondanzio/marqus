@@ -22,9 +22,4 @@ describe('@Module()', () => {
         Module({ namespace: 'foo' })(null!);
         expect(mockModule.namespace).toBe('foo');
     });
-
-    it('does not set namespace if none was passed', () => {
-        Module()(null!);
-        expect(mockModule.namespace).toBe('orig');
-    });
 });

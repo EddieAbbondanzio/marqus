@@ -1,7 +1,9 @@
-import { createVuexModule } from '@/store/class-modules/create-vuex-module';
+import { registerModule } from '@/store/class-modules/utils/register-module';
 import { VuexModule, VuexModuleConstructor, VuexModuleOptions } from '@/store/class-modules/vuex-module-definition';
 import { moduleRegistry } from '@/store/class-modules/vuex-module-registry';
 import { Store } from 'vuex';
+
+export type DecoratorTarget = { [property: string]: any; constructor: any };
 
 /**
  * Specify options such as namespace of a vuex module class.
@@ -19,8 +21,8 @@ export function Module(options: VuexModuleOptions) {
 }
 
 export function Mutation(options?: { name?: string }) {
-    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-        const m = moduleRegistry.getDefinition(target);
+    return (target: DecoratorTarget, propertyKey: string) => {
+        const m = moduleRegistry.getDefinition(target.constructor);
 
         const name = options?.name ?? propertyKey;
 
@@ -35,8 +37,8 @@ export function Mutation(options?: { name?: string }) {
 }
 
 export function Action(options: { name?: string }) {
-    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-        const m = moduleRegistry.getDefinition(target);
+    return (target: DecoratorTarget, propertyKey: string) => {
+        const m = moduleRegistry.getDefinition(target.constructor);
 
         const name = options?.name ?? propertyKey;
 
@@ -67,10 +69,9 @@ export class TestClass extends VuexModule {
     }
 
     @Mutation()
-    method() {
-        const i = 1;
-        return i;
+    TEST_MUTATION() {
+        console.log('test mutation was called!');
     }
 }
 
-export const testModule = createVuexModule(TestClass);
+export const testModule = registerModule(TestClass);
