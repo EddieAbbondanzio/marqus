@@ -26,6 +26,7 @@ export class VuexModuleDefinition {
 
     constructor(public moduleConstructor: VuexModuleConstructor) {}
 
+    state: any = {};
     mutations: { [name: string]: MutationFunction } = {};
     actions: { [name: string]: ActionFunction } = {};
 
@@ -36,6 +37,8 @@ export class VuexModuleDefinition {
             return 'mutation';
         } else if (this.actions[name] != null) {
             return 'action';
+        } else if (name === 'state') {
+            return 'state';
         }
 
         return 'other';

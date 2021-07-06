@@ -31,7 +31,8 @@ export function _generateModule(def: VuexModuleDefinition, proxy: VuexModule): M
 
     const module: Module<any, any> = {
         namespaced: true,
-        mutations
+        mutations,
+        state: def.state
     };
 
     return module;

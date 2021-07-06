@@ -8,8 +8,21 @@ export class VuexModuleProxyHandler {
         switch (this._definition.getPropertyType(propertyName)) {
             case 'mutation':
                 return (arg: any) => this._store.commit(`${this._definition.namespace}/${propertyName}`, arg);
-        }
 
-        return target[propertyName];
+            case 'action':
+                return (arg: any) => this._store.dispatch(`${this._definition.namespace}/${propertyName}`, arg);
+
+            case 'state':
+                // TODO: Add multi-level nested support
+                return this._definition.state;
+
+            case 'getter':
+                // TODO: Add multi-level nested support
+                return this._store.getters[this._definition.namespace!][propertyName];
+
+            // Regular methods and properties on the class.
+            case 'other':
+                return target[propertyName];
+        }
     }
 }

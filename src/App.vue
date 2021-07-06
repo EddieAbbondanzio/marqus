@@ -27,7 +27,10 @@ export default {
 
             console.log('commit test/TEST_MUTATION');
             s.commit('test/TEST_MUTATION', 7);
-            console.log('foo from app is now : ', s.state.test);
+            console.log('foo from app is now : ', s.state.test.foo);
+
+            testModule.TEST_MUTATION(42);
+            console.log('foo from app is now : ', s.state.test.foo);
         });
 
         onBeforeUnmount(() => {

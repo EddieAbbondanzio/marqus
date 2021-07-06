@@ -35,25 +35,28 @@ export function Mutation(options?: { name?: string }) {
     };
 }
 
-// export function Action(options: { name?: string }) {
-//     return (target: DecoratorTarget, propertyKey: string, descriptor: PropertyDescriptor) => {
-//         const m = moduleRegistry.getDefinition(target.constructor);
+export function Action(options: { name?: string }) {
+    return (target: DecoratorTarget, propertyKey: string, descriptor: PropertyDescriptor) => {
+        const definition = moduleRegistry.getDefinition(target.constructor);
 
-//         const name = options?.name ?? propertyKey;
+        const name = options?.name ?? propertyKey;
 
-//         // Check we don't have a duplicate.
-//         if (m.actions[name] != null) {
-//             throw Error(`Action with name ${name} already exists for module ${m.namespace}`);
-//         }
+        // Check we don't have a duplicate.
+        if (definition.actions[name] != null) {
+            throw Error(`Action with name ${name} already exists for module ${definition.namespace}`);
+        }
 
-//         // Save off a reference to the method
-//         m.actions[name] = target[propertyKey];
-//     };
-// }
+        // Save off a reference to the method
+        definition.actions[name] = target[propertyKey];
+    };
+}
 
-// export function State() {
-//     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {};
-// }
+export function State() {
+    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+        const definition = moduleRegistry.getDefinition(target.constructor);
+        definition.state = target[propertyKey];
+    };
+}
 
 // export function Getter() {
 //     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {};
@@ -80,6 +83,6 @@ export class TestClass extends VuexModule {
     }
 }
 
-export const testModule = registerModule(TestClass);
+export const testModule = registerModule<TestClass>(TestClass);
 // testModule.TEST_MUTATION(4);
 // console.log('foo is now: ', testModule.state.foo);
