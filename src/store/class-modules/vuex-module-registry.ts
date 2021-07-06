@@ -9,17 +9,10 @@ export class VuexModuleRegistry {
 
     getDefinition(constructor: VuexModuleConstructor): VuexModuleDefinition {
         let m = this._modules.get(constructor);
-        console.log('get def for: ', constructor);
 
         // If we didn't get a module back, go ahead and create it.
         if (m == null) {
-            m = {
-                namespace: '', // @Module() decorator will set this
-                constructor,
-                actions: {},
-                mutations: {}
-            };
-
+            m = new VuexModuleDefinition(constructor);
             this._modules.set(constructor, m);
         }
 

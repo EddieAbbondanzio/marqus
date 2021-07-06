@@ -23,7 +23,11 @@ export default {
         onMounted(() => {
             const i = testModule.testProperty;
             persist.init(s);
-            s.commit('test/TEST_MUTATION');
+            console.log('foo from app is: ', s.state.test.foo);
+
+            console.log('commit test/TEST_MUTATION');
+            s.commit('test/TEST_MUTATION', 7);
+            console.log('foo from app is now : ', s.state.test);
         });
 
         onBeforeUnmount(() => {

@@ -21,36 +21,35 @@ export function Module(options: VuexModuleOptions) {
 }
 
 export function Mutation(options?: { name?: string }) {
-    return (target: DecoratorTarget, propertyKey: string) => {
-        const m = moduleRegistry.getDefinition(target.constructor);
+    return (target: DecoratorTarget, propertyKey: string, descriptor: PropertyDescriptor) => {
+        const definition = moduleRegistry.getDefinition(target.constructor);
 
         const name = options?.name ?? propertyKey;
 
         // Check we don't have a duplicate.
-        if (m.mutations[name] != null) {
-            throw Error(`Mutation with name ${name} already exists for module ${m.namespace}`);
+        if (definition.mutations[name] != null) {
+            throw Error(`Mutation with name ${name} already exists for module ${definition.namespace}`);
         }
 
-        // Save off a reference to the method
-        m.mutations[name] = target[propertyKey];
+        definition.mutations[name] = target[propertyKey];
     };
 }
 
-export function Action(options: { name?: string }) {
-    return (target: DecoratorTarget, propertyKey: string) => {
-        const m = moduleRegistry.getDefinition(target.constructor);
+// export function Action(options: { name?: string }) {
+//     return (target: DecoratorTarget, propertyKey: string, descriptor: PropertyDescriptor) => {
+//         const m = moduleRegistry.getDefinition(target.constructor);
 
-        const name = options?.name ?? propertyKey;
+//         const name = options?.name ?? propertyKey;
 
-        // Check we don't have a duplicate.
-        if (m.actions[name] != null) {
-            throw Error(`Action with name ${name} already exists for module ${m.namespace}`);
-        }
+//         // Check we don't have a duplicate.
+//         if (m.actions[name] != null) {
+//             throw Error(`Action with name ${name} already exists for module ${m.namespace}`);
+//         }
 
-        // Save off a reference to the method
-        m.actions[name] = target[propertyKey];
-    };
-}
+//         // Save off a reference to the method
+//         m.actions[name] = target[propertyKey];
+//     };
+// }
 
 // export function State() {
 //     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {};
@@ -62,16 +61,25 @@ export function Action(options: { name?: string }) {
 
 @Module({ namespace: 'test' })
 export class TestClass extends VuexModule {
-    testProperty = 'fish goes blub blub';
+    state: any = {
+        foo: 1,
+        bar: 2
+    };
 
     constructor(store: Store<any>) {
         super(store);
     }
 
     @Mutation()
-    TEST_MUTATION() {
-        console.log('test mutation was called!');
+    TEST_MUTATION(newVal: number) {
+        console.log('mut implementation called args:', arguments);
+        console.log('mut implementation this: ', this);
+        // console.log('TEST_MUTATION called. this is: ', this, ' newVal is: ', newVal);
+        this.state.foo = newVal;
+        console.log('foo has been set to: ', newVal);
     }
 }
 
 export const testModule = registerModule(TestClass);
+// testModule.TEST_MUTATION(4);
+// console.log('foo is now: ', testModule.state.foo);
