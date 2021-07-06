@@ -1,17 +1,17 @@
 import { registerModule } from '@/store/class-modules/utils/register-module';
-import {
-    VuexModule,
-    VuexModuleConstructor,
-    VuexModuleOptions,
-    VuexModuleProperty
-} from '@/store/class-modules/vuex-module-definition';
+import { VuexModule, VuexModuleConstructor } from '@/store/class-modules/vuex-module';
+import { VuexModuleProperty } from '@/store/class-modules/vuex-module-definition';
 import { moduleRegistry } from '@/store/class-modules/vuex-module-registry';
 import { Store } from 'vuex';
 
 export type VuexModulePrototype = { [property: string]: any; constructor: any };
 
+export interface VuexModuleOptions {
+    namespace: string;
+}
+
 /**
- * Specify options such as namespace of a vuex module class.
+ * Module class decorator. Used to set the options of a vuex module class.
  * @param options Various options for the module.
  */
 export function Module(options: VuexModuleOptions) {
@@ -42,7 +42,6 @@ export function Mutation(options?: { name?: string }) {
 export function Action(options: { name?: string }) {
     return (target: VuexModulePrototype, propertyKey: string) => {
         const definition = moduleRegistry.getDefinition(target.constructor);
-
         const name = options?.name ?? propertyKey;
 
         // Check we don't have a duplicate.
