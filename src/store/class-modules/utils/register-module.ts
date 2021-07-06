@@ -7,6 +7,19 @@ export function registerModule<TModule extends VuexModule>(constructor: VuexModu
     const def = moduleRegistry.getDefinition(constructor);
     const proxy = def.generateProxy(store) as TModule; // Cast is a little gross...
 
+    if (def.namespace == null) {
+        throw Error(
+            `Vuex class modules only supports namespaced modules. No namespace found for ${def.moduleConstructor}`
+        );
+    }
+
+    const module = _generateModule(def, proxy);
+    store.registerModule(def.namespace, module);
+
+    return proxy;
+}
+
+export function _generateModule(def: VuexModuleDefinition, proxy: VuexModule): Module<any, any> {
     const mutations: any = {};
     for (const [key, value] of Object.entries(def.mutations)) {
         /*
@@ -21,8 +34,5 @@ export function registerModule<TModule extends VuexModule>(constructor: VuexModu
         mutations
     };
 
-    store.registerModule(def.namespace!, module);
-    // console.log('state prop: ', proxy.state.foo);
-
-    return proxy;
+    return module;
 }
