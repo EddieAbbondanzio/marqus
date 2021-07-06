@@ -1,3 +1,4 @@
+import { VuexModuleProxyHandler } from '@/store/class-modules/vuex-module-proxy';
 import { Store } from 'vuex';
 
 export interface VuexModuleOptions {
@@ -40,9 +41,10 @@ export class VuexModuleDefinition {
         return 'other';
     }
 
-    createInstance(store: Store<any>) {
+    generateProxy(store: Store<any>) {
         // eslint-disable-next-line new-cap
         const m = new this.moduleConstructor(store);
-        return m;
+        const proxy = new Proxy(m, new VuexModuleProxyHandler(this, store));
+        return proxy;
     }
 }
