@@ -30,6 +30,7 @@ export default {
 
             testModule.TEST_MUTATION(42);
             console.log('foo from app is now : ', s.state.test.foo);
+            // console.log(' getter: ', s.getters.test.fooBar);
         });
 
         onBeforeUnmount(() => {

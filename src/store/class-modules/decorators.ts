@@ -30,28 +30,25 @@ export function Mutation(options?: { name?: string }) {
         const definition = moduleRegistry.getDefinition(target.constructor);
         const name = options?.name ?? propertyKey;
 
-        // Check we don't have a duplicate.
-        if (definition.mutations[name] != null) {
-            throw Error(`Mutation with name ${name} already exists for module ${definition.namespace}`);
-        }
-
-        definition.mutations[name] = new VuexModuleProperty('mutation', name, target[propertyKey]);
+        definition.addProperty('mutation', name, target[propertyKey]);
     };
 }
 
-export function Action(options: { name?: string }) {
+export function Action(options?: { name?: string }) {
     return (target: VuexModulePrototype, propertyKey: string) => {
         const definition = moduleRegistry.getDefinition(target.constructor);
         const name = options?.name ?? propertyKey;
 
-        // Check we don't have a duplicate.
-        if (definition.actions[name] != null) {
-            throw Error(`Action with name ${name} already exists for module ${definition.namespace}`);
-        }
+        definition.addProperty('action', name, target[propertyKey]);
+    };
+}
 
-        // Save off a reference to the method
-        definition.actions[name] = target[propertyKey];
-        definition.mutations[name] = new VuexModuleProperty('mutation', name, target[propertyKey]);
+export function Getter(options?: { name?: string }) {
+    return (target: any, propertyKey: string) => {
+        const definition = moduleRegistry.getDefinition(target.constructor);
+        const name = options?.name ?? propertyKey;
+
+        definition.addProperty('getter', name, target[propertyKey]);
     };
 }
 
@@ -59,17 +56,23 @@ export function State() {
     return (target: VuexModulePrototype, propertyKey: string) => {
         const definition = moduleRegistry.getDefinition(target.constructor);
 
-        // cache the name of the property
-        definition.state.name = propertyKey;
+        /*
+         * Because decorators are evaluated before instance properties are set, we only update the name for state.
+         */
+        const prop = definition.getProperty('state');
+        prop.name = propertyKey;
     };
 }
 
-// export function Getter() {
-//     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {};
-// }
-
 @Module({ namespace: 'test' })
 export class TestClass extends VuexModule {
+    @Getter()
+    get fooBar() {
+        console.log('gett this is: ', this);
+        return 1;
+        // return this.test.foo + this.test.bar;
+    }
+
     @State()
     test: any = {
         foo: 1,
@@ -82,9 +85,7 @@ export class TestClass extends VuexModule {
 
     @Mutation()
     TEST_MUTATION(newVal: number) {
-        console.log('mut implementation called args:', arguments);
         console.log('mut implementation this: ', this);
-        // console.log('TEST_MUTATION called. this is: ', this, ' newVal is: ', newVal);
         this.state.foo = newVal;
         console.log('foo has been set to: ', newVal);
     }
