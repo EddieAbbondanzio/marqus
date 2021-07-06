@@ -1,9 +1,14 @@
 import { registerModule } from '@/store/class-modules/utils/register-module';
-import { VuexModule, VuexModuleConstructor, VuexModuleOptions } from '@/store/class-modules/vuex-module-definition';
+import {
+    VuexModule,
+    VuexModuleConstructor,
+    VuexModuleOptions,
+    VuexModuleProperty
+} from '@/store/class-modules/vuex-module-definition';
 import { moduleRegistry } from '@/store/class-modules/vuex-module-registry';
 import { Store } from 'vuex';
 
-export type DecoratorTarget = { [property: string]: any; constructor: any };
+export type VuexModulePrototype = { [property: string]: any; constructor: any };
 
 /**
  * Specify options such as namespace of a vuex module class.
@@ -21,9 +26,8 @@ export function Module(options: VuexModuleOptions) {
 }
 
 export function Mutation(options?: { name?: string }) {
-    return (target: DecoratorTarget, propertyKey: string, descriptor: PropertyDescriptor) => {
+    return (target: VuexModulePrototype, propertyKey: string) => {
         const definition = moduleRegistry.getDefinition(target.constructor);
-
         const name = options?.name ?? propertyKey;
 
         // Check we don't have a duplicate.
@@ -31,12 +35,12 @@ export function Mutation(options?: { name?: string }) {
             throw Error(`Mutation with name ${name} already exists for module ${definition.namespace}`);
         }
 
-        definition.mutations[name] = target[propertyKey];
+        definition.mutations[name] = new VuexModuleProperty('mutation', name, target[propertyKey]);
     };
 }
 
 export function Action(options: { name?: string }) {
-    return (target: DecoratorTarget, propertyKey: string, descriptor: PropertyDescriptor) => {
+    return (target: VuexModulePrototype, propertyKey: string) => {
         const definition = moduleRegistry.getDefinition(target.constructor);
 
         const name = options?.name ?? propertyKey;
@@ -48,13 +52,16 @@ export function Action(options: { name?: string }) {
 
         // Save off a reference to the method
         definition.actions[name] = target[propertyKey];
+        definition.mutations[name] = new VuexModuleProperty('mutation', name, target[propertyKey]);
     };
 }
 
 export function State() {
-    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+    return (target: VuexModulePrototype, propertyKey: string) => {
         const definition = moduleRegistry.getDefinition(target.constructor);
-        definition.state = target[propertyKey];
+
+        // cache the name of the property
+        definition.state.name = propertyKey;
     };
 }
 
@@ -64,7 +71,8 @@ export function State() {
 
 @Module({ namespace: 'test' })
 export class TestClass extends VuexModule {
-    state: any = {
+    @State()
+    test: any = {
         foo: 1,
         bar: 2
     };

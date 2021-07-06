@@ -21,7 +21,6 @@ export default {
         const s = useStore();
 
         onMounted(() => {
-            const i = testModule.testProperty;
             persist.init(s);
             console.log('foo from app is: ', s.state.test.foo);
 

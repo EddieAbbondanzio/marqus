@@ -9,7 +9,7 @@ export type VuexModuleConstructor = new (store: Store<any>) => VuexModule;
 
 export type MutationFunction = (payload: any) => void;
 
-export type ActionFunction = (state: any, payload: any) => void | Promise<void>;
+export type ActionFunction = (payload: any) => void | Promise<void>;
 
 export abstract class VuexModule {
     [property: string]: any;
@@ -19,29 +19,39 @@ export abstract class VuexModule {
     }
 }
 
-export type PropertyType = 'state' | 'getter' | 'mutation' | 'action' | 'other';
+export type VuexModulePropertyType = 'state' | 'getter' | 'mutation' | 'action' | 'other';
+
+export class VuexModuleProperty<T> {
+    constructor(public type: VuexModulePropertyType, public name: string, public value: T) {}
+
+    fullyQualify(namespace?: string) {
+        return namespace == null ? this.name : `${namespace}/${this.name}`;
+    }
+}
 
 export class VuexModuleDefinition {
     public namespace?: string;
 
     constructor(public moduleConstructor: VuexModuleConstructor) {}
 
-    state: any = {};
-    mutations: { [name: string]: MutationFunction } = {};
-    actions: { [name: string]: ActionFunction } = {};
+    state: VuexModuleProperty<any> = new VuexModuleProperty('state', 'state', {});
 
-    getPropertyType(name: string): PropertyType {
+    mutations: { [propertyName: string]: VuexModuleProperty<MutationFunction> } = {};
+
+    actions: { [propertyName: string]: VuexModuleProperty<ActionFunction> } = {};
+
+    getProperty<T>(name: string): VuexModuleProperty<T> {
         // TODO: This will probably break on naming collisions.
 
         if (this.mutations[name] != null) {
-            return 'mutation';
+            return this.mutations[name] as any;
         } else if (this.actions[name] != null) {
-            return 'action';
+            return this.actions[name] as any;
         } else if (name === 'state') {
-            return 'state';
+            return this.state;
         }
 
-        return 'other';
+        throw Error(`unsupported ${name}`);
     }
 
     generateProxy(store: Store<any>): VuexModule {
