@@ -1,6 +1,6 @@
 import { registerModule } from '@/store/class-modules/utils/register-module';
 import { VuexModule, VuexModuleConstructor } from '@/store/class-modules/vuex-module';
-import { VuexModuleProperty, VuexModulePropertyType } from '@/store/class-modules/vuex-module-definition';
+import { VuexModuleDefinitionProperty, VuexModulePropertyDefinitionType } from '@/store/class-modules/vuex-module-definition';
 import { moduleRegistry } from '@/store/class-modules/vuex-module-registry';
 import { Store } from 'vuex';
 

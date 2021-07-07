@@ -1,4 +1,4 @@
-import { isAsync } from '@/store/plugins/undo/is-async';
+import { isAsync } from '@/utils/is-async';
 
 describe('isAsync()', () => {
     it('returns true for an async function', () => {
