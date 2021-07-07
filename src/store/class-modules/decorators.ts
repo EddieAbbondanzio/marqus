@@ -44,11 +44,11 @@ export function Action(options?: { name?: string }) {
 }
 
 export function Getter(options?: { name?: string }) {
-    return (target: any, propertyKey: string) => {
+    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         const definition = moduleRegistry.getDefinition(target.constructor);
         const name = options?.name ?? propertyKey;
 
-        definition.addProperty('getter', name, target[propertyKey]);
+        definition.addProperty('getter', name, descriptor.get!);
     };
 }
 
@@ -69,8 +69,7 @@ export class TestClass extends VuexModule {
     @Getter()
     get fooBar() {
         console.log('gett this is: ', this);
-        return 1;
-        // return this.test.foo + this.test.bar;
+        return this.test.foo + this.test.bar;
     }
 
     @State()
@@ -85,12 +84,11 @@ export class TestClass extends VuexModule {
 
     @Mutation()
     TEST_MUTATION(newVal: number) {
-        console.log('mut implementation this: ', this);
         this.state.foo = newVal;
-        console.log('foo has been set to: ', newVal);
     }
 }
 
 export const testModule = registerModule<TestClass>(TestClass);
+// console.log('fooBar is: ', testModule.fooBar);
 // testModule.TEST_MUTATION(4);
 // console.log('foo is now: ', testModule.state.foo);

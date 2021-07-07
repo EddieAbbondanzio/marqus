@@ -22,15 +22,15 @@ export default {
 
         onMounted(() => {
             persist.init(s);
-            console.log('foo from app is: ', s.state.test.foo);
+            // console.log('foo from app is: ', s.state.test);
 
-            console.log('commit test/TEST_MUTATION');
-            s.commit('test/TEST_MUTATION', 7);
-            console.log('foo from app is now : ', s.state.test.foo);
+            // console.log('commit test/TEST_MUTATION');
+            // s.commit('test/TEST_MUTATION', 7);
+            // console.log('foo from app is now : ', s.state.test.foo);
 
             testModule.TEST_MUTATION(42);
-            console.log('foo from app is now : ', s.state.test.foo);
-            // console.log(' getter: ', s.getters.test.fooBar);
+            // console.log('foo from app is now : ', s.state.test.foo);
+            console.log(' getter from app: ', s.getters['test/fooBar']);
         });
 
         onBeforeUnmount(() => {

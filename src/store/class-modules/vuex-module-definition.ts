@@ -71,7 +71,7 @@ export class VuexModuleDefinition {
 
         const getters: any = {};
         for (const getter of Object.values(this._props).filter((p) => p.type === 'getter')) {
-            getters[getter.name] = (_: any, payload: any) => getter.value.call(typeSafeModule, payload);
+            getters[getter.name] = getter.value.bind(typeSafeModule);
         }
 
         const state = Object.values(this._props).find((p) => p.type === 'state')!;
@@ -82,7 +82,7 @@ export class VuexModuleDefinition {
             mutations,
             actions,
             getters,
-            state
+            state: state.value
         };
 
         return module;
