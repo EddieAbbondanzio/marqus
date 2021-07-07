@@ -1,4 +1,4 @@
-import { Queue } from '@/store/plugins/undo/queue';
+import { Queue } from '@/shared/data-structures/queue';
 
 describe('Queue<T>', () => {
     describe('ctor()', () => {

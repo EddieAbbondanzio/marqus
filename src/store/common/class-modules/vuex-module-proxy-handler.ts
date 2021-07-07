@@ -1,5 +1,5 @@
-import { VuexModule } from '@/store/class-modules/vuex-module';
-import { VuexModuleDefinition } from '@/store/class-modules/vuex-module-definition';
+import { VuexModule } from '@/store/common/class-modules/vuex-module';
+import { VuexModuleDefinition } from '@/store/common/class-modules/vuex-module-definition';
 import { Store } from 'vuex';
 
 /**

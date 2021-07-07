@@ -1,5 +1,5 @@
 import { UndoModule } from '@/store/plugins/undo/undo-module';
-import { splitMutationAndNamespace } from '@/store/utils/split-mutation-and-namespace';
+import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
 import { UndoMetadata, UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
 import { MutationPayload, Store } from 'vuex';
 

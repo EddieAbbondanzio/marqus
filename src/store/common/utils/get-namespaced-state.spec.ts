@@ -1,4 +1,4 @@
-import { getNamespacedState } from '@/store/utils/get-namespaced-state';
+import { getNamespacedState } from '@/store/common/utils/get-namespaced-state';
 
 describe('getNamespacedState()', () => {
     it('returns state for root namepsace', () => {

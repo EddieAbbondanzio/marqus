@@ -9,7 +9,7 @@ import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { UndoStateCache } from '@/store/plugins/undo/undo-state-cache';
 import { MutationPayload, Store } from 'vuex';
 import { v4 as uuidv4 } from 'uuid';
-import { getNamespacedState } from '@/store/utils/get-namespaced-state';
+import { getNamespacedState } from '@/store/common/utils/get-namespaced-state';
 import _ from 'lodash';
 import { isAsync } from '@/utils/is-async';
 

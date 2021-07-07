@@ -4,7 +4,7 @@ import { TaskScheduler } from '@/utils/task-scheduler';
 import { MutationPayload, Store } from 'vuex';
 import * as _ from 'lodash';
 import { PersistModule, PersistModuleSettings } from './types';
-import { splitMutationAndNamespace } from '@/store/utils/split-mutation-and-namespace';
+import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
 
 let release: () => void;
 

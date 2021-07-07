@@ -1,7 +1,7 @@
 import { store } from '@/store';
-import { VuexModule, VuexModuleConstructor } from '@/store/class-modules/vuex-module';
-import { VuexModuleDefinition } from '@/store/class-modules/vuex-module-definition';
-import { moduleRegistry } from '@/store/class-modules/vuex-module-registry';
+import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
+import { VuexModuleDefinition } from '@/store/common/class-modules/vuex-module-definition';
+import { moduleRegistry } from '@/store/common/class-modules/vuex-module-registry';
 import { Module, Store } from 'vuex';
 
 /**

@@ -1,5 +1,5 @@
-import { VuexModule, VuexModuleConstructor } from '@/store/class-modules/vuex-module';
-import { VuexModuleProxyHandler } from '@/store/class-modules/vuex-module-proxy-handler';
+import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
+import { VuexModuleProxyHandler } from '@/store/common/class-modules/vuex-module-proxy-handler';
 import { Module, MutationMethod, Store } from 'vuex';
 
 export type MutationFunction = (payload: any) => void;

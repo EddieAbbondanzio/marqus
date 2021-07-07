@@ -1,7 +1,10 @@
-import { registerModule } from '@/store/class-modules/utils/register-module';
-import { VuexModule, VuexModuleConstructor } from '@/store/class-modules/vuex-module';
-import { VuexModuleDefinitionProperty, VuexModulePropertyDefinitionType } from '@/store/class-modules/vuex-module-definition';
-import { moduleRegistry } from '@/store/class-modules/vuex-module-registry';
+import { registerModule } from '@/store/common/class-modules/register-module';
+import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
+import {
+    VuexModuleDefinitionProperty,
+    VuexModulePropertyDefinitionType
+} from '@/store/common/class-modules/vuex-module-definition';
+import { moduleRegistry } from '@/store/common/class-modules/vuex-module-registry';
 import { Store } from 'vuex';
 
 /**

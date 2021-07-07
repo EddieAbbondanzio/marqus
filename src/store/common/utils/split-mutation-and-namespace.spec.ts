@@ -1,4 +1,4 @@
-import { splitMutationAndNamespace } from '@/store/utils/split-mutation-and-namespace';
+import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
 
 describe('splitMutationAndNamespace()', () => {
     it('handles root mutation', () => {

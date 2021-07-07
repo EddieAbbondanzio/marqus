@@ -1,5 +1,5 @@
-import { VuexModule, VuexModuleConstructor } from '@/store/class-modules/vuex-module';
-import { VuexModuleDefinition } from '@/store/class-modules/vuex-module-definition';
+import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
+import { VuexModuleDefinition } from '@/store/common/class-modules/vuex-module-definition';
 
 /**
  * Registry for storing all the vuex module definitions.
