@@ -4,18 +4,34 @@ import { VuexModule } from '@/store/common/class-modules/vuex-module';
 import { Store } from 'vuex';
 
 describe('registerModule()', () => {
+    beforeEach(() => {
+        VuexModule.clearCache();
+    });
+
     it('throws if no namespace', () => {
-        expect(() => registerModule(BadTestModule)).toThrow();
+        expect(() => registerModule(BadTestModule, { registerModule: jest.fn() } as any)).toThrow();
     });
 
     it('returns an instance of the type safe module', () => {
-        const typeSafe = registerModule<TestModule>(TestModule);
+        const typeSafe = registerModule<TestModule>(TestModule, { registerModule: jest.fn() } as any);
         expect(typeSafe).toBeInstanceOf(TestModule);
     });
 
-    it('caches the type safe module', () => {});
+    it('caches the type safe module', () => {
+        const typeSafe = registerModule<TestModule>(TestModule, { registerModule: jest.fn() } as any);
+        const cached = VuexModule['_instances']['test'];
 
-    it('registers an actual instance with the store', () => {});
+        expect(typeSafe).toBe(cached);
+    });
+
+    it('registers an actual instance with the store', () => {
+        const mockStore = {
+            registerModule: jest.fn()
+        };
+
+        const typeSafe = registerModule<TestModule>(TestModule, mockStore as any);
+        expect(mockStore.registerModule).toHaveBeenCalled();
+    });
 
     class BadTestModule extends VuexModule {
         constructor(store: Store<any>) {

@@ -2,6 +2,7 @@ import { VuexModuleConstructor, moduleRegistry } from '@/store';
 
 /**
  * Type signature for the prototype of vuex modules.
+ * Only really here because ts was complainging about the [] notation.
  */
 export type VuexModulePrototype = { [property: string]: any; constructor: any };
 

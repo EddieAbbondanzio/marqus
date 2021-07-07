@@ -1,13 +1,16 @@
-import { store } from '@/store';
 import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
 import { moduleRegistry } from '@/store/common/class-modules/vuex-module-registry';
+import { Store } from 'vuex';
 
 /**
  * Register a module with the vuex store.
  * @param constructor The constructor of the module.
  * @returns Type safe instance that can be used to commit mutations, dispatch actions, get state.
  */
-export function registerModule<TModule extends VuexModule>(constructor: VuexModuleConstructor): TModule {
+export function registerModule<TModule extends VuexModule>(
+    constructor: VuexModuleConstructor,
+    store: Store<any>
+): TModule {
     const definition = moduleRegistry.getDefinition(constructor);
 
     // Only supports namespaced modules right now

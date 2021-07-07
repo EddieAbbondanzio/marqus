@@ -27,6 +27,10 @@ export class VuexModuleRegistry {
 
         return m;
     }
+
+    clear() {
+        this._definitions.clear();
+    }
 }
 
 export const moduleRegistry = new VuexModuleRegistry();

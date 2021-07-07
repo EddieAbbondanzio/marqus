@@ -1,3 +1,4 @@
+import { Module } from '@/store';
 import { VuexModule } from '@/store/common/class-modules/vuex-module';
 import {
     VuexModuleDefinition,
@@ -145,6 +146,7 @@ describe('VuexModuleDefinition', () => {
         });
     });
 
+    @Module({ namespace: 'test' })
     class TestModule extends VuexModule {
         constructor(store: Store<any>) {
             super(store);
