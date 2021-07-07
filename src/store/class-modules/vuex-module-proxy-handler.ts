@@ -2,9 +2,14 @@ import { VuexModule } from '@/store/class-modules/vuex-module';
 import { VuexModuleDefinition } from '@/store/class-modules/vuex-module-definition';
 import { Store } from 'vuex';
 
+/**
+ * Handler that will be passed to the proxy object so we can intercept properties.
+ * This is what will "connect" our type safe module to the actual vuex store.
+ */
 export class VuexModuleProxyHandler {
     constructor(private _definition: VuexModuleDefinition, private _store: Store<any>) {}
 
+    // Property sink
     get(target: VuexModule, propertyName: string) {
         const prop = this._definition.getProperty(propertyName);
 
@@ -13,11 +18,10 @@ export class VuexModuleProxyHandler {
                 return (arg: any) => this._store.commit(prop.fullyQualify(this._definition.namespace), arg);
 
             case 'action':
-                return (arg: any) => this._store.dispatch(prop.fullyQualify(this._definition.namespace), arg);
+                return async (arg: any) =>
+                    await this._store.dispatch(prop.fullyQualify(this._definition.namespace), arg);
 
             case 'state':
-                return prop.value;
-
             case 'getter':
                 return prop.value;
 

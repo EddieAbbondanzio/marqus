@@ -4,9 +4,15 @@ import { VuexModuleDefinition } from '@/store/class-modules/vuex-module-definiti
 import { moduleRegistry } from '@/store/class-modules/vuex-module-registry';
 import { Module, Store } from 'vuex';
 
+/**
+ * Register a module with the vuex store.
+ * @param constructor The constructor of the module.
+ * @returns Type safe instance that can be used to commit mutations, dispatch actions, get state.
+ */
 export function registerModule<TModule extends VuexModule>(constructor: VuexModuleConstructor): TModule {
     const definition = moduleRegistry.getDefinition(constructor);
 
+    // Duplicate namespaces are not allowed.
     if (definition.namespace == null) {
         throw Error(
             `Vuex class modules only supports namespaced modules. No namespace found for ${definition.moduleConstructor}`

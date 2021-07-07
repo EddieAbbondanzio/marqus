@@ -14,7 +14,6 @@ import { persist } from '@/store/plugins/persist/persist';
 import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
 import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';
-import { testModule } from '@/store/class-modules/decorators';
 export default {
     components: { Cursor },
     setup: () => {
@@ -22,15 +21,6 @@ export default {
 
         onMounted(() => {
             persist.init(s);
-            // console.log('foo from app is: ', s.state.test);
-
-            // console.log('commit test/TEST_MUTATION');
-            // s.commit('test/TEST_MUTATION', 7);
-            // console.log('foo from app is now : ', s.state.test.foo);
-
-            testModule.TEST_MUTATION(42);
-            // console.log('foo from app is now : ', s.state.test.foo);
-            console.log(' getter from app: ', s.getters['test/fooBar']);
         });
 
         onBeforeUnmount(() => {

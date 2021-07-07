@@ -9,8 +9,6 @@ import { actions } from '@/store/actions';
 import { persist } from './plugins/persist/persist';
 import { mediator } from '@/store/plugins/mediator/mediator';
 import shortcuts from '@/features/shortcuts/store';
-import { undo } from '@/store/plugins/undo/undo';
-import { TestClass, testModule } from '@/store/class-modules/decorators';
 
 export const store = createStore<State>({
     state: () => state as any,

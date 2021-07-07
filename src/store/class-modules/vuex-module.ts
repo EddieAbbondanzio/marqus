@@ -1,5 +1,8 @@
 import { Store } from 'vuex';
 
+/**
+ * Base class for our type safe vuex modules.
+ */
 export abstract class VuexModule {
     [property: string]: any; // Needed by the proxy handler
 
@@ -22,6 +25,12 @@ export abstract class VuexModule {
         return this._instances[namespace] as TModule;
     }
 
+    /**
+     * Cache an instance of the vuex module so we can do a lookup via namespace
+     * using .getModule().
+     * @param namespace The namespace of the module.
+     * @param module The module instance.
+     */
     static cacheModule(namespace: string, module: VuexModule) {
         this._instances[namespace] = module;
     }

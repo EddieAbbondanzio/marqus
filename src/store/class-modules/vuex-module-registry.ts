@@ -1,6 +1,9 @@
 import { VuexModule, VuexModuleConstructor } from '@/store/class-modules/vuex-module';
 import { VuexModuleDefinition } from '@/store/class-modules/vuex-module-definition';
 
+/**
+ * Registry for storing all the vuex module definitions.
+ */
 export class VuexModuleRegistry {
     private _definitions: Map<VuexModuleConstructor, VuexModuleDefinition>;
 
@@ -8,6 +11,11 @@ export class VuexModuleRegistry {
         this._definitions = new Map();
     }
 
+    /**
+     * Get (or create if none) the definition of vuex module by it's constructor.
+     * @param constructor The constructor of the definition to retreive.
+     * @returns The matching vuex module definition.
+     */
     getDefinition(constructor: VuexModuleConstructor): VuexModuleDefinition {
         let m = this._definitions.get(constructor);
 
