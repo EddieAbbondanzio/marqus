@@ -15,7 +15,7 @@ export class VuexModuleProxyHandler {
 
         switch (prop?.type) {
             case 'mutation':
-                return (arg: any) => this._store.commit(prop.fullyQualify(), arg);
+                return (arg: any) => this._store.commit(prop.fullyQualify(), arg, { root: true });
 
             case 'action':
                 return async (arg: any) => await this._store.dispatch(prop.fullyQualify(), arg);

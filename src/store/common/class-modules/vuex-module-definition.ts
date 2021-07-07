@@ -124,7 +124,8 @@ export class VuexModuleDefinition {
             mutations: {},
             actions: {},
             getters: {},
-            state: null
+            state: null,
+            namespaced: true
         };
 
         // Do it in one sweep for that O(n) time. Not that it really matters

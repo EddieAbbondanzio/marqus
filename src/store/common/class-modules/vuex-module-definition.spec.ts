@@ -14,7 +14,9 @@ describe('VuexModuleDefinitionProperty<T>', () => {
         });
 
         it('returns proper name when namespaced', () => {
-            const testProp = new VuexModuleDefinitionProperty('mutation', 'TEST_MUTATION', () => 1, 'testNamespace');
+            const testProp = new VuexModuleDefinitionProperty('mutation', 'TEST_MUTATION', () => 1, {
+                namespace: 'testNamespace'
+            } as any);
             expect(testProp.fullyQualify()).toBe('testNamespace/TEST_MUTATION');
         });
     });

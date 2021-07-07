@@ -31,6 +31,8 @@ describe('registerModule()', () => {
 
         const typeSafe = registerModule<TestModule>(TestModule, mockStore as any);
         expect(mockStore.registerModule).toHaveBeenCalled();
+        expect(mockStore.registerModule.mock.calls[0][0]).toBe('test');
+        expect(mockStore.registerModule.mock.calls[0][1]).toHaveProperty('namespaced', true);
     });
 
     class BadTestModule extends VuexModule {

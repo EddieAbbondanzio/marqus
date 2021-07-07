@@ -49,17 +49,6 @@ describe('VuexModuleProxyHandler', () => {
             expect(val).toBe(3);
         });
 
-        it('returns setters', () => {
-            const def = new VuexModuleDefinition(null!);
-            const prop = def.getProperty('state');
-            prop.value = { foo: 1 };
-
-            const handler = new VuexModuleProxyHandler(def, {} as any);
-            const val = handler.get({} as any, 'state');
-
-            expect(val).toEqual({ foo: 1 });
-        });
-
         it('returns helper methods', () => {
             const def = new VuexModuleDefinition(null!);
             const obj = {

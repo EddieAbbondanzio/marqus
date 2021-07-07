@@ -68,6 +68,7 @@ import IconButton from '@/components/IconButton.vue';
 import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';
 import { tagStore } from '@/features/tags/store/tag-store';
+import { store } from '@/store';
 
 export default defineComponent({
     setup: function() {
@@ -170,11 +171,6 @@ export default defineComponent({
 
                     return menuName === 'globalNavigation';
                 }
-            });
-
-            console.log(tagStore.state);
-            tagStore.CREATE({
-                value: 'cat'
             });
         });
 
