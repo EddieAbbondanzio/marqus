@@ -1,9 +1,9 @@
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { State } from '@/store/state';
 import { GetterTree } from 'vuex';
-import { GlobalNavigation, GlobalNavigationActive } from './state';
+import { GlobalNavigationState, GlobalNavigationActive } from './state';
 
-export const getters: GetterTree<GlobalNavigation, State> = {
+export const getters: GetterTree<GlobalNavigationState, State> = {
     isActive: (s) => (active: GlobalNavigationActive) => {
         switch (s.active?.section) {
             case 'all':

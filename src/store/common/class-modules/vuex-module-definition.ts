@@ -16,7 +16,7 @@ export class VuexModuleDefinitionProperty<T> {
         public type: VuexModulePropertyDefinitionType,
         public name: string,
         public value: T,
-        private _namespace?: string
+        private _definition?: VuexModuleDefinition
     ) {}
 
     /**
@@ -24,7 +24,7 @@ export class VuexModuleDefinitionProperty<T> {
      * @returns The fully qualified path of the property.
      */
     fullyQualify() {
-        return this._namespace == null ? this.name : `${this._namespace}/${this.name}`;
+        return this._definition?.namespace == null ? this.name : `${this._definition.namespace}/${this.name}`;
     }
 }
 
@@ -59,7 +59,7 @@ export class VuexModuleDefinition {
             throw Error(`Property of name ${name} (type ${type}) already exists. It's best to avoid redundant names. `);
         }
 
-        const prop = new VuexModuleDefinitionProperty(type, name, value, this.namespace);
+        const prop = new VuexModuleDefinitionProperty(type, name, value, this);
         this._props[name] = prop;
 
         return prop;

@@ -1,4 +1,5 @@
-import { VuexModuleConstructor, moduleRegistry } from '@/store';
+import { VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
+import { moduleRegistry } from '@/store/common/class-modules/vuex-module-registry';
 
 /**
  * Type signature for the prototype of vuex modules.

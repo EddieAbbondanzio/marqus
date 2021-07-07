@@ -1,4 +1,4 @@
-import { Module } from '@/store';
+import { Module } from '@/store/common/class-modules/decorators';
 import { VuexModule } from '@/store/common/class-modules/vuex-module';
 import {
     VuexModuleDefinition,

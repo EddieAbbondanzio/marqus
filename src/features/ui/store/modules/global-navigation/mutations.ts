@@ -1,13 +1,11 @@
 import { MutationTree } from 'vuex';
-import { GlobalNavigation, GlobalNavigationActive } from '@/features/ui/store/modules/global-navigation/state';
+import { GlobalNavigationState, GlobalNavigationActive } from '@/features/ui/store/modules/global-navigation/state';
 
-export const mutations: MutationTree<GlobalNavigation> = {
-    SET_STATE(state, s: GlobalNavigation) {
-        console.log('set state to: ', s);
+export const mutations: MutationTree<GlobalNavigationState> = {
+    SET_STATE(state, s: GlobalNavigationState) {
         Object.assign(state, s);
     },
     SET_ACTIVE(s, newValue: GlobalNavigationActive) {
-        console.log('new active: ', newValue);
         s.active = newValue;
     },
     SET_WIDTH(s, newValue: string) {

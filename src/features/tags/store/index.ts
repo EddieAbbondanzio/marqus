@@ -1,16 +1,14 @@
-import { state } from './state';
-import { getters } from './getters';
-import { actions } from './actions';
-import { mutations } from './mutations';
+import { store, registerModule } from '@/store';
+import { TagStore } from '@/features/tags/store/tag-store';
 import { persist } from '@/store/plugins/persist/persist';
 
-export default {
-    namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
-};
+// export default {
+//     namespaced: true,
+//     state,
+//     getters,
+//     actions,
+//     mutations
+// };
 
 persist.register({
     namespace: 'tags',

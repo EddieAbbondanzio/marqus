@@ -26,14 +26,14 @@ export type GlobalNavigationActive =
     | { section: 'all' | 'favorites' | 'trash' }
     | { section: 'notebook' | 'tag'; id: string };
 
-export interface GlobalNavigation {
+export interface GlobalNavigationState {
     width: string;
     notebooks: GlobalNavigationNotebookSection;
     tags: GlobalNavigationTagSection;
     active: GlobalNavigationActive;
 }
 
-export const state: GlobalNavigation = {
+export const state: GlobalNavigationState = {
     active: {
         section: 'all'
     },

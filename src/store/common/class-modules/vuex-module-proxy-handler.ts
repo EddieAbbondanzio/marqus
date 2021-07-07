@@ -21,6 +21,8 @@ export class VuexModuleProxyHandler {
                 return async (arg: any) => await this._store.dispatch(prop.fullyQualify(), arg);
 
             case 'state':
+                return target[prop.name];
+
             case 'getter':
                 return prop.value;
 

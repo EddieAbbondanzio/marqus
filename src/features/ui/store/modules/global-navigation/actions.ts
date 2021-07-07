@@ -5,7 +5,7 @@ import { State } from '@/store/state';
 import { confirmDelete } from '@/shared/utils/prompts/confirm-delete';
 import { confirmReplaceNotebook } from '@/shared/utils/prompts/confirm-replace-notebook';
 import { Action, ActionContext, ActionTree } from 'vuex';
-import { GlobalNavigation, GlobalNavigationActive } from './state';
+import { GlobalNavigationState, GlobalNavigationActive } from './state';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { undo as undoPlugin } from '@/store/plugins/undo/undo';
 import { UndoMetadata } from '@/store/plugins/undo/types';
@@ -13,7 +13,7 @@ import { generateUndoGroupUtil } from '@/store/plugins/undo/generate-undo-group-
 
 const group = generateUndoGroupUtil('globalNavigation');
 
-export const actions: ActionTree<GlobalNavigation, State> = {
+export const actions: ActionTree<GlobalNavigationState, State> = {
     setActive({ commit }, a: GlobalNavigationActive) {
         commit('SET_ACTIVE', a);
     },
