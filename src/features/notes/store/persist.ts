@@ -3,7 +3,7 @@ import { NOTES_DIRECTORY } from '@/features/notes/store';
 import { NoteState } from '@/features/notes/store/state';
 import { isId } from '@/store';
 import { State } from '@/store/state';
-import { fileSystem } from '@/utils/file-system';
+import { fileSystem } from '@/shared/utils/file-system';
 import moment from 'moment';
 import path from 'path';
 import { MutationPayload } from 'vuex';

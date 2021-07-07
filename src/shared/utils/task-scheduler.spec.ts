@@ -1,4 +1,4 @@
-import { TaskScheduler } from '@/utils/task-scheduler';
+import { TaskScheduler } from '@/shared/utils/task-scheduler';
 
 describe('TaskScheduler', () => {
     describe('ctor()', () => {

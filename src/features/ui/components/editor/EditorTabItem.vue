@@ -29,7 +29,7 @@
 import { defineComponent } from 'vue';
 import { mapGetters, mapMutations, mapState, useStore } from 'vuex';
 import IconButton from '@/components/IconButton.vue';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { climbDomHierarchy } from '@/shared/utils';
 
 export default defineComponent({
     props: {

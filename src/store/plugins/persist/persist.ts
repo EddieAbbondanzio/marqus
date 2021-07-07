@@ -1,6 +1,6 @@
 import { State } from '@/store/state';
-import { DATA_DIRECTORY, fileSystem } from '@/utils/file-system';
-import { TaskScheduler } from '@/utils/task-scheduler';
+import { DATA_DIRECTORY, fileSystem } from '@/shared/utils/file-system';
+import { TaskScheduler } from '@/shared/utils/task-scheduler';
 import { MutationPayload, Store } from 'vuex';
 import * as _ from 'lodash';
 import { PersistModule, PersistModuleSettings } from './types';

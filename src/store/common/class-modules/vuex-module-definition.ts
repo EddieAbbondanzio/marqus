@@ -1,6 +1,6 @@
 import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
 import { VuexModuleProxyHandler } from '@/store/common/class-modules/vuex-module-proxy-handler';
-import { Module, MutationMethod, Store } from 'vuex';
+import { Module, Store } from 'vuex';
 
 export type MutationFunction = (payload: any) => void;
 
@@ -12,15 +12,19 @@ export type VuexModulePropertyDefinitionType = 'state' | 'getter' | 'mutation' |
  * Property to represent an action, mutation, state, or getter on the module definition.
  */
 export class VuexModuleDefinitionProperty<T> {
-    constructor(public type: VuexModulePropertyDefinitionType, public name: string, public value: T) {}
+    constructor(
+        public type: VuexModulePropertyDefinitionType,
+        public name: string,
+        public value: T,
+        private _namespace?: string
+    ) {}
 
     /**
      * Add the namespace of the module to the property if it has one.
-     * @param namespace Optional namespace to prepend the property name with.
      * @returns The fully qualified path of the property.
      */
-    fullyQualify(namespace?: string) {
-        return namespace == null ? this.name : `${namespace}/${this.name}`;
+    fullyQualify() {
+        return this._namespace == null ? this.name : `${this._namespace}/${this.name}`;
     }
 }
 
@@ -28,14 +32,20 @@ export class VuexModuleDefinitionProperty<T> {
  * Definition of a vuex module. Used as a template to generate the actual module instance.
  */
 export class VuexModuleDefinition {
+    static readonly DEFAULT_STATE_NAME = 'state';
+
     public namespace?: string;
 
     private _props: { [name: string]: VuexModuleDefinitionProperty<any> } = {};
 
     constructor(public moduleConstructor: VuexModuleConstructor) {
-        // Add default state in case user never used the decorator
+        // Add default state property in case state decorator was omitted.
         // eslint-disable-next-line dot-notation
-        this._props['state'] = new VuexModuleDefinitionProperty('state', 'state', {});
+        this._props[VuexModuleDefinition.DEFAULT_STATE_NAME] = new VuexModuleDefinitionProperty(
+            VuexModuleDefinition.DEFAULT_STATE_NAME,
+            'state',
+            {}
+        );
     }
 
     /**
@@ -44,20 +54,38 @@ export class VuexModuleDefinition {
      * @param name The name of the property.
      * @param value Underlying value. Usually a function.
      */
-    addProperty<T>(type: VuexModulePropertyDefinitionType, name: string, value: T) {
+    addProperty<T>(type: VuexModulePropertyDefinitionType, name: string, value: T): VuexModuleDefinitionProperty<any> {
         if (this._props[name] != null) {
-            throw Error(`Property of name ${name} (type ${type} )already exists. It's best to avoid redundant names. `);
+            throw Error(`Property of name ${name} (type ${type}) already exists. It's best to avoid redundant names. `);
         }
 
-        this._props[name] = new VuexModuleDefinitionProperty(type, name, value);
+        const prop = new VuexModuleDefinitionProperty(type, name, value, this.namespace);
+        this._props[name] = prop;
+
+        return prop;
     }
 
     /**
-     * Get a property by it's name.
+     * Get a property by it's name. Throws if not found.
      * @param name The name of the property to get.
      * @returns The matching property.
      */
     getProperty<T>(name: string): VuexModuleDefinitionProperty<T> {
+        const prop = this._props[name];
+
+        if (prop == null) {
+            throw Error(`No property with name ${name} found on module ${this.namespace!}`);
+        }
+
+        return prop;
+    }
+
+    /**
+     * Get a property by its name, or return undefined if not found.
+     * @param name The name of the property to get.
+     * @returns The property, or undefined.
+     */
+    tryGetProperty<T>(name: string): VuexModuleDefinitionProperty<T> | undefined {
         return this._props[name];
     }
 
@@ -96,12 +124,13 @@ export class VuexModuleDefinition {
             mutations: {},
             actions: {},
             getters: {},
-            state: null!
+            state: null
         };
 
+        // Do it in one sweep for that O(n) time. Not that it really matters
         for (const prop of Object.values(this._props)) {
             /*
-             * We use .call(), and .bind() so we can set the thisArg. If we don't, then the actual vuex store is passed..
+             * We use .call(), and .bind() so we can set the thisArg. If we don't, then this will be the vuex store instance
              */
             switch (prop.type) {
                 case 'mutation':
@@ -121,7 +150,7 @@ export class VuexModuleDefinition {
                         throw Error(`State property already defined for module. Only 1 state property module allowed.`);
                     }
 
-                    m.state.value = typeSafeModule[prop.name];
+                    m.state = typeSafeModule[prop.name];
                     break;
             }
         }

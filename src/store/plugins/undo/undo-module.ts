@@ -11,7 +11,7 @@ import { MutationPayload, Store } from 'vuex';
 import { v4 as uuidv4 } from 'uuid';
 import { getNamespacedState } from '@/store/common/utils/get-namespaced-state';
 import _ from 'lodash';
-import { isAsync } from '@/utils/is-async';
+import { isAsync } from '@/shared/utils/is-async';
 
 /**
  * Module that retains it's own history state and handles undo / redo. Used in

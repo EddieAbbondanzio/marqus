@@ -72,7 +72,7 @@ import { mapActions, mapGetters, mapMutations, mapState, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import { Note } from '@/features/notes/common/note';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { climbDomHierarchy } from '@/shared/utils';
 import contextMenu from 'electron-context-menu';
 import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';

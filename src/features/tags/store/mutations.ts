@@ -1,5 +1,5 @@
 import { generateId } from '@/store';
-import { isBlank } from '@/utils/string/is-blank';
+import { isBlank } from '@/shared/utils/string/is-blank';
 import { Mutation, MutationTree } from 'vuex';
 import { TagState } from './state';
 

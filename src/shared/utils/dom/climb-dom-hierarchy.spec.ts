@@ -1,4 +1,4 @@
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { climbDomHierarchy } from '@/shared/utils/dom/climb-dom-hierarchy';
 
 describe('climbDomHierarchy()', () => {
     let parent = document.createElement('div');

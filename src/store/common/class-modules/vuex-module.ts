@@ -6,7 +6,7 @@ import { Store } from 'vuex';
 export abstract class VuexModule {
     [property: string]: any; // Needed by the proxy handler
 
-    private static _instances: { [namespace: string]: VuexModule } = {};
+    private static _instances: { [namespace: string]: VuexModule };
 
     constructor(public store: Store<any>) {
         // the store parameter is just a trick so we can get our module decorators to fire.
@@ -18,11 +18,11 @@ export abstract class VuexModule {
      * @returns The type safe instance of the vuex module.
      */
     getModule<TModule extends VuexModule>(namespace: string): TModule {
-        if (this._instances[namespace] == null) {
+        if (VuexModule._instances == null || VuexModule._instances[namespace] == null) {
             throw Error(`No instance for namespace ${namespace} found.`);
         }
 
-        return this._instances[namespace] as TModule;
+        return VuexModule._instances[namespace] as TModule;
     }
 
     /**
@@ -32,7 +32,22 @@ export abstract class VuexModule {
      * @param module The module instance.
      */
     static cacheModule(namespace: string, module: VuexModule) {
-        this._instances[namespace] = module;
+        /*
+         * This functionality is not in the constructor on purpose. We don't want to cache
+         * until the registerModule() helper has been called.
+         */
+
+        VuexModule._instances ??= {};
+
+        if (VuexModule._instances[namespace] != null) {
+            throw Error(`Module with namespace ${namespace} already registered. Did you call cacheModule() twice?`);
+        }
+
+        VuexModule._instances[namespace] = module;
+    }
+
+    static clearCache() {
+        VuexModule._instances = {};
     }
 }
 

@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { climbDomHierarchy } from '@/shared/utils';
 import { defineComponent, ref, watch } from 'vue';
 
 export default defineComponent({

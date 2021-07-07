@@ -1,11 +1,4 @@
-import { registerModule } from '@/store/common/class-modules/register-module';
-import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
-import {
-    VuexModuleDefinitionProperty,
-    VuexModulePropertyDefinitionType
-} from '@/store/common/class-modules/vuex-module-definition';
-import { moduleRegistry } from '@/store/common/class-modules/vuex-module-registry';
-import { Store } from 'vuex';
+import { VuexModuleConstructor, moduleRegistry } from '@/store';
 
 /**
  * Type signature for the prototype of vuex modules.
@@ -29,7 +22,7 @@ export interface VuexModuleOptions {
 export function Module(options: VuexModuleOptions) {
     /*
      * This decorator may feel a little useless, but it's used so we can keep our module
-     * constructor type definition simple.
+     * constructor with as few parameters as possible.
      */
     return (target: VuexModuleConstructor) => {
         const m = moduleRegistry.getDefinition(target);

@@ -63,7 +63,7 @@ import GlobalNavigationNotebookSection from '@/features/ui/components/global-nav
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuList from '@/components/navigation/NavigationMenuList.vue';
 import contextMenu from 'electron-context-menu';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { climbDomHierarchy } from '@/shared/utils';
 import IconButton from '@/components/IconButton.vue';
 import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';

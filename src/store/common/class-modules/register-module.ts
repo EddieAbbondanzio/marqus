@@ -1,8 +1,6 @@
 import { store } from '@/store';
 import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
-import { VuexModuleDefinition } from '@/store/common/class-modules/vuex-module-definition';
 import { moduleRegistry } from '@/store/common/class-modules/vuex-module-registry';
-import { Module, Store } from 'vuex';
 
 /**
  * Register a module with the vuex store.
@@ -12,7 +10,7 @@ import { Module, Store } from 'vuex';
 export function registerModule<TModule extends VuexModule>(constructor: VuexModuleConstructor): TModule {
     const definition = moduleRegistry.getDefinition(constructor);
 
-    // Duplicate namespaces are not allowed.
+    // Only supports namespaced modules right now
     if (definition.namespace == null) {
         throw Error(
             `Vuex class modules only supports namespaced modules. No namespace found for ${definition.moduleConstructor}`
@@ -23,7 +21,7 @@ export function registerModule<TModule extends VuexModule>(constructor: VuexModu
     const [typeSafe, actualModule] = definition.generate(store);
     store.registerModule(definition.namespace, actualModule);
 
-    // Cache it so we can get it via .getModule()
+    // Cache it so we can get it via .getModule() in other module classes
     VuexModule.cacheModule(definition.namespace, typeSafe);
 
     // Give back the type safe module

@@ -51,7 +51,7 @@ import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { climbDomHierarchy } from '@/shared/utils';
 import { Notebook } from '@/features/notebooks/common/notebook';
 
 export default defineComponent({
