@@ -25,8 +25,8 @@ import { mapGetters, mapState } from 'vuex';
 
 export default defineComponent({
     computed: {
-        ...mapState('ui/editor', { tabs: (s: any) => s.tabs.values, dragging: (s: any) => s.tabs.dragging }),
-        ...mapGetters('ui/editor', ['isDragging'])
+        // ...mapState('ui/editor', { tabs: (s: any) => s.tabs.values, dragging: (s: any) => s.tabs.dragging }),
+        // ...mapGetters('ui/editor', ['isDragging'])
     },
     components: {
         EditorTabItem

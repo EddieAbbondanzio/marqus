@@ -142,7 +142,7 @@ describe('VuexModuleDefinition', () => {
             def['_generateTypeSafeModule'] = jest.fn();
             def['_generateVuexModule'] = jest.fn();
 
-            def.generate({} as any);
+            def.register({} as any);
             expect(def['_generateTypeSafeModule']).toHaveBeenCalled();
             expect(def['_generateVuexModule']).toHaveBeenCalled();
         });

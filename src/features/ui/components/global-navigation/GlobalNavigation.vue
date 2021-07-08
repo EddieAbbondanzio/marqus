@@ -67,13 +67,15 @@ import { climbDomHierarchy } from '@/shared/utils';
 import IconButton from '@/components/IconButton.vue';
 import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';
+import { uiStore } from '@/features/ui/store/ui-store';
 
 export default defineComponent({
     setup: function() {
         const s = useStore();
+        console.log('getters', s.getters);
 
         const width = computed({
-            get: () => s.state.ui.globalNavigation.width as string,
+            get: () => uiStore.modules.globalNavigation.width as string,
             set: (w: any) => {
                 s.dispatch('ui/globalNavigation/setWidth', w);
             }

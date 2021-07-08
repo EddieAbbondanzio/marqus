@@ -52,7 +52,7 @@ export default defineComponent({
         });
     },
     computed: {
-        ...mapState('ui', { dragging: (s: any) => s.cursor.dragging })
+        // ...mapState('ui', { dragging: (s: any) => s.cursor.dragging })
     }
 });
 </script>

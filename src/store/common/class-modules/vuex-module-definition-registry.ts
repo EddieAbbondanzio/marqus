@@ -4,7 +4,7 @@ import { VuexModuleDefinition } from '@/store/common/class-modules/vuex-module-d
 /**
  * Registry for storing all the vuex module definitions.
  */
-export class VuexModuleRegistry {
+export class VuexModuleDefinitionRegistry {
     private _definitions: Map<VuexModuleConstructor, VuexModuleDefinition>;
 
     constructor() {
@@ -33,4 +33,4 @@ export class VuexModuleRegistry {
     }
 }
 
-export const moduleRegistry = new VuexModuleRegistry();
+export const moduleRegistry = new VuexModuleDefinitionRegistry();

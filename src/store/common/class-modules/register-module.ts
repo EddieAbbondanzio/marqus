@@ -1,6 +1,6 @@
 import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
-import { moduleRegistry } from '@/store/common/class-modules/vuex-module-registry';
-import { Store } from 'vuex';
+import { moduleRegistry } from '@/store/common/class-modules/vuex-module-definition-registry';
+import { Module, Store } from 'vuex';
 
 /**
  * Register a module with the vuex store.
@@ -21,8 +21,7 @@ export function registerModule<TModule extends VuexModule>(
     }
 
     // Instantiate the vuex module proxy and hand it off to Vuex.
-    const [typeSafe, actualModule] = definition.generate(store);
-    store.registerModule(definition.namespace, actualModule);
+    const typeSafe = definition.register(store);
 
     // Give back the type safe module
     return typeSafe as TModule;

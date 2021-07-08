@@ -1,4 +1,4 @@
-import { VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
+import { NestedVuexModules, VuexModule, VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
 import { VuexModuleProxyHandler } from '@/store/common/class-modules/vuex-module-proxy-handler';
 import { Module, Store } from 'vuex';
 
@@ -38,7 +38,11 @@ export class VuexModuleDefinition {
 
     private _props: { [name: string]: VuexModuleDefinitionProperty<any> } = {};
 
-    constructor(public moduleConstructor: VuexModuleConstructor) {
+    /**
+     * @param moduleConstructor
+     * @param modules Namespaced children modules
+     */
+    constructor(public moduleConstructor: VuexModuleConstructor, public modules: VuexModuleDefinition[] = []) {
         // Add default state property in case state decorator was omitted.
         // eslint-disable-next-line dot-notation
         this._props[VuexModuleDefinition.DEFAULT_STATE_NAME] = new VuexModuleDefinitionProperty(
@@ -90,16 +94,22 @@ export class VuexModuleDefinition {
     }
 
     /**
+     * Add a nested module.
+     * @param definition The nested module to add.
+     */
+    addNested(definition: VuexModuleDefinition) {
+        this.modules.push(definition);
+    }
+
+    /**
      * Generate the type safe module instance, and the actual vuex module that will
      * be passed to the vuex store.
      * @param store The active vuex store.
      * @returns Tuple containing the type safe module, and the actual module.
      */
-    generate(store: Store<any>): [VuexModule, Module<any, any>] {
-        const typeSafe = this._generateTypeSafeModule(store);
-        const actualModule = this._generateVuexModule(typeSafe);
-
-        return [typeSafe, actualModule];
+    register(store: Store<any>): VuexModule {
+        const typeSafe = this._generateTypeSafeModule(store, this);
+        return typeSafe;
     }
 
     /**
@@ -107,11 +117,40 @@ export class VuexModuleDefinition {
      * @param store The active vuex store.
      * @returns The type safe module.
      */
-    private _generateTypeSafeModule(store: Store<any>): VuexModule {
+    private _generateTypeSafeModule(
+        store: Store<any>,
+        definition: VuexModuleDefinition,
+        currentPath: string[] = []
+    ): VuexModule {
+        /*
+         * This is a little messy because we need to use recursion to handle nested modules.
+         * We create the parent module first, register it with vuex and then apply recursion to
+         * redo the same step for every child until we hit the bottom.
+         */
+
         // eslint-disable-next-line new-cap
-        const m = new this.moduleConstructor(store);
-        const proxy = new Proxy(m, new VuexModuleProxyHandler(this, store));
-        return proxy;
+        const m = new definition.moduleConstructor(store);
+        m.namespace = definition.namespace!;
+
+        const typeSafe = new Proxy(m, new VuexModuleProxyHandler(this, store));
+        const actualModule = this._generateVuexModule(definition, typeSafe);
+
+        currentPath.push(definition.namespace!);
+
+        console.log('register module at: ', currentPath, ' module: ', actualModule);
+        store.registerModule(currentPath, actualModule);
+
+        const modules: NestedVuexModules = {};
+        if (definition.modules != null) {
+            for (const nested of definition.modules) {
+                modules[nested.namespace!] = this._generateTypeSafeModule(store, nested, currentPath);
+            }
+        }
+
+        // Save the children on the type safe one
+        m.modules = modules;
+
+        return typeSafe;
     }
 
     /**
@@ -119,7 +158,7 @@ export class VuexModuleDefinition {
      * @param typeSafeModule The type safe module.
      * @returns The actual vuex module.
      */
-    private _generateVuexModule(typeSafeModule: VuexModule): Module<any, any> {
+    private _generateVuexModule(definition: VuexModuleDefinition, typeSafeModule: VuexModule): Module<any, any> {
         const m: Module<any, any> = {
             mutations: {},
             actions: {},
@@ -129,7 +168,7 @@ export class VuexModuleDefinition {
         };
 
         // Do it in one sweep for that O(n) time. Not that it really matters
-        for (const prop of Object.values(this._props)) {
+        for (const prop of Object.values(definition._props)) {
             /*
              * We use .call(), and .bind() so we can set the thisArg. If we don't, then this will be the vuex store instance
              */

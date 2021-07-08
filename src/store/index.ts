@@ -1,6 +1,4 @@
 import { createLogger, createStore, mapState } from 'vuex';
-import ui from '@/features/ui/store';
-// import tags from '@/features/tags/store';
 import notebooks from '@/features/notebooks/store';
 import notes from '@/features/notes/store';
 import { State, state } from './state';
@@ -15,7 +13,6 @@ export const store = createStore<State>({
     mutations,
     actions,
     modules: {
-        ui,
         notebooks,
         // tags,
         notes,

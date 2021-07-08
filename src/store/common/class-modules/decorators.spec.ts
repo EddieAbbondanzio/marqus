@@ -1,6 +1,6 @@
 import { Action, Getter, Module, Mutation, State } from '@/store/common/class-modules/decorators';
 import { VuexModule } from '@/store/common/class-modules/vuex-module';
-import { moduleRegistry } from '@/store/common/class-modules/vuex-module-registry';
+import { moduleRegistry } from '@/store/common/class-modules/vuex-module-definition-registry';
 import { Store } from 'vuex';
 
 describe('Decorators', () => {

@@ -32,16 +32,3 @@ export interface GlobalNavigationState {
     tags: GlobalNavigationTagSection;
     active: GlobalNavigationActive;
 }
-
-export const state: GlobalNavigationState = {
-    active: {
-        section: 'all'
-    },
-    notebooks: {
-        expanded: false
-    },
-    tags: {
-        expanded: false
-    },
-    width: '300px'
-};

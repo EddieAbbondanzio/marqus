@@ -1,5 +1,5 @@
 import { VuexModuleConstructor } from '@/store/common/class-modules/vuex-module';
-import { moduleRegistry } from '@/store/common/class-modules/vuex-module-registry';
+import { moduleRegistry } from '@/store/common/class-modules/vuex-module-definition-registry';
 
 /**
  * Type signature for the prototype of vuex modules.
@@ -15,6 +15,11 @@ export interface VuexModuleOptions {
      * The namespace the module should be registered under.
      */
     namespace: string;
+
+    /**
+     * Children modules.
+     */
+    modules?: VuexModuleConstructor[];
 }
 
 /**
@@ -29,6 +34,14 @@ export function Module(options: VuexModuleOptions) {
     return (target: VuexModuleConstructor) => {
         const m = moduleRegistry.getDefinition(target);
         m.namespace = options.namespace;
+
+        // Add nested modules
+        if (options.modules != null && options.modules.length > 0) {
+            for (const nested of options.modules) {
+                const nestedDefinition = moduleRegistry.getDefinition(nested);
+                m.addNested(nestedDefinition);
+            }
+        }
     };
 }
 

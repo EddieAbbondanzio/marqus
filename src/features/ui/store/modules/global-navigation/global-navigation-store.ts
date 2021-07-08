@@ -1,15 +1,12 @@
 import { Notebook } from '@/features/notebooks/common/notebook';
-import { Tag } from '@/features/tags/common/tag';
 import { tagStore } from '@/features/tags/store/tag-store';
-import { GlobalNavigationActive, GlobalNavigationState } from '@/features/ui/store/modules/global-navigation/state';
+import type { GlobalNavigationActive, GlobalNavigationState } from '@/features/ui/store/modules/global-navigation/state';
 import { confirmDelete } from '@/shared/utils';
-import { store } from '@/store';
 import { Action, Getter, Module, Mutation } from '@/store/common/class-modules/decorators';
-import { registerModule } from '@/store/common/class-modules/register-module';
 import { VuexModule } from '@/store/common/class-modules/vuex-module';
 import { Store } from 'vuex';
 
-@Module({ namespace: 'ui/globalNavigation' })
+@Module({ namespace: 'globalNavigation' })
 export class GlobalNavigationStore extends VuexModule {
     state: GlobalNavigationState;
 
@@ -429,5 +426,3 @@ export class GlobalNavigationStore extends VuexModule {
         this.state.notebooks.dragging = value;
     }
 }
-
-export const globalNavigationStore = registerModule<GlobalNavigationStore>(GlobalNavigationStore, store);

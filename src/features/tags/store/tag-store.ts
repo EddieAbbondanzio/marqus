@@ -1,13 +1,12 @@
 import { Note } from '@/features/notes/common/note';
 import { Tag } from '@/features/tags/common/tag';
-import { TagState } from '@/features/tags/store/state';
+import type { TagState } from '@/features/tags/store/state';
 import { isBlank } from '@/shared/utils';
 import { store } from '@/store';
 import { Getter, Module, Mutation } from '@/store/common/class-modules/decorators';
 import { registerModule } from '@/store/common/class-modules/register-module';
 import { VuexModule } from '@/store/common/class-modules/vuex-module';
 import { generateId } from '@/store/common/types/entity';
-import { persist } from '@/store/plugins/persist';
 import { Persist } from '@/store/plugins/persist/persist-decorator';
 import { State } from '@/store/state';
 import { Store } from 'vuex';
@@ -27,7 +26,7 @@ export class TagStore extends VuexModule {
 
     @Getter()
     get getTagById() {
-        return (id: string, required: boolean = true) => {
+        return (id: string, required = true) => {
             const tag = this.state.values.find((t) => t.id === id);
 
             if (tag == null && required) {
