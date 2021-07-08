@@ -4,12 +4,14 @@ import { Notebook } from '@/features/notebooks/common/notebook';
 import { generateId } from '@/store';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { isBlank } from '@/shared/utils';
+import { Mutations } from 'vuex-smart-module';
 
-export const mutations: MutationTree<NotebookState> = {
-    SET_STATE(state, s: NotebookState) {
-        Object.assign(state, s);
-    },
-    CREATE(state, props: { id: string; value: string; parent?: Notebook; children?: Notebook[]; expanded?: boolean }) {
+export class NotebookMutations extends Mutations<NotebookState> {
+    SET_STATE(s: NotebookState) {
+        Object.assign(this.state, s);
+    }
+
+    CREATE(props: { id: string; value: string; parent?: Notebook; children?: Notebook[]; expanded?: boolean }) {
         // Check that the name isn't null, or just whitespace.
         if (isBlank(props.value)) {
             throw Error('Value is required.');
@@ -25,11 +27,12 @@ export const mutations: MutationTree<NotebookState> = {
 
             props.parent.children.push(notebook);
         } else {
-            state.values.push(notebook);
+            this.state.values.push(notebook);
         }
-    },
-    SET_NAME(state, { id, value }: { id: string; value: string }) {
-        const notebook = findNotebookRecursive(state.values, id);
+    }
+
+    SET_NAME({ id, value }: { id: string; value: string }) {
+        const notebook = findNotebookRecursive(this.state.values, id);
 
         if (notebook == null) {
             throw Error(`No notebook with id ${id} found.`);
@@ -40,15 +43,16 @@ export const mutations: MutationTree<NotebookState> = {
         }
 
         notebook.value = value;
-    },
-    DELETE(state, { id }: { id: string }) {
-        const notebook = findNotebookRecursive(state.values, id);
+    }
+
+    DELETE({ id }: { id: string }) {
+        const notebook = findNotebookRecursive(this.state.values, id);
 
         if (notebook == null) {
             throw new Error(`No notebook with id ${id} found.`);
         }
 
-        const array = notebook.parent == null ? state.values : notebook.parent!.children!;
+        const array = notebook.parent == null ? this.state.values : notebook.parent!.children!;
         const index = array.findIndex((n) => n.id === id);
 
         if (index === -1) {
@@ -62,10 +66,11 @@ export const mutations: MutationTree<NotebookState> = {
             delete notebook.parent.children;
             notebook.parent.expanded = false;
         }
-    },
-    SORT(state) {
+    }
+
+    SORT() {
         // Sort nested
-        recursiveSort(state.values);
+        recursiveSort(this.state.values);
 
         function recursiveSort(notebooks: Notebook[]) {
             for (let i = 0; i < notebooks.length; i++) {
@@ -79,12 +84,18 @@ export const mutations: MutationTree<NotebookState> = {
         }
 
         // Sort root
-        state.values.sort((a, b) => a.value.localeCompare(b.value));
-    },
-    SET_EXPANDED(
-        s,
-        { notebook, expanded = true, bubbleUp = false }: { notebook: Notebook; expanded: boolean; bubbleUp: boolean }
-    ) {
+        this.state.values.sort((a, b) => a.value.localeCompare(b.value));
+    }
+
+    SET_EXPANDED({
+        notebook,
+        expanded = true,
+        bubbleUp = false
+    }: {
+        notebook: Notebook;
+        expanded: boolean;
+        bubbleUp: boolean;
+    }) {
         let p: Notebook | undefined = notebook;
 
         // Run up the tree expanding each parent until we hit the root
@@ -92,10 +103,11 @@ export const mutations: MutationTree<NotebookState> = {
             p.expanded = expanded;
             p = p.parent;
         } while (p && bubbleUp);
-    },
-    SET_ALL_EXPANDED(s, e = false) {
-        for (let i = 0; i < s.values.length; i++) {
-            recursiveStep(s.values[i], e);
+    }
+
+    SET_ALL_EXPANDED(e = false) {
+        for (let i = 0; i < this.state.values.length; i++) {
+            recursiveStep(this.state.values[i], e);
         }
 
         function recursiveStep(n: Notebook, e: boolean) {
@@ -110,4 +122,4 @@ export const mutations: MutationTree<NotebookState> = {
             }
         }
     }
-};
+}

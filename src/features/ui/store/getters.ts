@@ -1,5 +1,5 @@
 import { State } from '@/store/state';
-import { GetterTree } from 'vuex';
-import { UserInterface } from './state';
+import { Getters } from 'vuex-smart-module';
+import { UserInterfaceState } from './state';
 
-export const getters: GetterTree<UserInterface, State> = {};
+export class UserInterfaceGetters extends Getters<UserInterfaceState> {}

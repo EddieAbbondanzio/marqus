@@ -1,17 +1,18 @@
-import { NotebookState, state } from './state';
-import { getters } from './getters';
-import { actions } from './actions';
-import { mutations } from './mutations';
 import { persist } from '@/store/plugins/persist/persist';
 import { fixNotebookParentReferences, killNotebookParentReferences } from '@/features/notebooks/common/notebook';
+import { Module } from 'vuex-smart-module';
+import { NotebookActions } from '@/features/notebooks/store/actions';
+import { NotebookState } from '@/features/notebooks/store/state';
+import { NotebookMutations } from '@/features/notebooks/store/mutations';
+import { NotebookGetters } from '@/features/notebooks/store/getters';
 
-export default {
+export const notebooks = new Module({
     namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
-};
+    actions: NotebookActions,
+    state: NotebookState,
+    mutations: NotebookMutations,
+    getters: NotebookGetters
+});
 
 persist.register({
     namespace: 'notebooks',

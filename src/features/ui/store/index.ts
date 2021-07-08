@@ -1,24 +1,17 @@
-import { state } from './state';
-import { getters } from './getters';
-import { actions } from './actions';
-import { mutations } from './mutations';
-import globalNavigation from '@/features/ui/store/modules/global-navigation';
-import localNavigation from '@/features/ui/store/modules/local-navigation';
+import { UserInterfaceState } from './state';
+import { UserInterfaceGetters } from './getters';
+import { UserInterfaceActions } from './actions';
+import { UserInterfaceMutations } from './mutations';
 import { persist } from '@/store/plugins/persist/persist';
-import editor from '@/features/ui/store/modules/editor';
+import { Module } from 'vuex-smart-module';
 
-export default {
+export const userInterface = new Module({
     namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations,
-    modules: {
-        globalNavigation,
-        localNavigation,
-        editor
-    }
-};
+    state: UserInterfaceState,
+    getters: UserInterfaceGetters,
+    mutations: UserInterfaceMutations,
+    actions: UserInterfaceActions
+});
 
 persist.register({
     namespace: 'ui',

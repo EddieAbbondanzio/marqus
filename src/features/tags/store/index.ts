@@ -1,16 +1,17 @@
-import { state } from './state';
-import { getters } from './getters';
-import { actions } from './actions';
-import { mutations } from './mutations';
+import { TagActions } from '@/features/tags/store/actions';
+import { TagGetters } from '@/features/tags/store/getters';
+import { TagMutations } from '@/features/tags/store/mutations';
+import { TagState } from '@/features/tags/store/state';
 import { persist } from '@/store/plugins/persist/persist';
+import { Module } from 'vuex-smart-module';
 
-export default {
+export const tags = new Module({
     namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
-};
+    state: TagState,
+    getters: TagGetters,
+    mutations: TagMutations,
+    actions: TagActions
+});
 
 persist.register({
     namespace: 'tags',

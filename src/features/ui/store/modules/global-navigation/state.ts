@@ -26,22 +26,18 @@ export type GlobalNavigationActive =
     | { section: 'all' | 'favorites' | 'trash' }
     | { section: 'notebook' | 'tag'; id: string };
 
-export interface GlobalNavigation {
-    width: string;
-    notebooks: GlobalNavigationNotebookSection;
-    tags: GlobalNavigationTagSection;
-    active: GlobalNavigationActive;
-}
+export class GlobalNavigationState {
+    width: string = '300px';
 
-export const state: GlobalNavigation = {
-    active: {
+    notebooks: GlobalNavigationNotebookSection = {
+        expanded: false
+    };
+
+    tags: GlobalNavigationTagSection = {
+        expanded: false
+    };
+
+    active: GlobalNavigationActive = {
         section: 'all'
-    },
-    notebooks: {
-        expanded: false
-    },
-    tags: {
-        expanded: false
-    },
-    width: '300px'
-};
+    };
+}

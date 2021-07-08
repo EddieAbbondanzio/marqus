@@ -1,20 +1,13 @@
-import { state } from './state';
-import { getters } from './getters';
-import { actions } from './actions';
-import { mutations } from './mutations';
-import { undo } from '@/store/plugins/undo/undo';
+import { GlobalNavigationActions } from '@/features/ui/store/modules/global-navigation/actions';
+import { GlobalNavigationGetters } from '@/features/ui/store/modules/global-navigation/getters';
+import { GlobalNavigationMutations } from '@/features/ui/store/modules/global-navigation/mutations';
+import { GlobalNavigationState } from '@/features/ui/store/modules/global-navigation/state';
+import { Module } from 'vuex-smart-module';
 
-export default {
+export const globalNavigation = new Module({
     namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
-};
-
-undo.registerModule(state, {
-    name: 'globalNavigation',
-    namespace: 'ui/globalNavigation',
-    setStateMutation: 'SET_STATE',
-    stateCacheInterval: 100
+    actions: GlobalNavigationActions,
+    state: GlobalNavigationState,
+    mutations: GlobalNavigationMutations,
+    getters: GlobalNavigationGetters
 });

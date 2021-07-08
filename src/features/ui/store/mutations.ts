@@ -1,17 +1,18 @@
 import { MutationTree } from 'vuex';
-import { UserInterface } from './state';
+import { Mutations } from 'vuex-smart-module';
+import { UserInterfaceState } from './state';
 
-export const mutations: MutationTree<UserInterface> = {
-    SET_STATE(state, s: UserInterface) {
-        Object.assign(state, s);
-    },
-    SET_CURSOR_ICON(state, icon: string) {
-        state.cursor.icon = icon;
-    },
-    RESET_CURSOR_ICON(state) {
-        state.cursor.icon = 'pointer';
-    },
-    CURSOR_DRAGGING(state, dragging?: boolean) {
-        state.cursor.dragging = dragging;
+export class UserInterfaceMutations extends Mutations<UserInterfaceState> {
+    SET_STATE(s: UserInterfaceState) {
+        Object.assign(this.state, s);
     }
-};
+    SET_CURSOR_ICON(icon: string) {
+        this.state.cursor.icon = icon;
+    }
+    RESET_CURSOR_ICON() {
+        this.state.cursor.icon = 'pointer';
+    }
+    CURSOR_DRAGGING(dragging?: boolean) {
+        this.state.cursor.dragging = dragging;
+    }
+}

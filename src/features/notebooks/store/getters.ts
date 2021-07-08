@@ -2,13 +2,14 @@ import { Notebook } from '@/features/notebooks/common/notebook';
 import { Note } from '@/features/notes/common/note';
 import { State } from '@/store/state';
 import { GetterTree } from 'vuex';
+import { Getters } from 'vuex-smart-module';
 import { NotebookState } from './state';
 
-export const getters: GetterTree<NotebookState, State> = {
+export class NotebookGetters extends Getters<NotebookState> {
     /**
      * Flatten the tree structure of all the notebooks into a 1d array.
      */
-    flatten: (s) => {
+    get flatten() {
         const visited: { [i: string]: Notebook | undefined } = {};
 
         const recursiveStep = (toVisit: Notebook[]) => {
@@ -28,16 +29,19 @@ export const getters: GetterTree<NotebookState, State> = {
             }
         };
 
-        recursiveStep(s.values);
+        recursiveStep(this.state.values);
         return Object.values(visited);
-    },
-    notebooksForNote: (s) => (note: Note) => {
-        if (note == null) {
-            return [];
-        }
-
-        const notebooks = (getters as any).flatten(s);
-        const res = notebooks.filter((n: any) => note.notebooks.some((notebookId: string) => notebookId === n.id));
-        return res;
     }
-};
+
+    get notebooksForNote() {
+        return (note: Note) => {
+            if (note == null) {
+                return [];
+            }
+
+            const notebooks = this.flatten;
+            const res = notebooks.filter((n: any) => note.notebooks.some((notebookId: string) => notebookId === n.id));
+            return res;
+        };
+    }
+}

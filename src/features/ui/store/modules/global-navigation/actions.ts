@@ -2,62 +2,87 @@ import { generateId } from '@/store';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { Tag } from '@/features/tags/common/tag';
 import { State } from '@/store/state';
-import { Action, ActionContext, ActionTree } from 'vuex';
-import { GlobalNavigation, GlobalNavigationActive } from './state';
+import { Action, ActionContext, ActionTree, Store } from 'vuex';
+import { GlobalNavigationState, GlobalNavigationActive } from './state';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { undo } from '@/store/plugins/undo/undo';
 import { confirmDelete, confirmReplaceNotebook } from '@/shared/utils';
+import { Actions, Context } from 'vuex-smart-module';
+import { GlobalNavigationGetters } from '@/features/ui/store/modules/global-navigation/getters';
+import { GlobalNavigationMutations } from '@/features/ui/store/modules/global-navigation/mutations';
+import { tags } from '@/features/tags/store';
+import { notebooks } from '@/features/notebooks/store';
 
-export const actions: ActionTree<GlobalNavigation, State> = {
-    setActive({ commit }, a: GlobalNavigationActive) {
-        commit('SET_ACTIVE', a);
-    },
-    setWidth({ commit, state }, width: string) {
-        commit('SET_WIDTH', width);
-    },
-    tagInputStart({ commit, rootState }, { id }: { id?: string } = {}) {
+export class GlobalNavigationActions extends Actions<
+    GlobalNavigationState,
+    GlobalNavigationGetters,
+    GlobalNavigationMutations,
+    GlobalNavigationActions
+> {
+    tags!: Context<typeof tags>;
+    notebooks!: Context<typeof notebooks>;
+
+    $init(store: Store<any>) {
+        this.tags = tags.context(store);
+        this.notebooks = notebooks.context(store);
+    }
+
+    setActive(a: GlobalNavigationActive) {
+        this.commit('SET_ACTIVE', a);
+    }
+
+    setWidth(width: string) {
+        this.commit('SET_WIDTH', width);
+    }
+
+    tagInputStart({ id }: { id?: string } = {}) {
         let tag: Tag | undefined;
 
         if (id != null) {
-            tag = rootState.tags.values.find((t) => t.id === id);
+            tag = this.tags.state.values.find((t) => t.id === id) as Tag | undefined;
 
             if (tag == null) {
                 throw new Error(`No tag with id ${id} found.`);
             }
+
+            this.commit('START_TAGS_INPUT', { id: tag?.id, value: tag?.value });
+        } else {
+            this.commit('START_TAGS_INPUT');
         }
 
-        // undo.group('globalNavigation', (undoGroup) => {
-        commit('START_TAGS_INPUT', { tag });
-        commit('SET_TAGS_EXPANDED', { value: true });
-        // });
-    },
-    tagInputUpdated({ commit, state }, val: string) {
-        commit('SET_TAGS_INPUT', val);
-    },
-    tagInputConfirm({ commit, state }) {
-        const tag = Object.assign({} as Tag, state.tags.input);
+        this.commit('SET_TAGS_EXPANDED', { value: true });
+    }
 
-        switch (state.tags.input!.mode) {
+    tagInputUpdated(val: string) {
+        this.commit('SET_TAGS_INPUT', val);
+    }
+
+    tagInputConfirm() {
+        const tag = Object.assign({} as Tag, this.state.tags.input);
+
+        switch (this.state.tags.input!.mode) {
             case 'create':
-                commit('tags/CREATE', tag, { root: true });
+                this.tags.commit('CREATE', { id: tag.id, value: tag.value }, { root: true });
                 break;
 
             case 'update':
-                commit('tags/SET_NAME', tag, { root: true });
+                this.tags.commit('SET_NAME', { id: tag.id, value: tag.value }, { root: true });
                 break;
 
             default:
-                throw Error(`Invalid tag input mode: ${state.tags.input!.mode}`);
+                throw Error(`Invalid tag input mode: ${this.state.tags.input!.mode}`);
         }
 
-        commit('tags/SORT', null, { root: true });
-        commit('CLEAR_TAGS_INPUT');
-    },
-    tagInputCancel({ commit, state }) {
-        commit('CLEAR_TAGS_INPUT');
-    },
-    async tagDelete({ commit, rootState }, id: string) {
-        const tag = rootState.tags.values.find((t) => t.id === id);
+        this.tags.commit('SORT');
+        this.commit('CLEAR_TAGS_INPUT');
+    }
+
+    tagInputCancel() {
+        this.commit('CLEAR_TAGS_INPUT');
+    }
+
+    async tagDelete(id: string) {
+        const tag = this.tags.state.values.find((t) => t.id === id);
 
         if (tag == null) {
             throw new Error(`No tag with id ${id} found.`);
@@ -66,14 +91,17 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         const confirm = await confirmDelete('tag', tag.value);
 
         if (confirm) {
-            commit('tags/DELETE', id, { root: true });
-            commit('notes/REMOVE_TAG', { tagId: id }, { root: true });
+            this.tags.commit('DELETE', { id: id });
+            console.log('uncomment');
+            // tihcommit('notes/REMOVE_TAG', { tagId: id }, { root: true });
         }
-    },
-    setTagsExpanded({ commit, state }, expanded: boolean) {
-        commit('SET_TAGS_EXPANDED', { value: expanded });
-    },
-    notebookInputStart({ commit, rootState, state }, { id, parentId }: { id?: string; parentId?: string } = {}) {
+    }
+
+    setTagsExpanded(expanded: boolean) {
+        this.commit('SET_TAGS_EXPANDED', { value: expanded });
+    }
+
+    notebookInputStart({ id, parentId }: { id?: string; parentId?: string } = {}) {
         let notebook: Notebook | undefined;
         let parent: Notebook | undefined;
 
@@ -83,7 +111,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
          */
 
         if (id != null) {
-            notebook = findNotebookRecursive(rootState.notebooks.values, id);
+            notebook = findNotebookRecursive(this.notebooks.state.values, id);
 
             if (notebook == null) {
                 throw new Error(`No notebook with id ${id} found.`);
@@ -91,7 +119,7 @@ export const actions: ActionTree<GlobalNavigation, State> = {
         }
 
         if (id == null && parentId != null) {
-            parent = findNotebookRecursive(rootState.notebooks.values, parentId);
+            parent = findNotebookRecursive(this.notebooks.state.values, parentId);
         }
 
         const p: any = {
@@ -106,21 +134,23 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             };
         }
 
-        commit('START_NOTEBOOKS_INPUT', p);
+        this.commit('START_NOTEBOOKS_INPUT', p);
 
         if (parent != null) {
-            commit('notebooks/EXPANDED', { notebook: parent, bubbleUp: true }, { root: true });
+            this.notebooks.commit('SET_EXPANDED', { notebook: parent, bubbleUp: true, expanded: true });
         }
-    },
-    notebookInputUpdated({ commit, state }, val: string) {
-        commit('SET_NOTEBOOKS_INPUT', val);
-    },
-    notebookInputConfirm({ commit, state, rootState }) {
-        const input = state.notebooks.input!;
+    }
+
+    notebookInputUpdated(val: string) {
+        this.commit('SET_NOTEBOOKS_INPUT', val);
+    }
+
+    notebookInputConfirm() {
+        const input = this.state.notebooks.input!;
         let notebook: Notebook;
         let old: Notebook | undefined;
 
-        switch (state.notebooks.input?.mode) {
+        switch (this.state.notebooks.input?.mode) {
             case 'create':
                 notebook = {
                     id: generateId(),
@@ -129,53 +159,50 @@ export const actions: ActionTree<GlobalNavigation, State> = {
                 };
 
                 if (input.parentId != null) {
-                    notebook.parent = findNotebookRecursive(rootState.notebooks.values, input.parentId)!;
+                    notebook.parent = findNotebookRecursive(this.notebooks.state.values, input.parentId)!;
                 }
 
-                commit('notebooks/CREATE', notebook, { root: true });
+                this.notebooks.commit('CREATE', notebook, { root: true });
                 break;
 
             case 'update':
-                old = rootState.notebooks.values.find((n) => n.id === input.id)!;
-
-                notebook = {
-                    id: old.id,
-                    value: input.value,
-                    expanded: old.expanded,
-                    children: old.children,
-                    parent: old.parent
-                };
-
-                commit('notebooks/UPDATE', notebook, { root: true });
+                old = this.notebooks.state.values.find((n) => n.id === input.id)!;
+                this.notebooks.commit('SET_NAME', { id: old.id, value: input.value });
                 break;
 
             default:
-                throw new Error(`Invalid notebook input mode ${state.notebooks.input?.mode}`);
+                throw new Error(`Invalid notebook input mode ${this.state.notebooks.input?.mode}`);
         }
 
-        commit('CLEAR_NOTEBOOKS_INPUT');
+        this.commit('CLEAR_NOTEBOOKS_INPUT');
 
-        commit('notebooks/SORT', null, { root: true });
-    },
-    notebookInputCancel({ commit, state }) {
-        commit('CLEAR_NOTEBOOKS_INPUT');
-    },
-    async notebookDelete({ commit, rootState }, id: string) {
-        const notebook = findNotebookRecursive(rootState.notebooks.values, id)!;
+        this.notebooks.commit('SORT', null, { root: true });
+    }
+
+    notebookInputCancel() {
+        this.commit('CLEAR_NOTEBOOKS_INPUT');
+    }
+
+    async notebookDelete(id: string) {
+        const notebook = findNotebookRecursive(this.notebooks.state.values, id)!;
 
         if (await confirmDelete('notebook', notebook.value)) {
-            commit('notebooks/DELETE', id, { root: true });
-            commit('notes/REMOVE_NOTEBOOK', { notebookId: id }, { root: true });
+            this.notebooks.commit('DELETE', { id: id });
+            console.log('uncomment');
+            // this.notes.commit('notes/REMOVE_NOTEBOOK', { notebookId: id }, { root: true });
         }
-    },
-    setNotebooksExpanded({ commit, state }, expanded: boolean) {
-        commit('SET_NOTEBOOKS_EXPANDED', { value: expanded });
-    },
-    notebookDragStart({ commit }, notebook: Notebook) {
-        commit('SET_NOTEBOOKS_DRAGGING', notebook.id);
-    },
-    async notebookDragStop({ commit, rootState, state }, endedOnId: string | null) {
-        const dragging: Notebook = findNotebookRecursive(rootState.notebooks.values, state.notebooks.dragging!)!;
+    }
+
+    setNotebooksExpanded(expanded: boolean) {
+        this.commit('SET_NOTEBOOKS_EXPANDED', { value: expanded });
+    }
+
+    notebookDragStart(notebook: Notebook) {
+        this.commit('SET_NOTEBOOKS_DRAGGING', notebook.id);
+    }
+
+    async notebookDragStop(endedOnId: string | null) {
+        const dragging: Notebook = findNotebookRecursive(this.notebooks.state.values, this.state.notebooks.dragging!)!;
 
         if (dragging == null) {
             throw new Error('No drag to finalize.');
@@ -187,12 +214,12 @@ export const actions: ActionTree<GlobalNavigation, State> = {
          */
         if (dragging.id !== endedOnId && findNotebookRecursive(dragging.children!, endedOnId!) == null) {
             // Remove from old location
-            commit('notebooks/DELETE', dragging.id, { root: true });
+            this.notebooks.commit('DELETE', { id: dragging.id }, { root: true });
 
             let parent: Notebook | undefined;
 
             if (endedOnId != null) {
-                parent = findNotebookRecursive(rootState.notebooks.values, endedOnId);
+                parent = findNotebookRecursive(this.notebooks.state.values, endedOnId);
             }
 
             /*
@@ -201,21 +228,21 @@ export const actions: ActionTree<GlobalNavigation, State> = {
              */
             const newSiblings =
                 endedOnId == null
-                    ? rootState.notebooks.values
-                    : findNotebookRecursive(rootState.notebooks.values, endedOnId)?.children ?? [];
+                    ? this.notebooks.state.values
+                    : findNotebookRecursive(this.notebooks.state.values, endedOnId)?.children ?? [];
 
-            const duplicate = newSiblings.find((n) => n.value === dragging.value);
+            const duplicate = newSiblings.find((n) => n.value === dragging.value)!;
             if (duplicate != null) {
                 const confirmReplace = await confirmReplaceNotebook(dragging.value);
 
                 if (confirmReplace) {
-                    commit('notebooks/DELETE', duplicate.id, { root: true });
+                    this.notebooks.commit('DELETE', { id: duplicate.id }, { root: true });
                 }
             }
 
             // Insert into new spot
-            commit(
-                'notebooks/CREATE',
+            this.notebooks.commit(
+                'CREATE',
                 {
                     id: dragging.id,
                     value: dragging.value,
@@ -227,30 +254,43 @@ export const actions: ActionTree<GlobalNavigation, State> = {
             );
 
             if (parent) {
-                commit('notebooks/EXPANDED', { notebook: parent, expanded: true, bubbleUp: true }, { root: true });
+                this.notebooks.commit(
+                    'SET_EXPANDED',
+                    { notebook: parent, expanded: true, bubbleUp: true },
+                    { root: true }
+                );
             }
 
-            commit('SET_NOTEBOOKS_DRAGGING');
+            this.commit('SET_NOTEBOOKS_DRAGGING');
 
-            commit('notebooks/SORT', null, { root: true });
-        }
-    },
-    notebookDragCancel({ commit, state }) {
-        commit('SET_NOTEBOOKS_DRAGGING');
-    },
-    expandAll({ commit, state }) {
-        commit('SET_TAGS_EXPANDED', true);
-        commit('SET_NOTEBOOKS_EXPANDED', true);
-        commit('notebooks/SET_ALL_EXPANDED', true, { root: true });
-    },
-    collapseAll({ commit, state }) {
-        commit('TAGS_EXPANDED_UPDATED', false);
-        commit('NOTEBOOKS_EXPANDED_UPDATED', false);
-        commit('notebooks/SET_ALL_EXPANDED', false, { root: true });
-    },
-    async emptyTrash({ commit }) {
-        if (await confirmDelete('the trash', 'permanently')) {
-            commit('notes/EMPTY_TRASH', null!, { root: true });
+            this.notebooks.commit('SORT', null, { root: true });
         }
     }
-};
+
+    notebookDragCancel() {
+        this.commit('SET_NOTEBOOKS_DRAGGING');
+    }
+
+    expandAll() {
+        this.commit('SET_TAGS_EXPANDED', { value: true });
+        this.commit('SET_NOTEBOOKS_EXPANDED', { value: true });
+
+        console.log('uncomment');
+        // commit('notebooks/SET_ALL_EXPANDED', false, { root: true });
+    }
+
+    collapseAll() {
+        this.commit('SET_TAGS_EXPANDED', { value: false });
+        this.commit('SET_NOTEBOOKS_EXPANDED', { value: false });
+
+        console.log('uncomment');
+        // commit('notebooks/SET_ALL_EXPANDED', false, { root: true });
+    }
+
+    async emptyTrash() {
+        if (await confirmDelete('the trash', 'permanently')) {
+            console.log('uncomment');
+            // this.commit('notes/EMPTY_TRASH', null!, { root: true });
+        }
+    }
+}
