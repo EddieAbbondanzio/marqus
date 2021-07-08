@@ -1,21 +1,15 @@
 import { Note } from '@/features/notes/common/note';
 import { Tag } from '@/features/tags/common/tag';
+import { TagState } from '@/features/tags/store/state';
 import { isBlank } from '@/shared/utils';
-import { persist, store } from '@/store';
+import { store } from '@/store';
 import { Getter, Module, Mutation } from '@/store/common/class-modules/decorators';
 import { registerModule } from '@/store/common/class-modules/register-module';
 import { VuexModule } from '@/store/common/class-modules/vuex-module';
 import { generateId } from '@/store/common/types/entity';
+import { persist } from '@/store/plugins/persist';
 import { State } from '@/store/state';
 import { Store } from 'vuex';
-
-export interface TagState {
-    values: Tag[];
-}
-
-export const state: TagState = {
-    values: []
-};
 
 @Module({ namespace: 'tags' })
 export class TagStore extends VuexModule {
@@ -46,42 +40,47 @@ export class TagStore extends VuexModule {
     }
 
     @Mutation()
-    CREATE(props: { id?: string; value: string }) {
-        console.log('CREATE tag');
-        if (isBlank(props.value)) {
-            throw Error('Tag names cannot be empty.');
+    CREATE({ value }: { value: string }): Readonly<Tag> {
+        if (isBlank(value)) {
+            throw Error('Value is required.');
         }
 
-        this.state.values.push({
-            id: props.id ?? generateId(),
-            value: props.value
-        });
+        const tag = {
+            id: generateId(),
+            value: value
+        };
+
+        this.state.values.push(tag);
+
+        return tag;
     }
 
     @Mutation()
-    SET_NAME({ id, value }: { id: string; value: string }) {
+    UPDATE_VALUE({ id, value }: { id: string; value: string }): Readonly<Tag> {
         const t = this.state.values.find((t) => t.id === id);
 
         if (t == null) {
             throw Error(`No tag with id: ${id} found.`);
         }
 
-        if (value == null) {
+        if (isBlank(value)) {
             throw Error('Value is required.');
         }
 
         t.value = value;
+        return t;
     }
 
     @Mutation()
-    DELETE({ id }: { id: string }) {
+    DELETE({ id }: { id: string }): Readonly<Tag> {
         const i = this.state.values.findIndex((t) => t.id === id);
 
         if (i === -1) {
             throw Error(`No tag with id: ${id} found.`);
         }
 
-        this.state.values.splice(i, 1);
+        const [tag] = this.state.values.splice(i, 1);
+        return tag;
     }
 
     @Mutation()
@@ -94,6 +93,5 @@ export const tagStore = registerModule<TagStore>(TagStore, store);
 
 persist.register({
     namespace: 'tags',
-    fileName: 'tags.json',
     initMutation: 'SET_STATE'
 });
