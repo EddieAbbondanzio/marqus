@@ -24,9 +24,6 @@ export function registerModule<TModule extends VuexModule>(
     const [typeSafe, actualModule] = definition.generate(store);
     store.registerModule(definition.namespace, actualModule);
 
-    // Cache it so we can get it via .getModule() in other module classes
-    VuexModule.cacheModule(definition.namespace, typeSafe);
-
     // Give back the type safe module
     return typeSafe as TModule;
 }

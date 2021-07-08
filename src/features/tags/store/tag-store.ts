@@ -12,8 +12,8 @@ import { Persist } from '@/store/plugins/persist/persist-decorator';
 import { State } from '@/store/state';
 import { Store } from 'vuex';
 
-@Persist({ namespace: 'tags', initMutation: 'SET_STATE' })
 @Module({ namespace: 'tags' })
+@Persist({ namespace: 'tags', initMutation: 'SET_STATE' })
 export class TagStore extends VuexModule {
     state: TagState;
 
@@ -26,7 +26,20 @@ export class TagStore extends VuexModule {
     }
 
     @Getter()
-    get tagsForNote() {
+    get getTagById() {
+        return (id: string, required: boolean = true) => {
+            const tag = this.state.values.find((t) => t.id === id);
+
+            if (tag == null && required) {
+                throw Error(`No tag with id ${id} found.`);
+            }
+
+            return tag!;
+        };
+    }
+
+    @Getter()
+    get getTagsForNote() {
         return (note: Note) => {
             if (note == null) {
                 return [];
