@@ -8,9 +8,11 @@ import { registerModule } from '@/store/common/class-modules/register-module';
 import { VuexModule } from '@/store/common/class-modules/vuex-module';
 import { generateId } from '@/store/common/types/entity';
 import { persist } from '@/store/plugins/persist';
+import { Persist } from '@/store/plugins/persist/persist-decorator';
 import { State } from '@/store/state';
 import { Store } from 'vuex';
 
+@Persist({ namespace: 'tags', initMutation: 'SET_STATE' })
 @Module({ namespace: 'tags' })
 export class TagStore extends VuexModule {
     state: TagState;
@@ -90,8 +92,3 @@ export class TagStore extends VuexModule {
 }
 
 export const tagStore = registerModule<TagStore>(TagStore, store);
-
-persist.register({
-    namespace: 'tags',
-    initMutation: 'SET_STATE'
-});
