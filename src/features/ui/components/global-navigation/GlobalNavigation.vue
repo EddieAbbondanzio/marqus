@@ -57,25 +57,23 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, onBeforeUnmount } from 'vue';
 import Resizable from '@/components/Resizable.vue';
-import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
+import { mapActions, mapGetters, useStore } from 'vuex';
 import GlobalNavigationTagSection from '@/features/ui/components/global-navigation/GlobalNavigationTagSection.vue';
 import GlobalNavigationNotebookSection from '@/features/ui/components/global-navigation/GlobalNavigationNotebookSection.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuList from '@/components/navigation/NavigationMenuList.vue';
 import contextMenu from 'electron-context-menu';
-import { climbDomHierarchy } from '@/shared/utils';
 import IconButton from '@/components/IconButton.vue';
 import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';
-import { uiStore } from '@/features/ui/store/ui-store';
+import { climbDomHierarchy } from '@/shared/utils';
 
 export default defineComponent({
     setup: function() {
         const s = useStore();
-        console.log('getters', s.getters);
 
         const width = computed({
-            get: () => uiStore.modules.globalNavigation.width as string,
+            get: () => s.state.ui.globalNavigation.width as string,
             set: (w: any) => {
                 s.dispatch('ui/globalNavigation/setWidth', w);
             }

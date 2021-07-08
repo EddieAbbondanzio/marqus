@@ -2,10 +2,9 @@ import { Editor, EditorMode, Tab } from '@/features/ui/store/modules/editor/stat
 import { Note } from '@/features/notes/common/note';
 import { NOTES_DIRECTORY } from '@/features/notes/store';
 import { State } from '@/store/state';
-import { fileSystem } from '@/shared/utils/file-system';
-import { confirmDeleteOrTrash } from '@/shared/utils/prompts/confirm-delete-or-trash';
 import path from 'path';
 import { ActionTree } from 'vuex';
+import { confirmDeleteOrTrash, fileSystem } from '@/shared/utils';
 
 export const actions: ActionTree<Editor, State> = {
     tabDragStart({ commit }, tab: Tab) {

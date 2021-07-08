@@ -7,6 +7,8 @@ import { actions } from '@/store/actions';
 import { persist } from './plugins/persist/persist';
 import { mediator } from '@/store/plugins/mediator/mediator';
 import shortcuts from '@/features/shortcuts/store';
+import ui from '@/features/ui/store';
+import tags from '@/features/tags/store';
 
 export const store = createStore<State>({
     state: () => state as any,
@@ -14,9 +16,10 @@ export const store = createStore<State>({
     actions,
     modules: {
         notebooks,
-        // tags,
+        tags,
         notes,
-        shortcuts
+        shortcuts,
+        ui
     },
     plugins: [persist.plugin, mediator.plugin],
     /*

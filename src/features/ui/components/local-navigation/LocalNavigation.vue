@@ -110,7 +110,7 @@ export default defineComponent({
             watchRelease = s.watch(
                 (s) => s.ui.globalNavigation.active,
                 (val: any) => {
-                    // console.log(val);
+                    console.log(val);
                 }
             );
             contextMenuRelease = contextMenu({

@@ -94,8 +94,8 @@ export default defineComponent({
         ...mapMutations('ui/editor', ['CLOSE_TAB'])
     },
     computed: {
-        // ...mapState('ui/editor', ['tabs']),
-        // ...mapGetters('ui/editor', ['noteName', 'isTabActive'])
+        ...mapState('ui/editor', ['tabs']),
+        ...mapGetters('ui/editor', ['noteName', 'isTabActive'])
     },
     components: { IconButton }
 });

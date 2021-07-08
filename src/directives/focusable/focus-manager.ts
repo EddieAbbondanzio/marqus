@@ -1,6 +1,5 @@
 import { Focusable, FOCUSABLE_ATTRIBUTE_NAME } from '@/directives/focusable/focusable';
-import { climbDomHierarchy } from '@/shared/utils/dom/climb-dom-hierarchy';
-
+import { climbDomHierarchy } from '@/shared/utils';
 /**
  * Utility that helps track focused section of the app, and allows for changing focus
  * via a method call.

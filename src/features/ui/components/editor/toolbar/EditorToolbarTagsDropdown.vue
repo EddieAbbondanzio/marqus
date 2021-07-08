@@ -96,9 +96,9 @@ export default defineComponent({
         ...mapState('tags', {
             tags: 'values'
         }),
-        // ...mapGetters('ui/editor', {
-        // note: 'activeNote'
-        // }),
+        ...mapGetters('ui/editor', {
+            note: 'activeNote'
+        }),
         ...mapGetters('tags', ['tagsForNote'])
     },
     components: {

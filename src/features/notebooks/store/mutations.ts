@@ -2,8 +2,8 @@ import { MutationTree } from 'vuex';
 import { NotebookState } from './state';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { generateId } from '@/store';
-import { isBlank } from '@/shared/utils/string/is-blank';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
+import { isBlank } from '@/shared/utils';
 
 export const mutations: MutationTree<NotebookState> = {
     SET_STATE(state, s: NotebookState) {

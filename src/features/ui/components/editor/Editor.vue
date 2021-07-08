@@ -73,8 +73,8 @@ export default defineComponent({
         MarkdownRenderer
     },
     computed: {
-        // ...mapGetters('ui/editor', ['isEmpty', 'activeTab'])
-        // ...mapState('ui/editor', ['mode', 'isFocus'])
+        ...mapGetters('ui/editor', ['isEmpty', 'activeTab']),
+        ...mapState('ui/editor', ['mode', 'isFocus'])
     }
 });
 </script>

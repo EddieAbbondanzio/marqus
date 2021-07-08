@@ -5,17 +5,17 @@ export const mutations: MutationTree<LocalNavigation> = {
     SET_STATE(state, s: LocalNavigation) {
         Object.assign(state, s);
     },
-    SET_ACTIVE(s, { value }: { value: string }) {
-        s.active = value;
+    SET_ACTIVE(s, newValue: string) {
+        s.active = newValue;
     },
-    SET_NOTE_INPUT_NAME(s, { value }: { value: string }) {
-        s.notes.input!.name = value;
+    SET_NOTE_INPUT_NAME(s, newValue: string) {
+        s.notes.input!.name = newValue;
     },
     CLEAR_NOTE_INPUT(s) {
         delete s.notes.input;
     },
-    SET_WIDTH(s, { value }: { value: string }) {
-        s.width = value;
+    SET_WIDTH(s, newValue: string) {
+        s.width = newValue;
     },
     START_NOTE_INPUT(
         s,

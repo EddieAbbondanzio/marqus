@@ -1,5 +1,5 @@
 import { Editor } from '@/features/ui/store/modules/editor/state';
-import { GlobalNavigationState } from '@/features/ui/store/modules/global-navigation/state';
+import { GlobalNavigation } from '@/features/ui/store/modules/global-navigation/state';
 import { LocalNavigation } from '@/features/ui/store/modules/local-navigation/state';
 
 interface Cursor {
@@ -10,7 +10,7 @@ interface Cursor {
 
 export interface UserInterface {
     cursor: Cursor;
-    globalNavigation: GlobalNavigationState;
+    globalNavigation: GlobalNavigation;
     localNavigation: LocalNavigation;
     editor: Editor;
 }
