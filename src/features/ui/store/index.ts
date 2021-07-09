@@ -22,30 +22,49 @@ persist.register({
     fileName: 'ui.json',
     initMutation: 'SET_STATE',
     reviver: (s) => {
+        /*
+        * These are written verbose intentionally. Smaller granular checks
+        * let us check for more edge cases.
+        */
+
+        s.globalNavigation ??= {};
+        s.globalNavigation.notebooks ??= {};
         s.globalNavigation.notebooks.input = {};
+        s.globalNavigation.tags ??= {};
         s.globalNavigation.tags.input = {};
+
+        s.localNavigation ??= {}
+        s.localNavigation.notes ??= {}
         s.localNavigation.notes.input = {};
 
-        if (s.editor.mode == null) {
-            s.editor.mode = 'view';
-        }
+        s.editor ??= {};
+        s.editor.mode ??= 'view';
 
         return s;
     },
     transformer: (s) => {
-        delete s.globalNavigation.notebooks.input;
-        delete s.globalNavigation.notebooks.dragging;
-        delete s.globalNavigation.tags.input;
+        if (s.globalNavigation?.notebooks != null) {
+            delete s.globalNavigation.notebooks.input;
+            delete s.globalNavigation.notebooks.dragging;
+        }
 
-        delete s.localNavigation.notes.input;
+        if (s.globalNavigation?.tags != null) {
+            delete s.globalNavigation.tags.input;
+        }
+
+        if (s.localNavigation?.notes != null) {
+            delete s.localNavigation.notes.input;
+        }
 
         delete s.cursor;
 
-        delete s.editor.tabs.dragging;
+        if (s.editor?.tabs != null) {
+            delete s.editor.tabs.dragging;
 
-        for (let i = 0; i < s.editor.tabs.values.length; i++) {
-            delete s.editor.tabs.values[i].tagDropdownActive;
-            delete s.editor.tabs.values[i].notebookDropdownActive;
+            for (let i = 0; i < s.editor?.tabs.values.length; i++) {
+                delete s.editor.tabs.values[i].tagDropdownActive;
+                delete s.editor.tabs.values[i].notebookDropdownActive;
+            }
         }
 
         return s;
