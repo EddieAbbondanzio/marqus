@@ -12,6 +12,9 @@ import { GlobalNavigationMutations } from '@/features/ui/store/modules/global-na
 import { tags } from '@/features/tags/store';
 import { notebooks } from '@/features/notebooks/store';
 import { notes } from '@/features/notes/store';
+import { UndoModule } from '@/store/plugins/undo';
+
+let group: UndoModule['group'];
 
 export class GlobalNavigationActions extends Actions<
     GlobalNavigationState,
@@ -27,6 +30,9 @@ export class GlobalNavigationActions extends Actions<
         this.tags = tags.context(store);
         this.notebooks = notebooks.context(store);
         this.notes = notes.context(store);
+
+        const undoModule = undo.getModule('globalNavigation');
+        group = undoModule.group.bind(undoModule);
     }
 
     setActive(a: GlobalNavigationActive) {
@@ -52,7 +58,9 @@ export class GlobalNavigationActions extends Actions<
             this.commit('START_TAGS_INPUT');
         }
 
-        this.commit('SET_TAGS_EXPANDED', { value: true });
+        group((undo) => {
+            this.commit('SET_TAGS_EXPANDED', { value: true, undo });
+        });
     }
 
     tagInputUpdated(val: string) {

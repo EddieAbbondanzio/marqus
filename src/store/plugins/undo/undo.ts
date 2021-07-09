@@ -67,25 +67,25 @@ export const undo = {
         const [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
         const module = state.modules[namespace];
 
-        // mutation.payload ??= {}
-        // mutation.payload.undo ??= {};
-        // // If no module was found, we're not tracking it. Stop.
-        // if (module == null) {
-        //     return;
-        // }
-        // // Check it's not on the mutation ignore list for the module
-        // if (mutation.payload.undo.ignore || state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
-        //     return;
-        // }
-        // // Throw if the payload was not an object. Required so we can add some metadata to it.
-        // if (typeof mutation.payload !== 'object') {
-        //     throw Error(
-        //         `Undo plugin requires that all mutation payloads be wrapped objects. 
-        //         Mutation ${mutation.type} must have an object parameter, or be added to the ignore list.`
-        //     );
-        // }
+        mutation.payload ??= {}
+        mutation.payload.undo ??= {};
+        // If no module was found, we're not tracking it. Stop.
+        if (module == null) {
+            return;
+        }
+        // Check it's not on the mutation ignore list for the module
+        if (mutation.payload.undo.ignore || state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
+            return;
+        }
+        // Throw if the payload was not an object. Required so we can add some metadata to it.
+        if (typeof mutation.payload !== 'object') {
+            throw Error(
+                `Undo plugin requires that all mutation payloads be wrapped objects. 
+                Mutation ${mutation.type} must have an object parameter, or be added to the ignore list.`
+            );
+        }
         // Add event to the modules history
-        // state.modules[namespace].push(mutation);
+        state.modules[namespace].push(mutation);
     },
     reset() {
         state.modules = {};
