@@ -1,5 +1,4 @@
-import { State } from '@/store/state';
-import { GetterTree } from 'vuex';
-import { ShortcutState } from './state';
+import { ShortcutState } from '@/features/shortcuts/store/state';
+import { Getters } from 'vuex-smart-module';
 
-export const getters: GetterTree<ShortcutState, State> = {};
+export class ShortcutGetters extends Getters<ShortcutState> {}

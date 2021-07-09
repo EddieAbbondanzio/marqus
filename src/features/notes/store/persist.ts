@@ -3,14 +3,13 @@ import { NOTES_DIRECTORY } from '@/features/notes/store';
 import { NoteState } from '@/features/notes/store/state';
 import { fileSystem } from '@/shared/utils';
 import { isId } from '@/store';
-import { State } from '@/store/state';
 import moment from 'moment';
 import path from 'path';
 import { MutationPayload } from 'vuex';
 
 export async function serialize(
     s: NoteState,
-    { rootState, mutationPayload }: { rootState: State; mutationPayload: MutationPayload }
+    { rootState, mutationPayload }: { rootState: any; mutationPayload: MutationPayload }
 ) {
     switch (mutationPayload.type) {
         // id was passed
@@ -69,8 +68,8 @@ export async function deserialize() {
     };
 }
 
-export async function saveChangedNotes(rootState: State) {
-    const notes = rootState.notes.values.filter((n) => n.hasUnsavedChanges);
+export async function saveChangedNotes(rootState: any) {
+    const notes = rootState.notes.values.filter((n: any) => n.hasUnsavedChanges);
 
     for (const note of notes) {
         await saveNoteToFileSystem(rootState, note);
@@ -78,7 +77,7 @@ export async function saveChangedNotes(rootState: State) {
     }
 }
 
-export async function saveNoteToFileSystem(rootState: State, noteOrId: Note | string) {
+export async function saveNoteToFileSystem(rootState: any, noteOrId: Note | string) {
     let note: Note;
 
     if (noteOrId == null) {
@@ -86,7 +85,7 @@ export async function saveNoteToFileSystem(rootState: State, noteOrId: Note | st
     }
 
     if (typeof noteOrId === 'string') {
-        note = rootState.notes.values.find((n) => n.id === noteOrId)!;
+        note = rootState.notes.values.find((n: any) => n.id === noteOrId)!;
     } else {
         note = noteOrId;
     }

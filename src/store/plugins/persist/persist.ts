@@ -1,5 +1,4 @@
-import { State } from '@/store/state';
-import { DATA_DIRECTORY, fileSystem } from '@/shared/utils/file-system';
+import { fileSystem } from '@/shared/utils/file-system';
 import { TaskScheduler } from '@/shared/utils/task-scheduler';
 import { MutationPayload, Store } from 'vuex';
 import * as _ from 'lodash';
@@ -13,9 +12,9 @@ let release: () => void;
  */
 export const persist = {
     modules: [] as PersistModule[],
-    plugin(store: Store<State>) {
+    plugin(store: Store<any>): any {
         release = store.subscribe(
-            function(this: typeof persist, p: MutationPayload, s: State) {
+            function(this: typeof persist, p: MutationPayload, s: any): void {
                 const [namespace, mutation] = splitMutationAndNamespace(p.type);
 
                 // See if we can find a subscriber first
@@ -68,7 +67,7 @@ export const persist = {
      * Initialize store state by attempting to load any state json files
      * we can find.
      */
-    async init(store: Store<State>) {
+    async init(store: Store<any>): Promise<void> {
         // Don't load files in test
         if (process.env.NODE_ENV === 'test') {
             return;
@@ -107,7 +106,7 @@ export const persist = {
      * Register a module that the persist plugin should track.
      * @param pModule The module to register
      */
-    register(pModule: PersistModuleSettings) {
+    register(pModule: PersistModuleSettings): void {
         // Check for duplicate
         if (this.modules.some((m) => m.settings.namespace === pModule.namespace)) {
             throw Error(`Duplicate module registered ${pModule.namespace}`);
@@ -116,7 +115,7 @@ export const persist = {
         this.modules.push({ scheduler: new TaskScheduler(2), settings: pModule });
     },
 
-    release() {
+    release(): void {
         if (release != null) {
             release();
         }

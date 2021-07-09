@@ -1,17 +1,18 @@
-import { state } from './state';
-import { getters } from './getters';
-import { actions } from './actions';
-import { mutations } from './mutations';
 import { persist } from '@/store/plugins/persist/persist';
 import { deserialize, serialize } from '@/features/notes/store/persist';
+import { Module } from 'vuex-smart-module';
+import { NoteActions } from '@/features/notes/store/actions';
+import { NoteMutations } from '@/features/notes/store/mutations';
+import { NoteGetters } from '@/features/notes/store/getters';
+import { NoteState } from '@/features/notes/store/state';
 
-export default {
+export const notes = new Module({
     namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
-};
+    actions: NoteActions,
+    mutations: NoteMutations,
+    getters: NoteGetters,
+    state: NoteState
+});
 
 export const NOTES_DIRECTORY = 'notes';
 

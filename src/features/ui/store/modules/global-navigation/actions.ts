@@ -1,7 +1,6 @@
 import { generateId } from '@/store';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { Tag } from '@/features/tags/common/tag';
-import { State } from '@/store/state';
 import { Action, ActionContext, ActionTree, Store } from 'vuex';
 import { GlobalNavigationState, GlobalNavigationActive } from './state';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';

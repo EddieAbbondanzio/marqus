@@ -4,13 +4,17 @@ import { UserInterfaceActions } from './actions';
 import { UserInterfaceMutations } from './mutations';
 import { persist } from '@/store/plugins/persist/persist';
 import { Module } from 'vuex-smart-module';
+import { globalNavigation } from '@/features/ui/store/modules/global-navigation';
 
 export const userInterface = new Module({
     namespaced: true,
     state: UserInterfaceState,
     getters: UserInterfaceGetters,
     mutations: UserInterfaceMutations,
-    actions: UserInterfaceActions
+    actions: UserInterfaceActions,
+    modules: {
+        globalNavigation
+    }
 });
 
 persist.register({

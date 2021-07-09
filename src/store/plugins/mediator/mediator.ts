@@ -1,20 +1,19 @@
-import { State } from '@/store/state';
 import { MutationPayload, Store } from 'vuex';
 
 let release: () => void;
-let store: Store<State>;
+let store: Store<any>;
 
-type Subscriber = (mutation: MutationPayload, store: Store<State>) => any;
+type Subscriber = (mutation: MutationPayload, store: Store<any>) => any;
 
 export const mediator = {
     subscribers: {} as { [mutationType: string]: Subscriber[] },
 
-    plugin(s: Store<State>) {
+    plugin(s: Store<any>) {
         release = s.subscribe(mediator.notify.bind(mediator));
         store = s;
     },
 
-    notify(p: MutationPayload, s: State) {
+    notify(p: MutationPayload, s: any) {
         const subsToNotify = this.subscribers[p.type];
 
         if (subsToNotify == null) {

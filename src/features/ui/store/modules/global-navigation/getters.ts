@@ -1,5 +1,4 @@
 import { Notebook } from '@/features/notebooks/common/notebook';
-import { State } from '@/store/state';
 import { GetterTree } from 'vuex';
 import { Getters } from 'vuex-smart-module';
 import { GlobalNavigationState, GlobalNavigationActive } from './state';

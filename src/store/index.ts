@@ -1,27 +1,25 @@
-import { createLogger, createStore, mapState } from 'vuex';
-import notebooks from '@/features/notebooks/store';
-import notes from '@/features/notes/store';
-import { State, state } from './state';
-import { mutations } from '@/store/mutations';
-import { actions } from '@/store/actions';
-import { persist } from './plugins/persist/persist';
-import { mediator } from '@/store/plugins/mediator/mediator';
-import shortcuts from '@/features/shortcuts/store';
-import ui from '@/features/ui/store';
-import tags from '@/features/tags/store';
+import { mediator } from '@/store/plugins/mediator';
+import { persist } from '@/store/plugins/persist';
+import { createStore, Module } from 'vuex-smart-module';
+import { notebooks } from '@/features/notebooks/store';
+import { tags } from '@/features/tags/store';
+import { shortcuts } from '@/features/shortcuts/store';
+import { userInterface } from '@/features/ui/store';
+import { notes } from '@/features/notes/store';
+import { undo } from '@/store/plugins/undo';
 
-export const store = createStore<State>({
-    state: () => state as any,
-    mutations,
-    actions,
+export const root = new Module({
     modules: {
         notebooks,
         tags,
-        notes,
         shortcuts,
-        ui
-    },
-    plugins: [persist.plugin, mediator.plugin],
+        notes,
+        ui: userInterface
+    }
+});
+
+export const store = createStore(root, {
+    plugins: [persist.plugin, mediator.plugin, undo.plugin],
     /*
      * Don't use strict mode in production.
      * Major performance hit.

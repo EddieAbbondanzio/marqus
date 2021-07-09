@@ -1,18 +1,19 @@
-import { ShortcutState, state } from './state';
-import { getters } from './getters';
-import { actions } from './actions';
-import { mutations } from './mutations';
+import { ShortcutState } from './state';
 import { persist } from '@/store/plugins/persist/persist';
 import { shortcutFromString } from '@/features/shortcuts/common/shortcut';
 import { DEFAULT_SHORTCUTS } from '@/features/shortcuts/common/default-shortcuts';
+import { Module } from 'vuex-smart-module';
+import { ShortcutActions } from '@/features/shortcuts/store/actions';
+import { ShortcutMutations } from '@/features/shortcuts/store/mutations';
+import { ShortcutGetters } from '@/features/shortcuts/store/getters';
 
-export default {
+export const shortcuts = new Module({
     namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
-};
+    actions: ShortcutActions,
+    mutations: ShortcutMutations,
+    getters: ShortcutGetters,
+    state: ShortcutState
+});
 
 persist.register({
     namespace: 'shortcuts',

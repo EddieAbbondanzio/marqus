@@ -1,5 +1,4 @@
-import { State } from '@/store/state';
-import { GetterTree } from 'vuex';
-import { NoteState } from './state';
+import { NoteState } from '@/features/notes/store/state';
+import { Getters } from 'vuex-smart-module';
 
-export const getters: GetterTree<NoteState, State> = {};
+export class NoteGetters extends Getters<NoteState> {}
