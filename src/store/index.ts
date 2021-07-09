@@ -9,6 +9,7 @@ import { notes } from '@/features/notes/store';
 import { undo } from '@/store/plugins/undo';
 
 export const root = new Module({
+    namespaced: false,
     modules: {
         notebooks,
         tags,

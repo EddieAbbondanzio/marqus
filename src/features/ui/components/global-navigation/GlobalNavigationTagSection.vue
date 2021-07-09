@@ -17,7 +17,7 @@
 
         <NavigationMenuForm
             id="global-navigation-tag-create-form"
-            v-if="isTagBeingCreated"
+            v-if="isTagBeingCreated()"
             @submit="confirm"
             @cancel="cancel"
             v-model="input"
@@ -61,6 +61,7 @@ import { Tag } from '@/features/tags/common/tag';
 export default defineComponent({
     setup: function() {
         const s = useStore();
+        console.log(s.state.ui.globalNavigation);
 
         const expanded = computed({
             get: () => s.state.ui.globalNavigation.tags.expanded,
