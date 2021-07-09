@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
+import { defineComponent, onMounted, onUnmounted } from 'vue';
 import { mapState, useStore } from 'vuex';
 
 export default defineComponent({
@@ -13,7 +13,7 @@ export default defineComponent({
         const s = useStore();
         let cursorClass = 'has-cursor-default';
 
-        const release = s.subscribe((m, s) => {
+        const release = s.subscribe((m) => {
             switch (m.type) {
                 case 'ui/SET_CURSOR_ICON':
                     // Remove old one first
@@ -52,7 +52,7 @@ export default defineComponent({
         });
     },
     computed: {
-        // ...mapState('ui', { dragging: (s: any) => s.cursor.dragging })
+        ...mapState('ui', { dragging: (s: any) => s.cursor.dragging })
     }
 });
 </script>
