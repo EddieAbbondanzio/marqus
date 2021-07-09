@@ -11,6 +11,7 @@ import { GlobalNavigationGetters } from '@/features/ui/store/modules/global-navi
 import { GlobalNavigationMutations } from '@/features/ui/store/modules/global-navigation/mutations';
 import { tags } from '@/features/tags/store';
 import { notebooks } from '@/features/notebooks/store';
+import { notes } from '@/features/notes/store';
 
 export class GlobalNavigationActions extends Actions<
     GlobalNavigationState,
@@ -20,10 +21,12 @@ export class GlobalNavigationActions extends Actions<
 > {
     tags!: Context<typeof tags>;
     notebooks!: Context<typeof notebooks>;
+    notes!: Context<typeof notes>;
 
     $init(store: Store<any>) {
         this.tags = tags.context(store);
         this.notebooks = notebooks.context(store);
+        this.notes = notes.context(store);
     }
 
     setActive(a: GlobalNavigationActive) {
@@ -61,11 +64,11 @@ export class GlobalNavigationActions extends Actions<
 
         switch (this.state.tags.input!.mode) {
             case 'create':
-                this.tags.commit('CREATE', { id: tag.id, value: tag.value }, { root: true });
+                this.tags.commit('CREATE', { id: tag.id, value: tag.value });
                 break;
 
             case 'update':
-                this.tags.commit('SET_NAME', { id: tag.id, value: tag.value }, { root: true });
+                this.tags.commit('SET_NAME', { id: tag.id, value: tag.value });
                 break;
 
             default:
@@ -91,8 +94,7 @@ export class GlobalNavigationActions extends Actions<
 
         if (confirm) {
             this.tags.commit('DELETE', { id: id });
-            console.log('uncomment');
-            // tihcommit('notes/REMOVE_TAG', { tagId: id }, { root: true });
+            this.notes.commit('REMOVE_TAG', { tagId: id });
         }
     }
 
@@ -161,7 +163,7 @@ export class GlobalNavigationActions extends Actions<
                     notebook.parent = findNotebookRecursive(this.notebooks.state.values, input.parentId)!;
                 }
 
-                this.notebooks.commit('CREATE', notebook, { root: true });
+                this.notebooks.commit('CREATE', notebook);
                 break;
 
             case 'update':
@@ -175,7 +177,7 @@ export class GlobalNavigationActions extends Actions<
 
         this.commit('CLEAR_NOTEBOOKS_INPUT');
 
-        this.notebooks.commit('SORT', null, { root: true });
+        this.notebooks.commit('SORT', null);
     }
 
     notebookInputCancel() {
@@ -187,8 +189,7 @@ export class GlobalNavigationActions extends Actions<
 
         if (await confirmDelete('notebook', notebook.value)) {
             this.notebooks.commit('DELETE', { id: id });
-            console.log('uncomment');
-            // this.notes.commit('notes/REMOVE_NOTEBOOK', { notebookId: id }, { root: true });
+            this.notes.commit('REMOVE_NOTEBOOK', { notebookId: id });
         }
     }
 
@@ -213,7 +214,7 @@ export class GlobalNavigationActions extends Actions<
          */
         if (dragging.id !== endedOnId && findNotebookRecursive(dragging.children!, endedOnId!) == null) {
             // Remove from old location
-            this.notebooks.commit('DELETE', { id: dragging.id }, { root: true });
+            this.notebooks.commit('DELETE', { id: dragging.id });
 
             let parent: Notebook | undefined;
 
@@ -235,7 +236,7 @@ export class GlobalNavigationActions extends Actions<
                 const confirmReplace = await confirmReplaceNotebook(dragging.value);
 
                 if (confirmReplace) {
-                    this.notebooks.commit('DELETE', { id: duplicate.id }, { root: true });
+                    this.notebooks.commit('DELETE', { id: duplicate.id });
                 }
             }
 
@@ -262,7 +263,7 @@ export class GlobalNavigationActions extends Actions<
 
             this.commit('SET_NOTEBOOKS_DRAGGING');
 
-            this.notebooks.commit('SORT', null, { root: true });
+            this.notebooks.commit('SORT', null);
         }
     }
 
@@ -274,22 +275,19 @@ export class GlobalNavigationActions extends Actions<
         this.commit('SET_TAGS_EXPANDED', { value: true });
         this.commit('SET_NOTEBOOKS_EXPANDED', { value: true });
 
-        console.log('uncomment');
-        // commit('notebooks/SET_ALL_EXPANDED', false, { root: true });
+        this.notebooks.commit('SET_ALL_EXPANDED', false);
     }
 
     collapseAll() {
         this.commit('SET_TAGS_EXPANDED', { value: false });
         this.commit('SET_NOTEBOOKS_EXPANDED', { value: false });
 
-        console.log('uncomment');
-        // commit('notebooks/SET_ALL_EXPANDED', false, { root: true });
+        this.notebooks.commit('SET_ALL_EXPANDED', false);
     }
 
     async emptyTrash() {
         if (await confirmDelete('the trash', 'permanently')) {
-            console.log('uncomment');
-            // this.commit('notes/EMPTY_TRASH', null!, { root: true });
+            this.notes.commit('EMPTY_TRASH');
         }
     }
 }
