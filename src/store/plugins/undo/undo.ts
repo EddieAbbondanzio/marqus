@@ -1,6 +1,6 @@
 import { UndoGrouper, UndoModule } from '@/store/plugins/undo/undo-module';
 import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
-import { UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
+import { UndoMetadata, UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
 import { MutationPayload, Store } from 'vuex';
 
 const state: UndoState = { modules: {}, store: null! };
@@ -69,15 +69,17 @@ export const undo = {
     onMutation(mutation: MutationPayload, s: Store<any>) {
         mutation.payload ??= {}
         mutation.payload.undo ??= {};
-        
-        const [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
-        const module = state.modules[namespace];
 
-        // If a group has a mutation from a module we aren't tracking, throw error
-        if (mutation.payload.undo.groupId != null && module == null) {
-            throw Error(`Undo group has a mutation from a module (${namespace}) that is not being tracked.`)
+        const metadata = mutation.payload.undo as UndoMetadata;
+        let [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
+
+        // Allow mutations from other namespaces to be included in a group.
+        if (metadata.groupId != null && metadata.groupNamespace != null) {
+            namespace = metadata.groupNamespace;
         }
         
+        const module = state.modules[namespace];
+
         // If no module was found, we're not tracking it. Stop.
         if (module == null) {
             return;

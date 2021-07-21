@@ -38,8 +38,3 @@ persist.register({
         return s;
     }
 });
-
-undo.registerModule(new NotebookState(), {
-    name: 'notebooks',
-    namespace: 'notebooks'
-});

@@ -23,8 +23,3 @@ persist.register({
     serialize,
     deserialize
 });
-
-undo.registerModule(new NoteState(), {
-    name: 'notes',
-    namespace: 'notes'
-});

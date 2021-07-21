@@ -57,6 +57,7 @@ export class UndoHistory {
                 this._events.push(g);
                 this._currentIndex++;
             }
+        // eslint-disable-next-line
         }
         // Normal mutation
         else {
@@ -81,9 +82,9 @@ export class UndoHistory {
      * @param index The index to jump back to
      * @returns The event to undo.
      */
-    rewind(index: number): UndoItemOrGroup[] {
-        if (!this.canRewind()) {
-            throw Error('Nothing to rewind');
+    undo(index: number): UndoItemOrGroup[] {
+        if (!this.canUndo()) {
+            throw Error('Nothing to undo');
         }
         const toReplay = this._events.slice(index, this.currentIndex - 1);
 
@@ -106,9 +107,9 @@ export class UndoHistory {
      * Jump into the future, and move back to the next event.
      * @returns The event to apply.
      */
-    fastForward(): UndoItemOrGroup {
-        if (!this.canFastForward()) {
-            throw Error('Nothing to fast forward');
+    redo(): UndoItemOrGroup {
+        if (!this.canRedo()) {
+            throw Error('Nothing to redo');
         }
         // Pre-increment so we get the event ahead of our current position.
         const nextIndex = this._currentIndex;
@@ -128,7 +129,7 @@ export class UndoHistory {
      * Check if there are any remaining events to rewind.
      * @returns True if there are events in the history behind our current position.
      */
-    canRewind() {
+    canUndo() {
         return this._currentIndex > 0;
     }
 
@@ -136,7 +137,7 @@ export class UndoHistory {
      * Check if there are any events ahead of our current spot.
      * @returns True if there are events ahead of our current position.
      */
-    canFastForward() {
+    canRedo() {
         return this._events.length > 0 && this._currentIndex < this._events.length;
     }
 

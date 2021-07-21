@@ -90,7 +90,7 @@ describe('UndoHistory', () => {
     describe('rewind()', () => {
         it("throws if can't rewind", () => {
             const history = new UndoHistory();
-            expect(history.rewind).toThrow();
+            expect(history.undo).toThrow();
         });
 
         it('returns mutations to replay', () => {
@@ -101,7 +101,7 @@ describe('UndoHistory', () => {
                 ],
                 2
             );
-            const toReplay = history.rewind(0);
+            const toReplay = history.undo(0);
 
             expect(toReplay).toHaveLength(1);
             expect((toReplay[0] as MutationPayload).payload.undo).toHaveProperty('isReplay', true);
@@ -111,7 +111,7 @@ describe('UndoHistory', () => {
     describe('fastForward()', () => {
         it("throws if can't fast forward", () => {
             const history = new UndoHistory();
-            expect(history.fastForward).toThrow();
+            expect(history.redo).toThrow();
         });
 
         it('returns mutation to replay', () => {
@@ -123,7 +123,7 @@ describe('UndoHistory', () => {
                 0
             );
 
-            const mut = history.fastForward();
+            const mut = history.redo();
             expect(mut).toHaveProperty('type', 'foo');
             expect((mut as MutationPayload).payload.undo).toHaveProperty('isReplay', true);
         });
@@ -133,12 +133,12 @@ describe('UndoHistory', () => {
         it('returns true if current index > 0', () => {
             const history = new UndoHistory();
             history.push({ payload: {} } as any);
-            expect(history.canRewind()).toBeTruthy();
+            expect(history.canUndo()).toBeTruthy();
         });
 
         it('returns false if currentIndex is 0', () => {
             const history = new UndoHistory();
-            expect(history.canRewind()).toBeFalsy();
+            expect(history.canUndo()).toBeFalsy();
         });
     });
 
@@ -150,12 +150,12 @@ describe('UndoHistory', () => {
             history.push({ payload: {} } as any);
 
             history['_currentIndex'] = 1;
-            expect(history.canFastForward()).toBeTruthy();
+            expect(history.canRedo()).toBeTruthy();
         });
 
         it('returns false if events is 0', () => {
             const history = new UndoHistory();
-            expect(history.canFastForward()).toBeFalsy();
+            expect(history.canRedo()).toBeFalsy();
         });
 
         it('returns false if current index is not less than events length', () => {
@@ -164,7 +164,7 @@ describe('UndoHistory', () => {
             history.push({ payload: {} } as any);
             history.push({ payload: {} } as any);
 
-            expect(history.canFastForward()).toBeFalsy();
+            expect(history.canRedo()).toBeFalsy();
         });
     });
 

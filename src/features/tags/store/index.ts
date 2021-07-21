@@ -19,8 +19,3 @@ persist.register({
     fileName: 'tags.json',
     initMutation: 'SET_STATE'
 });
-
-undo.registerModule(new TagState(), {
-    name: 'tags',
-    namespace: 'tags'
-});

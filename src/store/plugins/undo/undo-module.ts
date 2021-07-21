@@ -68,7 +68,7 @@ export class UndoModule {
      * @returns True if the module has history that can be undone.
      */
     canUndo() {
-        return this._history.canRewind();
+        return this._history.canUndo();
     }
 
     /**
@@ -76,7 +76,7 @@ export class UndoModule {
      * @returns True if the module has history that can be redone.
      */
     canRedo() {
-        return this._history.canFastForward();
+        return this._history.canRedo();
     }
 
     /**
@@ -90,7 +90,7 @@ export class UndoModule {
         store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
         // Reapply (N - 1) mutations to get to the desired state.
-        const mutations = this._history.rewind(cached.index);
+        const mutations = this._history.undo(cached.index);
         console.log('going to replay: ', mutations);
         await this._replayMutations(mutations, 'undo');
     }
@@ -99,7 +99,7 @@ export class UndoModule {
      * Redo the last undone mutation or group. Throws if none.
      */
     async redo() {
-        const mutation = this._history.fastForward();
+        const mutation = this._history.redo();
         await this._replayMutations([mutation], 'redo');
     }
 
@@ -109,7 +109,7 @@ export class UndoModule {
      */
     async group(handle: (undo: UndoMetadata) => any) {
         const groupId = this._history.startGroup();
-        const metaData: UndoMetadata = { groupId };
+        const metaData: UndoMetadata = { groupId, groupNamespace: this._settings.namespace };
 
         // Handles can be async, or sync because not all actions will be async
         if (isAsync(handle)) {

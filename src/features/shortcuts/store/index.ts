@@ -23,11 +23,6 @@ persist.register({
     reviver
 });
 
-undo.registerModule(new ShortcutState(), {
-    name: 'shortcuts',
-    namespace: 'shortcuts'
-});
-
 export function transformer(state: ShortcutState): any {
     return {
         values: state.values.filter((s) => s.isUserDefined).map((s) => ({ name: s.name, keys: s.toString() }))

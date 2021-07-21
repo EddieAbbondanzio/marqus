@@ -21,6 +21,7 @@ export type UndoCallback = (mutation: MutationPayload) => Promise<any>;
 
 export interface UndoMetadata {
     groupId?: string;
+    groupNamespace?: string;
     isReplay?: boolean;
     ignore?: boolean;
     undoCallback?: UndoCallback;
