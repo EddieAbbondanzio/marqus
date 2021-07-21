@@ -57,11 +57,14 @@ import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import IconButton from '@/components/IconButton.vue';
 import { Tag } from '@/features/tags/common/tag';
+import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 
 export default defineComponent({
     setup: function() {
         const s = useStore();
         console.log(s.state.ui.globalNavigation);
+
+        const globalNav = useGlobalNavigation();
 
         const expanded = computed({
             get: () => s.state.ui.globalNavigation.tags.expanded,
@@ -72,7 +75,7 @@ export default defineComponent({
 
         const input = computed({
             get: () => s.state.ui.globalNavigation.tags.input.value,
-            set: (v: string) => s.dispatch('ui/globalNavigation/tagInputUpdated', v)
+            set: (v: string) => globalNav.dispatch('tagInputUpdated', v)
         });
 
         const formRules = {

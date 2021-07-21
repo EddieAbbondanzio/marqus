@@ -43,7 +43,9 @@ export class GlobalNavigationActions extends Actions<
     }
 
     tagInputStart({ id }: { id?: string } = {}) {
-        this.group((undo) => {
+        this.group((_undo) => {
+            _undo.ignore = true;
+
             let tag: Tag | undefined;
 
             if (id != null) {
@@ -53,38 +55,46 @@ export class GlobalNavigationActions extends Actions<
                     throw new Error(`No tag with id ${id} found.`);
                 }
 
-                this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, undo });
+                this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, _undo });
             } else {
-                this.commit('START_TAGS_INPUT', { value: undefined, undo });
+                this.commit('START_TAGS_INPUT', { value: undefined, _undo });
             }
-
-            this.commit('SET_TAGS_EXPANDED', { value: true, undo });
         });
+
+        this.commit('SET_TAGS_EXPANDED', { value: true }); // Intentionally left out of the group
     }
 
     tagInputUpdated(value: string) {
-        this.commit('SET_TAGS_INPUT', { value });
+        this.commit('SET_TAGS_INPUT', { value, _undo: { ignore: true } });
     }
 
     tagInputConfirm() {
-        this.group((undo) => {
+        this.group((_undo) => {
             const tag = Object.assign({} as Tag, this.state.tags.input);
 
             switch (this.state.tags.input!.mode) {
                 case 'create':
-                    this.tags.commit('CREATE', { value: { id: tag.id, value: tag.value }, undo });
+                    tag.id = generateId();
+
+                    this.tags.commit('CREATE', {
+                        value: { id: tag.id, value: tag.value },
+                        _undo: {
+                            ..._undo,
+                            undoCallback: (m) => this.tags.commit('DELETE', { value: { id: m.payload.value.id } })
+                        }
+                    });
                     break;
 
                 case 'update':
-                    this.tags.commit('SET_NAME', { value: { id: tag.id, value: tag.value }, undo });
+                    this.tags.commit('SET_NAME', { value: { id: tag.id, value: tag.value }, _undo });
                     break;
 
                 default:
                     throw Error(`Invalid tag input mode: ${this.state.tags.input!.mode}`);
             }
 
-            this.tags.commit('SORT', { undo });
-            this.commit('CLEAR_TAGS_INPUT', { undo });
+            this.tags.commit('SORT', { _undo });
+            this.commit('CLEAR_TAGS_INPUT', { _undo });
         });
     }
 
@@ -103,7 +113,7 @@ export class GlobalNavigationActions extends Actions<
             const confirm = await confirmDelete('tag', tag.value);
 
             if (confirm) {
-                this.tags.commit('DELETE', { value: { id: id }, undo });
+                this.tags.commit('DELETE', { value: { id: id }, _undo: undo });
                 this.notes.commit('REMOVE_TAG', { tagId: id });
             }
         });

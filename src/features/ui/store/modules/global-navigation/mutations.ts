@@ -22,7 +22,7 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
 
     SET_TAGS_INPUT(p: UndoPayload<string>) {
         if (this.state.tags.input == null) {
-            throw Error('No tag input to update.');
+            return;
         }
 
         this.state.tags.input!.value = p.value;
@@ -43,7 +43,7 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
         }
     }
 
-    CLEAR_TAGS_INPUT() {
+    CLEAR_TAGS_INPUT(p?: VoidUndoPayload) {
         delete this.state.tags.input;
     }
 
@@ -76,7 +76,7 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
         }
     }
 
-    CLEAR_NOTEBOOKS_INPUT() {
+    CLEAR_NOTEBOOKS_INPUT(p?: VoidUndoPayload) {
         delete this.state.notebooks.input;
     }
 

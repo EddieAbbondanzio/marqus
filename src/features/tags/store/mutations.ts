@@ -10,13 +10,17 @@ export class TagMutations extends Mutations<TagState> {
         Object.assign(this.state, s);
     }
 
-    CREATE(p: UndoPayload<{ id?: string; value: string }>) {
+    CREATE(p: UndoPayload<{ id: string; value: string }>) {
+        if (isBlank(p.value.id)) {
+            throw Error('Tag id is required.');
+        }
+
         if (isBlank(p.value.value)) {
-            throw Error('Tag names cannot be empty.');
+            throw Error('Tag value is required.');
         }
 
         this.state.values.push({
-            id: p.value.id ?? generateId(),
+            id: p.value.id,
             value: p.value.value
         });
     }

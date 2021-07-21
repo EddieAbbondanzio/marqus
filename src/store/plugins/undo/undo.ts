@@ -68,14 +68,14 @@ export const undo = {
     },
     onMutation(mutation: MutationPayload, s: Store<any>) {
         mutation.payload ??= {}
-        mutation.payload.undo ??= {};
+        mutation.payload._undo ??= {};
 
-        const metadata = mutation.payload.undo as UndoMetadata;
+        const metadata = mutation.payload._undo as UndoMetadata;
         let [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
 
         // Allow mutations from other namespaces to be included in a group.
-        if (metadata.groupId != null && metadata.groupNamespace != null) {
-            namespace = metadata.groupNamespace;
+        if (metadata.group != null) {
+            namespace = metadata.group.namespace;
         }
         
         const module = state.modules[namespace];
@@ -85,7 +85,7 @@ export const undo = {
             return;
         }
         // Check it's not on the mutation ignore list for the module
-        if (mutation.payload.undo.ignore || state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
+        if (metadata.ignore || state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
             return;
         }
         // Throw if the payload was not an object. Required so we can add some metadata to it.

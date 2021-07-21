@@ -42,6 +42,11 @@ export class UndoModule {
      * @param mutation The mutation to add to the history.
      */
     push(mutation: MutationPayload) {
+        if (mutation.payload._undo?.ignore) {
+            console.log('ignore! (module)');
+            return;
+        }
+
         this._history.push(mutation);
 
         /*
@@ -85,18 +90,19 @@ export class UndoModule {
     async undo() {
         // Roll back to most recently cached state
         const cached = this._stateCache.getLast(this._history.currentIndex);
-        console.log('reverting to state: ', cached);
         const store = this._getStore();
         store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
         // Reapply (N - 1) mutations to get to the desired state.
         const [replay, undone] = this._history.undo(cached.index);
 
-        console.log('going to replay: ', replay);
         await this._replayMutations(replay, 'undo');
 
-        // Undo callback is only triggered on the mutation or group that was actually undone.
-        await this._notifyCallbacks(undone, 'undo');
+        // Notify call backs
+        const all = [...replay, undone];
+        for (const m of all) {
+            await this._notifyCallbacks(m, 'undo');
+        }
     }
 
     /**
@@ -114,7 +120,7 @@ export class UndoModule {
      */
     async group(handle: (undo: UndoMetadata) => any) {
         const groupId = this._history.startGroup();
-        const metaData: UndoMetadata = { groupId, groupNamespace: this._settings.namespace };
+        const metaData: UndoMetadata = { group: { id: groupId, namespace: this.settings.namespace } };
 
         // Handles can be async, or sync because not all actions will be async
         if (isAsync(handle)) {
@@ -154,7 +160,7 @@ export class UndoModule {
         const mutations = isUndoGroup(mutation) ? mutation.mutations : [mutation];
 
         for (const m of mutations) {
-            const metadata = m.payload.undo as UndoMetadata;
+            const metadata = m.payload._undo as UndoMetadata;
             let callback;
 
             // Stop if no metadata

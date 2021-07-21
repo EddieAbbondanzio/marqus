@@ -17,24 +17,28 @@ export interface UndoModuleSettings {
 
 export type UndoReplayMode = 'undo' | 'redo';
 
-export type UndoCallback = (mutation: MutationPayload) => Promise<any>;
+export type UndoCallback = (mutation: MutationPayload) => any;
 
 export interface UndoMetadata {
-    groupId?: string;
-    groupNamespace?: string;
+    group?: {
+        id: string;
+        namespace: string;
+    };
     isReplay?: boolean;
     ignore?: boolean;
     undoCallback?: UndoCallback;
     redoCallback?: UndoCallback;
 }
 
+// _undo is intential. Since the plugin name is undo it can lead to errors because it's easy to pass by accident.
+
 export interface UndoPayload<T> {
     value: T;
-    undo?: UndoMetadata;
+    _undo?: UndoMetadata;
 }
 
 export interface VoidUndoPayload {
-    undo?: UndoMetadata;
+    _undo?: UndoMetadata;
 }
 
 /**
