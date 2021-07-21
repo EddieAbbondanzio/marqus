@@ -10,15 +10,32 @@ export interface UndoState {
 export interface UndoModuleSettings {
     name: string;
     namespace: string;
-    setStateMutation: string;
-    stateCacheInterval: number;
+    setStateMutation?: string;
+    stateCacheInterval?: number;
     ignore?: string[];
 }
 
 export type UndoReplayMode = 'undo' | 'redo';
 
-// eslint-disable-next-line
-export type UndoPayload<T extends object> = T & { undo?: UndoMetadata };
+export type UndoCallback = (mutation: MutationPayload) => Promise<any>;
+
+export interface UndoMetadata {
+    groupId?: string;
+    groupNamespace?: string;
+    isReplay?: boolean;
+    ignore?: boolean;
+    undoCallback?: UndoCallback;
+    redoCallback?: UndoCallback;
+}
+
+export interface UndoPayload<T> {
+    value: T;
+    undo?: UndoMetadata;
+}
+
+export interface VoidUndoPayload {
+    undo?: UndoMetadata;
+}
 
 /**
  * Unit of work group that can contain 1 or more mutations.
@@ -28,17 +45,7 @@ export interface UndoGroup {
     mutations: MutationPayload[];
 }
 
-export type UndoItemOrGroup = UndoPayload<any> | UndoGroup;
-
-export type UndoCallback = (mutation: MutationPayload) => Promise<any>;
-
-export interface UndoMetadata {
-    groupId?: string;
-    isReplay?: boolean;
-    ignore?: boolean;
-    undoCallback?: UndoCallback;
-    redoCallback?: UndoCallback;
-}
+export type UndoItemOrGroup = MutationPayload | UndoGroup;
 
 /**
  * Type discriminator for undo groups and mutations.

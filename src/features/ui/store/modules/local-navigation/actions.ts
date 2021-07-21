@@ -1,7 +1,6 @@
 import { Note } from '@/features/notes/common/note';
 import { confirmDeleteOrTrash } from '@/shared/utils';
 import { generateId } from '@/store';
-import { State } from '@/store/state';
 import { ActionTree } from 'vuex';
 import { LocalNavigation } from './state';
 

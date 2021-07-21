@@ -1,4 +1,4 @@
-import { UndoModule } from '@/store/plugins/undo/undo-module';
+import { UndoGrouper, UndoModule } from '@/store/plugins/undo/undo-module';
 import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
 import { UndoModuleSettings, UndoState } from '@/store/plugins/undo/types';
 import { MutationPayload, Store } from 'vuex';
@@ -35,6 +35,9 @@ export const undo = {
             throw Error(`Duplicate undo module name ${settings.name}`);
         }
 
+        settings.setStateMutation = 'SET_STATE';
+        settings.stateCacheInterval = 100;
+
         // Add set state commit to ignore list, and fully qualify user provided ones.
         settings.ignore ??= [];
         settings.ignore.unshift(settings.setStateMutation);
@@ -64,11 +67,19 @@ export const undo = {
         return module;
     },
     onMutation(mutation: MutationPayload, s: Store<any>) {
-        const [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
-        const module = state.modules[namespace];
-
         mutation.payload ??= {}
         mutation.payload.undo ??= {};
+        
+        let [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
+
+        // A group can have mutations from other modules that we aren't tracking.
+        if (mutation.payload.undo.groupId != null) {
+            console.log('found a namespace');
+            namespace = mutation.payload.undo.groupNamespace;
+        }
+
+        const module = state.modules[namespace];
+        
         // If no module was found, we're not tracking it. Stop.
         if (module == null) {
             return;
@@ -89,5 +100,11 @@ export const undo = {
     },
     reset() {
         state.modules = {};
+    },
+    generateGrouper(namespace: string): UndoGrouper {
+        const m = undo.getModule(namespace);
+        const g = m.group.bind(m);
+
+        return g;
     }
 };

@@ -7,6 +7,7 @@ import { shortcuts } from '@/features/shortcuts/store';
 import { userInterface } from '@/features/ui/store';
 import { notes } from '@/features/notes/store';
 import { undo } from '@/store/plugins/undo';
+import { createLogger } from 'vuex';
 
 export const root = new Module({
     namespaced: false,
@@ -20,7 +21,7 @@ export const root = new Module({
 });
 
 export const store = createStore(root, {
-    plugins: [persist.plugin, mediator.plugin, undo.plugin],
+    plugins: [createLogger({ logActions: false }), persist.plugin, mediator.plugin, undo.plugin],
     /*
      * Don't use strict mode in production.
      * Major performance hit.

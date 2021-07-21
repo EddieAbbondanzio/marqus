@@ -5,6 +5,7 @@ import { NoteActions } from '@/features/notes/store/actions';
 import { NoteMutations } from '@/features/notes/store/mutations';
 import { NoteGetters } from '@/features/notes/store/getters';
 import { NoteState } from '@/features/notes/store/state';
+import { undo } from '@/store/plugins/undo';
 
 export const notes = new Module({
     namespaced: true,
@@ -21,4 +22,9 @@ persist.register({
     initMutation: 'SET_STATE',
     serialize,
     deserialize
+});
+
+undo.registerModule(new NoteState(), {
+    name: 'notes',
+    namespace: 'notes'
 });

@@ -8,7 +8,6 @@ import {
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
 import { UndoStateCache } from '@/store/plugins/undo/undo-state-cache';
 import { MutationPayload, Store } from 'vuex';
-import { v4 as uuidv4 } from 'uuid';
 import { getNamespacedState } from '@/store/common/utils/get-namespaced-state';
 import _ from 'lodash';
 import { isAsync } from '@/shared/utils/is-async';
@@ -35,6 +34,7 @@ export class UndoModule {
     constructor(initialState: any, private _getStore: () => Store<any>, private _settings: UndoModuleSettings) {
         this._history = new UndoHistory();
         this._stateCache = new UndoStateCache(initialState);
+        this.group = this.group.bind(this);
     }
 
     /**
@@ -49,7 +49,7 @@ export class UndoModule {
          * because since we're working in a plugin we don't get to react until AFTER mutations are done. This
          * means if we tried to get initial state here, it would actually be the state after the first mutation.
          */
-        if (this._history.currentIndex > 0 && this._history.currentIndex % this._settings.stateCacheInterval === 0) {
+        if (this._history.currentIndex > 0 && this._history.currentIndex % this._settings.stateCacheInterval! === 0) {
             const store = this._getStore();
 
             /*
@@ -85,11 +85,13 @@ export class UndoModule {
     async undo() {
         // Roll back to most recently cached state
         const cached = this._stateCache.getLast(this._history.currentIndex);
+        console.log('reverting to state: ', cached);
         const store = this._getStore();
         store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
         // Reapply (N - 1) mutations to get to the desired state.
         const mutations = this._history.rewind(cached.index);
+        console.log('going to replay: ', mutations);
         await this._replayMutations(mutations, 'undo');
     }
 
@@ -107,7 +109,7 @@ export class UndoModule {
      */
     async group(handle: (undo: UndoMetadata) => any) {
         const groupId = this._history.startGroup();
-        const metaData: UndoMetadata = { groupId };
+        const metaData: UndoMetadata = { groupId, groupNamespace: this._settings.namespace };
 
         // Handles can be async, or sync because not all actions will be async
         if (isAsync(handle)) {
@@ -173,3 +175,5 @@ export class UndoModule {
         }
     }
 }
+
+export type UndoGrouper = UndoModule['group'];

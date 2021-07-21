@@ -6,6 +6,7 @@ import { Module } from 'vuex-smart-module';
 import { ShortcutActions } from '@/features/shortcuts/store/actions';
 import { ShortcutMutations } from '@/features/shortcuts/store/mutations';
 import { ShortcutGetters } from '@/features/shortcuts/store/getters';
+import { undo } from '@/store/plugins/undo';
 
 export const shortcuts = new Module({
     namespaced: true,
@@ -20,6 +21,11 @@ persist.register({
     initMutation: 'SET_STATE',
     transformer,
     reviver
+});
+
+undo.registerModule(new ShortcutState(), {
+    name: 'shortcuts',
+    namespace: 'shortcuts'
 });
 
 export function transformer(state: ShortcutState): any {

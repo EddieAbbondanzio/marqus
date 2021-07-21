@@ -12,9 +12,7 @@ import { GlobalNavigationMutations } from '@/features/ui/store/modules/global-na
 import { tags } from '@/features/tags/store';
 import { notebooks } from '@/features/notebooks/store';
 import { notes } from '@/features/notes/store';
-import { UndoModule } from '@/store/plugins/undo';
-
-let group: UndoModule['group'];
+import { UndoGrouper } from '@/store/plugins/undo';
 
 export class GlobalNavigationActions extends Actions<
     GlobalNavigationState,
@@ -26,65 +24,68 @@ export class GlobalNavigationActions extends Actions<
     notebooks!: Context<typeof notebooks>;
     notes!: Context<typeof notes>;
 
-    $init(store: Store<any>) {
+    group!: UndoGrouper;
+
+    async $init(store: Store<any>) {
         this.tags = tags.context(store);
         this.notebooks = notebooks.context(store);
         this.notes = notes.context(store);
 
-        const undoModule = undo.getModule('globalNavigation');
-        group = undoModule.group.bind(undoModule);
+        this.group = undo.generateGrouper('globalNavigation');
     }
 
     setActive(a: GlobalNavigationActive) {
-        this.commit('SET_ACTIVE', a);
+        this.commit('SET_ACTIVE', { value: a });
     }
 
     setWidth(width: string) {
-        this.commit('SET_WIDTH', width);
+        this.commit('SET_WIDTH', { value: width });
     }
 
     tagInputStart({ id }: { id?: string } = {}) {
-        let tag: Tag | undefined;
+        this.group((undo) => {
+            let tag: Tag | undefined;
 
-        if (id != null) {
-            tag = this.tags.state.values.find((t) => t.id === id) as Tag | undefined;
+            if (id != null) {
+                tag = this.tags.state.values.find((t) => t.id === id) as Tag | undefined;
 
-            if (tag == null) {
-                throw new Error(`No tag with id ${id} found.`);
+                if (tag == null) {
+                    throw new Error(`No tag with id ${id} found.`);
+                }
+
+                this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, undo });
+            } else {
+                this.commit('START_TAGS_INPUT', { value: undefined, undo });
             }
 
-            this.commit('START_TAGS_INPUT', { id: tag?.id, value: tag?.value });
-        } else {
-            this.commit('START_TAGS_INPUT');
-        }
-
-        group((undo) => {
             this.commit('SET_TAGS_EXPANDED', { value: true, undo });
         });
     }
 
-    tagInputUpdated(val: string) {
-        this.commit('SET_TAGS_INPUT', val);
+    tagInputUpdated(value: string) {
+        this.commit('SET_TAGS_INPUT', { value });
     }
 
     tagInputConfirm() {
-        const tag = Object.assign({} as Tag, this.state.tags.input);
+        this.group((undo) => {
+            const tag = Object.assign({} as Tag, this.state.tags.input);
 
-        switch (this.state.tags.input!.mode) {
-            case 'create':
-                this.tags.commit('CREATE', { id: tag.id, value: tag.value });
-                break;
+            switch (this.state.tags.input!.mode) {
+                case 'create':
+                    this.tags.commit('CREATE', { value: { id: tag.id, value: tag.value }, undo });
+                    break;
 
-            case 'update':
-                this.tags.commit('SET_NAME', { id: tag.id, value: tag.value });
-                break;
+                case 'update':
+                    this.tags.commit('SET_NAME', { value: { id: tag.id, value: tag.value }, undo });
+                    break;
 
-            default:
-                throw Error(`Invalid tag input mode: ${this.state.tags.input!.mode}`);
-        }
+                default:
+                    throw Error(`Invalid tag input mode: ${this.state.tags.input!.mode}`);
+            }
 
-        this.tags.commit('SORT');
-        this.commit('CLEAR_TAGS_INPUT');
+            this.tags.commit('SORT', { undo });
+            this.commit('CLEAR_TAGS_INPUT', { undo });
+        });
     }
 
     tagInputCancel() {
@@ -92,18 +93,20 @@ export class GlobalNavigationActions extends Actions<
     }
 
     async tagDelete(id: string) {
-        const tag = this.tags.state.values.find((t) => t.id === id);
+        await this.group(async (undo) => {
+            const tag = this.tags.state.values.find((t) => t.id === id);
 
-        if (tag == null) {
-            throw new Error(`No tag with id ${id} found.`);
-        }
+            if (tag == null) {
+                throw new Error(`No tag with id ${id} found.`);
+            }
 
-        const confirm = await confirmDelete('tag', tag.value);
+            const confirm = await confirmDelete('tag', tag.value);
 
-        if (confirm) {
-            this.tags.commit('DELETE', { id: id });
-            this.notes.commit('REMOVE_TAG', { tagId: id });
-        }
+            if (confirm) {
+                this.tags.commit('DELETE', { value: { id: id }, undo });
+                this.notes.commit('REMOVE_TAG', { tagId: id });
+            }
+        });
     }
 
     setTagsExpanded(expanded: boolean) {
@@ -150,8 +153,8 @@ export class GlobalNavigationActions extends Actions<
         }
     }
 
-    notebookInputUpdated(val: string) {
-        this.commit('SET_NOTEBOOKS_INPUT', val);
+    notebookInputUpdated(value: string) {
+        this.commit('SET_NOTEBOOKS_INPUT', { value });
     }
 
     notebookInputConfirm() {
@@ -206,7 +209,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     notebookDragStart(notebook: Notebook) {
-        this.commit('SET_NOTEBOOKS_DRAGGING', notebook.id);
+        this.commit('SET_NOTEBOOKS_DRAGGING', { value: notebook.id });
     }
 
     async notebookDragStop(endedOnId: string | null) {
@@ -269,14 +272,14 @@ export class GlobalNavigationActions extends Actions<
                 );
             }
 
-            this.commit('SET_NOTEBOOKS_DRAGGING');
+            this.commit('CLEAR_NOTEBOOKS_DRAGGING', {});
 
             this.notebooks.commit('SORT', null);
         }
     }
 
     notebookDragCancel() {
-        this.commit('SET_NOTEBOOKS_DRAGGING');
+        this.commit('CLEAR_NOTEBOOKS_DRAGGING', {});
     }
 
     expandAll() {

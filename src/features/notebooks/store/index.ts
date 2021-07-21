@@ -5,6 +5,7 @@ import { NotebookActions } from '@/features/notebooks/store/actions';
 import { NotebookState } from '@/features/notebooks/store/state';
 import { NotebookMutations } from '@/features/notebooks/store/mutations';
 import { NotebookGetters } from '@/features/notebooks/store/getters';
+import { undo } from '@/store/plugins/undo';
 
 export const notebooks = new Module({
     namespaced: true,
@@ -36,4 +37,9 @@ persist.register({
 
         return s;
     }
+});
+
+undo.registerModule(new NotebookState(), {
+    name: 'notebooks',
+    namespace: 'notebooks'
 });

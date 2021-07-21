@@ -15,7 +15,5 @@ export const globalNavigation = new Module({
 
 undo.registerModule(new GlobalNavigationState(), {
     name: 'globalNavigation',
-    namespace: 'globalNavigation',
-    setStateMutation: 'SET_STATE',
-    stateCacheInterval: 100
+    namespace: 'ui/globalNavigation'
 });

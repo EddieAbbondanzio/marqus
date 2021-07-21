@@ -106,13 +106,16 @@ export const persist = {
      * Register a module that the persist plugin should track.
      * @param pModule The module to register
      */
-    register(pModule: PersistModuleSettings): void {
+    register(pModule: PersistModuleSettings): PersistModule {
         // Check for duplicate
         if (this.modules.some((m) => m.settings.namespace === pModule.namespace)) {
             throw Error(`Duplicate module registered ${pModule.namespace}`);
         }
 
-        this.modules.push({ scheduler: new TaskScheduler(2), settings: pModule });
+        const m = { scheduler: new TaskScheduler(2), settings: pModule };
+
+        this.modules.push(m);
+        return m;
     },
 
     release(): void {
