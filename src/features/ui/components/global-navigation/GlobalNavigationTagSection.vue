@@ -82,8 +82,8 @@ export default defineComponent({
             required: true,
             unique: [
                 () => s.state.tags.values,
-                (t: Tag) => t.id,
-                (t: Tag) => t.value,
+                (t: Tag) => t?.id,
+                (t: Tag) => t?.value,
                 () => s.state.ui.globalNavigation.tags.input
             ]
         };

@@ -61,7 +61,7 @@ export class GlobalNavigationActions extends Actions<
             }
         });
 
-        this.commit('SET_TAGS_EXPANDED', { value: true }); // Intentionally left out of the group
+        this.commit('SET_TAGS_EXPANDED', { value: true });
     }
 
     tagInputUpdated(value: string) {
@@ -86,7 +86,17 @@ export class GlobalNavigationActions extends Actions<
                     break;
 
                 case 'update':
-                    this.tags.commit('SET_NAME', { value: { id: tag.id, value: tag.value }, _undo });
+                    this.tags.commit('SET_NAME', {
+                        value: { id: tag.id, value: tag.value },
+                        _undo: {
+                            cache: { old: this.tags.getters.byId(tag.id)!.value },
+                            ..._undo,
+                            undoCallback: (m) =>
+                                this.tags.commit('SET_NAME', {
+                                    value: { id: tag.id, value: m.payload._undo.cache.old }
+                                })
+                        }
+                    });
                     break;
 
                 default:

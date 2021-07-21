@@ -24,6 +24,7 @@ export interface UndoMetadata {
         id: string;
         namespace: string;
     };
+    cache?: any;
     isReplay?: boolean;
     ignore?: boolean;
     undoCallback?: UndoCallback;

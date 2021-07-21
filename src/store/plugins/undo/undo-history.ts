@@ -47,8 +47,6 @@ export class UndoHistory {
             return;
         }
 
-        console.log('push metadata: ', e)
-
         // Grouped mutation
         if (metadata.group != null) {
             if (metadata.isReplay) {

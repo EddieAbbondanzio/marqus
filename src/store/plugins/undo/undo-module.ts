@@ -96,9 +96,11 @@ export class UndoModule {
         // Reapply (N - 1) mutations to get to the desired state.
         const [replay, undone] = this._history.undo(cached.index);
 
+        console.log('to replay: ', replay);
+        console.log('to undo: ', undone);
         await this._replayMutations(replay, 'undo');
 
-        // Notify call backs
+        // Notify callbacks
         const all = [...replay, undone];
         for (const m of all) {
             await this._notifyCallbacks(m, 'undo');
