@@ -90,9 +90,13 @@ export class UndoModule {
         store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
         // Reapply (N - 1) mutations to get to the desired state.
-        const mutations = this._history.undo(cached.index);
-        console.log('going to replay: ', mutations);
-        await this._replayMutations(mutations, 'undo');
+        const [replay, undone] = this._history.undo(cached.index);
+
+        console.log('going to replay: ', replay);
+        await this._replayMutations(replay, 'undo');
+
+        // Undo callback is only triggered on the mutation or group that was actually undone.
+        await this._notifyCallbacks(undone, 'undo');
     }
 
     /**
@@ -101,6 +105,7 @@ export class UndoModule {
     async redo() {
         const mutation = this._history.redo();
         await this._replayMutations([mutation], 'redo');
+        await this._notifyCallbacks(mutation, 'redo');
     }
 
     /**
@@ -133,11 +138,9 @@ export class UndoModule {
             if (isUndoGroup(event)) {
                 for (const mutation of event.mutations) {
                     store.commit(mutation.type, mutation.payload);
-                    await this._notifyCallbacks(mutation, mode);
                 }
             } else {
                 store.commit(event.type, event.payload);
-                await this._notifyCallbacks(event, mode);
             }
         }
     }
@@ -147,30 +150,34 @@ export class UndoModule {
      * @param mutation The mutation to notify callbacks of.
      * @param mode If the replay is an undo, or redo.
      */
-    private async _notifyCallbacks(mutation: MutationPayload, mode: UndoReplayMode) {
-        const metadata = mutation.payload.undo as UndoMetadata;
-        let callback;
+    private async _notifyCallbacks(mutation: UndoItemOrGroup, mode: UndoReplayMode) {
+        const mutations = isUndoGroup(mutation) ? mutation.mutations : [mutation];
 
-        // Stop if no metadata
-        if (metadata == null) {
-            return;
-        }
+        for (const m of mutations) {
+            const metadata = m.payload.undo as UndoMetadata;
+            let callback;
 
-        switch (mode) {
-            case 'redo':
-                callback = metadata.redoCallback;
-                break;
+            // Stop if no metadata
+            if (metadata == null) {
+                return;
+            }
 
-            case 'undo':
-                callback = metadata.undoCallback;
-                break;
-        }
+            switch (mode) {
+                case 'redo':
+                    callback = metadata.redoCallback;
+                    break;
 
-        if (callback != null) {
-            if (isAsync(callback)) {
-                await callback(mutation);
-            } else {
-                callback(mutation);
+                case 'undo':
+                    callback = metadata.undoCallback;
+                    break;
+            }
+
+            if (callback != null) {
+                if (isAsync(callback)) {
+                    await callback(m);
+                } else {
+                    callback(m);
+                }
             }
         }
     }

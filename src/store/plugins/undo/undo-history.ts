@@ -82,11 +82,13 @@ export class UndoHistory {
      * @param index The index to jump back to
      * @returns The event to undo.
      */
-    undo(index: number): UndoItemOrGroup[] {
+    undo(index: number): [replay: UndoItemOrGroup[], undone: UndoItemOrGroup] {
         if (!this.canUndo()) {
             throw Error('Nothing to undo');
         }
+
         const toReplay = this._events.slice(index, this.currentIndex - 1);
+        const undone = this._events[this.currentIndex];
 
         for (const mutation of toReplay) {
             if (isUndoGroup(mutation)) {
@@ -100,7 +102,7 @@ export class UndoHistory {
         // Jump back to what we rewinded to before
         this._currentIndex = index;
 
-        return toReplay;
+        return [toReplay, undone];
     }
 
     /**
