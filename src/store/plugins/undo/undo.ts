@@ -70,15 +70,13 @@ export const undo = {
         mutation.payload ??= {}
         mutation.payload.undo ??= {};
         
-        let [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
-
-        // A group can have mutations from other modules that we aren't tracking.
-        if (mutation.payload.undo.groupId != null) {
-            console.log('found a namespace');
-            namespace = mutation.payload.undo.groupNamespace;
-        }
-
+        const [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
         const module = state.modules[namespace];
+
+        // If a group has a mutation from a module we aren't tracking, throw error
+        if (mutation.payload.undo.groupId != null && module == null) {
+            throw Error(`Undo group has a mutation from a module (${namespace}) that is not being tracked.`)
+        }
         
         // If no module was found, we're not tracking it. Stop.
         if (module == null) {
