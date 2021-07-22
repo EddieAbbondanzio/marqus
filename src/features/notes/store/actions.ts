@@ -10,9 +10,13 @@ export class NoteActions extends Actions<NoteState, NoteGetters, NoteMutations, 
         const toUpdate = typeof note === 'string' ? this.state.values.find((n) => n.id === note)! : note;
 
         if (toUpdate == null) {
-            throw Error(`Note not found.`);
+            throw Error('Note not found');
         }
 
-        this.commit(toUpdate.favorited ? 'UNFAVORITE' : 'FAVORITE', toUpdate);
+        if (toUpdate.favorited) {
+            this.commit('UNFAVORITE', { value: toUpdate });
+        } else {
+            this.commit('FAVORITE', { value: toUpdate });
+        }
     }
 }

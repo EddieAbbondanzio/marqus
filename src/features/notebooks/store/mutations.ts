@@ -7,14 +7,20 @@ import { isBlank } from '@/shared/utils';
 import { Mutations } from 'vuex-smart-module';
 import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 
+export interface NotebookCreate {
+    id: string;
+    value: string;
+    parent?: Notebook;
+    children?: Notebook[];
+    expanded?: boolean;
+}
+
 export class NotebookMutations extends Mutations<NotebookState> {
     SET_STATE(s: NotebookState) {
         Object.assign(this.state, s);
     }
 
-    CREATE(
-        p: UndoPayload<{ id: string; value: string; parent?: Notebook; children?: Notebook[]; expanded?: boolean }>
-    ) {
+    CREATE(p: UndoPayload<NotebookCreate>) {
         // Check that the name isn't null, or just whitespace.
         if (isBlank(p.value.value)) {
             throw Error('Value is required.');
@@ -90,14 +96,14 @@ export class NotebookMutations extends Mutations<NotebookState> {
         this.state.values.sort((a, b) => a.value.localeCompare(b.value));
     }
 
-    SET_EXPANDED(payload: UndoPayload<{ notebookId: string; expanded: boolean; bubbleUp: boolean }>) {
-        let p: Notebook | undefined = this.state.values.find((n) => n.id === payload.value.notebookId)!;
+    SET_EXPANDED(payload: UndoPayload<{ notebook: Notebook; expanded: boolean; bubbleUp: boolean }>) {
+        let n: Notebook | undefined = payload.value.notebook;
 
         // Run up the tree expanding each parent until we hit the root
         do {
-            p.expanded = payload.value.expanded;
-            p = p.parent;
-        } while (p && payload.value.bubbleUp);
+            n.expanded = payload.value.expanded;
+            n = n.parent;
+        } while (n && payload.value.bubbleUp);
     }
 
     SET_ALL_EXPANDED({ value: { expanded = false } }: UndoPayload<{ expanded: boolean }>) {

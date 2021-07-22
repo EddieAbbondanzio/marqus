@@ -144,6 +144,7 @@ export class NoteMutations extends Mutations<NoteState> {
 
         let notes: Note[];
 
+        // Get all the notes to remove it from
         if (noteId != null) {
             notes = Array.isArray(noteId)
                 ? this.state.values.filter((n) => noteId.some((id) => n.id === id))
@@ -152,6 +153,7 @@ export class NoteMutations extends Mutations<NoteState> {
             notes = this.state.values;
         }
 
+        // Remove the tag from each note we found
         for (const note of notes) {
             if (note.tags == null) {
                 continue;
@@ -177,14 +179,12 @@ export class NoteMutations extends Mutations<NoteState> {
         note.hasUnsavedChanges = true;
     }
 
-    FAVORITE({ value: { id } }: UndoPayload<{ id: string }>) {
-        const note = this.state.values.find((n) => n.id === id)!;
+    FAVORITE({ value: note }: UndoPayload<Note>) {
         note.favorited = true;
         note.hasUnsavedChanges = true;
     }
 
-    UNFAVORITE({ value: { id } }: UndoPayload<{ id: string }>) {
-        const note = this.state.values.find((n) => n.id === id)!;
+    UNFAVORITE({ value: note }: UndoPayload<Note>) {
         note.favorited = false;
         note.hasUnsavedChanges = true;
     }

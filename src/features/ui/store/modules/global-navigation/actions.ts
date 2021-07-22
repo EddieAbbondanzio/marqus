@@ -13,6 +13,7 @@ import { tags } from '@/features/tags/store';
 import { notebooks } from '@/features/notebooks/store';
 import { notes } from '@/features/notes/store';
 import { UndoGrouper } from '@/store/plugins/undo';
+import { NotebookCreate } from '@/features/notebooks/store/mutations';
 
 export class GlobalNavigationActions extends Actions<
     GlobalNavigationState,
@@ -113,7 +114,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     async tagDelete(id: string) {
-        await this.group(async (undo) => {
+        await this.group(async (_undo) => {
             const tag = this.tags.state.values.find((t) => t.id === id);
 
             if (tag == null) {
@@ -123,8 +124,10 @@ export class GlobalNavigationActions extends Actions<
             const confirm = await confirmDelete('tag', tag.value);
 
             if (confirm) {
-                this.tags.commit('DELETE', { value: { id: id }, _undo: undo });
-                this.notes.commit('REMOVE_TAG', { tagId: id });
+                _undo.cache = { id };
+
+                this.tags.commit('DELETE', { value: { id: id }, _undo: _undo });
+                this.notes.commit('REMOVE_TAG', { value: { tagId: id }, _undo });
             }
         });
     }
@@ -169,7 +172,7 @@ export class GlobalNavigationActions extends Actions<
         this.commit('START_NOTEBOOKS_INPUT', p);
 
         if (parent != null) {
-            this.notebooks.commit('SET_EXPANDED', { notebook: parent, bubbleUp: true, expanded: true });
+            this.notebooks.commit('SET_EXPANDED', { value: { notebook: parent, bubbleUp: true, expanded: true } });
         }
     }
 
@@ -179,7 +182,7 @@ export class GlobalNavigationActions extends Actions<
 
     notebookInputConfirm() {
         const input = this.state.notebooks.input!;
-        let notebook: Notebook;
+        let notebook: NotebookCreate;
         let old: Notebook | undefined;
 
         switch (this.state.notebooks.input?.mode) {
@@ -194,12 +197,12 @@ export class GlobalNavigationActions extends Actions<
                     notebook.parent = findNotebookRecursive(this.notebooks.state.values, input.parentId)!;
                 }
 
-                this.notebooks.commit('CREATE', notebook);
+                this.notebooks.commit('CREATE', { value: notebook });
                 break;
 
             case 'update':
                 old = this.notebooks.state.values.find((n) => n.id === input.id)!;
-                this.notebooks.commit('SET_NAME', { id: old.id, value: input.value });
+                this.notebooks.commit('SET_NAME', { value: { id: old.id, value: input.value } });
                 break;
 
             default:
@@ -208,7 +211,7 @@ export class GlobalNavigationActions extends Actions<
 
         this.commit('CLEAR_NOTEBOOKS_INPUT');
 
-        this.notebooks.commit('SORT', null);
+        this.notebooks.commit('SORT', {});
     }
 
     notebookInputCancel() {
@@ -219,8 +222,8 @@ export class GlobalNavigationActions extends Actions<
         const notebook = findNotebookRecursive(this.notebooks.state.values, id)!;
 
         if (await confirmDelete('notebook', notebook.value)) {
-            this.notebooks.commit('DELETE', { id: id });
-            this.notes.commit('REMOVE_NOTEBOOK', { notebookId: id });
+            this.notebooks.commit('DELETE', { value: { id: id } });
+            this.notes.commit('REMOVE_NOTEBOOK', { value: { notebookId: id } });
         }
     }
 
@@ -245,7 +248,7 @@ export class GlobalNavigationActions extends Actions<
          */
         if (dragging.id !== endedOnId && findNotebookRecursive(dragging.children!, endedOnId!) == null) {
             // Remove from old location
-            this.notebooks.commit('DELETE', { id: dragging.id });
+            this.notebooks.commit('DELETE', { value: { id: dragging.id } });
 
             let parent: Notebook | undefined;
 
@@ -267,34 +270,28 @@ export class GlobalNavigationActions extends Actions<
                 const confirmReplace = await confirmReplaceNotebook(dragging.value);
 
                 if (confirmReplace) {
-                    this.notebooks.commit('DELETE', { id: duplicate.id });
+                    this.notebooks.commit('DELETE', { value: { id: duplicate.id } });
                 }
             }
 
             // Insert into new spot
-            this.notebooks.commit(
-                'CREATE',
-                {
+            this.notebooks.commit('CREATE', {
+                value: {
                     id: dragging.id,
                     value: dragging.value,
                     parent,
                     children: dragging.children,
                     expanded: dragging.expanded
-                },
-                { root: true }
-            );
+                }
+            });
 
             if (parent) {
-                this.notebooks.commit(
-                    'SET_EXPANDED',
-                    { notebook: parent, expanded: true, bubbleUp: true },
-                    { root: true }
-                );
+                this.notebooks.commit('SET_EXPANDED', { value: { notebook: parent, expanded: true, bubbleUp: true } });
             }
 
             this.commit('CLEAR_NOTEBOOKS_DRAGGING', {});
 
-            this.notebooks.commit('SORT', null);
+            this.notebooks.commit('SORT', {});
         }
     }
 
@@ -306,19 +303,19 @@ export class GlobalNavigationActions extends Actions<
         this.commit('SET_TAGS_EXPANDED', { value: true });
         this.commit('SET_NOTEBOOKS_EXPANDED', { value: true });
 
-        this.notebooks.commit('SET_ALL_EXPANDED', false);
+        this.notebooks.commit('SET_ALL_EXPANDED', { value: { expanded: false } });
     }
 
     collapseAll() {
         this.commit('SET_TAGS_EXPANDED', { value: false });
         this.commit('SET_NOTEBOOKS_EXPANDED', { value: false });
 
-        this.notebooks.commit('SET_ALL_EXPANDED', false);
+        this.notebooks.commit('SET_ALL_EXPANDED', { value: { expanded: false } });
     }
 
     async emptyTrash() {
         if (await confirmDelete('the trash', 'permanently')) {
-            this.notes.commit('EMPTY_TRASH');
+            this.notes.commit('EMPTY_TRASH', {});
         }
     }
 }
