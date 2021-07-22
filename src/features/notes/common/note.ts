@@ -5,7 +5,7 @@ export interface Note extends Entity {
     notebooks: string[];
     tags: string[];
     dateCreated: Date;
-    dateModified: Date;
+    dateModified?: Date;
     /**
      * Was this note moved to the trash bin?
      */

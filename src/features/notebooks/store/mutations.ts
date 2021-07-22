@@ -5,33 +5,36 @@ import { generateId } from '@/store';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { isBlank } from '@/shared/utils';
 import { Mutations } from 'vuex-smart-module';
+import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 
 export class NotebookMutations extends Mutations<NotebookState> {
     SET_STATE(s: NotebookState) {
         Object.assign(this.state, s);
     }
 
-    CREATE(props: { id: string; value: string; parent?: Notebook; children?: Notebook[]; expanded?: boolean }) {
+    CREATE(
+        p: UndoPayload<{ id: string; value: string; parent?: Notebook; children?: Notebook[]; expanded?: boolean }>
+    ) {
         // Check that the name isn't null, or just whitespace.
-        if (isBlank(props.value)) {
+        if (isBlank(p.value.value)) {
             throw Error('Value is required.');
         }
 
-        const notebook: Notebook = Object.assign({}, props);
+        const notebook: Notebook = Object.assign({}, p.value);
 
-        if (props.parent != null) {
+        if (p.value.parent != null) {
             // Jest doesn't like logical assignments ??=
-            if (props.parent.children == null) {
-                props.parent.children = [];
+            if (p.value.parent.children == null) {
+                p.value.parent.children = [];
             }
 
-            props.parent.children.push(notebook);
+            p.value.parent.children.push(notebook);
         } else {
             this.state.values.push(notebook);
         }
     }
 
-    SET_NAME({ id, value }: { id: string; value: string }) {
+    SET_NAME({ value: { id, value } }: UndoPayload<{ id: string; value: string }>) {
         const notebook = findNotebookRecursive(this.state.values, id);
 
         if (notebook == null) {
@@ -45,7 +48,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
         notebook.value = value;
     }
 
-    DELETE({ id }: { id: string }) {
+    DELETE({ value: { id } }: UndoPayload<{ id: string }>) {
         const notebook = findNotebookRecursive(this.state.values, id);
 
         if (notebook == null) {
@@ -68,7 +71,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
         }
     }
 
-    SORT() {
+    SORT(p: VoidUndoPayload) {
         // Sort nested
         recursiveSort(this.state.values);
 
@@ -87,27 +90,19 @@ export class NotebookMutations extends Mutations<NotebookState> {
         this.state.values.sort((a, b) => a.value.localeCompare(b.value));
     }
 
-    SET_EXPANDED({
-        notebook,
-        expanded = true,
-        bubbleUp = false
-    }: {
-        notebook: Notebook;
-        expanded: boolean;
-        bubbleUp: boolean;
-    }) {
-        let p: Notebook | undefined = notebook;
+    SET_EXPANDED(payload: UndoPayload<{ notebookId: string; expanded: boolean; bubbleUp: boolean }>) {
+        let p: Notebook | undefined = this.state.values.find((n) => n.id === payload.value.notebookId)!;
 
         // Run up the tree expanding each parent until we hit the root
         do {
-            p.expanded = expanded;
+            p.expanded = payload.value.expanded;
             p = p.parent;
-        } while (p && bubbleUp);
+        } while (p && payload.value.bubbleUp);
     }
 
-    SET_ALL_EXPANDED(e = false) {
+    SET_ALL_EXPANDED({ value: { expanded = false } }: UndoPayload<{ expanded: boolean }>) {
         for (let i = 0; i < this.state.values.length; i++) {
-            recursiveStep(this.state.values[i], e);
+            recursiveStep(this.state.values[i], expanded);
         }
 
         function recursiveStep(n: Notebook, e: boolean) {

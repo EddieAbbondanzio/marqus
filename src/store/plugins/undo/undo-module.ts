@@ -120,7 +120,7 @@ export class UndoModule {
      * Create a new undo group that bunches multiple commits into one undo.
      * @param handle The callback that will contain the commits of the group.
      */
-    async group(handle: (undo: UndoMetadata) => any) {
+    async group(handle: (_undo: UndoMetadata) => any) {
         const groupId = this._history.startGroup();
         const metaData: UndoMetadata = { group: { id: groupId, namespace: this.settings.namespace } };
 
