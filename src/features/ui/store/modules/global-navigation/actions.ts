@@ -62,7 +62,6 @@ export class GlobalNavigationActions extends Actions<
     }
 
     tagInputUpdated(value: string) {
-        // console.log('tag input updated');
         this.commit('SET_TAGS_INPUT', { value, _undo: { ignore: true } });
     }
 
@@ -82,7 +81,6 @@ export class GlobalNavigationActions extends Actions<
                                 this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
                             },
                             redoCallback: (m) => {
-                                // console.log('redo tag create');
                                 this.tags.commit('CREATE', m.payload);
                                 this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
                             }
@@ -113,6 +111,7 @@ export class GlobalNavigationActions extends Actions<
                     break;
             }
 
+            // We don't want to allow the user to undo these
             _undo.ignore = true;
             this.tags.commit('SORT', { _undo });
             this.commit('CLEAR_TAGS_INPUT', { _undo });
@@ -153,13 +152,28 @@ export class GlobalNavigationActions extends Actions<
                             })
                     }
                 });
-                this.notes.commit('REMOVE_TAG', { value: { tagId: id }, _undo });
+
+                // Find out what notebooks had the tag so we can cache it.
+                const notebooksWithTag = this.notes.getters.notesByTag(id);
+                _undo.cache.notebookIds = notebooksWithTag.map((n) => n.id);
+
+                this.notes.commit('REMOVE_TAG', {
+                    value: { tagId: id },
+                    _undo: {
+                        ..._undo,
+                        undoCallback: (m) =>
+                            this.notes.commit('ADD_TAG', {
+                                value: { noteId: m.payload._undo.cache.notebookIds, tagId: m.payload.value.tagId }
+                            }),
+                        redoCallback: (m) => this.notes.commit('REMOVE_TAG', { value: m.payload.value })
+                    }
+                });
             }
         });
     }
 
     setTagsExpanded(expanded: boolean) {
-        this.commit('SET_TAGS_EXPANDED', { value: expanded });
+        this.commit('SET_TAGS_EXPANDED', { value: expanded, _undo: { ignore: true } });
     }
 
     notebookInputStart({ id, parentId }: { id?: string; parentId?: string } = {}) {

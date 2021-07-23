@@ -65,7 +65,6 @@ export class UndoHistory {
             if (g.mutations.length === 1) {
                 this._events.push(g);
                 this._currentIndex++;
-                console.log('group: ', g);
             }
         // eslint-disable-next-line
         }
@@ -83,7 +82,6 @@ export class UndoHistory {
             } else {
                 this._events.push(e);
                 this._currentIndex++;
-                console.log('mut: ', e)
             }
         }
     }
@@ -94,7 +92,7 @@ export class UndoHistory {
      * @returns The event to undo.
      */
     undo(replayStartIndex: number, stopIndex: number): [replay: UndoItemOrGroup[], undone: UndoItemOrGroup] {
-        console.log('curr index: ', this._currentIndex, ' jump back to: ', replayStartIndex, ' but stop at: ', stopIndex)
+        // console.log('curr index: ', this._currentIndex, ' jump back to: ', replayStartIndex, ' but stop at: ', stopIndex)
         if (!this.canUndo()) {
             throw Error('Nothing to undo');
         }
@@ -136,7 +134,7 @@ export class UndoHistory {
 
         this._currentIndex++;
 
-        console.log(`Redo! curr index: ${this._currentIndex}, max index: ${this._events.length}`)
+        // console.log(`Redo! curr index: ${this._currentIndex}, max index: ${this._events.length}`)
         return toReplay;
     }
 

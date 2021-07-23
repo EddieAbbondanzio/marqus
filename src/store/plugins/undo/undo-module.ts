@@ -89,7 +89,7 @@ export class UndoModule {
      * Undo the last mutation, or group. Throws if none.
      */
     async undo() {
-        console.log('history: ', this._history);
+        // console.log('history: ', this._history);
         // Roll back to most recently cached state
         const cached = this._stateCache.getLast(this._history.currentIndex);
         const store = this._getStore();
@@ -98,8 +98,8 @@ export class UndoModule {
         // Reapply (N - 1) mutations to get to the desired state.
         const [replay, undone] = this._history.undo(cached.index, this._history.currentIndex - 1);
 
-        console.log('replay: ', replay);
-        console.log('undone: ', undone);
+        // console.log('replay: ', replay);
+        // console.log('undone: ', undone);
         await this._replayMutations(replay, 'undo');
         await this._notifyCallbacks(undone, 'undo');
     }
