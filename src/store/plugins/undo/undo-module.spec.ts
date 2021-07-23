@@ -55,14 +55,14 @@ describe('UndoModule', () => {
 
             undoModule.push({ type: 'a', payload: {} });
 
-            const spy = jest.spyOn(UndoHistory.prototype as any, 'canRewind');
+            const spy = jest.spyOn(UndoHistory.prototype as any, 'canUndo');
             undoModule.undo();
             expect(spy).toBeCalled();
         });
     });
 
     describe('canRedo()', () => {
-        it('calls canFastForward() on history', () => {
+        it('calls canRedo() on history', () => {
             const getStore = () => ({ commit: jest.fn() as any } as Store<any>);
 
             const undoModule = new UndoModule({}, getStore, {
@@ -75,7 +75,7 @@ describe('UndoModule', () => {
             undoModule.push({ type: 'a', payload: {} });
             undoModule['_history']['_currentIndex'] = 0;
 
-            const spy = jest.spyOn(UndoHistory.prototype as any, 'canFastForward');
+            const spy = jest.spyOn(UndoHistory.prototype as any, 'canRedo');
             undoModule.redo();
             expect(spy).toBeCalled();
         });
@@ -107,12 +107,12 @@ describe('UndoModule', () => {
 
             // Check that N - 1 mutations was replayed
             expect(commit.mock.calls[1][0]).toBe('a');
-            expect(commit.mock.calls[1][1].undo.isReplay).toBe(true);
+            expect(commit.mock.calls[1][1]._undo.isReplay).toBe(true);
         });
     });
 
     describe('redo()', () => {
-        it('calls fastForward() on history', () => {
+        it('calls redo() on history', () => {
             const getStore = () => ({ commit: jest.fn() as any } as Store<any>);
 
             const undoModule = new UndoModule({}, getStore, {
@@ -125,11 +125,11 @@ describe('UndoModule', () => {
             undoModule.push({ type: 'a', payload: {} });
             undoModule['_history']['_currentIndex'] = 0;
 
-            const fastForwardSpy = jest.spyOn(UndoHistory.prototype as any, 'fastForward');
+            const redoSpy = jest.spyOn(UndoHistory.prototype as any, 'redo');
             const replaySpy = jest.spyOn(UndoModule.prototype as any, '_replayMutations');
             const id = undoModule.redo();
 
-            expect(fastForwardSpy).toBeCalled();
+            expect(redoSpy).toBeCalled();
             expect(replaySpy).toBeCalled();
         });
     });
@@ -175,78 +175,6 @@ describe('UndoModule', () => {
             undoModule['_replayMutations'](mutations, 'redo');
             expect(commit).toHaveBeenCalled();
         });
-
-        it('commits group mutations', () => {
-            const commit = jest.fn() as any;
-            const getStore = () => ({ commit } as Store<any>);
-
-            const undoModule = new UndoModule({}, getStore, {
-                name: 'foo',
-                namespace: 'foo',
-                setStateMutation: 'SET_STATE',
-                stateCacheInterval: 10
-            });
-
-            const mutations: UndoItemOrGroup[] = [
-                {
-                    id: '1',
-                    mutations: [
-                        { type: 'a', payload: {} },
-                        { type: 'b', payload: {} }
-                    ]
-                }
-            ];
-
-            undoModule['_replayMutations'](mutations, 'redo');
-            expect(commit).toHaveBeenCalled();
-        });
-
-        it('notifies a single callbacks', () => {
-            const commit = jest.fn() as any;
-            const getStore = () => ({ commit } as Store<any>);
-            const spy = jest.spyOn(UndoModule.prototype as any, '_notifyCallbacks');
-
-            const mutations: UndoItemOrGroup[] = [
-                { type: 'a', payload: {} },
-                { type: 'b', payload: {} }
-            ];
-
-            const undoModule = new UndoModule({}, getStore, {
-                name: 'foo',
-                namespace: 'foo',
-                setStateMutation: 'SET_STATE',
-                stateCacheInterval: 10
-            });
-
-            undoModule['_replayMutations'](mutations, 'undo');
-            expect(spy).toHaveBeenCalled();
-        });
-
-        it('notifies callbacks on each group of a mutation', () => {
-            const commit = jest.fn() as any;
-            const getStore = () => ({ commit } as Store<any>);
-            const spy = jest.spyOn(UndoModule.prototype as any, '_notifyCallbacks');
-
-            const undoModule = new UndoModule({}, getStore, {
-                name: 'foo',
-                namespace: 'foo',
-                setStateMutation: 'SET_STATE',
-                stateCacheInterval: 10
-            });
-
-            const mutations: UndoItemOrGroup[] = [
-                {
-                    id: '1',
-                    mutations: [
-                        { type: 'a', payload: {} },
-                        { type: 'b', payload: {} }
-                    ]
-                }
-            ];
-
-            undoModule['_replayMutations'](mutations, 'redo');
-            expect(spy).toHaveBeenCalled();
-        });
     });
 
     describe('_notifyCallbacks()', () => {
@@ -280,7 +208,7 @@ describe('UndoModule', () => {
             const mut: MutationPayload = {
                 type: 'foo',
                 payload: {
-                    undo: {
+                    _undo: {
                         redoCallback: redoCB,
                         undoCallback: undoCB
                     }
@@ -310,7 +238,7 @@ describe('UndoModule', () => {
             const mut: MutationPayload = {
                 type: 'foo',
                 payload: {
-                    undo: {
+                    _undo: {
                         redoCallback: redoCB,
                         undoCallback: undoCB
                     }

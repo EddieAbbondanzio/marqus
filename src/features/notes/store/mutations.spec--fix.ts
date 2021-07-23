@@ -1,4 +1,3 @@
-import { mutations } from '@/features/notes/store/mutations';
 import { NoteState } from '@/features/notes/store/state';
 
 describe('note mutations', () => {

@@ -190,7 +190,10 @@ describe('undo vuex plugin', () => {
                 }
             );
 
-            undo.onMutation({ type: 'fooNamespace/SAVE_THAT', payload: { val: 1, undo: { ignore: true } } }, {} as any);
+            undo.onMutation(
+                { type: 'fooNamespace/SAVE_THAT', payload: { val: 1, _undo: { ignore: true } } },
+                {} as any
+            );
 
             const m = undo.getModule('foo');
             expect(m['_history'].events).toHaveLength(0);
