@@ -1,3 +1,4 @@
+import { Tag } from '@/features/tags/common/tag';
 import { isBlank } from '@/shared/utils';
 import { generateId } from '@/store';
 import { UndoPayload } from '@/store/plugins/undo';
@@ -10,7 +11,7 @@ export class TagMutations extends Mutations<TagState> {
         Object.assign(this.state, s);
     }
 
-    CREATE(p: UndoPayload<{ id: string; value: string }>) {
+    CREATE(p: UndoPayload<Pick<Tag, 'id' | 'value'>>) {
         if (isBlank(p.value.id)) {
             throw Error('Tag id is required.');
         }
@@ -25,21 +26,16 @@ export class TagMutations extends Mutations<TagState> {
         });
     }
 
-    SET_NAME(p: UndoPayload<{ id: string; value: string }>) {
-        const t = this.state.values.find((t) => t.id === p.value.id);
-
-        if (t == null) {
-            throw Error(`No tag with id: ${p.value.id} found.`);
-        }
-
-        if (p.value.value == null) {
+    SET_NAME({ value: { tag, newName } }: UndoPayload<{ tag: Tag; newName: string }>) {
+        if (newName == null) {
             throw Error('Value is required.');
         }
 
-        t.value = p.value.value;
+        // console.log('set name! tag: ', tag, ' new name: ', newName);
+        tag.value = newName;
     }
 
-    DELETE(p: UndoPayload<{ id: string }>) {
+    DELETE(p: UndoPayload<Pick<Tag, 'id'>>) {
         const i = this.state.values.findIndex((t) => t.id === p.value.id);
 
         if (i === -1) {

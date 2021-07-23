@@ -20,7 +20,7 @@ export default {
         const s = useStore();
 
         onMounted(() => {
-            persist.init(s);
+            // persist.init(s);
         });
 
         onBeforeUnmount(() => {

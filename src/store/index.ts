@@ -20,8 +20,14 @@ export const root = new Module({
     }
 });
 
+const plugins = [
+    // createLogger({ logActions: false }),
+    undo.plugin,
+    mediator.plugin
+];
+
 export const store = createStore(root, {
-    plugins: [createLogger({ logActions: false }), persist.plugin, mediator.plugin, undo.plugin],
+    plugins,
     /*
      * Don't use strict mode in production.
      * Major performance hit.

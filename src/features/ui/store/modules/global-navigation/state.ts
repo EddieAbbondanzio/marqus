@@ -5,11 +5,16 @@ export interface GlobalNavigationNotebookInput {
     mode: 'create' | 'update';
 }
 
-export interface GlobalNavigationTagInput {
-    id?: string;
-    value: string;
-    mode: 'create' | 'update';
-}
+export type GlobalNavigationTagInput =
+    | {
+          mode: 'create';
+          value: string;
+      }
+    | {
+          mode: 'update';
+          id: string;
+          value: string;
+      };
 
 export interface GlobalNavigationNotebookSection {
     expanded: boolean;
@@ -27,7 +32,7 @@ export type GlobalNavigationActive =
     | { section: 'notebook' | 'tag'; id: string };
 
 export class GlobalNavigationState {
-    width: string = '300px';
+    width = '300px';
 
     notebooks: GlobalNavigationNotebookSection = {
         expanded: false

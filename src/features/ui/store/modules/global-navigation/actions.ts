@@ -44,78 +44,88 @@ export class GlobalNavigationActions extends Actions<
     }
 
     tagInputStart({ id }: { id?: string } = {}) {
-        this.group((_undo) => {
-            _undo.ignore = true;
+        const _undo = { ignore: true };
 
-            let tag: Tag | undefined;
+        this.commit('SET_TAGS_EXPANDED', { value: true, _undo });
 
-            if (id != null) {
-                tag = this.tags.state.values.find((t) => t.id === id) as Tag | undefined;
+        if (id != null) {
+            const tag = this.tags.getters.byId(id);
 
-                if (tag == null) {
-                    throw new Error(`No tag with id ${id} found.`);
-                }
-
-                this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, _undo });
-            } else {
-                this.commit('START_TAGS_INPUT', { value: undefined, _undo });
+            if (tag == null) {
+                throw new Error(`No tag with id ${id} found.`);
             }
-        });
 
-        this.commit('SET_TAGS_EXPANDED', { value: true });
+            this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, _undo });
+        } else {
+            this.commit('START_TAGS_INPUT', { value: undefined, _undo });
+        }
     }
 
     tagInputUpdated(value: string) {
+        // console.log('tag input updated');
         this.commit('SET_TAGS_INPUT', { value, _undo: { ignore: true } });
     }
 
     tagInputConfirm() {
         this.group((_undo) => {
-            const tag = Object.assign({} as Tag, this.state.tags.input);
+            const input = this.state.tags.input;
+            let existing: Tag;
 
-            switch (this.state.tags.input!.mode) {
+            switch (input?.mode) {
                 case 'create':
-                    tag.id = generateId();
-
                     this.tags.commit('CREATE', {
-                        value: { id: tag.id, value: tag.value },
+                        value: { id: generateId(), value: input.value },
                         _undo: {
                             ..._undo,
-                            undoCallback: (m) => this.tags.commit('DELETE', { value: { id: m.payload.value.id } })
+                            undoCallback: (m) => {
+                                this.tags.commit('DELETE', { value: { id: m.payload.value.id } });
+                                this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
+                            },
+                            redoCallback: (m) => {
+                                // console.log('redo tag create');
+                                this.tags.commit('CREATE', m.payload);
+                                this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
+                            }
                         }
                     });
                     break;
 
                 case 'update':
+                    existing = this.tags.getters.byId(input.id)!;
+
                     this.tags.commit('SET_NAME', {
-                        value: { id: tag.id, value: tag.value },
+                        value: { tag: existing, newName: input.value },
                         _undo: {
-                            cache: { old: this.tags.getters.byId(tag.id)!.value },
                             ..._undo,
+                            cache: { oldName: existing.value },
+                            // We have to trigger callbacks on modules that aren't tracked by undo.
                             undoCallback: (m) =>
                                 this.tags.commit('SET_NAME', {
-                                    value: { id: tag.id, value: m.payload._undo.cache.old }
-                                })
+                                    value: { tag: m.payload.value.tag, newName: m.payload._undo.cache.oldName }
+                                }),
+                            redoCallback: (m) => {
+                                this.tags.commit('SET_NAME', {
+                                    value: { tag: m.payload.value.tag, newName: m.payload.value.newName }
+                                });
+                            }
                         }
                     });
                     break;
-
-                default:
-                    throw Error(`Invalid tag input mode: ${this.state.tags.input!.mode}`);
             }
 
+            _undo.ignore = true;
             this.tags.commit('SORT', { _undo });
             this.commit('CLEAR_TAGS_INPUT', { _undo });
         });
     }
 
     tagInputCancel() {
-        this.commit('CLEAR_TAGS_INPUT');
+        this.commit('CLEAR_TAGS_INPUT', { _undo: { ignore: true } });
     }
 
     async tagDelete(id: string) {
         await this.group(async (_undo) => {
-            const tag = this.tags.state.values.find((t) => t.id === id);
+            const tag = this.tags.getters.byId(id);
 
             if (tag == null) {
                 throw new Error(`No tag with id ${id} found.`);
@@ -124,9 +134,25 @@ export class GlobalNavigationActions extends Actions<
             const confirm = await confirmDelete('tag', tag.value);
 
             if (confirm) {
-                _undo.cache = { id };
+                _undo.cache = { id, value: tag.value };
 
-                this.tags.commit('DELETE', { value: { id: id }, _undo: _undo });
+                this.tags.commit('DELETE', {
+                    value: { id },
+                    _undo: {
+                        ..._undo,
+                        undoCallback: (m) => {
+                            this.tags.commit('CREATE', {
+                                value: { id: m.payload._undo.cache.id, value: m.payload._undo.cache.value }
+                            });
+
+                            this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
+                        },
+                        redoCallback: (m) =>
+                            this.tags.commit('DELETE', {
+                                value: { id }
+                            })
+                    }
+                });
                 this.notes.commit('REMOVE_TAG', { value: { tagId: id }, _undo });
             }
         });

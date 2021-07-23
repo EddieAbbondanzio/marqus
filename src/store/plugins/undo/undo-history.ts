@@ -65,6 +65,7 @@ export class UndoHistory {
             if (g.mutations.length === 1) {
                 this._events.push(g);
                 this._currentIndex++;
+                console.log('group: ', g);
             }
         // eslint-disable-next-line
         }
@@ -82,6 +83,7 @@ export class UndoHistory {
             } else {
                 this._events.push(e);
                 this._currentIndex++;
+                console.log('mut: ', e)
             }
         }
     }
@@ -91,13 +93,14 @@ export class UndoHistory {
      * @param index The index to jump back to
      * @returns The event to undo.
      */
-    undo(index: number): [replay: UndoItemOrGroup[], undone: UndoItemOrGroup] {
+    undo(replayStartIndex: number, stopIndex: number): [replay: UndoItemOrGroup[], undone: UndoItemOrGroup] {
+        console.log('curr index: ', this._currentIndex, ' jump back to: ', replayStartIndex, ' but stop at: ', stopIndex)
         if (!this.canUndo()) {
             throw Error('Nothing to undo');
         }
 
-        const toReplay = this._events.slice(index, this.currentIndex - 1);
-        const undone = this._events[this.currentIndex - 1];
+        const toReplay = this._events.slice(replayStartIndex, this._currentIndex - 1);
+        const undone = this._events[this._currentIndex - 1];
 
         for (const mutation of toReplay) {
             if (isUndoGroup(mutation)) {
@@ -109,7 +112,7 @@ export class UndoHistory {
         }
 
         // Jump back to what we rewinded to before
-        this._currentIndex = index;
+        this._currentIndex = stopIndex;
 
         return [toReplay, undone];
     }
@@ -122,9 +125,7 @@ export class UndoHistory {
         if (!this.canRedo()) {
             throw Error('Nothing to redo');
         }
-        // Pre-increment so we get the event ahead of our current position.
-        const nextIndex = this._currentIndex;
-        const toReplay = this._events[nextIndex];
+        const toReplay = this._events[this._currentIndex];
 
         if (isUndoGroup(toReplay)) {
             toReplay.mutations.forEach(m => (m.payload._undo.isReplay = true));
@@ -133,6 +134,9 @@ export class UndoHistory {
             toReplay.payload._undo.isReplay = true;
         }
 
+        this._currentIndex++;
+
+        console.log(`Redo! curr index: ${this._currentIndex}, max index: ${this._events.length}`)
         return toReplay;
     }
 

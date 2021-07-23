@@ -1,4 +1,5 @@
 import Vue from '*.vue';
+import { Notebook } from '@/features/notebooks/common/notebook';
 import { Note } from '@/features/notes/common/note';
 import { isBlank } from '@/shared/utils';
 import { generateId } from '@/store';
@@ -31,12 +32,12 @@ export class NoteMutations extends Mutations<NoteState> {
         this.state.values.push(note);
     }
 
-    SET_NAME({ value: { id, name } }: UndoPayload<{ id: string; name: string }>) {
+    SET_NAME({ value: { id, name } }: UndoPayload<Pick<Note, 'id' | 'name'>>) {
         const note = this.state.values.find((n) => n.id === id)!;
         note.name = name;
     }
 
-    DELETE({ value: { id } }: UndoPayload<{ id: string }>) {
+    DELETE({ value: { id } }: UndoPayload<Pick<Note, 'id'>>) {
         const i = this.state.values.findIndex((n) => n.id === id);
 
         if (i === -1) {
@@ -167,13 +168,13 @@ export class NoteMutations extends Mutations<NoteState> {
         }
     }
 
-    MOVE_TO_TRASH({ value: { id } }: UndoPayload<{ id: string }>) {
+    MOVE_TO_TRASH({ value: { id } }: UndoPayload<Pick<Note, 'id'>>) {
         const note = this.state.values.find((n) => n.id === id)!;
         note.trashed = true;
         note.hasUnsavedChanges = true;
     }
 
-    RESTORE_FROM_TRASH({ value: { id } }: UndoPayload<{ id: string }>) {
+    RESTORE_FROM_TRASH({ value: { id } }: UndoPayload<Pick<Note, 'id'>>) {
         const note = this.state.values.find((n) => n.id === id)!;
         delete note.trashed;
         note.hasUnsavedChanges = true;

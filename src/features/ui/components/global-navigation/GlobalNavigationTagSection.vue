@@ -62,7 +62,6 @@ import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigati
 export default defineComponent({
     setup: function() {
         const s = useStore();
-        console.log(s.state.ui.globalNavigation);
 
         const globalNav = useGlobalNavigation();
 

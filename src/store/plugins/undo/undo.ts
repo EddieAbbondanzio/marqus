@@ -71,7 +71,7 @@ export const undo = {
         mutation.payload._undo ??= {};
 
         const metadata = mutation.payload._undo as UndoMetadata;
-        let [namespace, mutationName] = splitMutationAndNamespace(mutation.type);
+        let [namespace] = splitMutationAndNamespace(mutation.type);
 
         // Allow mutations from other namespaces to be included in a group.
         if (metadata.group != null) {

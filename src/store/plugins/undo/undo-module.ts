@@ -11,6 +11,7 @@ import { MutationPayload, Store } from 'vuex';
 import { getNamespacedState } from '@/store/common/utils/get-namespaced-state';
 import _ from 'lodash';
 import { isAsync } from '@/shared/utils/is-async';
+import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
 
 /**
  * Module that retains it's own history state and handles undo / redo. Used in
@@ -42,8 +43,8 @@ export class UndoModule {
      * @param mutation The mutation to add to the history.
      */
     push(mutation: MutationPayload) {
-        if (mutation.payload._undo?.ignore) {
-            console.log('ignore! (module)');
+        // Skip if mutation has ignore flag set, or it's something we've already logged
+        if (mutation.payload._undo?.ignore || mutation.payload._undo?.isReplay) {
             return;
         }
 
@@ -88,23 +89,19 @@ export class UndoModule {
      * Undo the last mutation, or group. Throws if none.
      */
     async undo() {
+        console.log('history: ', this._history);
         // Roll back to most recently cached state
         const cached = this._stateCache.getLast(this._history.currentIndex);
         const store = this._getStore();
         store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
         // Reapply (N - 1) mutations to get to the desired state.
-        const [replay, undone] = this._history.undo(cached.index);
+        const [replay, undone] = this._history.undo(cached.index, this._history.currentIndex - 1);
 
-        console.log('to replay: ', replay);
-        console.log('to undo: ', undone);
+        console.log('replay: ', replay);
+        console.log('undone: ', undone);
         await this._replayMutations(replay, 'undo');
-
-        // Notify callbacks
-        const all = [...replay, undone];
-        for (const m of all) {
-            await this._notifyCallbacks(m, 'undo');
-        }
+        await this._notifyCallbacks(undone, 'undo');
     }
 
     /**
@@ -145,6 +142,13 @@ export class UndoModule {
         for (const event of mutations) {
             if (isUndoGroup(event)) {
                 for (const mutation of event.mutations) {
+                    const [mutationNamespace] = splitMutationAndNamespace(mutation.type);
+
+                    // Skip external grouped mutations.
+                    if (mutationNamespace !== this._settings.namespace) {
+                        continue;
+                    }
+
                     store.commit(mutation.type, mutation.payload);
                 }
             } else {

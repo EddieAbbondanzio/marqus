@@ -7,13 +7,7 @@ import { isBlank } from '@/shared/utils';
 import { Mutations } from 'vuex-smart-module';
 import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 
-export interface NotebookCreate {
-    id: string;
-    value: string;
-    parent?: Notebook;
-    children?: Notebook[];
-    expanded?: boolean;
-}
+export type NotebookCreate = Pick<Notebook, 'id' | 'value' | 'parent' | 'children' | 'expanded'>;
 
 export class NotebookMutations extends Mutations<NotebookState> {
     SET_STATE(s: NotebookState) {
@@ -40,7 +34,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
         }
     }
 
-    SET_NAME({ value: { id, value } }: UndoPayload<{ id: string; value: string }>) {
+    SET_NAME({ value: { id, value } }: UndoPayload<Pick<Notebook, 'id' | 'value'>>) {
         const notebook = findNotebookRecursive(this.state.values, id);
 
         if (notebook == null) {
@@ -54,7 +48,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
         notebook.value = value;
     }
 
-    DELETE({ value: { id } }: UndoPayload<{ id: string }>) {
+    DELETE({ value: { id } }: UndoPayload<Pick<Notebook, 'id'>>) {
         const notebook = findNotebookRecursive(this.state.values, id);
 
         if (notebook == null) {
