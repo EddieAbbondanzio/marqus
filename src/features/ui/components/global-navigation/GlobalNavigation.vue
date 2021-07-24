@@ -5,52 +5,51 @@
         v-model="width"
         minWidth="160px"
         v-context-menu:globalNavigation
-        v-focusable:globalNavigation
-        v-shortcut:undo="onUndo"
-        v-shortcut:redo="onRedo"
     >
-        <NavigationMenuList>
-            <NavigationMenuItem
-                icon="file-alt"
-                label="ALL"
-                :active="isActive({ section: 'all' })"
-                @click="setActive({ section: 'all' })"
-                :hideToggle="true"
-            >
-                <template #options>
-                    <IconButton
-                        icon="fa-angle-double-down"
-                        class="has-text-grey"
-                        title="Expand all"
-                        @click="expandAll()"
-                    />
-                    <IconButton
-                        icon="fa-angle-double-up"
-                        class="has-text-grey"
-                        title="Collapse all"
-                        @click="collapseAll()"
-                    />
-                </template>
-            </NavigationMenuItem>
+        <UndoContainer undoName="globalNavigation" focusName="globalNavigation">
+            <NavigationMenuList>
+                <NavigationMenuItem
+                    icon="file-alt"
+                    label="ALL"
+                    :active="isActive({ section: 'all' })"
+                    @click="setActive({ section: 'all' })"
+                    :hideToggle="true"
+                >
+                    <template #options>
+                        <IconButton
+                            icon="fa-angle-double-down"
+                            class="has-text-grey"
+                            title="Expand all"
+                            @click="expandAll()"
+                        />
+                        <IconButton
+                            icon="fa-angle-double-up"
+                            class="has-text-grey"
+                            title="Collapse all"
+                            @click="collapseAll()"
+                        />
+                    </template>
+                </NavigationMenuItem>
 
-            <global-navigation-notebook-section />
+                <GlobalNavigationNotebookSection />
 
-            <global-navigation-tag-section />
+                <GlobalNavigationTagSection />
 
-            <NavigationMenuItem
-                icon="star"
-                label="FAVORITES"
-                :active="isActive({ section: 'favorites' })"
-                @click="setActive({ section: 'favorites' })"
-            />
+                <NavigationMenuItem
+                    icon="star"
+                    label="FAVORITES"
+                    :active="isActive({ section: 'favorites' })"
+                    @click="setActive({ section: 'favorites' })"
+                />
 
-            <NavigationMenuItem
-                icon="trash"
-                label="TRASH"
-                :active="isActive({ section: 'trash' })"
-                @click="setActive({ section: 'trash' })"
-            />
-        </NavigationMenuList>
+                <NavigationMenuItem
+                    icon="trash"
+                    label="TRASH"
+                    :active="isActive({ section: 'trash' })"
+                    @click="setActive({ section: 'trash' })"
+                />
+            </NavigationMenuList>
+        </UndoContainer>
     </Resizable>
 </template>
 
@@ -68,6 +67,7 @@ import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';
 import { climbDomHierarchy } from '@/shared/utils';
 import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-navigation-context-menu';
+import UndoContainer from '@/components/UndoContainer.vue';
 
 export default defineComponent({
     setup: function() {
@@ -83,35 +83,35 @@ export default defineComponent({
         useGlobalNavigationContextMenu();
         console.log('on setup!');
 
-        const onUndo = () => {
-            if (focusManager.isFocused('globalNavigation')) {
-                const m = undo.getModule('globalNavigation');
+        // const onUndo = () => {
+        //     if (focusManager.isFocused('globalNavigation')) {
+        //         const m = undo.getModule('globalNavigation');
 
-                if (m.canUndo()) {
-                    m.undo();
-                } else {
-                    console.log('nothing to undo');
-                }
-            }
-        };
+        //         if (m.canUndo()) {
+        //             m.undo();
+        //         } else {
+        //             console.log('nothing to undo');
+        //         }
+        //     }
+        // };
 
-        const onRedo = () => {
-            if (focusManager.isFocused('globalNavigation')) {
-                const m = undo.getModule('globalNavigation');
+        // const onRedo = () => {
+        //     if (focusManager.isFocused('globalNavigation')) {
+        //         const m = undo.getModule('globalNavigation');
 
-                if (m.canRedo()) {
-                    console.log('redo');
-                    m.redo();
-                } else {
-                    console.log('nothing to redo');
-                }
-            }
-        };
+        //         if (m.canRedo()) {
+        //             console.log('redo');
+        //             m.redo();
+        //         } else {
+        //             console.log('nothing to redo');
+        //         }
+        //     }
+        // };
 
         return {
-            width,
-            onUndo,
-            onRedo
+            width
+            // onUndo,
+            // onRedo
         };
     },
     computed: {
@@ -126,7 +126,8 @@ export default defineComponent({
         GlobalNavigationNotebookSection,
         NavigationMenuItem,
         NavigationMenuList,
-        IconButton
+        IconButton,
+        UndoContainer
     }
 });
 </script>
