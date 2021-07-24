@@ -61,64 +61,28 @@ import GlobalNavigationTagSection from '@/features/ui/components/global-navigati
 import GlobalNavigationNotebookSection from '@/features/ui/components/global-navigation/GlobalNavigationNotebookSection.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuList from '@/components/navigation/NavigationMenuList.vue';
-import contextMenu from 'electron-context-menu';
 import IconButton from '@/components/IconButton.vue';
-import { focusManager } from '@/directives/focusable';
-import { undo } from '@/store/plugins/undo/undo';
-import { climbDomHierarchy } from '@/shared/utils';
 import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-navigation-context-menu';
 import UndoContainer from '@/components/UndoContainer.vue';
+import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 
 export default defineComponent({
     setup: function() {
-        const s = useStore();
+        const globalNav = useGlobalNavigation();
+        useGlobalNavigationContextMenu();
 
         const width = computed({
-            get: () => s.state.ui.globalNavigation.width as string,
-            set: (w: any) => {
-                s.dispatch('ui/globalNavigation/setWidth', w);
-            }
+            get: () => globalNav.state.width as string,
+            set: globalNav.actions.setWidth
         });
 
-        useGlobalNavigationContextMenu();
-        console.log('on setup!');
-
-        // const onUndo = () => {
-        //     if (focusManager.isFocused('globalNavigation')) {
-        //         const m = undo.getModule('globalNavigation');
-
-        //         if (m.canUndo()) {
-        //             m.undo();
-        //         } else {
-        //             console.log('nothing to undo');
-        //         }
-        //     }
-        // };
-
-        // const onRedo = () => {
-        //     if (focusManager.isFocused('globalNavigation')) {
-        //         const m = undo.getModule('globalNavigation');
-
-        //         if (m.canRedo()) {
-        //             console.log('redo');
-        //             m.redo();
-        //         } else {
-        //             console.log('nothing to redo');
-        //         }
-        //     }
-        // };
-
         return {
-            width
-            // onUndo,
-            // onRedo
+            width,
+            isActive: globalNav.getters.isActive,
+            expandAll: globalNav.actions.expandAll,
+            collapseAll: globalNav.actions.collapseAll,
+            setActive: globalNav.actions.setActive
         };
-    },
-    computed: {
-        ...mapGetters('ui/globalNavigation', ['isActive'])
-    },
-    methods: {
-        ...mapActions('ui/globalNavigation', ['expandAll', 'collapseAll', 'setActive'])
     },
     components: {
         Resizable,
@@ -131,10 +95,3 @@ export default defineComponent({
     }
 });
 </script>
-
-<style lang="sass" scoped>
-#global-navigation
-    outline: none!important
-    border: none!important
-    resize: none!important
-</style>

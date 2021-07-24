@@ -18,8 +18,12 @@ export class FocusManager {
      * @param name Easy to remember identifier of the element
      * @param el The element
      */
-    register(name: string, el: HTMLElement) {
+    register(name: string, el: HTMLElement, hidden = false) {
         this.focusables.push({ name, el });
+
+        if (hidden) {
+            el.classList.add('focusable-hidden');
+        }
     }
 
     /**
