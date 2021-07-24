@@ -58,6 +58,8 @@ import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import IconButton from '@/components/IconButton.vue';
 import { Tag } from '@/features/tags/common/tag';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
+import * as _ from 'lodash';
+import { Context } from 'vuex-smart-module';
 
 export default defineComponent({
     setup: function() {
@@ -84,25 +86,22 @@ export default defineComponent({
             ]
         };
 
+        const tags = computed(() => s.state.tags.values);
+
         return {
             expanded,
             input,
-            formRules
+            formRules,
+            tags,
+            confirm: globalNav.actions.tagInputConfirm,
+            cancel: globalNav.actions.tagInputCancel,
+            setActive: globalNav.actions.setActive,
+            createTag: globalNav.actions.tagInputStart,
+            isTagBeingUpdated: globalNav.getters.isTagBeingUpdated,
+            isTagBeingCreated: globalNav.getters.isTagBeingCreated,
+            indentation: globalNav.getters.indentation,
+            isActive: globalNav.getters.isActive
         };
-    },
-    computed: {
-        ...mapState('tags', {
-            tags: (state: any) => state.values
-        }),
-        ...mapGetters('ui/globalNavigation', ['isTagBeingUpdated', 'isTagBeingCreated', 'indentation', 'isActive'])
-    },
-    methods: {
-        ...mapActions('ui/globalNavigation', {
-            confirm: 'tagInputConfirm',
-            cancel: 'tagInputCancel',
-            setActive: 'setActive',
-            createTag: 'tagInputStart'
-        })
     },
     components: { NavigationMenuItem, NavigationMenuForm, IconButton }
 });

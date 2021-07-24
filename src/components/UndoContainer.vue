@@ -9,6 +9,11 @@ import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo';
 import { defineComponent } from 'vue';
 
+/**
+ * Wrapper component that will only perform an undo / redo if the user is focused
+ * within it. Will also enable undo / redo shortcuts based on whatever the user
+ * mapped them to.
+ */
 export default defineComponent({
     setup(p) {
         const m = undo.getModule(p.undoName);
@@ -40,7 +45,13 @@ export default defineComponent({
         };
     },
     props: {
+        /**
+         * Name of the undo module.
+         */
         undoName: { type: String, required: true },
+        /**
+         * Name of the focusable.
+         */
         focusName: { type: String, required: true }
     }
 });
