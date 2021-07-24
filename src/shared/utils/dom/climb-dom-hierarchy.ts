@@ -41,6 +41,13 @@ export type ConstrainedClimbOptions<T> = T extends boolean
           defaultValue?: () => Nullable<T>;
       };
 
+type ClimbOptions<T> = {
+    match: (el: HTMLElement) => boolean;
+    stop?: (el: HTMLElement) => boolean;
+    matchValue?: (el: HTMLElement) => Nullable<T>;
+    defaultValue?: () => Nullable<T>;
+};
+
 /**
  * Recursively climb the DOM hierarchy until a specific condition is met.
  * @param el The element to start at
@@ -50,18 +57,6 @@ export function climbDomHierarchy<T>(el: HTMLElement, opts: ConstrainedClimbOpti
 export function climbDomHierarchy<T>(el: HTMLElement, opts: ClimbOptions<T>): ClimbReturn<T> {
     return climb(el, opts);
 }
-
-/*
- * Kind of a band aid fix. Couldn't figure out how to distinguish the conditional
- * type from within the function. Probably should revisit this eventually.
- */
-
-type ClimbOptions<T> = {
-    match: (el: HTMLElement) => boolean;
-    stop?: (el: HTMLElement) => boolean;
-    matchValue?: (el: HTMLElement) => Nullable<T>;
-    defaultValue?: () => Nullable<T>;
-};
 
 function climb<T>(el: HTMLElement, opts: ClimbOptions<T>): ClimbReturn<T> {
     // Test for a stop condition
@@ -76,7 +71,7 @@ function climb<T>(el: HTMLElement, opts: ClimbOptions<T>): ClimbReturn<T> {
     else if (el.parentElement != null) {
         return climb(el.parentElement, opts);
     }
-    // If we got to here, we failed. Sorry.
+    // If we got to here, we failed..
     else {
         return opts.defaultValue == null ? (opts.matchValue == null ? false : null) : (opts.defaultValue() as any);
     }

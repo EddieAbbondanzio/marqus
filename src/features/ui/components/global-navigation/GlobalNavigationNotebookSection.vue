@@ -36,10 +36,12 @@ import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import IconButton from '@/components/IconButton.vue';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
+import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 
 export default defineComponent({
     setup: function() {
         const s = useStore();
+        const globalNav = useGlobalNavigation();
 
         const expanded = computed({
             get: () => s.state.ui.globalNavigation.notebooks.expanded,
