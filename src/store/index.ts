@@ -21,10 +21,11 @@ export const root = new Module({
 });
 
 const plugins = [
-    // createLogger({ logActions: false }),
+    createLogger({ logActions: false }),
     persist.plugin,
     undo.plugin,
     mediator.plugin
+    // comment is kept to prevent it from going to single line
 ];
 
 export const store = createStore(root, {

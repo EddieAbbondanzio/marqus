@@ -187,10 +187,7 @@ export class GlobalNavigationActions extends Actions<
 
         if (id != null) {
             notebook = findNotebookRecursive(this.notebooks.state.values, id);
-
-            if (notebook == null) {
-                throw new Error(`No notebook with id ${id} found.`);
-            }
+            if (notebook == null) throw Error(`No notebook with id ${id} found.`);
         }
 
         if (id == null && parentId != null) {
@@ -209,7 +206,7 @@ export class GlobalNavigationActions extends Actions<
             };
         }
 
-        this.commit('START_NOTEBOOKS_INPUT', p);
+        this.commit('START_NOTEBOOKS_INPUT', { value: p });
 
         if (parent != null) {
             this.notebooks.commit('SET_EXPANDED', { value: { notebook: parent, bubbleUp: true, expanded: true } });
@@ -241,7 +238,7 @@ export class GlobalNavigationActions extends Actions<
                 break;
 
             case 'update':
-                old = this.notebooks.state.values.find((n) => n.id === input.id)!;
+                old = this.notebooks.getters.byId(input.id!)!;
                 this.notebooks.commit('SET_NAME', { value: { id: old.id, value: input.value } });
                 break;
 

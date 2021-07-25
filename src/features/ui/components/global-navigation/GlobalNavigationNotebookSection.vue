@@ -61,14 +61,14 @@ export default defineComponent({
             ]
         };
 
-        // Hack
+        console.log(notebooks.state.values);
 
         return {
             expanded,
             input,
             formRules,
             getNotebookById: notebooks.getters.byId,
-            notebooks: notebooks.state.values,
+            notebooks: computed(() => notebooks.state.values),
             dragging: globalNav.state.notebooks.dragging,
             isNotebookBeingCreated: globalNav.getters.isNotebookBeingCreated,
             isNotebookBeingDragged: globalNav.getters.isNotebookBeingDragged,
