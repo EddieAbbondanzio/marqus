@@ -1,6 +1,6 @@
 import { persist } from '@/store/plugins/persist/persist';
 import { fixNotebookParentReferences, killNotebookParentReferences } from '@/features/notebooks/common/notebook';
-import { Module } from 'vuex-smart-module';
+import { createComposable, Module } from 'vuex-smart-module';
 import { NotebookActions } from '@/features/notebooks/store/actions';
 import { NotebookState } from '@/features/notebooks/store/state';
 import { NotebookMutations } from '@/features/notebooks/store/mutations';
@@ -14,6 +14,8 @@ export const notebooks = new Module({
     mutations: NotebookMutations,
     getters: NotebookGetters
 });
+
+export const useNotebooks = createComposable(notebooks);
 
 persist.register({
     namespace: 'notebooks',

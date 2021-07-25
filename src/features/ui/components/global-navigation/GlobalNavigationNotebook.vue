@@ -53,6 +53,9 @@ import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import { climbDomHierarchy } from '@/shared/utils';
 import { Notebook } from '@/features/notebooks/common/notebook';
+import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
+import { useNotebooks } from '@/features/notebooks/store';
+import { AnyRecordWithTtl } from 'node:dns';
 
 export default defineComponent({
     props: {
@@ -64,31 +67,25 @@ export default defineComponent({
     },
     name: 'GlobalNavigationNotebook',
     setup: function(p, c) {
-        const s = useStore();
+        const globalNav = useGlobalNavigation();
+        const notebooks = useNotebooks();
 
         const expanded = computed({
             get: () => p.modelValue!.expanded,
-            set: (v: any) => {
-                s.commit('notebooks/EXPANDED', {
-                    notebook: p.modelValue,
+            set: (v: any) =>
+                notebooks.actions.setExpanded({
+                    notebook: p.modelValue as any,
                     expanded: v,
                     bubbleUp: false
-                });
-            }
+                })
         });
-
-        const onClick = () => {
-            s.dispatch('ui/globalNavigation/setActive', { id: p.modelValue!.id, type: 'notebook' });
-        };
 
         const input = computed({
-            get: () => s.state.ui.globalNavigation.notebooks.input.value,
-            set: (v: string) => s.dispatch('ui/globalNavigation/notebookInputUpdated', v)
+            get: () => globalNav.state.notebooks.input!.value,
+            set: globalNav.actions.notebookInputUpdated
         });
 
-        const onHold = () => {
-            s.dispatch('ui/globalNavigation/notebookDragStart', p.modelValue!);
-        };
+        const onHold = () => globalNav.actions.notebookDragStart(p.modelValue as any);
 
         const onRelease = (ev: any) => {
             const src = document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement;
@@ -103,7 +100,7 @@ export default defineComponent({
                 defaultValue: () => null
             });
 
-            s.dispatch('ui/globalNavigation/notebookDragStop', id);
+            globalNav.actions.notebookDragStop(id);
         };
 
         const onHover = (ev: any) => {
@@ -119,14 +116,14 @@ export default defineComponent({
                 return;
             }
 
-            const otherNotebook: Notebook = s.state.notebooks.values.find((n: Notebook) => n.id === id);
+            const otherNotebook: Notebook | undefined = notebooks.getters.byId(id);
 
             if (otherNotebook == null) {
                 return;
             }
 
-            if (s.state.ui.globalNavigation.notebooks.dragging && !otherNotebook.expanded) {
-                s.commit('notebooks/EXPANDED', {
+            if (globalNav.state.notebooks.dragging && !otherNotebook.expanded) {
+                notebooks.actions.setExpanded({
                     notebook: otherNotebook,
                     expanded: true,
                     bubbleUp: false
@@ -138,10 +135,10 @@ export default defineComponent({
             required: true,
             unique: [
                 () => {
-                    switch (s.state.ui.globalNavigation.notebooks.input.mode) {
+                    switch (globalNav.state.notebooks.input?.mode) {
                         case 'update':
                             return p.modelValue!.parent == null
-                                ? s.state.notebooks.values
+                                ? notebooks.state.values
                                 : p.modelValue!.parent.children;
 
                         case 'create':
@@ -153,37 +150,27 @@ export default defineComponent({
                 },
                 (n: Notebook) => n.id,
                 (n: Notebook) => n.value,
-                () => s.state.ui.globalNavigation.notebooks.input
+                () => globalNav.state.notebooks.input
             ]
         };
 
         return {
             expanded,
-            onClick,
             input,
             onHold,
             onRelease,
             onHover,
-            formRules
+            formRules,
+            isNotebookBeingUpdated: globalNav.getters.isNotebookBeingUpdated,
+            isNotebookBeingCreated: globalNav.getters.isNotebookBeingCreated,
+            indentation: globalNav.getters.indentation,
+            canNotebookBeCollapsed: globalNav.getters.canNotebookBeCollapsed,
+            isActive: globalNav.getters.isActive,
+            confirm: globalNav.actions.notebookInputConfirm,
+            cancel: globalNav.actions.notebookInputCancel,
+            setActive: globalNav.actions.setActive,
+            notebookDragCancel: globalNav.actions.notebookDragCancel
         };
-    },
-    computed: {
-        ...mapGetters('ui/globalNavigation', [
-            'isNotebookBeingUpdated',
-            'isNotebookBeingCreated',
-            'indentation',
-            'canNotebookBeCollapsed',
-            'isActive'
-        ])
-    },
-    methods: {
-        ...mapActions('ui/globalNavigation', {
-            confirm: 'notebookInputConfirm',
-            cancel: 'notebookInputCancel',
-            onRelease: 'notebookDragStop',
-            setActive: 'setActive',
-            notebookDragCancel: 'notebookDragCancel'
-        })
     },
     components: { NavigationMenuForm, NavigationMenuItem }
 });

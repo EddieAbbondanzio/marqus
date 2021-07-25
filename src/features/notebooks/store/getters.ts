@@ -1,3 +1,4 @@
+import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { Note } from '@/features/notes/common/note';
 import { Tag } from '@/features/tags/common/tag';
@@ -41,6 +42,13 @@ export class NotebookGetters extends Getters<NotebookState> {
             const notebooks = this.flatten;
             const res = notebooks.filter((n: any) => note.notebooks.some((notebookId: string) => notebookId === n.id));
             return res;
+        };
+    }
+
+    get byId() {
+        return (id: string) => {
+            const notebook = findNotebookRecursive(this.state.values, id);
+            return notebook;
         };
     }
 }

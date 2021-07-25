@@ -28,66 +28,54 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import GlobalNavigationNotebook from '@/features/ui/components/global-navigation/GlobalNavigationNotebook.vue';
-import GlobalNavigationNote from '@/global-navigation/components/GlobalNavigationNote.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import IconButton from '@/components/IconButton.vue';
-import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
+import { useNotebooks } from '@/features/notebooks/store';
 
 export default defineComponent({
     setup: function() {
-        const s = useStore();
         const globalNav = useGlobalNavigation();
+        const notebooks = useNotebooks();
 
         const expanded = computed({
-            get: () => s.state.ui.globalNavigation.notebooks.expanded,
-            set: (v: any) => {
-                s.dispatch('ui/globalNavigation/setNotebooksExpanded', v);
-            }
+            get: () => globalNav.state.notebooks.expanded,
+            set: globalNav.actions.setNotebooksExpanded
         });
 
         const input = computed({
-            get: () => s.state.ui.globalNavigation.notebooks.input.value,
-            set: (v: string) => s.dispatch('ui/globalNavigation/notebookInputUpdated', v)
+            get: () => globalNav.state.notebooks.input!.value,
+            set: globalNav.actions.notebookInputUpdated
         });
 
         const formRules = {
             required: true,
             unique: [
-                () => s.state.notebooks.values,
+                () => notebooks.state.values,
                 (n: Notebook) => n.id,
                 (n: Notebook) => n.value,
-                () => s.state.ui.globalNavigation.notebooks.input
+                () => globalNav.state.notebooks.input
             ]
         };
 
         // Hack
-        const getNotebookById = (id: string) => findNotebookRecursive(s.state.notebooks.values, id)!;
 
         return {
             expanded,
             input,
             formRules,
-            getNotebookById
+            getNotebookById: notebooks.getters.byId,
+            notebooks: notebooks.state.values,
+            dragging: globalNav.state.notebooks.dragging,
+            isNotebookBeingCreated: globalNav.getters.isNotebookBeingCreated,
+            isNotebookBeingDragged: globalNav.getters.isNotebookBeingDragged,
+            confirm: globalNav.actions.notebookInputConfirm,
+            cancel: globalNav.actions.notebookInputCancel,
+            createNotebook: globalNav.actions.notebookInputStart
         };
-    },
-    computed: {
-        ...mapState('notebooks', {
-            notebooks: (state: any) => state.values
-        }),
-        ...mapState('ui/globalNavigation', { dragging: (s: any) => s.notebooks.dragging }),
-        ...mapGetters('ui/globalNavigation', ['isNotebookBeingCreated', 'isNotebookBeingDragged'])
-    },
-    methods: {
-        ...mapActions('ui/globalNavigation', {
-            confirm: 'notebookInputConfirm',
-            cancel: 'notebookInputCancel',
-            createNotebook: 'notebookInputStart'
-        })
     },
     components: { GlobalNavigationNotebook, NavigationMenuForm, NavigationMenuItem, IconButton }
 });
