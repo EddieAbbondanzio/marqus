@@ -40,7 +40,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     setWidth(width: string) {
-        this.commit('SET_WIDTH', { value: width });
+        this.commit('SET_WIDTH', { value: width, _undo: { ignore: true } });
     }
 
     tagInputStart({ id }: { id?: string } = {}) {
@@ -265,7 +265,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     setNotebooksExpanded(expanded: boolean) {
-        this.commit('SET_NOTEBOOKS_EXPANDED', { value: expanded });
+        this.commit('SET_NOTEBOOKS_EXPANDED', { value: expanded, _undo: { ignore: true } });
     }
 
     notebookDragStart(notebook: Notebook) {

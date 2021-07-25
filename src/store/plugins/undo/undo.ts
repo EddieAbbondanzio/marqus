@@ -84,7 +84,6 @@ export const undo = {
         }
 
         const metadata = mutation.payload._undo ?? {} as UndoMetadata;
-        console.log(mutation)
 
         // Check it's not on the mutation ignore list for the module
         if (metadata.ignore || state.modules[namespace].settings.ignore!.some(m => m === mutation.type)) {
