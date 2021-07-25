@@ -63,41 +63,33 @@ import { computed, defineComponent, onBeforeUnmount, onMounted, ref, WritableCom
 import Resizable from '@/components/Resizable.vue';
 import IconButton from '@/components/IconButton.vue';
 import LocalNavigationSearchBar from '@/features/ui/components/local-navigation/LocalNavigationSearchBar.vue';
-import { mapActions, mapGetters, mapMutations, mapState, useStore } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import { Note } from '@/features/notes/common/note';
-import { climbDomHierarchy } from '@/shared/utils';
-import contextMenu from 'electron-context-menu';
-import { focusManager } from '@/directives/focusable';
-import { undo } from '@/store/plugins/undo/undo';
 import { useLocalNavigationContextMenu } from './../../hooks/use-local-navigation-context-menu';
 import UndoContainer from '@/components/UndoContainer.vue';
+import { useLocalNavigation } from '@/features/ui/store/modules/local-navigation';
+import { useNotes } from '@/features/notes/store';
 
 export default defineComponent({
     setup: function() {
-        const s = useStore();
+        const localNav = useLocalNavigation();
+        const notes = useNotes();
 
         const width = computed({
-            get: () => s.state.ui.localNavigation.width as string,
-            set: (w: any) => {
-                s.dispatch('ui/localNavigation/widthUpdated', w);
-            }
+            get: () => localNav.state.width,
+            set: localNav.actions.widthUpdated
         });
 
         const input = computed({
-            get: () => s.state.ui.localNavigation.notes.input.name,
-            set: (v: string) => s.dispatch('ui/localNavigation/noteInputUpdate', v)
+            get: () => localNav.state.notes.input!.name,
+            set: localNav.actions.noteInputUpdate
         });
 
         const formRules = {
             required: true,
-            unique: [
-                () => s.state.notes.values,
-                (n: Note) => n.id,
-                (n: Note) => n.name,
-                () => s.state.ui.localNavigation.notes.input
-            ]
+            unique: [() => notes.state.values, (n: Note) => n.id, (n: Note) => n.name, () => localNav.state.notes.input]
         };
 
         useLocalNavigationContextMenu();
@@ -105,19 +97,16 @@ export default defineComponent({
         return {
             width,
             input,
-            formRules
+            formRules,
+            isNoteBeingCreated: computed(() => localNav.getters.isNoteBeingCreated),
+            isNoteBeingUpdated: computed(() => localNav.getters.isNoteBeingUpdated),
+            activeNotes: computed(() => localNav.getters.activeNotes),
+            isActive: computed(() => localNav.getters.isActive),
+            confirm: localNav.actions.noteInputConfirm,
+            cancel: localNav.actions.noteInputCancel,
+            create: localNav.actions.noteInputStart,
+            setActive: localNav.actions.setActive
         };
-    },
-    computed: {
-        ...mapGetters('ui/localNavigation', ['isNoteBeingCreated', 'isNoteBeingUpdated', 'activeNotes', 'isActive'])
-    },
-    methods: {
-        ...mapActions('ui/localNavigation', {
-            confirm: 'noteInputConfirm',
-            cancel: 'noteInputCancel',
-            create: 'noteInputStart',
-            setActive: 'setActive'
-        })
     },
     components: {
         Resizable,

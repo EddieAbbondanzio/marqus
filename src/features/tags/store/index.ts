@@ -4,7 +4,7 @@ import { TagMutations } from '@/features/tags/store/mutations';
 import { TagState } from '@/features/tags/store/state';
 import { persist } from '@/store/plugins/persist/persist';
 import { undo } from '@/store/plugins/undo';
-import { Module } from 'vuex-smart-module';
+import { createComposable, Module } from 'vuex-smart-module';
 
 export const tags = new Module({
     namespaced: true,
@@ -13,6 +13,8 @@ export const tags = new Module({
     mutations: TagMutations,
     actions: TagActions
 });
+
+export const useTags = createComposable(tags);
 
 persist.register({
     namespace: 'tags',

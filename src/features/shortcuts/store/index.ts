@@ -2,7 +2,7 @@ import { ShortcutState } from './state';
 import { persist } from '@/store/plugins/persist/persist';
 import { shortcutFromString } from '@/features/shortcuts/common/shortcut';
 import { DEFAULT_SHORTCUTS } from '@/features/shortcuts/common/default-shortcuts';
-import { Module } from 'vuex-smart-module';
+import { createComposable, Module } from 'vuex-smart-module';
 import { ShortcutActions } from '@/features/shortcuts/store/actions';
 import { ShortcutMutations } from '@/features/shortcuts/store/mutations';
 import { ShortcutGetters } from '@/features/shortcuts/store/getters';
@@ -15,6 +15,8 @@ export const shortcuts = new Module({
     getters: ShortcutGetters,
     state: ShortcutState
 });
+
+export const useShortcuts = createComposable(shortcuts);
 
 persist.register({
     namespace: 'shortcuts',

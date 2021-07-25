@@ -60,11 +60,12 @@ import { Tag } from '@/features/tags/common/tag';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import * as _ from 'lodash';
 import { Context } from 'vuex-smart-module';
+import { useTags } from '@/features/tags/store';
 
 export default defineComponent({
     setup: function() {
-        const s = useStore();
         const globalNav = useGlobalNavigation();
+        const tags = useTags();
 
         const expanded = computed({
             get: () => globalNav.state.tags.expanded,
@@ -78,21 +79,16 @@ export default defineComponent({
 
         const formRules = {
             required: true,
-            unique: [
-                () => s.state.tags.values,
-                (t: Tag) => t?.id,
-                (t: Tag) => t?.value,
-                () => globalNav.state.tags.input
-            ]
+            unique: [() => tags.state.values, (t: Tag) => t?.id, (t: Tag) => t?.value, () => globalNav.state.tags.input]
         };
 
-        const tags = computed(() => s.state.tags.values);
+        const tagValues = computed(() => tags.state.values);
 
         return {
             expanded,
             input,
             formRules,
-            tags,
+            tags: tagValues,
             confirm: globalNav.actions.tagInputConfirm,
             cancel: globalNav.actions.tagInputCancel,
             setActive: globalNav.actions.setActive,
