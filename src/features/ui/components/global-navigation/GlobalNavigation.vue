@@ -78,7 +78,7 @@ export default defineComponent({
 
         return {
             width,
-            isActive: globalNav.getters.isActive,
+            isActive: computed(() => globalNav.getters.isActive),
             expandAll: globalNav.actions.expandAll,
             collapseAll: globalNav.actions.collapseAll,
             setActive: globalNav.actions.setActive

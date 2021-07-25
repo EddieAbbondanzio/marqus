@@ -61,17 +61,15 @@ export default defineComponent({
             ]
         };
 
-        console.log(notebooks.state.values);
-
         return {
             expanded,
             input,
             formRules,
-            getNotebookById: notebooks.getters.byId,
+            getNotebookById: computed(() => notebooks.getters.byId),
             notebooks: computed(() => notebooks.state.values),
-            dragging: globalNav.state.notebooks.dragging,
-            isNotebookBeingCreated: globalNav.getters.isNotebookBeingCreated,
-            isNotebookBeingDragged: globalNav.getters.isNotebookBeingDragged,
+            dragging: computed(() => globalNav.state.notebooks.dragging),
+            isNotebookBeingCreated: computed(() => globalNav.getters.isNotebookBeingCreated),
+            isNotebookBeingDragged: computed(() => globalNav.getters.isNotebookBeingDragged),
             confirm: globalNav.actions.notebookInputConfirm,
             cancel: globalNav.actions.notebookInputCancel,
             createNotebook: globalNav.actions.notebookInputStart

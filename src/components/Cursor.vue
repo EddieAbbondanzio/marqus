@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted } from 'vue';
+import { computed, defineComponent, onMounted, onUnmounted } from 'vue';
 import { mapState, useStore } from 'vuex';
 
 export default defineComponent({
@@ -50,9 +50,10 @@ export default defineComponent({
             release();
             document.removeEventListener('mousemove', calculateCursorDraggingPosition);
         });
-    },
-    computed: {
-        ...mapState('ui', { dragging: (s: any) => s.cursor.dragging })
+
+        return {
+            dragging: computed(() => s.state.ui.cursor.dragging)
+        };
     }
 });
 </script>

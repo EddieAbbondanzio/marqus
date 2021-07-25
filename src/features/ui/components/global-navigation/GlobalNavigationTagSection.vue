@@ -97,10 +97,10 @@ export default defineComponent({
             cancel: globalNav.actions.tagInputCancel,
             setActive: globalNav.actions.setActive,
             createTag: globalNav.actions.tagInputStart,
-            isTagBeingUpdated: globalNav.getters.isTagBeingUpdated,
-            isTagBeingCreated: globalNav.getters.isTagBeingCreated,
-            indentation: globalNav.getters.indentation,
-            isActive: globalNav.getters.isActive
+            isTagBeingUpdated: computed(() => globalNav.getters.isTagBeingUpdated),
+            isTagBeingCreated: computed(() => globalNav.getters.isTagBeingCreated),
+            indentation: computed(() => globalNav.getters.indentation),
+            isActive: computed(() => globalNav.getters.isActive)
         };
     },
     components: { NavigationMenuItem, NavigationMenuForm, IconButton }

@@ -21,7 +21,7 @@ export const root = new Module({
 });
 
 const plugins = [
-    createLogger({ logActions: false }),
+    // createLogger({ logActions: false }),
     persist.plugin,
     undo.plugin,
     mediator.plugin
