@@ -31,11 +31,9 @@ export interface UndoMetadata {
     redoCallback?: UndoCallback;
 }
 
-// _undo is intential. Since the plugin name is undo it can lead to errors because it's easy to pass by accident.
-
 export interface UndoPayload<T> {
     value: T;
-    _undo?: UndoMetadata;
+    _undo?: UndoMetadata; // _undo is intentional. Since the plugin name is undo it can lead to errors because it's easy to pass by accident.
 }
 
 export interface VoidUndoPayload {

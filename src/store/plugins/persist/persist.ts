@@ -47,7 +47,8 @@ export const persist = {
                             await subscriber.settings.serialize(s, {
                                 rootState: store.state,
                                 fileName,
-                                mutationPayload: p
+                                mutationPayload: p,
+                                commit: store.commit
                             });
                         } else {
                             try {

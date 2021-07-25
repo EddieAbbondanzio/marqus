@@ -1,5 +1,5 @@
 import { TaskScheduler } from '@/shared/utils/task-scheduler';
-import { MutationPayload } from 'vuex';
+import { MutationPayload, Commit } from 'vuex';
 
 /**
  * Settings for a module that the persist plugin should be tracking.
@@ -34,7 +34,7 @@ export interface PersistModuleSettings {
      */
     serialize?: (
         s: any,
-        context: { rootState: any; fileName: string; mutationPayload: MutationPayload }
+        context: { rootState: any; fileName: string; mutationPayload: MutationPayload; commit: Commit }
     ) => Promise<void>;
     /**
      * Custom deserialization handler. Will be called instead of the default handler that reads a JSON file.

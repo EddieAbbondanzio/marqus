@@ -1,34 +1,37 @@
 import { Note } from '@/features/notes/common/note';
 import { NOTES_DIRECTORY } from '@/features/notes/store';
+import { NoteMutations } from '@/features/notes/store/mutations';
 import { NoteState } from '@/features/notes/store/state';
 import { fileSystem } from '@/shared/utils';
 import { isId } from '@/store';
+import { UndoPayload } from '@/store/plugins/undo';
 import moment from 'moment';
 import path from 'path';
-import { MutationPayload } from 'vuex';
+import { Commit, MutationPayload } from 'vuex';
 
 export async function serialize(
     s: NoteState,
-    { rootState, mutationPayload }: { rootState: any; mutationPayload: MutationPayload }
+    { rootState, mutationPayload, commit }: { rootState: any; mutationPayload: MutationPayload; commit: Commit }
 ) {
-    switch (mutationPayload.type) {
+    switch (mutationPayload.type as `notes/${keyof NoteMutations}`) {
         // id was passed
         case 'notes/CREATE':
-        case 'notes/SAVE':
-            await saveNoteToFileSystem(rootState, mutationPayload.payload);
+            await saveNoteToFileSystem(rootState, mutationPayload.payload.value);
             break;
 
         case 'notes/DELETE':
-            await fileSystem.deleteDirectory(path.join(NOTES_DIRECTORY, mutationPayload.payload));
+            await fileSystem.deleteDirectory(path.join(NOTES_DIRECTORY, mutationPayload.payload.value));
             break;
 
         case 'notes/EMPTY_TRASH':
-            throw Error('Not implmeneted');
+            throw Error('Not implemented');
+
+        case 'notes/MARK_ALL_NOTES_SAVED': // Prevents infinite loop
             break;
 
         // Catch-all so we don't have to keep explicitly adding new cases
         default:
-            await saveChangedNotes(rootState);
+            await saveChangedNotes(rootState, commit);
             break;
     }
 }
@@ -68,13 +71,18 @@ export async function deserialize() {
     };
 }
 
-export async function saveChangedNotes(rootState: any) {
+export async function saveChangedNotes(rootState: any, commit: Commit) {
     const notes = rootState.notes.values.filter((n: any) => n.hasUnsavedChanges);
+
+    if (notes.length === 0) {
+        return;
+    }
 
     for (const note of notes) {
         await saveNoteToFileSystem(rootState, note);
-        note.hasUnsavedChanges = false;
     }
+
+    commit('notes/MARK_ALL_NOTES_SAVED');
 }
 
 export async function saveNoteToFileSystem(rootState: any, noteOrId: Note | string) {

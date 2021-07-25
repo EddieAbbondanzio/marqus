@@ -34,6 +34,7 @@ export class NoteMutations extends Mutations<NoteState> {
 
     SET_NAME({ value: { note, newName } }: UndoPayload<{ note: Note; newName: string }>) {
         note.name = newName;
+        note.hasUnsavedChanges = true;
     }
 
     DELETE({ value: id }: UndoPayload<string>) {
@@ -187,5 +188,11 @@ export class NoteMutations extends Mutations<NoteState> {
     UNFAVORITE({ value: note }: UndoPayload<Note>) {
         note.favorited = false;
         note.hasUnsavedChanges = true;
+    }
+
+    MARK_ALL_NOTES_SAVED() {
+        for (let i = 0; i < this.state.values.length; i++) {
+            delete this.state.values[i].hasUnsavedChanges;
+        }
     }
 }
