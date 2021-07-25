@@ -1,9 +1,18 @@
+import { Note } from '@/features/notes/common/note';
 import { NoteState } from '@/features/notes/store/state';
 import { Getters } from 'vuex-smart-module';
 
 export class NoteGetters extends Getters<NoteState> {
-    byId(id: string) {
-        return this.state.values.find((n) => n.id === id);
+    byId(id: string): Note | undefined;
+    byId(id: string, opts: { required: true }): Note;
+    byId(id: string, opts: { required?: boolean } = {}) {
+        const note = this.state.values.find((n) => n.id === id);
+
+        if (opts.required && note == null) {
+            throw Error(`No note with id ${id} found.`);
+        }
+
+        return note;
     }
 
     notesByTag(tagId: string) {

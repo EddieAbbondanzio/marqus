@@ -49,8 +49,7 @@ export class GlobalNavigationActions extends Actions<
         this.commit('SET_TAGS_EXPANDED', { value: true, _undo });
 
         if (id != null) {
-            const tag = this.tags.getters.byId(id);
-            if (tag == null) throw Error(`No tag with id ${id} found.`);
+            const tag = this.tags.getters.byId(id, { required: true });
 
             this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, _undo });
         } else {
@@ -86,7 +85,7 @@ export class GlobalNavigationActions extends Actions<
                     break;
 
                 case 'update':
-                    existing = this.tags.getters.byId(input.id)!;
+                    existing = this.tags.getters.byId(input.id, { required: true });
 
                     this.tags.commit('SET_NAME', {
                         value: { tag: existing, newName: input.value },
@@ -123,8 +122,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     async tagDelete(id: string) {
-        const tag = this.tags.getters.byId(id);
-        if (tag == null) throw Error(`No tag with id ${id} found.`);
+        const tag = this.tags.getters.byId(id, { required: true });
 
         if (await confirmDelete('tag', tag.value)) {
             await this.group(async (_undo) => {
@@ -237,7 +235,7 @@ export class GlobalNavigationActions extends Actions<
                     };
 
                     if (input.parentId != null) {
-                        notebook.parent = findNotebookRecursive(this.notebooks.state.values, input.parentId)!;
+                        notebook.parent = this.notebooks.getters.byId(input.parentId, { required: true });
                     }
 
                     this.notebooks.commit('CREATE', {
@@ -303,7 +301,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     async notebookDelete(id: string) {
-        const notebook = findNotebookRecursive(this.notebooks.state.values, id)!;
+        const notebook = this.notebooks.getters.byId(id, { required: true });
 
         if (await confirmDelete('notebook', notebook.value)) {
             this.group((_undo) => {

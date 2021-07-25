@@ -31,11 +31,7 @@ export class LocalNavigationActions extends Actions<
         let note: Note | undefined;
 
         if (id != null) {
-            note = this.notes.getters.byId(id);
-
-            if (note == null) {
-                throw Error(`No note with id ${id} found.`);
-            }
+            note = this.notes.getters.byId(id, { required: true });
         }
 
         let active: any;
@@ -76,7 +72,7 @@ export class LocalNavigationActions extends Actions<
                 break;
 
             case 'update':
-                old = this.notes.getters.byId(input.id)!;
+                old = this.notes.getters.byId(input.id, { required: true });
 
                 this.notes.commit('SET_NAME', { value: { note: old, newName: input.name } });
                 break;
@@ -94,11 +90,7 @@ export class LocalNavigationActions extends Actions<
             throw Error();
         }
 
-        const note = this.notes.getters.byId(id);
-
-        if (note == null) {
-            throw Error(`No note with id ${id} found.`);
-        }
+        const note = this.notes.getters.byId(id, { required: true });
 
         const confirm = await confirmDeleteOrTrash('note', note.name);
 

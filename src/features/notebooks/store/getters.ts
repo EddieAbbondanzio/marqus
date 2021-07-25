@@ -43,8 +43,15 @@ export class NotebookGetters extends Getters<NotebookState> {
         return res;
     }
 
-    byId(id: string) {
+    byId(id: string): Notebook | undefined;
+    byId(id: string, opts: { required: true }): Notebook;
+    byId(id: string, opts: { required?: boolean } = {}) {
         const notebook = findNotebookRecursive(this.state.values, id);
+
+        if (opts.required && notebook == null) {
+            throw Error(`No notebook with id ${id} found.`);
+        }
+
         return notebook;
     }
 }
