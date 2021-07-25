@@ -3,7 +3,7 @@
     <NavigationMenuItem
         v-if="!isNotebookBeingUpdated(modelValue.id)"
         :label="modelValue.value"
-        :active="isActive({ id: modelValue.id, type: 'notebook' })"
+        :active="isActive({ id: modelValue.id, section: 'notebook' })"
         :expanded="modelValue.expanded"
         @update:expanded="(v) => (expanded = v)"
         :hideToggle="modelValue.children == null && !isNotebookBeingCreated(modelValue.id)"

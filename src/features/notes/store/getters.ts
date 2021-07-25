@@ -11,4 +11,14 @@ export class NoteGetters extends Getters<NoteState> {
             return this.state.values.filter((n) => n.tags.some((t) => t === tagId));
         };
     }
+
+    get notesByNotebook() {
+        return (notebookId: string) => {
+            if (notebookId == null) {
+                return [];
+            }
+
+            return this.state.values.filter((n) => n.notebooks.some((nb) => nb === notebookId));
+        };
+    }
 }

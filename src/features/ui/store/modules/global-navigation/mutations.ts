@@ -53,7 +53,7 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
 
     SET_NOTEBOOKS_INPUT(p: UndoPayload<string>) {
         if (this.state.notebooks.input == null) {
-            throw Error('No notebook input to update.');
+            return;
         }
 
         this.state.notebooks.input!.value = p.value;

@@ -15,6 +15,7 @@ export class GlobalNavigationGetters extends Getters<GlobalNavigationState> {
                 case 'tag':
                     return active.section === this.state.active.section && active.id === this.state.active.id;
                 default:
+                    console.log('NOPE');
                     return false;
             }
         };

@@ -50,10 +50,7 @@ export class GlobalNavigationActions extends Actions<
 
         if (id != null) {
             const tag = this.tags.getters.byId(id);
-
-            if (tag == null) {
-                throw new Error(`No tag with id ${id} found.`);
-            }
+            if (tag == null) throw Error(`No tag with id ${id} found.`);
 
             this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, _undo });
         } else {
@@ -97,14 +94,17 @@ export class GlobalNavigationActions extends Actions<
                             ..._undo,
                             cache: { oldName: existing.value },
                             // We have to trigger callbacks on modules that aren't tracked by undo.
-                            undoCallback: (m) =>
+                            undoCallback: (m) => {
                                 this.tags.commit('SET_NAME', {
                                     value: { tag: m.payload.value.tag, newName: m.payload._undo.cache.oldName }
-                                }),
+                                });
+                                this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
+                            },
                             redoCallback: (m) => {
                                 this.tags.commit('SET_NAME', {
                                     value: { tag: m.payload.value.tag, newName: m.payload.value.newName }
                                 });
+                                this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
                             }
                         }
                     });
@@ -123,16 +123,11 @@ export class GlobalNavigationActions extends Actions<
     }
 
     async tagDelete(id: string) {
-        await this.group(async (_undo) => {
-            const tag = this.tags.getters.byId(id);
+        const tag = this.tags.getters.byId(id);
+        if (tag == null) throw Error(`No tag with id ${id} found.`);
 
-            if (tag == null) {
-                throw new Error(`No tag with id ${id} found.`);
-            }
-
-            const confirm = await confirmDelete('tag', tag.value);
-
-            if (confirm) {
+        if (await confirmDelete('tag', tag.value)) {
+            await this.group(async (_undo) => {
                 _undo.cache = { id, value: tag.value };
 
                 this.tags.commit('DELETE', {
@@ -146,16 +141,18 @@ export class GlobalNavigationActions extends Actions<
 
                             this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
                         },
-                        redoCallback: (m) =>
+                        redoCallback: (m) => {
                             this.tags.commit('DELETE', {
                                 value: { id }
-                            })
+                            });
+                            this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
+                        }
                     }
                 });
 
-                // Find out what notebooks had the tag so we can cache it.
-                const notebooksWithTag = this.notes.getters.notesByTag(id);
-                _undo.cache.notebookIds = notebooksWithTag.map((n) => n.id);
+                // Find out what notes had the tag so we can cache it.
+                const notesWithTag = this.notes.getters.notesByTag(id);
+                _undo.cache.noteIds = notesWithTag.map((n) => n.id);
 
                 this.notes.commit('REMOVE_TAG', {
                     value: { tagId: id },
@@ -163,13 +160,15 @@ export class GlobalNavigationActions extends Actions<
                         ..._undo,
                         undoCallback: (m) =>
                             this.notes.commit('ADD_TAG', {
-                                value: { noteId: m.payload._undo.cache.notebookIds, tagId: m.payload.value.tagId }
+                                value: { noteId: m.payload._undo.cache.noteIds, tagId: m.payload.value.tagId },
+                                _undo: { ignore: true }
                             }),
-                        redoCallback: (m) => this.notes.commit('REMOVE_TAG', { value: m.payload.value })
+                        redoCallback: (m) =>
+                            this.notes.commit('REMOVE_TAG', { value: m.payload.value, _undo: { ignore: true } })
                     }
                 });
-            }
-        });
+            });
+        }
     }
 
     setTagsExpanded(expanded: boolean) {
@@ -206,61 +205,154 @@ export class GlobalNavigationActions extends Actions<
             };
         }
 
-        this.commit('START_NOTEBOOKS_INPUT', { value: p });
+        const _undo = { ignore: true };
+
+        this.commit('START_NOTEBOOKS_INPUT', { value: p, _undo });
+        this.commit('SET_NOTEBOOKS_EXPANDED', { value: true, _undo: { ignore: true } });
 
         if (parent != null) {
-            this.notebooks.commit('SET_EXPANDED', { value: { notebook: parent, bubbleUp: true, expanded: true } });
+            this.notebooks.commit('SET_EXPANDED', {
+                value: { notebook: parent, bubbleUp: true, expanded: true },
+                _undo
+            });
         }
     }
 
     notebookInputUpdated(value: string) {
-        this.commit('SET_NOTEBOOKS_INPUT', { value });
+        this.commit('SET_NOTEBOOKS_INPUT', { value, _undo: { ignore: true } });
     }
 
     notebookInputConfirm() {
-        const input = this.state.notebooks.input!;
-        let notebook: NotebookCreate;
-        let old: Notebook | undefined;
+        this.group((_undo) => {
+            const input = this.state.notebooks.input!;
+            let notebook: NotebookCreate;
+            let old: Notebook | undefined;
 
-        switch (this.state.notebooks.input?.mode) {
-            case 'create':
-                notebook = {
-                    id: generateId(),
-                    value: input.value,
-                    expanded: false
-                };
+            switch (this.state.notebooks.input?.mode) {
+                case 'create':
+                    notebook = {
+                        id: generateId(),
+                        value: input.value,
+                        expanded: false
+                    };
 
-                if (input.parentId != null) {
-                    notebook.parent = findNotebookRecursive(this.notebooks.state.values, input.parentId)!;
-                }
+                    if (input.parentId != null) {
+                        notebook.parent = findNotebookRecursive(this.notebooks.state.values, input.parentId)!;
+                    }
 
-                this.notebooks.commit('CREATE', { value: notebook });
-                break;
+                    this.notebooks.commit('CREATE', {
+                        value: notebook,
+                        _undo: {
+                            ..._undo,
+                            undoCallback: (m) => {
+                                this.notebooks.commit('DELETE', {
+                                    value: { id: m.payload.value.id },
+                                    _undo: { ignore: true }
+                                });
+                                this.commit('SET_NOTEBOOKS_EXPANDED', { value: true, _undo: { ignore: true } });
+                            },
+                            redoCallback: (m) => {
+                                this.notebooks.commit('CREATE', m.payload);
+                                this.commit('SET_NOTEBOOKS_EXPANDED', { value: true, _undo: { ignore: true } });
+                            }
+                        }
+                    });
+                    break;
 
-            case 'update':
-                old = this.notebooks.getters.byId(input.id!)!;
-                this.notebooks.commit('SET_NAME', { value: { id: old.id, value: input.value } });
-                break;
+                case 'update':
+                    old = this.notebooks.getters.byId(input.id!)!;
+                    this.notebooks.commit('SET_NAME', {
+                        value: { notebook: old, newName: input.value },
+                        _undo: {
+                            ..._undo,
+                            cache: {
+                                oldName: old.value
+                            },
+                            undoCallback: (m) => {
+                                this.notebooks.commit('SET_NAME', {
+                                    value: {
+                                        notebook: m.payload.value.notebook,
+                                        newName: m.payload._undo.cache.oldName
+                                    }
+                                });
+                                this.commit('SET_NOTEBOOKS_EXPANDED', { value: true, _undo: { ignore: true } });
+                            },
 
-            default:
-                throw new Error(`Invalid notebook input mode ${this.state.notebooks.input?.mode}`);
-        }
+                            redoCallback: (m) => {
+                                this.notebooks.commit('SET_NAME', {
+                                    value: { notebook: m.payload.value.notebook, newName: m.payload.value.newName }
+                                });
+                                this.commit('SET_NOTEBOOKS_EXPANDED', { value: true, _undo: { ignore: true } });
+                            }
+                        }
+                    });
+                    break;
 
-        this.commit('CLEAR_NOTEBOOKS_INPUT');
+                default:
+                    throw Error(`Invalid notebook input mode ${this.state.notebooks.input?.mode}`);
+            }
 
-        this.notebooks.commit('SORT', {});
+            _undo.ignore = true;
+            this.commit('CLEAR_NOTEBOOKS_INPUT', { _undo });
+            this.notebooks.commit('SORT', { _undo });
+        });
     }
 
     notebookInputCancel() {
-        this.commit('CLEAR_NOTEBOOKS_INPUT');
+        this.commit('CLEAR_NOTEBOOKS_INPUT', { _undo: { ignore: true } });
     }
 
     async notebookDelete(id: string) {
         const notebook = findNotebookRecursive(this.notebooks.state.values, id)!;
 
         if (await confirmDelete('notebook', notebook.value)) {
-            this.notebooks.commit('DELETE', { value: { id: id } });
-            this.notes.commit('REMOVE_NOTEBOOK', { value: { notebookId: id } });
+            this.group((_undo) => {
+                _undo.cache = {
+                    id: notebook.id,
+                    value: notebook.value,
+                    parent: notebook.parent,
+                    children: notebook.children
+                };
+
+                this.notebooks.commit('DELETE', {
+                    value: { id: id },
+                    _undo: {
+                        ..._undo,
+                        cache: {
+                            notebook: notebook
+                        },
+                        undoCallback: (m) => {
+                            this.notebooks.commit('CREATE', {
+                                value: m.payload._undo.cache.notebook,
+                                _undo: { ignore: true }
+                            });
+                            this.commit('SET_NOTEBOOKS_EXPANDED', { value: true, _undo: { ignore: true } });
+                        },
+                        redoCallback: (m) => {
+                            this.notebooks.commit('DELETE', m.payload);
+                            this.commit('SET_NOTEBOOKS_EXPANDED', { value: true, _undo: { ignore: true } });
+                        }
+                    }
+                });
+
+                // Find out what notebooks had the tag so we can cache it.
+                const notesWithNotebook = this.notes.getters.notesByNotebook(id);
+                _undo.cache.noteIds = notesWithNotebook.map((n) => n.id);
+
+                this.notes.commit('REMOVE_NOTEBOOK', {
+                    value: { notebookId: id },
+                    _undo: {
+                        ..._undo,
+                        undoCallback: (m) =>
+                            this.notes.commit('ADD_NOTEBOOK', {
+                                value: { noteId: m.payload._undo.cache.noteIds, notebookId: m.payload.value.tagId },
+                                _undo: { ignore: true }
+                            }),
+                        redoCallback: (m) =>
+                            this.notes.commit('REMOVE_NOTEBOOK', { value: m.payload.value, _undo: { ignore: true } })
+                    }
+                });
+            });
         }
     }
 

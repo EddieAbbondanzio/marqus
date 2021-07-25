@@ -23,29 +23,19 @@ export class NotebookMutations extends Mutations<NotebookState> {
         const notebook: Notebook = Object.assign({}, p.value);
 
         if (p.value.parent != null) {
-            // Jest doesn't like logical assignments ??=
-            if (p.value.parent.children == null) {
-                p.value.parent.children = [];
-            }
-
+            p.value.parent.children ??= [];
             p.value.parent.children.push(notebook);
         } else {
             this.state.values.push(notebook);
         }
     }
 
-    SET_NAME({ value: { id, value } }: UndoPayload<Pick<Notebook, 'id' | 'value'>>) {
-        const notebook = findNotebookRecursive(this.state.values, id);
-
-        if (notebook == null) {
-            throw Error(`No notebook with id ${id} found.`);
-        }
-
-        if (value == null) {
+    SET_NAME({ value: { notebook, newName } }: UndoPayload<{ notebook: Notebook; newName: string }>) {
+        if (newName == null) {
             throw Error('Value is required.');
         }
 
-        notebook.value = value;
+        notebook.value = newName;
     }
 
     DELETE({ value: { id } }: UndoPayload<Pick<Notebook, 'id'>>) {
