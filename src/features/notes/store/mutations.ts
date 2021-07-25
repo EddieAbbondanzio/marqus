@@ -32,12 +32,11 @@ export class NoteMutations extends Mutations<NoteState> {
         this.state.values.push(note);
     }
 
-    SET_NAME({ value: { id, name } }: UndoPayload<Pick<Note, 'id' | 'name'>>) {
-        const note = this.state.values.find((n) => n.id === id)!;
-        note.name = name;
+    SET_NAME({ value: { note, newName } }: UndoPayload<{ note: Note; newName: string }>) {
+        note.name = newName;
     }
 
-    DELETE({ value: { id } }: UndoPayload<Pick<Note, 'id'>>) {
+    DELETE({ value: id }: UndoPayload<string>) {
         const i = this.state.values.findIndex((n) => n.id === id);
 
         if (i === -1) {
@@ -168,13 +167,13 @@ export class NoteMutations extends Mutations<NoteState> {
         }
     }
 
-    MOVE_TO_TRASH({ value: { id } }: UndoPayload<Pick<Note, 'id'>>) {
+    MOVE_TO_TRASH({ value: id }: UndoPayload<string>) {
         const note = this.state.values.find((n) => n.id === id)!;
         note.trashed = true;
         note.hasUnsavedChanges = true;
     }
 
-    RESTORE_FROM_TRASH({ value: { id } }: UndoPayload<Pick<Note, 'id'>>) {
+    RESTORE_FROM_TRASH({ value: id }: UndoPayload<string>) {
         const note = this.state.values.find((n) => n.id === id)!;
         delete note.trashed;
         note.hasUnsavedChanges = true;

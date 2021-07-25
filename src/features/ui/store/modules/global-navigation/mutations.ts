@@ -43,7 +43,7 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
         }
     }
 
-    CLEAR_TAGS_INPUT(p?: VoidUndoPayload) {
+    CLEAR_TAGS_INPUT(p: VoidUndoPayload) {
         delete this.state.tags.input;
     }
 

@@ -1,32 +1,40 @@
+import { generateId } from '@/store';
+import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 import { MutationTree } from 'vuex';
-import { LocalNavigation } from './state';
+import { Mutations } from 'vuex-smart-module';
+import { LocalNavigationState } from './state';
 
-export const mutations: MutationTree<LocalNavigation> = {
-    SET_STATE(state, s: LocalNavigation) {
-        Object.assign(state, s);
-    },
-    SET_ACTIVE(s, newValue: string) {
-        s.active = newValue;
-    },
-    SET_NOTE_INPUT_NAME(s, newValue: string) {
-        s.notes.input!.name = newValue;
-    },
-    CLEAR_NOTE_INPUT(s) {
-        delete s.notes.input;
-    },
-    SET_WIDTH(s, newValue: string) {
-        s.width = newValue;
-    },
-    START_NOTE_INPUT(
-        s,
-        {
-            note,
-            globalNavigationActive
-        }: { note?: { id: string; name: string }; globalNavigationActive?: { id: string; type: 'notebook' | 'tag' } }
-    ) {
+export class LocalNavigationMutations extends Mutations<LocalNavigationState> {
+    SET_STATE(s: LocalNavigationState) {
+        Object.assign(this.state, s);
+    }
+
+    SET_ACTIVE({ value }: UndoPayload<string>) {
+        this.state.active = value;
+    }
+
+    SET_NOTE_INPUT({ value }: UndoPayload<string>) {
+        this.state.notes.input!.name = value;
+    }
+
+    CLEAR_NOTE_INPUT(p: VoidUndoPayload) {
+        delete this.state.notes.input;
+    }
+
+    SET_WIDTH(p: UndoPayload<string>) {
+        this.state.width = p.value;
+    }
+
+    START_NOTE_INPUT({
+        value: { note, globalNavigationActive }
+    }: UndoPayload<{
+        note?: { id: string; name: string };
+        globalNavigationActive?: { id: string; type: 'notebook' | 'tag' };
+    }>) {
         if (note == null) {
-            s.notes.input = {
+            this.state.notes.input = {
                 name: '',
+                id: generateId(),
                 mode: 'create'
             };
 
@@ -34,22 +42,22 @@ export const mutations: MutationTree<LocalNavigation> = {
             if (globalNavigationActive != null && typeof globalNavigationActive !== 'string') {
                 switch (globalNavigationActive.type) {
                     case 'notebook':
-                        s.notes.input.notebooks = [globalNavigationActive.id];
+                        this.state.notes.input.notebooks = [globalNavigationActive.id];
                         break;
 
                     case 'tag':
-                        s.notes.input.tags = [globalNavigationActive.id];
+                        this.state.notes.input.tags = [globalNavigationActive.id];
                         break;
                 }
             }
         }
         // Update
         else {
-            s.notes.input = {
+            this.state.notes.input = {
                 id: note.id,
                 name: note.name,
                 mode: 'update'
             };
         }
     }
-};
+}

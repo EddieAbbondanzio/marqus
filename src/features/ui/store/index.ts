@@ -5,6 +5,7 @@ import { UserInterfaceMutations } from './mutations';
 import { persist } from '@/store/plugins/persist/persist';
 import { Module } from 'vuex-smart-module';
 import { globalNavigation } from '@/features/ui/store/modules/global-navigation';
+import { localNavigation } from '@/features/ui/store/modules/local-navigation';
 
 export const userInterface = new Module({
     namespaced: true,
@@ -13,7 +14,8 @@ export const userInterface = new Module({
     mutations: UserInterfaceMutations,
     actions: UserInterfaceActions,
     modules: {
-        globalNavigation
+        globalNavigation,
+        localNavigation
     }
 });
 

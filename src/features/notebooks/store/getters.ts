@@ -33,22 +33,18 @@ export class NotebookGetters extends Getters<NotebookState> {
         return Object.values(visited);
     }
 
-    get notebooksForNote() {
-        return (note: Note) => {
-            if (note == null) {
-                return [];
-            }
+    notebooksForNote(note: Note) {
+        if (note == null) {
+            return [];
+        }
 
-            const notebooks = this.flatten;
-            const res = notebooks.filter((n: any) => note.notebooks.some((notebookId: string) => notebookId === n.id));
-            return res;
-        };
+        const notebooks = this.flatten;
+        const res = notebooks.filter((n: any) => note.notebooks.some((notebookId: string) => notebookId === n.id));
+        return res;
     }
 
-    get byId() {
-        return (id: string) => {
-            const notebook = findNotebookRecursive(this.state.values, id);
-            return notebook;
-        };
+    byId(id: string) {
+        const notebook = findNotebookRecursive(this.state.values, id);
+        return notebook;
     }
 }

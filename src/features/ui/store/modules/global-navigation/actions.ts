@@ -74,7 +74,7 @@ export class GlobalNavigationActions extends Actions<
                         _undo: {
                             ..._undo,
                             undoCallback: (m) => {
-                                this.tags.commit('DELETE', { value: { id: m.payload.value.id } });
+                                this.tags.commit('DELETE', { value: m.payload.value });
                                 this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
                             },
                             redoCallback: (m) => {
@@ -131,7 +131,7 @@ export class GlobalNavigationActions extends Actions<
                 _undo.cache = { id, value: tag.value };
 
                 this.tags.commit('DELETE', {
-                    value: { id },
+                    value: id,
                     _undo: {
                         ..._undo,
                         undoCallback: (m) => {
@@ -143,7 +143,7 @@ export class GlobalNavigationActions extends Actions<
                         },
                         redoCallback: (m) => {
                             this.tags.commit('DELETE', {
-                                value: { id }
+                                value: id
                             });
                             this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
                         }

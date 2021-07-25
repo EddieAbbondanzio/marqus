@@ -1,18 +1,37 @@
 import { Note } from '@/features/notes/common/note';
+import { notes } from '@/features/notes/store';
+import { globalNavigation } from '@/features/ui/store/modules/global-navigation';
+import { LocalNavigationGetters } from '@/features/ui/store/modules/local-navigation/getters';
+import { LocalNavigationMutations } from '@/features/ui/store/modules/local-navigation/mutations';
 import { confirmDeleteOrTrash } from '@/shared/utils';
 import { generateId } from '@/store';
-import { ActionTree } from 'vuex';
-import { LocalNavigation } from './state';
+import { ActionTree, Store } from 'vuex';
+import { Actions, Context } from 'vuex-smart-module';
+import { LocalNavigationState } from './state';
 
-export const actions: ActionTree<LocalNavigation, State> = {
-    setActive({ commit, state }, id: string) {
-        commit('ACTIVE_UPDATED', id);
-    },
-    noteInputStart({ commit, rootState }, { id }: { id?: string } = {}) {
+export class LocalNavigationActions extends Actions<
+    LocalNavigationState,
+    LocalNavigationGetters,
+    LocalNavigationMutations,
+    LocalNavigationActions
+> {
+    globalNav!: Context<typeof globalNavigation>;
+    notes!: Context<typeof notes>;
+
+    $init(store: Store<any>) {
+        this.globalNav = globalNavigation.context(store);
+        this.notes = notes.context(store);
+    }
+
+    setActive(id: string) {
+        this.commit('SET_ACTIVE', { value: id });
+    }
+
+    noteInputStart({ id }: { id?: string } = {}) {
         let note: Note | undefined;
 
         if (id != null) {
-            note = rootState.notes.values.find((n) => n.id === id);
+            note = this.notes.getters.byId(id);
 
             if (note == null) {
                 throw Error(`No note with id ${id} found.`);
@@ -21,26 +40,24 @@ export const actions: ActionTree<LocalNavigation, State> = {
 
         let active: any;
 
-        if (
-            rootState.ui.globalNavigation.active?.section === 'tag' ||
-            rootState.ui.globalNavigation.active?.section === 'notebook'
-        ) {
+        if (this.globalNav.state.active?.section === 'tag' || this.globalNav.state.active?.section === 'notebook') {
             active = {
-                id: rootState.ui.globalNavigation.active.id,
-                type: rootState.ui.globalNavigation.active.section
+                id: this.globalNav.state.active.id,
+                type: this.globalNav.state.active.section
             };
         }
 
-        commit('NOTE_INPUT_STARTED', {
-            active,
-            note: { id: note?.id, name: note?.name }
+        this.commit('START_NOTE_INPUT', {
+            value: { note, globalNavigationActive: active }
         });
-    },
-    noteInputUpdate({ commit, state }, value: string) {
-        commit('NOTE_INPUT_NAME_UPDATED', value);
-    },
-    noteInputConfirm({ commit, state, rootState }) {
-        const input = state.notes.input!;
+    }
+
+    noteInputUpdate(value: string) {
+        this.commit('SET_NOTE_INPUT', { value });
+    }
+
+    noteInputConfirm() {
+        const input = this.state.notes.input!;
         let note: Note;
         let old: Note | undefined;
 
@@ -55,36 +72,29 @@ export const actions: ActionTree<LocalNavigation, State> = {
                     tags: input.tags ?? []
                 };
 
-                commit('notes/CREATE', note, { root: true });
+                this.notes.commit('CREATE', { value: note });
                 break;
 
             case 'update':
-                old = rootState.notes.values.find((n) => n.id === input.id!)!;
+                old = this.notes.getters.byId(input.id)!;
 
-                note = {
-                    id: old.id,
-                    dateCreated: old.dateCreated,
-                    dateModified: new Date(),
-                    name: input.name,
-                    notebooks: old.notebooks,
-                    tags: old.tags
-                };
-
-                commit('notes/NAME', note, { root: true });
+                this.notes.commit('SET_NAME', { value: { note: old, newName: input.name } });
                 break;
         }
 
-        commit('NOTE_INPUT_CLEARED');
-    },
-    noteInputCancel({ commit, state }) {
-        commit('NOTE_INPUT_CLEARED');
-    },
-    async noteDelete({ commit, rootState }, id: string) {
+        this.commit('CLEAR_NOTE_INPUT', {});
+    }
+
+    noteInputCancel() {
+        this.commit('CLEAR_NOTE_INPUT', {});
+    }
+
+    async noteDelete(id: string) {
         if (id == null) {
             throw Error();
         }
 
-        const note = rootState.notes.values.find((n) => n.id === id);
+        const note = this.notes.getters.byId(id);
 
         if (note == null) {
             throw Error(`No note with id ${id} found.`);
@@ -94,16 +104,16 @@ export const actions: ActionTree<LocalNavigation, State> = {
 
         switch (confirm) {
             case 'delete':
-                commit('notes/DELETE', id, { root: true });
+                this.notes.commit('DELETE', { value: id });
                 break;
 
             case 'trash':
-                commit('notes/MOVE_TO_TRASH', id, { root: true });
+                this.notes.commit('MOVE_TO_TRASH', { value: id });
                 break;
         }
-    },
-
-    widthUpdated({ commit, state }, width: string) {
-        commit('WIDTH_UPDATED', width);
     }
-};
+
+    widthUpdated(width: string) {
+        this.commit('SET_WIDTH', { value: width });
+    }
+}

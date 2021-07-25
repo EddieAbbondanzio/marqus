@@ -1,30 +1,49 @@
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { Notebook } from '@/features/notebooks/common/notebook';
-import { Note } from '@/features/notes/common/note';
-import { State } from '@/store/state';
-import { GetterTree } from 'vuex';
-import { LocalNavigation } from './state';
+import { notebooks } from '@/features/notebooks/store';
+import { notes } from '@/features/notes/store';
+import { globalNavigation } from '@/features/ui/store/modules/global-navigation';
+import { GetterTree, Store } from 'vuex';
+import { Context, Getters } from 'vuex-smart-module';
+import { LocalNavigationState } from './state';
 
-export const getters: GetterTree<LocalNavigation, State> = {
-    isNoteBeingCreated: (s) => s.notes.input?.mode === 'create',
-    isNoteBeingUpdated: (s) => (id: string) => {
-        return s.notes.input?.mode === 'update' && s.notes.input.id === id;
-    },
-    isActive: (s) => (id: string) => s.active === id,
-    activeNotes: (_s, _g, rootState) => {
-        const active = rootState.ui.globalNavigation.active;
+export class LocalNavigationGetters extends Getters<LocalNavigationState> {
+    globalNav!: Context<typeof globalNavigation>;
+    notes!: Context<typeof notes>;
+    notebooks!: Context<typeof notebooks>;
+
+    $init(store: Store<any>) {
+        this.notes = notes.context(store);
+        this.globalNav = globalNavigation.context(store);
+        this.notebooks = notebooks.context(store);
+    }
+
+    get isNoteBeingCreated() {
+        return this.state.notes.input?.mode === 'create';
+    }
+
+    isNoteBeingUpdated(id: string) {
+        return this.state.notes.input?.mode === 'update' && this.state.notes.input.id === id;
+    }
+
+    isActive(id: string) {
+        return this.state.active === id;
+    }
+
+    get activeNotes() {
+        const active = this.globalNav.state.active;
 
         switch (active?.section) {
             case 'all':
-                return rootState.notes.values.filter((note) => !note.trashed);
+                return this.notes.state.values.filter((note) => !note.trashed);
 
             case 'notebook':
-                return rootState.notes.values.filter(
+                return this.notes.state.values.filter(
                     (note) =>
                         !note.trashed &&
                         note.notebooks != null &&
                         note.notebooks.some((id) => {
-                            let notebook: Notebook | undefined = findNotebookRecursive(rootState.notebooks.values, id);
+                            let notebook: Notebook | undefined = findNotebookRecursive(this.notebooks.state.values, id);
 
                             // A parent notebook should also show notes for any of it's children.
                             while (notebook != null) {
@@ -37,18 +56,18 @@ export const getters: GetterTree<LocalNavigation, State> = {
                 );
 
             case 'tag':
-                return rootState.notes.values.filter(
+                return this.notes.state.values.filter(
                     (note) => !note.trashed && (note.tags ?? []).some((tag) => tag === active.id)
                 );
 
             case 'favorites':
-                return rootState.notes.values.filter((note) => !note.trashed && note.favorited);
+                return this.notes.state.values.filter((note) => !note.trashed && note.favorited);
 
             case 'trash':
-                return rootState.notes.values.filter((n) => n.trashed);
+                return this.notes.state.values.filter((n) => n.trashed);
 
             default:
                 return [];
         }
     }
-};
+}

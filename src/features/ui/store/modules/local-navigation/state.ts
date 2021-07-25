@@ -1,20 +1,21 @@
-export interface LocalNavigationNoteInput {
-    mode?: 'create' | 'update';
-    id?: string;
-    name: string;
-    notebooks?: string[];
-    tags?: string[];
-}
+export type LocalNavigationNoteInput =
+    | {
+          mode: 'create';
+          id: string;
+          name: string;
+          notebooks?: string[];
+          tags?: string[];
+      }
+    | {
+          mode: 'update';
+          id: string;
+          name: string;
+      };
 
-export interface LocalNavigation {
-    width: string;
+export class LocalNavigationState {
+    width: string = '200px';
     notes: {
         input?: LocalNavigationNoteInput;
-    };
+    } = {};
     active?: string;
 }
-
-export const state: LocalNavigation = {
-    width: '200px',
-    notes: {}
-};

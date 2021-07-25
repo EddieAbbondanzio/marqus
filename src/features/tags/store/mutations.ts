@@ -35,11 +35,11 @@ export class TagMutations extends Mutations<TagState> {
         tag.value = newName;
     }
 
-    DELETE(p: UndoPayload<Pick<Tag, 'id'>>) {
-        const i = this.state.values.findIndex((t) => t.id === p.value.id);
+    DELETE({ value: id }: UndoPayload<string>) {
+        const i = this.state.values.findIndex((t) => t.id === id);
 
         if (i === -1) {
-            throw Error(`No tag with id: ${p.value.id} found.`);
+            throw Error(`No tag with id ${id} found.`);
         }
 
         this.state.values.splice(i, 1);
