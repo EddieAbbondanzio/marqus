@@ -109,3 +109,12 @@ export const undo = {
         return g;
     }
 };
+
+// Disable default undo / redo from webbrowser
+window.addEventListener('keydown', function(e) {
+    console.log(e);
+    if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyZ' || e.code === 'KeyY')) {
+      e.preventDefault();
+      return false;
+    }
+});
