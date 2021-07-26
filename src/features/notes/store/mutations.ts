@@ -17,17 +17,18 @@ export class NoteMutations extends Mutations<NoteState> {
         this.state.values = this.state.values.filter((n) => !n.trashed);
     }
 
-    CREATE(p: UndoPayload<{ id: string; name: string }>) {
+    CREATE(p: UndoPayload<Pick<Note, 'id' | 'name' | 'notebooks' | 'tags' | 'favorited'>>) {
         if (isBlank(p.value.id)) throw Error('Id is required.');
         if (isBlank(p.value.name)) throw Error('Name is required.');
 
-        const note: Note = {
-            id: p.value.id,
-            name: p.value.name,
-            tags: [],
-            notebooks: [],
-            dateCreated: new Date()
-        };
+        const note: Note = Object.assign(
+            {
+                tags: [],
+                notebooks: [],
+                dateCreated: new Date()
+            },
+            p.value
+        );
 
         this.state.values.push(note);
     }

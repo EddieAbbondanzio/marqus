@@ -1,9 +1,11 @@
-import { fileSystem } from '@/shared/utils/file-system';
+import { DATA_DIRECTORY, fileSystem } from '@/shared/utils/file-system';
 import { TaskScheduler } from '@/shared/utils/task-scheduler';
 import { MutationPayload, Store } from 'vuex';
 import * as _ from 'lodash';
 import { PersistModule, PersistModuleSettings } from './types';
 import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
+import path from 'path';
+import { NOTES_DIRECTORY } from '@/features/notes/store';
 
 let release: () => void;
 
@@ -72,6 +74,11 @@ export const persist = {
         // Don't load files in test
         if (process.env.NODE_ENV === 'test') {
             return;
+        }
+
+        // Create the data directory if needed
+        if (!fileSystem.exists(DATA_DIRECTORY, { root: true })) {
+            await fileSystem.createDirectory(DATA_DIRECTORY, { root: true });
         }
 
         for (const m of this.modules) {

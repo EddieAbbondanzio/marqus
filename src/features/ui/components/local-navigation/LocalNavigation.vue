@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, WritableComputedRef } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
 import IconButton from '@/components/IconButton.vue';
 import LocalNavigationSearchBar from '@/features/ui/components/local-navigation/LocalNavigationSearchBar.vue';
@@ -93,6 +93,13 @@ export default defineComponent({
         };
 
         useLocalNavigationContextMenu();
+
+        watch(
+            () => localNav.getters.activeNotes,
+            () => {
+                console.log(notes.state.values);
+            }
+        );
 
         return {
             width,

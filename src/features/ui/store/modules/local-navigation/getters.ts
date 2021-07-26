@@ -33,6 +33,7 @@ export class LocalNavigationGetters extends Getters<LocalNavigationState> {
     get activeNotes() {
         const active = this.globalNav.state.active;
 
+        console.log(active);
         switch (active?.section) {
             case 'all':
                 return this.notes.state.values.filter((note) => !note.trashed);
