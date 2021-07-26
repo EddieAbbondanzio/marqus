@@ -1,39 +1,55 @@
-import { State } from '@/store/state';
-import { GetterTree } from 'vuex';
-import { Editor } from './state';
+import { notes } from '@/features/notes/store';
+import { Store } from 'vuex';
+import { Context, Getters } from 'vuex-smart-module';
+import { EditorState } from './state';
 
-export const getters: GetterTree<Editor, State> = {
-    activeNote: (s, _g, r) => {
-        if (s.tabs.active == null) {
+export class EditorGetters extends Getters<EditorState> {
+    notes!: Context<typeof notes>;
+
+    $init(store: Store<any>) {
+        this.notes = notes.context(store);
+    }
+
+    get activeNote() {
+        if (this.state.tabs.active == null) {
             return null;
         }
 
-        const activeTab = s.tabs.values.find((t) => t.id === s.tabs.active);
+        const activeTab = this.state.tabs.values.find((t) => t.id === this.state.tabs.active);
 
         if (activeTab == null) {
             return null;
         }
 
-        return r.notes.values.find((n) => n.id === activeTab.noteId);
-    },
-    activeTab: (s) => {
-        if (s.tabs.active == null) {
+        return this.notes.state.values.find((n) => n.id === activeTab.noteId);
+    }
+
+    get activeTab() {
+        if (this.state.tabs.active == null) {
             return null;
         } else {
-            return s.tabs.values.find((t) => t.id === s.tabs.active);
+            return this.state.tabs.values.find((t) => t.id === this.state.tabs.active);
         }
-    },
-    noteName: (_s, _g, r) => (noteId: string) => {
-        const note = r.notes.values.find((n) => n.id === noteId);
+    }
+
+    noteName(noteId: string) {
+        const note = this.notes.getters.byId(noteId);
         return note?.name ?? '';
-    },
-    isTabActive: (s) => (tabId: string) => {
-        if (s.tabs.active == null) {
+    }
+
+    isTabActive(tabId: string) {
+        if (this.state.tabs.active == null) {
             return false;
         }
 
-        return s.tabs.active === tabId;
-    },
-    isDragging: (s) => s.tabs.dragging != null,
-    isEmpty: (s) => s.tabs.values.length === 0
-};
+        return this.state.tabs.active === tabId;
+    }
+
+    get isDragging() {
+        return this.state.tabs.dragging != null;
+    }
+
+    get isEmpty() {
+        return this.state.tabs.values.length === 0;
+    }
+}

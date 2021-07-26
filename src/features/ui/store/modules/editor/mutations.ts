@@ -1,138 +1,106 @@
 import { generateId } from '@/store';
-import { Editor } from '@/features/ui/store/modules/editor/state';
+import { EditorMode, EditorState, Tab, TabState } from '@/features/ui/store/modules/editor/state';
 import { MutationTree } from 'vuex';
+import { Mutations } from 'vuex-smart-module';
+import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 
-export const mutations: MutationTree<Editor> = {};
+export class EditorMutations extends Mutations<EditorState> {
+    SET_ACTIVE(p: UndoPayload<string>) {
+        this.state.tabs.active = p.value;
+    }
 
-// export function apply(state: Editor, event: EditorEvent) {
-//     let tab: Tab | undefined;
-//     let index: number | undefined;
-//     let existing: Tab | undefined;
-//     let existingPreviewTabIndex: number;
+    SET_EDITOR_MODE(p: UndoPayload<EditorMode>) {
+        this.state.mode = p.value;
+    }
 
-//     switch (event.type) {
-//         case 'activeUpdated':
-//             state.tabs.active = event.newValue;
-//             break;
+    SET_NOTEBOOK_DROPDOWN_VISIBLE(p: UndoPayload<{ tab: Tab; visible: boolean }>) {
+        p.value.tab.notebookDropdownVisible = p.value.visible;
+    }
 
-//         case 'editorModeUpdated':
-//             state.mode = event.newValue;
-//             break;
+    SET_TAG_DROPDOWN_VISIBLE(p: UndoPayload<{ tab: Tab; visible: boolean }>) {
+        p.value.tab.tagDropdownVisible = p.value.visible;
+    }
 
-//         case 'notebookDropdownActiveUpdated':
-//             tab = state.tabs.values.find((t) => t.id === state.tabs.active);
+    SET_TAB_CONTENT(p: UndoPayload<{ tab: Tab; content: string }>) {
+        p.value.tab.content = p.value.content;
+        p.value.tab.state = 'dirty';
+    }
 
-//             if (tab == null) {
-//                 throw Error(`No active tab.`);
-//             }
+    SET_TAB_STATE(p: UndoPayload<{ tab: Tab; state: TabState }>) {
+        p.value.tab.state = p.value.state;
+    }
 
-//             tab.notebookDropdownActive = event.newValue;
-//             break;
+    CLOSE_TAB(p: UndoPayload<string>) {
+        const index = this.state.tabs.values.findIndex((t) => t.id === p.value);
 
-//         case 'tagDropdownActiveUpdated':
-//             tab = state.tabs.values.find((t) => t.id === state.tabs.active);
+        if (index === -1) throw Error(`No tab found.`);
 
-//             if (tab == null) {
-//                 throw Error(`No active tab.`);
-//             }
+        this.state.tabs.values.splice(index, 1);
 
-//             tab.tagDropdownActive = event.newValue;
-//             break;
+        // Switch out of edit mode if no tabs left open
+        if (this.state.tabs.values.length === 0) {
+            this.state.mode = 'readonly';
+        }
+    }
 
-//         case 'tabContentUpdated':
-//             tab = state.tabs.values.find((t) => t.id === state.tabs.active);
+    CLOSE_ALL_TABS(p: VoidUndoPayload) {
+        this.state.tabs.values.length = 0;
+        delete this.state.tabs.active;
+    }
 
-//             if (tab == null) {
-//                 throw Error(`No active tab.`);
-//             }
+    SET_TABS_DRAGGING(p: UndoPayload<Tab | undefined>) {
+        if (p.value == null) {
+            delete this.state.tabs.dragging;
+        } else {
+            this.state.tabs.dragging = p.value;
+        }
+    }
 
-//             tab.content = event.newValue;
-//             tab.state = 'dirty';
-//             break;
+    MOVE_TAB(p: UndoPayload<number>) {
+        if (this.state.tabs.dragging == null) {
+            return;
+        }
 
-//         case 'tabStateUpdated':
-//             tab = state.tabs.values.find((t) => t.id === state.tabs.active);
+        const oldIndex = this.state.tabs.values.findIndex((t) => t.id === this.state.tabs.dragging!.id);
 
-//             if (tab == null) {
-//                 throw Error(`No active tab.`);
-//             }
+        // Remove from old spot
+        const [tab] = this.state.tabs.values.splice(oldIndex, 1);
 
-//             tab.state = event.newValue;
-//             break;
+        // Insert into new one
+        this.state.tabs.values.splice(p.value, 0, tab);
+    }
 
-//         case 'tabClosed':
-//             index = state.tabs.values.findIndex((t) => t.id === event.id);
+    OPEN_TAB(p: UndoPayload<{ noteId: string; content: string; preview: boolean }>) {
+        // See if we already opened the tab
+        const existing = this.state.tabs.values.find((t) => t.noteId === p.value.noteId);
 
-//             if (index !== -1) {
-//                 state.tabs.values.splice(index, 1);
-//             }
+        if (existing != null) {
+            // Switch it to normal mode if it was a preview
+            if (existing.state === 'preview' && this.state.tabs.active === existing.id) {
+                existing.state = 'normal';
+            }
 
-//             // If there is no tabs left open, switch the editor out of edit mode.
-//             if (state.tabs.values.length === 0) {
-//                 state.mode = 'readonly';
-//             }
-//             break;
+            return;
+        }
 
-//         case 'tabsCloseAll':
-//             state.tabs.values.length = 0;
-//             state.tabs.active = undefined;
-//             break;
+        // Move this to action
+        const tab: Tab = {
+            id: generateId(),
+            content: p.value.content,
+            noteId: p.value.noteId,
+            state: p.value.preview ? 'preview' : 'normal'
+        };
 
-//         case 'tabDraggingUpdated':
-//             if (event.newValue == null) {
-//                 state.tabs.dragging = undefined;
-//             } else {
-//                 state.tabs.dragging = state.tabs.values.find((t) => t.id === event.newValue);
-//             }
-//             break;
+        const existingPreviewTabIndex = this.state.tabs.values.findIndex((t) => t.state === 'preview');
 
-//         case 'tabDraggingIndexUpdated':
-//             if (state.tabs.dragging == null) {
-//                 throw Error('No dragging tab to update.');
-//             }
+        // When opening a new preview tab, and one already exists, replace it.
+        if (p.value.preview && existingPreviewTabIndex !== -1) {
+            this.state.tabs.values.splice(existingPreviewTabIndex, 1, tab);
+        } else {
+            this.state.tabs.values.push(tab);
+        }
 
-//             index = state.tabs.values.findIndex((t) => t.id === state.tabs.dragging!.id);
-
-//             // Remove tab from old spot
-//             tab = state.tabs.values.splice(index, 1)[0];
-
-//             // Insert it in at the new one.
-//             state.tabs.values.splice(event.newValue, 0, tab);
-//             break;
-
-//         case 'tabOpened':
-//             // See if we haven't already opened this tab.
-//             existing = state.tabs.values.find((t) => t.noteId === event.noteId);
-//             if (existing != null) {
-//                 // Switch it to normal if it was in preview.
-//                 if (existing.state === 'preview' && state.tabs.active === existing.id) {
-//                     existing.state = 'normal';
-//                 }
-
-//                 state.tabs.active = existing.id;
-//                 return;
-//             }
-
-//             tab = {
-//                 id: generateId(),
-//                 content: event.content,
-//                 noteId: event.noteId,
-//                 state: event.preview ? 'preview' : 'normal'
-//             };
-
-//             existingPreviewTabIndex = state.tabs.values.findIndex((t) => t.state === 'preview');
-
-//             // When opening a new preview tab, and one already exists, replace it.
-//             if (event.preview && existingPreviewTabIndex !== -1) {
-//                 state.tabs.values.splice(existingPreviewTabIndex, 1, tab);
-//             } else {
-//                 state.tabs.values.push(tab);
-//             }
-
-//             // Set newly opened tab to active
-//             state.tabs.active = tab.id;
-
-//             delete tab.notebookDropdownActive;
-//             delete tab.tagDropdownActive;
-//     }
-// }
+        // Set newly opened tab to active
+        this.state.tabs.active = tab.id;
+    }
+}

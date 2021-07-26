@@ -39,7 +39,6 @@ export class NoteMutations extends Mutations<NoteState> {
     }
 
     DELETE({ value: id }: UndoPayload<string>) {
-        console.log(id);
         const i = this.state.values.findIndex((n) => n.id === id);
 
         if (i === -1) {

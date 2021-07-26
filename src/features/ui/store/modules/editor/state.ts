@@ -12,19 +12,16 @@ export interface Tab extends Entity {
 
 export type EditorMode = 'readonly' | 'edit' | 'split';
 
-export interface Editor {
+export class EditorState {
     tabs: {
         active?: string;
         dragging?: Tab;
         values: Tab[];
+    } = {
+        values: []
     };
-    mode: EditorMode;
+
+    mode: EditorMode = 'readonly';
+
     isFocus?: boolean;
 }
-
-export const state: Editor = {
-    tabs: {
-        values: []
-    },
-    mode: 'readonly'
-};
