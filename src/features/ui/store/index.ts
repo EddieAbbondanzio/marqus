@@ -43,6 +43,8 @@ persist.register({
 
         s.editor ??= {};
         s.editor.mode ??= 'view';
+        s.editor.tabs ??= {}
+        s.editor.tabs.values ??= []
 
         return s;
     },

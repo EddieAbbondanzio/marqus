@@ -14,20 +14,9 @@ export const editor = new Module({
     getters: EditorGetters
 });
 
-mediator.subscribe('ui/localNavigation/APPLY', ({ payload }, store) => {
-    if (payload.type !== 'activeChanged') {
-        return;
-    }
-
-    const noteId = payload.newValue;
-
-    const existingTab = store.state.ui.editor.tabs.values.find((t: any) => t.noteId === noteId);
-
-    if (existingTab != null) {
-        store.dispatch('ui/editor/tabSwitch', existingTab.id);
-    } else {
-        store.dispatch('ui/editor/tabOpen', noteId);
-    }
+mediator.subscribe('ui/localNavigation/SET_ACTIVE', ({ payload }, store) => {
+    const noteId = payload.value;
+    store.dispatch('ui/editor/openTab', noteId);
 });
 
 undo.registerModule(new EditorState(), {
@@ -36,3 +25,5 @@ undo.registerModule(new EditorState(), {
     setStateMutation: 'SET_STATE',
     stateCacheInterval: 1000
 });
+
+console.log(editor);

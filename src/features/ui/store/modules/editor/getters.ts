@@ -48,6 +48,7 @@ export class EditorGetters extends Getters<EditorState> {
     byNoteId(id: string): Tab | undefined;
     byNoteId(id: string, opts: { required: true }): Tab;
     byNoteId(noteId: string, opts?: { required: boolean }) {
+        console.log(this.state);
         const tab = this.state.tabs.values.find((t) => t.noteId === noteId);
 
         if (opts?.required && tab == null) {

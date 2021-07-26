@@ -7,12 +7,16 @@ import { EditorGetters } from '@/features/ui/store/modules/editor/getters';
 import { EditorMutations } from '@/features/ui/store/modules/editor/mutations';
 import { notes } from '@/features/notes/store';
 import { Store } from 'vuex';
+import { undo, UndoGrouper } from '@/store/plugins/undo';
 
 export class EditorActions extends Actions<EditorState, EditorGetters, EditorMutations, EditorActions> {
     notes!: Context<typeof notes>;
 
+    group!: UndoGrouper;
+
     $init(store: Store<any>) {
         this.notes = notes.context(store);
+        this.group = undo.generateGrouper('editor');
     }
 
     tabDragStart(tab: Tab) {
@@ -26,9 +30,22 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         this.commit('SET_TABS_DRAGGING', { value: undefined, _undo: { ignore: true } });
     }
 
-    async tabOpen(noteId: string) {
-        const content = await loadNoteContentFromFileSystem(noteId);
-        this.commit('OPEN_TAB', { value: { noteId, content, preview: true } });
+    async openTab(noteId: string) {
+        const existing = this.getters.byNoteId(noteId);
+
+        if (existing != null) {
+            this.commit('SET_ACTIVE', { value: existing.id });
+        } else {
+            const content = await loadNoteContentFromFileSystem(noteId);
+
+            this.commit('OPEN_TAB', {
+                value: {
+                    noteId,
+                    content,
+                    preview: true
+                }
+            });
+        }
     }
 
     async saveTab(noteId: string) {
@@ -38,10 +55,6 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         this.commit('SET_TAB_STATE', { value: { tab, state: 'normal' }, _undo: { ignore: true } });
     }
 
-    tabSwitch(tabId: string) {
-        this.commit('SET_ACTIVE', { value: tabId });
-    }
-
     async deleteActiveNote() {
         const activeNote = this.getters.activeNote;
 
@@ -49,15 +62,26 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
             return;
         }
 
+        // TODO: This is redundant logic. See local navigation deleteNote action. Figure out how to commonize it.
         const confirm = await confirmDeleteOrTrash('note', activeNote.name);
 
         switch (confirm) {
             case 'delete':
-                this.notes.commit('DELETE', { value: activeNote.id });
+                // permanent wasn't a joke.
+                this.notes.commit('DELETE', { value: activeNote.id, _undo: { ignore: true } });
                 break;
 
             case 'trash':
-                this.notes.commit('MOVE_TO_TRASH', { value: activeNote.id });
+                this.group((_undo) => {
+                    this.notes.commit('MOVE_TO_TRASH', {
+                        value: activeNote.id,
+                        _undo: {
+                            ..._undo,
+                            undoCallback: (m) => this.notes.commit('RESTORE_FROM_TRASH', { value: m.payload.value }),
+                            redoCallback: (m) => this.notes.commit('MOVE_TO_TRASH', { value: m.payload.value })
+                        }
+                    });
+                });
                 break;
         }
     }

@@ -5,6 +5,11 @@ import { Mutations } from 'vuex-smart-module';
 import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 
 export class EditorMutations extends Mutations<EditorState> {
+    SET_STATE(s: EditorState) {
+        Object.assign(this.state, s);
+        console.log(s);
+    }
+
     SET_ACTIVE(p: UndoPayload<string>) {
         this.state.tabs.active = p.value;
     }
