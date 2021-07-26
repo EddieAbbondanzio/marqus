@@ -14,7 +14,11 @@ export class LocalNavigationMutations extends Mutations<LocalNavigationState> {
     }
 
     SET_NOTE_INPUT({ value }: UndoPayload<string>) {
-        this.state.notes.input!.name = value;
+        if (this.state.notes.input == null) {
+            return;
+        }
+
+        this.state.notes.input.name = value;
     }
 
     CLEAR_NOTE_INPUT(p: VoidUndoPayload) {

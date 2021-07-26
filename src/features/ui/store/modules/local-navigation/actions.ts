@@ -5,6 +5,7 @@ import { LocalNavigationGetters } from '@/features/ui/store/modules/local-naviga
 import { LocalNavigationMutations } from '@/features/ui/store/modules/local-navigation/mutations';
 import { confirmDeleteOrTrash } from '@/shared/utils';
 import { generateId } from '@/store';
+import { undo, UndoGrouper } from '@/store/plugins/undo';
 import { ActionTree, Store } from 'vuex';
 import { Actions, Context } from 'vuex-smart-module';
 import { LocalNavigationState } from './state';
@@ -18,9 +19,13 @@ export class LocalNavigationActions extends Actions<
     globalNav!: Context<typeof globalNavigation>;
     notes!: Context<typeof notes>;
 
+    group!: UndoGrouper;
+
     $init(store: Store<any>) {
         this.globalNav = globalNavigation.context(store);
         this.notes = notes.context(store);
+
+        this.group = undo.generateGrouper('localNavigation');
     }
 
     setActive(id: string) {
@@ -44,45 +49,69 @@ export class LocalNavigationActions extends Actions<
         }
 
         this.commit('START_NOTE_INPUT', {
-            value: { note, globalNavigationActive: active }
+            value: { note, globalNavigationActive: active },
+            _undo: { ignore: true }
         });
     }
 
     noteInputUpdate(value: string) {
-        this.commit('SET_NOTE_INPUT', { value });
+        this.commit('SET_NOTE_INPUT', { value, _undo: { ignore: true } });
     }
 
     noteInputConfirm() {
-        const input = this.state.notes.input!;
-        let note: Note;
-        let old: Note | undefined;
+        // We group it so we can track
+        this.group((_undo) => {
+            const input = this.state.notes.input!;
+            let note: Note;
+            let old: Note | undefined;
 
-        switch (input.mode) {
-            case 'create':
-                note = {
-                    id: generateId(),
-                    dateCreated: new Date(),
-                    dateModified: new Date(),
-                    name: input.name,
-                    notebooks: input.notebooks ?? [],
-                    tags: input.tags ?? []
-                };
+            switch (input.mode) {
+                case 'create':
+                    note = {
+                        id: generateId(),
+                        dateCreated: new Date(),
+                        dateModified: new Date(),
+                        name: input.name,
+                        notebooks: input.notebooks ?? [],
+                        tags: input.tags ?? []
+                    };
 
-                this.notes.commit('CREATE', { value: note });
-                break;
+                    _undo.cache.note = note;
+                    this.notes.commit('CREATE', {
+                        value: note,
+                        _undo: {
+                            ..._undo,
+                            undoCallback: (m) => this.notes.commit('DELETE', { value: m.payload.value.id }),
+                            redoCallback: (m) => this.notes.commit('CREATE', m.payload._undo.cache.note)
+                        }
+                    });
+                    break;
 
-            case 'update':
-                old = this.notes.getters.byId(input.id, { required: true });
+                case 'update':
+                    old = this.notes.getters.byId(input.id, { required: true });
 
-                this.notes.commit('SET_NAME', { value: { note: old, newName: input.name } });
-                break;
-        }
+                    _undo.cache.oldName = old.name;
+                    this.notes.commit('SET_NAME', {
+                        value: { note: old, newName: input.name },
+                        _undo: {
+                            ..._undo,
+                            undoCallback: (m) =>
+                                this.notes.commit('SET_NAME', {
+                                    value: { note: m.payload.value.note, newName: m.payload._undo.cache.oldName }
+                                }),
+                            redoCallback: (m) => this.notes.commit('SET_NAME', { value: m.payload.value })
+                        }
+                    });
+                    break;
+            }
 
-        this.commit('CLEAR_NOTE_INPUT', {});
+            _undo.ignore = true;
+            this.commit('CLEAR_NOTE_INPUT', { _undo });
+        });
     }
 
     noteInputCancel() {
-        this.commit('CLEAR_NOTE_INPUT', {});
+        this.commit('CLEAR_NOTE_INPUT', { _undo: { ignore: true } });
     }
 
     async noteDelete(id: string) {
@@ -96,16 +125,26 @@ export class LocalNavigationActions extends Actions<
 
         switch (confirm) {
             case 'delete':
-                this.notes.commit('DELETE', { value: id });
+                // permanent wasn't a joke.
+                this.notes.commit('DELETE', { value: id, _undo: { ignore: true } });
                 break;
 
             case 'trash':
-                this.notes.commit('MOVE_TO_TRASH', { value: id });
+                this.group((_undo) => {
+                    this.notes.commit('MOVE_TO_TRASH', {
+                        value: id,
+                        _undo: {
+                            ..._undo,
+                            undoCallback: (m) => this.notes.commit('RESTORE_FROM_TRASH', { value: m.payload.value }),
+                            redoCallback: (m) => this.notes.commit('MOVE_TO_TRASH', { value: m.payload.value })
+                        }
+                    });
+                });
                 break;
         }
     }
 
     widthUpdated(width: string) {
-        this.commit('SET_WIDTH', { value: width });
+        this.commit('SET_WIDTH', { value: width, _undo: { ignore: true } });
     }
 }

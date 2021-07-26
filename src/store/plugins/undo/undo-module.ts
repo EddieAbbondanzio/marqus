@@ -119,7 +119,7 @@ export class UndoModule {
      */
     async group(handle: (_undo: UndoMetadata) => any) {
         const groupId = this._history.startGroup();
-        const metaData: UndoMetadata = { group: { id: groupId, namespace: this.settings.namespace } };
+        const metaData: UndoMetadata = { group: { id: groupId, namespace: this.settings.namespace }, cache: {} };
 
         // Handles can be async, or sync because not all actions will be async
         if (isAsync(handle)) {
