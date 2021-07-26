@@ -1,77 +1,80 @@
-import { Editor, EditorMode, Tab } from '@/features/ui/store/modules/editor/state';
+import { EditorState, EditorMode, Tab } from '@/features/ui/store/modules/editor/state';
 import { Note } from '@/features/notes/common/note';
-import { NOTES_DIRECTORY } from '@/features/notes/store';
-import { State } from '@/store/state';
-import path from 'path';
-import { ActionTree } from 'vuex';
 import { confirmDeleteOrTrash, fileSystem } from '@/shared/utils';
+import { Actions, Context } from 'vuex-smart-module';
+import { loadNoteContentFromFileSystem, saveNoteContent } from '@/features/notes/utils/persist';
+import { EditorGetters } from '@/features/ui/store/modules/editor/getters';
+import { EditorMutations } from '@/features/ui/store/modules/editor/mutations';
+import { notes } from '@/features/notes/store';
+import { Store } from 'vuex';
 
-export const actions: ActionTree<Editor, State> = {
-    tabDragStart({ commit }, tab: Tab) {
-        commit('ACTIVE', tab.id); // We set it as active, to render it nicer on cursor dragging
-        commit('TAB_DRAGGING', tab);
-    },
-    tabDragStop({ commit }, newIndex: number) {
-        commit('TAB_DRAGGING_NEW_INDEX', newIndex);
-        commit('TAB_DRAGGING');
-    },
-    async tabOpen({ commit }, noteId: string) {
+export class EditorActions extends Actions<EditorState, EditorGetters, EditorMutations, EditorActions> {
+    notes!: Context<typeof notes>;
+
+    $init(store: Store<any>) {
+        this.notes = notes.context(store);
+    }
+
+    tabDragStart(tab: Tab) {
+        const _undo = { ignore: true };
+        this.commit('SET_ACTIVE', { value: tab.id, _undo }); // We set it as active, so it renders nicely on the cursor
+        this.commit('SET_TABS_DRAGGING', { value: tab, _undo });
+    }
+
+    tabDragStop(newIndex: number) {
+        this.commit('MOVE_TAB', { value: newIndex });
+        this.commit('SET_TABS_DRAGGING', { value: undefined, _undo: { ignore: true } });
+    }
+
+    async tabOpen(noteId: string) {
         const content = await loadNoteContentFromFileSystem(noteId);
-        commit('OPEN_TAB', { noteId, content });
-    },
-    async saveTab({ commit, state }, noteId: string) {
-        const tab = state.tabs.values.find((t) => t.noteId === noteId)!;
+        this.commit('OPEN_TAB', { value: { noteId, content, preview: true } });
+    }
+
+    async saveTab(noteId: string) {
+        const tab = this.getters.byNoteId(noteId, { required: true });
 
         await saveNoteContent(tab.noteId, tab.content);
-        commit('TAB_STATE', { tab, state: 'clean' });
-    },
-    tabSwitch({ commit }, tabId: string) {
-        commit('SWITCH_TAB', tabId);
-    },
-    async deleteActiveNote({ commit, rootState, rootGetters }) {
-        const { id } = rootGetters['ui/editor/activeNote'] as Note;
-        const note = rootState.notes.values.find((n) => n.id === id);
+        this.commit('SET_TAB_STATE', { value: { tab, state: 'normal' }, _undo: { ignore: true } });
+    }
 
-        if (note == null) {
-            throw Error(`No note with id ${id} found.`);
+    tabSwitch(tabId: string) {
+        this.commit('SET_ACTIVE', { value: tabId });
+    }
+
+    async deleteActiveNote() {
+        const activeNote = this.getters.activeNote;
+
+        if (activeNote == null) {
+            return;
         }
 
-        const confirm = await confirmDeleteOrTrash('note', note.name);
+        const confirm = await confirmDeleteOrTrash('note', activeNote.name);
 
         switch (confirm) {
             case 'delete':
-                commit('notes/DELETE', id, { root: true });
+                this.notes.commit('DELETE', { value: activeNote.id });
                 break;
 
             case 'trash':
-                commit('notes/MOVE_TO_TRASH', id, { root: true });
+                this.notes.commit('MOVE_TO_TRASH', { value: activeNote.id });
                 break;
         }
-    },
-    toggleMode({ commit, state }) {
-        let newMode: EditorMode;
+    }
 
-        switch (state.mode) {
+    toggleMode() {
+        if (this.state.mode === 'split') {
+            return;
+        }
+
+        switch (this.state.mode) {
             case 'readonly':
-                newMode = 'edit';
+                this.commit('SET_EDITOR_MODE', { value: 'edit' });
                 break;
 
             case 'edit':
-                newMode = 'readonly';
-                break;
-            case 'split':
-                newMode = state.mode;
+                this.commit('SET_EDITOR_MODE', { value: 'readonly' });
                 break;
         }
-
-        commit('MODE', newMode);
     }
-};
-
-export async function loadNoteContentFromFileSystem(noteId: string) {
-    return await fileSystem.readText(path.join(NOTES_DIRECTORY, noteId, 'index.md'));
-}
-
-export async function saveNoteContent(noteId: string, content: string) {
-    await fileSystem.writeText(path.join(NOTES_DIRECTORY, noteId, 'index.md'), content);
 }

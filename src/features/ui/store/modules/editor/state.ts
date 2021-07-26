@@ -6,8 +6,8 @@ export interface Tab extends Entity {
     noteId: string;
     state: TabState;
     content: string;
-    tagDropdownActive?: boolean;
-    notebookDropdownActive?: boolean;
+    tagDropdownVisible?: boolean;
+    notebookDropdownVisible?: boolean;
 }
 
 export type EditorMode = 'readonly' | 'edit' | 'split';

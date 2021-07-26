@@ -1,4 +1,3 @@
-import { state } from '@/features/ui/store/modules/editor/state';
 import { LocalNavigationActions } from '@/features/ui/store/modules/local-navigation/actions';
 import { LocalNavigationGetters } from '@/features/ui/store/modules/local-navigation/getters';
 import { LocalNavigationMutations } from '@/features/ui/store/modules/local-navigation/mutations';
@@ -16,7 +15,7 @@ export const localNavigation = new Module({
 
 export const useLocalNavigation = createComposable(localNavigation);
 
-undo.registerModule(state, {
+undo.registerModule(new LocalNavigationState(), {
     name: 'localNavigation',
     namespace: 'ui/localNavigation',
     setStateMutation: 'SET_STATE',

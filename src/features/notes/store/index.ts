@@ -1,5 +1,5 @@
 import { persist } from '@/store/plugins/persist/persist';
-import { deserialize, serialize } from '@/features/notes/store/persist';
+import { deserialize, serialize } from '@/features/notes/utils/persist';
 import { createComposable, Module } from 'vuex-smart-module';
 import { NoteActions } from '@/features/notes/store/actions';
 import { NoteMutations } from '@/features/notes/store/mutations';
@@ -16,8 +16,6 @@ export const notes = new Module({
 });
 
 export const useNotes = createComposable(notes);
-
-export const NOTES_DIRECTORY = 'notes';
 
 persist.register({
     namespace: 'notes',

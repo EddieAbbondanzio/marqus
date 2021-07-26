@@ -33,7 +33,7 @@ export class EditorMutations extends Mutations<EditorState> {
     CLOSE_TAB(p: UndoPayload<string>) {
         const index = this.state.tabs.values.findIndex((t) => t.id === p.value);
 
-        if (index === -1) throw Error(`No tab found.`);
+        if (index === -1) throw Error('No tab to close');
 
         this.state.tabs.values.splice(index, 1);
 
@@ -83,7 +83,7 @@ export class EditorMutations extends Mutations<EditorState> {
             return;
         }
 
-        // Move this to action
+        // TODO: Move this to action
         const tab: Tab = {
             id: generateId(),
             content: p.value.content,

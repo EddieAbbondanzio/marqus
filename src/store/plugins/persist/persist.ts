@@ -4,8 +4,6 @@ import { MutationPayload, Store } from 'vuex';
 import * as _ from 'lodash';
 import { PersistModule, PersistModuleSettings } from './types';
 import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
-import path from 'path';
-import { NOTES_DIRECTORY } from '@/features/notes/store';
 
 let release: () => void;
 

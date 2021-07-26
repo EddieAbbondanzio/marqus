@@ -1,5 +1,4 @@
 import { Note } from '@/features/notes/common/note';
-import { NOTES_DIRECTORY } from '@/features/notes/store';
 import { NoteMutations } from '@/features/notes/store/mutations';
 import { NoteState } from '@/features/notes/store/state';
 import { fileSystem } from '@/shared/utils';
@@ -8,6 +7,16 @@ import { UndoPayload } from '@/store/plugins/undo';
 import moment from 'moment';
 import path from 'path';
 import { Commit, MutationPayload } from 'vuex';
+
+export const NOTES_DIRECTORY = 'notes';
+
+export async function loadNoteContentFromFileSystem(noteId: string) {
+    return await fileSystem.readText(path.join(NOTES_DIRECTORY, noteId, 'index.md'));
+}
+
+export async function saveNoteContent(noteId: string, content: string) {
+    await fileSystem.writeText(path.join(NOTES_DIRECTORY, noteId, 'index.md'), content);
+}
 
 export async function serialize(
     s: NoteState,

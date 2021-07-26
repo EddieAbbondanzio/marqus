@@ -6,6 +6,7 @@ import { persist } from '@/store/plugins/persist/persist';
 import { Module } from 'vuex-smart-module';
 import { globalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { localNavigation } from '@/features/ui/store/modules/local-navigation';
+import { editor } from '@/features/ui/store/modules/editor';
 
 export const userInterface = new Module({
     namespaced: true,
@@ -15,7 +16,8 @@ export const userInterface = new Module({
     actions: UserInterfaceActions,
     modules: {
         globalNavigation,
-        localNavigation
+        localNavigation,
+        editor
     }
 });
 
