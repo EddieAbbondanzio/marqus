@@ -107,7 +107,6 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
     }
 
     setTabContent(content: string) {
-        console.log('content to set: ', content);
         const tab = this.getters.activeTab!;
         this.commit('SET_TAB_CONTENT', { value: { tab, content } });
     }

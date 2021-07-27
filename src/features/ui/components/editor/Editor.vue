@@ -13,7 +13,7 @@
                     <markdown-renderer v-if="mode !== 'edit'" class="is-flex-basis-0 is-flex-grow-1" />
                 </div>
             </template>
-            <div v-else class="is-flex is-align-center is-justify-center is-flex-grow-1 has-w-100">
+            <div v-else class="is-flex is-align-center is-justify-center is-flex-grow-1 is-flex-column has-w-100">
                 <div>
                     There's nothing here!
                 </div>

@@ -15,7 +15,6 @@ export async function loadNoteContentFromFileSystem(noteId: string) {
 }
 
 export async function saveNoteContent(noteId: string, content: string) {
-    console.log('saving: ', content)
     await fileSystem.writeText(path.join(NOTES_DIRECTORY, noteId, 'index.md'), content);
 }
 

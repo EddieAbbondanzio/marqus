@@ -1,5 +1,10 @@
 <template>
-    <div class="has-h-100 has-w-100" v-focusable:[focusName].hidden v-shortcut:undo="onUndo" v-shortcut:redo="onRedo">
+    <div
+        class="is-flex is-flex-column is-flex-grow-1"
+        v-focusable:[focusName].hidden
+        v-shortcut:undo="onUndo"
+        v-shortcut:redo="onRedo"
+    >
         <slot></slot>
     </div>
 </template>
