@@ -3,12 +3,12 @@
         <UndoContainer undoName="localNavigation" focusName="localNavigation">
             <div class="has-h-100 has-text-dark  is-size-7" style="min-width: 0px;">
                 <!-- Header -->
-                <div
-                    class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-0 p-1 has-background-light"
-                >
-                    <LocalNavigationSearchBar />
-                    <IconButton icon="fa-plus" size="is-small" @click="create" />
-                </div>
+                <!-- <div -->
+                <!-- class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-0 p-1 has-background-light" -->
+                <!-- > -->
+                <!-- <LocalNavigationSearchBar /> -->
+                <!-- <IconButton icon="fa-plus" size="is-small" @click="create" /> -->
+                <!-- </div> -->
 
                 <!-- Files -->
                 <div>
@@ -61,8 +61,8 @@
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
-import IconButton from '@/components/IconButton.vue';
-import LocalNavigationSearchBar from '@/features/ui/components/local-navigation/LocalNavigationSearchBar.vue';
+// import IconButton from '@/components/IconButton.vue';
+// import LocalNavigationSearchBar from '@/features/ui/components/local-navigation/LocalNavigationSearchBar.vue';
 import { mapActions, mapGetters } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
@@ -94,13 +94,6 @@ export default defineComponent({
 
         useLocalNavigationContextMenu();
 
-        watch(
-            () => localNav.getters.activeNotes,
-            () => {
-                console.log(notes.state.values);
-            }
-        );
-
         return {
             width,
             input,
@@ -117,8 +110,8 @@ export default defineComponent({
     },
     components: {
         Resizable,
-        LocalNavigationSearchBar,
-        IconButton,
+        // LocalNavigationSearchBar,
+        // IconButton,
         NavigationMenuItem,
         NavigationMenuForm,
         UndoContainer

@@ -1,11 +1,5 @@
 <template>
-    <div
-        id="editor"
-        class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark"
-        v-focusable:editor
-        v-shortcut:undo="undoHandler"
-        v-shortcut:redo="redoHandler"
-    >
+    <div id="editor" class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark">
         <UndoContainer undoName="editor" focusName="editor">
             <template v-if="!isEmpty">
                 <editor-tabs />
