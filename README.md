@@ -4,6 +4,8 @@ Marker is a minimalistic markdown based note taking app. It's heavily inspired f
 
 The app itself is currently under double secret ~~probation~~ alpha development and not yet ready for use. The current roadmap estimates version 1.0.0 will be ready by July.
 
+![Overview image](docs/21-07-27.png)
+
 ## Tech Stack
 
 The app itself is running on Electron and is written in Vue 3. It uses TypeScript for compile time type safety to help prevent errors, and Vuex is used for state management. Markdown rendering is done thanks to Marked, and Bulma is used for styling.
