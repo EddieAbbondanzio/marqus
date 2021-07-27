@@ -99,11 +99,19 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
     setNotebooksDropdownVisible(visible: boolean) {
         const tab = this.getters.activeTab!;
         this.commit('SET_NOTEBOOK_DROPDOWN_VISIBLE', { value: { tab, visible } });
+
+        if (tab.tagDropdownVisible) {
+            this.commit('SET_TAG_DROPDOWN_VISIBLE', { value: { tab, visible: false } });
+        }
     }
 
     setTagsDropdownVisible(visible: boolean) {
         const tab = this.getters.activeTab!;
         this.commit('SET_TAG_DROPDOWN_VISIBLE', { value: { tab, visible } });
+
+        if (tab.notebookDropdownVisible) {
+            this.commit('SET_NOTEBOOK_DROPDOWN_VISIBLE', { value: { tab, visible: false } });
+        }
     }
 
     setTabContent(content: string) {

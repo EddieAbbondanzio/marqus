@@ -18,12 +18,12 @@ export class EditorMutations extends Mutations<EditorState> {
         this.state.mode = p.value;
     }
 
-    SET_NOTEBOOK_DROPDOWN_VISIBLE(p: UndoPayload<{ tab: Tab; visible: boolean }>) {
-        p.value.tab.notebookDropdownVisible = p.value.visible;
+    SET_NOTEBOOK_DROPDOWN_VISIBLE({ value: { tab, visible } }: UndoPayload<{ tab: Tab; visible: boolean }>) {
+        tab.notebookDropdownVisible = visible;
     }
 
-    SET_TAG_DROPDOWN_VISIBLE(p: UndoPayload<{ tab: Tab; visible: boolean }>) {
-        p.value.tab.tagDropdownVisible = p.value.visible;
+    SET_TAG_DROPDOWN_VISIBLE({ value: { tab, visible } }: UndoPayload<{ tab: Tab; visible: boolean }>) {
+        tab.tagDropdownVisible = visible;
     }
 
     SET_TAB_CONTENT(p: UndoPayload<{ tab: Tab; content: string }>) {

@@ -75,7 +75,7 @@ export default defineComponent({
 
         const active = computed({
             get: () => editor.getters.activeTab?.tagDropdownVisible ?? false,
-            set: (v: boolean) => editor.actions.setTagsDropdownVisible
+            set: editor.actions.setTagsDropdownVisible
         });
 
         const tagInput = ref(null) as any;

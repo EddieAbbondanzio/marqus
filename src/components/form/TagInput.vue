@@ -36,7 +36,14 @@
             </template>
 
             <template #menu>
-                <div class="dropdown-menu p-0 mt-1" :style="!localActive ? 'display: none!important' : ''">
+                <div
+                    class="dropdown-menu p-0 mt-1"
+                    :style="{
+                        display: !localActive ? 'none!important;' : '',
+                        'max-height': '165px',
+                        'overflow-y': available.length > 5 ? 'scroll' : 'auto'
+                    }"
+                >
                     <div class="dropdown-content p-0">
                         <a
                             href="#"

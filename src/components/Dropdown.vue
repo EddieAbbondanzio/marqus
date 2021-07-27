@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { climbDomHierarchy } from '@/shared/utils';
-import { defineComponent, ref, watch } from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
 
 export default defineComponent({
     props: {
