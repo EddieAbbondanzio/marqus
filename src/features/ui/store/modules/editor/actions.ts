@@ -106,7 +106,8 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         this.commit('SET_TAG_DROPDOWN_VISIBLE', { value: { tab, visible } });
     }
 
-    setContent(content: string) {
+    setTabContent(content: string) {
+        console.log('content to set: ', content);
         const tab = this.getters.activeTab!;
         this.commit('SET_TAB_CONTENT', { value: { tab, content } });
     }
