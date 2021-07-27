@@ -7,6 +7,10 @@ import { Module } from 'vuex-smart-module';
 import { globalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { localNavigation } from '@/features/ui/store/modules/local-navigation';
 import { editor } from '@/features/ui/store/modules/editor';
+import { GlobalNavigationState } from '@/features/ui/store/modules/global-navigation/state';
+import { EditorState } from '@/features/ui/store/modules/editor/state';
+import { LocalNavigationState } from '@/features/ui/store/modules/local-navigation/state';
+import { RecursivePartial } from '@/shared/types/recursive-partial';
 
 export const userInterface = new Module({
     namespaced: true,
@@ -21,14 +25,25 @@ export const userInterface = new Module({
     }
 });
 
+/**
+ * Type to give us some compile time safety to help prevent errors in case
+ * any property names are changed.
+ */
+export type PersistedUserInterfaceState = RecursivePartial<{
+    globalNavigation: GlobalNavigationState, 
+    localNavigation: LocalNavigationState
+    editor: EditorState, 
+} & UserInterfaceState>
+
 persist.register({
     namespace: 'ui',
     fileName: 'ui.json',
     initMutation: 'SET_STATE',
-    reviver: (s) => {
+    reviver: (s: PersistedUserInterfaceState) => {
         /*
-        * These are written verbose intentionally. Smaller granular checks
-        * let us check for more edge cases.
+        * These are intentionally written verbose. Smaller granular checks
+        * let us catch more edge cases. We need to assume that the JSON
+        * file may have been modified.
         */
 
         s.globalNavigation ??= {};
@@ -42,13 +57,13 @@ persist.register({
         s.localNavigation.notes.input = {};
 
         s.editor ??= {};
-        s.editor.mode ??= 'view';
+        s.editor.mode ??= 'readonly';
         s.editor.tabs ??= {}
         s.editor.tabs.values ??= []
 
         return s;
     },
-    transformer: (s) => {
+    transformer: (s: PersistedUserInterfaceState) => {
         if (s.globalNavigation?.notebooks != null) {
             delete s.globalNavigation.notebooks.input;
             delete s.globalNavigation.notebooks.dragging;
@@ -64,12 +79,16 @@ persist.register({
 
         delete s.cursor;
 
-        if (s.editor?.tabs != null) {
-            delete s.editor.tabs.dragging;
+        if (s.editor != null) {
+            if (s.editor.tabs != null) {
+                delete s.editor.tabs.dragging;
 
-            for (let i = 0; i < s.editor?.tabs.values.length; i++) {
-                delete s.editor.tabs.values[i].tagDropdownActive;
-                delete s.editor.tabs.values[i].notebookDropdownActive;
+                if (s.editor.tabs.values != null) {
+                for (const tab of s.editor.tabs.values) {
+                    delete tab?.notebookDropdownVisible;
+                    delete tab?.tagDropdownVisible;
+                }
+            }
             }
         }
 
