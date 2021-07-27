@@ -19,37 +19,31 @@
                 title="Close"
                 icon="fa-times"
                 class="has-text-hover-danger has-text-grey"
-                @click.stop="CLOSE_TAB(modelValue.id)"
+                @click.stop="closeTab(modelValue.id)"
             />
         </a>
     </li>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { mapGetters, mapMutations, mapState, useStore } from 'vuex';
 import IconButton from '@/components/IconButton.vue';
 import { climbDomHierarchy } from '@/shared/utils';
+import { useEditor } from '@/features/ui/store/modules/editor';
+import { Tab } from '@/features/ui/store/modules/editor/state';
 
 export default defineComponent({
     props: {
         modelValue: Object,
         index: Number
     },
-    setup: (p, c) => {
-        const s = useStore();
+    setup: (p) => {
+        const editor = useEditor();
 
-        const onClick = (tabId: string) => {
-            if (s.state.ui.editor.tabs.active === tabId) {
-                s.commit('ui/editor/EXIT_PREVIEW', tabId);
-            } else {
-                s.dispatch('ui/editor/tabSwitch', tabId);
-            }
-        };
+        const onClick = (tabId: string) => editor.actions.openTab(tabId);
 
-        const onMoveStart = () => {
-            s.dispatch('ui/editor/tabDragStart', p.modelValue!);
-        };
+        const onMoveStart = () => editor.actions.tabDragStart(p.modelValue as Tab);
 
         const onMoveEnd = (e: MouseEvent) => {
             const endedOnElement = document.elementFromPoint(e.x, e.y) as HTMLElement;
@@ -81,21 +75,18 @@ export default defineComponent({
             // Gotta minus 1 since the loop incremented preemptively.
             tabIndex--;
 
-            s.dispatch('ui/editor/tabDragStop', tabIndex);
+            editor.actions.tabDragStop(tabIndex);
         };
 
         return {
             onClick,
             onMoveStart,
-            onMoveEnd
+            onMoveEnd,
+            closeTab: editor.actions.closeTab,
+            tabs: computed(() => editor.state.tabs),
+            noteName: editor.getters.noteName,
+            isTabActive: editor.getters.isTabActive
         };
-    },
-    methods: {
-        ...mapMutations('ui/editor', ['CLOSE_TAB'])
-    },
-    computed: {
-        ...mapState('ui/editor', ['tabs']),
-        ...mapGetters('ui/editor', ['noteName', 'isTabActive'])
     },
     components: { IconButton }
 });

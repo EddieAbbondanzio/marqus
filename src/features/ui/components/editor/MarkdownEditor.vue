@@ -3,30 +3,20 @@
 </template>
 
 <script lang="ts">
+import { useEditor } from '@/features/ui/store/modules/editor';
 import { computed, defineComponent, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 export default defineComponent({
     setup: () => {
-        const s = useStore();
+        const editor = useEditor();
 
-        let id = s.state.ui.editor.tabs.active;
-        const content = ref('');
-        content.value = s.state.ui.editor.tabs.values.find((t: any) => t.id === id).content;
+        const content = computed({
+            get: () => editor.getters.activeTab?.content ?? '',
+            set: editor.actions.setContent
+        });
 
-        watch(
-            () => s.state.ui.editor.tabs.active,
-            () => {
-                id = s.state.ui.editor.tabs.active;
-                content.value = s.state.ui.editor.tabs.values.find((t: any) => t.id === id).content;
-            }
-        );
-
-        const onInput = (e: InputEvent) => {
-            s.commit('ui/editor/TAB_CONTENT', { tab: id, content: (e.target as HTMLTextAreaElement).value });
-        };
-
-        return { content, onInput };
+        return { content };
     }
 });
 </script>

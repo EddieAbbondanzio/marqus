@@ -19,4 +19,28 @@ export class NoteActions extends Actions<NoteState, NoteGetters, NoteMutations, 
             this.commit('FAVORITE', { value: toUpdate });
         }
     }
+
+    addNotebook({ noteId, notebookId }: { noteId: string | string[]; notebookId: string }) {
+        this.commit('ADD_NOTEBOOK', {
+            value: { noteId, notebookId }
+        });
+    }
+
+    addTag({ noteId, tagId }: { noteId: string | string[]; tagId: string }) {
+        this.commit('ADD_TAG', {
+            value: { noteId, tagId }
+        });
+    }
+
+    removeNotebook({ noteId, notebookId }: { noteId: string | string[]; notebookId: string }) {
+        this.commit('REMOVE_NOTEBOOK', {
+            value: { noteId, notebookId }
+        });
+    }
+
+    removeTag({ noteId, tagId }: { noteId: string | string[]; tagId: string }) {
+        this.commit('REMOVE_TAG', {
+            value: { noteId, tagId }
+        });
+    }
 }

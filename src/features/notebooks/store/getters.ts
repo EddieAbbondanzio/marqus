@@ -10,7 +10,7 @@ export class NotebookGetters extends Getters<NotebookState> {
      * Flatten the tree structure of all the notebooks into a 1d array.
      */
     get flatten() {
-        const visited: { [i: string]: Notebook | undefined } = {};
+        const visited: { [i: string]: Notebook } = {};
 
         const recursiveStep = (toVisit: Notebook[]) => {
             for (const notebook of toVisit) {

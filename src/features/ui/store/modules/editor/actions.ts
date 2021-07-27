@@ -55,6 +55,11 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         this.commit('SET_TAB_STATE', { value: { tab, state: 'normal' }, _undo: { ignore: true } });
     }
 
+    closeTab(tabId: string) {
+        const tab = this.getters.byId(tabId, { required: true });
+        this.commit('CLOSE_TAB', { value: tab.id });
+    }
+
     async deleteActiveNote() {
         const activeNote = this.getters.activeNote;
 
@@ -84,6 +89,21 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
                 });
                 break;
         }
+    }
+
+    setNotebooksDropdownVisible(visible: boolean) {
+        const tab = this.getters.activeTab!;
+        this.commit('SET_NOTEBOOK_DROPDOWN_VISIBLE', { value: { tab, visible } });
+    }
+
+    setTagsDropdownVisible(visible: boolean) {
+        const tab = this.getters.activeTab!;
+        this.commit('SET_TAG_DROPDOWN_VISIBLE', { value: { tab, visible } });
+    }
+
+    setContent(content: string) {
+        const tab = this.getters.activeTab!;
+        this.commit('SET_TAB_CONTENT', { value: { tab, content } });
     }
 
     toggleMode() {

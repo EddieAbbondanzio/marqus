@@ -3,7 +3,7 @@
         <div class="buttons has-addons mb-0 mx-1">
             <button
                 id="editButton"
-                :class="editButtonClasses"
+                class="button mb-0"
                 style="height: 30px"
                 @click="toggleMode"
                 v-shortcut:editorToggleMode="toggleMode"
@@ -63,34 +63,35 @@
 import { store } from '@/store';
 import EditorToolbarTagsDropdown from '@/features/ui/components/editor/toolbar/EditorToolbarTagsDropdown.vue';
 import EditorToolbarNotebooksDropdown from '@/features/ui/components/editor/toolbar/EditorToolbarNotebooksDropdown.vue';
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
 import { Note } from '@/features/notes/common/note';
+import { useEditor } from '@/features/ui/store/modules/editor';
+import { useNotes } from '@/features/notes/store';
 
 export default defineComponent({
     setup: function() {
-        const s = useStore();
+        const editor = useEditor();
+        const notes = useNotes();
 
         const onFavoriteClick = () => {
-            const note: Note = s.getters['ui/editor/activeNote'];
-            s.dispatch('notes/toggleFavorite', note);
+            const note = editor.getters.activeNote;
+
+            if (note == null) {
+                return;
+            }
+
+            notes.actions.toggleFavorite(note);
         };
 
         return {
-            onFavoriteClick
+            onFavoriteClick,
+            mode: computed(() => editor.state.mode),
+            activeNote: computed(() => editor.getters.activeNote),
+            deleteActiveNote: editor.actions.deleteActiveNote,
+            toggleMode: editor.actions.toggleMode,
+            saveTab: editor.actions.saveTab
         };
-    },
-    computed: {
-        mode: () => (store.state.ui.editor as any).mode,
-        editButtonClasses: () => ({
-            'button mb-0': true
-        }),
-        ...mapGetters('ui/editor', {
-            note: 'activeNote'
-        })
-    },
-    methods: {
-        ...mapActions('ui/editor', ['deleteActiveNote', 'toggleMode', 'saveTab'])
     },
     components: {
         EditorToolbarNotebooksDropdown,

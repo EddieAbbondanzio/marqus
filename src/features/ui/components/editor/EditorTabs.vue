@@ -19,14 +19,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
 import EditorTabItem from '@/features/ui/components/editor/EditorTabItem.vue';
 import { mapGetters, mapState } from 'vuex';
+import { useEditor } from '@/features/ui/store/modules/editor';
 
 export default defineComponent({
-    computed: {
-        ...mapState('ui/editor', { tabs: (s: any) => s.tabs.values, dragging: (s: any) => s.tabs.dragging }),
-        ...mapGetters('ui/editor', ['isDragging'])
+    setup() {
+        const editor = useEditor();
+
+        return {
+            tabs: computed(() => editor.state.tabs.values),
+            dragging: computed(() => editor.state.tabs.dragging),
+            isDragging: computed(() => editor.getters.isDragging)
+        };
     },
     components: {
         EditorTabItem

@@ -4,7 +4,7 @@ import { EditorMutations } from '@/features/ui/store/modules/editor/mutations';
 import { EditorState } from '@/features/ui/store/modules/editor/state';
 import { mediator } from '@/store/plugins/mediator/mediator';
 import { undo } from '@/store/plugins/undo/undo';
-import { Module } from 'vuex-smart-module';
+import { createComposable, Module } from 'vuex-smart-module';
 
 export const editor = new Module({
     namespaced: true,
@@ -13,6 +13,8 @@ export const editor = new Module({
     mutations: EditorMutations,
     getters: EditorGetters
 });
+
+export const useEditor = createComposable(editor);
 
 mediator.subscribe('ui/localNavigation/SET_ACTIVE', ({ payload }, store) => {
     const noteId = payload.value;
@@ -25,5 +27,3 @@ undo.registerModule(new EditorState(), {
     setStateMutation: 'SET_STATE',
     stateCacheInterval: 1000
 });
-
-console.log(editor);

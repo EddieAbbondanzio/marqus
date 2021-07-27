@@ -43,73 +43,63 @@ import TagInput from '@/components/form/TagInput.vue';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { Note } from '@/features/notes/common/note';
 import { Tab } from '@/features/ui/store/modules/editor/state';
+import { useEditor } from '@/features/ui/store/modules/editor';
+import { useNotebooks } from '@/features/notebooks/store';
+import { useNotes } from '@/features/notes/store';
 
 export default defineComponent({
     setup() {
-        const s = useStore();
+        const editor = useEditor();
+        const notebooks = useNotebooks();
+        const notes = useNotes();
 
         const onNotebookInput = (newNotebooks: Notebook[]) => {
-            const note: Note = s.getters['ui/editor/activeNote'];
-            const oldNotebooks: Notebook[] = s.getters['notebooks/notebooksForNote'](note);
+            const note = editor.getters.activeNote!;
+
+            const oldNotebooks = notebooks.getters.notebooksForNote(note);
             const delta = oldNotebooks.length - newNotebooks.length;
             let notebook: Notebook;
 
             switch (delta) {
                 case 1:
-                    notebook = _.differenceWith(
+                    [notebook] = _.differenceWith(
                         oldNotebooks,
                         newNotebooks,
                         (a: Notebook, b: Notebook) => a.id === b.id
-                    )[0];
-                    s.commit('notes/REMOVE_NOTEBOOK', { noteId: note.id, notebookId: notebook.id });
+                    );
+
+                    notes.actions.removeNotebook({ noteId: note.id, notebookId: notebook.id });
                     break;
 
                 case -1:
-                    notebook = _.differenceWith(
+                    [notebook] = _.differenceWith(
                         newNotebooks,
                         oldNotebooks,
                         (a: Notebook, b: Notebook) => a.id === b.id
-                    )[0];
-                    s.commit('notes/ADD_NOTEBOOK', { noteId: note.id, notebookId: notebook.id });
+                    );
+                    notes.actions.addNotebook({ noteId: note.id, notebookId: notebook.id });
                     break;
-
-                default:
-                    throw Error(`Invalid change in notes with delta of: ${delta}`);
             }
         };
 
         const active = computed({
-            get: () => {
-                const tab: Tab = s.getters['ui/editor/activeTab'] as Tab;
-                return tab?.notebookDropdownActive ?? false;
-            },
-            set: (v: boolean) => {
-                const tab: Tab = s.getters['ui/editor/activeTab'] as Tab;
-                s.commit('ui/editor/NOTEBOOK_DROPDOWN_ACTIVE', { id: tab.id, active: v });
-            }
+            get: () => editor.getters.activeTab?.notebookDropdownVisible ?? false,
+            set: editor.actions.setNotebooksDropdownVisible
         });
 
         const notebookInput = ref(null) as any;
 
-        const onToggle = () => {
-            notebookInput.value.focus();
-        };
+        const onToggle = () => notebookInput.value.focus();
 
         return {
             active,
             onNotebookInput,
             notebookInput,
-            onToggle
+            onToggle,
+            notebooks: computed(() => notebooks.getters.flatten),
+            notebooksForNote: computed(() => notebooks.getters.notebooksForNote),
+            note: computed(() => editor.getters.activeNote)
         };
-    },
-    computed: {
-        ...mapGetters('notebooks', {
-            notebooks: 'flatten',
-            notebooksForNote: 'notebooksForNote'
-        }),
-        ...mapGetters('ui/editor', {
-            note: 'activeNote'
-        })
     },
     components: {
         Dropdown,

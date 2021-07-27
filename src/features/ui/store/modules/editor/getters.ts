@@ -45,10 +45,21 @@ export class EditorGetters extends Getters<EditorState> {
         return this.state.tabs.active === tabId;
     }
 
-    byNoteId(id: string): Tab | undefined;
-    byNoteId(id: string, opts: { required: true }): Tab;
+    byId(id: string): Tab | undefined;
+    byId(id: string, opts: { required: true }): Tab;
+    byId(id: string, opts?: { required: boolean }) {
+        const tab = this.state.tabs.values.find((t) => t.id === id);
+
+        if (opts?.required && tab == null) {
+            throw Error(`No tab with id ${id} found.`);
+        }
+
+        return tab;
+    }
+
+    byNoteId(noteId: string): Tab | undefined;
+    byNoteId(noteId: string, opts: { required: true }): Tab;
     byNoteId(noteId: string, opts?: { required: boolean }) {
-        console.log(this.state);
         const tab = this.state.tabs.values.find((t) => t.noteId === noteId);
 
         if (opts?.required && tab == null) {

@@ -43,40 +43,39 @@ import { mapGetters, mapState, useStore } from 'vuex';
 import { Note } from '@/features/notes/common/note';
 import { Tag } from '@/features/tags/common/tag';
 import { Tab } from '@/features/ui/store/modules/editor/state';
+import { useEditor } from '@/features/ui/store/modules/editor';
+import { useTags } from '@/features/tags/store';
+import { useNotes } from '@/features/notes/store';
 
 export default defineComponent({
     setup: function() {
-        const s = useStore(); // Need this to be able to unit test
+        const editor = useEditor();
+        const tags = useTags();
+        const notes = useNotes();
 
         const onTagInput = (newTags: Tag[]) => {
-            const note: Note = s.getters['ui/editor/activeNote'];
-            const oldTags: Tag[] = s.getters['tags/tagsForNote'](note);
+            const note = editor.getters.activeNote!;
+            const oldTags = tags.getters.tagsForNote(note);
 
             const delta = oldTags.length - newTags.length;
             let tag: Tag;
 
             switch (delta) {
                 case 1:
-                    tag = _.differenceWith(oldTags, newTags, (a: Tag, b: Tag) => a.id === b.id)[0];
-                    s.commit('notes/REMOVE_TAG', { noteId: note.id, tagId: tag.id });
+                    [tag] = _.differenceWith(oldTags, newTags, (a, b) => a.id === b.id);
+                    notes.actions.removeTag({ noteId: note.id, tagId: tag.id });
                     break;
 
                 case -1:
-                    tag = _.differenceWith(newTags, oldTags, (a: Tag, b: Tag) => a.id === b.id)[0];
-                    s.commit('notes/ADD_TAG', { noteId: note.id, tagId: tag.id });
+                    [tag] = _.differenceWith(newTags, oldTags, (a, b) => a.id === b.id);
+                    notes.actions.addTag({ noteId: note.id, tagId: tag.id });
                     break;
             }
         };
 
         const active = computed({
-            get: () => {
-                const tab: Tab = s.getters['ui/editor/activeTab'] as Tab;
-                return tab?.tagDropdownActive ?? false;
-            },
-            set: (v: boolean) => {
-                const tab: Tab = s.getters['ui/editor/activeTab'] as Tab;
-                s.commit('ui/editor/TAG_DROPDOWN_ACTIVE', { id: tab.id, active: v });
-            }
+            get: () => editor.getters.activeTab?.tagDropdownVisible ?? false,
+            set: (v: boolean) => editor.actions.setTagsDropdownVisible
         });
 
         const tagInput = ref(null) as any;
@@ -89,17 +88,11 @@ export default defineComponent({
             active,
             onTagInput,
             onToggle,
-            tagInput
+            tagInput,
+            tags: computed(() => tags.state.values),
+            note: computed(() => editor.getters.activeNote),
+            tagsForNote: computed(() => tags.getters.tagsForNote)
         };
-    },
-    computed: {
-        ...mapState('tags', {
-            tags: 'values'
-        }),
-        ...mapGetters('ui/editor', {
-            note: 'activeNote'
-        }),
-        ...mapGetters('tags', ['tagsForNote'])
     },
     components: {
         Dropdown,

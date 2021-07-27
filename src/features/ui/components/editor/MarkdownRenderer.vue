@@ -6,13 +6,12 @@
 import { defineComponent } from 'vue';
 import marked from 'marked';
 import { mapMutations, useStore } from 'vuex';
+import { useEditor } from '@/features/ui/store/modules/editor';
 
 export default defineComponent({
     setup: () => {
-        const s = useStore();
-        const activeTab = s.getters['ui/editor/activeTab'];
-
-        const content = marked(activeTab.content);
+        const editor = useEditor();
+        const content = marked(editor.getters.activeTab?.content ?? '');
 
         return { content };
     }
