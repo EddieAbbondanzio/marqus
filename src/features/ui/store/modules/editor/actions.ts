@@ -34,6 +34,11 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         const existing = this.getters.byNoteId(noteId);
 
         if (existing != null) {
+            // If tab is already open, and in preview, exit preview mode.
+            if (existing.state === 'preview') {
+                this.commit('SET_TAB_STATE', { value: { tab: existing, state: 'normal' } });
+            }
+
             this.commit('SET_ACTIVE', { value: existing.id });
         } else {
             const content = await loadNoteContentFromFileSystem(noteId);

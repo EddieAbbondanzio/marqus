@@ -87,7 +87,7 @@ export default defineComponent({
         return {
             onFavoriteClick,
             mode: computed(() => editor.state.mode),
-            activeNote: computed(() => editor.getters.activeNote),
+            note: computed(() => editor.getters.activeNote),
             deleteActiveNote: editor.actions.deleteActiveNote,
             toggleMode: editor.actions.toggleMode,
             saveTab: editor.actions.saveTab

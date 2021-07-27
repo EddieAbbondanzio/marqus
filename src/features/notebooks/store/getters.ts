@@ -38,7 +38,7 @@ export class NotebookGetters extends Getters<NotebookState> {
             return [];
         }
 
-        const notebooks = this.flatten;
+        const notebooks = this.getters.flatten;
         const res = notebooks.filter((n: any) => note.notebooks.some((notebookId: string) => notebookId === n.id));
         return res;
     }
