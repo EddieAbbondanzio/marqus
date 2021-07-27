@@ -7,7 +7,7 @@
     >
         <a
             class="is-flex is-flex-row is-justify-space-between is-align-center px-2"
-            v-mouse:click.left="() => onClick(modelValue.id)"
+            v-mouse:click.left="onClick"
             v-mouse:hold.left="onMoveStart"
             v-mouse:release.left="onMoveEnd"
         >
@@ -41,7 +41,7 @@ export default defineComponent({
     setup: (p) => {
         const editor = useEditor();
 
-        const onClick = (tabId: string) => editor.actions.openTab(tabId);
+        const onClick = () => editor.actions.openTab(p.modelValue!.noteId);
 
         const onMoveStart = () => editor.actions.tabDragStart(p.modelValue as Tab);
 

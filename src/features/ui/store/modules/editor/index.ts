@@ -16,6 +16,9 @@ export const editor = new Module({
 
 export const useEditor = createComposable(editor);
 
+/*
+ * Anytime a note is clicked in the local navigation menu, open it as a tab in the editor.
+ */
 mediator.subscribe('ui/localNavigation/SET_ACTIVE', ({ payload }, store) => {
     const noteId = payload.value;
     store.dispatch('ui/editor/openTab', noteId);
