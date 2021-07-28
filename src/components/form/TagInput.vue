@@ -45,15 +45,17 @@
                     }"
                 >
                     <div class="dropdown-content p-0">
-                        <a
-                            href="#"
-                            @mousedown.prevent="onAddSelectedTag(tag)"
-                            v-for="(tag, i) in available"
-                            :key="tag.id"
-                            :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
-                        >
-                            {{ tag.value }}
-                        </a>
+                        <div v-if="available.length > 0">
+                            <a
+                                href="#"
+                                @mousedown.prevent="onAddSelectedTag(tag)"
+                                v-for="(tag, i) in available"
+                                :key="tag.id"
+                                :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
+                            >
+                                {{ tag.value }}
+                            </a>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -90,6 +92,10 @@ export default defineComponent({
         }
     },
     setup(p, c) {
+        /*
+         * Don't replace with a computed prop. Active may not have been passed so
+         * to do this or else we wont be able to set it.
+         */
         const localActive = ref(p.active);
 
         const setActive = (v: boolean) => {
@@ -141,12 +147,17 @@ export default defineComponent({
                         onAddSelectedTag(available.value[0]);
                     }
                     break;
+                case 'Escape':
+                    inputRef.value.blur();
+                    c.emit('blur');
+                    break;
             }
         };
 
         const focus = async () => {
             await nextTick();
             inputRef.value.focus();
+            c.emit('focus');
         };
 
         return {
@@ -163,7 +174,7 @@ export default defineComponent({
             focus
         };
     },
-    emits: ['update:active', 'update:selected'],
+    emits: ['update:active', 'update:selected', 'blur', 'focus'],
     components: {
         Dropdown
     }

@@ -19,12 +19,14 @@
                         <IconButton
                             icon="fa-angle-double-down"
                             class="has-text-grey"
+                            size="is-size-7"
                             title="Expand all"
                             @click="expandAll()"
                         />
                         <IconButton
                             icon="fa-angle-double-up"
                             class="has-text-grey"
+                            size="is-size-7"
                             title="Collapse all"
                             @click="collapseAll()"
                         />

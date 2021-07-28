@@ -38,10 +38,17 @@
                             <icon-button
                                 class="has-text-grey"
                                 icon="fa-angle-down"
+                                size="is-size-7"
                                 v-if="isExpanded()"
                                 @click.stop="toggle()"
                             />
-                            <icon-button class="has-text-grey" icon="fa-angle-up" v-else @click.stop="toggle()" />
+                            <icon-button
+                                class="has-text-grey"
+                                size="is-size-7"
+                                icon="fa-angle-up"
+                                v-else
+                                @click.stop="toggle()"
+                            />
                         </div>
                     </slot>
                     <!-- Spacer to keep options lined up even if no collapse trigger visible -->

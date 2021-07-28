@@ -25,6 +25,7 @@
                         :values="tags"
                         :selected="tagsForNote(note)"
                         @update:selected="onTagInput"
+                        @blur="() => (active = false)"
                         ref="tagInput"
                         placeholder="Type to add tag"
                     />

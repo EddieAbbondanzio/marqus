@@ -19,6 +19,7 @@
                 title="Close"
                 icon="fa-times"
                 class="has-text-hover-danger has-text-grey"
+                size="is-size-7"
                 @click.stop="closeTab(modelValue.id)"
             />
         </a>

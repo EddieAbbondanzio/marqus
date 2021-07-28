@@ -50,7 +50,7 @@ export const useGlobalNavigationContextMenu = createContextMenuHook('globalNavig
 
     if (isElementNotebook) {
         items.push({
-            label: 'Edit Notebook',
+            label: 'Rename Notebook',
             click: () => store.dispatch('ui/globalNavigation/notebookInputStart', { id })
         });
 
@@ -63,7 +63,7 @@ export const useGlobalNavigationContextMenu = createContextMenuHook('globalNavig
     // if tag, offer option to delete
     if (isElementTag) {
         items.push({
-            label: 'Edit Tag',
+            label: 'Rename Tag',
             click: () => store.dispatch('ui/globalNavigation/tagInputStart', { id })
         });
 

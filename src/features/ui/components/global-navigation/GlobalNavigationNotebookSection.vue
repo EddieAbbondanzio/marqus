@@ -3,7 +3,8 @@
         <template #options>
             <IconButton
                 icon="fa-plus"
-                class="has-text-grey is-size-7 has-text-hover-success"
+                class="has-text-grey  has-text-hover-success"
+                size="is-size-7"
                 title="Create new notebook"
                 @click.prevent.stop="() => createNotebook()"
             />

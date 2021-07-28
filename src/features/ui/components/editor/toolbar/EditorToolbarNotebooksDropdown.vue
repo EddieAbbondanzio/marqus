@@ -25,8 +25,11 @@
                         :values="notebooks"
                         :selected="notebooksForNote(note)"
                         @update:selected="onNotebookInput"
+                        @blur="() => (active = false)"
                         ref="notebookInput"
                         placeholder="Type to add notebook"
+                        :createEnabled="true"
+                        createName="notebook"
                     />
                 </div>
             </div>

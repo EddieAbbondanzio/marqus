@@ -26,12 +26,12 @@ export const useLocalNavigationContextMenu = createContextMenuHook('localNavigat
 
         if (!note.trashed) {
             items.push({
-                label: 'Edit Note',
+                label: 'Rename Note',
                 click: () => store.dispatch('ui/localNavigation/noteInputStart', { id })
             });
         } else {
             items.push({
-                label: 'Restore Note',
+                label: 'Restore From Trash',
                 click: () => store.commit('notes/RESTORE_FROM_TRASH', id)
             });
         }

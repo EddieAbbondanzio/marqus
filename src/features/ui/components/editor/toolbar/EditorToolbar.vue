@@ -1,18 +1,14 @@
 <template>
     <div class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center">
         <div class="buttons has-addons mb-0 mx-1">
-            <button
+            <IconButton
+                icon="fa-edit"
                 id="editButton"
-                class="button mb-0"
-                style="height: 30px"
+                class="is-size-7 p-3"
                 @click="toggleMode"
                 v-shortcut:editorToggleMode="toggleMode"
                 v-show="mode != 'split'"
-            >
-                <span class="icon is-small has-text-hover-warning">
-                    <i class="fas fa-edit"></i>
-                </span>
-            </button>
+            />
 
             <button
                 id="saveButton"
@@ -68,6 +64,7 @@ import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
 import { Note } from '@/features/notes/common/note';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import { useNotes } from '@/features/notes/store';
+import IconButton from '@/components/IconButton.vue';
 
 export default defineComponent({
     setup: function() {
@@ -95,7 +92,8 @@ export default defineComponent({
     },
     components: {
         EditorToolbarNotebooksDropdown,
-        EditorToolbarTagsDropdown
+        EditorToolbarTagsDropdown,
+        IconButton
     }
 });
 </script>
