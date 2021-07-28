@@ -1,56 +1,55 @@
 <template>
-    <div class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center">
-        <div class="buttons has-addons mb-0 mx-1">
-            <IconButton
-                icon="fa-edit"
-                id="editButton"
-                class="is-size-7 p-3"
-                @click="toggleMode"
-                v-shortcut:editorToggleMode="toggleMode"
-                v-show="mode != 'split'"
-            />
+    <div
+        class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center is-justify-content-space-between"
+    >
+        <div class="is-flex is-align-center">
+            <div class="buttons has-addons mb-0 mx-1">
+                <IconButton
+                    id="editButton"
+                    icon="fa-edit"
+                    class="p-3"
+                    size="is-size-6"
+                    v-show="mode != 'split'"
+                    @click="toggleMode"
+                    v-shortcut:editorToggleMode="toggleMode"
+                />
 
-            <button
-                id="saveButton"
-                class="button mb-0"
-                style="height: 30px"
-                @click="() => saveTab(note.id)"
-                v-shortcut:editorSave="() => saveTab(note.id)"
-                v-show="mode !== 'readonly'"
-            >
-                <span class="icon is-small">
-                    <i class="fas fa-save"></i>
-                </span>
-            </button>
-            <button
-                class="button mb-0 has-text-hover-danger"
-                style="height: 30px"
-                title="Delete"
-                @click="deleteActiveNote"
-            >
-                <span class="icon is-small">
-                    <i class="fas fa-trash"></i>
-                </span>
-            </button>
+                <IconButton
+                    id="saveButton"
+                    icon="fa-save"
+                    class="p-3"
+                    size="is-size-6"
+                    v-show="mode !== 'readonly'"
+                    @click="() => saveTab(note.id)"
+                    v-shortcut:editorSave="() => saveTab(note.id)"
+                />
+            </div>
+
+            <div class="buttons has-addons mb-0 mx-1">
+                <EditorToolbarNotebooksDropdown />
+
+                <EditorToolbarTagsDropdown />
+
+                <IconButton
+                    id="favoriteButton"
+                    :title="note.favorited ? 'Remove note from favorites' : 'Add note to favorites'"
+                    icon="fa-star"
+                    size="is-size-6"
+                    :class="['has-text-hover-warning', 'p-3', { 'has-text-warning': note.favorited }]"
+                    @click="onFavoriteClick"
+                />
+            </div>
         </div>
 
-        <div class="buttons has-addons mb-0 mx-1">
-            <EditorToolbarNotebooksDropdown />
-
-            <EditorToolbarTagsDropdown />
-
-            <button
-                :class="
-                    `button mb-0 has-text-hover-warning ${note != null && note.favorited ? 'has-text-warning' : ''}`
-                "
-                title="Add to favorites"
-                style="height: 30px"
-                @click="onFavoriteClick"
-            >
-                <span class="icon is-small">
-                    <i class="fas fa-star"></i>
-                </span>
-            </button>
+        <div>
+            <IconButton
+                id="deleteButton"
+                title="Delete"
+                icon="fa-trash"
+                size="is-size-6"
+                class="p-3 has-text-hover-danger"
+                @click="deleteActiveNote"
+            />
         </div>
     </div>
 </template>
