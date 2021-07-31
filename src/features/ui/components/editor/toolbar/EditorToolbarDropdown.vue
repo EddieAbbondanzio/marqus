@@ -1,6 +1,7 @@
 <template>
     <Dropdown :active="active" @update:active="onActiveUpdate">
         <template #trigger="{toggle}">
+            {{ active }}
             <IconButton :icon="icon" size="is-size-6" class="p-3" @click="toggle" :isHovered="active" />
         </template>
 
@@ -11,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import Dropdown from '@/components/Dropdown.vue';
 import IconButton from '@/components/buttons/IconButton.vue';
 

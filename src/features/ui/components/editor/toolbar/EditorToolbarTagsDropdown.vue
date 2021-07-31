@@ -1,6 +1,7 @@
 <template>
-    <EditorToolbarDropdown icon="fa-tag">
+    <EditorToolbarDropdown icon="fa-tag" v-model:active="active">
         <template #dropdown>
+            FUCK
             <ListBuilder :available="tags" :selected="[]" />
         </template>
     </EditorToolbarDropdown>

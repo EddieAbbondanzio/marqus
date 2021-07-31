@@ -1,7 +1,7 @@
 <template>
     <Dropdown>
-        <template #trigger="{toggle}">
-            <input type="text" @focus="toggle" @blur="toggle" />
+        <template #trigger="{focus, blur}">
+            <input type="text" @focus="focus" @blur="blur" />
         </template>
         <template #content>
             CONTENT

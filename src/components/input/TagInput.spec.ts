@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import TagInput from '@/components/form/TagInput.vue';
+import TagInput from '@/components/input/TagInput.vue';
 
 describe('TagInput.vue', () => {
     it('sets icon', () => {

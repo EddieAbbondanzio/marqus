@@ -1,7 +1,7 @@
 <template>
     <div :class="`dropdown ${isActive ? 'is-active' : ''}`">
         <div class="dropdown-trigger">
-            <slot name="trigger" :toggle="toggle"> </slot>
+            <slot name="trigger" :toggle="toggle" :focus="focus" :blur="blur"> </slot>
         </div>
 
         <slot name="menu">
@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { climbDomHierarchy } from '@/shared/utils';
-import { computed, defineComponent, ref, watch } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 export default defineComponent({
     props: {
@@ -27,31 +27,35 @@ export default defineComponent({
     },
     setup(p, c) {
         const isActive = ref(p.active);
-        const toggle = (e: Event) => {
-            e.stopPropagation();
 
-            const newValue = !isActive.value;
-
-            if (newValue) {
-                window.addEventListener('click', listenForBlur);
-            } else {
-                window.removeEventListener('click', listenForBlur);
-            }
-
-            setIsActive(newValue);
-            return newValue;
-        };
+        const toggle = (e: Event) => setIsActive(!isActive.value);
+        const focus = (e: Event) => setIsActive(true);
+        const blur = (e: Event) => setIsActive(false);
 
         const listenForBlur = (e: MouseEvent) => {
+            console.log('val: ', isActive.value);
+            if (!isActive.value) {
+                return;
+            }
+
             const isWithinMenu = climbDomHierarchy<boolean>(e.target as HTMLElement, {
-                match: (el) => el.classList.contains('dropdown-menu')
+                match: (el) => el.classList.contains('dropdown-menu') || el.classList.contains('dropdown-trigger')
             });
 
             // User clicked outside of dropdown menu. Hide it.
             if (!isWithinMenu) {
                 setIsActive(false);
+                console.log('hide it!');
             }
         };
+
+        onMounted(() => {
+            window.addEventListener('click', listenForBlur);
+        });
+
+        onBeforeUnmount(() => {
+            window.removeEventListener('click', listenForBlur);
+        });
 
         const setIsActive = (v: boolean) => {
             c.emit('update:active', v);
@@ -67,7 +71,9 @@ export default defineComponent({
 
         return {
             isActive,
-            toggle
+            toggle,
+            focus,
+            blur
         };
     },
     emits: ['update:active']
