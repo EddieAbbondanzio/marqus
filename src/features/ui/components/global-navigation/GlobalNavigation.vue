@@ -63,7 +63,7 @@ import GlobalNavigationTagSection from '@/features/ui/components/global-navigati
 import GlobalNavigationNotebookSection from '@/features/ui/components/global-navigation/GlobalNavigationNotebookSection.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuList from '@/components/navigation/NavigationMenuList.vue';
-import IconButton from '@/components/IconButton.vue';
+import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-navigation-context-menu';
 import UndoContainer from '@/components/UndoContainer.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';

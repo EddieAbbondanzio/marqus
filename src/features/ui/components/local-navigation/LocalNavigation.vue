@@ -61,7 +61,7 @@
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, WritableComputedRef } from 'vue';
 import Resizable from '@/components/Resizable.vue';
-// import IconButton from '@/components/IconButton.vue';
+// import IconButton from '@/components/buttons/IconButton.vue';
 // import LocalNavigationSearchBar from '@/features/ui/components/local-navigation/LocalNavigationSearchBar.vue';
 import { mapActions, mapGetters } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';

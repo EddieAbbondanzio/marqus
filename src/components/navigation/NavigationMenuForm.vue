@@ -54,7 +54,7 @@
 
 <script lang="ts">
 import { defineComponent, onBeforeUnmount, onMounted } from 'vue';
-import IconButton from '@/components/IconButton.vue';
+import IconButton from '@/components/buttons/IconButton.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
 
 /**

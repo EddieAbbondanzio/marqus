@@ -1,4 +1,10 @@
 <template>
+    <EditorToolbarDropdown icon="fa-tag">
+        <template #dropdown>
+            <ListBuilder :available="tags" :selected="[]" />
+        </template>
+    </EditorToolbarDropdown>
+
     <Dropdown v-model:active="active">
         <template #trigger="{toggle}">
             <button
@@ -39,7 +45,7 @@
 import { computed, defineComponent, ref, watch } from 'vue';
 import _ from 'lodash';
 import Dropdown from '@/components/Dropdown.vue';
-import TagInput from '@/components/form/TagInput.vue';
+import TagInput from '@/components/input/TagInput.vue';
 import { mapGetters, mapState, useStore } from 'vuex';
 import { Note } from '@/features/notes/common/note';
 import { Tag } from '@/features/tags/common/tag';
@@ -47,6 +53,8 @@ import { Tab } from '@/features/ui/store/modules/editor/state';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import { useTags } from '@/features/tags/store';
 import { useNotes } from '@/features/notes/store';
+import EditorToolbarDropdown from '@/features/ui/components/editor/toolbar/EditorToolbarDropdown.vue';
+import ListBuilder from '@/components/input/ListBuilder.vue';
 
 export default defineComponent({
     setup: function() {
@@ -97,7 +105,9 @@ export default defineComponent({
     },
     components: {
         Dropdown,
-        TagInput
+        TagInput,
+        EditorToolbarDropdown,
+        ListBuilder
     }
 });
 </script>

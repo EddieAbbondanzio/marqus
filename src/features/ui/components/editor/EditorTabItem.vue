@@ -15,13 +15,7 @@
                 >{{ noteName(modelValue.noteId) }}{{ modelValue.state === 'dirty' ? '*' : '' }}</span
             >
 
-            <IconButton
-                title="Close"
-                icon="fa-times"
-                class="has-text-hover-danger has-text-grey"
-                size="is-size-7"
-                @click.stop="closeTab(modelValue.id)"
-            />
+            <DeleteButton title="Close" @click.stop="closeTab(modelValue.id)" />
         </a>
     </li>
 </template>
@@ -29,10 +23,10 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { mapGetters, mapMutations, mapState, useStore } from 'vuex';
-import IconButton from '@/components/IconButton.vue';
 import { climbDomHierarchy } from '@/shared/utils';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import { Tab } from '@/features/ui/store/modules/editor/state';
+import DeleteButton from '@/components/buttons/DeleteButton.vue';
 
 export default defineComponent({
     props: {
@@ -89,7 +83,7 @@ export default defineComponent({
             isTabActive: editor.getters.isTabActive
         };
     },
-    components: { IconButton }
+    components: { DeleteButton }
 });
 </script>
 

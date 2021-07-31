@@ -33,7 +33,7 @@ import GlobalNavigationNotebook from '@/features/ui/components/global-navigation
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import { Notebook } from '@/features/notebooks/common/notebook';
-import IconButton from '@/components/IconButton.vue';
+import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { useNotebooks } from '@/features/notebooks/store';
 

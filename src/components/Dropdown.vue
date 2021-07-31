@@ -73,3 +73,9 @@ export default defineComponent({
     emits: ['update:active']
 });
 </script>
+
+<style lang="sass">
+// Fixes nested dropdown support in Bulma
+.dropdown:not(.is-active) > .dropdown-menu
+    display: none!important
+</style>

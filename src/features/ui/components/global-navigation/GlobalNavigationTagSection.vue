@@ -55,7 +55,7 @@ import { computed, defineComponent } from 'vue';
 import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
-import IconButton from '@/components/IconButton.vue';
+import IconButton from '@/components/buttons/IconButton.vue';
 import { Tag } from '@/features/tags/common/tag';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import * as _ from 'lodash';

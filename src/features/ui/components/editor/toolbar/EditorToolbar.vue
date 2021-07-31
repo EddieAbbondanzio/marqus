@@ -58,12 +58,10 @@
 import { store } from '@/store';
 import EditorToolbarTagsDropdown from '@/features/ui/components/editor/toolbar/EditorToolbarTagsDropdown.vue';
 import EditorToolbarNotebooksDropdown from '@/features/ui/components/editor/toolbar/EditorToolbarNotebooksDropdown.vue';
-import { computed, defineComponent } from 'vue';
-import { mapActions, mapGetters, mapMutations, useStore } from 'vuex';
-import { Note } from '@/features/notes/common/note';
+import { computed, defineComponent, ref } from 'vue';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import { useNotes } from '@/features/notes/store';
-import IconButton from '@/components/IconButton.vue';
+import IconButton from '@/components/buttons/IconButton.vue';
 
 export default defineComponent({
     setup: function() {
@@ -86,7 +84,8 @@ export default defineComponent({
             note: computed(() => editor.getters.activeNote),
             deleteActiveNote: editor.actions.deleteActiveNote,
             toggleMode: editor.actions.toggleMode,
-            saveTab: editor.actions.saveTab
+            saveTab: editor.actions.saveTab,
+            test: ref(false)
         };
     },
     components: {
