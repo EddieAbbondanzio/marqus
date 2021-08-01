@@ -12,6 +12,7 @@ defineRule('unique', unique);
 configure({
     generateMessage: localize('en', {
         messages: {
+            max: '{field} max length is 0:{max} characters',
             required: '{field} is required',
             unique: '{field} already exists'
         }

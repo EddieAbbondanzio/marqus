@@ -52,14 +52,11 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import { mapActions, mapGetters, mapState, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import IconButton from '@/components/buttons/IconButton.vue';
 import { Tag } from '@/features/tags/common/tag';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
-import * as _ from 'lodash';
-import { Context } from 'vuex-smart-module';
 import { useTags } from '@/features/tags/store';
 
 export default defineComponent({
@@ -79,6 +76,7 @@ export default defineComponent({
 
         const formRules = {
             required: true,
+            max: 4,
             unique: [() => tags.state.values, (t: Tag) => t?.id, (t: Tag) => t?.value, () => globalNav.state.tags.input]
         };
 

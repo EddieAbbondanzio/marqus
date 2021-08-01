@@ -30,10 +30,10 @@ export default defineComponent({
         const editor = useEditor();
         const tags = useTags();
         const notes = useNotes();
-        const note = editor.getters.activeNote!;
+        const note = computed(() => editor.getters.activeNote!);
 
         const onUpdate = (newTags: Tag[]) => {
-            const oldTags = tags.getters.tagsForNote(note);
+            const oldTags = tags.getters.tagsForNote(note.value);
 
             const delta = oldTags.length - newTags.length;
             let tag: Tag;
@@ -41,12 +41,12 @@ export default defineComponent({
             switch (delta) {
                 case 1:
                     [tag] = _.differenceWith(oldTags, newTags, (a, b) => a.id === b.id);
-                    notes.actions.removeTag({ noteId: note.id, tagId: tag.id });
+                    notes.actions.removeTag({ noteId: note.value.id, tagId: tag.id });
                     break;
 
                 case -1:
                     [tag] = _.differenceWith(newTags, oldTags, (a, b) => a.id === b.id);
-                    notes.actions.addTag({ noteId: note.id, tagId: tag.id });
+                    notes.actions.addTag({ noteId: note.value.id, tagId: tag.id });
                     break;
             }
         };
@@ -72,11 +72,11 @@ export default defineComponent({
             // After creating it, add it to the active note
             nextTick(() => {
                 const newTag = tags.getters.byName(name, { required: true });
-                notes.actions.addTag({ noteId: note.id, tagId: newTag.id });
+                notes.actions.addTag({ noteId: note.value.id, tagId: newTag.id });
             });
         };
 
-        const selectedTags = computed(() => tags.getters.tagsForNote(note));
+        const selectedTags = computed(() => tags.getters.tagsForNote(note.value));
 
         return {
             onCreate,
