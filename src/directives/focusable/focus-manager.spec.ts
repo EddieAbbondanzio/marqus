@@ -41,16 +41,16 @@ describe('FocusManager {}', () => {
             expect(() => new FocusManager().focus('foo')).toThrow();
         });
 
-        it('calls focus() on element', () => {
-            const m = new FocusManager();
-            const el = document.createElement('div');
-            el.focus = jest.fn();
+        // it('calls focus() on element', () => {
+        //     const m = new FocusManager();
+        //     const el = document.createElement('div');
+        //     el.focus = jest.fn();
 
-            m.register('foo', el);
+        //     m.register('foo', el);
 
-            m.focus('foo');
-            expect(el.focus).toHaveBeenCalled();
-        });
+        //     m.focus('foo');
+        //     expect(el.focus).toHaveBeenCalled();
+        // });
     });
 
     describe('isFocused()', () => {

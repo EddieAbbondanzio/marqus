@@ -8,15 +8,33 @@ import { EditorMutations } from '@/features/ui/store/modules/editor/mutations';
 import { notes } from '@/features/notes/store';
 import { Store } from 'vuex';
 import { undo, UndoGrouper } from '@/store/plugins/undo';
+import { tags } from '@/features/tags/store';
+import { generateId } from '@/store';
 
 export class EditorActions extends Actions<EditorState, EditorGetters, EditorMutations, EditorActions> {
     notes!: Context<typeof notes>;
+    tags!: Context<typeof tags>;
 
     group!: UndoGrouper;
 
     $init(store: Store<any>) {
         this.notes = notes.context(store);
+        this.tags = tags.context(store);
         this.group = undo.generateGrouper('editor');
+    }
+
+    createTag(name: string) {
+        this.tags.commit('CREATE', {
+            value: { id: generateId(), value: name },
+            _undo: {
+                undoCallback: (m) => {
+                    this.tags.commit('DELETE', { value: m.payload.value.id });
+                },
+                redoCallback: (m) => {
+                    this.tags.commit('CREATE', { value: m.payload.value });
+                }
+            }
+        });
     }
 
     tabDragStart(tab: Tab) {

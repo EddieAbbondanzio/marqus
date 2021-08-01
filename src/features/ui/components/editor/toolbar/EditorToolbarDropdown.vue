@@ -1,7 +1,6 @@
 <template>
     <Dropdown :active="active" @update:active="onActiveUpdate">
         <template #trigger="{toggle}">
-            {{ active }}
             <IconButton :icon="icon" size="is-size-6" class="p-3" @click="toggle" :isHovered="active" />
         </template>
 
@@ -19,7 +18,7 @@ import IconButton from '@/components/buttons/IconButton.vue';
 export default defineComponent({
     setup(p, c) {
         const onActiveUpdate = (v: boolean) => {
-            console.log(v);
+            console.log('update dropdown');
             c.emit('update:active', v);
         };
 

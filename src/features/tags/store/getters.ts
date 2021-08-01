@@ -12,6 +12,18 @@ export class TagGetters extends Getters<TagState> {
         return this.state.values.filter((t) => note.tags.some((tagId) => t.id === tagId));
     }
 
+    byName(name: string): Tag | undefined;
+    byName(name: string, opts: { required: true }): Tag;
+    byName(name: string, opts: { required?: boolean } = {}) {
+        const tag = this.state.values.find((t) => t.value === name);
+
+        if (opts.required && tag == null) {
+            throw Error(`No tag with name ${name} found.`);
+        }
+
+        return tag;
+    }
+
     byId(id: string): Tag | undefined;
     byId(id: string, opts: { required: true }): Tag;
     byId(id: string, opts: { required?: boolean } = {}) {

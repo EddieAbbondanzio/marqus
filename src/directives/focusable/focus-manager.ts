@@ -1,5 +1,6 @@
 import { Focusable, FOCUSABLE_ATTRIBUTE_NAME } from '@/directives/focusable/focusable';
 import { climbDomHierarchy } from '@/shared/utils';
+import { nextTick } from 'vue';
 /**
  * Utility that helps track focused section of the app, and allows for changing focus
  * via a method call.
@@ -18,10 +19,30 @@ export class FocusManager {
      * @param name Easy to remember identifier of the element
      * @param el The element
      */
-    register(name: string, el: HTMLElement, hidden = false) {
-        this.focusables.push({ name, el });
+    register(name: string, el: HTMLElement, opts: { hidden: boolean; input?: boolean } = { hidden: false }) {
+        let parent;
 
-        if (hidden) {
+        if (el.parentElement != null) {
+            const focusableParentElement = climbDomHierarchy(el.parentElement, {
+                match: (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE_NAME),
+                matchValue: (el) => el
+            });
+
+            if (focusableParentElement != null) {
+                const name = focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE_NAME);
+
+                parent = this.focusables.find(
+                    (f) => f.name === focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE_NAME)
+                );
+            }
+        }
+        
+        // Check to see if we need to find a nested input within the focusable.
+        const element = opts.input ? el.getElementsByTagName('input')[0] : el;
+
+        this.focusables.push({ name, el: element, parent });
+
+        if (opts.hidden) {
             el.classList.add('focusable-hidden');
         }
     }
@@ -45,11 +66,28 @@ export class FocusManager {
             throw Error(`No focusable with name ${name} found.`);
         }
 
-        focusable.el.focus();
+        // HACK. We gotta wait for the next tick or else the element wont focus
+        (async () => {
+            await nextTick();
+            focusable.el.focus();
+        })();
     }
 
-    isFocused(name: string) {
-        return this.active?.name === name;
+    isFocused(name: string, checkNested = false) {
+        if (!checkNested) {
+            return this.active?.name === name;
+        }
+
+        let curr = this.active;
+        while (curr != null) {
+            if (curr.name === name) {
+                return true;
+            }
+
+            curr = curr.parent;
+        }
+
+        return false;
     }
 
     /**

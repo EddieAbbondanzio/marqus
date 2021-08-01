@@ -5,4 +5,4 @@
 
 export const FOCUSABLE_ATTRIBUTE_NAME = 'data-focusable';
 
-export type Focusable = { name: string; el: HTMLElement };
+export type Focusable = { name: string; el: HTMLElement; parent?: Focusable };

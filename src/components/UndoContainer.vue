@@ -24,7 +24,7 @@ export default defineComponent({
         const m = undo.getModule(p.undoName);
 
         const onUndo = () => {
-            if (focusManager.isFocused(p.focusName)) {
+            if (focusManager.isFocused(p.focusName, true)) {
                 if (m.canUndo()) {
                     m.undo();
                 } else {
@@ -34,7 +34,7 @@ export default defineComponent({
         };
 
         const onRedo = () => {
-            if (focusManager.isFocused(p.focusName)) {
+            if (focusManager.isFocused(p.focusName, true)) {
                 if (m.canRedo()) {
                     console.log('redo');
                     m.redo();

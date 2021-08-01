@@ -33,7 +33,6 @@ export default defineComponent({
         const blur = (e: Event) => setIsActive(false);
 
         const listenForBlur = (e: MouseEvent) => {
-            console.log('val: ', isActive.value);
             if (!isActive.value) {
                 return;
             }
@@ -44,8 +43,8 @@ export default defineComponent({
 
             // User clicked outside of dropdown menu. Hide it.
             if (!isWithinMenu) {
+                console.log('click was outisde of dropdown');
                 setIsActive(false);
-                console.log('hide it!');
             }
         };
 
