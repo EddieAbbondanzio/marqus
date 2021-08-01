@@ -21,7 +21,7 @@
         <template #menu>
             <div class="dropdown-menu p-0">
                 <div class="dropdown-content p-0">
-                    <TagInput
+                    <!-- <TagInput
                         :values="notebooks"
                         :selected="notebooksForNote(note)"
                         @update:selected="onNotebookInput"
@@ -30,7 +30,7 @@
                         placeholder="Type to add notebook"
                         :createEnabled="true"
                         createName="notebook"
-                    />
+                    /> -->
                 </div>
             </div>
         </template>
@@ -42,7 +42,6 @@ import { computed, defineComponent, ref } from 'vue';
 import { mapGetters, mapState, useStore } from 'vuex';
 import _ from 'lodash';
 import Dropdown from '@/components/Dropdown.vue';
-import TagInput from '@/components/input/TagInput.vue';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { Note } from '@/features/notes/common/note';
 import { Tab } from '@/features/ui/store/modules/editor/state';
@@ -105,8 +104,7 @@ export default defineComponent({
         };
     },
     components: {
-        Dropdown,
-        TagInput
+        Dropdown
     }
 });
 </script>
