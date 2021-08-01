@@ -5,7 +5,9 @@
         </template>
 
         <template #content>
-            <slot name="dropdown"></slot>
+            <div class="px-3">
+                <slot name="dropdown"></slot>
+            </div>
         </template>
     </Dropdown>
 </template>

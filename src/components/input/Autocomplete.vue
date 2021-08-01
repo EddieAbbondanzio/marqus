@@ -1,7 +1,16 @@
 <template>
     <Dropdown>
         <template #trigger="{focus, blur}">
-            <input type="text" ref="inputRef" @focus="focus" @blur="blur" @keyup="onKeyUp" v-model="input" />
+            <input
+                class="input is-small"
+                type="text"
+                ref="inputRef"
+                @focus="focus"
+                @blur="blur"
+                @keyup="onKeyUp"
+                v-model="input"
+                :placeholder="placeholder"
+            />
         </template>
         <template #content>
             <div v-if="available.length > 0">
@@ -56,6 +65,10 @@ export default defineComponent({
             input.value = value.value;
 
             c.emit('select', input.value);
+
+            if (p.clearOnSelect) {
+                input.value = '';
+            }
         };
 
         const keyboardIndex = ref(-1);
@@ -82,10 +95,13 @@ export default defineComponent({
                         keyboardIndex.value = -1;
 
                         c.emit('select', input.value);
+
+                        if (p.clearOnSelect) {
+                            input.value = '';
+                        }
                     }
 
                     input.value = '';
-                    inputRef.value.blur();
                     break;
 
                 case 'Escape':
@@ -119,6 +135,13 @@ export default defineComponent({
         createName: {
             type: String,
             default: ''
+        },
+        clearOnSelect: {
+            type: Boolean,
+            default: false
+        },
+        placeholder: {
+            type: String
         }
     },
     emits: ['update:value', 'focus', 'blur', 'create', 'select'],

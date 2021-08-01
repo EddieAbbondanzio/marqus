@@ -5,6 +5,7 @@
                 :values="tags"
                 :selected="selectedTags"
                 valueName="tag"
+                inputPlaceholder="Type to add tag"
                 @create="onCreate"
                 @update:selected="onUpdate"
                 v-focusable:tagListBuilder.hidden="{ querySelector: 'input' }"

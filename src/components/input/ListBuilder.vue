@@ -1,16 +1,18 @@
 <template>
-    <div>
+    <div class="list-builder">
         <ul>
-            <li v-for="item in selected" :key="item.id">
-                {{ item.value }} <DeleteButton @click="() => onDelete(item)" />
+            <li class="list-item is-flex is-align-items-center" v-for="item in selected" :key="item.id">
+                <span class="is-size-7">{{ item.value }}</span> <DeleteButton @click.stop="() => onDelete(item)" />
             </li>
-            <li>
+            <li class="list-item pt-1">
                 <Autocomplete
-                    :values="values"
+                    :placeholder="inputPlaceholder"
+                    :values="unusedValues"
                     :createAllowed="true"
                     :createName="valueName"
                     @create="(v) => $emit('create', v)"
                     @select="onInputSelect"
+                    :clearOnSelect="true"
                 />
             </li>
         </ul>
@@ -19,7 +21,7 @@
 
 <script lang="ts">
 import DeleteButton from '@/components/buttons/DeleteButton.vue';
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import Autocomplete from '@/components/input/Autocomplete.vue';
 
 export default defineComponent({
@@ -41,7 +43,10 @@ export default defineComponent({
             c.emit('update:selected', [...p.selected, newValue]);
         };
 
+        const unusedValues = computed(() => p.values.filter((v: any) => !p.selected.some((s: any) => s.id === v.id)));
+
         return {
+            unusedValues,
             onDelete,
             onInputSelect
         };
@@ -61,9 +66,19 @@ export default defineComponent({
         valueName: {
             type: String,
             default: 'value'
+        },
+        inputPlaceholder: {
+            type: String
         }
     },
     emits: ['update:selected', 'create'],
     components: { DeleteButton, Autocomplete }
 });
 </script>
+
+<style lang="sass" scoped>
+.list-builder
+    .list-item
+        span
+            padding-left: 8px
+</style>
