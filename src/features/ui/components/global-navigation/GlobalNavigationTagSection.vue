@@ -58,7 +58,7 @@ import IconButton from '@/components/buttons/IconButton.vue';
 import { Tag } from '@/features/tags/common/tag';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { useTags } from '@/features/tags/store';
-
+import { useTagValidation } from '@/features/tags/hooks/use-tag-validation';
 export default defineComponent({
     setup: function() {
         const globalNav = useGlobalNavigation();
@@ -74,19 +74,13 @@ export default defineComponent({
             set: (v: string) => globalNav.dispatch('tagInputUpdated', v)
         });
 
-        const formRules = {
-            required: true,
-            max: 4,
-            unique: [() => tags.state.values, (t: Tag) => t?.id, (t: Tag) => t?.value, () => globalNav.state.tags.input]
-        };
-
-        const tagValues = computed(() => tags.state.values);
+        const formRules = useTagValidation(() => globalNav.state.tags.input);
 
         return {
             expanded,
             input,
             formRules,
-            tags: tagValues,
+            tags: computed(() => tags.state.values),
             confirm: globalNav.actions.tagInputConfirm,
             cancel: globalNav.actions.tagInputCancel,
             setActive: globalNav.actions.setActive,
