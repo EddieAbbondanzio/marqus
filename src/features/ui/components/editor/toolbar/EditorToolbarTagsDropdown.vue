@@ -7,7 +7,7 @@
                 valueName="tag"
                 @create="onCreate"
                 @update:selected="onUpdate"
-                v-focusable:tagListBuilder.input
+                v-focusable:tagListBuilder.hidden="{ querySelector: 'input' }"
             />
         </template>
     </EditorToolbarDropdown>
@@ -72,7 +72,6 @@ export default defineComponent({
             nextTick(() => {
                 const newTag = tags.getters.byName(name, { required: true });
                 notes.actions.addTag({ noteId: note.id, tagId: newTag.id });
-                console.log('added tag!', note.tags);
             });
         };
 

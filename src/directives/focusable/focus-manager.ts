@@ -19,7 +19,7 @@ export class FocusManager {
      * @param name Easy to remember identifier of the element
      * @param el The element
      */
-    register(name: string, el: HTMLElement, opts: { hidden: boolean; input?: boolean } = { hidden: false }) {
+    register(name: string, el: HTMLElement, opts: { hidden: boolean; querySelector?: string } = { hidden: false }) {
         let parent;
 
         if (el.parentElement != null) {
@@ -36,9 +36,9 @@ export class FocusManager {
                 );
             }
         }
-        
+
         // Check to see if we need to find a nested input within the focusable.
-        const element = opts.input ? el.getElementsByTagName('input')[0] : el;
+        const element = opts.querySelector ? (el.querySelector(opts.querySelector) as HTMLElement) : el;
 
         this.focusables.push({ name, el: element, parent });
 

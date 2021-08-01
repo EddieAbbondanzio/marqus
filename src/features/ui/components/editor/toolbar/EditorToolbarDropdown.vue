@@ -17,10 +17,7 @@ import IconButton from '@/components/buttons/IconButton.vue';
 
 export default defineComponent({
     setup(p, c) {
-        const onActiveUpdate = (v: boolean) => {
-            console.log('update dropdown');
-            c.emit('update:active', v);
-        };
+        const onActiveUpdate = (v: boolean) => c.emit('update:active', v);
 
         return {
             onActiveUpdate

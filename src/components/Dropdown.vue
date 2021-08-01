@@ -43,7 +43,6 @@ export default defineComponent({
 
             // User clicked outside of dropdown menu. Hide it.
             if (!isWithinMenu) {
-                console.log('click was outisde of dropdown');
                 setIsActive(false);
             }
         };

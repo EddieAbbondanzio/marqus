@@ -13,12 +13,12 @@ export const focusable: Directive = {
         }
 
         const hidden = binding.modifiers.hidden != null;
-        const input = binding.modifiers.input != null;
+        const querySelector = binding.value != null ? binding.value.querySelector : null;
 
         el.tabIndex = -1; // -1 allows focus via js but not tab key
 
         el.setAttribute(FOCUSABLE_ATTRIBUTE_NAME, name);
-        focusManager.register(name, el, { hidden, input });
+        focusManager.register(name, el, { hidden, querySelector });
     },
     beforeUnmount: (el: HTMLElement, binding: DirectiveBinding) => {
         const name = binding.arg;
