@@ -4,7 +4,8 @@
             <ListBuilder
                 :values="tags"
                 :selected="selectedTags"
-                valueName="tag"
+                :rules="rules"
+                inputName="tag"
                 inputPlaceholder="Type to add tag"
                 @create="onCreate"
                 @update:selected="onUpdate"
@@ -24,6 +25,7 @@ import { useNotes } from '@/features/notes/store';
 import EditorToolbarDropdown from '@/features/ui/components/editor/toolbar/EditorToolbarDropdown.vue';
 import ListBuilder from '@/components/input/ListBuilder.vue';
 import { focusManager } from '@/directives/focusable';
+import { useTagValidation } from '@/features/tags/hooks/use-tag-validation';
 
 export default defineComponent({
     setup: function(p, c) {
@@ -78,7 +80,14 @@ export default defineComponent({
 
         const selectedTags = computed(() => tags.getters.tagsForNote(note.value));
 
+        const rules = useTagValidation();
+
+        const onListBuilderBlur = (e: any) => {
+            active.value = false;
+        };
+
         return {
+            onListBuilderBlur,
             onCreate,
             active,
             onUpdate,
@@ -87,7 +96,8 @@ export default defineComponent({
             selectedTags,
             tags: computed(() => tags.state.values),
             note: computed(() => editor.getters.activeNote),
-            tagsForNote: computed(() => tags.getters.tagsForNote)
+            tagsForNote: computed(() => tags.getters.tagsForNote),
+            rules
         };
     },
     components: {

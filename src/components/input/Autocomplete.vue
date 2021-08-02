@@ -8,27 +8,29 @@
                 @focus="focus"
                 @blur="blur"
                 @keyup="onKeyUp"
-                v-model="input"
+                @input="onInput"
+                :value="value"
                 :placeholder="placeholder"
             />
         </template>
         <template #content>
-            <div v-if="available.length > 0">
-                <a
-                    href="#"
-                    @mousedown.prevent="onSelect(item)"
-                    v-for="(item, i) in available"
-                    :key="item.id"
-                    :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
-                >
-                    {{ item.value }}
-                </a>
-            </div>
-            <div v-else-if="createAllowed">
-                <p class="is-size-7 p-1 is-flex is-align-items-center is-justify-content-center">
-                    No match found. Press enter to create new {{ createName }} '{{ input }}'
-                </p>
-            </div>
+            <slot name="dropdown">
+                <div v-if="available.length > 0">
+                    <a
+                        @mousedown.stop="onSelect(item)"
+                        v-for="(item, i) in available"
+                        :key="item.id"
+                        :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
+                    >
+                        {{ item.value }}
+                    </a>
+                </div>
+                <div v-else-if="createAllowed">
+                    <p class="is-size-7 p-1 is-flex is-align-items-center is-justify-content-center">
+                        No match found. Press enter to create new {{ createName }} '{{ value }}'
+                    </p>
+                </div>
+            </slot>
         </template>
     </Dropdown>
 </template>
@@ -40,35 +42,32 @@ import { isBlank } from '@/shared/utils';
 
 export default defineComponent({
     setup(p, c) {
-        const input = ref('');
         const inputRef = ref<HTMLInputElement>(null!);
 
-        const available = computed(() => {
-            const unused = p.values.filter((v: any) => v.value.toLowerCase().includes(input.value.toLowerCase()));
-            return unused;
-        });
+        // watch(() => p.value, () => {
+        //     console.log('auto complete model updated!');
+        // });
 
-        watch(
-            () => input.value,
-            (value) => {
-                // See if we can find the option
-                const match = p.values.find((v: any) => v.value === value);
-
-                if (match != null) {
-                    c.emit('update:value', match);
+        const available = computed(() =>
+            p.values.filter((v: any) => {
+                if (v?.value == null) {
+                    return false;
                 }
-            }
+
+                return v.value.toLowerCase().includes(p.value.toLowerCase());
+            })
         );
 
-        const onSelect = (value: any) => {
-            c.emit('update:value', value);
-            input.value = value.value;
+        const onInput = (e: any) => {
+            c.emit('update:value', inputRef.value.value);
+            // input.value = inputRef.value.value;
+        };
 
-            c.emit('select', input.value);
+        const onSelect = (option: any) => {
+            c.emit('update:value', option.value);
+            // input.value = option.value;
 
-            if (p.clearOnSelect) {
-                input.value = '';
-            }
+            c.emit('select', option);
         };
 
         const keyboardIndex = ref(-1);
@@ -85,23 +84,16 @@ export default defineComponent({
 
                 case 'Enter':
                     // Detect if we are going to create one
-                    if (available.value.length === 0 && !isBlank(input.value) && p.createAllowed) {
-                        c.emit('create', input.value);
-
-                        // Swallow native event
-                        e.stopPropagation();
+                    if (!p.createAllowed) {
+                        return;
                     } else if (keyboardIndex.value > -1) {
-                        input.value = (available.value as any)[keyboardIndex.value]!.value;
+                        c.emit('update:value', (available.value as any)[keyboardIndex.value]!.value);
+                        // input.value = (available.value as any)[keyboardIndex.value]!.value;
                         keyboardIndex.value = -1;
-
-                        c.emit('select', input.value);
-
-                        if (p.clearOnSelect) {
-                            input.value = '';
-                        }
                     }
 
-                    input.value = '';
+                    inputRef.value.blur();
+
                     break;
 
                 case 'Escape':
@@ -114,10 +106,10 @@ export default defineComponent({
         return {
             available,
             keyboardIndex,
-            input,
             onSelect,
             inputRef,
-            onKeyUp
+            onKeyUp,
+            onInput
         };
     },
     props: {
@@ -126,7 +118,8 @@ export default defineComponent({
             required: true
         },
         value: {
-            type: Object
+            type: String,
+            required: true
         },
         createAllowed: {
             type: Boolean,
@@ -135,10 +128,6 @@ export default defineComponent({
         createName: {
             type: String,
             default: ''
-        },
-        clearOnSelect: {
-            type: Boolean,
-            default: false
         },
         placeholder: {
             type: String

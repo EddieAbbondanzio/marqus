@@ -9,6 +9,6 @@ export function useTagValidation(tag?: () => PartialTag | undefined) {
     return {
         required: true,
         max: TAG_NAME_MAX_LENGTH,
-        unique: [getTags, (t: Tag) => t?.id, (t: Tag) => t?.value?.toLowerCase(), tag]
+        unique: [getTags, (t: Tag) => t?.id, (t: Tag) => (t?.value ?? '').toLowerCase(), tag]
     };
 }

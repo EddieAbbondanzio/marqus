@@ -2,24 +2,25 @@ import { store } from '@/store';
 
 export function unique(
     value: string | null,
-    [getValues, identifier, uniqueValue, entity]: [() => any[], (v: any) => any, (v: any) => any, () => any]
+    [getValues, identifier, uniqueValue, valueEntity]: [() => any[], (v: any) => any, (v: any) => any, any | undefined]
 ): boolean {
     if (value == null) {
         return true;
     }
 
-    const match = getValues().find((v) => value === uniqueValue(v));
-    const orig = entity();
-
-    // Easy case
-    if (match == null) {
-        return true;
+    const isUpdate = valueEntity != null;
+    // Create
+    if (!isUpdate) {
+        return getValues().every((v) => value !== uniqueValue(v));
     }
+    // Update
+    else {
+        const match = getValues().find((v) => uniqueValue(v) === value);
 
-    // Hard case we might be updating
-    if (identifier(orig ?? { id: '' }) !== identifier(match)) {
-        return false;
+        if (match == null) {
+            return true;
+        }
+
+        return identifier(valueEntity) !== identifier(match);
     }
-
-    return true;
 }
