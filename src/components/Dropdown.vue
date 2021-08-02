@@ -48,11 +48,11 @@ export default defineComponent({
         };
 
         onMounted(() => {
-            // window.addEventListener('click', listenForBlur);
+            window.addEventListener('click', listenForBlur);
         });
 
         onBeforeUnmount(() => {
-            // window.removeEventListener('click', listenForBlur);
+            window.removeEventListener('click', listenForBlur);
         });
 
         const setIsActive = (v: boolean) => {
