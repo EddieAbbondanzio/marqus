@@ -23,9 +23,9 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         this.group = undo.generateGrouper('editor');
     }
 
-    createTag(name: string) {
+    createTag(t: { id: string; value: string }) {
         this.tags.commit('CREATE', {
-            value: { id: generateId(), value: name },
+            value: t,
             _undo: {
                 undoCallback: (m) => {
                     this.tags.commit('DELETE', { value: m.payload.value.id });

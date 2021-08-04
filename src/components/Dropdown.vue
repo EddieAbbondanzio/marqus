@@ -1,5 +1,5 @@
 <template>
-    <div :class="`dropdown ${isActive ? 'is-active' : ''}`">
+    <div :class="`dropdown ${isActive ? 'is-active' : ''} is-flex-column`">
         <div class="dropdown-trigger">
             <slot name="trigger" :toggle="toggle" :focus="focus" :blur="blur"> </slot>
         </div>

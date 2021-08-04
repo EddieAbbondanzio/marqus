@@ -7,8 +7,9 @@
                 :rules="rules"
                 inputName="tag"
                 inputPlaceholder="Type to add tag"
-                @create="onCreate"
-                @update:selected="onUpdate"
+                :createFactory="tagFactory"
+                @add="onAdd"
+                @remove="onRemove"
                 v-focusable:tagListBuilder.hidden="{ querySelector: 'input' }"
             />
         </template>
@@ -17,7 +18,6 @@
 
 <script lang="ts">
 import { computed, defineComponent, nextTick, onMounted, onRenderTriggered, ref, watch } from 'vue';
-import _ from 'lodash';
 import { Tag } from '@/features/tags/common/tag';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import { useTags } from '@/features/tags/store';
@@ -26,32 +26,16 @@ import EditorToolbarDropdown from '@/features/ui/components/editor/toolbar/Edito
 import ListBuilder from '@/components/input/ListBuilder.vue';
 import { focusManager } from '@/directives/focusable';
 import { useTagValidation } from '@/features/tags/hooks/use-tag-validation';
+import { generateId } from '@/store';
 
 export default defineComponent({
     setup: function(p, c) {
         const editor = useEditor();
         const tags = useTags();
         const notes = useNotes();
+
         const note = computed(() => editor.getters.activeNote!);
-
-        const onUpdate = (newTags: Tag[]) => {
-            const oldTags = tags.getters.tagsForNote(note.value);
-
-            const delta = oldTags.length - newTags.length;
-            let tag: Tag;
-
-            switch (delta) {
-                case 1:
-                    [tag] = _.differenceWith(oldTags, newTags, (a, b) => a.id === b.id);
-                    notes.actions.removeTag({ noteId: note.value.id, tagId: tag.id });
-                    break;
-
-                case -1:
-                    [tag] = _.differenceWith(newTags, oldTags, (a, b) => a.id === b.id);
-                    notes.actions.addTag({ noteId: note.value.id, tagId: tag.id });
-                    break;
-            }
-        };
+        const selectedTags = computed(() => tags.getters.tagsForNote(note.value));
 
         const active = computed({
             get: () => editor.getters.activeTab?.tagDropdownVisible ?? false,
@@ -63,24 +47,22 @@ export default defineComponent({
 
         const tagInput = ref(null) as any;
 
-        const onToggle = () => {
-            tagInput.value.focus();
+        const tagFactory = (value: string) => {
+            const tag = {
+                id: generateId(),
+                value
+            };
+
+            editor.dispatch('createTag', tag);
+            console.log('tag factory called!');
+
+            return tag;
         };
 
-        // Allow user to create new tags from the droopdown.
-        const onCreate = (name: string) => {
-            editor.dispatch('createTag', name);
+        const onAdd = (t: Tag) => notes.dispatch('addTag', { noteId: note.value.id, tagId: t.id });
+        const onRemove = (t: Tag) => notes.dispatch('removeTag', { noteId: note.value.id, tagId: t.id });
 
-            // After creating it, add it to the active note
-            nextTick(() => {
-                const newTag = tags.getters.byName(name, { required: true });
-                notes.actions.addTag({ noteId: note.value.id, tagId: newTag.id });
-            });
-        };
-
-        const selectedTags = computed(() => tags.getters.tagsForNote(note.value));
-
-        const rules = useTagValidation();
+        const { unique, ...rules } = useTagValidation();
 
         const onListBuilderBlur = (e: any) => {
             active.value = false;
@@ -88,10 +70,10 @@ export default defineComponent({
 
         return {
             onListBuilderBlur,
-            onCreate,
+            tagFactory,
+            onAdd,
+            onRemove,
             active,
-            onUpdate,
-            onToggle,
             tagInput,
             selectedTags,
             tags: computed(() => tags.state.values),

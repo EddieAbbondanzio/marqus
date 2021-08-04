@@ -13,22 +13,26 @@
                 :placeholder="placeholder"
             />
         </template>
-        <template #content>
+        <template #menu v-if="!hideDropdown">
             <slot name="dropdown">
-                <div v-if="available.length > 0">
-                    <a
-                        @mousedown.stop="onSelect(item)"
-                        v-for="(item, i) in available"
-                        :key="item.id"
-                        :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
-                    >
-                        {{ item.value }}
-                    </a>
-                </div>
-                <div v-else-if="createAllowed">
-                    <p class="is-size-7 p-1 is-flex is-align-items-center is-justify-content-center">
-                        No match found. Press enter to create new {{ createName }} '{{ value }}'
-                    </p>
+                <div class="dropdown-menu">
+                    <div class="dropdown-content">
+                        <div class="autocomplete-options" v-if="available.length > 0">
+                            <a
+                                @mousedown.stop="onSelect(item)"
+                                v-for="(item, i) in available"
+                                :key="item.id"
+                                :class="`dropdown-item ${keyboardIndex == i ? 'is-active' : ''}`"
+                            >
+                                {{ item.value }}
+                            </a>
+                        </div>
+                        <div v-else-if="createAllowed">
+                            <p class="is-size-7 p-1 is-flex is-align-items-center is-justify-content-center">
+                                No match found. Press enter to create new {{ createName }} '{{ value }}'
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </slot>
         </template>
@@ -131,9 +135,19 @@ export default defineComponent({
         },
         placeholder: {
             type: String
+        },
+        hideDropdown: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ['update:value', 'focus', 'blur', 'create', 'select'],
     components: { Dropdown }
 });
 </script>
+
+<style lang="sass" scoped>
+.autocomplete-options
+    max-height: calc(33px*8)
+    overflow-y: scroll
+</style>

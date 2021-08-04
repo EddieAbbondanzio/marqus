@@ -6,7 +6,7 @@
                 v-for="item in sortedSelected"
                 :key="item.id"
             >
-                <span class="is-size-7">{{ item.value }}</span> <DeleteButton @click.stop="() => onDelete(item)" />
+                <span class="is-size-7">{{ item.value }}</span> <DeleteButton @click.stop="() => onRemove(item)" />
             </li>
             <li class="list-item pt-1">
                 <Form
@@ -18,15 +18,31 @@
                     <Field :name="inputName" v-model="input" v-slot="{ field }" :rules="rules">
                         <Autocomplete
                             :placeholder="inputPlaceholder"
-                            v-bind="field"
+                            :value="field.value"
+                            @update:value="field['onUpdate:modelValue']"
                             :values="unusedValues"
                             :createAllowed="true"
                             :createName="inputName"
-                            @select="onAdd"
-                        />
+                            @keyup.enter="onAdd"
+                        >
+                            <template #dropdown v-if="meta.dirty && !meta.valid">
+                                <ErrorMessage :name="inputName" v-slot="{ message }" v-if="meta.dirty">
+                                    <div
+                                        id="errorMessage"
+                                        class="notification is-danger p-1 mt-1 is-flex is-align-center"
+                                    >
+                                        <span class="icon is-small">
+                                            <i class="fas fa-exclamation"></i>
+                                        </span>
+
+                                        <span class="is-size-7 pr-2"> {{ message }} </span>
+                                    </div>
+                                </ErrorMessage>
+                            </template>
+                        </Autocomplete>
                     </Field>
 
-                    <ErrorMessage :name="inputName" v-slot="{ message }" v-if="meta.dirty">
+                    <!-- <ErrorMessage :name="inputName" v-slot="{ message }" v-if="meta.dirty">
                         <div id="errorMessage" class="notification is-danger p-1 is-flex is-align-center">
                             <span class="icon is-small">
                                 <i class="fas fa-exclamation"></i>
@@ -34,7 +50,7 @@
 
                             <span class="is-size-7 pr-2"> {{ message }} </span>
                         </div>
-                    </ErrorMessage>
+                    </ErrorMessage> -->
                 </Form>
             </li>
         </ul>
@@ -46,33 +62,48 @@ import DeleteButton from '@/components/buttons/DeleteButton.vue';
 import { computed, defineComponent, Ref, ref } from 'vue';
 import Autocomplete from '@/components/input/Autocomplete.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
+import { caseInsensitiveSorter } from '@/shared/utils/string/case-insensitive-sorter';
 
 export default defineComponent({
     setup(p, c) {
-        const onDelete = (item: any) => {
-            c.emit(
-                'update:selected',
-                p.selected.filter((p: any) => p.id !== item.id)
-            );
-        };
-
         const unusedValues = computed(() => p.values.filter((v: any) => !p.selected.some((s: any) => s.id === v.id)));
 
         const input = ref('');
-        const formRef = ref(null as any);
+        const formRef: Ref<HTMLFormElement> = ref(null!);
 
-        const onSubmit = (e: any) => {
-            c.emit('create', input.value);
+        const onSubmit = () => {
+            if (p.createFactory == null) {
+                throw Error('Cannot create. No factory to instantiate new values passed');
+            }
+
+            const newValue = p.createFactory(input.value);
             formRef.value.resetForm(); // This also removes any errors
+
+            c.emit('add', newValue);
+            c.emit('update:selected', [...p.selected, newValue]);
         };
 
-        const onAdd = (v: any) => {
-            c.emit('update:selected', [...p.selected, v]);
+        const onAdd = () => {
+            const actualValue = p.values.find((val: any) => val.value === input.value);
+
+            if (actualValue == null) {
+                return;
+            }
+
+            formRef.value.resetForm(); // This also removes any errors
+
+            c.emit('add', actualValue);
+            c.emit('update:selected', [...p.selected, actualValue]);
+        };
+
+        const onRemove = (item: any) => {
+            c.emit('remove', item);
+            c.emit('update:selected', item);
         };
 
         const sortedSelected = computed(() => {
             const selected = p.selected as { value: string }[];
-            return selected.sort((a, b) => a.value.toLowerCase().localeCompare(b.value.toLowerCase()));
+            return selected.sort(caseInsensitiveSorter((v) => v.value));
         });
 
         return {
@@ -82,7 +113,7 @@ export default defineComponent({
             onSubmit,
             input,
             unusedValues,
-            onDelete
+            onRemove
         };
     },
     props: {
@@ -90,7 +121,7 @@ export default defineComponent({
          * Array of possible options. Should be an object with an .id .value property.
          */
         values: {
-            type: Array,
+            type: Array, // { id: string, value: string}[]
             required: true
         },
         selected: {
@@ -106,9 +137,16 @@ export default defineComponent({
         },
         rules: {
             type: Object
+        },
+        createAllowed: {
+            type: Boolean,
+            default: true
+        },
+        createFactory: {
+            type: Function // (val: string) => ({})
         }
     },
-    emits: ['update:selected', 'create'],
+    emits: ['update:selected', 'add', 'remove'],
     components: { DeleteButton, Autocomplete, Field, Form, ErrorMessage }
 });
 </script>

@@ -1,5 +1,6 @@
 import { Tag } from '@/features/tags/common/tag';
 import { isBlank } from '@/shared/utils';
+import { caseInsensitiveSorter } from '@/shared/utils/string/case-insensitive-sorter';
 import { generateId } from '@/store';
 import { UndoPayload } from '@/store/plugins/undo';
 import { Mutation, MutationTree } from 'vuex';
@@ -46,6 +47,6 @@ export class TagMutations extends Mutations<TagState> {
     }
 
     SORT() {
-        this.state.values.sort((a, b) => a.value.localeCompare(b.value));
+        this.state.values.sort(caseInsensitiveSorter((v) => v.value));
     }
 }
