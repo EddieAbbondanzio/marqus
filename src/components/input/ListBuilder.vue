@@ -21,10 +21,11 @@
                             :value="field.value"
                             @update:value="field['onUpdate:modelValue']"
                             :values="unusedValues"
-                            :createAllowed="true"
-                            :createName="inputName"
-                            @keyup.enter="onAdd"
                         >
+                            <template #item="{ item }">
+                                <AutocompleteItem :value="item.id">{{ item.value }}</AutocompleteItem>
+                            </template>
+
                             <template #dropdown v-if="meta.dirty && !meta.valid">
                                 <ErrorMessage :name="inputName" v-slot="{ message }" v-if="meta.dirty">
                                     <div
@@ -60,9 +61,11 @@
 <script lang="ts">
 import DeleteButton from '@/components/buttons/DeleteButton.vue';
 import { computed, defineComponent, Ref, ref } from 'vue';
-import Autocomplete from '@/components/input/Autocomplete.vue';
+import Autocomplete from '@/components/input/auto-complete/Autocomplete.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
-import { caseInsensitiveSorter } from '@/shared/utils/string/case-insensitive-sorter';
+import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-compare';
+import AutocompleteItem from '@/components/input/auto-complete/AutocompleteItem.vue';
+// import Icon from '@/components/elements/Icon.vue';
 
 export default defineComponent({
     setup(p, c) {
@@ -72,6 +75,8 @@ export default defineComponent({
         const formRef: Ref<HTMLFormElement> = ref(null!);
 
         const onSubmit = () => {
+            // Determine if it's a create, or add existing.
+
             if (p.createFactory == null) {
                 throw Error('Cannot create. No factory to instantiate new values passed');
             }
@@ -103,7 +108,7 @@ export default defineComponent({
 
         const sortedSelected = computed(() => {
             const selected = p.selected as { value: string }[];
-            return selected.sort(caseInsensitiveSorter((v) => v.value));
+            return selected.sort(caseInsensitiveCompare((v) => v.value));
         });
 
         return {
@@ -147,7 +152,7 @@ export default defineComponent({
         }
     },
     emits: ['update:selected', 'add', 'remove'],
-    components: { DeleteButton, Autocomplete, Field, Form, ErrorMessage }
+    components: { DeleteButton, Autocomplete, Field, Form, ErrorMessage, AutocompleteItem }
 });
 </script>
 

@@ -14,16 +14,16 @@
         :type="type"
         @click="$emit('click', $event)"
     >
-        <span class="icon">
-            <i :class="iconClasses"></i>
-        </span>
+        <Icon :icon="icon" />
     </button>
 </template>
 
 <script lang="ts">
+import Icon from '@/components/elements/Icon.vue';
 import { computed, defineComponent } from 'vue';
 
 export default defineComponent({
+    components: { Icon },
     setup(p, c) {
         const iconClasses = computed(() => `fas ${p.icon}`);
         return { iconClasses };
@@ -62,17 +62,4 @@ export default defineComponent({
 .button.is-icon-only
     background-color: transparent
     padding: 0 6px
-
-    &.is-xs
-    padding: 0 8px
-    height: 21px
-
-    span
-        border: none
-        padding: 12px
-        height: 16px
-
-    span.is-xs
-        padding: 8px
-        height: 12px
 </style>

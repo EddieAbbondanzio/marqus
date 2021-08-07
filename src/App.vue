@@ -7,7 +7,7 @@
 import { computed, onBeforeUnmount, onMounted } from 'vue';
 import contextMenu from 'electron-context-menu';
 import { useStore } from 'vuex';
-import Cursor from '@/components/Cursor.vue';
+import Cursor from '@/components/singletons/Cursor.vue';
 import { mouseObjectManager } from '@/directives/mouse';
 import { mediator } from '@/store/plugins/mediator/mediator';
 import { persist } from '@/store/plugins/persist/persist';

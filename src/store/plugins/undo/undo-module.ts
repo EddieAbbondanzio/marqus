@@ -59,7 +59,7 @@ export class UndoModule {
             const store = this._getStore();
 
             /*
-             * We have to deep clone the state to cache otherwise we'll won't have a copy of the old data
+             * We have to deep clone the state before caching otherwise we'll won't have a copy of the old data
              * since our reference will point to the current state that is being modified.
              */
             const state = getNamespacedState(store, this._settings.namespace);

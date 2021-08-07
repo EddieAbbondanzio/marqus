@@ -60,7 +60,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, WritableComputedRef } from 'vue';
-import Resizable from '@/components/Resizable.vue';
+import Resizable from '@/components/layout/Resizable.vue';
 // import IconButton from '@/components/buttons/IconButton.vue';
 // import LocalNavigationSearchBar from '@/features/ui/components/local-navigation/LocalNavigationSearchBar.vue';
 import { mapActions, mapGetters } from 'vuex';
@@ -68,7 +68,7 @@ import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import { Note } from '@/features/notes/common/note';
 import { useLocalNavigationContextMenu } from './../../hooks/use-local-navigation-context-menu';
-import UndoContainer from '@/components/UndoContainer.vue';
+import UndoContainer from '@/components/input/UndoContainer.vue';
 import { useLocalNavigation } from '@/features/ui/store/modules/local-navigation';
 import { useNotes } from '@/features/notes/store';
 

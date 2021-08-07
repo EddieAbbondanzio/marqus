@@ -6,7 +6,7 @@ import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook
 import { isBlank } from '@/shared/utils';
 import { Mutations } from 'vuex-smart-module';
 import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
-import { caseInsensitiveSorter } from '@/shared/utils/string/case-insensitive-sorter';
+import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-compare';
 
 export type NotebookCreate = Pick<Notebook, 'id' | 'value' | 'parent' | 'children' | 'expanded'>;
 
@@ -71,14 +71,14 @@ export class NotebookMutations extends Mutations<NotebookState> {
                 const n = notebooks[i];
 
                 if (n.children != null) {
-                    n.children.sort(caseInsensitiveSorter(v => v.value));
+                    n.children.sort(caseInsensitiveCompare(v => v.value));
                     recursiveSort(n.children);
                 }
             }
         }
 
         // Sort root
-        this.state.values.sort(caseInsensitiveSorter(v => v.value));
+        this.state.values.sort(caseInsensitiveCompare(v => v.value));
     }
 
     SET_EXPANDED(payload: UndoPayload<{ notebook: Notebook; expanded: boolean; bubbleUp: boolean }>) {

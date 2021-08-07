@@ -5,24 +5,35 @@
         </div>
 
         <slot name="menu">
-            <div class="dropdown-menu">
-                <div class="dropdown-content">
-                    <slot name="content"> </slot>
-                </div>
-            </div>
+            <DropdownMenu>
+                <slot name="content">
+                    <div v-for="(item, i) in items" :key="item.id">
+                        <slot name="item" :index="i" :item="item">
+                            <DropdownItem :value="item" />
+                        </slot>
+                    </div>
+                </slot>
+            </DropdownMenu>
         </slot>
     </div>
 </template>
 
 <script lang="ts">
+import DropdownMenu from '@/components/dropdown/DropdownMenu.vue';
 import { climbDomHierarchy } from '@/shared/utils';
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import DropdownItem from '@/components/dropdown/DropdownItem.vue';
 
 export default defineComponent({
+    components: { DropdownMenu, DropdownItem },
     props: {
         active: {
             type: Boolean,
             default: false
+        },
+        items: {
+            type: Array,
+            default: () => []
         }
     },
     setup(p, c) {

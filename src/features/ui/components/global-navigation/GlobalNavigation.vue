@@ -57,7 +57,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, onBeforeUnmount } from 'vue';
-import Resizable from '@/components/Resizable.vue';
+import Resizable from '@/components/layout/Resizable.vue';
 import { mapActions, mapGetters, useStore } from 'vuex';
 import GlobalNavigationTagSection from '@/features/ui/components/global-navigation/GlobalNavigationTagSection.vue';
 import GlobalNavigationNotebookSection from '@/features/ui/components/global-navigation/GlobalNavigationNotebookSection.vue';
@@ -65,7 +65,7 @@ import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuList from '@/components/navigation/NavigationMenuList.vue';
 import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-navigation-context-menu';
-import UndoContainer from '@/components/UndoContainer.vue';
+import UndoContainer from '@/components/input/UndoContainer.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 
 export default defineComponent({

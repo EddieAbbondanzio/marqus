@@ -33,7 +33,7 @@ import MarkdownRenderer from '@/features/ui/components/editor/MarkdownRenderer.v
 import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';
 import { useEditor } from '@/features/ui/store/modules/editor';
-import UndoContainer from '@/components/UndoContainer.vue';
+import UndoContainer from '@/components/input/UndoContainer.vue';
 
 export default defineComponent({
     setup: () => {
