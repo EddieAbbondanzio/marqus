@@ -1,5 +1,5 @@
 <template>
-    <Dropdown :items="matches()" v-model:active="isActive">
+    <Dropdown class="autocomplete-dropdown" :items="matches()" v-model:active="isActive">
         <template #trigger="{focus, blur}">
             <input
                 class="input is-small"
@@ -15,9 +15,11 @@
         </template>
 
         <template #item="{item, index }">
-            <AutocompleteItem :value="item.id" :active="keyboardIndex === index" @click="onSelect(item)">{{
-                item.value
-            }}</AutocompleteItem>
+            <slot name="dropdown">
+                <AutocompleteItem :value="item.id" :active="keyboardIndex === index" @click="onSelect(item)">{{
+                    item.value
+                }}</AutocompleteItem>
+            </slot>
         </template>
     </Dropdown>
 </template>
@@ -78,10 +80,12 @@ export default defineComponent({
 
                 case 'Enter':
                     if (keyboardIndex.value >= 0) {
-                        c.emit('update:value', (matches() as any)[keyboardIndex.value]!.value);
-
+                        const match = (matches() as any)[keyboardIndex.value]!;
                         keyboardIndex.value = -1;
                         inputRef.value.blur();
+                        c.emit('select', match);
+
+                        inputRef.value.value = '';
                     }
                     break;
 
@@ -124,13 +128,14 @@ export default defineComponent({
 });
 </script>
 
-<style lang="sass" scoped>
-.autocomplete-options
-    max-height: calc(33px*8)
-    overflow-y: scroll
+<style lang="sass">
+.autocomplete-dropdown
+    .dropdown-menu
+        max-height: calc(33px*8)
+        overflow-y: scroll
 
-    a
-        height: 33px!important
+        a
+            height: 33px!important
 
 .dropdown-item
     display: flex

@@ -24,7 +24,7 @@
                             @select="onSelect"
                         >
                             <template #dropdown v-if="meta.dirty && !meta.valid">
-                                <ErrorMessage :name="inputName" v-slot="{ message }" v-if="meta.dirty">
+                                <ErrorMessage :name="inputName" v-slot="{ message }">
                                     <div
                                         id="errorMessage"
                                         class="notification is-danger p-1 mt-1 is-flex is-align-center"
@@ -55,14 +55,32 @@ import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-c
 
 export default defineComponent({
     setup(p, c) {
-        const unusedValues = computed(() => p.values.filter((v: any) => !p.selected.some((s: any) => s.id === v.id)));
+        const unusedValues = computed(() => {
+            const unused = p.values.filter((v: any) => !p.selected.some((s: any) => s.id === v.id));
+
+            if (p.createAllowed) {
+                unused.push({ id: '', value: `Create new ${p.inputName} '${input.value}'` });
+            }
+
+            return unused;
+        });
 
         const input = ref('');
         const formRef: Ref<HTMLFormElement> = ref(null!);
 
         const onSubmit = () => {
-            console.log('submit!');
             // Determine if it's a create, or add existing.
+            const existing: any = p.values.find((v: any) => v.value === input.value);
+            if (existing != null) {
+                // Stop if we already have it selected. Prevents duplicates
+                if (p.selected.some((v: any) => v.id === existing.id)) {
+                    return;
+                }
+
+                c.emit('add', existing);
+                c.emit('update:selected', [...p.selected, existing]);
+                return;
+            }
 
             if (p.createFactory == null) {
                 throw Error('Cannot create. No factory to instantiate new values passed');
@@ -76,22 +94,18 @@ export default defineComponent({
         };
 
         const onSelect = (opt: any) => {
-            c.emit('add', opt);
-            c.emit('update:selected', [...p.selected, opt]);
+            if (opt.id === '') {
+                const newOpt = p.createFactory!(input.value);
+
+                c.emit('add', newOpt);
+                c.emit('update:selected', [...p.selected, newOpt]);
+            } else {
+                c.emit('add', opt);
+                c.emit('update:selected', [...p.selected, opt]);
+            }
+
+            formRef.value.resetForm(); // This also removes any errors
         };
-
-        // const onAdd = () => {
-        //     const actualValue = p.values.find((val: any) => val.value === input.value);
-
-        //     if (actualValue == null) {
-        //         return;
-        //     }
-
-        //     formRef.value.resetForm(); // This also removes any errors
-
-        //     c.emit('add', actualValue);
-        //     c.emit('update:selected', [...p.selected, actualValue]);
-        // };
 
         const onRemove = (item: any) => {
             c.emit('remove', item);
