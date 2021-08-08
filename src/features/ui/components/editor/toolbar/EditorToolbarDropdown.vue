@@ -1,7 +1,7 @@
 <template>
     <Dropdown :active="active" @update:active="onActiveUpdate">
         <template #trigger="{toggle}">
-            <IconButton :icon="icon" size="is-size-6" class="p-3" @click="toggle" :isHovered="active" />
+            <IconButton :icon="icon" size="is-size-6" class="px-3 py-0" @click="toggle" :isHovered="active" />
         </template>
 
         <template #content>

@@ -1,41 +1,40 @@
 <template>
     <div
-        class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center is-justify-content-space-between"
+        class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center is-justify-content-space-between editor-toolbar"
     >
         <div class="is-flex is-align-center">
-            <div class="buttons has-addons mb-0 mx-1">
+            <div class="mb-0 ">
                 <IconButton
                     id="editButton"
+                    class="px-3 py-0"
                     icon="fa-edit"
-                    class="p-3"
                     size="is-size-6"
-                    v-show="mode != 'split'"
                     @click="toggleMode"
                     v-shortcut:editorToggleMode="toggleMode"
                 />
-
                 <IconButton
                     id="saveButton"
+                    class="px-3 py-0"
+                    :disabled="mode !== 'edit'"
                     icon="fa-save"
-                    class="p-3"
                     size="is-size-6"
-                    v-show="mode !== 'readonly'"
                     @click="() => saveTab(note.id)"
                     v-shortcut:editorSave="() => saveTab(note.id)"
                 />
             </div>
 
-            <div class="buttons has-addons mb-0 mx-1">
+            <div class="mb-0">
                 <EditorToolbarNotebooksDropdown />
 
                 <EditorToolbarTagsDropdown />
 
                 <IconButton
                     id="favoriteButton"
+                    class="px-3 py-0"
                     :title="note.favorited ? 'Remove note from favorites' : 'Add note to favorites'"
                     icon="fa-star"
                     size="is-size-6"
-                    :class="['has-text-hover-warning', 'p-3', { 'has-text-warning': note.favorited }]"
+                    :class="['has-text-hover-warning', { 'has-text-warning': note.favorited }]"
                     @click="onFavoriteClick"
                 />
             </div>
@@ -44,10 +43,10 @@
         <div>
             <IconButton
                 id="deleteButton"
+                class="px-3 py-0 has-text-hover-danger"
                 title="Delete"
                 icon="fa-trash"
                 size="is-size-6"
-                class="p-3 has-text-hover-danger"
                 @click="deleteActiveNote"
             />
         </div>
@@ -95,3 +94,9 @@ export default defineComponent({
     }
 });
 </script>
+
+<style lang="sass">
+.editor-toolbar
+    button
+        height: 30px!important
+</style>
