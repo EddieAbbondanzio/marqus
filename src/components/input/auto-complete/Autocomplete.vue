@@ -1,5 +1,5 @@
 <template>
-    <Dropdown :items="matches()">
+    <Dropdown :items="matches()" v-model:active="isActive">
         <template #trigger="{focus, blur}">
             <input
                 class="input is-small"
@@ -15,7 +15,9 @@
         </template>
 
         <template #item="{item, index }">
-            <DropdownItem :value="item.id" :active="keyboardIndex === index">{{ item.value }}</DropdownItem>
+            <AutocompleteItem :value="item.id" :active="keyboardIndex === index" @click="onSelect(item)">{{
+                item.value
+            }}</AutocompleteItem>
         </template>
     </Dropdown>
 </template>
@@ -23,13 +25,14 @@
 <script lang="ts">
 import { computed, defineComponent, Ref, ref, watch } from 'vue';
 import Dropdown from '@/components/dropdown/Dropdown.vue';
-import DropdownItem from '@/components/dropdown/DropdownItem.vue';
 import { isBlank } from '@/shared/utils';
-import DropdownMenu from '@/components/dropdown/DropdownMenu.vue';
+import AutocompleteItem from '@/components/input/auto-complete/AutocompleteItem.vue';
 
 export default defineComponent({
     setup(p, c) {
         const inputRef = ref<HTMLInputElement>(null!);
+
+        const isActive = ref(false);
 
         // Method because computed prop wasn't updating on change
         const matches = () => {
@@ -49,13 +52,12 @@ export default defineComponent({
         };
 
         const onInput = (e: any) => {
-            c.emit('update:value', inputRef.value.value);
             keyboardIndex.value = -1;
+            c.emit('update:value', inputRef.value.value);
         };
 
-        const onSelect = (option: any) => {
-            c.emit('update:value', option.value);
-            c.emit('select', option);
+        const onSelect = (value: any) => {
+            c.emit('select', value);
         };
 
         const keyboardIndex = ref(-1);
@@ -91,6 +93,7 @@ export default defineComponent({
         };
 
         return {
+            isActive,
             matches,
             keyboardIndex,
             onSelect,
@@ -117,7 +120,7 @@ export default defineComponent({
         }
     },
     emits: ['update:value', 'focus', 'blur', 'select'],
-    components: { Dropdown, DropdownItem }
+    components: { Dropdown, AutocompleteItem }
 });
 </script>
 

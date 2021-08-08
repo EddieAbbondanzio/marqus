@@ -21,11 +21,8 @@
                             :value="field.value"
                             @update:value="field['onUpdate:modelValue']"
                             :values="unusedValues"
+                            @select="onSelect"
                         >
-                            <template #item="{ item }">
-                                <AutocompleteItem :value="item.id">{{ item.value }}</AutocompleteItem>
-                            </template>
-
                             <template #dropdown v-if="meta.dirty && !meta.valid">
                                 <ErrorMessage :name="inputName" v-slot="{ message }" v-if="meta.dirty">
                                     <div
@@ -42,16 +39,6 @@
                             </template>
                         </Autocomplete>
                     </Field>
-
-                    <!-- <ErrorMessage :name="inputName" v-slot="{ message }" v-if="meta.dirty">
-                        <div id="errorMessage" class="notification is-danger p-1 is-flex is-align-center">
-                            <span class="icon is-small">
-                                <i class="fas fa-exclamation"></i>
-                            </span>
-
-                            <span class="is-size-7 pr-2"> {{ message }} </span>
-                        </div>
-                    </ErrorMessage> -->
                 </Form>
             </li>
         </ul>
@@ -64,7 +51,6 @@ import { computed, defineComponent, Ref, ref } from 'vue';
 import Autocomplete from '@/components/input/auto-complete/Autocomplete.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
 import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-compare';
-import AutocompleteItem from '@/components/input/auto-complete/AutocompleteItem.vue';
 // import Icon from '@/components/elements/Icon.vue';
 
 export default defineComponent({
@@ -75,6 +61,7 @@ export default defineComponent({
         const formRef: Ref<HTMLFormElement> = ref(null!);
 
         const onSubmit = () => {
+            console.log('submit!');
             // Determine if it's a create, or add existing.
 
             if (p.createFactory == null) {
@@ -88,18 +75,23 @@ export default defineComponent({
             c.emit('update:selected', [...p.selected, newValue]);
         };
 
-        const onAdd = () => {
-            const actualValue = p.values.find((val: any) => val.value === input.value);
-
-            if (actualValue == null) {
-                return;
-            }
-
-            formRef.value.resetForm(); // This also removes any errors
-
-            c.emit('add', actualValue);
-            c.emit('update:selected', [...p.selected, actualValue]);
+        const onSelect = (opt: any) => {
+            c.emit('add', opt);
+            c.emit('update:selected', [...p.selected, opt]);
         };
+
+        // const onAdd = () => {
+        //     const actualValue = p.values.find((val: any) => val.value === input.value);
+
+        //     if (actualValue == null) {
+        //         return;
+        //     }
+
+        //     formRef.value.resetForm(); // This also removes any errors
+
+        //     c.emit('add', actualValue);
+        //     c.emit('update:selected', [...p.selected, actualValue]);
+        // };
 
         const onRemove = (item: any) => {
             c.emit('remove', item);
@@ -114,11 +106,11 @@ export default defineComponent({
         return {
             sortedSelected,
             formRef,
-            onAdd,
             onSubmit,
+            onSelect,
+            onRemove,
             input,
-            unusedValues,
-            onRemove
+            unusedValues
         };
     },
     props: {
@@ -152,7 +144,7 @@ export default defineComponent({
         }
     },
     emits: ['update:selected', 'add', 'remove'],
-    components: { DeleteButton, Autocomplete, Field, Form, ErrorMessage, AutocompleteItem }
+    components: { DeleteButton, Autocomplete, Field, Form, ErrorMessage }
 });
 </script>
 

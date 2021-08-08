@@ -21,7 +21,7 @@
 <script lang="ts">
 import DropdownMenu from '@/components/dropdown/DropdownMenu.vue';
 import { climbDomHierarchy } from '@/shared/utils';
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
 import DropdownItem from '@/components/dropdown/DropdownItem.vue';
 
 export default defineComponent({
@@ -41,7 +41,9 @@ export default defineComponent({
 
         const toggle = (e: Event) => setIsActive(!isActive.value);
         const focus = (e: Event) => setIsActive(true);
-        const blur = (e: Event) => setIsActive(false);
+        const blur = (e: Event) => {
+            setIsActive(false);
+        };
 
         const listenForBlur = (e: MouseEvent) => {
             if (!isActive.value) {
@@ -49,21 +51,25 @@ export default defineComponent({
             }
 
             const isWithinMenu = climbDomHierarchy<boolean>(e.target as HTMLElement, {
-                match: (el) => el.classList.contains('dropdown-menu') || el.classList.contains('dropdown-trigger')
+                match: (el) =>
+                    el.classList.contains('dropdown-menu') ||
+                    el.classList.contains('dropdown-trigger') ||
+                    el.classList.contains('dropdown-item')
             });
 
             // User clicked outside of dropdown menu. Hide it.
             if (!isWithinMenu) {
+                console.log(e.target);
                 setIsActive(false);
             }
         };
 
         onMounted(() => {
-            window.addEventListener('click', listenForBlur);
+            window.addEventListener('mousedown', listenForBlur);
         });
 
         onBeforeUnmount(() => {
-            window.removeEventListener('click', listenForBlur);
+            window.removeEventListener('mousedown', listenForBlur);
         });
 
         const setIsActive = (v: boolean) => {

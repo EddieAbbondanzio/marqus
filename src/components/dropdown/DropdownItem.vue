@@ -1,5 +1,5 @@
 <template>
-    <a :class="classes">
+    <a :class="classes" @mousedown="onClick">
         <slot>{{ value }}</slot>
     </a>
 </template>
@@ -8,19 +8,24 @@
 import { computed, defineComponent } from 'vue';
 
 export default defineComponent({
-    setup(p) {
+    setup(p, c) {
         const classes = computed(() => ({
             'dropdown-item': true,
             'is-active': p.active
         }));
 
+        const onClick = () => {
+            c.emit('click', p.value);
+        };
+
         return {
-            classes
+            classes,
+            onClick
         };
     },
     props: {
         /**
-         * Display value
+         * Item identifier
          */
         value: String,
         /**
@@ -30,6 +35,7 @@ export default defineComponent({
             type: Boolean,
             default: false
         }
-    }
+    },
+    emits: ['click']
 });
 </script>
