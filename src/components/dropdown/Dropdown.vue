@@ -6,7 +6,7 @@
 
         <slot name="menu">
             <DropdownMenu>
-                <slot name="content">
+                <slot name="content" :items="items">
                     <div v-for="(item, i) in items" :key="item.id">
                         <slot name="item" :index="i" :item="item">
                             <DropdownItem :value="item" />

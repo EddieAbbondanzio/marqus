@@ -11,7 +11,8 @@
                 @add="onAdd"
                 @remove="onRemove"
                 v-focusable:tagListBuilder.hidden="{ querySelector: 'input' }"
-            />
+            >
+            </ListBuilder>
         </template>
     </EditorToolbarDropdown>
 </template>

@@ -9,16 +9,20 @@
                 @blur="blur"
                 @keyup="onKeyUp"
                 @input="onInput"
-                :value="value"
+                :value="modelValue"
                 :placeholder="placeholder"
             />
         </template>
 
-        <template #item="{item, index }">
+        <template #content="{ items }">
             <slot name="dropdown">
-                <AutocompleteItem :value="item.id" :active="keyboardIndex === index" @click="onSelect(item)">{{
-                    item.value
-                }}</AutocompleteItem>
+                <div v-for="(item, index) in items" :key="item.id">
+                    <slot name="item" :item="item" :index="index">
+                        <AutocompleteItem :value="item.id" :active="keyboardIndex === index" @click="onSelect(item)">{{
+                            item.value
+                        }}</AutocompleteItem>
+                    </slot>
+                </div>
             </slot>
         </template>
     </Dropdown>
@@ -55,7 +59,7 @@ export default defineComponent({
 
         const onInput = (e: any) => {
             keyboardIndex.value = -1;
-            c.emit('update:value', inputRef.value.value);
+            c.emit('update:modelValue', inputRef.value.value);
         };
 
         const onSelect = (value: any) => {
@@ -111,7 +115,7 @@ export default defineComponent({
             type: Array,
             required: true
         },
-        value: {
+        modelValue: {
             type: String,
             required: true
         },
@@ -123,7 +127,7 @@ export default defineComponent({
             default: false
         }
     },
-    emits: ['update:value', 'focus', 'blur', 'select'],
+    emits: ['update:modelValue', 'focus', 'blur', 'select'],
     components: { Dropdown, AutocompleteItem }
 });
 </script>

@@ -15,11 +15,11 @@
                     @submit="onSubmit"
                     class="is-flex is-flex-column is-justify-center is-relative"
                 >
-                    <Field :name="inputName" v-model="input" v-slot="{ field }" :rules="rules">
+                    <InputField :label="inputName" :hideLabel="true" v-model="input" v-slot="{ field }" :rules="rules">
                         <Autocomplete
                             :placeholder="inputPlaceholder"
-                            :value="field.value"
-                            @update:value="field['onUpdate:modelValue']"
+                            :modelValue="field.value"
+                            @update:modelValue="field['onUpdate:modelValue']"
                             :values="unusedValues"
                             @select="onSelect"
                         >
@@ -38,7 +38,7 @@
                                 </ErrorMessage>
                             </template>
                         </Autocomplete>
-                    </Field>
+                    </InputField>
                 </Form>
             </li>
         </ul>
@@ -51,6 +51,7 @@ import { computed, defineComponent, Ref, ref } from 'vue';
 import Autocomplete from '@/components/input/auto-complete/Autocomplete.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
 import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-compare';
+import InputField from '@/components/input/InputField.vue';
 // import Icon from '@/components/elements/Icon.vue';
 
 export default defineComponent({
@@ -158,7 +159,7 @@ export default defineComponent({
         }
     },
     emits: ['update:selected', 'add', 'remove'],
-    components: { DeleteButton, Autocomplete, Field, Form, ErrorMessage }
+    components: { DeleteButton, Autocomplete, Form, ErrorMessage, InputField }
 });
 </script>
 
