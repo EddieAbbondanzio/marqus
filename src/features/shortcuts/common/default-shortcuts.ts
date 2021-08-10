@@ -7,5 +7,7 @@ export const DEFAULT_SHORTCUTS: ReadonlyArray<Shortcut> = [
     new Shortcut('editorToggleMode', [KeyCode.Control, KeyCode.LetterE]),
     new Shortcut('editorToggleSplitView', [KeyCode.Control, KeyCode.Alt, KeyCode.LetterS]),
     new Shortcut('undo', [KeyCode.Control, KeyCode.LetterZ]),
-    new Shortcut('redo', [KeyCode.Control, KeyCode.LetterY])
+    new Shortcut('redo', [KeyCode.Control, KeyCode.LetterY]),
+    new Shortcut('up', [KeyCode.ArrowUp]),
+    new Shortcut('down', [KeyCode.ArrowDown])
 ];

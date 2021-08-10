@@ -25,6 +25,14 @@
                                 :values="unusedValues"
                                 @select="(tag) => onSubmit(add, tag)"
                             >
+                                <template #empty>
+                                    <div class="m-2 is-flex is-align-items-center is-justify-content-center">
+                                        <span class="is-size-7"
+                                            >Tags are a great way to organize your notes into categories or themes</span
+                                        >
+                                    </div>
+                                </template>
+
                                 <template #dropdown v-if="meta.dirty && !meta.valid">
                                     <ErrorMessage name="Tag" v-slot="{ message }">
                                         <div

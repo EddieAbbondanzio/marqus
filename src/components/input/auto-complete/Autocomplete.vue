@@ -16,6 +16,10 @@
 
         <template #content="{ items }">
             <slot name="dropdown">
+                <div v-if="items.length == 0">
+                    <slot name="empty"></slot>
+                </div>
+
                 <div v-for="(item, index) in items" :key="item.id">
                     <slot name="item" :item="item" :index="index">
                         <AutocompleteItem :value="item.id" :active="keyboardIndex === index" @click="onSelect(item)">{{
