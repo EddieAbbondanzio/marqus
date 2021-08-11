@@ -5,6 +5,8 @@
         v-model="width"
         minWidth="160px"
         v-context-menu:globalNavigation
+        v-shortcut:globalNavigationSetHighlightActive="setHighlightActive"
+        v-shortcut:globalNavigationClearHighlight="clearHighlight"
         v-shortcut:globalNavigationMoveHighlightUp="moveHighlightUp"
         v-shortcut:globalNavigationMoveHighlightDown="moveHighlightDown"
     >
@@ -82,7 +84,17 @@ export default defineComponent({
             set: globalNav.actions.setWidth
         });
 
+        const setHighlightActive = () => {
+            if (globalNav.state.highlight == null) {
+                return;
+            }
+
+            globalNav.actions.setActive(globalNav.state.highlight);
+        };
+
         return {
+            setHighlightActive,
+            clearHighlight: () => globalNav.actions.clearHighlight(),
             moveHighlightUp: () => globalNav.actions.moveHighlightUp(),
             moveHighlightDown: () => globalNav.actions.moveHighlightDown(),
             width,

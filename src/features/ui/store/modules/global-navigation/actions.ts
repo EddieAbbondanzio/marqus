@@ -39,6 +39,10 @@ export class GlobalNavigationActions extends Actions<
         this.commit('SET_ACTIVE', { value: a });
     }
 
+    clearHighlight() {
+        this.commit('SET_HIGHLIGHT', { value: undefined! });
+    }
+
     moveHighlightUp() {
         const next = this.getters.previousItem();
         this.commit('SET_HIGHLIGHT', { value: next });

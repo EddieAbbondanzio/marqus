@@ -17,5 +17,7 @@ export const DEFAULT_SHORTCUTS: ReadonlyArray<Shortcut> = [
     new Shortcut('undo', [KeyCode.Control, KeyCode.LetterZ]),
     new Shortcut('redo', [KeyCode.Control, KeyCode.LetterY]),
     new Shortcut('globalNavigationMoveHighlightUp', up, isFocused('globalNavigation')),
-    new Shortcut('globalNavigationMoveHighlightDown', down, isFocused('globalNavigation'))
+    new Shortcut('globalNavigationMoveHighlightDown', down, isFocused('globalNavigation')),
+    new Shortcut('globalNavigationClearHighlight', [KeyCode.Escape], isFocused('globalNavigation')),
+    new Shortcut('globalNavigationSetHighlightActive', [KeyCode.Enter], isFocused('globalNavigation'))
 ];
