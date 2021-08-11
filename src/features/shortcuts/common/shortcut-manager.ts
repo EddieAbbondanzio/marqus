@@ -38,9 +38,7 @@ export class ShortcutManager {
                 // Notify the listeners for the shortcut.
                 if (subsToNotify != null) {
                     for (const sub of subsToNotify) {
-                        if (sub.when == null || sub.when()) {
-                            sub.notify();
-                        }
+                        sub.notify();
                     }
                 }
             }
@@ -60,12 +58,8 @@ export class ShortcutManager {
         }
     }
 
-    subscribe(
-        shortcutName: string,
-        callback: ShortcutCallback,
-        { el, when }: { el?: HTMLElement; when?: () => boolean } = {}
-    ): ShortcutSubscriber {
-        const sub = new ShortcutSubscriber(shortcutName, callback, el, when);
+    subscribe(shortcutName: string, callback: ShortcutCallback, { el }: { el?: HTMLElement } = {}): ShortcutSubscriber {
+        const sub = new ShortcutSubscriber(shortcutName, callback, el);
 
         if (this.subscribers[shortcutName] == null) {
             this.subscribers[shortcutName] = [sub];

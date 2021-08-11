@@ -7,6 +7,8 @@ export interface Notebook extends Entity {
     expanded?: boolean;
 }
 
+export const NOTEBOOK_NAME_MAX_LENGTH = 64;
+
 /**
  * Recursively iterate notebooks and rebuilt their .parent references.
  * @param notebook The notebook to start at
@@ -39,4 +41,16 @@ export function killNotebookParentReferences(notebook: Notebook) {
 
         killNotebookParentReferences(child);
     }
+}
+
+export function fullyQualify(notebook: Notebook): string {
+    const arr = [];
+    let n: Notebook | undefined = notebook;
+
+    while (n != null) {
+        arr.unshift(n.value);
+        n = n.parent;
+    }
+
+    return arr.join('/');
 }

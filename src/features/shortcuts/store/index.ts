@@ -6,7 +6,6 @@ import { createComposable, Module } from 'vuex-smart-module';
 import { ShortcutActions } from '@/features/shortcuts/store/actions';
 import { ShortcutMutations } from '@/features/shortcuts/store/mutations';
 import { ShortcutGetters } from '@/features/shortcuts/store/getters';
-import { undo } from '@/store/plugins/undo';
 
 export const shortcuts = new Module({
     namespaced: true,
@@ -27,17 +26,21 @@ persist.register({
 
 export function transformer(state: ShortcutState): any {
     return {
-        values: state.values.filter((s) => s.isUserDefined).map((s) => ({ name: s.name, keys: s.toString() }))
+        values: state.values.filter((s) => s.wasOverrided).map((s) => ({ name: s.name, keys: s.toString() }))
     };
 }
 
 export function reviver(state: { values: { name: string; keys: string }[] }): ShortcutState {
-    const shortcuts = state.values.map((s) => shortcutFromString(s.name, s.keys, true));
+    const overrides = state.values.map((s) => shortcutFromString(s.name, s.keys, true));
+    const shortcuts = Array.from(DEFAULT_SHORTCUTS);
 
     // Check if any default shortcuts were overrided.
-    for (const defaultSC of DEFAULT_SHORTCUTS) {
-        const overridedSC = shortcuts.find((s) => s.name === defaultSC.name);
-        shortcuts.push(overridedSC ?? defaultSC);
+    for (const defaultSC of shortcuts) {
+        const overridedSC = overrides.find((s) => s.name === defaultSC.name);
+
+        if (overridedSC != null) {
+            defaultSC.override(overridedSC.keys);
+        }
     }
 
     // TODO: Add support for custom shortcuts that the user creates, and don't have defaults.

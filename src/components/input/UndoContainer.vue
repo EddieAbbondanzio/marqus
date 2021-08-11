@@ -1,6 +1,6 @@
 <template>
     <div
-        class="is-flex is-flex-column is-flex-grow-1"
+        class="is-flex is-flex-column is-flex-grow-1 has-h-100"
         v-focusable:[focusName].hidden
         v-shortcut:undo="onUndo"
         v-shortcut:redo="onRedo"

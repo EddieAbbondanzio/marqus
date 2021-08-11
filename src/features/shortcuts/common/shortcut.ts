@@ -1,12 +1,46 @@
+import { focusManager } from '@/directives/focusable';
 import { isModifier, isValidKeyCode, KeyCode } from '@/features/shortcuts/common/key-code';
 import _, { trim } from 'lodash';
 
 export const SHORTCUT_STRING_DELIMITER = '+';
 
 export class Shortcut {
-    public readonly keys: ReadonlyArray<KeyCode>;
+    get keys(): ReadonlyArray<KeyCode> {
+        return this._keys;
+    }
 
-    constructor(public name: string, keys: ReadonlyArray<KeyCode>, public isUserDefined = false) {
+    public wasOverrided = false;
+
+    private _keys: KeyCode[];
+
+    constructor(public name: string, keys: ReadonlyArray<KeyCode>, public when?: () => boolean) {
+        this._keys = this._sortKeys(keys);
+    }
+
+    override(keys: ReadonlyArray<KeyCode>) {
+        this._keys = this._sortKeys(keys);
+        this.wasOverrided = true;
+    }
+
+    isMatch(activeKeys: KeyCode[]) {
+        // Check for the same amount of keys first
+        if (activeKeys.length !== this.keys.length) {
+            return false;
+        }
+
+        if (this.when != null && !this.when()) {
+            return;
+        }
+
+        // XOR will return elements in one, but not the other. So if we have none returned we have a match!
+        return _.xor(this.keys, activeKeys).length === 0;
+    }
+
+    toString() {
+        return this.keys.join(SHORTCUT_STRING_DELIMITER);
+    }
+
+    _sortKeys(keys: ReadonlyArray<KeyCode>): KeyCode[] {
         if (keys.length === 0) {
             throw Error('Shortcut must have at least 1 key');
         }
@@ -44,27 +78,8 @@ export class Shortcut {
         // Add the rest of the keys. These can be in any order.
         shortcutKeys.push(...normalKeys);
 
-        this.keys = shortcutKeys;
+        return shortcutKeys;
     }
-
-    isMatch(activeKeys: KeyCode[]) {
-        // Check for the same amount of keys first
-        if (activeKeys.length !== this.keys.length) {
-            return false;
-        }
-
-        // XOR will return elements in one, but not the other. So if we have none returned we have a match!
-        return _.xor(this.keys, activeKeys).length === 0;
-    }
-
-    toString() {
-        return this.keys.join(SHORTCUT_STRING_DELIMITER);
-    }
-
-    /*
-     * STOP! Don't write any methods that will manipulate the object itself because this class
-     * is used within Vuex, and will throw errors.
-     */
 }
 
 /**
@@ -87,5 +102,5 @@ export function shortcutFromString(name: string, shortcutString: string, isUserD
         keys.push(trimmedKey);
     }
 
-    return new Shortcut(name, keys, isUserDefined);
+    return new Shortcut(name, keys);
 }

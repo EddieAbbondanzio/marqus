@@ -1,4 +1,4 @@
-import { fixNotebookParentReferences, Notebook } from '@/features/notebooks/common/notebook';
+import { fixNotebookParentReferences, fullyQualify, Notebook } from '@/features/notebooks/common/notebook';
 
 describe('fixNotebookParentReferences()', () => {
     it('can handle null children', () => {
@@ -36,5 +36,28 @@ describe('fixNotebookParentReferences()', () => {
         fixNotebookParentReferences(n);
         expect(n.children![0].parent).toBe(n);
         expect(n.children![1].parent).toBe(n);
+    });
+});
+
+describe('fullyQualify()', () => {
+    it('returns root', () => {
+        const n = {
+            value: 'name'
+        };
+
+        expect(fullyQualify(n as any)).toBe('name');
+    });
+
+    it('returns nested', () => {
+        const parent = {
+            value: 'parent'
+        };
+
+        const child = {
+            value: 'child',
+            parent
+        };
+
+        expect(fullyQualify(child as any)).toBe('parent/child');
     });
 });

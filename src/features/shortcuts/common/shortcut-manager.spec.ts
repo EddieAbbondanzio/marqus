@@ -62,48 +62,6 @@ describe('ShortcutManager', () => {
             expect(callback2).toHaveBeenCalledTimes(1);
             m.dispose();
         });
-
-        it('wont notify subscriber unless when is true', () => {
-            const m = new ShortcutManager();
-            const shortcut = new Shortcut('test', [KeyCode.Space, KeyCode.LetterA]);
-            m.shortcuts.push(shortcut);
-
-            const callback1 = jest.fn();
-            const callback2 = jest.fn();
-            m.subscribe('test', callback1, { when: () => false });
-            m.subscribe('test', callback2);
-
-            const e1 = new KeyboardEvent('keydown', { code: 'Space' });
-            m._onKeyDown(e1);
-
-            const e2 = new KeyboardEvent('keydown', { code: 'KeyA' });
-            m._onKeyDown(e2);
-
-            expect(callback1).toHaveBeenCalledTimes(0);
-            expect(callback2).toHaveBeenCalledTimes(1);
-            m.dispose();
-        });
-
-        it('notifies all subscribers that match and when is true', () => {
-            const m = new ShortcutManager();
-            const shortcut = new Shortcut('test', [KeyCode.Space, KeyCode.LetterA]);
-            m.shortcuts.push(shortcut);
-
-            const callback1 = jest.fn();
-            const callback2 = jest.fn();
-            m.subscribe('test', callback1, { when: () => true });
-            m.subscribe('test', callback2);
-
-            const e1 = new KeyboardEvent('keydown', { code: 'Space' });
-            m._onKeyDown(e1);
-
-            const e2 = new KeyboardEvent('keydown', { code: 'KeyA' });
-            m._onKeyDown(e2);
-
-            expect(callback1).toHaveBeenCalledTimes(1);
-            expect(callback2).toHaveBeenCalledTimes(1);
-            m.dispose();
-        });
     });
 
     describe('_onKeyUp()', () => {

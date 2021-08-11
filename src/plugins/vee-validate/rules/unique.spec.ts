@@ -13,23 +13,23 @@ describe('unique()', () => {
         expect(res).toBeTruthy();
     });
 
-    it('returns false if match based off unique property was found', () => {
-        const values = [
-            { id: '1', value: 'cat' },
-            { id: '2', value: 'dog' },
-            { id: '3', value: 'horse' }
-        ];
+    // it('returns false if match based off unique property was found', () => {
+    //     const values = [
+    //         { id: '1', value: 'cat' },
+    //         { id: '2', value: 'dog' },
+    //         { id: '3', value: 'horse' }
+    //     ];
 
-        var res = unique('dog', [
-            () => values,
-            (v) => v.id,
-            (v) => v.value,
-            () => ({
-                id: 35
-            })
-        ]);
-        expect(res).toBeFalsy();
-    });
+    //     var res = unique('dog', [
+    //         () => values,
+    //         (v) => v.id,
+    //         (v) => v.value,
+    //         () => ({
+    //             id: 35
+    //         })
+    //     ]);
+    //     expect(res).toBeFalsy();
+    // });
 
     it('returns true if no match was found', () => {
         const values = [

@@ -5,6 +5,8 @@
         v-model="width"
         minWidth="160px"
         v-context-menu:globalNavigation
+        v-shortcut:globalNavigationMoveSelectionUp="onMoveSelectionUp"
+        v-shortcut:globalNavigationMoveSelectionDown="onMoveSelectionDown"
     >
         <UndoContainer undoName="globalNavigation" focusName="globalNavigation">
             <NavigationMenuList>
@@ -78,7 +80,17 @@ export default defineComponent({
             set: globalNav.actions.setWidth
         });
 
+        const onMoveSelectionUp = () => {
+            console.log('up!');
+        };
+
+        const onMoveSelectionDown = () => {
+            console.log('down!');
+        };
+
         return {
+            onMoveSelectionUp,
+            onMoveSelectionDown,
             width,
             isActive: computed(() => globalNav.getters.isActive),
             expandAll: globalNav.actions.expandAll,

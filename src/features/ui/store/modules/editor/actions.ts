@@ -10,16 +10,19 @@ import { Store } from 'vuex';
 import { undo, UndoGrouper } from '@/store/plugins/undo';
 import { tags } from '@/features/tags/store';
 import { generateId } from '@/store';
+import { notebooks } from '@/features/notebooks/store';
 
 export class EditorActions extends Actions<EditorState, EditorGetters, EditorMutations, EditorActions> {
     notes!: Context<typeof notes>;
     tags!: Context<typeof tags>;
+    notebooks!: Context<typeof notebooks>;
 
     group!: UndoGrouper;
 
     $init(store: Store<any>) {
         this.notes = notes.context(store);
         this.tags = tags.context(store);
+        this.notebooks = notebooks.context(store);
         this.group = undo.generateGrouper('editor');
     }
 
@@ -32,6 +35,20 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
                 },
                 redoCallback: (m) => {
                     this.tags.commit('CREATE', { value: m.payload.value });
+                }
+            }
+        });
+    }
+
+    createNotebook(n: { id: string; value: string }) {
+        this.notebooks.commit('CREATE', {
+            value: n,
+            _undo: {
+                undoCallback: (m) => {
+                    this.notebooks.commit('DELETE', { value: m.payload.value.id });
+                },
+                redoCallback: (m) => {
+                    this.notebooks.commit('CREATE', { value: m.payload.value });
                 }
             }
         });
