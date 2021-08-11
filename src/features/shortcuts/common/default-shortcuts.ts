@@ -16,6 +16,6 @@ export const DEFAULT_SHORTCUTS: ReadonlyArray<Shortcut> = [
     new Shortcut('editorToggleSplitView', [KeyCode.Control, KeyCode.Alt, KeyCode.LetterS]),
     new Shortcut('undo', [KeyCode.Control, KeyCode.LetterZ]),
     new Shortcut('redo', [KeyCode.Control, KeyCode.LetterY]),
-    new Shortcut('globalNavigationMoveSelectionUp', up, isFocused('globalNavigation')),
-    new Shortcut('globalNavigationMoveSelectionDown', down, isFocused('globalNavigation'))
+    new Shortcut('globalNavigationMoveHighlightUp', up, isFocused('globalNavigation')),
+    new Shortcut('globalNavigationMoveHighlightDown', down, isFocused('globalNavigation'))
 ];

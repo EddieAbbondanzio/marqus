@@ -4,6 +4,14 @@ import { Getters } from 'vuex-smart-module';
 import { TagState } from './state';
 
 export class TagGetters extends Getters<TagState> {
+    first() {
+        return this.state.values[0];
+    }
+
+    last() {
+        return this.state.values[this.state.values.length - 1];
+    }
+
     tagsForNote(note: Note) {
         if (note == null) {
             return [];
@@ -34,5 +42,25 @@ export class TagGetters extends Getters<TagState> {
         }
 
         return tag;
+    }
+
+    getPrevious(id: string) {
+        const index = this.state.values.findIndex((t) => t.id === id);
+
+        if (index <= 0) {
+            return null;
+        }
+
+        return this.state.values[index - 1];
+    }
+
+    getNext(id: string) {
+        const index = this.state.values.findIndex((t) => t.id === id);
+
+        if (index >= this.state.values.length - 1) {
+            return null;
+        }
+
+        return this.state.values[index + 1];
     }
 }

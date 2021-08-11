@@ -2,7 +2,7 @@ import { generateId } from '@/store';
 import { Notebook } from '@/features/notebooks/common/notebook';
 import { Tag } from '@/features/tags/common/tag';
 import { Action, ActionContext, ActionTree, Store } from 'vuex';
-import { GlobalNavigationState, GlobalNavigationActive } from './state';
+import { GlobalNavigationState, GlobalNavigationItem } from './state';
 import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
 import { undo } from '@/store/plugins/undo/undo';
 import { confirmDelete, confirmReplaceNotebook } from '@/shared/utils';
@@ -35,8 +35,18 @@ export class GlobalNavigationActions extends Actions<
         this.group = undo.generateGrouper('globalNavigation');
     }
 
-    setActive(a: GlobalNavigationActive) {
+    setActive(a: GlobalNavigationItem) {
         this.commit('SET_ACTIVE', { value: a });
+    }
+
+    moveHighlightUp() {
+        const next = this.getters.previousItem();
+        this.commit('SET_HIGHLIGHT', { value: next });
+    }
+
+    moveHighlightDown() {
+        const next = this.getters.nextItem();
+        this.commit('SET_HIGHLIGHT', { value: next });
     }
 
     setWidth(width: string) {

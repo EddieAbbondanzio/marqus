@@ -4,6 +4,7 @@
         v-if="!isNotebookBeingUpdated(modelValue.id)"
         :label="modelValue.value"
         :active="isActive({ id: modelValue.id, section: 'notebook' })"
+        :highlight="isHighlighted({ id: modelValue.id, section: 'notebook' })"
         :expanded="modelValue.expanded"
         @update:expanded="(v) => (expanded = v)"
         :hideToggle="modelValue.children == null && !isNotebookBeingCreated(modelValue.id)"
@@ -169,7 +170,8 @@ export default defineComponent({
             confirm: computed(() => globalNav.actions.notebookInputConfirm),
             cancel: computed(() => globalNav.actions.notebookInputCancel),
             setActive: globalNav.actions.setActive,
-            notebookDragCancel: globalNav.actions.notebookDragCancel
+            notebookDragCancel: globalNav.actions.notebookDragCancel,
+            isHighlighted: computed(() => globalNav.getters.isHighlighted)
         };
     },
     components: { NavigationMenuForm, NavigationMenuItem }

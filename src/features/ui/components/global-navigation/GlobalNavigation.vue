@@ -5,8 +5,8 @@
         v-model="width"
         minWidth="160px"
         v-context-menu:globalNavigation
-        v-shortcut:globalNavigationMoveSelectionUp="onMoveSelectionUp"
-        v-shortcut:globalNavigationMoveSelectionDown="onMoveSelectionDown"
+        v-shortcut:globalNavigationMoveHighlightUp="moveHighlightUp"
+        v-shortcut:globalNavigationMoveHighlightDown="moveHighlightDown"
     >
         <UndoContainer undoName="globalNavigation" focusName="globalNavigation">
             <NavigationMenuList>
@@ -14,6 +14,7 @@
                     icon="file-alt"
                     label="ALL"
                     :active="isActive({ section: 'all' })"
+                    :highlight="isHighlighted({ section: 'all' })"
                     @click="setActive({ section: 'all' })"
                     :hideToggle="true"
                 >
@@ -43,6 +44,7 @@
                     icon="star"
                     label="FAVORITES"
                     :active="isActive({ section: 'favorites' })"
+                    :highlight="isHighlighted({ section: 'favorites' })"
                     @click="setActive({ section: 'favorites' })"
                 />
 
@@ -50,6 +52,7 @@
                     icon="trash"
                     label="TRASH"
                     :active="isActive({ section: 'trash' })"
+                    :highlight="isHighlighted({ section: 'trash' })"
                     @click="setActive({ section: 'trash' })"
                 />
             </NavigationMenuList>
@@ -58,9 +61,8 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onBeforeUnmount } from 'vue';
+import { computed, defineComponent } from 'vue';
 import Resizable from '@/components/layout/Resizable.vue';
-import { mapActions, mapGetters, useStore } from 'vuex';
 import GlobalNavigationTagSection from '@/features/ui/components/global-navigation/GlobalNavigationTagSection.vue';
 import GlobalNavigationNotebookSection from '@/features/ui/components/global-navigation/GlobalNavigationNotebookSection.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
@@ -80,19 +82,12 @@ export default defineComponent({
             set: globalNav.actions.setWidth
         });
 
-        const onMoveSelectionUp = () => {
-            console.log('up!');
-        };
-
-        const onMoveSelectionDown = () => {
-            console.log('down!');
-        };
-
         return {
-            onMoveSelectionUp,
-            onMoveSelectionDown,
+            moveHighlightUp: () => globalNav.actions.moveHighlightUp(),
+            moveHighlightDown: () => globalNav.actions.moveHighlightDown(),
             width,
             isActive: computed(() => globalNav.getters.isActive),
+            isHighlighted: computed(() => globalNav.getters.isHighlighted),
             expandAll: globalNav.actions.expandAll,
             collapseAll: globalNav.actions.collapseAll,
             setActive: globalNav.actions.setActive

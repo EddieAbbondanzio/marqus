@@ -1,5 +1,5 @@
 import { MutationTree } from 'vuex';
-import { GlobalNavigationState, GlobalNavigationActive } from '@/features/ui/store/modules/global-navigation/state';
+import { GlobalNavigationState, GlobalNavigationItem } from '@/features/ui/store/modules/global-navigation/state';
 import { Mutations } from 'vuex-smart-module';
 import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 
@@ -8,8 +8,12 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
         Object.assign(this.state, s);
     }
 
-    SET_ACTIVE(p: UndoPayload<GlobalNavigationActive>) {
+    SET_ACTIVE(p: UndoPayload<GlobalNavigationItem>) {
         this.state.active = p.value;
+    }
+
+    SET_HIGHLIGHT(p: UndoPayload<GlobalNavigationItem>) {
+        this.state.highlight = p.value;
     }
 
     SET_WIDTH(p: UndoPayload<string>) {

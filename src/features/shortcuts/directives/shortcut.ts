@@ -17,6 +17,7 @@ export const shortcut = {
         const value: ShortcutDirectiveValue = binding.value;
 
         if (value == null) {
+            console.error('Error: ', value);
             throw Error('No callback for the shortcut specified.');
         }
 

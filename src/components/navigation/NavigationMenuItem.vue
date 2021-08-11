@@ -6,7 +6,7 @@
                 'is-block': true,
                 'has-background-hover-light': true,
                 'no-drag': true,
-                'has-background-light': active
+                'has-background-light': active || highlight
             }"
             @click="onClick"
         >
@@ -77,6 +77,10 @@ export default defineComponent({
          * this is the active menu option
          */
         active: {
+            type: Boolean,
+            default: false
+        },
+        highlight: {
             type: Boolean,
             default: false
         },

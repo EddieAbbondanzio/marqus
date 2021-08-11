@@ -17,7 +17,7 @@
 
         <NavigationMenuForm
             id="global-navigation-tag-create-form"
-            v-if="isTagBeingCreated()"
+            v-if="isTagBeingCreated"
             @submit="confirm"
             @cancel="cancel"
             v-model="input"
@@ -32,6 +32,7 @@
                 v-if="!isTagBeingUpdated(tag.id)"
                 :label="tag.value"
                 :active="isActive({ id: tag.id, section: 'tag' })"
+                :highlight="isHighlighted({ id: tag.id, section: 'tag' })"
                 @click="() => setActive({ id: tag.id, section: 'tag' })"
                 :data-id="tag.id"
                 class="global-navigation-tag"
@@ -88,7 +89,8 @@ export default defineComponent({
             isTagBeingUpdated: computed(() => globalNav.getters.isTagBeingUpdated),
             isTagBeingCreated: computed(() => globalNav.getters.isTagBeingCreated),
             indentation: computed(() => globalNav.getters.indentation),
-            isActive: computed(() => globalNav.getters.isActive)
+            isActive: computed(() => globalNav.getters.isActive),
+            isHighlighted: computed(() => globalNav.getters.isHighlighted)
         };
     },
     components: { NavigationMenuItem, NavigationMenuForm, IconButton }

@@ -27,7 +27,7 @@ export interface GlobalNavigationTagSection {
     input?: GlobalNavigationTagInput;
 }
 
-export type GlobalNavigationActive =
+export type GlobalNavigationItem =
     | { section: 'all' | 'favorites' | 'trash' }
     | { section: 'notebook' | 'tag'; id: string };
 
@@ -42,7 +42,9 @@ export class GlobalNavigationState {
         expanded: false
     };
 
-    active: GlobalNavigationActive = {
+    active: GlobalNavigationItem = {
         section: 'all'
     };
+
+    highlight?: GlobalNavigationItem;
 }

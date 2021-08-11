@@ -73,7 +73,8 @@ export default defineComponent({
             isNotebookBeingDragged: computed(() => globalNav.getters.isNotebookBeingDragged),
             confirm: globalNav.actions.notebookInputConfirm,
             cancel: globalNav.actions.notebookInputCancel,
-            createNotebook: globalNav.actions.notebookInputStart
+            createNotebook: globalNav.actions.notebookInputStart,
+            isHighlighted: computed(() => globalNav.getters.isHighlighted)
         };
     },
     components: { GlobalNavigationNotebook, NavigationMenuForm, NavigationMenuItem, IconButton }
