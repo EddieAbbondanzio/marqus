@@ -1,5 +1,5 @@
 <template>
-    <NavigationMenuItem icon="book" label="NOTEBOOKS" v-model:expanded="expanded" :toggleAnywhere="true">
+    <NavigationMenuItem icon="book" label="NOTEBOOKS" v-model:expanded="expanded" :toggleAnywhere="true" :title="count">
         <template #options>
             <IconButton
                 icon="fa-plus"
@@ -74,7 +74,10 @@ export default defineComponent({
             confirm: globalNav.actions.notebookInputConfirm,
             cancel: globalNav.actions.notebookInputCancel,
             createNotebook: globalNav.actions.notebookInputStart,
-            isHighlighted: computed(() => globalNav.getters.isHighlighted)
+            isHighlighted: computed(() => globalNav.getters.isHighlighted),
+            count: computed(
+                () => `${notebooks.getters.count} ${notebooks.getters.count === 1 ? 'notebook' : 'notebooks'}`
+            )
         };
     },
     components: { GlobalNavigationNotebook, NavigationMenuForm, NavigationMenuItem, IconButton }

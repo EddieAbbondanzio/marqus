@@ -4,6 +4,10 @@ import { Getters } from 'vuex-smart-module';
 import { TagState } from './state';
 
 export class TagGetters extends Getters<TagState> {
+    get count() {
+        return this.state.values.length;
+    }
+
     first() {
         return this.state.values[0];
     }

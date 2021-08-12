@@ -6,6 +6,10 @@ import { Getters } from 'vuex-smart-module';
 import { NotebookState } from './state';
 
 export class NotebookGetters extends Getters<NotebookState> {
+    get count() {
+        return this.getters.flatten.length;
+    }
+
     /**
      * Flatten the tree structure of all the notebooks into a 1d array.
      */

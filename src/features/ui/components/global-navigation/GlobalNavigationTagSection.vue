@@ -3,6 +3,7 @@
         id="global-navigation-tag-section"
         icon="tag"
         label="TAGS"
+        :title="count"
         v-model:expanded="expanded"
         :toggleAnywhere="true"
     >
@@ -90,7 +91,8 @@ export default defineComponent({
             isTagBeingCreated: computed(() => globalNav.getters.isTagBeingCreated),
             indentation: computed(() => globalNav.getters.indentation),
             isActive: computed(() => globalNav.getters.isActive),
-            isHighlighted: computed(() => globalNav.getters.isHighlighted)
+            isHighlighted: computed(() => globalNav.getters.isHighlighted),
+            count: computed(() => `${tags.getters.count} ${tags.getters.count === 1 ? 'tag' : 'tags'}`)
         };
     },
     components: { NavigationMenuItem, NavigationMenuForm, IconButton }
