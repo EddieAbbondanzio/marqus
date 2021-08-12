@@ -2,7 +2,7 @@ import { Tag } from '@/features/tags/common/tag';
 import { isBlank } from '@/shared/utils';
 import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-compare';
 import { generateId } from '@/store';
-import { UndoPayload } from '@/store/plugins/undo';
+import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 import { Mutation, MutationTree } from 'vuex';
 import { Mutations } from 'vuex-smart-module';
 import { TagState } from './state';
@@ -44,6 +44,10 @@ export class TagMutations extends Mutations<TagState> {
         }
 
         this.state.values.splice(i, 1);
+    }
+
+    DELETE_ALL(payload: VoidUndoPayload) {
+        this.state.values.length = 0;
     }
 
     SORT() {

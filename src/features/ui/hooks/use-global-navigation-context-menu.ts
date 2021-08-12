@@ -58,6 +58,11 @@ export const useGlobalNavigationContextMenu = createContextMenuHook('globalNavig
             label: 'Delete Notebook',
             click: () => store.dispatch('ui/globalNavigation/notebookDelete', id)
         });
+
+        items.push({
+            label: 'Delete All Notebooks',
+            click: () => store.dispatch('ui/globalNavigation/notebookDeleteAll')
+        });
     }
 
     // if tag, offer option to delete
@@ -70,6 +75,11 @@ export const useGlobalNavigationContextMenu = createContextMenuHook('globalNavig
         items.push({
             label: 'Delete Tag',
             click: () => store.dispatch('ui/globalNavigation/tagDelete', id)
+        });
+
+        items.push({
+            label: 'Delete All Tags',
+            click: () => store.dispatch('ui/globalNavigation/tagDeleteAll')
         });
     }
 

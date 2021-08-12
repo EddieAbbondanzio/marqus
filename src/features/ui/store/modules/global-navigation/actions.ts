@@ -14,6 +14,7 @@ import { notebooks } from '@/features/notebooks/store';
 import { notes } from '@/features/notes/store';
 import { UndoGrouper } from '@/store/plugins/undo';
 import { NotebookCreate } from '@/features/notebooks/store/mutations';
+import _ from 'lodash';
 
 export class GlobalNavigationActions extends Actions<
     GlobalNavigationState,
@@ -88,7 +89,7 @@ export class GlobalNavigationActions extends Actions<
                         _undo: {
                             ..._undo,
                             undoCallback: (m) => {
-                                this.tags.commit('DELETE', { value: m.payload.value });
+                                this.tags.commit('DELETE', { value: m.payload.value.id });
                                 this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
                             },
                             redoCallback: (m) => {
@@ -156,7 +157,7 @@ export class GlobalNavigationActions extends Actions<
                         },
                         redoCallback: (m) => {
                             this.tags.commit('DELETE', {
-                                value: id
+                                value: m.payload._undo.cache.id
                             });
                             this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
                         }
@@ -178,6 +179,44 @@ export class GlobalNavigationActions extends Actions<
                             }),
                         redoCallback: (m) =>
                             this.notes.commit('REMOVE_TAG', { value: m.payload.value, _undo: { ignore: true } })
+                    }
+                });
+            });
+        }
+    }
+
+    async tagDeleteAll() {
+        if (await confirmDelete('every tag', '')) {
+            await this.group((_undo) => {
+                // Cache off tags
+                _undo.cache.tags = [];
+                for (const tag of this.tags.state.values) {
+                    _undo.cache.tags.push({
+                        id: tag.id,
+                        value: tag.value,
+                        noteIds: this.notes.getters.notesByTag(tag.id).map((n) => n.id)
+                    });
+                }
+
+                this.tags.commit('DELETE_ALL', {
+                    _undo: {
+                        ..._undo,
+                        undoCallback: (m) => {
+                            for (const tag of _undo.cache.tags) {
+                                this.tags.commit('CREATE', {
+                                    value: { id: tag.id, value: tag.value },
+                                    _undo: { ignore: true }
+                                });
+
+                                this.notes.commit('ADD_TAG', {
+                                    value: { noteId: tag.noteIds, tagId: tag.id },
+                                    _undo: { ignore: true }
+                                });
+                            }
+                        },
+                        redoCallback: (m) => {
+                            this.tags.commit('DELETE_ALL', { _undo: { ignore: true } });
+                        }
                     }
                 });
             });
@@ -363,6 +402,44 @@ export class GlobalNavigationActions extends Actions<
                             }),
                         redoCallback: (m) =>
                             this.notes.commit('REMOVE_NOTEBOOK', { value: m.payload.value, _undo: { ignore: true } })
+                    }
+                });
+            });
+        }
+    }
+
+    async notebookDeleteAll() {
+        if (await confirmDelete('every notebook', '')) {
+            await this.group((_undo) => {
+                // Cache off notebooks
+                _undo.cache.notebooks = [];
+                for (const notebook of this.notebooks.getters.flatten) {
+                    _undo.cache.notebooks.push({
+                        id: notebook.id,
+                        value: notebook.value,
+                        noteIds: this.notes.getters.notesByNotebook(notebook.id).map((n) => n.id)
+                    });
+                }
+
+                this.notebooks.commit('DELETE_ALL', {
+                    _undo: {
+                        ..._undo,
+                        undoCallback: (m) => {
+                            for (const notebook of _undo.cache.notebooks) {
+                                this.notebooks.commit('CREATE', {
+                                    value: { id: notebook.id, value: notebook.value },
+                                    _undo: { ignore: true }
+                                });
+
+                                this.notes.commit('ADD_NOTEBOOK', {
+                                    value: { noteId: notebook.noteIds, notebookId: notebook.id },
+                                    _undo: { ignore: true }
+                                });
+                            }
+                        },
+                        redoCallback: (m) => {
+                            this.notebooks.commit('DELETE_ALL', { _undo: { ignore: true } });
+                        }
                     }
                 });
             });

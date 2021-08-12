@@ -62,6 +62,10 @@ export class NotebookMutations extends Mutations<NotebookState> {
         }
     }
 
+    DELETE_ALL(payload: VoidUndoPayload) {
+        this.state.values.length = 0;
+    }
+
     SORT(p: VoidUndoPayload) {
         // Sort nested
         recursiveSort(this.state.values);
