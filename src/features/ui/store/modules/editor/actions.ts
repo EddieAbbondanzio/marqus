@@ -65,6 +65,10 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         this.commit('SET_TABS_DRAGGING', { value: undefined, _undo: { ignore: true } });
     }
 
+    tabDragCancel() {
+        this.commit('SET_TABS_DRAGGING', { value: undefined, _undo: { ignore: true } });
+    }
+
     async openTab(noteId: string) {
         const existing = this.getters.byNoteId(noteId);
 

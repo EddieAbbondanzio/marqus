@@ -108,8 +108,6 @@ export class FocusManager {
             matchValue: (el) => el
         });
 
-        console.log('focused: ', focusableEl);
-
         if (focusableEl == null) {
             delete this.active;
         } else {

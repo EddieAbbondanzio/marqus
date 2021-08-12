@@ -41,7 +41,13 @@ export default defineComponent({
         const onMoveStart = () => editor.actions.tabDragStart(p.modelValue as Tab);
 
         const onMoveEnd = (e: MouseEvent) => {
-            const endedOnElement = document.elementFromPoint(e.x, e.y) as HTMLElement;
+            const endedOnElement: HTMLElement | null = document.elementFromPoint(e.x, e.y) as HTMLElement | null;
+
+            if (endedOnElement == null) {
+                editor.actions.tabDragCancel();
+                return;
+            }
+
             const tabContainer = climbDomHierarchy(endedOnElement, {
                 match: (e) => e.id === 'editor-tabs',
                 matchValue: (e) => e

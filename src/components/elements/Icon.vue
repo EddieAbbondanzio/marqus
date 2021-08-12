@@ -9,7 +9,8 @@ import { computed, defineComponent } from 'vue';
 
 export default defineComponent({
     setup(p) {
-        const iconClasses = computed(() => `fas ${p.icon}`);
+        const iconClasses = computed(() => [`fas ${p.icon}`, p.size]);
+
         return { iconClasses };
     },
     props: {
@@ -25,7 +26,7 @@ export default defineComponent({
          */
         size: {
             type: String,
-            default: 'is-size-5'
+            default: 'is-size-7'
         }
     }
 });

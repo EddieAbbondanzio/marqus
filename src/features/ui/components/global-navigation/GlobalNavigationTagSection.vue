@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import IconButton from '@/components/buttons/IconButton.vue';
@@ -61,6 +61,7 @@ import { Tag } from '@/features/tags/common/tag';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { useTags } from '@/features/tags/store';
 import { useTagValidation } from '@/features/tags/hooks/use-tag-validation';
+import Select from '@/components/input/Select.vue';
 export default defineComponent({
     setup: function() {
         const globalNav = useGlobalNavigation();
@@ -78,7 +79,10 @@ export default defineComponent({
 
         const formRules = useTagValidation(() => globalNav.state.tags.input);
 
+        const test = ref('');
+
         return {
+            test,
             expanded,
             input,
             formRules,
