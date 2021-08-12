@@ -37,6 +37,7 @@ export class GlobalNavigationActions extends Actions<
 
     setActive(a: GlobalNavigationItem) {
         this.commit('SET_ACTIVE', { value: a });
+        this.commit('SET_HIGHLIGHT', { value: a });
     }
 
     clearHighlight() {

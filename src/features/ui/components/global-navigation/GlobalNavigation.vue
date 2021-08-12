@@ -5,6 +5,7 @@
         v-model="width"
         minWidth="160px"
         v-context-menu:globalNavigation
+        v-shortcut:globalNavigationDeleteHighlightItem="deleteHighlightItem"
         v-shortcut:globalNavigationSetHighlightActive="setHighlightActive"
         v-shortcut:globalNavigationClearHighlight="clearHighlight"
         v-shortcut:globalNavigationMoveHighlightUp="moveHighlightUp"
@@ -92,7 +93,31 @@ export default defineComponent({
             globalNav.actions.setActive(globalNav.state.highlight);
         };
 
+        const deleteHighlightItem = () => {
+            const highlight = globalNav.state.highlight;
+
+            if (
+                highlight == null ||
+                highlight.section === 'all' ||
+                highlight.section === 'favorites' ||
+                highlight.section === 'trash'
+            ) {
+                return;
+            }
+
+            switch (highlight.section) {
+                case 'notebook':
+                    globalNav.actions.notebookDelete(highlight.id);
+                    break;
+
+                case 'tag':
+                    globalNav.actions.tagDelete(highlight.id);
+                    break;
+            }
+        };
+
         return {
+            deleteHighlightItem,
             setHighlightActive,
             clearHighlight: () => globalNav.actions.clearHighlight(),
             moveHighlightUp: () => globalNav.actions.moveHighlightUp(),
