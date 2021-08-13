@@ -48,22 +48,4 @@ describe('unique()', () => {
         ]);
         expect(res).toBeTruthy();
     });
-
-    it('ignores duplicate if entity passed matches', () => {
-        const values = [
-            { id: '1', value: 'cat' },
-            { id: '2', value: 'dog' },
-            { id: '3', value: 'horse' }
-        ];
-
-        var res = unique('horse', [
-            () => values,
-            (v) => v.id,
-            (v) => v.value,
-            () => ({
-                id: '3'
-            })
-        ]);
-        expect(res).toBeTruthy();
-    });
 });

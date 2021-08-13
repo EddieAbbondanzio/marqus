@@ -8,7 +8,7 @@ export function unique(
         return true;
     }
 
-    const isUpdate = valueEntity != null;
+    const isUpdate = valueEntity()?.id != null;
     // Create
     if (!isUpdate) {
         return getValues().every((v) => value !== uniqueValue(v));
@@ -16,11 +16,10 @@ export function unique(
     // Update
     else {
         const match = getValues().find((v) => uniqueValue(v) === value);
-
         if (match == null) {
             return true;
         }
 
-        return identifier(valueEntity) !== identifier(match);
+        return identifier(valueEntity()) !== identifier(match);
     }
 }
