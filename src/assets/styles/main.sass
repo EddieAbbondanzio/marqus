@@ -10,12 +10,16 @@ $colors: ('white': ($white, $black), 'black': ($black, $white), 'light': ($light
 @import "utils/_color.sass"
 
 html
-    height: 100vh
+    height: 100% //100vh
     padding: 0
 
 body
-    min-height: 100vh
+    // min-height: 100vh
+    height: 100%
     padding: 0
+
+#app
+    height: 100%
 
 .no-drag
     user-drag: none

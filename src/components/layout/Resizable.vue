@@ -1,6 +1,6 @@
 <template>
     <div class="resizable-wrapper" ref="wrapper" :style="style">
-        <div style="max-width: calc(100% - 2px);">
+        <div style="max-width: calc(100% - 2px); overflow-x: hidden;">
             <slot></slot>
         </div>
         <div
@@ -80,6 +80,7 @@ export default defineComponent({
     display: flex
     flex-direction: row
     background-color: transparent
+    height: 100%
 
     & > :first-child
         flex-grow: 1

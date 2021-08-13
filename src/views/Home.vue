@@ -1,5 +1,5 @@
 <template>
-    <div class="is-flex is-flex-row has-h-fullheight">
+    <div class="is-flex is-flex-row has-h-100">
         <global-navigation />
         <local-navigation />
         <editor />
