@@ -1,6 +1,6 @@
 <template>
     <div class="resizable-wrapper" ref="wrapper" :style="style">
-        <div style="max-width: calc(100% - 2px); overflow-x: hidden;">
+        <div style="max-width: calc(100% - 2px);">
             <slot></slot>
         </div>
         <div
@@ -71,7 +71,7 @@ export default defineComponent({
         },
         scrollIncrement: {
             type: Number,
-            default: 30 // This
+            default: 30
         }
     },
     methods: {},
