@@ -2,9 +2,7 @@ import { focusManager } from '@/directives/focusable';
 import { KeyCode } from '@/features/shortcuts/common/key-code';
 import { Shortcut } from '@/features/shortcuts/common/shortcut';
 
-function isFocused(section: string) {
-    return () => focusManager.isFocused(section);
-}
+const isGlobalNavigationFocused = () => focusManager.isFocused('globalNavigation');
 
 const up = [KeyCode.ArrowUp];
 const down = [KeyCode.ArrowDown];
@@ -16,9 +14,11 @@ export const DEFAULT_SHORTCUTS: ReadonlyArray<Shortcut> = [
     new Shortcut('editorToggleSplitView', [KeyCode.Control, KeyCode.Alt, KeyCode.LetterS]),
     new Shortcut('undo', [KeyCode.Control, KeyCode.LetterZ]),
     new Shortcut('redo', [KeyCode.Control, KeyCode.LetterY]),
-    new Shortcut('globalNavigationMoveHighlightUp', up, isFocused('globalNavigation')),
-    new Shortcut('globalNavigationMoveHighlightDown', down, isFocused('globalNavigation')),
-    new Shortcut('globalNavigationClearHighlight', [KeyCode.Escape], isFocused('globalNavigation')),
-    new Shortcut('globalNavigationSetHighlightActive', [KeyCode.Enter], isFocused('globalNavigation')),
-    new Shortcut('globalNavigationDeleteHighlightItem', [KeyCode.Delete], isFocused('globalNavigation'))
+    new Shortcut('globalNavigationMoveHighlightUp', up, isGlobalNavigationFocused),
+    new Shortcut('globalNavigationMoveHighlightDown', down, isGlobalNavigationFocused),
+    new Shortcut('globalNavigationClearHighlight', [KeyCode.Escape], isGlobalNavigationFocused),
+    new Shortcut('globalNavigationSetHighlightActive', [KeyCode.Enter], isGlobalNavigationFocused),
+    new Shortcut('globalNavigationDeleteHighlightItem', [KeyCode.Delete], isGlobalNavigationFocused),
+    new Shortcut('globalNavigationCreateNotebook', [KeyCode.Control, KeyCode.LetterN]),
+    new Shortcut('globalNavigationCreateTag', [KeyCode.Control, KeyCode.LetterT])
 ];

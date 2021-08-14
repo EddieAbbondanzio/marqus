@@ -1,4 +1,4 @@
-import { parseKey } from '@/features/shortcuts/common/key-code';
+import { KeyCode, parseKey } from '@/features/shortcuts/common/key-code';
 import { Shortcut } from '@/features/shortcuts/common/shortcut';
 import { ShortcutCallback, ShortcutSubscriber } from '@/features/shortcuts/common/shortcut-subscriber';
 
@@ -21,6 +21,16 @@ export class ShortcutManager {
 
     _onKeyDown(e: KeyboardEvent) {
         const key = parseKey(e.code);
+
+        // Disable default arrow key actions
+        if (
+            key === KeyCode.ArrowLeft ||
+            key === KeyCode.ArrowRight ||
+            key === KeyCode.ArrowUp ||
+            key === KeyCode.ArrowDown
+        ) {
+            e.preventDefault();
+        }
 
         if (this.activeKeys[key] != null) {
             return;

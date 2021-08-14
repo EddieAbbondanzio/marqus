@@ -68,6 +68,10 @@ export default defineComponent({
         minWidth: {
             type: String,
             default: '100px'
+        },
+        scrollIncrement: {
+            type: Number,
+            default: 30 // This
         }
     },
     methods: {},

@@ -36,6 +36,7 @@ import { Notebook } from '@/features/notebooks/common/notebook';
 import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { useNotebooks } from '@/features/notebooks/store';
+import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
 
 export default defineComponent({
     setup: function() {
@@ -61,6 +62,16 @@ export default defineComponent({
                 () => globalNav.state.notebooks.input
             ]
         };
+
+        shortcutManager.subscribe('globalNavigationCreateNotebook', () => {
+            const highlighted = globalNav.state.highlight;
+
+            if (highlighted != null && highlighted.section === 'notebook') {
+                globalNav.actions.notebookInputStart({ parentId: highlighted.id });
+            } else {
+                globalNav.actions.notebookInputStart();
+            }
+        });
 
         return {
             expanded,
