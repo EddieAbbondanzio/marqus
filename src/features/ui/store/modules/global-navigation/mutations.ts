@@ -20,6 +20,10 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
         this.state.width = p.value;
     }
 
+    SET_SCROLL_POSITION(p: UndoPayload<number>) {
+        this.state.scrollPosition = p.value;
+    }
+
     SET_TAGS_EXPANDED(p: UndoPayload<boolean>) {
         this.state.tags.expanded = p.value;
     }

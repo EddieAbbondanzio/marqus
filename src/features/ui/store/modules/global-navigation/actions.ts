@@ -59,6 +59,11 @@ export class GlobalNavigationActions extends Actions<
         this.commit('SET_WIDTH', { value: width, _undo: { ignore: true } });
     }
 
+    setScrollPosition(scrollPos: number) {
+        console.log('set scroll pos!', scrollPos);
+        this.commit('SET_SCROLL_POSITION', { value: scrollPos });
+    }
+
     tagInputStart({ id }: { id?: string } = {}) {
         const _undo = { ignore: true };
 

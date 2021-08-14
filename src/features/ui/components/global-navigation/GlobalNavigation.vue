@@ -11,7 +11,7 @@
         v-shortcut:globalNavigationMoveHighlightUp="moveHighlightUp"
         v-shortcut:globalNavigationMoveHighlightDown="moveHighlightDown"
     >
-        <Scrollable>
+        <Scrollable v-model="scrollPosition">
             <UndoContainer undoName="globalNavigation" focusName="globalNavigation">
                 <NavigationMenuList>
                     <NavigationMenuItem
@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import Resizable from '@/components/layout/Resizable.vue';
 import GlobalNavigationTagSection from '@/features/ui/components/global-navigation/GlobalNavigationTagSection.vue';
 import GlobalNavigationNotebookSection from '@/features/ui/components/global-navigation/GlobalNavigationNotebookSection.vue';
@@ -86,6 +86,11 @@ export default defineComponent({
         const width = computed({
             get: () => globalNav.state.width as string,
             set: globalNav.actions.setWidth
+        });
+
+        const scrollPosition = computed({
+            get: () => globalNav.state.scrollPosition,
+            set: globalNav.actions.setScrollPosition
         });
 
         const setHighlightActive = () => {
@@ -126,6 +131,7 @@ export default defineComponent({
             moveHighlightUp: () => globalNav.actions.moveHighlightUp(),
             moveHighlightDown: () => globalNav.actions.moveHighlightDown(),
             width,
+            scrollPosition,
             isActive: computed(() => globalNav.getters.isActive),
             isHighlighted: computed(() => globalNav.getters.isHighlighted),
             expandAll: globalNav.actions.expandAll,

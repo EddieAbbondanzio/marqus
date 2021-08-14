@@ -47,6 +47,7 @@ persist.register({
         */
 
         s.globalNavigation ??= {};
+        s.globalNavigation ??= {};
         s.globalNavigation.notebooks ??= {};
         s.globalNavigation.notebooks.input = {};
         s.globalNavigation.tags ??= {};

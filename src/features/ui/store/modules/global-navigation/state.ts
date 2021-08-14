@@ -33,6 +33,7 @@ export type GlobalNavigationItem =
 
 export class GlobalNavigationState {
     width = '300px';
+    scrollPosition = 0;
 
     notebooks: GlobalNavigationNotebookSection = {
         expanded: false
