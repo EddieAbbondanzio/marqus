@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash';
 import { defineComponent, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 /**
@@ -15,6 +16,22 @@ export default defineComponent({
     setup(p, c) {
         const wrapper = ref(null! as HTMLDivElement);
 
+        const release = watch(
+            () => p.modelValue,
+            async (newVal) => {
+                await nextTick(() => {
+                    const maxScroll = wrapper.value.scrollHeight - wrapper.value.clientHeight;
+                    const clamped = _.clamp(newVal, 0, maxScroll);
+
+                    if (clamped !== newVal) {
+                        c.emit('update:modelValue', clamped);
+                    }
+
+                    wrapper.value.scrollTop = clamped;
+                });
+            }
+        );
+
         const onScroll = () => {
             c.emit('update:modelValue', wrapper.value.scrollTop);
         };
@@ -24,18 +41,12 @@ export default defineComponent({
             wrapper.value.addEventListener('scroll', onScroll);
         });
 
-        const release = watch(
-            () => p.modelValue,
-            async (newVal) => {
-                await nextTick(() => {
-                    wrapper.value.scrollTop = newVal;
-                });
-            }
-        );
-
         onUnmounted(() => {
             release();
-            wrapper.value.removeEventListener('scroll', onScroll);
+
+            if (wrapper.value != null) {
+                wrapper.value.removeEventListener('scroll', onScroll);
+            }
         });
 
         return {

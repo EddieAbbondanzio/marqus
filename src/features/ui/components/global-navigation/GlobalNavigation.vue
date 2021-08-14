@@ -11,7 +11,11 @@
         v-shortcut:globalNavigationMoveHighlightUp="moveHighlightUp"
         v-shortcut:globalNavigationMoveHighlightDown="moveHighlightDown"
     >
-        <Scrollable v-model="scrollPosition">
+        <Scrollable
+            v-model="scrollPosition"
+            v-shortcut:globalNavigationScrollUp="onScrollUp"
+            v-shortcut:globalNavigationScrollDown="onScrollDown"
+        >
             <UndoContainer undoName="globalNavigation" focusName="globalNavigation">
                 <NavigationMenuList>
                     <NavigationMenuItem
@@ -124,7 +128,12 @@ export default defineComponent({
             }
         };
 
+        const onScrollUp = () => globalNav.actions.incrementScrollPosition(-30);
+        const onScrollDown = () => globalNav.actions.incrementScrollPosition(30);
+
         return {
+            onScrollUp,
+            onScrollDown,
             deleteHighlightItem,
             setHighlightActive,
             clearHighlight: () => globalNav.actions.clearHighlight(),

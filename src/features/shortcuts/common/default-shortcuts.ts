@@ -20,5 +20,7 @@ export const DEFAULT_SHORTCUTS: ReadonlyArray<Shortcut> = [
     new Shortcut('globalNavigationSetHighlightActive', [KeyCode.Enter], isGlobalNavigationFocused),
     new Shortcut('globalNavigationDeleteHighlightItem', [KeyCode.Delete], isGlobalNavigationFocused),
     new Shortcut('globalNavigationCreateNotebook', [KeyCode.Control, KeyCode.LetterN]),
-    new Shortcut('globalNavigationCreateTag', [KeyCode.Control, KeyCode.LetterT])
+    new Shortcut('globalNavigationCreateTag', [KeyCode.Control, KeyCode.LetterT]),
+    new Shortcut('globalNavigationScrollUp', [KeyCode.Control, KeyCode.ArrowUp], isGlobalNavigationFocused),
+    new Shortcut('globalNavigationScrollDown', [KeyCode.Control, KeyCode.ArrowDown], isGlobalNavigationFocused)
 ];

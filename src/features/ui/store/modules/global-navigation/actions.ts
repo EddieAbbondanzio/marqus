@@ -60,8 +60,12 @@ export class GlobalNavigationActions extends Actions<
     }
 
     setScrollPosition(scrollPos: number) {
-        console.log('set scroll pos!', scrollPos);
         this.commit('SET_SCROLL_POSITION', { value: scrollPos });
+    }
+
+    incrementScrollPosition(increment: number) {
+        const value = this.state.scrollPosition + increment;
+        this.commit('SET_SCROLL_POSITION', { value });
     }
 
     tagInputStart({ id }: { id?: string } = {}) {
