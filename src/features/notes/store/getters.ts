@@ -15,6 +15,10 @@ export class NoteGetters extends Getters<NoteState> {
         return note;
     }
 
+    where(pred: (n: Note) => boolean) {
+        return this.state.values.filter(pred);
+    }
+
     notesByTag(tagId: string) {
         if (tagId == null) {
             return [];

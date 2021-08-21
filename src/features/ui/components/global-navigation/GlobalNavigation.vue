@@ -108,23 +108,20 @@ export default defineComponent({
         const deleteHighlightItem = () => {
             const highlight = globalNav.state.highlight;
 
-            if (
-                highlight == null ||
-                highlight.section === 'all' ||
-                highlight.section === 'favorites' ||
-                highlight.section === 'trash'
-            ) {
+            if (highlight == null) {
                 return;
             }
 
-            switch (highlight.section) {
-                case 'notebook':
-                    globalNav.actions.notebookDelete(highlight.id);
-                    break;
+            if ((highlight.section === 'tag' || highlight.section === 'notebook') && highlight.id != null) {
+                switch (highlight.section) {
+                    case 'notebook':
+                        globalNav.actions.notebookDelete(highlight.id);
+                        break;
 
-                case 'tag':
-                    globalNav.actions.tagDelete(highlight.id);
-                    break;
+                    case 'tag':
+                        globalNav.actions.tagDelete(highlight.id);
+                        break;
+                }
             }
         };
 

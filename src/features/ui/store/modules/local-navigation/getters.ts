@@ -35,14 +35,18 @@ export class LocalNavigationGetters extends Getters<LocalNavigationState> {
 
         switch (active?.section) {
             case 'all':
-                return this.notes.state.values.filter((note) => !note.trashed);
+                return this.notes.getters.where((n) => !n.trashed);
 
             case 'notebook':
-                return this.notes.state.values.filter(
-                    (note) =>
-                        !note.trashed &&
-                        note.notebooks != null &&
-                        note.notebooks.some((id) => {
+                if (active.id == null) {
+                    return this.notes.getters.where((n) => n.notebooks.length > 0 && !n.trashed);
+                }
+
+                return this.notes.getters.where(
+                    (n) =>
+                        !n.trashed &&
+                        n.notebooks != null &&
+                        n.notebooks.some((id) => {
                             let notebook: Notebook | undefined = findNotebookRecursive(this.notebooks.state.values, id);
 
                             // A parent notebook should also show notes for any of it's children.
@@ -56,15 +60,17 @@ export class LocalNavigationGetters extends Getters<LocalNavigationState> {
                 );
 
             case 'tag':
-                return this.notes.state.values.filter(
-                    (note) => !note.trashed && (note.tags ?? []).some((tag) => tag === active.id)
-                );
+                if (active.id == null) {
+                    return this.notes.getters.where((n) => !n.trashed && n.tags.length > 0);
+                }
+
+                return this.notes.getters.where((n) => !n.trashed && (n.tags ?? []).some((tag) => tag === active.id));
 
             case 'favorites':
-                return this.notes.state.values.filter((note) => !note.trashed && note.favorited);
+                return this.notes.getters.where((n) => !n.trashed && (n.favorited ?? false));
 
             case 'trash':
-                return this.notes.state.values.filter((n) => n.trashed);
+                return this.notes.getters.where((n) => n.trashed ?? false);
 
             default:
                 return [];

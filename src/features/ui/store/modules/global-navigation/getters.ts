@@ -45,51 +45,57 @@ export class GlobalNavigationGetters extends Getters<GlobalNavigationState> {
         let next;
 
         switch (previous.section) {
-            case 'notebook':
-                next = this.notebooks.getters.getPrevious(previous.id);
-
-                if (next == null) {
-                    return { section: 'all' };
-                } else {
-                    return { section: 'notebook', id: next.id };
-                }
-
-            case 'tag':
-                next = this.tags.getters.getPrevious(previous.id);
-
-                if (next == null) {
-                    // See if we can get a notebook to jump up to
-                    next = this.state.notebooks.expanded ? this.notebooks.getters.last() : null;
-
-                    if (next == null) {
-                        return { section: 'all' };
-                    } else {
-                        return { section: 'notebook', id: next.id };
-                    }
-                } else {
-                    return { section: 'tag', id: next.id };
-                }
-
-            case 'favorites':
-                next = this.state.tags.expanded ? this.tags.getters.last() : null;
-
-                if (next == null) {
-                    next = this.state.notebooks.expanded ? this.notebooks.getters.last() : null;
-
-                    if (next == null) {
-                        return { section: 'all' };
-                    } else {
-                        return { section: 'notebook', id: next.id };
-                    }
-                } else {
-                    return { section: 'tag', id: next.id };
-                }
+            case 'all':
+                return { section: 'all' };
 
             case 'trash':
                 return { section: 'favorites' };
-        }
 
-        return { section: 'all' };
+            case 'favorites':
+                if (this.state.tags.expanded) {
+                    next = this.tags.getters.last();
+                    return { section: 'tag', id: next.id };
+                } else {
+                    return { section: 'tag' };
+                }
+
+            // eslint-disable-next-line no-fallthrough
+            case 'tag':
+                if (previous.id != null) {
+                    next = this.tags.getters.getPrevious(previous.id);
+
+                    if (next == null) {
+                        return { section: 'tag' };
+                    } else {
+                        return { section: 'tag', id: next.id };
+                    }
+                } else {
+                    if (this.state.notebooks.expanded) {
+                        next = this.notebooks.getters.last();
+                        return { section: 'notebook', id: next!.id };
+                    } else {
+                        return { section: 'notebook' };
+                    }
+                }
+
+            // eslint-disable-next-line no-fallthrough
+            case 'notebook':
+                if (previous.id != null && previous.section === 'notebook') {
+                    next = this.notebooks.getters.getPrevious(previous.id);
+
+                    if (next == null) {
+                        return { section: 'notebook' };
+                    } else {
+                        return { section: 'notebook', id: next.id };
+                    }
+                } else {
+                    return { section: 'all' };
+                }
+
+            // eslint-disable-next-line no-fallthrough
+            default:
+                return { section: 'all' };
+        }
     }
 
     nextItem(): GlobalNavigationItem {
@@ -101,52 +107,48 @@ export class GlobalNavigationGetters extends Getters<GlobalNavigationState> {
         const previous = this.state.highlight;
         let next;
 
+        /*
+         * This is not the best approach. There's probably a better design out there but it feels better to rig it
+         * up for now until the global navigation supports re-ordering sections.
+         */
+
         switch (previous.section) {
             case 'all':
-                next = this.state.notebooks.expanded ? this.notebooks.getters.first() : null;
-
-                if (next == null) {
-                    // If no notebook, see if we can hit a tag
-                    next = this.state.tags.expanded ? this.tags.getters.first() : null;
-
-                    if (next == null) {
-                        return { section: 'favorites' };
-                    } else {
-                        return { section: 'tag', id: next.id };
-                    }
-                } else {
-                    return { section: 'notebook', id: next.id };
-                }
+                return { section: 'notebook' };
 
             case 'notebook':
-                next = this.notebooks.getters.getNext(previous.id);
-
-                if (next == null) {
-                    next = this.state.tags.expanded ? this.tags.getters.first() : null;
-
-                    if (next == null) {
-                        return { section: 'favorites' };
-                    } else {
-                        return { section: 'tag', id: next.id };
-                    }
+                if (previous.id == null) {
+                    next = this.notebooks.getters.first();
                 } else {
+                    next = this.notebooks.getters.getNext(previous.id);
+                }
+
+                if (next != null && this.state.notebooks.expanded) {
                     return { section: 'notebook', id: next.id };
+                } else {
+                    return { section: 'tag' };
                 }
 
             case 'tag':
-                next = this.tags.getters.getNext(previous.id);
-
-                if (next == null) {
-                    return { section: 'favorites' };
+                if (previous.id == null) {
+                    next = this.tags.getters.first();
                 } else {
+                    next = this.tags.getters.getNext(previous.id);
+                }
+
+                if (next != null && this.state.tags.expanded) {
                     return { section: 'tag', id: next.id };
+                } else {
+                    return { section: 'favorites' };
                 }
 
             case 'favorites':
+            case 'trash':
                 return { section: 'trash' };
-        }
 
-        return { section: 'all' };
+            default:
+                return { section: 'all' };
+        }
     }
 
     indentation(depth: number) {

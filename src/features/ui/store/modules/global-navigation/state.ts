@@ -29,7 +29,7 @@ export interface GlobalNavigationTagSection {
 
 export type GlobalNavigationItem =
     | { section: 'all' | 'favorites' | 'trash' }
-    | { section: 'notebook' | 'tag'; id: string };
+    | { section: 'notebook' | 'tag'; id?: string };
 
 export class GlobalNavigationState {
     width = '300px';

@@ -5,7 +5,9 @@
         label="TAGS"
         :title="count"
         v-model:expanded="expanded"
-        :toggleAnywhere="true"
+        :active="isActive({ section: 'tag' })"
+        :highlight="isHighlighted({ section: 'tag' })"
+        @click="() => setActive({ section: 'tag' })"
     >
         <template #options>
             <IconButton
@@ -34,7 +36,7 @@
                 :label="tag.value"
                 :active="isActive({ id: tag.id, section: 'tag' })"
                 :highlight="isHighlighted({ id: tag.id, section: 'tag' })"
-                @click="() => setActive({ id: tag.id, section: 'tag' })"
+                @click.stop="() => setActive({ id: tag.id, section: 'tag' })"
                 :data-id="tag.id"
                 class="global-navigation-tag"
             >
