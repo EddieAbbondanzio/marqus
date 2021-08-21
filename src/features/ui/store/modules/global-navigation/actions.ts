@@ -15,6 +15,7 @@ import { notes } from '@/features/notes/store';
 import { UndoGrouper } from '@/store/plugins/undo';
 import { NotebookCreate } from '@/features/notebooks/store/mutations';
 import _ from 'lodash';
+import { nextTick } from 'vue';
 
 export class GlobalNavigationActions extends Actions<
     GlobalNavigationState,

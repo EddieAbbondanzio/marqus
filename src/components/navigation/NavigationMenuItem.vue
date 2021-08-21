@@ -41,14 +41,14 @@
                                 icon="fa-angle-down"
                                 size="is-size-7"
                                 v-if="isExpanded()"
-                                @click.stop="toggle()"
+                                @click.stop.prevent="toggle()"
                             />
                             <icon-button
                                 class="has-text-grey"
                                 size="is-size-7"
                                 icon="fa-angle-up"
                                 v-else
-                                @click.stop="toggle()"
+                                @click.stop.prevent="toggle()"
                             />
                         </div>
                     </slot>

@@ -1,5 +1,6 @@
 <template>
-    <div ref="wrapper" class="scrollable-wrapper">
+    <!-- @keydown.space.prevent stops spacebar from scrolling down -->
+    <div ref="wrapper" class="scrollable-wrapper" @keydown.space.prevent>
         <slot></slot>
     </div>
 </template>
@@ -16,6 +17,7 @@ export default defineComponent({
     setup(p, c) {
         const wrapper = ref(null! as HTMLDivElement);
 
+        // const release = () => 1 as any;
         const release = watch(
             () => p.modelValue,
             async (newVal) => {
@@ -27,12 +29,13 @@ export default defineComponent({
                         c.emit('update:modelValue', clamped);
                     }
 
-                    wrapper.value.scrollTop = clamped;
+                    wrapper.value.scrollTop = newVal;
                 });
             }
         );
 
-        const onScroll = () => {
+        const onScroll = (e: Event) => {
+            console.log(e);
             c.emit('update:modelValue', wrapper.value.scrollTop);
         };
 
@@ -66,6 +69,7 @@ export default defineComponent({
 <style lang="sass" scoped>
 .scrollable-wrapper
     overflow-x: hidden
-    overflow-y: auto
+    overflow-y: scroll
     max-height: 100%
+    height: 100%
 </style>

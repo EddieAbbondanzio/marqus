@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref, nextTick } from 'vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import IconButton from '@/components/buttons/IconButton.vue';
@@ -72,7 +72,9 @@ export default defineComponent({
 
         const expanded = computed({
             get: () => globalNav.state.tags.expanded,
-            set: (v: any) => globalNav.dispatch('setTagsExpanded', v)
+            set: (v: any) => {
+                globalNav.dispatch('setTagsExpanded', v);
+            }
         });
 
         const input = computed({

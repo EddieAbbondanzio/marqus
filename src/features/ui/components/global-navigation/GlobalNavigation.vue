@@ -94,7 +94,9 @@ export default defineComponent({
 
         const scrollPosition = computed({
             get: () => globalNav.state.scrollPosition,
-            set: globalNav.actions.setScrollPosition
+            set: (v: any) => {
+                globalNav.actions.setScrollPosition(v);
+            }
         });
 
         const setHighlightActive = () => {
