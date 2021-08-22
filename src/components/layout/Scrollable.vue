@@ -35,7 +35,6 @@ export default defineComponent({
         );
 
         const onScroll = (e: Event) => {
-            console.log(e);
             c.emit('update:modelValue', wrapper.value.scrollTop);
         };
 

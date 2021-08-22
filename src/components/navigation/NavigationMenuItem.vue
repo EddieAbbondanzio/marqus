@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div ref="wrapper">
         <a
             :class="{
                 'pr-2': true,
@@ -68,8 +68,10 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue';
 import IconButton from '@/components/buttons/IconButton.vue';
+import { climbDomHierarchy } from '@/shared/utils';
+import { isElementAboveScroll, isElementBelowScroll } from '@/shared/utils/dom/scroll-position';
 
 export default defineComponent({
     props: {
@@ -152,10 +154,37 @@ export default defineComponent({
 
         const isExpanded = () => localExpanded.value;
 
-        const watchRelease = watch(
+        const wrapper = ref(null!) as Ref<HTMLDivElement>;
+
+        const releaseWatchExpanded = watch(
             () => p.expanded,
             () => {
                 localExpanded.value = p.expanded;
+            }
+        );
+
+        const releaseWatchHighlight = watch(
+            () => p.highlight,
+            (newVal) => {
+                /*
+                 * Try to see if we are in a scrollable, and need to scroll the item into focus.
+                 */
+                if (newVal) {
+                    const scrollable = climbDomHierarchy(wrapper.value, {
+                        match: (el) => el.classList.contains('scrollable-wrapper'),
+                        matchValue: (el) => el
+                    });
+
+                    if (scrollable == null) {
+                        return;
+                    }
+
+                    if (isElementAboveScroll(scrollable, wrapper.value)) {
+                        wrapper.value.scrollIntoView();
+                    } else if (isElementBelowScroll(scrollable, wrapper.value)) {
+                        wrapper.value.scrollIntoView(false);
+                    }
+                }
             }
         );
 
@@ -166,14 +195,16 @@ export default defineComponent({
         };
 
         onBeforeUnmount(() => {
-            watchRelease();
+            releaseWatchExpanded();
+            releaseWatchHighlight();
         });
 
         return {
             hasChildren,
             toggle,
             isExpanded,
-            onClick
+            onClick,
+            wrapper
         };
     },
     name: 'menu-item',
