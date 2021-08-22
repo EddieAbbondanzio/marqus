@@ -81,6 +81,8 @@ import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-n
 import UndoContainer from '@/components/input/UndoContainer.vue';
 import Scrollable from '@/components/layout/Scrollable.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
+import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
+import { focusManager } from '@/directives/focusable';
 
 export default defineComponent({
     setup: function() {
@@ -126,6 +128,11 @@ export default defineComponent({
                 }
             }
         };
+
+        shortcutManager.subscribe('focusGlobalNavigation', () => {
+            console.log('focus global nav');
+            focusManager.focus('globalNavigation');
+        });
 
         const onScrollUp = () => globalNav.actions.incrementScrollPosition(-30);
         const onScrollDown = () => globalNav.actions.incrementScrollPosition(30);
