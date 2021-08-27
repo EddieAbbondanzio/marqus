@@ -84,7 +84,11 @@ export class GlobalNavigationActions extends Actions<
     }
 
     tagInputUpdated(value: string) {
-        this.commit('SET_TAGS_INPUT', { value, _undo: { ignore: true } });
+        if (value === this.state.tags.input?.value) {
+            return;
+        }
+
+        this.commit('SET_TAGS_INPUT', { value });
     }
 
     tagInputConfirm() {
@@ -281,6 +285,10 @@ export class GlobalNavigationActions extends Actions<
     }
 
     notebookInputUpdated(value: string) {
+        if (value === this.state.notebooks.input?.value) {
+            return;
+        }
+
         this.commit('SET_NOTEBOOKS_INPUT', { value, _undo: { ignore: true } });
     }
 

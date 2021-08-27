@@ -31,10 +31,10 @@
                 <IconButton
                     id="favoriteButton"
                     class="px-3 py-0"
-                    :title="note.favorited ? 'Remove note from favorites' : 'Add note to favorites'"
+                    :title="isFavorited ? 'Remove note from favorites' : 'Add note to favorites'"
                     icon="fa-star"
                     size="is-size-6"
-                    :class="['has-text-hover-warning', { 'has-text-warning': note.favorited }]"
+                    :class="['has-text-hover-warning', { 'has-text-warning': isFavorited }]"
                     @click="onFavoriteClick"
                 />
             </div>
@@ -81,6 +81,7 @@ export default defineComponent({
             onFavoriteClick,
             mode: computed(() => editor.state.mode),
             note: computed(() => editor.getters.activeNote),
+            isFavorited: computed(() => editor.getters.activeNote?.favorited ?? false),
             deleteActiveNote: editor.actions.deleteActiveNote,
             toggleMode: editor.actions.toggleMode,
             saveTab: editor.actions.saveTab,

@@ -24,6 +24,17 @@ mediator.subscribe('ui/localNavigation/SET_ACTIVE', ({ payload }, store) => {
     store.dispatch('ui/editor/openTab', noteId);
 });
 
+/*
+ * Close a tab if the note was deleted.
+ */
+mediator.subscribe('notes/DELETE', ({ payload }, store) => {
+    const tab = store.getters['ui/editor/byNoteId'](payload.value);
+
+    if (tab != null) {
+        store.dispatch('ui/editor/closeTab', tab.id);
+    }
+});
+
 undo.registerModule(new EditorState(), {
     name: 'editor',
     namespace: 'ui/editor',

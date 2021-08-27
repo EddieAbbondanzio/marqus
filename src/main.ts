@@ -22,5 +22,3 @@ app.directive('mouse', mouse);
 app.directive('shortcut', shortcut);
 app.directive('focusable', focusable);
 app.directive('context-menu', contextMenu);
-
-shortcutManager.subscribe('editorToggleSplitView', () => store.commit('ui/editor/TOGGLE_SPLIT_VIEW'));

@@ -1,5 +1,6 @@
 <template>
     <div id="editor" class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark">
+        {{ focused }}
         <UndoContainer undoName="editor" focusName="editor">
             <template v-if="!isEmpty">
                 <editor-tabs />
@@ -23,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, onMounted, Ref, ref } from 'vue';
+import { computed, defineComponent, nextTick, onMounted, Ref, ref, watch } from 'vue';
 import EditorTabs from '@/features/ui/components/editor/EditorTabs.vue';
 import EditorToolbar from '@/features/ui/components/editor/toolbar/EditorToolbar.vue';
 import { store } from '@/store';
@@ -48,7 +49,8 @@ export default defineComponent({
             isEmpty: computed(() => editor.getters.isEmpty),
             activeTab: computed(() => editor.getters.activeTab),
             mode: computed(() => editor.state.mode),
-            isFocus: computed(() => editor.state.isFocus)
+            isFocus: computed(() => editor.state.isFocus),
+            focused: focusManager.active
         };
     },
     components: {

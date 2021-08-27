@@ -1,13 +1,13 @@
 import { Focusable, FOCUSABLE_ATTRIBUTE_NAME } from '@/directives/focusable/focusable';
 import { climbDomHierarchy } from '@/shared/utils';
-import { nextTick } from 'vue';
+import { nextTick, Ref, ref } from 'vue';
 /**
  * Utility that helps track focused section of the app, and allows for changing focus
  * via a method call.
  */
 export class FocusManager {
     focusables: Focusable[] = [];
-    active?: Focusable;
+    active: Ref<Focusable | null> = ref(null);
 
     constructor() {
         this.onFocusIn = this.onFocusIn.bind(this);
@@ -74,11 +74,15 @@ export class FocusManager {
     }
 
     isFocused(name: string, checkNested = false) {
-        if (!checkNested) {
-            return this.active?.name === name;
+        if (this.active.value == null) {
+            return false;
         }
 
-        let curr = this.active;
+        if (!checkNested) {
+            return this.active.value.name === name;
+        }
+
+        let curr = this.active.value as Focusable | undefined;
         while (curr != null) {
             if (curr.name === name) {
                 return true;
@@ -101,7 +105,7 @@ export class FocusManager {
      * Event handler that determines if a new focusable was focused.
      * @param event Event to handle.
      */
-    onFocusIn(event: FocusEvent) {
+    private onFocusIn(event: FocusEvent) {
         // We might need to climb up the dom tree to handle nested children of a focusable.
         const focusableEl = climbDomHierarchy(event.target as HTMLElement, {
             match: (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE_NAME),
@@ -109,10 +113,10 @@ export class FocusManager {
         });
 
         if (focusableEl == null) {
-            delete this.active;
+            this.active.value = null;
         } else {
             const name = focusableEl.getAttribute(FOCUSABLE_ATTRIBUTE_NAME)!;
-            this.active = { name, el: focusableEl };
+            this.active.value = { name, el: focusableEl };
         }
     }
 }

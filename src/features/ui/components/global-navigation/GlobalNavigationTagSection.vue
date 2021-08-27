@@ -41,7 +41,7 @@
                 class="global-navigation-tag"
             >
             </NavigationMenuItem>
-            <NavigationMenuForm
+            <!-- <NavigationMenuForm
                 v-else
                 @submit="confirm"
                 @cancel="cancel"
@@ -49,7 +49,7 @@
                 fieldName="Tag"
                 :rules="formRules"
                 indent="24px"
-            />
+            /> -->
         </template>
     </NavigationMenuItem>
 </template>
@@ -79,17 +79,16 @@ export default defineComponent({
 
         const input = computed({
             get: () => globalNav.state.tags.input!.value,
-            set: (v: string) => globalNav.dispatch('tagInputUpdated', v)
+            set: (v: string) => {
+                globalNav.dispatch('tagInputUpdated', v);
+            }
         });
 
         const formRules = useTagValidation(() => globalNav.state.tags.input);
 
-        const test = ref('');
-
         shortcutManager.subscribe('globalNavigationCreateTag', () => globalNav.actions.tagInputStart());
 
         return {
-            test,
             expanded,
             input,
             formRules,

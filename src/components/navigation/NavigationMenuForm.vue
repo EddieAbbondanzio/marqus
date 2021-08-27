@@ -8,7 +8,7 @@
             class="is-flex is-align-center has-background-light pr-2"
             :style="`height: 30px; padding-left: ${indent}!important`"
         >
-            <Field :name="fieldName" :value="modelValue" v-slot="{ field }" :rules="rules">
+            <Field :name="fieldName" v-model="inputValue" v-slot="{ field }" :rules="rules">
                 <!-- Padding and margin is adjusted to get the text within the input to match perfectly to a menu item. -->
                 <input
                     id="inputField"
@@ -21,8 +21,8 @@
                     v-bind="field"
                     style="height: 21px!important; min-width: 0; width: 0; flex-grow: 1; padding: 2px 0px!important; margin-left: -2px!important; margin-top: -1px!important"
                     v-focus
-                    @input="onInput"
                     @blur="onBlur"
+                    @input="onInput"
                 />
                 <icon-button
                     id="submitButton"
@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeUnmount, onMounted } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import IconButton from '@/components/buttons/IconButton.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
 
@@ -99,13 +99,19 @@ export default defineComponent({
             }
         }
     },
-    setup(_, c) {
+    setup(p, c) {
         let isClean = true;
 
-        const onInput = (e: any) => {
-            isClean = false;
-            c.emit('update:modelValue', e.target.value);
-        };
+        const inputValue = computed({
+            get: () => p.modelValue,
+            set: (v) => {
+                // Dont' go any further if it's the same.
+                if (v !== p.modelValue) {
+                    c.emit('update:modelValue', v);
+                    isClean = false;
+                }
+            }
+        });
 
         // When input is blurred, check to see if it was empty. If it was empty, cancel.
         const onBlur = (e: any) => {
@@ -129,7 +135,7 @@ export default defineComponent({
         });
 
         return {
-            onInput,
+            inputValue,
             onBlur
         };
     },

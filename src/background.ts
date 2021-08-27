@@ -1,6 +1,6 @@
 'use strict';
 
-import { app, protocol, BrowserWindow, ipcMain, Menu } from 'electron';
+import { app, protocol, BrowserWindow, Menu } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import path from 'path';
@@ -83,18 +83,3 @@ if (isDevelopment) {
         });
     }
 }
-
-// ipcMain.on('show-context-menu', (event) => {
-//     const t = [
-//         {
-//             label: 'Menu Item 1',
-//             click: () => {
-//                 event.sender.send('context-menu-command', 'menu-item-1');
-//             }
-//         },
-//         { type: 'separator' },
-//         { label: 'Menu Item 2', type: 'checkbox', checked: true }
-//     ];
-//     const menu = new Menu();
-//     menu.popup({ window: BrowserWindow.fromWebContents(event.sender)! });
-// });

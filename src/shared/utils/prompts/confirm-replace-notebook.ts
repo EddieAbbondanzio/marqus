@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 const electron = require('electron').remote; // Don't change. Jest doesn't like destructuring.
 
 export async function confirmReplaceNotebook(name: string): Promise<boolean> {
