@@ -93,6 +93,7 @@ export class UndoModule {
         // Roll back to most recently cached state
         const cached = this._stateCache.getLast(this._history.currentIndex);
         const store = this._getStore();
+
         store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
 
         // Reapply (N - 1) mutations to get to the desired state.

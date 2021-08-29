@@ -61,14 +61,14 @@ describe('FocusManager {}', () => {
 
         it('returns false if name does not match', () => {
             const m = new FocusManager();
-            m.active = { name: 'foo', el: null! };
+            m.active = { value: { name: 'foo', el: null! } } as any;
 
             expect(m.isFocused('bar')).toBeFalsy();
         });
 
         it('returns true if name matches', () => {
             const m = new FocusManager();
-            m.active = { name: 'foo', el: null! };
+            m.active = { value: { name: 'foo', el: null! } } as any;
 
             expect(m.isFocused('foo')).toBeTruthy();
         });

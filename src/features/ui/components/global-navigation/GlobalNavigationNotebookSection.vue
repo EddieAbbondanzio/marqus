@@ -10,6 +10,7 @@
     >
         <template #options>
             <IconButton
+                :disabled="isNotebookBeingCreated()"
                 icon="fa-plus"
                 class="has-text-grey  has-text-hover-success"
                 size="is-size-7"

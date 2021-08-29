@@ -59,12 +59,12 @@ describe('UndoStateCache', () => {
         });
     });
 
-    describe('_calculateLast()', () => {
+    describe('_calculateLastRelativeTo()', () => {
         it('returns correctly', () => {
             const stateCache = new UndoStateCache({ foo: 1 });
             stateCache.push({ foo: 2 });
 
-            const lastIndex = stateCache['_calculateLast'](120);
+            const lastIndex = stateCache['_calculateLastRelativeTo'](120);
             expect(lastIndex).toBe(100);
         });
     });

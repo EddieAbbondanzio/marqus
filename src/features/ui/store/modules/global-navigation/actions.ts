@@ -70,17 +70,22 @@ export class GlobalNavigationActions extends Actions<
     }
 
     tagInputStart({ id }: { id?: string } = {}) {
-        const _undo = { ignore: true };
-
-        this.commit('SET_TAGS_EXPANDED', { value: true, _undo });
-
-        if (id != null) {
-            const tag = this.tags.getters.byId(id, { required: true });
-
-            this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, _undo });
-        } else {
-            this.commit('START_TAGS_INPUT', { value: undefined, _undo });
+        // Stop if we already have an input in progress.
+        if (this.state.tags.input?.mode != null) {
+            return;
         }
+
+        this.group((_undo) => {
+            this.commit('SET_TAGS_EXPANDED', { value: true, _undo });
+
+            if (id != null) {
+                const tag = this.tags.getters.byId(id, { required: true });
+
+                this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, _undo });
+            } else {
+                this.commit('START_TAGS_INPUT', { value: undefined, _undo });
+            }
+        });
     }
 
     tagInputUpdated(value: string) {
@@ -242,6 +247,11 @@ export class GlobalNavigationActions extends Actions<
     }
 
     notebookInputStart({ id, parentId }: { id?: string; parentId?: string } = {}) {
+        // Stop if we already have an input in progress.
+        if (this.state.notebooks.input?.mode != null) {
+            return;
+        }
+
         let notebook: Notebook | undefined;
         let parent: Notebook | undefined;
 

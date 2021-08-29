@@ -1,5 +1,6 @@
 <template>
     <button
+        ref="button"
         :class="[
             'button',
             'is-icon-only',
@@ -12,7 +13,7 @@
             }
         ]"
         :type="type"
-        @click="$emit('click', $event)"
+        @click="onClick"
     >
         <Icon :icon="icon" />
     </button>
@@ -20,13 +21,20 @@
 
 <script lang="ts">
 import Icon from '@/components/elements/Icon.vue';
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 
 export default defineComponent({
     components: { Icon },
     setup(p, c) {
         const iconClasses = computed(() => `fas ${p.icon}`);
-        return { iconClasses };
+
+        const button = ref(null! as HTMLButtonElement);
+
+        const onClick = (ev: MouseEvent) => {
+            c.emit('click', ev);
+        };
+
+        return { iconClasses, onClick, button };
     },
     props: {
         type: {

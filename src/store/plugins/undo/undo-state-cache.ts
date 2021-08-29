@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 /**
  * Fixed interval cache for storing previous store states.
  */
@@ -11,7 +13,10 @@ export class UndoStateCache {
     private _cache: Map<number, any>;
 
     constructor(initialState: any, public readonly interval: number = UndoStateCache.DEFAULT_INTERVAL) {
-        this._cache = new Map([[0, initialState]]);
+        const deepClone = _.cloneDeep(initialState);
+
+        this._cache = new Map([[0, deepClone]]);
+        console.log('init state: ', deepClone);
     }
 
     /**
@@ -20,7 +25,10 @@ export class UndoStateCache {
      */
     push(state: any) {
         const nextIndex = this._calculateNextIndex();
-        this._cache.set(nextIndex, state);
+        const cloned = _.cloneDeep(state);
+
+        console.log('push state at: ', nextIndex, ' state ', cloned);
+        this._cache.set(nextIndex, cloned);
     }
 
     /**
@@ -29,8 +37,13 @@ export class UndoStateCache {
      * @returns The closest previously cached state.
      */
     getLast(index: number): { state: any; index: number } {
-        const lastIndex = this._calculateLast(index);
-        return { state: this._cache.get(lastIndex), index: lastIndex };
+        const lastIndex = this._calculateLastRelativeTo(index);
+
+        const oldState = this._cache.get(lastIndex);
+        const cloned = _.cloneDeep(oldState);
+
+        console.log('get last state: ', oldState);
+        return { state: cloned, index: lastIndex };
     }
 
     /**
@@ -59,7 +72,7 @@ export class UndoStateCache {
      * @param index The index to calculate from.
      * @returns The closest index of previously cached state.
      */
-    private _calculateLast(index: number) {
+    private _calculateLastRelativeTo(index: number) {
         return index - (index % this.interval);
     }
 }
