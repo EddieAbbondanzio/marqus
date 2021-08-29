@@ -38,8 +38,15 @@ export class GlobalNavigationActions extends Actions<
     }
 
     setActive(a: GlobalNavigationItem) {
-        this.commit('SET_ACTIVE', { value: a });
-        this.commit('SET_HIGHLIGHT', { value: a });
+        // Stop if we're setting the same item active
+        if (_.isEqual(this.state.active, a)) {
+            return;
+        }
+
+        this.group((_undo) => {
+            this.commit('SET_ACTIVE', { value: a, _undo });
+            this.commit('SET_HIGHLIGHT', { value: a, _undo });
+        });
     }
 
     clearHighlight() {
@@ -48,12 +55,18 @@ export class GlobalNavigationActions extends Actions<
 
     moveHighlightUp() {
         const next = this.getters.previousItem();
-        this.commit('SET_HIGHLIGHT', { value: next });
+
+        if (!_.isEqual(this.state.highlight, next)) {
+            this.commit('SET_HIGHLIGHT', { value: next });
+        }
     }
 
     moveHighlightDown() {
         const next = this.getters.nextItem();
-        this.commit('SET_HIGHLIGHT', { value: next });
+
+        if (!_.isEqual(this.state.highlight, next)) {
+            this.commit('SET_HIGHLIGHT', { value: next });
+        }
     }
 
     setWidth(width: string) {
@@ -243,7 +256,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     setTagsExpanded(expanded: boolean) {
-        this.commit('SET_TAGS_EXPANDED', { value: expanded, _undo: { ignore: true } });
+        this.commit('SET_TAGS_EXPANDED', { value: expanded });
     }
 
     notebookInputStart({ id, parentId }: { id?: string; parentId?: string } = {}) {
@@ -475,7 +488,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     setNotebooksExpanded(expanded: boolean) {
-        this.commit('SET_NOTEBOOKS_EXPANDED', { value: expanded, _undo: { ignore: true } });
+        this.commit('SET_NOTEBOOKS_EXPANDED', { value: expanded });
     }
 
     notebookDragStart(notebook: Notebook) {
