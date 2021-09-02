@@ -12,8 +12,8 @@ import { mouseObjectManager } from '@/directives/mouse';
 import { mediator } from '@/store/plugins/mediator/mediator';
 import { persist } from '@/store/plugins/persist/persist';
 import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
-import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';
+import { focusManager } from '@/directives/focusable/focus-manager';
 export default {
     components: { Cursor },
     setup: () => {

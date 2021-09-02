@@ -82,7 +82,7 @@ import UndoContainer from '@/components/input/UndoContainer.vue';
 import Scrollable from '@/components/layout/Scrollable.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
-import { focusManager } from '@/directives/focusable';
+import { focusManager } from '@/directives/focusable/focus-manager';
 
 export default defineComponent({
     setup: function() {

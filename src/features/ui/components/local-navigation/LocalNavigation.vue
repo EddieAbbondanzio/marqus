@@ -71,8 +71,8 @@ import { useLocalNavigationContextMenu } from './../../hooks/use-local-navigatio
 import UndoContainer from '@/components/input/UndoContainer.vue';
 import { useLocalNavigation } from '@/features/ui/store/modules/local-navigation';
 import { useNotes } from '@/features/notes/store';
-import { focusManager } from '@/directives/focusable';
 import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
+import { focusManager } from '@/directives/focusable/focus-manager';
 
 export default defineComponent({
     setup: function() {

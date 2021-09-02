@@ -1,66 +1,101 @@
-import { Focusable, FOCUSABLE_ATTRIBUTE_NAME } from '@/directives/focusable/focusable';
+import { Focusable, FOCUSABLE_ATTRIBUTE } from '@/directives/focusable/focusable';
 import { climbDomHierarchy } from '@/shared/utils';
+import { generateId } from '@/store';
 import { nextTick, Ref, ref } from 'vue';
+
+let focusables: Focusable[] = [];
+
+/**
+ * Event handler that determines if a new focusable was focused.
+ * @param event Event to handle.
+ */
+function onFocusIn(event: FocusEvent) {
+    // We might need to climb up the dom tree to handle nested children of a focusable.
+    const focusableEl = climbDomHierarchy(event.target as HTMLElement, {
+        match: (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
+        matchValue: (el) => el
+    });
+
+    if (focusableEl == null) {
+        focusManager.active.value = null;
+    } else {
+        const id = focusableEl.getAttribute(FOCUSABLE_ATTRIBUTE)!;
+        focusManager.active.value = focusables.find((f) => f.id === id)!;
+    }
+}
+
+window.addEventListener('focusin', onFocusIn);
+
 /**
  * Utility that helps track focused section of the app, and allows for changing focus
  * via a method call.
  */
-export class FocusManager {
-    focusables: Focusable[] = [];
-    active: Ref<Focusable | null> = ref(null);
-
-    constructor() {
-        this.onFocusIn = this.onFocusIn.bind(this);
-        window.addEventListener('focusin', this.onFocusIn);
-    }
+export const focusManager = {
+    active: ref(null) as Ref<Focusable | null>,
 
     /**
      * Register a new HTML element that can be focused.
-     * @param name Easy to remember identifier of the element
      * @param el The element
      */
-    register(name: string, el: HTMLElement, opts: { hidden: boolean; querySelector?: string } = { hidden: false }) {
+    register(el: HTMLElement, opts: { hidden: boolean; querySelector?: string; name?: string } = { hidden: false }) {
         let parent;
 
         if (el.parentElement != null) {
             const focusableParentElement = climbDomHierarchy(el.parentElement, {
-                match: (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE_NAME),
+                match: (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
                 matchValue: (el) => el
             });
 
             if (focusableParentElement != null) {
-                const name = focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE_NAME);
+                const name = focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE);
 
-                parent = this.focusables.find(
-                    (f) => f.name === focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE_NAME)
-                );
+                parent = focusables.find((f) => f.name === focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE));
             }
         }
+
+        const id = generateId();
+
+        el.tabIndex = -1; // -1 allows focus via js but not tab key
+        el.setAttribute(FOCUSABLE_ATTRIBUTE, id);
 
         // Check to see if we need to find a nested input within the focusable.
         const element = opts.querySelector ? (el.querySelector(opts.querySelector) as HTMLElement) : el;
 
-        this.focusables.push({ name, el: element, parent });
+        const focusable = {
+            id,
+            el: element,
+            parent,
+            name: opts.name
+        };
+
+        focusables.push(focusable);
 
         if (opts.hidden) {
             el.classList.add('focusable-hidden');
         }
-    }
+    },
 
     /**
      * Remove a focusable element from the manager.
      * @param name The name of the element to remove.
      */
     remove(name: string) {
-        this.focusables = this.focusables.filter((f) => f.name !== name);
-    }
+        const toRemove = focusables.find((f) => f.name === name);
+
+        if (toRemove == null) {
+            throw Error(`No focusable with name ${name} found`);
+        }
+
+        focusables = focusables.filter((f) => f.name !== name);
+        toRemove.el.removeAttribute(FOCUSABLE_ATTRIBUTE);
+    },
 
     /**
      * Focus on a focusable html element.
      * @param name The name of the element to focus.
      */
     focus(name: string) {
-        const focusable = this.focusables.find((f) => f.name === name);
+        const focusable = focusables.find((f) => f.name === name);
 
         if (focusable == null) {
             throw Error(`No focusable with name ${name} found.`);
@@ -71,52 +106,33 @@ export class FocusManager {
             await nextTick();
             focusable.el.focus();
         })();
-    }
+    },
 
     isFocused(name: string, checkNested = false) {
-        if (this.active.value == null) {
+        if (focusManager.active.value == null) {
             return false;
         }
 
         if (!checkNested) {
-            return this.active.value.name === name;
+            return focusManager.active.value.name === name;
         }
 
-        let curr = this.active.value as Focusable | undefined;
+        let curr = focusManager.active.value;
         while (curr != null) {
             if (curr.name === name) {
                 return true;
             }
 
-            curr = curr.parent;
+            curr = curr.parent!;
         }
 
         return false;
-    }
+    },
 
     /**
      * Release the event listener.
      */
     dispose() {
-        window.removeEventListener('focusin', this.onFocusIn);
+        window.removeEventListener('focusin', onFocusIn);
     }
-
-    /**
-     * Event handler that determines if a new focusable was focused.
-     * @param event Event to handle.
-     */
-    private onFocusIn(event: FocusEvent) {
-        // We might need to climb up the dom tree to handle nested children of a focusable.
-        const focusableEl = climbDomHierarchy(event.target as HTMLElement, {
-            match: (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE_NAME),
-            matchValue: (el) => el
-        });
-
-        if (focusableEl == null) {
-            this.active.value = null;
-        } else {
-            const name = focusableEl.getAttribute(FOCUSABLE_ATTRIBUTE_NAME)!;
-            this.active.value = { name, el: focusableEl };
-        }
-    }
-}
+};

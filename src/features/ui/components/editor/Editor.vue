@@ -31,11 +31,11 @@ import { store } from '@/store';
 import { mapGetters, mapState, useStore } from 'vuex';
 import MarkdownEditor from '@/features/ui/components/editor/MarkdownEditor.vue';
 import MarkdownRenderer from '@/features/ui/components/editor/MarkdownRenderer.vue';
-import { focusManager } from '@/directives/focusable';
 import { undo } from '@/store/plugins/undo/undo';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import UndoContainer from '@/components/input/UndoContainer.vue';
 import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
+import { focusManager } from '@/directives/focusable/focus-manager';
 
 export default defineComponent({
     setup: () => {

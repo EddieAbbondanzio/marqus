@@ -1,4 +1,3 @@
-import { focusManager } from '@/directives/focusable';
 import { isModifier, isValidKeyCode, KeyCode } from '@/features/shortcuts/common/key-code';
 import _, { trim } from 'lodash';
 

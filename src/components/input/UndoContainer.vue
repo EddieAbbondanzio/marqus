@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { focusManager } from '@/directives/focusable';
+import { focusManager } from '@/directives/focusable/focus-manager';
 import { undo } from '@/store/plugins/undo';
 import { defineComponent } from 'vue';
 

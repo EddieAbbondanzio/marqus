@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
 import IconButton from '@/components/buttons/IconButton.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
 

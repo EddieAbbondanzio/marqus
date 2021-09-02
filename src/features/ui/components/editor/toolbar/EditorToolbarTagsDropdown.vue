@@ -64,13 +64,13 @@ import { useTags } from '@/features/tags/store';
 import { useNotes } from '@/features/notes/store';
 import EditorToolbarDropdown from '@/features/ui/components/editor/toolbar/EditorToolbarDropdown.vue';
 import ListBuilder from '@/components/input/ListBuilder.vue';
-import { focusManager } from '@/directives/focusable';
 import { useTagValidation } from '@/features/tags/hooks/use-tag-validation';
 import { generateId } from '@/store';
 import { ErrorMessage, Form } from 'vee-validate';
 import InputField from '@/components/input/InputField.vue';
 import Autocomplete from '@/components/input/auto-complete/Autocomplete.vue';
 import { isBlank } from '@/shared/utils';
+import { focusManager } from '@/directives/focusable/focus-manager';
 
 export default defineComponent({
     setup: function(p, c) {

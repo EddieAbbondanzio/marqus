@@ -71,10 +71,10 @@ import ListBuilder from '@/components/input/ListBuilder.vue';
 import Autocomplete from '@/components/input/auto-complete/Autocomplete.vue';
 import { ErrorMessage, Form } from 'vee-validate';
 import InputField from '@/components/input/InputField.vue';
-import { focusManager } from '@/directives/focusable';
 import { generateId } from '@/store';
 import { isBlank } from '@/shared/utils';
 import { useNotebookValidation } from '@/features/notebooks/hooks/use-notebook-validation';
+import { focusManager } from '@/directives/focusable/focus-manager';
 
 export default defineComponent({
     setup() {

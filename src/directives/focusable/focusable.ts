@@ -3,6 +3,6 @@
  * to throw a TypeError X is not a constructor error.
  */
 
-export const FOCUSABLE_ATTRIBUTE_NAME = 'data-focusable';
+export const FOCUSABLE_ATTRIBUTE = 'data-focusable';
 
-export type Focusable = { name: string; el: HTMLElement; parent?: Focusable };
+export type Focusable = { id: string; name?: string; el: HTMLElement; parent?: Focusable };
