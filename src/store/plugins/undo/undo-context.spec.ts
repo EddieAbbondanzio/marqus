@@ -1,15 +1,15 @@
 import { UndoItemOrGroup } from '@/store/plugins/undo/types';
+import { UndoContext } from '@/store/plugins/undo/undo-context';
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
-import { UndoModule } from '@/store/plugins/undo/undo-module';
 import { UndoStateCache } from '@/store/plugins/undo/undo-state-cache';
 import { MutationPayload, Store } from 'vuex';
 
-describe('UndoModule', () => {
+describe('UndoContext', () => {
     describe('push()', () => {
         it('adds calls push() on history', () => {
             const getStore = () => ({} as Store<any>);
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -26,7 +26,7 @@ describe('UndoModule', () => {
             const store = { state: {} } as Store<any>;
             const getStore = () => store;
 
-            const undoModule = new UndoModule({ foo: 1 }, getStore, {
+            const undoModule = new UndoContext({ foo: 1 }, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -46,7 +46,7 @@ describe('UndoModule', () => {
         it('calls rewind() on history', () => {
             const getStore = () => ({ commit: (...args: any) => 1 as any } as Store<any>);
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -65,7 +65,7 @@ describe('UndoModule', () => {
         it('calls canRedo() on history', () => {
             const getStore = () => ({ commit: jest.fn() as any } as Store<any>);
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -86,7 +86,7 @@ describe('UndoModule', () => {
             const commit = jest.fn() as any;
             const getStore = () => ({ commit } as Store<any>);
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -115,7 +115,7 @@ describe('UndoModule', () => {
         it('calls redo() on history', () => {
             const getStore = () => ({ commit: jest.fn() as any } as Store<any>);
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -126,7 +126,7 @@ describe('UndoModule', () => {
             undoModule['_history']['_currentIndex'] = 0;
 
             const redoSpy = jest.spyOn(UndoHistory.prototype as any, 'redo');
-            const replaySpy = jest.spyOn(UndoModule.prototype as any, '_replayMutations');
+            const replaySpy = jest.spyOn(UndoContext.prototype as any, '_replayMutations');
             const id = undoModule.redo();
 
             expect(redoSpy).toBeCalled();
@@ -139,7 +139,7 @@ describe('UndoModule', () => {
             const commit = jest.fn() as any;
             const getStore = () => ({ commit } as Store<any>);
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -160,7 +160,7 @@ describe('UndoModule', () => {
             const commit = jest.fn() as any;
             const getStore = () => ({ commit } as Store<any>);
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -186,7 +186,7 @@ describe('UndoModule', () => {
                 payload: {}
             };
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -215,7 +215,7 @@ describe('UndoModule', () => {
                 }
             };
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',
@@ -245,7 +245,7 @@ describe('UndoModule', () => {
                 }
             };
 
-            const undoModule = new UndoModule({}, getStore, {
+            const undoModule = new UndoContext({}, getStore, {
                 name: 'foo',
                 namespace: 'foo',
                 setStateMutation: 'SET_STATE',

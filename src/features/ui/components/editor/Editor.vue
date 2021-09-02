@@ -42,7 +42,7 @@ export default defineComponent({
         const editor = useEditor();
 
         shortcutManager.subscribe('focusEditor', () => {
-            focusManager.focus('editor');
+            focusManager.focus({ name: 'editor' });
         });
 
         return {

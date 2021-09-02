@@ -142,7 +142,7 @@ export default defineComponent({
             get: () => editor.getters.activeTab?.notebookDropdownVisible ?? false,
             set: (v) => {
                 editor.actions.setNotebooksDropdownVisible(v);
-                focusManager.focus('notebookListBuilder');
+                focusManager.focus({ name: 'notebookListBuilder' });
             }
         });
 

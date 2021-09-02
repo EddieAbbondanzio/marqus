@@ -1,14 +1,14 @@
-import { UndoModule } from '@/store/plugins/undo/undo-module';
+import { UndoContext } from '@/store/plugins/undo/undo-context';
 import { Commit, MutationPayload, Store } from 'vuex';
 
 export interface UndoState {
     release?: () => void;
     store: Store<any>;
-    modules: { [namespace: string]: UndoModule };
+    contexts: { [namespace: string]: UndoContext };
 }
 
-export interface UndoModuleSettings {
-    name: string;
+export interface UndoContextSettings {
+    name?: string;
     namespace: string;
     setStateMutation?: string;
     stateCacheInterval?: number;

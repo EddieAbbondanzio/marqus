@@ -2,7 +2,7 @@ import {
     isUndoGroup,
     UndoItemOrGroup,
     UndoMetadata,
-    UndoModuleSettings,
+    UndoContextSettings,
     UndoReplayMode
 } from '@/store/plugins/undo/types';
 import { UndoHistory } from '@/store/plugins/undo/undo-history';
@@ -17,8 +17,8 @@ import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-a
  * Module that retains it's own history state and handles undo / redo. Used in
  * conjunction with the undo plugin.
  */
-export class UndoModule {
-    get settings(): Readonly<UndoModuleSettings> {
+export class UndoContext {
+    get settings(): Readonly<UndoContextSettings> {
         return this._settings;
     }
 
@@ -32,7 +32,12 @@ export class UndoModule {
      */
     private _stateCache: UndoStateCache;
 
-    constructor(initialState: any, private _getStore: () => Store<any>, private _settings: UndoModuleSettings) {
+    constructor(
+        public id: string,
+        initialState: any,
+        private _getStore: () => Store<any>,
+        private _settings: UndoContextSettings
+    ) {
         this._history = new UndoHistory();
         this._stateCache = new UndoStateCache(initialState);
         this.group = this.group.bind(this);
@@ -196,4 +201,4 @@ export class UndoModule {
     }
 }
 
-export type UndoGrouper = UndoModule['group'];
+export type UndoGrouper = UndoContext['group'];

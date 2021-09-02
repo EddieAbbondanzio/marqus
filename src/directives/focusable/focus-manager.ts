@@ -94,8 +94,18 @@ export const focusManager = {
      * Focus on a focusable html element.
      * @param name The name of the element to focus.
      */
-    focus(name: string) {
-        const focusable = focusables.find((f) => f.name === name);
+    focus(opts: { id?: string; name?: string }) {
+        if (opts.id == null && opts.name == null) {
+            throw Error('Id or name must be passed');
+        }
+
+        let focusable;
+
+        if (opts.id != null) {
+            focusable = focusables.find((f) => f.id === opts.id);
+        } else {
+            focusable = focusables.find((f) => f.name === opts.name);
+        }
 
         if (focusable == null) {
             throw Error(`No focusable with name ${name} found.`);

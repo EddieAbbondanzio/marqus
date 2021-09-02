@@ -95,7 +95,7 @@ export default defineComponent({
         };
 
         shortcutManager.subscribe('focusLocalNavigation', () => {
-            focusManager.focus('localNavigation');
+            focusManager.focus({ name: 'localNavigation' });
         });
 
         useLocalNavigationContextMenu();

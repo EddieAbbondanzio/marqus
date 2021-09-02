@@ -13,7 +13,7 @@ export const globalNavigation = new Module({
     getters: GlobalNavigationGetters
 });
 
-undo.registerModule(new GlobalNavigationState(), {
+undo.registerContext(new GlobalNavigationState(), {
     name: 'globalNavigation',
     namespace: 'ui/globalNavigation'
 });

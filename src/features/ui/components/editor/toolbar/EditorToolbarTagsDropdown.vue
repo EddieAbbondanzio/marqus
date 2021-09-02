@@ -136,7 +136,7 @@ export default defineComponent({
             get: () => editor.getters.activeTab?.tagDropdownVisible ?? false,
             set: (v) => {
                 editor.actions.setTagsDropdownVisible(v);
-                focusManager.focus('tagListBuilder');
+                focusManager.focus({ name: 'tagListBuilder' });
             }
         });
 

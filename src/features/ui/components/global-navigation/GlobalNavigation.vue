@@ -131,7 +131,7 @@ export default defineComponent({
 
         shortcutManager.subscribe('focusGlobalNavigation', () => {
             console.log('focus global nav');
-            focusManager.focus('globalNavigation');
+            focusManager.focus({ name: 'globalNavigation' });
         });
 
         const onScrollUp = () => globalNav.actions.incrementScrollPosition(-30);

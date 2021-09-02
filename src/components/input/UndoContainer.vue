@@ -21,7 +21,7 @@ import { defineComponent } from 'vue';
  */
 export default defineComponent({
     setup(p) {
-        const m = undo.getModule(p.undoName);
+        const m = undo.getContext({ name: p.undoName });
 
         const onUndo = () => {
             if (focusManager.isFocused(p.focusName, true)) {

@@ -17,7 +17,7 @@ export function generateUndoGroupUtil(name: string) {
      * This is kind of a band-aid fix for now until a better solution can be thought of.
      */
     return (handle: (undo: UndoMetadata) => any) => {
-        const m = undo.getModule('globalNavigation');
+        const m = undo.getContext({ name });
         return m.group(handle);
     };
 }
