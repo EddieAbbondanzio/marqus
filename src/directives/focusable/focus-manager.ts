@@ -37,7 +37,7 @@ export const focusManager = {
      * Register a new HTML element that can be focused.
      * @param el The element
      */
-    register(el: HTMLElement, opts: { hidden: boolean; querySelector?: string; name?: string } = { hidden: false }) {
+    register(el: HTMLElement, opts: { hidden?: boolean; querySelector?: string; id?: string; name?: string }) {
         let parent;
 
         if (el.parentElement != null) {
@@ -47,13 +47,12 @@ export const focusManager = {
             });
 
             if (focusableParentElement != null) {
-                const name = focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE);
-
-                parent = focusables.find((f) => f.name === focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE));
+                const id = focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE);
+                parent = focusables.find((f) => f.id === id);
             }
         }
 
-        const id = generateId();
+        const id = opts.id ?? generateId();
 
         el.tabIndex = -1; // -1 allows focus via js but not tab key
         el.setAttribute(FOCUSABLE_ATTRIBUTE, id);
@@ -61,12 +60,7 @@ export const focusManager = {
         // Check to see if we need to find a nested input within the focusable.
         const element = opts.querySelector ? (el.querySelector(opts.querySelector) as HTMLElement) : el;
 
-        const focusable = {
-            id,
-            el: element,
-            parent,
-            name: opts.name
-        };
+        const focusable = new Focusable(element, id, opts.name, parent);
 
         focusables.push(focusable);
 
@@ -77,13 +71,13 @@ export const focusManager = {
 
     /**
      * Remove a focusable element from the manager.
-     * @param name The name of the element to remove.
      */
-    remove(name: string) {
-        const toRemove = focusables.find((f) => f.name === name);
+    remove(el: HTMLElement) {
+        const id = el.getAttribute(FOCUSABLE_ATTRIBUTE);
+        const toRemove = focusables.find((f) => f.id === id);
 
         if (toRemove == null) {
-            throw Error(`No focusable with name ${name} found`);
+            throw Error('No focusable found');
         }
 
         focusables = focusables.filter((f) => f.name !== name);

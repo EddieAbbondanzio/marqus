@@ -1,4 +1,4 @@
-import { KeyCode } from '@/features/shortcuts/common/key-code';
+import { KeyCode } from '@/features/shortcuts/shared/key-code';
 import { shortcut, shortcutManager } from '@/features/shortcuts/directives/shortcut';
 
 describe('v-shortcut', () => {

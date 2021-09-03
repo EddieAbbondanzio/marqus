@@ -8,6 +8,7 @@ export interface UndoState {
 }
 
 export interface UndoContextSettings {
+    id?: string;
     name?: string;
     namespace: string;
     setStateMutation?: string;

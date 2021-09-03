@@ -5,6 +5,7 @@
         v-model="width"
         minWidth="160px"
         v-context-menu:globalNavigation
+        v-focusable:globalNavigation.hidden
         v-shortcut:globalNavigationDeleteHighlightItem="deleteHighlightItem"
         v-shortcut:globalNavigationSetHighlightActive="setHighlightActive"
         v-shortcut:globalNavigationClearHighlight="clearHighlight"
@@ -81,8 +82,8 @@ import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-n
 import UndoContainer from '@/components/input/UndoContainer.vue';
 import Scrollable from '@/components/layout/Scrollable.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
-import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
 import { focusManager } from '@/directives/focusable/focus-manager';
+import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 
 export default defineComponent({
     setup: function() {

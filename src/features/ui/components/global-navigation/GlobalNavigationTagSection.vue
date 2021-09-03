@@ -65,7 +65,7 @@ import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigati
 import { useTags } from '@/features/tags/store';
 import { useTagValidation } from '@/features/tags/hooks/use-tag-validation';
 import Select from '@/components/input/Select.vue';
-import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
+import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 export default defineComponent({
     setup: function() {
         const globalNav = useGlobalNavigation();

@@ -1,7 +1,7 @@
 import { MutationTree, Store } from 'vuex';
 import { ShortcutState } from '@/features/shortcuts/store/state';
-import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
 import { Mutations } from 'vuex-smart-module';
+import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 
 export class ShortcutMutations extends Mutations<ShortcutState> {
     SET_STATE(s: ShortcutState) {

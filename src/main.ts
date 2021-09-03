@@ -8,8 +8,8 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import '@fortawesome/fontawesome-free/js/all.js';
 import { mouse } from './directives/mouse';
 import '@/plugins/vee-validate';
-import { shortcut, shortcutManager } from '@/features/shortcuts/directives/shortcut';
-import { focusable } from '@/directives/focusable';
+import { shortcut } from '@/features/shortcuts/directives/shortcut';
+import { focusable } from '@/directives/focusable/directive';
 import { contextMenu } from '@/directives/context-menu';
 
 const app = createApp(App);

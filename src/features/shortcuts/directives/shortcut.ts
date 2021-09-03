@@ -1,10 +1,8 @@
-import { ShortcutManager } from '@/features/shortcuts/common/shortcut-manager';
-import { ShortcutCallback } from '@/features/shortcuts/common/shortcut-subscriber';
+import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
+import { ShortcutCallback } from '@/features/shortcuts/shared/shortcut-subscriber';
 import { DirectiveBinding } from 'vue';
 
 export type ShortcutDirectiveValue = ShortcutCallback | { callback: ShortcutCallback; when: () => boolean };
-
-export const shortcutManager: ShortcutManager = new ShortcutManager();
 
 export const shortcut = {
     beforeMount: function(el: HTMLElement, binding: DirectiveBinding) {

@@ -1,5 +1,5 @@
-import { KeyCode } from '@/features/shortcuts/common/key-code';
-import { Shortcut } from '@/features/shortcuts/common/shortcut';
+import { KeyCode } from '@/features/shortcuts/shared/key-code';
+import { Shortcut } from '@/features/shortcuts/shared/shortcut';
 
 describe('Shortcut {}', () => {
     describe('ctor', () => {

@@ -1,6 +1,6 @@
-import { KeyCode } from '@/features/shortcuts/common/key-code';
-import { Shortcut } from '@/features/shortcuts/common/shortcut';
-import { ShortcutManager } from '@/features/shortcuts/common/shortcut-manager';
+import { KeyCode } from '@/features/shortcuts/shared/key-code';
+import { Shortcut } from '@/features/shortcuts/shared/shortcut';
+import { ShortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 
 describe('ShortcutManager', () => {
     describe('ctor', () => {

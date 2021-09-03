@@ -1,7 +1,7 @@
 import { ShortcutState } from './state';
 import { persist } from '@/store/plugins/persist/persist';
-import { shortcutFromString } from '@/features/shortcuts/common/shortcut';
-import { DEFAULT_SHORTCUTS } from '@/features/shortcuts/common/default-shortcuts';
+import { shortcutFromString } from '@/features/shortcuts/shared/shortcut';
+import { DEFAULT_SHORTCUTS } from '@/features/shortcuts/shared/default-shortcuts';
 import { createComposable, Module } from 'vuex-smart-module';
 import { ShortcutActions } from '@/features/shortcuts/store/actions';
 import { ShortcutMutations } from '@/features/shortcuts/store/mutations';

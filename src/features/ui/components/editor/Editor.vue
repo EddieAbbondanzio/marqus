@@ -34,8 +34,8 @@ import MarkdownRenderer from '@/features/ui/components/editor/MarkdownRenderer.v
 import { undo } from '@/store/plugins/undo/undo';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import UndoContainer from '@/components/input/UndoContainer.vue';
-import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
 import { focusManager } from '@/directives/focusable/focus-manager';
+import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 
 export default defineComponent({
     setup: () => {

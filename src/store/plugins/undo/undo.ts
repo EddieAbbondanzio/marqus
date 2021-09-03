@@ -86,14 +86,14 @@ export const undo = {
         settings.ignore.unshift(settings.setStateMutation);
         settings.ignore = settings.ignore.map(m => `${settings.namespace}/${m}`);
 
-        const id = generateId();
+        const id = settings.id ?? generateId();
 
         /*
          * Store is null when modules are registered. Because of this, we need to pass in a method
          * that will return the store when called otherwise we'll just be giving the module a null value
          * that doesn't update when the store is set.
          */
-        state.contexts[settings.namespace] = new UndoContext(id, initialState, () => state.store, settings);
+        state.contexts[settings.namespace] = new UndoContext(initialState, () => state.store, settings);
     },
     /**
      * Retrieve an undo module from the plugin. Throws if not found.
@@ -108,7 +108,7 @@ export const undo = {
         
         if (opts.id != null) {
             module = Object.values(state.contexts)
-            .find((m) => m.id === opts.id);
+            .find((m) => m.settings.id === opts.id);
         } else {
             module = Object.values(state.contexts)
             .filter((m) => m.settings.name != null)

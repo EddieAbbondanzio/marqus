@@ -1,4 +1,4 @@
-import { isModifier, isValidKeyCode, KeyCode } from '@/features/shortcuts/common/key-code';
+import { isModifier, isValidKeyCode, KeyCode } from '@/features/shortcuts/shared/key-code';
 import _, { trim } from 'lodash';
 
 export const SHORTCUT_STRING_DELIMITER = '+';

@@ -1,4 +1,4 @@
-import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
+import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 import { ShortcutGetters } from '@/features/shortcuts/store/getters';
 import { ShortcutMutations } from '@/features/shortcuts/store/mutations';
 import { ShortcutState } from '@/features/shortcuts/store/state';

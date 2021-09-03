@@ -11,9 +11,9 @@ import Cursor from '@/components/singletons/Cursor.vue';
 import { mouseObjectManager } from '@/directives/mouse';
 import { mediator } from '@/store/plugins/mediator/mediator';
 import { persist } from '@/store/plugins/persist/persist';
-import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
 import { undo } from '@/store/plugins/undo/undo';
 import { focusManager } from '@/directives/focusable/focus-manager';
+import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 export default {
     components: { Cursor },
     setup: () => {

@@ -45,7 +45,7 @@ import { Notebook } from '@/features/notebooks/common/notebook';
 import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { useNotebooks } from '@/features/notebooks/store';
-import { shortcutManager } from '@/features/shortcuts/directives/shortcut';
+import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 
 export default defineComponent({
     setup: function() {
