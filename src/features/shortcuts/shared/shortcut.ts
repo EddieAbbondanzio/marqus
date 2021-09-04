@@ -12,7 +12,7 @@ export class Shortcut {
 
     private _keys: KeyCode[];
 
-    constructor(public name: string, keys: ReadonlyArray<KeyCode>, public when?: () => boolean) {
+    constructor(public name: string, keys: ReadonlyArray<KeyCode>) {
         this._keys = this._sortKeys(keys);
     }
 
@@ -25,10 +25,6 @@ export class Shortcut {
         // Check for the same amount of keys first
         if (activeKeys.length !== this.keys.length) {
             return false;
-        }
-
-        if (this.when != null && !this.when()) {
-            return;
         }
 
         // XOR will return elements in one, but not the other. So if we have none returned we have a match!

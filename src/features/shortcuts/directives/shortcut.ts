@@ -1,8 +1,7 @@
+import { focusManager } from '@/directives/focusable';
 import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 import { ShortcutCallback } from '@/features/shortcuts/shared/shortcut-subscriber';
 import { DirectiveBinding } from 'vue';
-
-export type ShortcutDirectiveValue = ShortcutCallback | { callback: ShortcutCallback; when: () => boolean };
 
 export const shortcut = {
     beforeMount: function(el: HTMLElement, binding: DirectiveBinding) {
@@ -12,16 +11,27 @@ export const shortcut = {
             throw Error('No shortcut name specified.');
         }
 
-        const value: ShortcutDirectiveValue = binding.value;
+        const callback: ShortcutCallback = binding.value;
 
-        if (value == null) {
-            console.error('Error: ', value);
+        if (callback == null) {
             throw Error('No callback for the shortcut specified.');
         }
 
-        const callback = value as any;
+        // Is it a context based shortcut?
+        let when: (() => boolean) | undefined;
+        if (!binding.modifiers.global) {
+            when = () => {
+                const active = focusManager.active.value;
 
-        shortcutManager.subscribe(shortcutName, callback, { el });
+                if (active == null) {
+                    return false;
+                }
+
+                return active.containsElement(el);
+            };
+        }
+
+        shortcutManager.subscribe(shortcutName, callback, { el, when });
     },
     unmounted: function(el: HTMLElement, binding: DirectiveBinding) {
         const subscribers = shortcutManager.getSubscribersByElement(el);

@@ -40,6 +40,11 @@ export const focusManager = {
     register(el: HTMLElement, opts: { hidden?: boolean; querySelector?: string; id?: string; name?: string }) {
         let parent;
 
+        // Check for unique name first
+        if (opts.name != null && focusables.some((f) => f.name === opts.name)) {
+            throw Error(`Focusable with name ${opts.name} already exists.`);
+        }
+
         if (el.parentElement != null) {
             const focusableParentElement = climbDomHierarchy(el.parentElement, {
                 match: (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),

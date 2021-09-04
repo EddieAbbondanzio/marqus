@@ -58,8 +58,12 @@ export const shortcutManager = {
             shortcuts.push(shortcut);
         }
     },
-    subscribe(shortcutName: string, callback: ShortcutCallback, { el }: { el?: HTMLElement } = {}): ShortcutSubscriber {
-        const sub = new ShortcutSubscriber(shortcutName, callback, el);
+    subscribe(
+        shortcutName: string,
+        callback: ShortcutCallback,
+        opts?: { el?: HTMLElement; when?: () => boolean }
+    ): ShortcutSubscriber {
+        const sub = new ShortcutSubscriber(shortcutName, callback, opts?.el, opts?.when);
 
         if (subscribers[shortcutName] == null) {
             subscribers[shortcutName] = [sub];

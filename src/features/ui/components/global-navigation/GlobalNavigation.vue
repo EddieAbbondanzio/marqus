@@ -17,55 +17,53 @@
             v-shortcut:globalNavigationScrollUp="onScrollUp"
             v-shortcut:globalNavigationScrollDown="onScrollDown"
         >
-            <UndoContainer undoName="globalNavigation" focusName="globalNavigation">
-                <NavigationMenuList>
-                    <NavigationMenuItem
-                        icon="file-alt"
-                        label="ALL"
-                        :active="isActive({ section: 'all' })"
-                        :highlight="isHighlighted({ section: 'all' })"
-                        @click="setActive({ section: 'all' })"
-                        :hideToggle="true"
-                    >
-                        <template #options>
-                            <IconButton
-                                icon="fa-angle-double-down"
-                                class="has-text-grey"
-                                size="is-size-7"
-                                title="Expand all"
-                                @click="expandAll()"
-                            />
-                            <IconButton
-                                icon="fa-angle-double-up"
-                                class="has-text-grey"
-                                size="is-size-7"
-                                title="Collapse all"
-                                @click="collapseAll()"
-                            />
-                        </template>
-                    </NavigationMenuItem>
+            <NavigationMenuList>
+                <NavigationMenuItem
+                    icon="file-alt"
+                    label="ALL"
+                    :active="isActive({ section: 'all' })"
+                    :highlight="isHighlighted({ section: 'all' })"
+                    @click="setActive({ section: 'all' })"
+                    :hideToggle="true"
+                >
+                    <template #options>
+                        <IconButton
+                            icon="fa-angle-double-down"
+                            class="has-text-grey"
+                            size="is-size-7"
+                            title="Expand all"
+                            @click="expandAll()"
+                        />
+                        <IconButton
+                            icon="fa-angle-double-up"
+                            class="has-text-grey"
+                            size="is-size-7"
+                            title="Collapse all"
+                            @click="collapseAll()"
+                        />
+                    </template>
+                </NavigationMenuItem>
 
-                    <GlobalNavigationNotebookSection />
+                <GlobalNavigationNotebookSection />
 
-                    <GlobalNavigationTagSection />
+                <GlobalNavigationTagSection />
 
-                    <NavigationMenuItem
-                        icon="star"
-                        label="FAVORITES"
-                        :active="isActive({ section: 'favorites' })"
-                        :highlight="isHighlighted({ section: 'favorites' })"
-                        @click="setActive({ section: 'favorites' })"
-                    />
+                <NavigationMenuItem
+                    icon="star"
+                    label="FAVORITES"
+                    :active="isActive({ section: 'favorites' })"
+                    :highlight="isHighlighted({ section: 'favorites' })"
+                    @click="setActive({ section: 'favorites' })"
+                />
 
-                    <NavigationMenuItem
-                        icon="trash"
-                        label="TRASH"
-                        :active="isActive({ section: 'trash' })"
-                        :highlight="isHighlighted({ section: 'trash' })"
-                        @click="setActive({ section: 'trash' })"
-                    />
-                </NavigationMenuList>
-            </UndoContainer>
+                <NavigationMenuItem
+                    icon="trash"
+                    label="TRASH"
+                    :active="isActive({ section: 'trash' })"
+                    :highlight="isHighlighted({ section: 'trash' })"
+                    @click="setActive({ section: 'trash' })"
+                />
+            </NavigationMenuList>
         </Scrollable>
     </Resizable>
 </template>
@@ -79,7 +77,6 @@ import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuList from '@/components/navigation/NavigationMenuList.vue';
 import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-navigation-context-menu';
-import UndoContainer from '@/components/input/UndoContainer.vue';
 import Scrollable from '@/components/layout/Scrollable.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { focusManager } from '@/directives/focusable/focus-manager';
@@ -162,7 +159,6 @@ export default defineComponent({
         NavigationMenuItem,
         NavigationMenuList,
         IconButton,
-        UndoContainer,
         Scrollable
     }
 });
