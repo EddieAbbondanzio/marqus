@@ -9,7 +9,7 @@
                 'has-background-light': active || highlight
             }"
             @click="onClick"
-            v-shortcut:toggleExpandCollapse="toggle"
+            v-shortcut:toggle="toggle"
         >
             <div
                 class=" has-text-grey is-flex is-justify-content-space-between is-align-center"

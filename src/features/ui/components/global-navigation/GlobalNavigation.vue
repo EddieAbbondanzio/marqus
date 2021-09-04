@@ -6,17 +6,13 @@
         minWidth="160px"
         v-context-menu:globalNavigation
         v-focusable:globalNavigation.hidden
-        v-shortcut:globalNavigationDeleteHighlightItem="deleteHighlightItem"
-        v-shortcut:globalNavigationSetHighlightActive="setHighlightActive"
-        v-shortcut:globalNavigationClearHighlight="clearHighlight"
-        v-shortcut:globalNavigationMoveHighlightUp="moveHighlightUp"
-        v-shortcut:globalNavigationMoveHighlightDown="moveHighlightDown"
+        v-shortcut:delete="deleteHighlightItem"
+        v-shortcut:enter="setHighlightActive"
+        v-shortcut:escape="clearHighlight"
+        v-shortcut:moveSelectionUp="moveHighlightUp"
+        v-shortcut:moveSelectionDown="moveHighlightDown"
     >
-        <Scrollable
-            v-model="scrollPosition"
-            v-shortcut:globalNavigationScrollUp="onScrollUp"
-            v-shortcut:globalNavigationScrollDown="onScrollDown"
-        >
+        <Scrollable v-model="scrollPosition" v-shortcut:scrollUp="onScrollUp" v-shortcut:scrollDown="onScrollDown">
             <NavigationMenuList>
                 <NavigationMenuItem
                     icon="file-alt"
