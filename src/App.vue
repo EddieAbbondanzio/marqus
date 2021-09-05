@@ -12,8 +12,8 @@ import { mouseObjectManager } from '@/directives/mouse';
 import { mediator } from '@/store/plugins/mediator/mediator';
 import { persist } from '@/store/plugins/persist/persist';
 import { undo } from '@/store/plugins/undo/undo';
-import { focusManager } from '@/directives/focusable/focus-manager';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
+import { inputScopes } from '@/directives/input-scope';
 
 export default {
     components: { Cursor },
@@ -28,7 +28,7 @@ export default {
             persist.release();
             mediator.release();
 
-            focusManager.dispose();
+            inputScopes.dispose();
             mouseObjectManager.dispose();
             shortcuts.dispose();
         });

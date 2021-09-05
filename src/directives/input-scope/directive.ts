@@ -1,5 +1,5 @@
-import { focusManager } from '@/directives/focusable/focus-manager';
-import { FOCUSABLE_ATTRIBUTE } from '@/directives/focusable/focusable';
+import { inputScopes } from '@/directives/input-scope/input-scopes';
+import { INPUT_SCOPE_ATTRIBUTE } from '@/directives/input-scope/scope';
 import { Directive, DirectiveBinding } from '@vue/runtime-core';
 
 /**
@@ -10,19 +10,17 @@ import { Directive, DirectiveBinding } from '@vue/runtime-core';
  * v-focusable:TEST_NAME -> Hidden focusable
  * v-focusable:globalNavigation.visible -> highlight element when active
  */
-export const focusable: Directive = {
+export const inputScope: Directive = {
     mounted: (el: HTMLElement, binding: DirectiveBinding) => {
         const name = binding.arg;
-
-        console.log(binding.modifiers);
 
         const hidden = isHidden(binding.modifiers);
         const querySelector = binding.value != null ? binding.value.querySelector : null;
 
-        focusManager.register(el, { hidden, querySelector, name });
+        inputScopes.register(el, { hidden, querySelector, name });
     },
     beforeUnmount: (el: HTMLElement, binding: DirectiveBinding) => {
-        focusManager.remove(el);
+        inputScopes.remove(el);
     }
 };
 

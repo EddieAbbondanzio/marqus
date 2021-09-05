@@ -9,7 +9,7 @@ import '@fortawesome/fontawesome-free/js/all.js';
 import { mouse } from './directives/mouse';
 import '@/plugins/vee-validate';
 import { shortcut } from '@/features/shortcuts/directives/shortcut';
-import { focusable } from '@/directives/focusable/directive';
+import { inputScope } from '@/directives/input-scope/directive';
 import { contextMenu } from '@/directives/context-menu';
 
 const app = createApp(App);
@@ -20,5 +20,5 @@ app.use(store)
 
 app.directive('mouse', mouse);
 app.directive('shortcut', shortcut);
-app.directive('focusable', focusable);
+app.directive('input-scope', inputScope);
 app.directive('context-menu', contextMenu);

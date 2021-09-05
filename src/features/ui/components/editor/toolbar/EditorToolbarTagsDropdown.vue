@@ -5,7 +5,7 @@
                 :selected="selectedTags"
                 @add="onAdd"
                 @remove="onRemove"
-                v-focusable:tagListBuilder.hidden="{ querySelector: 'input' }"
+                v-input-scope:tagListBuilder.hidden="{ querySelector: 'input' }"
             >
                 <template #item="{item}">
                     {{ item.value }}
@@ -70,7 +70,7 @@ import { ErrorMessage, Form } from 'vee-validate';
 import InputField from '@/components/input/InputField.vue';
 import Autocomplete from '@/components/input/auto-complete/Autocomplete.vue';
 import { isBlank } from '@/shared/utils';
-import { focusManager } from '@/directives/focusable/focus-manager';
+import { inputScopes } from '@/directives/input-scope/input-scopes';
 
 export default defineComponent({
     setup: function(p, c) {
@@ -136,7 +136,7 @@ export default defineComponent({
             get: () => editor.getters.activeTab?.tagDropdownVisible ?? false,
             set: (v) => {
                 editor.actions.setTagsDropdownVisible(v);
-                focusManager.focus({ name: 'tagListBuilder' });
+                inputScopes.focus({ name: 'tagListBuilder' });
             }
         });
 

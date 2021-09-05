@@ -1,7 +1,7 @@
 <template>
     <div
         class="is-flex is-flex-column is-flex-grow-1 has-h-100"
-        v-focusable:[focusName].hidden
+        v-input-scope:[focusName].hidden
         v-shortcut:undo="onUndo"
         v-shortcut:redo="onRedo"
     >
@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { focusManager } from '@/directives/focusable/focus-manager';
+import { inputScopes } from '@/directives/input-scope';
 import { undo } from '@/store/plugins/undo';
 import { defineComponent } from 'vue';
 
@@ -24,7 +24,7 @@ export default defineComponent({
         const m = undo.getContext({ name: p.undoName });
 
         const onUndo = () => {
-            if (focusManager.isFocused(p.focusName, true)) {
+            if (inputScopes.isFocused(p.focusName, true)) {
                 if (m.canUndo()) {
                     m.undo();
                 } else {
@@ -34,7 +34,7 @@ export default defineComponent({
         };
 
         const onRedo = () => {
-            if (focusManager.isFocused(p.focusName, true)) {
+            if (inputScopes.isFocused(p.focusName, true)) {
                 if (m.canRedo()) {
                     console.log('redo');
                     m.redo();

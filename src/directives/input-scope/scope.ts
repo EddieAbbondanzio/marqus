@@ -5,15 +5,15 @@
 
 import { climbDomHierarchy } from '@/shared/utils';
 
-export const FOCUSABLE_ATTRIBUTE = 'data-focusable';
-export const FOCUSABLE_HIDDEN_ATTRIBUTE = 'data-focusable-hidden';
+export const INPUT_SCOPE_ATTRIBUTE = 'data-focusable';
+export const INPUT_SCOPE_HIDDEN_ATTRIBUTE = 'data-focusable-hidden';
 
-export class Focusable {
+export class InputScope {
     constructor(public el: HTMLElement, public id: string, public name?: string) {}
 
     containsElement(element: HTMLElement): boolean {
         return climbDomHierarchy(element, {
-            match: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) === this.id
+            match: (el) => el.getAttribute(INPUT_SCOPE_ATTRIBUTE) === this.id
         });
     }
 }

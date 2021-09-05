@@ -1,4 +1,4 @@
-import { Focusable, FOCUSABLE_ATTRIBUTE, focusManager } from '@/directives/focusable';
+import { InputScope, INPUT_SCOPE_ATTRIBUTE, inputScopes } from '@/directives/input-scope';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 import { ShortcutCallback } from '@/features/shortcuts/shared/shortcut-subscriber';
 import { climbDomHierarchy } from '@/shared/utils';
@@ -23,14 +23,14 @@ export const shortcut = {
         if (!binding.modifiers.global) {
             when = () => {
                 const allActiveFocusables = [];
-                let element = focusManager.active.value?.el ?? null;
+                let element = inputScopes.active.value?.el ?? null;
 
                 // Find all of the focusables that are currently active
                 while (element != null) {
-                    const focusableId = element.getAttribute(FOCUSABLE_ATTRIBUTE);
+                    const focusableId = element.getAttribute(INPUT_SCOPE_ATTRIBUTE);
 
                     if (focusableId != null) {
-                        allActiveFocusables.push(focusManager.findById(focusableId));
+                        allActiveFocusables.push(inputScopes.findById(focusableId));
                     }
 
                     element = element.parentElement;

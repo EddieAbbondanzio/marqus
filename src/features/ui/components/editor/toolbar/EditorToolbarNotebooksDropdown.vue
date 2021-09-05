@@ -5,7 +5,7 @@
                 :selected="selectedNotebooks"
                 @add="onAdd"
                 @remove="onRemove"
-                v-focusable:notebookListBuilder.hidden="{ querySelector: 'input' }"
+                v-input-scope:notebookListBuilder.hidden="{ querySelector: 'input' }"
             >
                 <template #item="{item}">
                     <p :title="fullyQualify(item)">{{ item.value }}</p>
@@ -74,7 +74,7 @@ import InputField from '@/components/input/InputField.vue';
 import { generateId } from '@/store';
 import { isBlank } from '@/shared/utils';
 import { useNotebookValidation } from '@/features/notebooks/hooks/use-notebook-validation';
-import { focusManager } from '@/directives/focusable/focus-manager';
+import { inputScopes } from '@/directives/input-scope/input-scopes';
 
 export default defineComponent({
     setup() {
@@ -142,7 +142,7 @@ export default defineComponent({
             get: () => editor.getters.activeTab?.notebookDropdownVisible ?? false,
             set: (v) => {
                 editor.actions.setNotebooksDropdownVisible(v);
-                focusManager.focus({ name: 'notebookListBuilder' });
+                inputScopes.focus({ name: 'notebookListBuilder' });
             }
         });
 

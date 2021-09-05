@@ -1,4 +1,3 @@
-import { focusManager } from '@/directives/focusable/focus-manager';
 import { KeyCode } from '@/features/shortcuts/shared/key-code';
 import { Shortcut } from '@/features/shortcuts/shared/shortcut';
 

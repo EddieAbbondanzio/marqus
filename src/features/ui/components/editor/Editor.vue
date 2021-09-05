@@ -34,15 +34,15 @@ import MarkdownRenderer from '@/features/ui/components/editor/MarkdownRenderer.v
 import { undo } from '@/store/plugins/undo/undo';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import UndoContainer from '@/components/input/UndoContainer.vue';
-import { focusManager } from '@/directives/focusable/focus-manager';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
+import { inputScopes } from '@/directives/input-scope/input-scopes';
 
 export default defineComponent({
     setup: () => {
         const editor = useEditor();
 
         shortcuts.subscribe('focusEditor', () => {
-            focusManager.focus({ name: 'editor' });
+            inputScopes.focus({ name: 'editor' });
         });
 
         return {
@@ -50,7 +50,7 @@ export default defineComponent({
             activeTab: computed(() => editor.getters.activeTab),
             mode: computed(() => editor.state.mode),
             isFocus: computed(() => editor.state.isFocus),
-            focused: focusManager.active
+            focused: inputScopes.active
         };
     },
     components: {

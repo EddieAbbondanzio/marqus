@@ -5,7 +5,7 @@
         v-model="width"
         minWidth="160px"
         v-context-menu:globalNavigation
-        v-focusable:globalNavigation
+        v-input-scope:globalNavigation
         v-shortcut:delete="deleteHighlightItem"
         v-shortcut:enter="setHighlightActive"
         v-shortcut:escape="clearHighlight"
@@ -76,8 +76,8 @@ import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-navigation-context-menu';
 import Scrollable from '@/components/layout/Scrollable.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
-import { focusManager } from '@/directives/focusable/focus-manager';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
+import { inputScopes } from '@/directives/input-scope/input-scopes';
 
 export default defineComponent({
     setup: function() {
@@ -126,7 +126,7 @@ export default defineComponent({
 
         shortcuts.subscribe('focusGlobalNavigation', () => {
             console.log('focus global nav');
-            focusManager.focus({ name: 'globalNavigation' });
+            inputScopes.focus({ name: 'globalNavigation' });
         });
 
         const onScrollUp = () => globalNav.actions.incrementScrollPosition(-30);
