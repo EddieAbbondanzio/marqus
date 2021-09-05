@@ -6,6 +6,7 @@
 import { climbDomHierarchy } from '@/shared/utils';
 
 export const FOCUSABLE_ATTRIBUTE = 'data-focusable';
+export const FOCUSABLE_HIDDEN_ATTRIBUTE = 'data-focusable-hidden';
 
 export class Focusable {
     constructor(public el: HTMLElement, public id: string, public name?: string) {}

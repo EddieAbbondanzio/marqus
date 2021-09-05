@@ -25,6 +25,7 @@ export const shortcut = {
                 const allActiveFocusables = [];
                 let element = focusManager.active.value?.el ?? null;
 
+                // Find all of the focusables that are currently active
                 while (element != null) {
                     const focusableId = element.getAttribute(FOCUSABLE_ATTRIBUTE);
 
@@ -35,6 +36,7 @@ export const shortcut = {
                     element = element.parentElement;
                 }
 
+                // Is the shortcut directive on an element that is currently focused?
                 for (const focusable of allActiveFocusables) {
                     if (focusable?.containsElement(el)) {
                         return true;

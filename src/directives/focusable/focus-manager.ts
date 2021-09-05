@@ -1,4 +1,4 @@
-import { Focusable, FOCUSABLE_ATTRIBUTE } from '@/directives/focusable/focusable';
+import { Focusable, FOCUSABLE_ATTRIBUTE, FOCUSABLE_HIDDEN_ATTRIBUTE } from '@/directives/focusable/focusable';
 import { climbDomHierarchy } from '@/shared/utils';
 import { generateId } from '@/store';
 import { nextTick, Ref, ref } from 'vue';
@@ -46,7 +46,6 @@ export const focusManager = {
         }
 
         const id = opts.id ?? generateId();
-
         el.tabIndex = -1; // -1 allows focus via js but not tab key
         el.setAttribute(FOCUSABLE_ATTRIBUTE, id);
 
@@ -55,10 +54,9 @@ export const focusManager = {
 
         const focusable = new Focusable(element, id, opts.name);
         focusables.push(focusable);
-        console.log('registered: ', focusable);
 
         if (opts.hidden) {
-            el.classList.add('focusable-hidden');
+            el.setAttribute(FOCUSABLE_HIDDEN_ATTRIBUTE, 'true');
         }
     },
 
