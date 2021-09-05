@@ -65,7 +65,8 @@ import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigati
 import { useTags } from '@/features/tags/store';
 import { useTagValidation } from '@/features/tags/hooks/use-tag-validation';
 import Select from '@/components/input/Select.vue';
-import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
+import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
+
 export default defineComponent({
     setup: function() {
         const globalNav = useGlobalNavigation();
@@ -87,7 +88,7 @@ export default defineComponent({
 
         const formRules = useTagValidation(() => globalNav.state.tags.input);
 
-        shortcutManager.subscribe('globalNavigationCreateTag', () => globalNav.actions.tagInputStart());
+        shortcuts.subscribe('globalNavigationCreateTag', () => globalNav.actions.tagInputStart());
 
         return {
             expanded,

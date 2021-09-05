@@ -5,7 +5,7 @@
         v-model="width"
         minWidth="160px"
         v-context-menu:globalNavigation
-        v-focusable:globalNavigation.hidden
+        v-focusable:globalNavigation
         v-shortcut:delete="deleteHighlightItem"
         v-shortcut:enter="setHighlightActive"
         v-shortcut:escape="clearHighlight"
@@ -77,7 +77,7 @@ import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-n
 import Scrollable from '@/components/layout/Scrollable.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { focusManager } from '@/directives/focusable/focus-manager';
-import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
+import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 
 export default defineComponent({
     setup: function() {
@@ -124,7 +124,7 @@ export default defineComponent({
             }
         };
 
-        shortcutManager.subscribe('focusGlobalNavigation', () => {
+        shortcuts.subscribe('focusGlobalNavigation', () => {
             console.log('focus global nav');
             focusManager.focus({ name: 'globalNavigation' });
         });

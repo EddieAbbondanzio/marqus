@@ -2,7 +2,7 @@ import { KeyCode, parseKey } from '@/features/shortcuts/shared/key-code';
 import { Shortcut } from '@/features/shortcuts/shared/shortcut';
 import { ShortcutCallback, ShortcutSubscriber } from '@/features/shortcuts/shared/shortcut-subscriber';
 
-let shortcuts: Shortcut[] = [];
+let defined: Shortcut[] = [];
 let activeKeys: { [key: string]: boolean } = {};
 let subscribers: { [shortcutName: string]: ShortcutSubscriber[] } = {};
 
@@ -28,7 +28,7 @@ function onKeyDown(e: KeyboardEvent) {
     // Retrieve the set of keys currently pressed down.
     const active = Object.keys(activeKeys);
 
-    shortcuts.forEach((s) => {
+    defined.forEach((s) => {
         // Did we hit a match? TODO: Refactor this for performance reasons?
         if (s.isMatch(active as any[])) {
             const subsToNotify = subscribers[s.name];
@@ -50,12 +50,12 @@ function onKeyUp(e: KeyboardEvent) {
 window.addEventListener('keydown', onKeyDown);
 window.addEventListener('keyup', onKeyUp);
 
-export const shortcutManager = {
+export const shortcuts = {
     register(shortcut: Shortcut | Shortcut[]) {
         if (Array.isArray(shortcut)) {
-            shortcuts.push(...shortcut);
+            defined.push(...shortcut);
         } else {
-            shortcuts.push(shortcut);
+            defined.push(shortcut);
         }
     },
     subscribe(
@@ -84,7 +84,7 @@ export const shortcutManager = {
     reset() {
         subscribers = {};
         activeKeys = {};
-        shortcuts = [];
+        defined = [];
     },
     dispose() {
         window.removeEventListener('keydown', onKeyDown);

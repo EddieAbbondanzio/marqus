@@ -45,7 +45,7 @@ import { Notebook } from '@/features/notebooks/common/notebook';
 import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { useNotebooks } from '@/features/notebooks/store';
-import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
+import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 
 export default defineComponent({
     setup: function() {
@@ -72,7 +72,7 @@ export default defineComponent({
             ]
         };
 
-        shortcutManager.subscribe('globalNavigationCreateNotebook', () => {
+        shortcuts.subscribe('globalNavigationCreateNotebook', () => {
             const highlighted = globalNav.state.highlight;
 
             if (highlighted != null && highlighted.section === 'notebook') {

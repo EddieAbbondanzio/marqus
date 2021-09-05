@@ -72,7 +72,7 @@ import UndoContainer from '@/components/input/UndoContainer.vue';
 import { useLocalNavigation } from '@/features/ui/store/modules/local-navigation';
 import { useNotes } from '@/features/notes/store';
 import { focusManager } from '@/directives/focusable/focus-manager';
-import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
+import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 
 export default defineComponent({
     setup: function() {
@@ -94,7 +94,7 @@ export default defineComponent({
             unique: [() => notes.state.values, (n: Note) => n.id, (n: Note) => n.name, () => localNav.state.notes.input]
         };
 
-        shortcutManager.subscribe('focusLocalNavigation', () => {
+        shortcuts.subscribe('focusLocalNavigation', () => {
             focusManager.focus({ name: 'localNavigation' });
         });
 

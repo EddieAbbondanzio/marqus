@@ -13,7 +13,8 @@ import { mediator } from '@/store/plugins/mediator/mediator';
 import { persist } from '@/store/plugins/persist/persist';
 import { undo } from '@/store/plugins/undo/undo';
 import { focusManager } from '@/directives/focusable/focus-manager';
-import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
+import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
+
 export default {
     components: { Cursor },
     setup: () => {
@@ -29,7 +30,7 @@ export default {
 
             focusManager.dispose();
             mouseObjectManager.dispose();
-            shortcutManager.dispose();
+            shortcuts.dispose();
         });
     }
 };

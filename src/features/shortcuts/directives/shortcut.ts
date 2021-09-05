@@ -1,5 +1,5 @@
 import { Focusable, FOCUSABLE_ATTRIBUTE, focusManager } from '@/directives/focusable';
-import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
+import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 import { ShortcutCallback } from '@/features/shortcuts/shared/shortcut-subscriber';
 import { climbDomHierarchy } from '@/shared/utils';
 import { DirectiveBinding } from 'vue';
@@ -47,16 +47,16 @@ export const shortcut = {
             };
         }
 
-        shortcutManager.subscribe(shortcutName, callback, { el, when });
+        shortcuts.subscribe(shortcutName, callback, { el, when });
     },
     unmounted: function(el: HTMLElement, binding: DirectiveBinding) {
-        const subscribers = shortcutManager.getSubscribersByElement(el);
+        const subscribers = shortcuts.getSubscribersByElement(el);
         const subscriber = subscribers.find((s) => s.shortcutName === binding.arg);
 
         if (subscriber == null) {
             throw Error('No subscriber to remove');
         }
 
-        shortcutManager.unsubscribe(subscriber);
+        shortcuts.unsubscribe(subscriber);
     }
 };

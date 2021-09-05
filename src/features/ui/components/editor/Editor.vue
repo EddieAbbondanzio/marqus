@@ -35,13 +35,13 @@ import { undo } from '@/store/plugins/undo/undo';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import UndoContainer from '@/components/input/UndoContainer.vue';
 import { focusManager } from '@/directives/focusable/focus-manager';
-import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
+import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 
 export default defineComponent({
     setup: () => {
         const editor = useEditor();
 
-        shortcutManager.subscribe('focusEditor', () => {
+        shortcuts.subscribe('focusEditor', () => {
             focusManager.focus({ name: 'editor' });
         });
 
