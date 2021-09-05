@@ -5,7 +5,7 @@ import { LocalNavigationGetters } from '@/features/ui/store/modules/local-naviga
 import { LocalNavigationMutations } from '@/features/ui/store/modules/local-navigation/mutations';
 import { confirmDeleteOrTrash } from '@/shared/utils';
 import { generateId } from '@/store';
-import { undo, UndoGrouper } from '@/store/plugins/undo';
+import { undo, UndoContext } from '@/store/plugins/undo';
 import { ActionTree, Store } from 'vuex';
 import { Actions, Context } from 'vuex-smart-module';
 import { LocalNavigationState } from './state';
@@ -19,13 +19,13 @@ export class LocalNavigationActions extends Actions<
     globalNav!: Context<typeof globalNavigation>;
     notes!: Context<typeof notes>;
 
-    group!: UndoGrouper;
+    undoContext!: UndoContext;
 
     $init(store: Store<any>) {
         this.globalNav = globalNavigation.context(store);
         this.notes = notes.context(store);
 
-        this.group = undo.generateGrouper('localNavigation');
+        this.undoContext = undo.getContext({ name: 'localNavigation' });
     }
 
     setActive(id: string) {
@@ -60,7 +60,7 @@ export class LocalNavigationActions extends Actions<
 
     noteInputConfirm() {
         // We group it so we can track
-        this.group((_undo) => {
+        this.undoContext.group((_undo) => {
             const input = this.state.notes.input!;
             let note: Note;
             let old: Note | undefined;
@@ -130,7 +130,7 @@ export class LocalNavigationActions extends Actions<
                 break;
 
             case 'trash':
-                this.group((_undo) => {
+                this.undoContext.group((_undo) => {
                     this.notes.commit('MOVE_TO_TRASH', {
                         value: id,
                         _undo: {

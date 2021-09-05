@@ -12,7 +12,7 @@ import { GlobalNavigationMutations } from '@/features/ui/store/modules/global-na
 import { tags } from '@/features/tags/store';
 import { notebooks } from '@/features/notebooks/store';
 import { notes } from '@/features/notes/store';
-import { UndoGrouper } from '@/store/plugins/undo';
+import { UndoContext } from '@/store/plugins/undo';
 import { NotebookCreate } from '@/features/notebooks/store/mutations';
 import _ from 'lodash';
 import { nextTick } from 'vue';
@@ -27,14 +27,14 @@ export class GlobalNavigationActions extends Actions<
     notebooks!: Context<typeof notebooks>;
     notes!: Context<typeof notes>;
 
-    group!: UndoGrouper;
+    undoContext!: UndoContext;
 
     async $init(store: Store<any>) {
         this.tags = tags.context(store);
         this.notebooks = notebooks.context(store);
         this.notes = notes.context(store);
 
-        this.group = undo.generateGrouper('globalNavigation');
+        this.undoContext = undo.getContext({ name: 'globalNavigation' });
     }
 
     setActive(a: GlobalNavigationItem) {
@@ -43,7 +43,7 @@ export class GlobalNavigationActions extends Actions<
             return;
         }
 
-        this.group((_undo) => {
+        this.undoContext.group((_undo) => {
             this.commit('SET_ACTIVE', { value: a, _undo });
             this.commit('SET_HIGHLIGHT', { value: a, _undo });
         });
@@ -116,7 +116,7 @@ export class GlobalNavigationActions extends Actions<
             return;
         }
 
-        this.group((_undo) => {
+        this.undoContext.group((_undo) => {
             this.commit('SET_TAGS_EXPANDED', { value: true, _undo });
 
             if (id != null) {
@@ -138,7 +138,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     tagInputConfirm() {
-        this.group((_undo) => {
+        this.undoContext.group((_undo) => {
             const input = this.state.tags.input;
             let existing: Tag;
 
@@ -201,7 +201,7 @@ export class GlobalNavigationActions extends Actions<
         const tag = this.tags.getters.byId(id, { required: true });
 
         if (await confirmDelete('tag', tag.value)) {
-            await this.group(async (_undo) => {
+            await this.undoContext.group(async (_undo) => {
                 _undo.cache = { id, value: tag.value };
 
                 this.tags.commit('DELETE', {
@@ -247,7 +247,7 @@ export class GlobalNavigationActions extends Actions<
 
     async tagDeleteAll() {
         if (await confirmDelete('every tag', '')) {
-            await this.group((_undo) => {
+            await this.undoContext.group((_undo) => {
                 // Cache off tags
                 _undo.cache.tags = [];
                 for (const tag of this.tags.state.values) {
@@ -344,7 +344,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     notebookInputConfirm() {
-        this.group((_undo) => {
+        this.undoContext.group((_undo) => {
             const input = this.state.notebooks.input!;
             let notebook: NotebookCreate;
             let old: Notebook | undefined;
@@ -427,7 +427,7 @@ export class GlobalNavigationActions extends Actions<
         const notebook = this.notebooks.getters.byId(id, { required: true });
 
         if (await confirmDelete('notebook', notebook.value)) {
-            this.group((_undo) => {
+            this.undoContext.group((_undo) => {
                 _undo.cache = {
                     id: notebook.id,
                     value: notebook.value,
@@ -479,7 +479,7 @@ export class GlobalNavigationActions extends Actions<
 
     async notebookDeleteAll() {
         if (await confirmDelete('every notebook', '')) {
-            await this.group((_undo) => {
+            await this.undoContext.group((_undo) => {
                 // Cache off notebooks
                 _undo.cache.notebooks = [];
                 for (const notebook of this.notebooks.getters.flatten) {

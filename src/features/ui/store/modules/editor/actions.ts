@@ -7,7 +7,7 @@ import { EditorGetters } from '@/features/ui/store/modules/editor/getters';
 import { EditorMutations } from '@/features/ui/store/modules/editor/mutations';
 import { notes } from '@/features/notes/store';
 import { Store } from 'vuex';
-import { undo, UndoGrouper } from '@/store/plugins/undo';
+import { undo, UndoContext } from '@/store/plugins/undo';
 import { tags } from '@/features/tags/store';
 import { generateId } from '@/store';
 import { notebooks } from '@/features/notebooks/store';
@@ -17,13 +17,13 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
     tags!: Context<typeof tags>;
     notebooks!: Context<typeof notebooks>;
 
-    group!: UndoGrouper;
+    undoContext!: UndoContext;
 
     $init(store: Store<any>) {
         this.notes = notes.context(store);
         this.tags = tags.context(store);
         this.notebooks = notebooks.context(store);
-        this.group = undo.generateGrouper('editor');
+        this.undoContext = undo.getContext({ name: 'editor' });
     }
 
     createTag(t: { id: string; value: string }) {
@@ -121,7 +121,7 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
                 break;
 
             case 'trash':
-                this.group((_undo) => {
+                this.undoContext.group((_undo) => {
                     this.notes.commit('MOVE_TO_TRASH', {
                         value: activeNote.id,
                         _undo: {

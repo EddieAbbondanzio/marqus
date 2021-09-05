@@ -1,7 +1,7 @@
 import { generateId } from '@/store/common/types/entity';
 import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
 import { UndoMetadata, UndoContextSettings, UndoState } from '@/store/plugins/undo/types';
-import { UndoContext, UndoGrouper } from '@/store/plugins/undo/undo-context';
+import { UndoContext } from '@/store/plugins/undo/undo-context';
 import { MutationPayload, Store } from 'vuex';
 
 const state: UndoState = { contexts: {}, store: null! };
@@ -123,11 +123,5 @@ export const undo = {
     },
     reset() {
         state.contexts = {};
-    },
-    generateGrouper(name: string): UndoGrouper {
-        const m = undo.getContext({ name });
-        const g = m.group.bind(m);
-
-        return g;
     }
 };

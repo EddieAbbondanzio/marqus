@@ -207,5 +207,3 @@ export class UndoContext {
         }
     }
 }
-
-export type UndoGrouper = UndoContext['group'];
