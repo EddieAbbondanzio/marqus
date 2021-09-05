@@ -3,7 +3,7 @@ import { climbDomHierarchy } from '@/shared/utils';
 import { generateId } from '@/store';
 import { nextTick, Ref, ref } from 'vue';
 
-const items: InputScope[] = [];
+const scopes: InputScope[] = [];
 
 /**
  * Event handler that determines if a new scope was focused.
@@ -20,7 +20,7 @@ function onFocusIn(event: FocusEvent) {
         inputScopes.active.value = null;
     } else {
         const id = scopeEl.getAttribute(INPUT_SCOPE_ATTRIBUTE)!;
-        inputScopes.active.value = items.find((f) => f.id === id)!;
+        inputScopes.active.value = scopes.find((f) => f.id === id)!;
     }
 }
 
@@ -41,7 +41,7 @@ export const inputScopes = {
         let parent;
 
         // Check for unique name first
-        if (opts.name != null && items.some((f) => f.name === opts.name)) {
+        if (opts.name != null && scopes.some((f) => f.name === opts.name)) {
             throw Error(`Scope with name ${opts.name} already exists.`);
         }
 
@@ -53,7 +53,7 @@ export const inputScopes = {
         const element = opts.querySelector ? (el.querySelector(opts.querySelector) as HTMLElement) : el;
 
         const scope = new InputScope(element, id, opts.name);
-        items.push(scope);
+        scopes.push(scope);
 
         if (opts.hidden) {
             el.setAttribute(INPUT_SCOPE_HIDDEN_ATTRIBUTE, 'true');
@@ -65,16 +65,40 @@ export const inputScopes = {
      */
     remove(el: HTMLElement) {
         const id = el.getAttribute(INPUT_SCOPE_ATTRIBUTE);
-        const toRemove = items.findIndex((f) => f.id === id);
+        const toRemove = scopes.findIndex((f) => f.id === id);
 
         if (toRemove === -1) {
             throw Error('No scope found');
         }
 
-        items.splice(toRemove, 1);
+        scopes.splice(toRemove, 1);
         el.removeAttribute(INPUT_SCOPE_ATTRIBUTE);
     },
 
+    isElementActive(el: HTMLElement): boolean {
+        const allActiveFocusables = [];
+        let element = this.active.value?.el ?? null;
+
+        // Find all of the focusables that are currently active
+        while (element != null) {
+            const focusableId = element.getAttribute(INPUT_SCOPE_ATTRIBUTE);
+
+            if (focusableId != null) {
+                allActiveFocusables.push(inputScopes.findById(focusableId));
+            }
+
+            element = element.parentElement;
+        }
+
+        // Is the element within any of the elements that are currently focused?
+        for (const focusable of allActiveFocusables) {
+            if (focusable?.containsElement(el)) {
+                return true;
+            }
+        }
+
+        return false;
+    },
     /**
      * Focus on a scope.
      * @param name The name of the element to focus.
@@ -87,9 +111,9 @@ export const inputScopes = {
         let scope;
 
         if (opts.id != null) {
-            scope = items.find((f) => f.id === opts.id);
+            scope = scopes.find((f) => f.id === opts.id);
         } else {
-            scope = items.find((f) => f.name === opts.name);
+            scope = scopes.find((f) => f.name === opts.name);
         }
 
         if (scope == null) {
@@ -103,7 +127,7 @@ export const inputScopes = {
         })();
     },
     findById(id: string) {
-        return items.find((f) => f.id === id);
+        return scopes.find((f) => f.id === id);
     },
 
     isFocused(name: string, checkNested = false) {
@@ -120,7 +144,7 @@ export const inputScopes = {
                 const attr = el.getAttribute(INPUT_SCOPE_ATTRIBUTE);
 
                 if (attr != null) {
-                    const scope = items.find((f) => f.id === attr);
+                    const scope = scopes.find((f) => f.id === attr);
 
                     if (scope != null && scope.id === attr) {
                         return true;

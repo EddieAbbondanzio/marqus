@@ -24,20 +24,6 @@
                     @blur="onBlur"
                     @input="onInput"
                 />
-                <icon-button
-                    id="submitButton"
-                    class="has-text-hover-success"
-                    type="submit"
-                    icon="fa-check"
-                    size="is-size-7"
-                />
-                <icon-button
-                    id="cancelButton"
-                    class="has-text-hover-danger"
-                    icon="fa-ban"
-                    @click="$emit('cancel')"
-                    size="is-size-7"
-                />
             </Field>
         </div>
 
@@ -66,7 +52,6 @@
 
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
-import IconButton from '@/components/buttons/IconButton.vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
 
 /**
@@ -117,6 +102,8 @@ export default defineComponent({
         const onBlur = (e: any) => {
             if (isClean) {
                 c.emit('cancel');
+            } else {
+                c.emit('submit');
             }
         };
 
@@ -140,6 +127,6 @@ export default defineComponent({
         };
     },
     emits: ['submit', 'cancel', 'update:modelValue'],
-    components: { Field, ErrorMessage, Form, IconButton }
+    components: { Field, ErrorMessage, Form }
 });
 </script>

@@ -36,6 +36,9 @@ export class UndoContext {
         this._history = new UndoHistory();
         this._stateCache = new UndoStateCache(initialState);
         this.group = this.group.bind(this);
+
+        this.tryRedo = this.tryRedo.bind(this);
+        this.tryUndo = this.tryUndo.bind(this);
     }
 
     /**
@@ -83,6 +86,15 @@ export class UndoContext {
      */
     canRedo() {
         return this._history.canRedo();
+    }
+
+    async tryUndo() {
+        console.log(this);
+        if (this.canUndo()) this.undo();
+    }
+
+    async tryRedo() {
+        if (this.canRedo()) this.redo();
     }
 
     /**

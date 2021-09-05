@@ -12,6 +12,8 @@
         v-shortcut:moveSelectionUp="moveHighlightUp"
         v-shortcut:moveSelectionDown="moveHighlightDown"
         v-shortcut:toggleSelection="toggleHighlighted"
+        v-shortcut:undo="onUndo"
+        v-shortcut:redo="onRedo"
     >
         <Scrollable v-model="scrollPosition" v-shortcut:scrollUp="onScrollUp" v-shortcut:scrollDown="onScrollDown">
             <NavigationMenuList>
@@ -78,6 +80,7 @@ import Scrollable from '@/components/layout/Scrollable.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 import { inputScopes } from '@/directives/input-scope/input-scopes';
+import { undo } from '@/store/plugins/undo';
 
 export default defineComponent({
     setup: function() {
@@ -136,6 +139,8 @@ export default defineComponent({
             globalNav.actions.toggleHighlighted();
         };
 
+        const undoContext = undo.getContext({ name: 'globalNavigation' });
+
         return {
             onScrollUp,
             onScrollDown,
@@ -151,7 +156,9 @@ export default defineComponent({
             expandAll: globalNav.actions.expandAll,
             collapseAll: globalNav.actions.collapseAll,
             setActive: globalNav.actions.setActive,
-            toggleHighlighted
+            toggleHighlighted,
+            onUndo: undoContext.tryUndo,
+            onRedo: undoContext.tryRedo
         };
     },
     components: {

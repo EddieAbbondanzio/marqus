@@ -1,7 +1,6 @@
-import { InputScope, INPUT_SCOPE_ATTRIBUTE, inputScopes } from '@/directives/input-scope';
+import { inputScopes } from '@/directives/input-scope';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 import { ShortcutCallback } from '@/features/shortcuts/shared/shortcut-subscriber';
-import { climbDomHierarchy } from '@/shared/utils';
 import { DirectiveBinding } from 'vue';
 
 export const shortcut = {
@@ -20,31 +19,9 @@ export const shortcut = {
 
         // Is it a context based shortcut?
         let when: (() => boolean) | undefined;
+
         if (!binding.modifiers.global) {
-            when = () => {
-                const allActiveFocusables = [];
-                let element = inputScopes.active.value?.el ?? null;
-
-                // Find all of the focusables that are currently active
-                while (element != null) {
-                    const focusableId = element.getAttribute(INPUT_SCOPE_ATTRIBUTE);
-
-                    if (focusableId != null) {
-                        allActiveFocusables.push(inputScopes.findById(focusableId));
-                    }
-
-                    element = element.parentElement;
-                }
-
-                // Is the shortcut directive on an element that is currently focused?
-                for (const focusable of allActiveFocusables) {
-                    if (focusable?.containsElement(el)) {
-                        return true;
-                    }
-                }
-
-                return false;
-            };
+            when = () => inputScopes.isElementActive(el);
         }
 
         shortcuts.subscribe(shortcutName, callback, { el, when });

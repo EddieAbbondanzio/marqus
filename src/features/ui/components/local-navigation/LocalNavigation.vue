@@ -1,60 +1,58 @@
 <template>
     <Resizable v-model="width" id="local-navigation" v-context-menu:localNavigation>
-        <UndoContainer undoName="localNavigation" focusName="localNavigation">
-            <div class="has-h-100 has-text-dark  is-size-7" style="min-width: 0px;">
-                <!-- Header -->
-                <!-- <div -->
-                <!-- class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-0 p-1 has-background-light" -->
-                <!-- > -->
-                <!-- <LocalNavigationSearchBar /> -->
-                <!-- <IconButton icon="fa-plus" size="is-small" @click="create" /> -->
-                <!-- </div> -->
+        <div class="has-h-100 has-text-dark  is-size-7" style="min-width: 0px;">
+            <!-- Header -->
+            <!-- <div -->
+            <!-- class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-0 p-1 has-background-light" -->
+            <!-- > -->
+            <!-- <LocalNavigationSearchBar /> -->
+            <!-- <IconButton icon="fa-plus" size="is-small" @click="create" /> -->
+            <!-- </div> -->
 
-                <!-- Files -->
-                <div>
+            <!-- Files -->
+            <div>
+                <NavigationMenuForm
+                    v-if="isNoteBeingCreated"
+                    v-model="input"
+                    @submit="confirm"
+                    @cancel="cancel"
+                    :rules="formRules"
+                    fieldName="Note"
+                    indent="0.5rem"
+                />
+
+                <template v-for="note in activeNotes" :key="note.id">
+                    <NavigationMenuItem
+                        v-if="!isNoteBeingUpdated(note.id)"
+                        :hideIcon="true"
+                        :label="note.name"
+                        :title="note.name"
+                        :active="isActive(note.id)"
+                        @click="() => setActive(note.id)"
+                        indent="0.5rem"
+                        :data-id="note.id"
+                    >
+                        <template #options>
+                            <div class="item-options">
+                                <span class="icon has-text-grey-lighter mr-2" v-if="note.favorited">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                                <span v-else>&nbsp;</span>
+                            </div>
+                        </template>
+                    </NavigationMenuItem>
                     <NavigationMenuForm
-                        v-if="isNoteBeingCreated"
-                        v-model="input"
+                        v-else
                         @submit="confirm"
                         @cancel="cancel"
-                        :rules="formRules"
+                        v-model="input"
                         fieldName="Note"
+                        :rules="formRules"
                         indent="0.5rem"
                     />
-
-                    <template v-for="note in activeNotes" :key="note.id">
-                        <NavigationMenuItem
-                            v-if="!isNoteBeingUpdated(note.id)"
-                            :hideIcon="true"
-                            :label="note.name"
-                            :title="note.name"
-                            :active="isActive(note.id)"
-                            @click="() => setActive(note.id)"
-                            indent="0.5rem"
-                            :data-id="note.id"
-                        >
-                            <template #options>
-                                <div class="item-options">
-                                    <span class="icon has-text-grey-lighter mr-2" v-if="note.favorited">
-                                        <i class="fas fa-star"></i>
-                                    </span>
-                                    <span v-else>&nbsp;</span>
-                                </div>
-                            </template>
-                        </NavigationMenuItem>
-                        <NavigationMenuForm
-                            v-else
-                            @submit="confirm"
-                            @cancel="cancel"
-                            v-model="input"
-                            fieldName="Note"
-                            :rules="formRules"
-                            indent="0.5rem"
-                        />
-                    </template>
-                </div>
+                </template>
             </div>
-        </UndoContainer>
+        </div>
     </Resizable>
 </template>
 
@@ -68,7 +66,6 @@ import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import { Note } from '@/features/notes/common/note';
 import { useLocalNavigationContextMenu } from './../../hooks/use-local-navigation-context-menu';
-import UndoContainer from '@/components/input/UndoContainer.vue';
 import { useLocalNavigation } from '@/features/ui/store/modules/local-navigation';
 import { useNotes } from '@/features/notes/store';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
@@ -119,8 +116,7 @@ export default defineComponent({
         // LocalNavigationSearchBar,
         // IconButton,
         NavigationMenuItem,
-        NavigationMenuForm,
-        UndoContainer
+        NavigationMenuForm
     }
 });
 </script>

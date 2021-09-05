@@ -1,25 +1,20 @@
 <template>
     <div id="editor" class="has-background-light is-flex-grow-1 is-flex is-flex-column has-text-dark">
         {{ focused }}
-        <UndoContainer undoName="editor" focusName="editor">
-            <template v-if="!isEmpty">
-                <editor-tabs />
-                <editor-toolbar />
+        <template v-if="!isEmpty">
+            <editor-tabs />
+            <editor-toolbar />
 
-                <div class="is-flex is-flex-row is-flex-grow-1">
-                    <markdown-editor
-                        v-if="mode === 'edit' || mode === 'split'"
-                        class="is-flex-basis-0 is-flex-grow-1"
-                    />
-                    <markdown-renderer v-if="mode !== 'edit'" class="is-flex-basis-0 is-flex-grow-1" />
-                </div>
-            </template>
-            <div v-else class="is-flex is-align-center is-justify-center is-flex-grow-1 is-flex-column has-w-100">
-                <div>
-                    There's nothing here!
-                </div>
+            <div class="is-flex is-flex-row is-flex-grow-1">
+                <markdown-editor v-if="mode === 'edit' || mode === 'split'" class="is-flex-basis-0 is-flex-grow-1" />
+                <markdown-renderer v-if="mode !== 'edit'" class="is-flex-basis-0 is-flex-grow-1" />
             </div>
-        </UndoContainer>
+        </template>
+        <div v-else class="is-flex is-align-center is-justify-center is-flex-grow-1 is-flex-column has-w-100">
+            <div>
+                There's nothing here!
+            </div>
+        </div>
     </div>
 </template>
 
@@ -33,7 +28,6 @@ import MarkdownEditor from '@/features/ui/components/editor/MarkdownEditor.vue';
 import MarkdownRenderer from '@/features/ui/components/editor/MarkdownRenderer.vue';
 import { undo } from '@/store/plugins/undo/undo';
 import { useEditor } from '@/features/ui/store/modules/editor';
-import UndoContainer from '@/components/input/UndoContainer.vue';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 import { inputScopes } from '@/directives/input-scope/input-scopes';
 
@@ -57,8 +51,7 @@ export default defineComponent({
         EditorToolbar,
         EditorTabs,
         MarkdownEditor,
-        MarkdownRenderer,
-        UndoContainer
+        MarkdownRenderer
     }
 });
 </script>

@@ -7,8 +7,9 @@ import { Directive, DirectiveBinding } from '@vue/runtime-core';
  * visually indicating where the users focus is.
  *
  * Example:
- * v-focusable:TEST_NAME -> Hidden focusable
- * v-focusable:globalNavigation.visible -> highlight element when active
+ * v-input-scope -> Nameless scope that can be focused
+ * v-input-scope:TEST_NAME -> Scope that can be referenced via it's name "TEST_NAME"
+ * v-input-scope:globalNavigation.visible -> highlight element when active
  */
 export const inputScope: Directive = {
     mounted: (el: HTMLElement, binding: DirectiveBinding) => {
