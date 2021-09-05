@@ -6,7 +6,7 @@ const GERNERAL_USE = [
     new Shortcut('escape', [KeyCode.Escape]),
     new Shortcut('delete', [KeyCode.Delete]),
     new Shortcut('enter', [KeyCode.Enter]),
-    new Shortcut('toggle', [KeyCode.Space]),
+    new Shortcut('toggleSelection', [KeyCode.Space]),
     new Shortcut('moveSelectionUp', [KeyCode.ArrowUp]),
     new Shortcut('moveSelectionDown', [KeyCode.ArrowDown]),
     new Shortcut('scrollUp', [KeyCode.Control, KeyCode.ArrowUp]),

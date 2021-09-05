@@ -45,18 +45,6 @@ export const focusManager = {
             throw Error(`Focusable with name ${opts.name} already exists.`);
         }
 
-        if (el.parentElement != null) {
-            const focusableParentElement = climbDomHierarchy(el.parentElement, {
-                match: (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
-                matchValue: (el) => el
-            });
-
-            if (focusableParentElement != null) {
-                const id = focusableParentElement.getAttribute(FOCUSABLE_ATTRIBUTE);
-                parent = focusables.find((f) => f.id === id);
-            }
-        }
-
         const id = opts.id ?? generateId();
 
         el.tabIndex = -1; // -1 allows focus via js but not tab key
@@ -65,9 +53,9 @@ export const focusManager = {
         // Check to see if we need to find a nested input within the focusable.
         const element = opts.querySelector ? (el.querySelector(opts.querySelector) as HTMLElement) : el;
 
-        const focusable = new Focusable(element, id, opts.name, parent);
-
+        const focusable = new Focusable(element, id, opts.name);
         focusables.push(focusable);
+        console.log('registered: ', focusable);
 
         if (opts.hidden) {
             el.classList.add('focusable-hidden');
@@ -116,6 +104,9 @@ export const focusManager = {
             focusable.el.focus();
         })();
     },
+    findById(id: string) {
+        return focusables.find((f) => f.id === id);
+    },
 
     isFocused(name: string, checkNested = false) {
         if (focusManager.active.value == null) {
@@ -126,16 +117,23 @@ export const focusManager = {
             return focusManager.active.value.name === name;
         }
 
-        let curr = focusManager.active.value;
-        while (curr != null) {
-            if (curr.name === name) {
-                return true;
+        const contains: boolean = climbDomHierarchy(focusManager.active.value.el, {
+            match: (el) => {
+                const attr = el.getAttribute(FOCUSABLE_ATTRIBUTE);
+
+                if (attr != null) {
+                    const focusable = focusables.find((f) => f.id === attr);
+
+                    if (focusable != null && focusable.id === attr) {
+                        return true;
+                    }
+                }
+
+                return false;
             }
+        });
 
-            curr = curr.parent!;
-        }
-
-        return false;
+        return contains;
     },
 
     /**

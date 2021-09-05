@@ -11,6 +11,7 @@
         v-shortcut:escape="clearHighlight"
         v-shortcut:moveSelectionUp="moveHighlightUp"
         v-shortcut:moveSelectionDown="moveHighlightDown"
+        v-shortcut:toggleSelection="toggleHighlighted"
     >
         <Scrollable v-model="scrollPosition" v-shortcut:scrollUp="onScrollUp" v-shortcut:scrollDown="onScrollDown">
             <NavigationMenuList>
@@ -131,6 +132,10 @@ export default defineComponent({
         const onScrollUp = () => globalNav.actions.incrementScrollPosition(-30);
         const onScrollDown = () => globalNav.actions.incrementScrollPosition(30);
 
+        const toggleHighlighted = () => {
+            globalNav.actions.toggleHighlighted();
+        };
+
         return {
             onScrollUp,
             onScrollDown,
@@ -145,7 +150,8 @@ export default defineComponent({
             isHighlighted: computed(() => globalNav.getters.isHighlighted),
             expandAll: globalNav.actions.expandAll,
             collapseAll: globalNav.actions.collapseAll,
-            setActive: globalNav.actions.setActive
+            setActive: globalNav.actions.setActive,
+            toggleHighlighted
         };
     },
     components: {

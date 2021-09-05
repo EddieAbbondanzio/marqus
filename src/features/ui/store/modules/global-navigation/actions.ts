@@ -49,6 +49,34 @@ export class GlobalNavigationActions extends Actions<
         });
     }
 
+    toggleHighlighted() {
+        let notebook;
+
+        switch (this.state.highlight?.section) {
+            case 'notebook':
+                if (this.state.highlight.id == null) {
+                    this.commit('SET_NOTEBOOKS_EXPANDED', { value: !this.state.notebooks.expanded });
+                } else {
+                    notebook = this.notebooks.getters.byId(this.state.highlight.id)!;
+
+                    if (notebook.children == null || notebook.children.length === 0) {
+                        return;
+                    }
+
+                    this.notebooks.commit('SET_EXPANDED', {
+                        value: { notebook, expanded: !notebook.expanded, bubbleUp: false }
+                    });
+                }
+                break;
+
+            case 'tag':
+                if (this.state.highlight.id == null) {
+                    this.commit('SET_TAGS_EXPANDED', { value: !this.state.tags.expanded });
+                }
+                break;
+        }
+    }
+
     clearHighlight() {
         this.commit('SET_HIGHLIGHT', { value: undefined! });
     }

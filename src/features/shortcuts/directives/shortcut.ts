@@ -1,6 +1,7 @@
-import { focusManager } from '@/directives/focusable';
+import { Focusable, FOCUSABLE_ATTRIBUTE, focusManager } from '@/directives/focusable';
 import { shortcutManager } from '@/features/shortcuts/shared/shortcut-manager';
 import { ShortcutCallback } from '@/features/shortcuts/shared/shortcut-subscriber';
+import { climbDomHierarchy } from '@/shared/utils';
 import { DirectiveBinding } from 'vue';
 
 export const shortcut = {
@@ -21,13 +22,26 @@ export const shortcut = {
         let when: (() => boolean) | undefined;
         if (!binding.modifiers.global) {
             when = () => {
-                const active = focusManager.active.value;
+                const allActiveFocusables = [];
+                let element = focusManager.active.value?.el ?? null;
 
-                if (active == null) {
-                    return false;
+                while (element != null) {
+                    const focusableId = element.getAttribute(FOCUSABLE_ATTRIBUTE);
+
+                    if (focusableId != null) {
+                        allActiveFocusables.push(focusManager.findById(focusableId));
+                    }
+
+                    element = element.parentElement;
                 }
 
-                return active.containsElement(el);
+                for (const focusable of allActiveFocusables) {
+                    if (focusable?.containsElement(el)) {
+                        return true;
+                    }
+                }
+
+                return false;
             };
         }
 
