@@ -89,7 +89,6 @@ export class UndoContext {
     }
 
     async tryUndo() {
-        console.log(this);
         if (this.canUndo()) this.undo();
     }
 
@@ -106,7 +105,16 @@ export class UndoContext {
         const cached = this._stateCache.getLast(this._history.currentIndex);
         const store = this._getStore();
 
-        store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, cached.state);
+        let state = cached.state;
+        if (this._settings.setStateTransformer != null) {
+            state = this._settings.setStateTransformer(state);
+
+            if (state == null) {
+                throw Error('No state returned from set state transformer. Did you forget to return the state?');
+            }
+        }
+
+        store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, state);
 
         // Reapply (N - 1) mutations to get to the desired state.
         const [replay, undone] = this._history.undo(cached.index, this._history.currentIndex - 1);
@@ -142,6 +150,63 @@ export class UndoContext {
         }
 
         this._history.stopGroup(groupId);
+    }
+
+    /**
+     * Set a hardlimit that the user cannot undo past. Can only be removed by calling
+     * releaseHardLimit().
+     */
+    setCheckpoint() {
+        this._history.setCheckpoint();
+    }
+
+    /**
+     * Release a hard limit so the user can undo beyond it.
+     */
+    releaseCheckpoint() {
+        this._history.releaseCheckpoint();
+    }
+
+    /**
+     * Reverts all commits plus the one right before the hard limit to revert
+     * app state to back before anything happened.
+     */
+    async rollbackToCheckpoint() {
+        if (this._history.hardLimit == null) {
+            return;
+        }
+
+        if (!this.canUndo()) {
+            return;
+        }
+
+        // Roll back to most recently cached state
+        // console.log('hard stop at: ', this._history.hardLimit, ' curr index: ', this._history.currentIndex);
+        const cached = this._stateCache.getLast(this._history.hardLimit);
+        const store = this._getStore();
+
+        let state = cached.state;
+        if (this._settings.setStateTransformer != null) {
+            state = this._settings.setStateTransformer(state);
+
+            if (state == null) {
+                throw Error('No state returned from set state transformer. Did you forget to return the state?');
+            }
+        }
+
+        store.commit(`${this._settings.namespace}/${this._settings.setStateMutation}`, state);
+
+        // Reapply (N - 1) mutations to get to the desired state.
+        // console.log('undo start index: ', cached.index, ' undo stop index: ', this._history.hardLimit - 1);
+        const [replay, undone] = this._history.undo(cached.index, this._history.hardLimit - 1);
+
+        console.log('replay: ', replay);
+        console.log('undone: ', undone);
+        await this._replayMutations(replay, 'undo');
+        await this._notifyCallbacks(undone, 'undo');
+
+        this._history.releaseCheckpoint();
+        console.log('rolledback complete!');
     }
 
     /**

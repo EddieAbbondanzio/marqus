@@ -103,7 +103,7 @@ describe('UndoHistory', () => {
         });
     });
 
-    describe('canRewind()', () => {
+    describe('canUndo()', () => {
         it('returns true if current index > 0', () => {
             const history = new UndoHistory();
             history.push({ payload: {} } as any);
@@ -112,6 +112,18 @@ describe('UndoHistory', () => {
 
         it('returns false if currentIndex is 0', () => {
             const history = new UndoHistory();
+            expect(history.canUndo()).toBeFalsy();
+        });
+
+        it('returns false if hardlimit set', () => {
+            const history = new UndoHistory();
+            history.push({
+                type: 'cat',
+                payload: { value: '-1' }
+            });
+
+            history.setCheckpoint();
+
             expect(history.canUndo()).toBeFalsy();
         });
     });

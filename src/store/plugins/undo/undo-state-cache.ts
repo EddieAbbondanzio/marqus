@@ -27,7 +27,6 @@ export class UndoStateCache {
         const nextIndex = this._calculateNextIndex();
         const cloned = _.cloneDeep(state);
 
-        console.log('push state at: ', nextIndex, ' state ', cloned);
         this._cache.set(nextIndex, cloned);
     }
 
@@ -42,7 +41,6 @@ export class UndoStateCache {
         const oldState = this._cache.get(lastIndex);
         const cloned = _.cloneDeep(oldState);
 
-        console.log('get last state: ', oldState);
         return { state: cloned, index: lastIndex };
     }
 

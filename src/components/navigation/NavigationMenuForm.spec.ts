@@ -22,26 +22,6 @@ describe('NavigationMenuForm.vue', () => {
         validateOnInput: true
     });
 
-    it('emits cancel when cancelled button clicked', () => {
-        const modelValue = 'cat';
-        const wrapper = mount(NavigationMenuForm, {
-            props: {
-                modelValue
-            },
-            global: {
-                directives: {
-                    focus: jest.fn()
-                }
-            }
-        });
-
-        const cancelButton = wrapper.find('#cancelButton');
-        cancelButton.trigger('click');
-
-        const emitted = wrapper.emitted();
-        expect(emitted.cancel).toBeTruthy();
-    });
-
     it('auto cancels when no input, and user blurs', () => {
         const modelValue = '';
         const wrapper = mount(NavigationMenuForm, {

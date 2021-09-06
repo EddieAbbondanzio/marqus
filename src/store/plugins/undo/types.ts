@@ -12,6 +12,12 @@ export interface UndoContextSettings {
     name?: string;
     namespace: string;
     setStateMutation?: string;
+    /**
+     * Transformer function that takes the state that will be set as the new vuex module
+     * state and allows the caller to modify the state before it is assigned. Useful for
+     * preserving visual changes that are not tracked in undo / redo so they aren't overwritten.
+     */
+    setStateTransformer?: (state: any) => any;
     stateCacheInterval?: number;
     ignore?: string[];
 }

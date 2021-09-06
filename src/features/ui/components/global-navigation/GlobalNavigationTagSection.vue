@@ -42,7 +42,7 @@
                 class="global-navigation-tag"
             >
             </NavigationMenuItem>
-            <!-- <NavigationMenuForm
+            <NavigationMenuForm
                 v-else
                 @submit="confirm"
                 @cancel="cancel"
@@ -50,7 +50,7 @@
                 fieldName="Tag"
                 :rules="formRules"
                 indent="24px"
-            /> -->
+            />
         </template>
     </NavigationMenuItem>
 </template>

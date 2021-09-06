@@ -1,4 +1,3 @@
-export * from './generate-undo-group-utility';
 export * from './types';
 export * from './undo';
 export * from './undo-history';

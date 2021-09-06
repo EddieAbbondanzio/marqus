@@ -22,8 +22,9 @@
                     style="height: 21px!important; min-width: 0; width: 0; flex-grow: 1; padding: 2px 0px!important; margin-left: -2px!important; margin-top: -1px!important"
                     v-focus
                     @blur="onBlur"
-                    @input="onInput"
+                    @keydown.space.stop
                 />
+                <!-- keydown.stop is required to prevent from conflicting with shortcuts -->
             </Field>
         </div>
 
@@ -53,6 +54,7 @@
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
+import { isBlank } from '@/shared/utils';
 
 /**
  * Inline form for creating values in nav menus that only have 1
@@ -100,8 +102,9 @@ export default defineComponent({
 
         // When input is blurred, check to see if it was empty. If it was empty, cancel.
         const onBlur = (e: any) => {
-            if (isClean) {
+            if (isBlank(inputValue.value)) {
                 c.emit('cancel');
+                console.log('cancel');
             } else {
                 c.emit('submit');
             }

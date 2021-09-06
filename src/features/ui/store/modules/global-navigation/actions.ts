@@ -127,6 +127,8 @@ export class GlobalNavigationActions extends Actions<
                 this.commit('START_TAGS_INPUT', { value: undefined, _undo });
             }
         });
+
+        this.undoContext.setCheckpoint();
     }
 
     tagInputUpdated(value: string) {
@@ -139,6 +141,7 @@ export class GlobalNavigationActions extends Actions<
 
     tagInputConfirm() {
         this.undoContext.group((_undo) => {
+            console.log('group id is: ', _undo);
             const input = this.state.tags.input;
             let existing: Tag;
 
@@ -186,15 +189,15 @@ export class GlobalNavigationActions extends Actions<
                     break;
             }
 
-            // We don't want to allow the user to undo these
-            _undo.ignore = true;
             this.tags.commit('SORT', { _undo });
             this.commit('CLEAR_TAGS_INPUT', { _undo });
         });
+
+        this.undoContext.releaseCheckpoint();
     }
 
     tagInputCancel() {
-        this.commit('CLEAR_TAGS_INPUT', { _undo: { ignore: true } });
+        this.undoContext.rollbackToCheckpoint();
     }
 
     async tagDelete(id: string) {

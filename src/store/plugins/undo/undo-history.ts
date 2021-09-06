@@ -23,6 +23,8 @@ export class UndoHistory {
         return this._events;
     }
 
+    hardLimit?: number;
+
     /**
      * Create a new undo history.
      * @param _events The events that have occured.
@@ -97,8 +99,8 @@ export class UndoHistory {
             throw Error('Nothing to undo');
         }
 
-        const toReplay = this._events.slice(replayStartIndex, this._currentIndex - 1);
-        const undone = this._events[this._currentIndex - 1];
+        const toReplay = this._events.slice(replayStartIndex, stopIndex);
+        const undone = this._events[stopIndex]; // Intentional. We don't want to return them all.
 
         for (const mutation of toReplay) {
             if (isUndoGroup(mutation)) {
@@ -143,6 +145,10 @@ export class UndoHistory {
      * @returns True if there are events in the history behind our current position.
      */
     canUndo() {
+        if (this.hardLimit != null) {
+            return this._currentIndex > 0 && this.hardLimit < this._currentIndex; 
+        }
+
         return this._currentIndex > 0;
     }
 
@@ -175,5 +181,21 @@ export class UndoHistory {
         }
 
         delete this._activeGroups[id];
+    }
+
+    /**
+     * Set a hard limit in the history that will prevent the user from undo-ing too much.
+     * Useful for when we need to track some local input but prevent the user from holding
+     * control-z too long and accidentallly wiping out stuff.
+     */
+    setCheckpoint() {
+        this.hardLimit = this.currentIndex;
+    }
+
+    /**
+     * Release the hard limit. (Deletes it).
+     */
+    releaseCheckpoint() {
+        delete this.hardLimit;
     }
 }

@@ -15,7 +15,13 @@ export const globalNavigation = new Module({
 
 undo.registerContext(new GlobalNavigationState(), {
     name: 'globalNavigation',
-    namespace: 'ui/globalNavigation'
+    namespace: 'ui/globalNavigation',
+    setStateTransformer: (state: Partial<GlobalNavigationState>) => {
+        // Nuke out visual state so we don't accidentally overwrite it.
+        delete state.width;
+
+        return state;
+    }
 });
 
 export const useGlobalNavigation = createComposable(globalNavigation);
