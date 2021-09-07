@@ -14,6 +14,7 @@
         v-shortcut:toggleSelection="toggleHighlighted"
         v-shortcut:undo="onUndo"
         v-shortcut:redo="onRedo"
+        v-shortcut:rename="onRename"
     >
         <Scrollable v-model="scrollPosition" v-shortcut:scrollUp="onScrollUp" v-shortcut:scrollDown="onScrollDown">
             <NavigationMenuList>
@@ -141,7 +142,19 @@ export default defineComponent({
 
         const undoContext = undo.getContext({ name: 'globalNavigation' });
 
+        const onRename = () => {
+            switch (globalNav.state.highlight?.section) {
+                case 'notebook':
+                    globalNav.actions.notebookInputStart({ id: globalNav.state.highlight.id });
+                    break;
+                case 'tag':
+                    globalNav.actions.tagInputStart({ id: globalNav.state.highlight.id });
+                    break;
+            }
+        };
+
         return {
+            onRename,
             onScrollUp,
             onScrollDown,
             deleteHighlightItem,

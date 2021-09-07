@@ -11,7 +11,8 @@ const GERNERAL_USE = [
     new Shortcut('scrollUp', [KeyCode.Control, KeyCode.ArrowUp]),
     new Shortcut('scrollDown', [KeyCode.Control, KeyCode.ArrowDown]),
     new Shortcut('undo', [KeyCode.Control, KeyCode.LetterZ]),
-    new Shortcut('redo', [KeyCode.Control, KeyCode.LetterY])
+    new Shortcut('redo', [KeyCode.Control, KeyCode.LetterY]),
+    new Shortcut('rename', [KeyCode.F2])
 ];
 
 const GLOBAL_NAVIGATION = [

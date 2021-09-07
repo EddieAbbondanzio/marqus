@@ -88,7 +88,7 @@ export default defineComponent({
     },
     setup(p, c) {
         let isClean = true;
-        let submitted = false;
+        let submitted = false; // Used to prevent double submissions
 
         const inputValue = computed({
             get: () => p.modelValue,
