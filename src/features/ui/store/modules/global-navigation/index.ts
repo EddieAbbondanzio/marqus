@@ -14,7 +14,7 @@ export const globalNavigation = new Module({
     getters: GlobalNavigationGetters
 });
 
-undo.registerContext(new GlobalNavigationState(), {
+undo.registerContext({
     name: 'globalNavigation',
     namespace: 'ui/globalNavigation',
     setStateTransformer: (state: RecursivePartial<GlobalNavigationState>) => {

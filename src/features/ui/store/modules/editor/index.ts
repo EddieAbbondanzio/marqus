@@ -35,7 +35,7 @@ mediator.subscribe('notes/DELETE', ({ payload }, store) => {
     }
 });
 
-undo.registerContext(new EditorState(), {
+undo.registerContext({
     name: 'editor',
     namespace: 'ui/editor',
     setStateMutation: 'SET_STATE',

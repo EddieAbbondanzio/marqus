@@ -12,11 +12,17 @@ export class UndoStateCache {
 
     private _cache: Map<number, any>;
 
-    constructor(initialState: any, public readonly interval: number = UndoStateCache.DEFAULT_INTERVAL) {
-        const deepClone = _.cloneDeep(initialState);
+    constructor(public readonly interval: number = UndoStateCache.DEFAULT_INTERVAL) {
+        this._cache = new Map();
+    }
 
-        this._cache = new Map([[0, deepClone]]);
-        console.log('init state: ', deepClone);
+    setInitialState(state: any) {
+        if (this._cache.entries.length > 0) {
+            throw Error('Cannot set initial state as cache already contains entries');
+        }
+
+        const cloned = _.cloneDeep(state);
+        this._cache.set(0, cloned);
     }
 
     /**

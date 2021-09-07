@@ -11,6 +11,8 @@ import { GlobalNavigationState } from '@/features/ui/store/modules/global-naviga
 import { EditorState } from '@/features/ui/store/modules/editor/state';
 import { LocalNavigationState } from '@/features/ui/store/modules/local-navigation/state';
 import { RecursivePartial } from '@/shared/types/recursive-partial';
+import { mediator } from '@/store/plugins/mediator';
+import { undo } from '@/store/plugins/undo';
 
 export const userInterface = new Module({
     namespaced: true,
@@ -95,4 +97,13 @@ persist.register({
 
         return s;
     }
+});
+
+mediator.subscribe('ui/SET_STATE', (v) => {
+    const { globalNavigation, localNavigation, editor } = v.payload;
+    undo.getContext({ name: 'globalNavigation' }).setInitialState(globalNavigation);
+    undo.getContext({ name: 'globalNavigation' }).setInitialState(localNavigation);
+    undo.getContext({ name: 'editor' }).setInitialState(editor);
+
+    console.log('set initial states!', globalNavigation)
 });

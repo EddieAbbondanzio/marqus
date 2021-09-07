@@ -32,13 +32,17 @@ export class UndoContext {
      */
     private _stateCache: UndoStateCache;
 
-    constructor(initialState: any, private _getStore: () => Store<any>, private _settings: UndoContextSettings) {
+    constructor(private _getStore: () => Store<any>, private _settings: UndoContextSettings) {
         this._history = new UndoHistory();
-        this._stateCache = new UndoStateCache(initialState);
+        this._stateCache = new UndoStateCache();
         this.group = this.group.bind(this);
 
         this.tryRedo = this.tryRedo.bind(this);
         this.tryUndo = this.tryUndo.bind(this);
+    }
+
+    setInitialState(state: any) {
+        this._stateCache.setInitialState(state);
     }
 
     /**

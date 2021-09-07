@@ -15,7 +15,7 @@ export const localNavigation = new Module({
 
 export const useLocalNavigation = createComposable(localNavigation);
 
-undo.registerContext(new LocalNavigationState(), {
+undo.registerContext({
     name: 'localNavigation',
     namespace: 'ui/localNavigation',
     setStateMutation: 'SET_STATE',

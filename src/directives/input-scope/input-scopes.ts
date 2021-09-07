@@ -120,7 +120,7 @@ export const inputScopes = {
             throw Error(`No scope with name ${opts.name} found.`);
         }
 
-        // HACK. We gotta wait for the next tick or else the element wont focus
+        // HACK. We gotta wait for the next tick or else the element doesn't exist yet
         (async () => {
             await nextTick();
             scope.el.focus();

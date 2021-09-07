@@ -68,7 +68,7 @@ export const undo = {
      * Register a module with the undo plugin.
      * @param settings The settings of the module.
      */
-    registerContext(initialState: any, settings: UndoContextSettings) {
+    registerContext(settings: UndoContextSettings) {
         // Check for duplicate name first
         if (
             Object.values(state.contexts)
@@ -93,7 +93,7 @@ export const undo = {
          * that will return the store when called otherwise we'll just be giving the module a null value
          * that doesn't update when the store is set.
          */
-        state.contexts[settings.namespace] = new UndoContext(initialState, () => state.store, settings);
+        state.contexts[settings.namespace] = new UndoContext(() => state.store, settings);
     },
     /**
      * Retrieve an undo module from the plugin. Throws if not found.
