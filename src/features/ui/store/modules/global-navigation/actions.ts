@@ -189,12 +189,7 @@ export class GlobalNavigationActions extends Actions<
                     break;
             }
 
-            this.tags.commit('SORT', {
-                _undo: {
-                    feck: 'hi',
-                    ..._undo
-                }
-            });
+            this.tags.commit('SORT', { _undo });
             this.commit('CLEAR_TAGS_INPUT', { _undo });
         });
 
@@ -203,6 +198,7 @@ export class GlobalNavigationActions extends Actions<
 
     tagInputCancel() {
         this.undoContext.rollbackToCheckpoint();
+        this.commit('CLEAR_TAGS_INPUT', { _undo: { ignore: true } });
     }
 
     async tagDelete(id: string) {

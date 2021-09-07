@@ -42,6 +42,7 @@ export class UndoContext {
     }
 
     setInitialState(state: any) {
+        console.log('set init state: ', state);
         this._stateCache.setInitialState(state);
     }
 

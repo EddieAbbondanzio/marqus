@@ -20,7 +20,6 @@ undo.registerContext({
     setStateTransformer: (state: RecursivePartial<GlobalNavigationState>) => {
         // Nuke out visual state so we don't accidentally overwrite it.
         delete state.width;
-
         return state;
     }
 });
