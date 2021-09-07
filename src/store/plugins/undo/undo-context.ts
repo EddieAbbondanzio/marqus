@@ -123,8 +123,8 @@ export class UndoContext {
         // Reapply (N - 1) mutations to get to the desired state.
         const [replay, undone] = this._history.undo(cached.index, this._history.currentIndex - 1);
 
-        // console.log('replay: ', replay);
-        // console.log('undone: ', undone);
+        console.log('replay: ', replay);
+        console.log('undone: ', undone);
         await this._replayMutations(replay, 'undo');
         await this._notifyCallbacks(undone, 'undo');
     }

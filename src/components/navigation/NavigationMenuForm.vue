@@ -1,6 +1,6 @@
 <template>
     <Form
-        @submit="$emit('submit')"
+        @submit="onSubmit"
         class="is-flex is-flex-column is-justify-center is-relative"
         v-slot="{ submitCount, meta }"
     >
@@ -88,6 +88,7 @@ export default defineComponent({
     },
     setup(p, c) {
         let isClean = true;
+        let submitted = false;
 
         const inputValue = computed({
             get: () => p.modelValue,
@@ -96,6 +97,7 @@ export default defineComponent({
                 if (v !== p.modelValue) {
                     c.emit('update:modelValue', v);
                     isClean = false;
+                    submitted = false;
                 }
             }
         });
@@ -104,15 +106,22 @@ export default defineComponent({
         const onBlur = (e: any) => {
             if (isBlank(inputValue.value)) {
                 c.emit('cancel');
-                console.log('cancel');
-            } else {
+            } else if (!submitted) {
                 c.emit('submit');
+                submitted = true;
             }
         };
 
         const onCancel = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 c.emit('cancel');
+            }
+        };
+
+        const onSubmit = () => {
+            if (!submitted) {
+                c.emit('submit');
+                submitted = true;
             }
         };
 
@@ -126,7 +135,8 @@ export default defineComponent({
 
         return {
             inputValue,
-            onBlur
+            onBlur,
+            onSubmit
         };
     },
     emits: ['submit', 'cancel', 'update:modelValue'],

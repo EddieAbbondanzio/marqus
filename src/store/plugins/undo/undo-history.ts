@@ -49,6 +49,8 @@ export class UndoHistory {
             return;
         }
 
+        // console.log('push: ', e);
+
         // Grouped mutation
         if (metadata.group != null) {
             if (metadata.isReplay) {
@@ -61,6 +63,7 @@ export class UndoHistory {
                 throw Error(`No undo group ${metadata.group.id} found. Did you wrap the commit inside a undoGroup?`);
             }
 
+            // console.log('added to group ', g);
             g.mutations.push(e);
 
             // On first mutation added, add it to the event history
@@ -85,6 +88,8 @@ export class UndoHistory {
                 this._events.push(e);
                 this._currentIndex++;
             }
+
+            // console.log('added to history')
         }
     }
 

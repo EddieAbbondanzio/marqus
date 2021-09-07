@@ -99,11 +99,11 @@ persist.register({
     }
 });
 
+// After loading state from file, set the initial state of the undo contexts so we can revert
 mediator.subscribe('ui/SET_STATE', (v) => {
     const { globalNavigation, localNavigation, editor } = v.payload;
+    
     undo.getContext({ name: 'globalNavigation' }).setInitialState(globalNavigation);
     undo.getContext({ name: 'globalNavigation' }).setInitialState(localNavigation);
     undo.getContext({ name: 'editor' }).setInitialState(editor);
-
-    console.log('set initial states!', globalNavigation)
 });

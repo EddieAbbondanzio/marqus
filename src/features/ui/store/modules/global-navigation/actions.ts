@@ -140,8 +140,8 @@ export class GlobalNavigationActions extends Actions<
     }
 
     tagInputConfirm() {
+        console.log('tag input confirm called');
         this.undoContext.group((_undo) => {
-            console.log('group id is: ', _undo);
             const input = this.state.tags.input;
             let existing: Tag;
 
@@ -189,7 +189,12 @@ export class GlobalNavigationActions extends Actions<
                     break;
             }
 
-            this.tags.commit('SORT', { _undo });
+            this.tags.commit('SORT', {
+                _undo: {
+                    feck: 'hi',
+                    ..._undo
+                }
+            });
             this.commit('CLEAR_TAGS_INPUT', { _undo });
         });
 
