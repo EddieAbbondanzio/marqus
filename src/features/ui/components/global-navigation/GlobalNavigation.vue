@@ -6,6 +6,7 @@
         minWidth="160px"
         v-context-menu:globalNavigation
         v-input-scope:globalNavigation
+        v-shortcut:focusGlobalNavigation.global="focus"
         v-shortcut:delete="deleteHighlightItem"
         v-shortcut:enter="setHighlightActive"
         v-shortcut:escape="clearHighlight"
@@ -16,7 +17,7 @@
         v-shortcut:redo="redo"
         v-shortcut:rename="rename"
     >
-        <Scrollable v-model="scrollPosition" v-shortcut:scrollUp="onScrollUp" v-shortcut:scrollDown="onScrollDown">
+        <Scrollable v-model="scrollPosition" v-shortcut:scrollUp="scrollUp" v-shortcut:scrollDown="scrollDown">
             <NavigationMenuList>
                 <NavigationMenuItem
                     icon="file-alt"
@@ -79,9 +80,7 @@ import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-navigation-context-menu';
 import Scrollable from '@/components/layout/Scrollable.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
-import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 import { inputScopes } from '@/directives/input-scope/input-scopes';
-import { undo } from '@/store/plugins/undo';
 import { mapUndoRedo } from '@/store/plugins/undo/map-undo-redo';
 
 export default defineComponent({
@@ -102,37 +101,24 @@ export default defineComponent({
         });
 
         const setHighlightActive = () => {
-            if (globalNav.state.highlight == null) {
-                return;
+            if (globalNav.state.highlight != null) {
+                globalNav.actions.setActive(globalNav.state.highlight);
             }
-
-            globalNav.actions.setActive(globalNav.state.highlight);
         };
 
         const deleteHighlightItem = () => {
             const highlight = globalNav.state.highlight;
 
-            if (highlight == null) {
-                return;
-            }
+            switch (highlight?.section) {
+                case 'notebook':
+                    if (highlight.id != null) globalNav.actions.notebookDelete(highlight.id);
+                    break;
 
-            if ((highlight.section === 'tag' || highlight.section === 'notebook') && highlight.id != null) {
-                switch (highlight.section) {
-                    case 'notebook':
-                        globalNav.actions.notebookDelete(highlight.id);
-                        break;
-
-                    case 'tag':
-                        globalNav.actions.tagDelete(highlight.id);
-                        break;
-                }
+                case 'tag':
+                    if (highlight.id != null) globalNav.actions.tagDelete(highlight.id);
+                    break;
             }
         };
-
-        shortcuts.subscribe('focusGlobalNavigation', () => {
-            console.log('focus global nav');
-            inputScopes.focus({ name: 'globalNavigation' });
-        });
 
         const rename = () => {
             switch (globalNav.state.highlight?.section) {
@@ -146,23 +132,24 @@ export default defineComponent({
         };
 
         return {
+            width,
+            scrollPosition,
             rename,
-            onScrollUp: () => globalNav.actions.scrollUp(),
-            onScrollDown: () => globalNav.actions.scrollDown(),
             deleteHighlightItem,
             setHighlightActive,
+            scrollUp: () => globalNav.actions.scrollUp(),
+            scrollDown: () => globalNav.actions.scrollDown(),
             clearHighlight: () => globalNav.actions.clearHighlight(),
             moveHighlightUp: () => globalNav.actions.moveHighlightUp(),
             moveHighlightDown: () => globalNav.actions.moveHighlightDown(),
-            width,
-            scrollPosition,
             isActive: computed(() => globalNav.getters.isActive),
             isHighlighted: computed(() => globalNav.getters.isHighlighted),
             expandAll: globalNav.actions.expandAll,
             collapseAll: globalNav.actions.collapseAll,
             setActive: globalNav.actions.setActive,
             toggleHighlighted: () => globalNav.actions.toggleHighlighted(),
-            ...mapUndoRedo({ name: 'globalNavigation' })
+            ...mapUndoRedo({ name: 'globalNavigation' }),
+            focus: () => inputScopes.focus({ name: 'globalNavigation' })
         };
     },
     components: {
