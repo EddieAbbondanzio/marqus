@@ -13,6 +13,8 @@
         v-shortcut:moveSelectionUp="moveHighlightUp"
         v-shortcut:moveSelectionDown="moveHighlightDown"
         v-shortcut:toggleSelection="toggleHighlighted"
+        v-shortcut:globalNavigationExpandAll="expandAll"
+        v-shortcut:globalNavigationCollapseAll="collapseAll"
         v-shortcut:undo="undo"
         v-shortcut:redo="redo"
         v-shortcut:rename="rename"

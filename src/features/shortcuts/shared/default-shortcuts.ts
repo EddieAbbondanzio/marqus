@@ -18,7 +18,9 @@ const GERNERAL_USE = [
 const GLOBAL_NAVIGATION = [
     new Shortcut('focusGlobalNavigation', [KeyCode.Control, KeyCode.Digit1]),
     new Shortcut('globalNavigationCreateNotebook', [KeyCode.Control, KeyCode.LetterN]),
-    new Shortcut('globalNavigationCreateTag', [KeyCode.Control, KeyCode.LetterT])
+    new Shortcut('globalNavigationCreateTag', [KeyCode.Control, KeyCode.LetterT]),
+    new Shortcut('globalNavigationCollapseAll', [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowUp]),
+    new Shortcut('globalNavigationExpandAll', [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowDown])
 ];
 
 const LOCAL_NAVIGATION = [new Shortcut('focusLocalNavigation', [KeyCode.Control, KeyCode.Digit2])];
