@@ -60,11 +60,9 @@ import { computed, defineComponent, ref, nextTick } from 'vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import IconButton from '@/components/buttons/IconButton.vue';
-import { Tag } from '@/features/tags/common/tag';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { useTags } from '@/features/tags/store';
 import { useTagValidation } from '@/features/tags/hooks/use-tag-validation';
-import Select from '@/components/input/Select.vue';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 
 export default defineComponent({

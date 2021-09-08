@@ -105,8 +105,13 @@ export class GlobalNavigationActions extends Actions<
         this.commit('SET_SCROLL_POSITION', { value: scrollPos });
     }
 
-    incrementScrollPosition(increment: number) {
-        const value = this.state.scrollPosition + increment;
+    scrollUp(pixels = 30) {
+        const value = Math.max(this.state.scrollPosition - pixels, 0);
+        this.commit('SET_SCROLL_POSITION', { value });
+    }
+
+    scrollDown(pixels = 30) {
+        const value = Math.max(this.state.scrollPosition + pixels, 0);
         this.commit('SET_SCROLL_POSITION', { value });
     }
 

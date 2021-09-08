@@ -21,7 +21,13 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
     }
 
     SET_SCROLL_POSITION(p: UndoPayload<number>) {
-        this.state.scrollPosition = p.value;
+        let value = p.value;
+
+        if (Number.isNaN(value)) {
+            value = 0;
+        }
+
+        this.state.scrollPosition = value;
     }
 
     SET_TAGS_EXPANDED(p: UndoPayload<boolean>) {

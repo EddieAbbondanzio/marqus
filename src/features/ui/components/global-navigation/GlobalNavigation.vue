@@ -12,9 +12,9 @@
         v-shortcut:moveSelectionUp="moveHighlightUp"
         v-shortcut:moveSelectionDown="moveHighlightDown"
         v-shortcut:toggleSelection="toggleHighlighted"
-        v-shortcut:undo="onUndo"
-        v-shortcut:redo="onRedo"
-        v-shortcut:rename="onRename"
+        v-shortcut:undo="undo"
+        v-shortcut:redo="redo"
+        v-shortcut:rename="rename"
     >
         <Scrollable v-model="scrollPosition" v-shortcut:scrollUp="onScrollUp" v-shortcut:scrollDown="onScrollDown">
             <NavigationMenuList>
@@ -82,6 +82,7 @@ import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigati
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 import { inputScopes } from '@/directives/input-scope/input-scopes';
 import { undo } from '@/store/plugins/undo';
+import { mapUndoRedo } from '@/store/plugins/undo/map-undo-redo';
 
 export default defineComponent({
     setup: function() {
@@ -133,16 +134,7 @@ export default defineComponent({
             inputScopes.focus({ name: 'globalNavigation' });
         });
 
-        const onScrollUp = () => globalNav.actions.incrementScrollPosition(-30);
-        const onScrollDown = () => globalNav.actions.incrementScrollPosition(30);
-
-        const toggleHighlighted = () => {
-            globalNav.actions.toggleHighlighted();
-        };
-
-        const undoContext = undo.getContext({ name: 'globalNavigation' });
-
-        const onRename = () => {
+        const rename = () => {
             switch (globalNav.state.highlight?.section) {
                 case 'notebook':
                     globalNav.actions.notebookInputStart({ id: globalNav.state.highlight.id });
@@ -154,9 +146,9 @@ export default defineComponent({
         };
 
         return {
-            onRename,
-            onScrollUp,
-            onScrollDown,
+            rename,
+            onScrollUp: () => globalNav.actions.scrollUp(),
+            onScrollDown: () => globalNav.actions.scrollDown(),
             deleteHighlightItem,
             setHighlightActive,
             clearHighlight: () => globalNav.actions.clearHighlight(),
@@ -169,9 +161,8 @@ export default defineComponent({
             expandAll: globalNav.actions.expandAll,
             collapseAll: globalNav.actions.collapseAll,
             setActive: globalNav.actions.setActive,
-            toggleHighlighted,
-            onUndo: undoContext.tryUndo,
-            onRedo: undoContext.tryRedo
+            toggleHighlighted: () => globalNav.actions.toggleHighlighted(),
+            ...mapUndoRedo({ name: 'globalNavigation' })
         };
     },
     components: {
