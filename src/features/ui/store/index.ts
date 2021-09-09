@@ -13,6 +13,7 @@ import { LocalNavigationState } from '@/features/ui/store/modules/local-navigati
 import { RecursivePartial } from '@/shared/types/recursive-partial';
 import { mediator } from '@/store/plugins/mediator';
 import { undo } from '@/store/plugins/undo';
+import { store } from '@/store';
 
 export const userInterface = new Module({
     namespaced: true,

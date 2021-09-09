@@ -18,7 +18,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
             throw Error('Name is required.');
         }
 
-        if(p.value.name.length > NOTEBOOK_NAME_MAX_LENGTH) {
+        if (p.value.name.length > NOTEBOOK_NAME_MAX_LENGTH) {
             throw Error(`Name must be ${NOTEBOOK_NAME_MAX_LENGTH} characters or less.`);
         }
 
@@ -37,7 +37,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
             throw Error('Name is required.');
         }
 
-        if(newName.length > NOTEBOOK_NAME_MAX_LENGTH) {
+        if (newName.length > NOTEBOOK_NAME_MAX_LENGTH) {
             throw Error(`Notebook name must be ${NOTEBOOK_NAME_MAX_LENGTH} characters or less.`);
         }
 

@@ -14,6 +14,7 @@ import { persist } from '@/store/plugins/persist/persist';
 import { undo } from '@/store/plugins/undo/undo';
 import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
 import { inputScopes } from '@/directives/input-scope';
+import { DEFAULT_SHORTCUTS } from '@/features/shortcuts/shared/default-shortcuts';
 
 export default {
     components: { Cursor },
@@ -22,6 +23,7 @@ export default {
 
         onMounted(() => {
             persist.init(s);
+            shortcuts.register(DEFAULT_SHORTCUTS as any);
         });
 
         onBeforeUnmount(() => {

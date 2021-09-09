@@ -1,3 +1,4 @@
+import { DEFAULT_SHORTCUTS } from '@/features/shortcuts/shared/default-shortcuts';
 import { KeyCode, parseKey } from '@/features/shortcuts/shared/key-code';
 import { Shortcut } from '@/features/shortcuts/shared/shortcut';
 import { ShortcutCallback, ShortcutSubscriber } from '@/features/shortcuts/shared/shortcut-subscriber';
@@ -6,7 +7,7 @@ let defined: Shortcut[] = [];
 let activeKeys: { [key: string]: boolean } = {};
 let subscribers: { [shortcutName: string]: ShortcutSubscriber[] } = {};
 
-function onKeyDown(e: KeyboardEvent) {
+export function _onKeyDown(e: KeyboardEvent) {
     const key = parseKey(e.code);
 
     // Disable default arrow key actions
@@ -42,13 +43,13 @@ function onKeyDown(e: KeyboardEvent) {
     });
 }
 
-function onKeyUp(e: KeyboardEvent) {
+export function _onKeyUp(e: KeyboardEvent) {
     const key = parseKey(e.code);
     delete activeKeys[key];
 }
 
-window.addEventListener('keydown', onKeyDown);
-window.addEventListener('keyup', onKeyUp);
+window.addEventListener('keydown', _onKeyDown);
+window.addEventListener('keyup', _onKeyUp);
 
 export const shortcuts = {
     register(shortcut: Shortcut | Shortcut[]) {
@@ -87,7 +88,7 @@ export const shortcuts = {
         defined = [];
     },
     dispose() {
-        window.removeEventListener('keydown', onKeyDown);
-        window.removeEventListener('keyup', onKeyUp);
+        window.removeEventListener('keydown', _onKeyDown);
+        window.removeEventListener('keyup', _onKeyUp);
     }
 };
