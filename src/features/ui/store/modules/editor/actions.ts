@@ -40,7 +40,7 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         });
     }
 
-    createNotebook(n: { id: string; value: string }) {
+    createNotebook(n: { id: string; name: string }) {
         this.notebooks.commit('CREATE', {
             value: n,
             _undo: {

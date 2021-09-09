@@ -95,11 +95,11 @@ export default defineComponent({
             // Add the create option as needed
             if (
                 !isBlank(input.value) &&
-                !notebooks.state.values.some((n) => n.value.toLowerCase() === input.value.toLowerCase())
+                !notebooks.state.values.some((n) => n.name.toLowerCase() === input.value.toLowerCase())
             ) {
                 unused.push({
                     id: '',
-                    value: `Create new notebook '${input.value}'`
+                    name: `Create new notebook '${input.value}'`
                 });
             }
 
@@ -128,7 +128,7 @@ export default defineComponent({
             } else {
                 const notebook = {
                     id: generateId(),
-                    value: input.value
+                    name: input.value
                 };
 
                 editor.actions.createNotebook(notebook);

@@ -19,7 +19,6 @@ export const useNotebooks = createComposable(notebooks);
 
 persist.register({
     namespace: 'notebooks',
-    fileName: 'notebooks.json',
     initMutation: 'SET_STATE',
     reviver: (s: NotebookState) => {
         for (const n of s.values) {
@@ -30,7 +29,7 @@ persist.register({
     },
     transformer: (s: NotebookState) => {
         /*
-         * Need to nuke .parent references before serializing else JSON.strigify
+         * Need to nuke .parent references before serializing or else JSON.strigify
          * will throw error due to circular references.
          */
         for (const n of s.values) {

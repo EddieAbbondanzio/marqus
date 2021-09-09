@@ -1,6 +1,6 @@
 export interface GlobalNavigationNotebookInput {
     id?: string;
-    value: string;
+    name: string;
     parentId?: string;
     mode: 'create' | 'update';
 }
@@ -8,12 +8,12 @@ export interface GlobalNavigationNotebookInput {
 export type GlobalNavigationTagInput =
     | {
           mode: 'create';
-          value: string;
+          name: string;
       }
     | {
           mode: 'update';
           id: string;
-          value: string;
+          name: string;
       };
 
 export interface GlobalNavigationNotebookSection {

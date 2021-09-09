@@ -1,7 +1,5 @@
-import { findNotebookRecursive } from '@/features/notebooks/shared/find-notebook-recursive';
 import { Notebook } from '@/features/notebooks/shared/notebook';
 import { Note } from '@/features/notes/common/note';
-import { Tag } from '@/features/tags/shared/tag';
 import { Getters } from 'vuex-smart-module';
 import { NotebookState } from './state';
 
@@ -108,14 +106,39 @@ export class NotebookGetters extends Getters<NotebookState> {
     }
 
     byId(id: string): Notebook | undefined;
-    byId(id: string, opts: { required: true }): Notebook;
-    byId(id: string, opts: { required?: boolean } = {}) {
-        const notebook = findNotebookRecursive(this.state.values, id);
+    byId(id: string, opts: { required: true; notebooks?: Notebook[] }): Notebook;
+    byId(id: string, opts: { required?: boolean; notebooks?: Notebook[] } = {}): Notebook | undefined {
+        const notebook = findNotebookRecursive(opts.notebooks ?? this.state.values, id);
 
         if (opts.required && notebook == null) {
             throw Error(`No notebook with id ${id} found.`);
         }
 
         return notebook;
+    }
+}
+
+/**
+ * Search through a group of notebooks, and their children in an attempt
+ * to find a notebook via it's id.
+ * @param notebooks Collection of notebooks to look in.
+ * @param id The id to look for.
+ * @returns The matching notebook (if any)
+ */
+function findNotebookRecursive(notebooks: Notebook[], id: string): Notebook | undefined {
+    if (notebooks == null) {
+        return undefined;
+    }
+
+    for (let i = 0; i < notebooks.length; i++) {
+        if (notebooks[i].id === id) {
+            return notebooks[i];
+        } else if (notebooks[i].children?.length) {
+            const r = findNotebookRecursive(notebooks[i].children!, id);
+
+            if (r != null) {
+                return r;
+            }
+        }
     }
 }

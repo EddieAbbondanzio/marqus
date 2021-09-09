@@ -1,14 +1,11 @@
-import { MutationTree } from 'vuex';
 import { NotebookState } from './state';
 import { Notebook } from '@/features/notebooks/shared/notebook';
-import { generateId } from '@/store';
-import { findNotebookRecursive } from '@/features/notebooks/shared/find-notebook-recursive';
 import { isBlank } from '@/shared/utils';
 import { Mutations } from 'vuex-smart-module';
 import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-compare';
 
-export type NotebookCreate = Pick<Notebook, 'id' | 'value' | 'parent' | 'children' | 'expanded'>;
+export type NotebookCreate = Pick<Notebook, 'id' | 'name' | 'parent' | 'children' | 'expanded'>;
 
 export class NotebookMutations extends Mutations<NotebookState> {
     SET_STATE(s: NotebookState) {
@@ -17,7 +14,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
 
     CREATE(p: UndoPayload<NotebookCreate>) {
         // Check that the name isn't null, or just whitespace.
-        if (isBlank(p.value.value)) {
+        if (isBlank(p.value.name)) {
             throw Error('Value is required.');
         }
 
@@ -36,21 +33,15 @@ export class NotebookMutations extends Mutations<NotebookState> {
             throw Error('Value is required.');
         }
 
-        notebook.value = newName;
+        notebook.name = newName;
     }
 
-    DELETE({ value: { id } }: UndoPayload<Pick<Notebook, 'id'>>) {
-        const notebook = findNotebookRecursive(this.state.values, id);
-
-        if (notebook == null) {
-            throw new Error(`No notebook with id ${id} found.`);
-        }
-
+    DELETE({ value: notebook }: UndoPayload<Notebook>) {
         const array = notebook.parent == null ? this.state.values : notebook.parent!.children!;
-        const index = array.findIndex((n) => n.id === id);
+        const index = array.findIndex((n) => n.id === notebook.id);
 
         if (index === -1) {
-            throw new Error(`No notebook with id ${id} found.`);
+            throw new Error('No notebook found.');
         }
 
         array.splice(index, 1);
@@ -75,14 +66,14 @@ export class NotebookMutations extends Mutations<NotebookState> {
                 const n = notebooks[i];
 
                 if (n.children != null) {
-                    n.children.sort(caseInsensitiveCompare(v => v.value));
+                    n.children.sort(caseInsensitiveCompare(v => v.name));
                     recursiveSort(n.children);
                 }
             }
         }
 
         // Sort root
-        this.state.values.sort(caseInsensitiveCompare(v => v.value));
+        this.state.values.sort(caseInsensitiveCompare(v => v.name));
     }
 
     SET_EXPANDED(payload: UndoPayload<{ notebook: Notebook; expanded: boolean; bubbleUp: boolean }>) {

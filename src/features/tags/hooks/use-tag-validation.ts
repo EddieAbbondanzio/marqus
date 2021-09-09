@@ -1,14 +1,14 @@
 import { Tag, TAG_NAME_MAX_LENGTH } from '@/features/tags/shared/tag';
 import { store } from '@/store';
 
-export type PartialTag = { id?: string; value: string };
-
-export function useTagValidation(tag?: () => PartialTag | undefined) {
+export function useTagValidation(tag?: () => Partial<Tag> | undefined) {
     const getTags = () => store.state.tags.values as Tag[];
+    const getIdentifier = (t: Tag) => t?.id;
+    const getUniqueProperty = (t: Tag) => (t?.name ?? '').toLowerCase();
 
     return {
         required: true,
         max: TAG_NAME_MAX_LENGTH,
-        unique: [getTags, (t: Tag) => t?.id, (t: Tag) => (t?.name ?? '').toLowerCase(), tag]
+        unique: [getTags, getIdentifier, getUniqueProperty, tag]
     };
 }

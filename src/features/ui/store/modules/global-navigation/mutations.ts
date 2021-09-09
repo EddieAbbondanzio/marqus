@@ -39,20 +39,20 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
             return;
         }
 
-        this.state.tags.input!.value = p.value;
+        this.state.tags.input!.name = p.value;
     }
 
     START_TAGS_INPUT(p: UndoPayload<{ id: string; value: string } | undefined>) {
         if (p.value?.id == null) {
             this.state.tags.input = {
                 mode: 'create',
-                value: ''
+                name: ''
             };
         } else {
             this.state.tags.input = {
                 mode: 'update',
                 id: p.value.id,
-                value: p.value.value
+                name: p.value.value
             };
         }
     }
@@ -70,7 +70,7 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
             return;
         }
 
-        this.state.notebooks.input!.value = p.value;
+        this.state.notebooks.input!.name = p.value;
     }
 
     START_NOTEBOOKS_INPUT(p: UndoPayload<{ notebook?: { id: string; value: string }; parentId?: string }>) {
@@ -78,13 +78,13 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
             this.state.notebooks.input = {
                 mode: 'update',
                 id: p.value.notebook.id,
-                value: p.value.notebook.value,
+                name: p.value.notebook.value,
                 parentId: p.value.parentId
             };
         } else {
             this.state.notebooks.input = {
                 mode: 'create',
-                value: '',
+                name: '',
                 parentId: p.value.parentId
             };
         }

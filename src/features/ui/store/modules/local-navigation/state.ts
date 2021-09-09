@@ -13,9 +13,11 @@ export type LocalNavigationNoteInput =
       };
 
 export class LocalNavigationState {
-    width: string = '200px';
+    width = '200px';
+
     notes: {
         input?: LocalNavigationNoteInput;
     } = {};
+
     active?: string;
 }

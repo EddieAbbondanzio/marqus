@@ -1,7 +1,7 @@
 import { Entity } from '@/store';
 
 export interface Notebook extends Entity {
-    value: string;
+    name: string;
     parent?: Notebook;
     children?: Notebook[];
     expanded?: boolean;
@@ -48,7 +48,7 @@ export function fullyQualify(notebook: Notebook): string {
     let n: Notebook | undefined = notebook;
 
     while (n != null) {
-        arr.unshift(n.value);
+        arr.unshift(n.name);
         n = n.parent;
     }
 

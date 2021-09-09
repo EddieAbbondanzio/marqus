@@ -1,10 +1,16 @@
-import { fixNotebookParentReferences, fullyQualify, Notebook } from '@/features/notebooks/shared/notebook';
+import {
+    findNotebookRecursive,
+    fixNotebookParentReferences,
+    fullyQualify,
+    Notebook
+} from '@/features/notebooks/shared/notebook';
+import { generateId } from '@/store';
 
 describe('fixNotebookParentReferences()', () => {
     it('can handle null children', () => {
         const n: Notebook = {
             id: '1',
-            value: 'cat',
+            name: 'cat',
             expanded: false
         };
 
@@ -14,7 +20,7 @@ describe('fixNotebookParentReferences()', () => {
     it('can handle no children', () => {
         const n: Notebook = {
             id: '1',
-            value: 'cat',
+            name: 'cat',
             expanded: false,
             children: []
         };
@@ -25,11 +31,11 @@ describe('fixNotebookParentReferences()', () => {
     it('will set .parent for children', () => {
         const n: Notebook = {
             id: '1',
-            value: 'cat',
+            name: 'cat',
             expanded: false,
             children: [
-                { id: '2', value: 'dog', expanded: false },
-                { id: '3', value: 'horse', expanded: false }
+                { id: '2', name: 'dog', expanded: false },
+                { id: '3', name: 'horse', expanded: false }
             ]
         };
 
@@ -59,5 +65,40 @@ describe('fullyQualify()', () => {
         };
 
         expect(fullyQualify(child as any)).toBe('parent/child');
+    });
+});
+
+describe('findNotebookRecursive()', () => {
+    const notebooks = [
+        {
+            id: generateId(),
+            value: 'horse',
+            expanded: false,
+            children: [
+                { id: generateId(), value: 'correct', expanded: false },
+                { id: generateId(), value: 'battery', expanded: false },
+                { id: generateId(), value: 'staple', expanded: false }
+            ]
+        }
+    ];
+
+    it('returns nothing if no notebooks passed', () => {
+        const match = findNotebookRecursive(null!, '1');
+        expect(match).toBeUndefined();
+    });
+
+    it('can find a root match', () => {
+        const match = findNotebookRecursive(notebooks, notebooks[0].id);
+        expect(match).toHaveProperty('id', notebooks[0].id);
+    });
+
+    it('can find a nested notebook', () => {
+        const match = findNotebookRecursive(notebooks, notebooks[0].children[2].id);
+        expect(match).toHaveProperty('id', notebooks[0].children[2].id);
+    });
+
+    it('returns nothing if no match found after searching', () => {
+        const match = findNotebookRecursive(notebooks, '1');
+        expect(match).toBeUndefined();
     });
 });

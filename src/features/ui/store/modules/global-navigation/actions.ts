@@ -3,7 +3,6 @@ import { Notebook } from '@/features/notebooks/shared/notebook';
 import { Tag } from '@/features/tags/shared/tag';
 import { Action, ActionContext, ActionTree, Store } from 'vuex';
 import { GlobalNavigationState, GlobalNavigationItem } from './state';
-import { findNotebookRecursive } from '@/features/notebooks/shared/find-notebook-recursive';
 import { undo } from '@/store/plugins/undo/undo';
 import { confirmDelete, confirmReplaceNotebook } from '@/shared/utils';
 import { Actions, Context } from 'vuex-smart-module';
@@ -137,7 +136,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     tagInputUpdated(value: string) {
-        if (value === this.state.tags.input?.value) {
+        if (value === this.state.tags.input?.name) {
             return;
         }
 
@@ -152,7 +151,7 @@ export class GlobalNavigationActions extends Actions<
             switch (input?.mode) {
                 case 'create':
                     this.tags.commit('CREATE', {
-                        value: { id: generateId(), name: input.value },
+                        value: { id: generateId(), name: input.name },
                         _undo: {
                             ..._undo,
                             undoCallback: (m) => {
@@ -171,7 +170,7 @@ export class GlobalNavigationActions extends Actions<
                     existing = this.tags.getters.byId(input.id, { required: true });
 
                     this.tags.commit('SET_NAME', {
-                        value: { tag: existing, newName: input.value },
+                        value: { tag: existing, newName: input.name },
                         _undo: {
                             ..._undo,
                             cache: { oldName: existing.name },
@@ -310,12 +309,12 @@ export class GlobalNavigationActions extends Actions<
          */
 
         if (id != null) {
-            notebook = findNotebookRecursive(this.notebooks.state.values, id);
+            notebook = this.notebooks.getters.byId(id);
             if (notebook == null) throw Error(`No notebook with id ${id} found.`);
         }
 
         if (id == null && parentId != null) {
-            parent = findNotebookRecursive(this.notebooks.state.values, parentId);
+            parent = this.notebooks.getters.byId(parentId);
         }
 
         const p: any = {
@@ -326,7 +325,7 @@ export class GlobalNavigationActions extends Actions<
         if (notebook != null) {
             p.notebook = {
                 id: notebook.id,
-                value: notebook.value
+                value: notebook.name
             };
         }
 
@@ -344,7 +343,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     notebookInputUpdated(value: string) {
-        if (value === this.state.notebooks.input?.value) {
+        if (value === this.state.notebooks.input?.name) {
             return;
         }
 
@@ -361,7 +360,7 @@ export class GlobalNavigationActions extends Actions<
                 case 'create':
                     notebook = {
                         id: generateId(),
-                        value: input.value,
+                        name: input.name,
                         expanded: false
                     };
 
@@ -375,7 +374,7 @@ export class GlobalNavigationActions extends Actions<
                             ..._undo,
                             undoCallback: (m) => {
                                 this.notebooks.commit('DELETE', {
-                                    value: { id: m.payload.value.id },
+                                    value: m.payload.value,
                                     _undo: { ignore: true }
                                 });
                                 this.commit('SET_NOTEBOOKS_EXPANDED', { value: true, _undo: { ignore: true } });
@@ -391,11 +390,11 @@ export class GlobalNavigationActions extends Actions<
                 case 'update':
                     old = this.notebooks.getters.byId(input.id!)!;
                     this.notebooks.commit('SET_NAME', {
-                        value: { notebook: old, newName: input.value },
+                        value: { notebook: old, newName: input.name },
                         _undo: {
                             ..._undo,
                             cache: {
-                                oldName: old.value
+                                oldName: old.name
                             },
                             undoCallback: (m) => {
                                 this.notebooks.commit('SET_NAME', {
@@ -434,17 +433,17 @@ export class GlobalNavigationActions extends Actions<
     async notebookDelete(id: string) {
         const notebook = this.notebooks.getters.byId(id, { required: true });
 
-        if (await confirmDelete('notebook', notebook.value)) {
+        if (await confirmDelete('notebook', notebook.name)) {
             this.undoContext.group((_undo) => {
                 _undo.cache = {
                     id: notebook.id,
-                    value: notebook.value,
+                    value: notebook.name,
                     parent: notebook.parent,
                     children: notebook.children
                 };
 
                 this.notebooks.commit('DELETE', {
-                    value: { id: id },
+                    value: notebook,
                     _undo: {
                         ..._undo,
                         cache: {
@@ -493,7 +492,7 @@ export class GlobalNavigationActions extends Actions<
                 for (const notebook of this.notebooks.getters.flatten) {
                     _undo.cache.notebooks.push({
                         id: notebook.id,
-                        value: notebook.value,
+                        value: notebook.name,
                         noteIds: this.notes.getters.notesByNotebook(notebook.id).map((n) => n.id)
                     });
                 }
@@ -504,7 +503,7 @@ export class GlobalNavigationActions extends Actions<
                         undoCallback: (m) => {
                             for (const notebook of _undo.cache.notebooks) {
                                 this.notebooks.commit('CREATE', {
-                                    value: { id: notebook.id, value: notebook.value },
+                                    value: { id: notebook.id, name: notebook.value },
                                     _undo: { ignore: true }
                                 });
 
@@ -532,7 +531,7 @@ export class GlobalNavigationActions extends Actions<
     }
 
     async notebookDragStop(endedOnId: string | null) {
-        const dragging: Notebook = findNotebookRecursive(this.notebooks.state.values, this.state.notebooks.dragging!)!;
+        const dragging = this.notebooks.getters.byId(this.state.notebooks.dragging!);
 
         if (dragging == null) {
             throw new Error('No drag to finalize.');
@@ -542,14 +541,17 @@ export class GlobalNavigationActions extends Actions<
          * Don't allow a move if we started and stopped on the same element, or if
          * we are attempting to move a parent to a child of it.
          */
-        if (dragging.id !== endedOnId && findNotebookRecursive(dragging.children!, endedOnId!) == null) {
+        if (
+            dragging.id !== endedOnId &&
+            this.notebooks.getters.byId(endedOnId!, { required: false as any, notebooks: dragging.children }) == null
+        ) {
             // Remove from old location
-            this.notebooks.commit('DELETE', { value: { id: dragging.id } });
+            this.notebooks.commit('DELETE', { value: dragging });
 
             let parent: Notebook | undefined;
 
             if (endedOnId != null) {
-                parent = findNotebookRecursive(this.notebooks.state.values, endedOnId);
+                parent = this.notebooks.getters.byId(endedOnId);
             }
 
             /*
@@ -559,14 +561,14 @@ export class GlobalNavigationActions extends Actions<
             const newSiblings =
                 endedOnId == null
                     ? this.notebooks.state.values
-                    : findNotebookRecursive(this.notebooks.state.values, endedOnId)?.children ?? [];
+                    : this.notebooks.getters.byId(endedOnId)?.children ?? [];
 
-            const duplicate = newSiblings.find((n) => n.value === dragging.value)!;
+            const duplicate = newSiblings.find((n) => n.name === dragging.name)!;
             if (duplicate != null) {
-                const confirmReplace = await confirmReplaceNotebook(dragging.value);
+                const confirmReplace = await confirmReplaceNotebook(dragging.name);
 
                 if (confirmReplace) {
-                    this.notebooks.commit('DELETE', { value: { id: duplicate.id } });
+                    this.notebooks.commit('DELETE', { value: duplicate });
                 }
             }
 
@@ -574,7 +576,7 @@ export class GlobalNavigationActions extends Actions<
             this.notebooks.commit('CREATE', {
                 value: {
                     id: dragging.id,
-                    value: dragging.value,
+                    name: dragging.name,
                     parent,
                     children: dragging.children,
                     expanded: dragging.expanded

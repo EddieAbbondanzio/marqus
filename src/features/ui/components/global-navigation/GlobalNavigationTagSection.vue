@@ -78,7 +78,7 @@ export default defineComponent({
         });
 
         const input = computed({
-            get: () => globalNav.state.tags.input!.value,
+            get: () => globalNav.state.tags.input!.name,
             set: (v: string) => {
                 globalNav.dispatch('tagInputUpdated', v);
             }

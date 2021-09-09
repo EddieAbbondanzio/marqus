@@ -1,4 +1,3 @@
-import { findNotebookRecursive } from '@/features/notebooks/shared/find-notebook-recursive';
 import { Notebook } from '@/features/notebooks/shared/notebook';
 import { notebooks } from '@/features/notebooks/store';
 import { notes } from '@/features/notes/store';
@@ -47,7 +46,7 @@ export class LocalNavigationGetters extends Getters<LocalNavigationState> {
                         !n.trashed &&
                         n.notebooks != null &&
                         n.notebooks.some((id) => {
-                            let notebook: Notebook | undefined = findNotebookRecursive(this.notebooks.state.values, id);
+                            let notebook: Notebook | undefined = this.notebooks.getters.byId(id);
 
                             // A parent notebook should also show notes for any of it's children.
                             while (notebook != null) {

@@ -2,7 +2,7 @@
     <!-- Normal rendering -->
     <NavigationMenuItem
         v-if="!isNotebookBeingUpdated(modelValue.id)"
-        :label="modelValue.value"
+        :label="modelValue.name"
         :active="isActive({ id: modelValue.id, section: 'notebook' })"
         :highlight="isHighlighted({ id: modelValue.id, section: 'notebook' })"
         :expanded="modelValue.expanded"
@@ -82,7 +82,7 @@ export default defineComponent({
         });
 
         const input = computed({
-            get: () => globalNav.state.notebooks.input!.value,
+            get: () => globalNav.state.notebooks.input!.name,
             set: globalNav.actions.notebookInputUpdated
         });
 
@@ -150,7 +150,7 @@ export default defineComponent({
                     }
                 },
                 (n: Notebook) => n.id,
-                (n: Notebook) => n.value,
+                (n: Notebook) => n.name,
                 () => globalNav.state.notebooks.input
             ]
         };

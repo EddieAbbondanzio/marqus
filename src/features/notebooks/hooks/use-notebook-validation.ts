@@ -9,6 +9,6 @@ export function useNotebookValidation(notebook?: () => PartialNotebook | undefin
     return {
         required: true,
         max: NOTEBOOK_NAME_MAX_LENGTH,
-        unique: [getTags, (t: Notebook) => t?.id, (t: Notebook) => (t?.value ?? '').toLowerCase(), notebook]
+        unique: [getTags, (t: Notebook) => t?.id, (t: Notebook) => (t?.name ?? '').toLowerCase(), notebook]
     };
 }
