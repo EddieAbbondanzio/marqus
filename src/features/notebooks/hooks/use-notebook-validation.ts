@@ -1,4 +1,4 @@
-import { Notebook, NOTEBOOK_NAME_MAX_LENGTH } from '@/features/notebooks/common/notebook';
+import { Notebook, NOTEBOOK_NAME_MAX_LENGTH } from '@/features/notebooks/shared/notebook';
 import { store } from '@/store';
 
 export type PartialNotebook = { id?: string; value: string };

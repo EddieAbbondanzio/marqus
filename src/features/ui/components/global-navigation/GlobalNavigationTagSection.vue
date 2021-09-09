@@ -34,7 +34,7 @@
         <template v-for="tag in tags" :key="tag.id">
             <NavigationMenuItem
                 v-if="!isTagBeingUpdated(tag.id)"
-                :label="tag.value"
+                :label="tag.name"
                 :active="isActive({ id: tag.id, section: 'tag' })"
                 :highlight="isHighlighted({ id: tag.id, section: 'tag' })"
                 @click.stop="() => setActive({ id: tag.id, section: 'tag' })"

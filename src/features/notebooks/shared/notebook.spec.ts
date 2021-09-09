@@ -1,4 +1,4 @@
-import { fixNotebookParentReferences, fullyQualify, Notebook } from '@/features/notebooks/common/notebook';
+import { fixNotebookParentReferences, fullyQualify, Notebook } from '@/features/notebooks/shared/notebook';
 
 describe('fixNotebookParentReferences()', () => {
     it('can handle null children', () => {

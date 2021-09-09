@@ -1,7 +1,7 @@
-import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
-import { Notebook } from '@/features/notebooks/common/notebook';
+import { findNotebookRecursive } from '@/features/notebooks/shared/find-notebook-recursive';
+import { Notebook } from '@/features/notebooks/shared/notebook';
 import { Note } from '@/features/notes/common/note';
-import { Tag } from '@/features/tags/common/tag';
+import { Tag } from '@/features/tags/shared/tag';
 import { Getters } from 'vuex-smart-module';
 import { NotebookState } from './state';
 

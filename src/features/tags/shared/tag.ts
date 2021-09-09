@@ -1,7 +1,7 @@
 import { Entity } from '@/store';
 
 export interface Tag extends Entity {
-    value: string;
+    name: string;
 }
 
 export const TAG_NAME_MAX_LENGTH = 64;

@@ -1,9 +1,9 @@
 import { generateId } from '@/store';
-import { Notebook } from '@/features/notebooks/common/notebook';
-import { Tag } from '@/features/tags/common/tag';
+import { Notebook } from '@/features/notebooks/shared/notebook';
+import { Tag } from '@/features/tags/shared/tag';
 import { Action, ActionContext, ActionTree, Store } from 'vuex';
 import { GlobalNavigationState, GlobalNavigationItem } from './state';
-import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
+import { findNotebookRecursive } from '@/features/notebooks/shared/find-notebook-recursive';
 import { undo } from '@/store/plugins/undo/undo';
 import { confirmDelete, confirmReplaceNotebook } from '@/shared/utils';
 import { Actions, Context } from 'vuex-smart-module';
@@ -127,7 +127,7 @@ export class GlobalNavigationActions extends Actions<
             if (id != null) {
                 const tag = this.tags.getters.byId(id, { required: true });
 
-                this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.value }, _undo });
+                this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.name }, _undo });
             } else {
                 this.commit('START_TAGS_INPUT', { value: undefined, _undo });
             }
@@ -145,7 +145,6 @@ export class GlobalNavigationActions extends Actions<
     }
 
     tagInputConfirm() {
-        console.log('tag input confirm called');
         this.undoContext.group((_undo) => {
             const input = this.state.tags.input;
             let existing: Tag;
@@ -153,7 +152,7 @@ export class GlobalNavigationActions extends Actions<
             switch (input?.mode) {
                 case 'create':
                     this.tags.commit('CREATE', {
-                        value: { id: generateId(), value: input.value },
+                        value: { id: generateId(), name: input.value },
                         _undo: {
                             ..._undo,
                             undoCallback: (m) => {
@@ -175,7 +174,7 @@ export class GlobalNavigationActions extends Actions<
                         value: { tag: existing, newName: input.value },
                         _undo: {
                             ..._undo,
-                            cache: { oldName: existing.value },
+                            cache: { oldName: existing.name },
                             // We have to trigger callbacks on modules that aren't tracked by undo.
                             undoCallback: (m) => {
                                 this.tags.commit('SET_NAME', {
@@ -209,9 +208,9 @@ export class GlobalNavigationActions extends Actions<
     async tagDelete(id: string) {
         const tag = this.tags.getters.byId(id, { required: true });
 
-        if (await confirmDelete('tag', tag.value)) {
+        if (await confirmDelete('tag', tag.name)) {
             await this.undoContext.group(async (_undo) => {
-                _undo.cache = { id, value: tag.value };
+                _undo.cache = { id, value: tag.name };
 
                 this.tags.commit('DELETE', {
                     value: id,
@@ -219,7 +218,7 @@ export class GlobalNavigationActions extends Actions<
                         ..._undo,
                         undoCallback: (m) => {
                             this.tags.commit('CREATE', {
-                                value: { id: m.payload._undo.cache.id, value: m.payload._undo.cache.value }
+                                value: { id: m.payload._undo.cache.id, name: m.payload._undo.cache.value }
                             });
 
                             this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
@@ -262,7 +261,7 @@ export class GlobalNavigationActions extends Actions<
                 for (const tag of this.tags.state.values) {
                     _undo.cache.tags.push({
                         id: tag.id,
-                        value: tag.value,
+                        value: tag.name,
                         noteIds: this.notes.getters.notesByTag(tag.id).map((n) => n.id)
                     });
                 }
@@ -273,7 +272,7 @@ export class GlobalNavigationActions extends Actions<
                         undoCallback: (m) => {
                             for (const tag of _undo.cache.tags) {
                                 this.tags.commit('CREATE', {
-                                    value: { id: tag.id, value: tag.value },
+                                    value: { id: tag.id, name: tag.value },
                                     _undo: { ignore: true }
                                 });
 

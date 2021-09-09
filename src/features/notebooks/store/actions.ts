@@ -1,4 +1,4 @@
-import { Notebook } from '@/features/notebooks/common/notebook';
+import { Notebook } from '@/features/notebooks/shared/notebook';
 import { NotebookGetters } from '@/features/notebooks/store/getters';
 import { NotebookMutations } from '@/features/notebooks/store/mutations';
 import { Actions } from 'vuex-smart-module';

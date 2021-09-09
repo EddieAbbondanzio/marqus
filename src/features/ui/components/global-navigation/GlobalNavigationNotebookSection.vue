@@ -41,7 +41,7 @@ import { computed, defineComponent } from 'vue';
 import GlobalNavigationNotebook from '@/features/ui/components/global-navigation/GlobalNavigationNotebook.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
-import { Notebook } from '@/features/notebooks/common/notebook';
+import { Notebook } from '@/features/notebooks/shared/notebook';
 import IconButton from '@/components/buttons/IconButton.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { useNotebooks } from '@/features/notebooks/store';

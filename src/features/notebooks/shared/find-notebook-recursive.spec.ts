@@ -1,4 +1,4 @@
-import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
+import { findNotebookRecursive } from '@/features/notebooks/shared/find-notebook-recursive';
 import { generateId } from '@/store';
 
 describe('findNotebookRecursive()', () => {

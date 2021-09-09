@@ -62,7 +62,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue';
-import { Notebook, fullyQualify } from '@/features/notebooks/common/notebook';
+import { Notebook, fullyQualify } from '@/features/notebooks/shared/notebook';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import { useNotebooks } from '@/features/notebooks/store';
 import { useNotes } from '@/features/notes/store';

@@ -1,8 +1,8 @@
 import { MutationTree } from 'vuex';
 import { NotebookState } from './state';
-import { Notebook } from '@/features/notebooks/common/notebook';
+import { Notebook } from '@/features/notebooks/shared/notebook';
 import { generateId } from '@/store';
-import { findNotebookRecursive } from '@/features/notebooks/common/find-notebook-recursive';
+import { findNotebookRecursive } from '@/features/notebooks/shared/find-notebook-recursive';
 import { isBlank } from '@/shared/utils';
 import { Mutations } from 'vuex-smart-module';
 import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';

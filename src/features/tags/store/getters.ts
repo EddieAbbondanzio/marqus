@@ -1,5 +1,5 @@
 import { Note } from '@/features/notes/common/note';
-import { Tag } from '@/features/tags/common/tag';
+import { Tag } from '@/features/tags/shared/tag';
 import { Getters } from 'vuex-smart-module';
 import { TagState } from './state';
 
@@ -27,7 +27,7 @@ export class TagGetters extends Getters<TagState> {
     byName(name: string): Tag | undefined;
     byName(name: string, opts: { required: true }): Tag;
     byName(name: string, opts: { required?: boolean } = {}) {
-        const tag = this.state.values.find((t) => t.value === name);
+        const tag = this.state.values.find((t) => t.name === name);
 
         if (opts.required && tag == null) {
             throw Error(`No tag with name ${name} found.`);

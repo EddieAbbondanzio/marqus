@@ -26,7 +26,7 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         this.undoContext = undo.getContext({ name: 'editor' });
     }
 
-    createTag(t: { id: string; value: string }) {
+    createTag(t: { id: string; name: string }) {
         this.tags.commit('CREATE', {
             value: t,
             _undo: {

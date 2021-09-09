@@ -1,4 +1,4 @@
-import { Notebook } from '@/features/notebooks/common/notebook';
+import { Notebook } from '@/features/notebooks/shared/notebook';
 
 /**
  * Search through a group of notebooks, and their children in an attempt

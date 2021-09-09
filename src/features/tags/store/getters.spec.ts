@@ -7,9 +7,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -24,9 +24,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -41,9 +41,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -55,9 +55,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -70,9 +70,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -87,9 +87,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -102,9 +102,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -118,9 +118,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -136,9 +136,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -151,9 +151,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -168,9 +168,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });
@@ -183,9 +183,9 @@ describe('TagStore', () => {
             const getters = inject(TagGetters, {
                 state: {
                     values: [
-                        { id: '1', value: 'foo' },
-                        { id: '2', value: 'bar' },
-                        { id: '3', value: 'baz' }
+                        { id: '1', name: 'foo' },
+                        { id: '2', name: 'bar' },
+                        { id: '3', name: 'baz' }
                     ]
                 }
             });

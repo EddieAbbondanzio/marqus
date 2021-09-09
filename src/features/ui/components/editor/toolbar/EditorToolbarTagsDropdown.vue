@@ -58,7 +58,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, nextTick, onMounted, onRenderTriggered, ref, watch } from 'vue';
-import { Tag } from '@/features/tags/common/tag';
+import { Tag } from '@/features/tags/shared/tag';
 import { useEditor } from '@/features/ui/store/modules/editor';
 import { useTags } from '@/features/tags/store';
 import { useNotes } from '@/features/notes/store';
@@ -89,11 +89,11 @@ export default defineComponent({
             // Add the create option as needed
             if (
                 !isBlank(input.value) &&
-                !tags.state.values.some((t) => t.value.toLowerCase() === input.value.toLowerCase())
+                !tags.state.values.some((t) => t.name.toLowerCase() === input.value.toLowerCase())
             ) {
                 unused.push({
                     id: '',
-                    value: `Create new tag '${input.value}'`
+                    name: `Create new tag '${input.value}'`
                 });
             }
 
@@ -122,7 +122,7 @@ export default defineComponent({
             } else {
                 const tag = {
                     id: generateId(),
-                    value: input.value
+                    name: input.value
                 };
 
                 editor.actions.createTag(tag);

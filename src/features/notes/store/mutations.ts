@@ -1,5 +1,5 @@
 import Vue from '*.vue';
-import { Notebook } from '@/features/notebooks/common/notebook';
+import { Notebook } from '@/features/notebooks/shared/notebook';
 import { Note } from '@/features/notes/common/note';
 import { isBlank } from '@/shared/utils';
 import { generateId } from '@/store';

@@ -53,7 +53,7 @@ import { mapActions, mapGetters, useStore } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import { climbDomHierarchy } from '@/shared/utils';
-import { Notebook } from '@/features/notebooks/common/notebook';
+import { Notebook } from '@/features/notebooks/shared/notebook';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { useNotebooks } from '@/features/notebooks/store';
 import { AnyRecordWithTtl } from 'node:dns';

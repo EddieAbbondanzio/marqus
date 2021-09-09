@@ -1,5 +1,5 @@
 import { persist } from '@/store/plugins/persist/persist';
-import { fixNotebookParentReferences, killNotebookParentReferences } from '@/features/notebooks/common/notebook';
+import { fixNotebookParentReferences, killNotebookParentReferences } from '@/features/notebooks/shared/notebook';
 import { createComposable, Module } from 'vuex-smart-module';
 import { NotebookActions } from '@/features/notebooks/store/actions';
 import { NotebookState } from '@/features/notebooks/store/state';

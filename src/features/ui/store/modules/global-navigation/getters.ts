@@ -1,4 +1,4 @@
-import { Notebook } from '@/features/notebooks/common/notebook';
+import { Notebook } from '@/features/notebooks/shared/notebook';
 import { notebooks } from '@/features/notebooks/store';
 import { tags } from '@/features/tags/store';
 import { GetterTree, Store } from 'vuex';
