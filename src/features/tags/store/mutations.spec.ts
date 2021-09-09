@@ -137,7 +137,7 @@ describe('Tag mutations', () => {
     describe('DELETE', () => {
         it('throws if tag is not found', () => {
             expect(() => {
-                mutations.DELETE({ value: '1' });
+                mutations.DELETE({ value: { id: '1', name: 'cat' } });
             }).toThrow();
         });
 
@@ -156,7 +156,7 @@ describe('Tag mutations', () => {
                 }
             });
 
-            mutations.DELETE({ value: '1' });
+            mutations.DELETE({ value: { id: '1', name: 'foo' } });
 
             expect(state.values).toHaveLength(1);
             expect(state.values[0]).toHaveProperty('id', '2');

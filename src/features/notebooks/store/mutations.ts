@@ -1,5 +1,5 @@
 import { NotebookState } from './state';
-import { Notebook } from '@/features/notebooks/shared/notebook';
+import { Notebook, NOTEBOOK_NAME_MAX_LENGTH } from '@/features/notebooks/shared/notebook';
 import { isBlank } from '@/shared/utils';
 import { Mutations } from 'vuex-smart-module';
 import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
@@ -15,7 +15,11 @@ export class NotebookMutations extends Mutations<NotebookState> {
     CREATE(p: UndoPayload<NotebookCreate>) {
         // Check that the name isn't null, or just whitespace.
         if (isBlank(p.value.name)) {
-            throw Error('Value is required.');
+            throw Error('Name is required.');
+        }
+
+        if(p.value.name.length > NOTEBOOK_NAME_MAX_LENGTH) {
+            throw Error(`Name must be ${NOTEBOOK_NAME_MAX_LENGTH} characters or less.`);
         }
 
         const notebook: Notebook = Object.assign({}, p.value);
@@ -29,8 +33,12 @@ export class NotebookMutations extends Mutations<NotebookState> {
     }
 
     SET_NAME({ value: { notebook, newName } }: UndoPayload<{ notebook: Notebook; newName: string }>) {
-        if (newName == null) {
-            throw Error('Value is required.');
+        if (isBlank(newName)) {
+            throw Error('Name is required.');
+        }
+
+        if(newName.length > NOTEBOOK_NAME_MAX_LENGTH) {
+            throw Error(`Notebook name must be ${NOTEBOOK_NAME_MAX_LENGTH} characters or less.`);
         }
 
         notebook.name = newName;
@@ -83,7 +91,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
         do {
             n.expanded = payload.value.expanded;
             n = n.parent;
-        } while (n && payload.value.bubbleUp);
+        } while (n != null && payload.value.bubbleUp);
     }
 
     SET_ALL_EXPANDED({ value: { expanded = false } }: UndoPayload<{ expanded: boolean }>) {

@@ -212,7 +212,7 @@ export class GlobalNavigationActions extends Actions<
                 _undo.cache = { id, value: tag.name };
 
                 this.tags.commit('DELETE', {
-                    value: id,
+                    value: tag,
                     _undo: {
                         ..._undo,
                         undoCallback: (m) => {
@@ -537,14 +537,16 @@ export class GlobalNavigationActions extends Actions<
             throw new Error('No drag to finalize.');
         }
 
+        let endedOn;
+        if (endedOnId != null) {
+            endedOn = this.notebooks.getters.byId(endedOnId, { notebooks: dragging.children });
+        }
+
         /*
          * Don't allow a move if we started and stopped on the same element, or if
          * we are attempting to move a parent to a child of it.
          */
-        if (
-            dragging.id !== endedOnId &&
-            this.notebooks.getters.byId(endedOnId!, { required: false as any, notebooks: dragging.children }) == null
-        ) {
+        if (dragging.id !== endedOnId && endedOn == null) {
             // Remove from old location
             this.notebooks.commit('DELETE', { value: dragging });
 

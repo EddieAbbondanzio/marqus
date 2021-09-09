@@ -44,11 +44,11 @@ export class TagMutations extends Mutations<TagState> {
         tag.name = newName;
     }
 
-    DELETE({ value: id }: UndoPayload<string>) {
-        const i = this.state.values.findIndex((t) => t.id === id);
+    DELETE({ value: tag }: UndoPayload<Tag>) {
+        const i = this.state.values.findIndex((t) => t.id === tag.id);
 
         if (i === -1) {
-            throw Error(`No tag with id ${id} found.`);
+            throw Error(`No tag with id ${tag.id} found.`);
         }
 
         this.state.values.splice(i, 1);

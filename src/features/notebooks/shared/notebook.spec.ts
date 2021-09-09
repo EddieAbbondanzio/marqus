@@ -1,9 +1,4 @@
-import {
-    findNotebookRecursive,
-    fixNotebookParentReferences,
-    fullyQualify,
-    Notebook
-} from '@/features/notebooks/shared/notebook';
+import { fixNotebookParentReferences, fullyQualify, Notebook } from '@/features/notebooks/shared/notebook';
 import { generateId } from '@/store';
 
 describe('fixNotebookParentReferences()', () => {
@@ -48,7 +43,7 @@ describe('fixNotebookParentReferences()', () => {
 describe('fullyQualify()', () => {
     it('returns root', () => {
         const n = {
-            value: 'name'
+            name: 'name'
         };
 
         expect(fullyQualify(n as any)).toBe('name');
@@ -56,49 +51,14 @@ describe('fullyQualify()', () => {
 
     it('returns nested', () => {
         const parent = {
-            value: 'parent'
+            name: 'parent'
         };
 
         const child = {
-            value: 'child',
+            name: 'child',
             parent
         };
 
         expect(fullyQualify(child as any)).toBe('parent/child');
-    });
-});
-
-describe('findNotebookRecursive()', () => {
-    const notebooks = [
-        {
-            id: generateId(),
-            value: 'horse',
-            expanded: false,
-            children: [
-                { id: generateId(), value: 'correct', expanded: false },
-                { id: generateId(), value: 'battery', expanded: false },
-                { id: generateId(), value: 'staple', expanded: false }
-            ]
-        }
-    ];
-
-    it('returns nothing if no notebooks passed', () => {
-        const match = findNotebookRecursive(null!, '1');
-        expect(match).toBeUndefined();
-    });
-
-    it('can find a root match', () => {
-        const match = findNotebookRecursive(notebooks, notebooks[0].id);
-        expect(match).toHaveProperty('id', notebooks[0].id);
-    });
-
-    it('can find a nested notebook', () => {
-        const match = findNotebookRecursive(notebooks, notebooks[0].children[2].id);
-        expect(match).toHaveProperty('id', notebooks[0].children[2].id);
-    });
-
-    it('returns nothing if no match found after searching', () => {
-        const match = findNotebookRecursive(notebooks, '1');
-        expect(match).toBeUndefined();
     });
 });

@@ -106,7 +106,7 @@ export class NotebookGetters extends Getters<NotebookState> {
     }
 
     byId(id: string): Notebook | undefined;
-    byId(id: string, opts: { required: true; notebooks?: Notebook[] }): Notebook;
+    byId(id: string, opts: { required?: true; notebooks?: Notebook[] }): Notebook;
     byId(id: string, opts: { required?: boolean; notebooks?: Notebook[] } = {}): Notebook | undefined {
         const notebook = findNotebookRecursive(opts.notebooks ?? this.state.values, id);
 
