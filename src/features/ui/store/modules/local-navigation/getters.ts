@@ -32,16 +32,18 @@ export class LocalNavigationGetters extends Getters<LocalNavigationState> {
     get activeNotes() {
         const active = this.globalNav.state.active;
 
+        const notes = this.notes.state.values;
+
         switch (active?.section) {
             case 'all':
-                return this.notes.getters.where((n) => !n.trashed);
+                return notes.filter((n) => !n.trashed);
 
             case 'notebook':
                 if (active.id == null) {
-                    return this.notes.getters.where((n) => n.notebooks.length > 0 && !n.trashed);
+                    return notes.filter((n) => n.notebooks.length > 0 && !n.trashed);
                 }
 
-                return this.notes.getters.where(
+                return notes.filter(
                     (n) =>
                         !n.trashed &&
                         n.notebooks != null &&
@@ -60,16 +62,16 @@ export class LocalNavigationGetters extends Getters<LocalNavigationState> {
 
             case 'tag':
                 if (active.id == null) {
-                    return this.notes.getters.where((n) => !n.trashed && n.tags.length > 0);
+                    return notes.filter((n) => !n.trashed && n.tags.length > 0);
                 }
 
-                return this.notes.getters.where((n) => !n.trashed && (n.tags ?? []).some((tag) => tag === active.id));
+                return notes.filter((n) => !n.trashed && (n.tags ?? []).some((tag) => tag === active.id));
 
             case 'favorites':
-                return this.notes.getters.where((n) => !n.trashed && (n.favorited ?? false));
+                return notes.filter((n) => !n.trashed && (n.favorited ?? false));
 
             case 'trash':
-                return this.notes.getters.where((n) => n.trashed ?? false);
+                return notes.filter((n) => n.trashed ?? false);
 
             default:
                 return [];

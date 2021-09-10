@@ -1,8 +1,8 @@
 import { EditorState, EditorMode, Tab } from '@/features/ui/store/modules/editor/state';
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { confirmDeleteOrTrash, fileSystem } from '@/shared/utils';
 import { Actions, Context } from 'vuex-smart-module';
-import { loadNoteContentFromFileSystem, saveNoteContent } from '@/features/notes/utils/persist';
+import { loadNoteContentFromFileSystem, saveNoteContent } from '@/features/notes/shared/persist';
 import { EditorGetters } from '@/features/ui/store/modules/editor/getters';
 import { EditorMutations } from '@/features/ui/store/modules/editor/mutations';
 import { notes } from '@/features/notes/store';

@@ -1,4 +1,4 @@
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { Tag } from '@/features/tags/shared/tag';
 import { Getters } from 'vuex-smart-module';
 import { TagState } from './state';

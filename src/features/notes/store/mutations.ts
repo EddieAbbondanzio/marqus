@@ -1,6 +1,6 @@
 import Vue from '*.vue';
 import { Notebook } from '@/features/notebooks/shared/notebook';
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { isBlank } from '@/shared/utils';
 import { generateId } from '@/store';
 import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
@@ -23,9 +23,11 @@ export class NoteMutations extends Mutations<NoteState> {
 
         const note: Note = Object.assign(
             {
-                tags: [],
-                notebooks: [],
-                dateCreated: new Date()
+                tags: p.value.tags,
+                notebooks: p.value.name,
+                dateCreated: new Date(),
+                favorited: p.value.favorited,
+                hasUnsavedChanges: true
             },
             p.value
         );
@@ -38,11 +40,11 @@ export class NoteMutations extends Mutations<NoteState> {
         note.hasUnsavedChanges = true;
     }
 
-    DELETE({ value: id }: UndoPayload<string>) {
-        const i = this.state.values.findIndex((n) => n.id === id);
+    DELETE({ value: note }: UndoPayload<Note>) {
+        const i = this.state.values.findIndex((n) => n.id === note.id);
 
         if (i === -1) {
-            throw Error(`No note with id ${id} found`);
+            throw Error(`No note with id ${note.id} found`);
         }
 
         this.state.values.splice(i, 1);
@@ -53,15 +55,12 @@ export class NoteMutations extends Mutations<NoteState> {
      * @param options.noteId Id of the note(s) to add the notebook to.
      * @param options.notebookId Id of the notebook to add.
      */
-    ADD_NOTEBOOK({ value: { noteId, notebookId } }: UndoPayload<{ noteId: string | string[]; notebookId: string }>) {
+    ADD_NOTEBOOK({ value: { note, notebookId } }: UndoPayload<{ note: Note | Note[]; notebookId: string }>) {
         if (notebookId == null) {
             throw Error('No notebookId passed.');
         }
 
-        const notes = Array.isArray(noteId)
-            ? this.state.values.filter((n) => noteId.some((id) => n.id === id))
-            : this.state.values.filter((n) => n.id === noteId);
-
+        const notes = Array.isArray(note) ? note : [note];
         for (const note of notes) {
             // Check to see if the notebook is already present to prevent duplicates.
             if (!note.notebooks.some((n) => n === notebookId)) {
@@ -76,15 +75,12 @@ export class NoteMutations extends Mutations<NoteState> {
      * @param options.noteId Id of the note(s) to add the tag to.
      * @param options.tagId Id of the tag to add.
      */
-    ADD_TAG({ value: { noteId, tagId } }: UndoPayload<{ noteId: string | string[]; tagId: string }>) {
+    ADD_TAG({ value: { note, tagId } }: UndoPayload<{ note: Note | Note[]; tagId: string }>) {
         if (tagId == null) {
             throw Error('No tagId passed.');
         }
 
-        const notes = Array.isArray(noteId)
-            ? this.state.values.filter((n) => noteId.some((id) => n.id === id))
-            : this.state.values.filter((n) => n.id === noteId);
-
+        const notes = Array.isArray(note) ? note : [note];
         for (const note of notes) {
             // Check to see if the tag is already present first to prevent duplicates.
             if (!note.tags.some((t) => t === tagId)) {
@@ -100,18 +96,16 @@ export class NoteMutations extends Mutations<NoteState> {
      * @param options.notebookId Id of the notebook to remove.
      */
     REMOVE_NOTEBOOK({
-        value: { noteId = undefined, notebookId }
-    }: UndoPayload<{ noteId?: string | string[]; notebookId: string }>) {
+        value: { note = undefined, notebookId }
+    }: UndoPayload<{ note?: Note | Note[]; notebookId: string }>) {
         if (notebookId == null) {
             throw Error('No notebookId passed.');
         }
 
         let notes: Note[];
 
-        if (noteId != null) {
-            notes = Array.isArray(noteId)
-                ? this.state.values.filter((n) => noteId.some((id) => n.id === id))
-                : this.state.values.filter((n) => n.id === noteId);
+        if (note != null) {
+            notes = Array.isArray(note) ? note : [note];
         } else {
             notes = this.state.values;
         }
@@ -134,7 +128,7 @@ export class NoteMutations extends Mutations<NoteState> {
      * @param options.noteId Id of one, or more notes to remove the tag from. If none passed, tag is removed from all notes.
      * @param options.tagId Id of the tag to be removed.
      */
-    REMOVE_TAG({ value: { noteId = undefined, tagId } }: UndoPayload<{ noteId?: string | string[]; tagId: string }>) {
+    REMOVE_TAG({ value: { note = undefined, tagId } }: UndoPayload<{ note?: Note | Note[]; tagId: string }>) {
         if (tagId == null) {
             throw Error('No tagId passed.');
         }
@@ -147,10 +141,8 @@ export class NoteMutations extends Mutations<NoteState> {
         let notes: Note[];
 
         // Get all the notes to remove it from
-        if (noteId != null) {
-            notes = Array.isArray(noteId)
-                ? this.state.values.filter((n) => noteId.some((id) => n.id === id))
-                : this.state.values.filter((n) => n.id === noteId);
+        if (note != null) {
+            notes = Array.isArray(note) ? note : [note];
         } else {
             notes = this.state.values;
         }
@@ -169,14 +161,12 @@ export class NoteMutations extends Mutations<NoteState> {
         }
     }
 
-    MOVE_TO_TRASH({ value: id }: UndoPayload<string>) {
-        const note = this.state.values.find((n) => n.id === id)!;
+    MOVE_TO_TRASH({ value: note }: UndoPayload<Note>) {
         note.trashed = true;
         note.hasUnsavedChanges = true;
     }
 
-    RESTORE_FROM_TRASH({ value: id }: UndoPayload<string>) {
-        const note = this.state.values.find((n) => n.id === id)!;
+    RESTORE_FROM_TRASH({ value: note }: UndoPayload<Note>) {
         delete note.trashed;
         note.hasUnsavedChanges = true;
     }

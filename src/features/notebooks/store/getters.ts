@@ -1,5 +1,5 @@
 import { Notebook } from '@/features/notebooks/shared/notebook';
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { Getters } from 'vuex-smart-module';
 import { NotebookState } from './state';
 

@@ -1,4 +1,4 @@
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { createContextMenuHook } from '@/hooks/create-context-menu-hook';
 import { climbDomHierarchy } from '@/shared/utils';
 import { store } from '@/store';

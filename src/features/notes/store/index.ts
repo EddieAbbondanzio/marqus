@@ -1,5 +1,5 @@
 import { persist } from '@/store/plugins/persist/persist';
-import { deserialize, serialize } from '@/features/notes/utils/persist';
+import { deserialize, serialize } from '@/features/notes/shared/persist';
 import { createComposable, Module } from 'vuex-smart-module';
 import { NoteActions } from '@/features/notes/store/actions';
 import { NoteMutations } from '@/features/notes/store/mutations';

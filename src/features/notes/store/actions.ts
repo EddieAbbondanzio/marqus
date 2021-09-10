@@ -1,4 +1,4 @@
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { NoteGetters } from '@/features/notes/store/getters';
 import { NoteMutations } from '@/features/notes/store/mutations';
 import { NoteState } from '@/features/notes/store/state';
@@ -6,41 +6,35 @@ import { ActionTree } from 'vuex';
 import { Actions } from 'vuex-smart-module';
 
 export class NoteActions extends Actions<NoteState, NoteGetters, NoteMutations, NoteActions> {
-    toggleFavorite(note: string | Note) {
-        const toUpdate = typeof note === 'string' ? this.state.values.find((n) => n.id === note)! : note;
-
-        if (toUpdate == null) {
-            throw Error('Note not found');
-        }
-
-        if (toUpdate.favorited) {
-            this.commit('UNFAVORITE', { value: toUpdate });
+    toggleFavorite(note: Note) {
+        if (note.favorited) {
+            this.commit('UNFAVORITE', { value: note });
         } else {
-            this.commit('FAVORITE', { value: toUpdate });
+            this.commit('FAVORITE', { value: note });
         }
     }
 
-    addNotebook({ noteId, notebookId }: { noteId: string | string[]; notebookId: string }) {
+    addNotebook({ note, notebookId }: { note: Note | Note[]; notebookId: string }) {
         this.commit('ADD_NOTEBOOK', {
-            value: { noteId, notebookId }
+            value: { note: note, notebookId }
         });
     }
 
-    addTag({ noteId, tagId }: { noteId: string | string[]; tagId: string }) {
+    addTag({ note, tagId }: { note: Note | Note[]; tagId: string }) {
         this.commit('ADD_TAG', {
-            value: { noteId, tagId }
+            value: { note, tagId }
         });
     }
 
-    removeNotebook({ noteId, notebookId }: { noteId: string | string[]; notebookId: string }) {
+    removeNotebook({ note, notebookId }: { note: Note | Note[]; notebookId: string }) {
         this.commit('REMOVE_NOTEBOOK', {
-            value: { noteId, notebookId }
+            value: { note, notebookId }
         });
     }
 
-    removeTag({ noteId, tagId }: { noteId: string | string[]; tagId: string }) {
+    removeTag({ note, tagId }: { note: Note | Note[]; tagId: string }) {
         this.commit('REMOVE_TAG', {
-            value: { noteId, tagId }
+            value: { note, tagId }
         });
     }
 }

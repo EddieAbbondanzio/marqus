@@ -1,7 +1,7 @@
 import { Notebook } from '@/features/notebooks/shared/notebook';
 import { NotebookGetters } from '@/features/notebooks/store/getters';
 import { NotebookState } from '@/features/notebooks/store/state';
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { inject } from 'vuex-smart-module';
 
 describe('Notebook getters', () => {

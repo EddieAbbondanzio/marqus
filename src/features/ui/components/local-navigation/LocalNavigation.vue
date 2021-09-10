@@ -64,7 +64,7 @@ import Resizable from '@/components/layout/Resizable.vue';
 import { mapActions, mapGetters } from 'vuex';
 import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
 import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { useLocalNavigationContextMenu } from './../../hooks/use-local-navigation-context-menu';
 import { useLocalNavigation } from '@/features/ui/store/modules/local-navigation';
 import { useNotes } from '@/features/notes/store';

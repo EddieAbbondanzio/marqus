@@ -241,7 +241,7 @@ export class GlobalNavigationActions extends Actions<
                         ..._undo,
                         undoCallback: (m) =>
                             this.notes.commit('ADD_TAG', {
-                                value: { noteId: m.payload._undo.cache.noteIds, tagId: m.payload.value.tagId },
+                                value: { note: m.payload._undo.cache.noteIds, tagId: m.payload.value.tagId },
                                 _undo: { ignore: true }
                             }),
                         redoCallback: (m) =>
@@ -276,7 +276,7 @@ export class GlobalNavigationActions extends Actions<
                                 });
 
                                 this.notes.commit('ADD_TAG', {
-                                    value: { noteId: tag.noteIds, tagId: tag.id },
+                                    value: { note: tag.noteIds, tagId: tag.id },
                                     _undo: { ignore: true }
                                 });
                             }
@@ -471,11 +471,13 @@ export class GlobalNavigationActions extends Actions<
                     value: { notebookId: id },
                     _undo: {
                         ..._undo,
-                        undoCallback: (m) =>
-                            this.notes.commit('ADD_NOTEBOOK', {
-                                value: { noteId: m.payload._undo.cache.noteIds, notebookId: m.payload.value.tagId },
-                                _undo: { ignore: true }
-                            }),
+                        undoCallback: (m) => {
+                            throw Error('fix');
+                        },
+                        // this.notes.commit('ADD_NOTEBOOK', {
+                        //     value: { noteId: m.payload._undo.cache.noteIds, notebookId: m.payload.value.tagId },
+                        //     _undo: { ignore: true }
+                        // }),,
                         redoCallback: (m) =>
                             this.notes.commit('REMOVE_NOTEBOOK', { value: m.payload.value, _undo: { ignore: true } })
                     }
@@ -507,10 +509,11 @@ export class GlobalNavigationActions extends Actions<
                                     _undo: { ignore: true }
                                 });
 
-                                this.notes.commit('ADD_NOTEBOOK', {
-                                    value: { noteId: notebook.noteIds, notebookId: notebook.id },
-                                    _undo: { ignore: true }
-                                });
+                                throw Error('fix');
+                                // this.notes.commit('ADD_NOTEBOOK', {
+                                //     value: { noteId: notebook.noteIds, notebookId: notebook.id },
+                                //     _undo: { ignore: true }
+                                // });
                             }
                         },
                         redoCallback: (m) => {

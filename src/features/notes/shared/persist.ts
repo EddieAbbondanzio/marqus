@@ -1,4 +1,4 @@
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { NoteMutations } from '@/features/notes/store/mutations';
 import { NoteState } from '@/features/notes/store/state';
 import { fileSystem } from '@/shared/utils';
@@ -35,7 +35,8 @@ export async function serialize(
         case 'notes/EMPTY_TRASH':
             throw Error('Not implemented');
 
-        case 'notes/MARK_ALL_NOTES_SAVED': // Prevents infinite loop
+        case 'notes/MARK_ALL_NOTES_SAVED': 
+            // Don't remove! Prevents infinite loop
             break;
 
         // Catch-all so we don't have to keep explicitly adding new cases

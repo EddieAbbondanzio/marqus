@@ -1,4 +1,4 @@
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { NoteState } from '@/features/notes/store/state';
 import { Getters } from 'vuex-smart-module';
 
@@ -13,10 +13,6 @@ export class NoteGetters extends Getters<NoteState> {
         }
 
         return note;
-    }
-
-    where(pred: (n: Note) => boolean) {
-        return this.state.values.filter(pred);
     }
 
     notesByTag(tagId: string) {

@@ -1,4 +1,4 @@
-import { Note } from '@/features/notes/common/note';
+import { Note } from '@/features/notes/shared/note';
 import { notes } from '@/features/notes/store';
 import { globalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { LocalNavigationGetters } from '@/features/ui/store/modules/local-navigation/getters';
