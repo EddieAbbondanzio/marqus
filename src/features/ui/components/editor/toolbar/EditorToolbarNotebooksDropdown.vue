@@ -146,8 +146,8 @@ export default defineComponent({
             }
         });
 
-        const onAdd = (n: Notebook) => notes.dispatch('addNotebook', { noteId: note.value.id, notebookId: n.id });
-        const onRemove = (n: Notebook) => notes.dispatch('removeNotebook', { noteId: note.value.id, notebookId: n.id });
+        const onAdd = (n: Notebook) => notes.dispatch('addNotebook', { note: note.value, notebookId: n.id });
+        const onRemove = (n: Notebook) => notes.dispatch('removeNotebook', { note: note.value, notebookId: n.id });
 
         const { unique, ...rules } = useNotebookValidation();
 

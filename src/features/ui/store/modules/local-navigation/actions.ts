@@ -126,13 +126,13 @@ export class LocalNavigationActions extends Actions<
         switch (confirm) {
             case 'delete':
                 // permanent wasn't a joke.
-                this.notes.commit('DELETE', { value: id, _undo: { ignore: true } });
+                this.notes.commit('DELETE', { value: note, _undo: { ignore: true } });
                 break;
 
             case 'trash':
                 this.undoContext.group((_undo) => {
                     this.notes.commit('MOVE_TO_TRASH', {
-                        value: id,
+                        value: note,
                         _undo: {
                             ..._undo,
                             undoCallback: (m) => this.notes.commit('RESTORE_FROM_TRASH', { value: m.payload.value }),

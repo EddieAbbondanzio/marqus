@@ -8,14 +8,15 @@ import moment from 'moment';
 import path from 'path';
 import { Commit, MutationPayload } from 'vuex';
 
-export const NOTES_DIRECTORY = 'notes';
+export const NOTE_DIRECTORY = 'notes';
+export const NOTE_CONTENT_FILE_NAME = 'index.md'
 
-export async function loadNoteContentFromFileSystem(noteId: string) {
-    return await fileSystem.readText(path.join(NOTES_DIRECTORY, noteId, 'index.md'));
+export async function loadNoteContent(noteId: string) {
+    return await fileSystem.readText(path.join(NOTE_DIRECTORY, noteId, NOTE_CONTENT_FILE_NAME));
 }
 
 export async function saveNoteContent(noteId: string, content: string) {
-    await fileSystem.writeText(path.join(NOTES_DIRECTORY, noteId, 'index.md'), content);
+    await fileSystem.writeText(path.join(NOTE_DIRECTORY, noteId, NOTE_CONTENT_FILE_NAME), content);
 }
 
 export async function serialize(
@@ -29,7 +30,7 @@ export async function serialize(
             break;
 
         case 'notes/DELETE':
-            await fileSystem.deleteDirectory(path.join(NOTES_DIRECTORY, mutationPayload.payload.value));
+            await fileSystem.deleteDirectory(path.join(NOTE_DIRECTORY, mutationPayload.payload.value));
             break;
 
         case 'notes/EMPTY_TRASH':
@@ -47,11 +48,11 @@ export async function serialize(
 }
 
 export async function deserialize() {
-    if (!fileSystem.exists(NOTES_DIRECTORY)) {
-        fileSystem.createDirectory(NOTES_DIRECTORY);
+    if (!fileSystem.exists(NOTE_DIRECTORY)) {
+        fileSystem.createDirectory(NOTE_DIRECTORY);
     }
 
-    const noteDirectories = await fileSystem.readDirectory(NOTES_DIRECTORY);
+    const noteDirectories = await fileSystem.readDirectory(NOTE_DIRECTORY);
     const notes = [];
 
     for (let i = 0; i < noteDirectories.length; i++) {
@@ -59,7 +60,7 @@ export async function deserialize() {
 
         // Regex test what we found to ensure it's actually a note. This is not a catch all...
         if (isId(noteId)) {
-            const metaData = await fileSystem.readJSON(path.join(NOTES_DIRECTORY, noteId, 'metadata.json'));
+            const metaData = await fileSystem.readJSON(path.join(NOTE_DIRECTORY, noteId, 'metadata.json'));
 
             const note: Note = {
                 id: noteId,
@@ -108,7 +109,7 @@ export async function saveNoteToFileSystem(rootState: any, noteOrId: Note | stri
         note = noteOrId;
     }
 
-    const directoryPath = path.join(NOTES_DIRECTORY, note.id);
+    const directoryPath = path.join(NOTE_DIRECTORY, note.id);
 
     // Create parent directory if needed
     if (!fileSystem.exists(directoryPath)) {

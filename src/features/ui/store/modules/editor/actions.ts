@@ -2,7 +2,7 @@ import { EditorState, EditorMode, Tab } from '@/features/ui/store/modules/editor
 import { Note } from '@/features/notes/shared/note';
 import { confirmDeleteOrTrash, fileSystem } from '@/shared/utils';
 import { Actions, Context } from 'vuex-smart-module';
-import { loadNoteContentFromFileSystem, saveNoteContent } from '@/features/notes/shared/persist';
+import { loadNoteContent, saveNoteContent } from '@/features/notes/shared/persist';
 import { EditorGetters } from '@/features/ui/store/modules/editor/getters';
 import { EditorMutations } from '@/features/ui/store/modules/editor/mutations';
 import { notes } from '@/features/notes/store';
@@ -80,7 +80,7 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
 
             this.commit('SET_ACTIVE', { value: existing.id });
         } else {
-            const content = await loadNoteContentFromFileSystem(noteId);
+            const content = await loadNoteContent(noteId);
 
             this.commit('OPEN_TAB', {
                 value: {
@@ -117,13 +117,13 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
         switch (confirm) {
             case 'delete':
                 // permanent wasn't a joke.
-                this.notes.commit('DELETE', { value: activeNote.id, _undo: { ignore: true } });
+                this.notes.commit('DELETE', { value: activeNote, _undo: { ignore: true } });
                 break;
 
             case 'trash':
                 this.undoContext.group((_undo) => {
                     this.notes.commit('MOVE_TO_TRASH', {
-                        value: activeNote.id,
+                        value: activeNote,
                         _undo: {
                             ..._undo,
                             undoCallback: (m) => this.notes.commit('RESTORE_FROM_TRASH', { value: m.payload.value }),

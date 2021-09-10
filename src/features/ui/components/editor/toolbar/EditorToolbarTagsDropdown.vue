@@ -140,8 +140,8 @@ export default defineComponent({
             }
         });
 
-        const onAdd = (t: Tag) => notes.dispatch('addTag', { noteId: note.value.id, tagId: t.id });
-        const onRemove = (t: Tag) => notes.dispatch('removeTag', { noteId: note.value.id, tagId: t.id });
+        const onAdd = (t: Tag) => notes.dispatch('addTag', { note: note.value, tagId: t.id });
+        const onRemove = (t: Tag) => notes.dispatch('removeTag', { note: note.value, tagId: t.id });
 
         const { unique, ...rules } = useTagValidation();
 
