@@ -12,8 +12,9 @@ export class Shortcut {
 
     private _keys: KeyCode[];
 
-    constructor(public name: string, keys: ReadonlyArray<KeyCode>) {
+    constructor(public name: string, keys: ReadonlyArray<KeyCode>, wasOverriden = false) {
         this._keys = this._sortKeys(keys);
+        this.wasOverrided = wasOverriden;
     }
 
     override(keys: ReadonlyArray<KeyCode>) {
