@@ -1,8 +1,11 @@
 import { generateId } from '@/store';
-import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 import { MutationTree } from 'vuex';
 import { Mutations } from 'vuex-smart-module';
 import { LocalNavigationState } from './state';
+
+// Temp bandaid
+type UndoPayload<T> = any;
+type VoidUndoPayload = any;
 
 export class LocalNavigationMutations extends Mutations<LocalNavigationState> {
     SET_STATE(s: LocalNavigationState) {

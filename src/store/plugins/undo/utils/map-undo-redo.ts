@@ -6,7 +6,7 @@ import { undo } from '@/store/plugins/undo/undo';
  * @returns
  */
 export function mapUndoRedo(opts: { id?: string; name?: string }) {
-    const context = undo.getContext(opts);
+    const context = undo.getModule(opts);
 
     /*
      * Soft fail undo / redo are returned because we don't want the user to have the program throw an exception

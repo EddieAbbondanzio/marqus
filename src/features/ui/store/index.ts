@@ -104,7 +104,7 @@ persist.register({
 mediator.subscribe('ui/SET_STATE', (v) => {
     const { globalNavigation, localNavigation, editor } = v.payload;
     
-    undo.getContext({ name: 'globalNavigation' }).setInitialState(globalNavigation);
-    undo.getContext({ name: 'globalNavigation' }).setInitialState(localNavigation);
-    undo.getContext({ name: 'editor' }).setInitialState(editor);
+    undo.getModule({ name: 'globalNavigation' }).setInitialState(globalNavigation);
+    undo.getModule({ name: 'globalNavigation' }).setInitialState(localNavigation);
+    undo.getModule({ name: 'editor' }).setInitialState(editor);
 });

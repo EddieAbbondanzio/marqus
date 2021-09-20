@@ -2,7 +2,10 @@ import { generateId } from '@/store';
 import { EditorMode, EditorState, Tab, TabState } from '@/features/ui/store/modules/editor/state';
 import { MutationTree } from 'vuex';
 import { Mutations } from 'vuex-smart-module';
-import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
+
+// Temp bandaid
+type UndoPayload<T> = any;
+type VoidUndoPayload = any;
 
 export class EditorMutations extends Mutations<EditorState> {
     SET_STATE(s: EditorState) {

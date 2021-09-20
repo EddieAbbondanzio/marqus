@@ -2,7 +2,6 @@ import { NotebookState } from './state';
 import { Notebook, NOTEBOOK_NAME_MAX_LENGTH } from '@/features/notebooks/shared/notebook';
 import { isBlank } from '@/shared/utils';
 import { Mutations } from 'vuex-smart-module';
-import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-compare';
 
 export type NotebookCreate = Pick<Notebook, 'id' | 'name' | 'parent' | 'children' | 'expanded'>;
@@ -12,7 +11,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
         Object.assign(this.state, s);
     }
 
-    CREATE(p: UndoPayload<NotebookCreate>) {
+    CREATE(p: NotebookCreate) {
         // Check that the name isn't null, or just whitespace.
         if (isBlank(p.value.name)) {
             throw Error('Name is required.');
@@ -45,20 +44,20 @@ export class NotebookMutations extends Mutations<NotebookState> {
     }
 
     DELETE({ value: notebook }: UndoPayload<Notebook>) {
-        const array = notebook.parent == null ? this.state.values : notebook.parent!.children!;
-        const index = array.findIndex((n) => n.id === notebook.id);
+        // const array = notebook.parent == null ? this.state.values : notebook.parent!.children!;
+        // const index = array.findIndex((n) => n.id === notebook.id);
 
-        if (index === -1) {
-            throw new Error('No notebook found.');
-        }
+        // if (index === -1) {
+        //     throw new Error('No notebook found.');
+        // }
 
-        array.splice(index, 1);
+        // array.splice(index, 1);
 
-        // Remove option to expand / collapse notebook when no children.
-        if (notebook.parent != null && notebook.parent.children!.length === 0) {
-            delete notebook.parent.children;
-            notebook.parent.expanded = false;
-        }
+        // // Remove option to expand / collapse notebook when no children.
+        // if (notebook.parent != null && notebook.parent.children!.length === 0) {
+        //     delete notebook.parent.children;
+        //     notebook.parent.expanded = false;
+        // }
     }
 
     DELETE_ALL(payload: VoidUndoPayload) {
@@ -85,13 +84,13 @@ export class NotebookMutations extends Mutations<NotebookState> {
     }
 
     SET_EXPANDED(payload: UndoPayload<{ notebook: Notebook; expanded: boolean; bubbleUp: boolean }>) {
-        let n: Notebook | undefined = payload.value.notebook;
+        // let n: Notebook | undefined = payload.value.notebook;
 
         // Run up the tree expanding each parent until we hit the root
-        do {
-            n.expanded = payload.value.expanded;
-            n = n.parent;
-        } while (n != null && payload.value.bubbleUp);
+        // do {
+        //     n.expanded = payload.value.expanded;
+        //     n = n.parent;
+        // } while (n != null && payload.value.bubbleUp);
     }
 
     SET_ALL_EXPANDED({ value: { expanded = false } }: UndoPayload<{ expanded: boolean }>) {

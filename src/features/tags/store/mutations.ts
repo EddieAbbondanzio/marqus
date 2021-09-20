@@ -2,10 +2,13 @@ import { Tag, TAG_NAME_MAX_LENGTH } from '@/features/tags/shared/tag';
 import { isBlank } from '@/shared/utils';
 import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-compare';
 import { generateId } from '@/store';
-import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 import { Mutation, MutationTree } from 'vuex';
 import { Mutations } from 'vuex-smart-module';
 import { TagState } from './state';
+
+// Temp bandaid
+type UndoPayload<T> = any;
+type VoidUndoPayload = any;
 
 export class TagMutations extends Mutations<TagState> {
     SET_STATE(s: TagState) {

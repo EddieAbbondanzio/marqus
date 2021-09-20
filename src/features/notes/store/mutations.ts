@@ -3,10 +3,13 @@ import { Notebook } from '@/features/notebooks/shared/notebook';
 import { Note } from '@/features/notes/shared/note';
 import { isBlank } from '@/shared/utils';
 import { generateId } from '@/store';
-import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 import { MutationTree } from 'vuex';
 import { Mutations } from 'vuex-smart-module';
 import { NoteState } from './state';
+
+// Temp bandaid
+type UndoPayload<T> = any;
+type VoidUndoPayload = any;
 
 export class NoteMutations extends Mutations<NoteState> {
     SET_STATE(s: NoteState) {
@@ -56,18 +59,17 @@ export class NoteMutations extends Mutations<NoteState> {
      * @param options.notebookId Id of the notebook to add.
      */
     ADD_NOTEBOOK({ value: { note, notebookId } }: UndoPayload<{ note: Note | Note[]; notebookId: string }>) {
-        if (notebookId == null) {
-            throw Error('No notebookId passed.');
-        }
-
-        const notes = Array.isArray(note) ? note : [note];
-        for (const note of notes) {
-            // Check to see if the notebook is already present to prevent duplicates.
-            if (!note.notebooks.some((n) => n === notebookId)) {
-                note.notebooks.push(notebookId);
-                note.hasUnsavedChanges = true;
-            }
-        }
+        // if (notebookId == null) {
+        //     throw Error('No notebookId passed.');
+        // }
+        // const notes = Array.isArray(note) ? note : [note];
+        // for (const note of notes) {
+        //     // Check to see if the notebook is already present to prevent duplicates.
+        //     if (!note.notebooks.some((n) => n === notebookId)) {
+        //         note.notebooks.push(notebookId);
+        //         note.hasUnsavedChanges = true;
+        //     }
+        // }
     }
 
     /**
@@ -76,18 +78,17 @@ export class NoteMutations extends Mutations<NoteState> {
      * @param options.tagId Id of the tag to add.
      */
     ADD_TAG({ value: { note, tagId } }: UndoPayload<{ note: Note | Note[]; tagId: string }>) {
-        if (tagId == null) {
-            throw Error('No tagId passed.');
-        }
-
-        const notes = Array.isArray(note) ? note : [note];
-        for (const note of notes) {
-            // Check to see if the tag is already present first to prevent duplicates.
-            if (!note.tags.some((t) => t === tagId)) {
-                note.tags.push(tagId);
-                note.hasUnsavedChanges = true;
-            }
-        }
+        // if (tagId == null) {
+        //     throw Error('No tagId passed.');
+        // }
+        // const notes = Array.isArray(note) ? note : [note];
+        // for (const note of notes) {
+        //     // Check to see if the tag is already present first to prevent duplicates.
+        //     if (!note.tags.some((t) => t === tagId)) {
+        //         note.tags.push(tagId);
+        //         note.hasUnsavedChanges = true;
+        //     }
+        // }
     }
 
     /**

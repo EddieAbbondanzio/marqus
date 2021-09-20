@@ -80,7 +80,7 @@ import { useGlobalNavigationContextMenu } from '@/features/ui/hooks/use-global-n
 import Scrollable from '@/components/layout/Scrollable.vue';
 import { useGlobalNavigation } from '@/features/ui/store/modules/global-navigation';
 import { inputScopes } from '@/directives/input-scope/input-scopes';
-import { mapUndoRedo } from '@/store/plugins/undo/map-undo-redo';
+import { mapUndoRedo } from '@/store/plugins/undo/utils/map-undo-redo';
 
 export default defineComponent({
     setup: function() {

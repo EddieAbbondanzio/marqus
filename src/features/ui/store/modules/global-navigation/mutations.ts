@@ -1,27 +1,26 @@
 import { MutationTree } from 'vuex';
 import { GlobalNavigationState, GlobalNavigationItem } from '@/features/ui/store/modules/global-navigation/state';
 import { Mutations } from 'vuex-smart-module';
-import { UndoPayload, VoidUndoPayload } from '@/store/plugins/undo';
 
 export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> {
     SET_STATE(s: GlobalNavigationState) {
         Object.assign(this.state, s);
     }
 
-    SET_ACTIVE(p: UndoPayload<GlobalNavigationItem>) {
-        this.state.active = p.value;
+    SET_ACTIVE(item: GlobalNavigationItem) {
+        this.state.active = item;
     }
 
-    SET_HIGHLIGHT(p: UndoPayload<GlobalNavigationItem>) {
-        this.state.highlight = p.value;
+    SET_HIGHLIGHT(item: GlobalNavigationItem) {
+        this.state.highlight = item;
     }
 
-    SET_WIDTH(p: UndoPayload<string>) {
-        this.state.width = p.value;
+    SET_WIDTH(width: string) {
+        this.state.width = width;
     }
 
-    SET_SCROLL_POSITION(p: UndoPayload<number>) {
-        let value = p.value;
+    SET_SCROLL_POSITION(pixels: number) {
+        let value = pixels;
 
         if (Number.isNaN(value)) {
             value = 0;
@@ -30,20 +29,20 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
         this.state.scrollPosition = value;
     }
 
-    SET_TAGS_EXPANDED(p: UndoPayload<boolean>) {
-        this.state.tags.expanded = p.value;
+    SET_TAGS_EXPANDED(expanded: boolean) {
+        this.state.tags.expanded = expanded;
     }
 
-    SET_TAGS_INPUT(p: UndoPayload<string>) {
+    SET_TAGS_INPUT(value: string) {
         if (this.state.tags.input == null) {
             return;
         }
 
-        this.state.tags.input!.name = p.value;
+        this.state.tags.input!.name = value;
     }
 
-    START_TAGS_INPUT(p: UndoPayload<{ id: string; value: string } | undefined>) {
-        if (p.value?.id == null) {
+    START_TAGS_INPUT(val?: { id: string; value: string }) {
+        if (val?.id == null) {
             this.state.tags.input = {
                 mode: 'create',
                 name: ''
@@ -51,54 +50,54 @@ export class GlobalNavigationMutations extends Mutations<GlobalNavigationState> 
         } else {
             this.state.tags.input = {
                 mode: 'update',
-                id: p.value.id,
-                name: p.value.value
+                id: val.id,
+                name: val.value
             };
         }
     }
 
-    CLEAR_TAGS_INPUT(p: VoidUndoPayload) {
+    CLEAR_TAGS_INPUT() {
         delete this.state.tags.input;
     }
 
-    SET_NOTEBOOKS_EXPANDED(p: UndoPayload<boolean>) {
-        this.state.notebooks.expanded = p.value;
+    SET_NOTEBOOKS_EXPANDED(expanded: boolean) {
+        this.state.notebooks.expanded = expanded;
     }
 
-    SET_NOTEBOOKS_INPUT(p: UndoPayload<string>) {
+    SET_NOTEBOOKS_INPUT(value: string) {
         if (this.state.notebooks.input == null) {
             return;
         }
 
-        this.state.notebooks.input!.name = p.value;
+        this.state.notebooks.input!.name = value;
     }
 
-    START_NOTEBOOKS_INPUT(p: UndoPayload<{ notebook?: { id: string; value: string }; parentId?: string }>) {
-        if (p.value.notebook != null) {
+    START_NOTEBOOKS_INPUT(p: { notebook?: { id: string; value: string }; parentId?: string }) {
+        if (p.notebook != null) {
             this.state.notebooks.input = {
                 mode: 'update',
-                id: p.value.notebook.id,
-                name: p.value.notebook.value,
-                parentId: p.value.parentId
+                id: p.notebook.id,
+                name: p.notebook.value,
+                parentId: p.parentId
             };
         } else {
             this.state.notebooks.input = {
                 mode: 'create',
                 name: '',
-                parentId: p.value.parentId
+                parentId: p.parentId
             };
         }
     }
 
-    CLEAR_NOTEBOOKS_INPUT(p?: VoidUndoPayload) {
+    CLEAR_NOTEBOOKS_INPUT() {
         delete this.state.notebooks.input;
     }
 
-    SET_NOTEBOOKS_DRAGGING(p: UndoPayload<string>) {
-        this.state.notebooks.dragging = p.value;
+    SET_NOTEBOOKS_DRAGGING(id: string) {
+        this.state.notebooks.dragging = id;
     }
 
-    CLEAR_NOTEBOOKS_DRAGGING(p: VoidUndoPayload) {
+    CLEAR_NOTEBOOKS_DRAGGING() {
         delete this.state.notebooks.dragging;
     }
 }

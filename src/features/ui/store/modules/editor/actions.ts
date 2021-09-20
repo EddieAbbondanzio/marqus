@@ -7,7 +7,7 @@ import { EditorGetters } from '@/features/ui/store/modules/editor/getters';
 import { EditorMutations } from '@/features/ui/store/modules/editor/mutations';
 import { notes } from '@/features/notes/store';
 import { Store } from 'vuex';
-import { undo, UndoContext } from '@/store/plugins/undo';
+import { undo, UndoModule } from '@/store/plugins/undo';
 import { tags } from '@/features/tags/store';
 import { generateId } from '@/store';
 import { notebooks } from '@/features/notebooks/store';
@@ -17,41 +17,41 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
     tags!: Context<typeof tags>;
     notebooks!: Context<typeof notebooks>;
 
-    undoContext!: UndoContext;
+    undoContext!: UndoModule<any>;
 
     $init(store: Store<any>) {
         this.notes = notes.context(store);
         this.tags = tags.context(store);
         this.notebooks = notebooks.context(store);
-        this.undoContext = undo.getContext({ name: 'editor' });
+        this.undoContext = undo.getModule({ name: 'editor' });
     }
 
     createTag(t: { id: string; name: string }) {
-        this.tags.commit('CREATE', {
-            value: t,
-            _undo: {
-                undoCallback: (m) => {
-                    this.tags.commit('DELETE', { value: m.payload.value.id });
-                },
-                redoCallback: (m) => {
-                    this.tags.commit('CREATE', { value: m.payload.value });
-                }
-            }
-        });
+        // this.tags.commit('CREATE', {
+        //     value: t,
+        //     _undo: {
+        //         undoCallback: (m) => {
+        //             this.tags.commit('DELETE', { value: m.payload.value.id });
+        //         },
+        //         redoCallback: (m) => {
+        //             this.tags.commit('CREATE', { value: m.payload.value });
+        //         }
+        //     }
+        // });
     }
 
     createNotebook(n: { id: string; name: string }) {
-        this.notebooks.commit('CREATE', {
-            value: n,
-            _undo: {
-                undoCallback: (m) => {
-                    this.notebooks.commit('DELETE', { value: m.payload.value.id });
-                },
-                redoCallback: (m) => {
-                    this.notebooks.commit('CREATE', { value: m.payload.value });
-                }
-            }
-        });
+        // this.notebooks.commit('CREATE', {
+        //     value: n,
+        //     _undo: {
+        //         undoCallback: (m) => {
+        //             this.notebooks.commit('DELETE', { value: m.payload.value.id });
+        //         },
+        //         redoCallback: (m) => {
+        //             this.notebooks.commit('CREATE', { value: m.payload.value });
+        //         }
+        //     }
+        // });
     }
 
     tabDragStart(tab: Tab) {
@@ -121,16 +121,16 @@ export class EditorActions extends Actions<EditorState, EditorGetters, EditorMut
                 break;
 
             case 'trash':
-                this.undoContext.group((_undo) => {
-                    this.notes.commit('MOVE_TO_TRASH', {
-                        value: activeNote,
-                        _undo: {
-                            ..._undo,
-                            undoCallback: (m) => this.notes.commit('RESTORE_FROM_TRASH', { value: m.payload.value }),
-                            redoCallback: (m) => this.notes.commit('MOVE_TO_TRASH', { value: m.payload.value })
-                        }
-                    });
-                });
+                // this.undoContext.group((_undo) => {
+                //     this.notes.commit('MOVE_TO_TRASH', {
+                //         value: activeNote,
+                //         _undo: {
+                //             ..._undo,
+                //             undoCallback: (m) => this.notes.commit('RESTORE_FROM_TRASH', { value: m.payload.value }),
+                //             redoCallback: (m) => this.notes.commit('MOVE_TO_TRASH', { value: m.payload.value })
+                //         }
+                //     });
+                // });
                 break;
         }
     }

@@ -5,7 +5,7 @@ import { LocalNavigationGetters } from '@/features/ui/store/modules/local-naviga
 import { LocalNavigationMutations } from '@/features/ui/store/modules/local-navigation/mutations';
 import { confirmDeleteOrTrash } from '@/shared/utils';
 import { generateId } from '@/store';
-import { undo, UndoContext } from '@/store/plugins/undo';
+import { undo, UndoModule } from '@/store/plugins/undo';
 import { ActionTree, Store } from 'vuex';
 import { Actions, Context } from 'vuex-smart-module';
 import { LocalNavigationState } from './state';
@@ -19,13 +19,13 @@ export class LocalNavigationActions extends Actions<
     globalNav!: Context<typeof globalNavigation>;
     notes!: Context<typeof notes>;
 
-    undoContext!: UndoContext;
+    undoContext!: UndoModule<any>;
 
     $init(store: Store<any>) {
         this.globalNav = globalNavigation.context(store);
         this.notes = notes.context(store);
 
-        this.undoContext = undo.getContext({ name: 'localNavigation' });
+        this.undoContext = undo.getModule({ name: 'localNavigation' });
     }
 
     setActive(id: string) {
@@ -60,54 +60,49 @@ export class LocalNavigationActions extends Actions<
 
     noteInputConfirm() {
         // We group it so we can track
-        this.undoContext.group((_undo) => {
-            const input = this.state.notes.input!;
-            let note: Note;
-            let old: Note | undefined;
-
-            switch (input.mode) {
-                case 'create':
-                    note = {
-                        id: generateId(),
-                        dateCreated: new Date(),
-                        dateModified: new Date(),
-                        name: input.name,
-                        notebooks: input.notebooks ?? [],
-                        tags: input.tags ?? []
-                    };
-
-                    _undo.cache.note = note;
-                    this.notes.commit('CREATE', {
-                        value: note,
-                        _undo: {
-                            ..._undo,
-                            undoCallback: (m) => this.notes.commit('DELETE', { value: m.payload.value.id }),
-                            redoCallback: (m) => this.notes.commit('CREATE', m.payload._undo.cache.note)
-                        }
-                    });
-                    break;
-
-                case 'update':
-                    old = this.notes.getters.byId(input.id, { required: true });
-
-                    _undo.cache.oldName = old.name;
-                    this.notes.commit('SET_NAME', {
-                        value: { note: old, newName: input.name },
-                        _undo: {
-                            ..._undo,
-                            undoCallback: (m) =>
-                                this.notes.commit('SET_NAME', {
-                                    value: { note: m.payload.value.note, newName: m.payload._undo.cache.oldName }
-                                }),
-                            redoCallback: (m) => this.notes.commit('SET_NAME', { value: m.payload.value })
-                        }
-                    });
-                    break;
-            }
-
-            _undo.ignore = true;
-            this.commit('CLEAR_NOTE_INPUT', { _undo });
-        });
+        // this.undoContext.group((_undo) => {
+        //     const input = this.state.notes.input!;
+        //     let note: Note;
+        //     let old: Note | undefined;
+        //     switch (input.mode) {
+        //         case 'create':
+        //             // note = {
+        //             //     id: generateId(),
+        //             //     dateCreated: new Date(),
+        //             //     dateModified: new Date(),
+        //             //     name: input.name,
+        //             //     notebooks: input.notebooks ?? [],
+        //             //     tags: input.tags ?? []
+        //             // };
+        //             // _undo.cache.note = note;
+        //             // this.notes.commit('CREATE', {
+        //             //     value: note,
+        //             //     _undo: {
+        //             //         ..._undo,
+        //             //         undoCallback: (ctx) => this.notes.commit('DELETE', { value: ctx.value.id }),
+        //             //         redoCallback: (ctx) => ctx.replayMutation()
+        //             //     }
+        //             // });
+        //             break;
+        //         case 'update':
+        //             old = this.notes.getters.byId(input.id, { required: true });
+        //             // _undo.cache.oldName = old.name;
+        //             // this.notes.commit('SET_NAME', {
+        //             //     value: { note: old, newName: input.name },
+        //             //     _undo: {
+        //             //         ..._undo,
+        //             //         undoCallback: (ctx) =>
+        //             //             this.notes.commit('SET_NAME', {
+        //             //                 value: { note: ctx.value.note, newName: ctx.cache.oldName }
+        //             //             }),
+        //             //         redoCallback: (ctx) => ctx.replayMutation()
+        //             //     }
+        //             // });
+        //             break;
+        //     }
+        //     _undo.ignore = true;
+        //     this.commit('CLEAR_NOTE_INPUT', { _undo });
+        // });
     }
 
     noteInputCancel() {
@@ -130,16 +125,17 @@ export class LocalNavigationActions extends Actions<
                 break;
 
             case 'trash':
-                this.undoContext.group((_undo) => {
-                    this.notes.commit('MOVE_TO_TRASH', {
-                        value: note,
-                        _undo: {
-                            ..._undo,
-                            undoCallback: (m) => this.notes.commit('RESTORE_FROM_TRASH', { value: m.payload.value }),
-                            redoCallback: (m) => this.notes.commit('MOVE_TO_TRASH', { value: m.payload.value })
-                        }
-                    });
-                });
+                // this.undoContext.group((_undo) => {
+                //     this.notes.commit('MOVE_TO_TRASH', {
+                //         value: note,
+                //         _undo: {
+                //             ..._undo,
+                //             undoCallback: (ctx) =>
+                //                 this.notes.commit('RESTORE_FROM_TRASH', { value: ctx.mutation.payload.value }),
+                //             redoCallback: (ctx) => ctx.replayMutation()
+                //         }
+                //     });
+                // });
                 break;
         }
     }

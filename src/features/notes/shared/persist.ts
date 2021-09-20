@@ -3,7 +3,6 @@ import { NoteMutations } from '@/features/notes/store/mutations';
 import { NoteState } from '@/features/notes/store/state';
 import { fileSystem } from '@/shared/utils';
 import { isId } from '@/store';
-import { UndoPayload } from '@/store/plugins/undo';
 import moment from 'moment';
 import path from 'path';
 import { Commit, MutationPayload } from 'vuex';
