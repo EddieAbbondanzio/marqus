@@ -1,7 +1,7 @@
-import { CONTEXT_MENU_ATTRIBUTE } from '@/directives/context-menu';
-import { climbDomHierarchy } from '@/shared/utils';
-import contextMenu from 'electron-context-menu';
-import { onBeforeUnmount, onMounted } from 'vue';
+import { CONTEXT_MENU_ATTRIBUTE } from "@/directives/context-menu";
+import { climbDomHierarchy } from "@/utils/dom/climb-dom-hierarchy";
+import contextMenu from "electron-context-menu";
+import { onBeforeUnmount, onMounted } from "vue";
 
 /**
  * Factory method to streamline creating location based context menus.
@@ -9,28 +9,31 @@ import { onBeforeUnmount, onMounted } from 'vue';
  * @param menu The menu items to display
  * @returns The hook that can be called in setup().
  */
-export function createContextMenuHook(name: string, menu: contextMenu.Options['menu']) {
-    return () => {
-        let release: () => void;
+export function createContextMenuHook(
+  name: string,
+  menu: contextMenu.Options["menu"]
+) {
+  return () => {
+    let release: () => void;
 
-        onMounted(() => {
-            release = contextMenu({
-                menu,
-                shouldShowMenu: (e, p) => {
-                    const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
+    onMounted(() => {
+      release = contextMenu({
+        menu,
+        shouldShowMenu: (e, p) => {
+          const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
 
-                    const menuName = climbDomHierarchy(element, {
-                        match: (el) => el.hasAttribute(CONTEXT_MENU_ATTRIBUTE),
-                        matchValue: (el) => el.getAttribute(CONTEXT_MENU_ATTRIBUTE)
-                    });
+          const menuName = climbDomHierarchy(element, {
+            match: el => el.hasAttribute(CONTEXT_MENU_ATTRIBUTE),
+            matchValue: el => el.getAttribute(CONTEXT_MENU_ATTRIBUTE)
+          });
 
-                    return menuName === name;
-                }
-            });
-        });
+          return menuName === name;
+        }
+      });
+    });
 
-        onBeforeUnmount(() => {
-            release();
-        });
-    };
+    onBeforeUnmount(() => {
+      release();
+    });
+  };
 }

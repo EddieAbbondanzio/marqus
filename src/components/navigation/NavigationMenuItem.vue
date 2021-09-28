@@ -70,8 +70,8 @@
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue';
 import IconButton from '@/components/buttons/IconButton.vue';
-import { climbDomHierarchy } from '@/shared/utils';
-import { isElementAboveScroll, isElementBelowScroll } from '@/shared/utils/dom/scroll-position';
+import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { isElementAboveScroll, isElementBelowScroll } from '@/utils/dom/scroll-position';
 
 export default defineComponent({
     props: {

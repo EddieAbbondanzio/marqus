@@ -1,41 +1,39 @@
-import { mediator } from '@/store/plugins/mediator';
-import { persist } from '@/store/plugins/persist';
-import { createStore, Module } from 'vuex-smart-module';
-import { notebooks } from '@/features/notebooks/store';
-import { tags } from '@/features/tags/store';
-import { shortcuts } from '@/features/shortcuts/store';
-import { userInterface } from '@/features/ui/store';
-import { notes } from '@/features/notes/store';
-import { undo } from '@/store/plugins/undo';
-import { createLogger } from 'vuex';
+import { mediator } from "@/store/plugins/mediator";
+import { persist } from "@/store/plugins/persist";
+import { createStore, Module } from "vuex-smart-module";
+import { notebooks } from "@/store/modules/notebooks";
+import { tags } from "@/store/modules/tags";
+import { shortcuts } from "@/store/modules/shortcuts";
+import { userInterface } from "@/store/modules/ui";
+import { notes } from "@/store/modules/notes";
+import { undo } from "@/store/plugins/undo";
+import { createLogger } from "vuex";
 
 export const root = new Module({
-    namespaced: false,
-    modules: {
-        notebooks,
-        tags,
-        shortcuts,
-        notes,
-        ui: userInterface
-    }
+  namespaced: false,
+  modules: {
+    notebooks,
+    tags,
+    shortcuts,
+    notes,
+    ui: userInterface
+  }
 });
 
 const plugins = [
-    createLogger({ logActions: false }),
-    persist.plugin,
-    undo.plugin,
-    mediator.plugin
-    // comment is kept to prevent it from going to single line
+  createLogger({ logActions: false }),
+  persist.plugin,
+  undo.plugin,
+  mediator.plugin
+  // comment is kept to prevent it from going to single line
 ];
 
 export const store = createStore(root, {
-    plugins,
-    /*
-     * Don't use strict mode in production.
-     * Major performance hit.
-     * See: https://next.vuex.vuejs.org/guide/strict.html#development-vs-production
-     */
-    strict: process.env.NODE_ENV !== 'production'
+  plugins,
+  /*
+   * Don't use strict mode in production.
+   * Major performance hit.
+   * See: https://next.vuex.vuejs.org/guide/strict.html#development-vs-production
+   */
+  strict: process.env.NODE_ENV !== "production"
 });
-
-export * from './common/types/entity';

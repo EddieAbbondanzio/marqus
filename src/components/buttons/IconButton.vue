@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import Icon from '@/components/elements/Icon.vue';
+import Icon from '@/components/Icon.vue';
 import { computed, defineComponent, ref } from 'vue';
 
 export default defineComponent({

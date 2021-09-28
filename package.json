@@ -29,7 +29,8 @@
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0",
-    "vuex-smart-module": "^1.0.0"
+    "vuex-smart-module": "^1.0.0",
+    "yup": "^0.32.9"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
@@ -40,6 +41,7 @@
     "@types/node": "^14.14.34",
     "@types/proper-lockfile": "^4.1.1",
     "@types/uuid": "^8.3.0",
+    "@types/yup": "^0.29.13",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "@vue/cli-plugin-eslint": "^4.5.13",

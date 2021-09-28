@@ -54,7 +54,7 @@
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
 import { Field, ErrorMessage, Form } from 'vee-validate';
-import { isBlank } from '@/shared/utils';
+import { isBlank } from '@/utils/string';
 
 /**
  * Inline form for creating values in nav menus that only have 1

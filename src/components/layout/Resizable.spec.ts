@@ -1,57 +1,57 @@
 window.require = require;
 
-import Resizable from '@/components/layout/Resizable.vue';
-import { store } from '@/store';
-import { mount } from '@vue/test-utils';
-import { mouse } from '@/directives/mouse';
+import Resizable from "@/components/layout/Resizable.vue";
+import { store } from "@/store";
+import { mount } from "@vue/test-utils";
+import { mouse } from "@/utils/mouse";
 
-describe('Resizable.vue', () => {
-    it('sets width, and minWidth on mounted', () => {
-        const width = '127px';
-        const minWidth = '420px';
-        const wrapper = mount(Resizable, {
-            props: { modelValue: width, minWidth },
-            global: {
-                plugins: [store],
-                directives: { mouse }
-            }
-        });
-
-        const element = wrapper.find('.resizable-wrapper').element as HTMLElement;
-
-        expect(element.style.width).toBe(width);
-        expect(element.style.minWidth).toBe(minWidth);
+describe("Resizable.vue", () => {
+  it("sets width, and minWidth on mounted", () => {
+    const width = "127px";
+    const minWidth = "420px";
+    const wrapper = mount(Resizable, {
+      props: { modelValue: width, minWidth },
+      global: {
+        plugins: [store],
+        directives: { mouse }
+      }
     });
 
-    // it('updates modelValue on mousemove', async () => {
-    //     const width = '127px';
-    //     const wrapper = mount(Resizable, {
-    //         props: { modelValue: width, minWidth: width },
-    //         global: {
-    //             plugins: [store],
-    //             directives: { mouse }
-    //         }
-    //     });
+    const element = wrapper.find(".resizable-wrapper").element as HTMLElement;
 
-    //     await wrapper.find('.resizable-handle').trigger('mousedown');
-    //     document.dispatchEvent(new MouseEvent('mousemove'));
+    expect(element.style.width).toBe(width);
+    expect(element.style.minWidth).toBe(minWidth);
+  });
 
-    //     expect((wrapper.props as any)['modelValue']).not.toEqual(width);
-    // });
+  // it('updates modelValue on mousemove', async () => {
+  //     const width = '127px';
+  //     const wrapper = mount(Resizable, {
+  //         props: { modelValue: width, minWidth: width },
+  //         global: {
+  //             plugins: [store],
+  //             directives: { mouse }
+  //         }
+  //     });
 
-    // it('emits resizeStop on mouseup', async () => {
-    //     const width = '127px';
-    //     const wrapper = mount(Resizable, {
-    //         props: { modelValue: width, minWidth: width },
-    //         global: {
-    //             plugins: [store],
-    //             directives: { mouse }
-    //         }
-    //     });
+  //     await wrapper.find('.resizable-handle').trigger('mousedown');
+  //     document.dispatchEvent(new MouseEvent('mousemove'));
 
-    //     await wrapper.find('.resizable-handle').trigger('mousedown');
-    //     document.dispatchEvent(new MouseEvent('mouseup'));
+  //     expect((wrapper.props as any)['modelValue']).not.toEqual(width);
+  // });
 
-    //     expect(wrapper.emitted().resizeStop).toBeTruthy();
-    // });
+  // it('emits resizeStop on mouseup', async () => {
+  //     const width = '127px';
+  //     const wrapper = mount(Resizable, {
+  //         props: { modelValue: width, minWidth: width },
+  //         global: {
+  //             plugins: [store],
+  //             directives: { mouse }
+  //         }
+  //     });
+
+  //     await wrapper.find('.resizable-handle').trigger('mousedown');
+  //     document.dispatchEvent(new MouseEvent('mouseup'));
+
+  //     expect(wrapper.emitted().resizeStop).toBeTruthy();
+  // });
 });

@@ -4,17 +4,15 @@
 </template>
 
 <script lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue';
-import contextMenu from 'electron-context-menu';
+import { onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import Cursor from '@/components/singletons/Cursor.vue';
+import Cursor from '@/components/Cursor.vue';
 import { mouseObjectManager } from '@/directives/mouse';
 import { mediator } from '@/store/plugins/mediator/mediator';
 import { persist } from '@/store/plugins/persist/persist';
-import { undo } from '@/store/plugins/undo/undo';
-import { shortcuts } from '@/features/shortcuts/shared/shortcuts';
-import { inputScopes } from '@/directives/input-scope';
-import { DEFAULT_SHORTCUTS } from '@/features/shortcuts/shared/default-shortcuts';
+import { shortcuts } from './utils/shortcuts/shortcuts';
+import { DEFAULT_SHORTCUTS } from './utils/shortcuts/default-shortcuts';
+import { inputScopes } from './utils/scopes';
 
 export default {
     components: { Cursor },

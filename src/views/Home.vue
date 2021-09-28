@@ -7,11 +7,10 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
-import Editor from '@/features/ui/components/editor/Editor.vue';
-import LocalNavigation from '@/features/ui/components/local-navigation/LocalNavigation.vue';
-import GlobalNavigation from '@/features/ui/components/global-navigation/GlobalNavigation.vue';
-import { undo } from '@/store/plugins/undo';
+import { defineComponent } from 'vue';
+import Editor from '@/components/Editor.vue';
+import LocalNavigation from '@/components/LocalNavigation.vue';
+import GlobalNavigation from '@/components/GlobalNavigation.vue';
 
 export default defineComponent({
     components: {

@@ -1,6 +1,5 @@
-import { generateId } from '@/store/common/types/entity';
-import { splitMutationAndNamespace } from '@/store/common/utils/split-mutation-and-namespace';
 import { UndoModule, UndoModuleSettings } from '@/store/plugins/undo/undo-module';
+import { generateId } from '@/utils/entity';
 import { MutationPayload, Store } from 'vuex';
 import { Commit, Mutations } from 'vuex-smart-module';
 

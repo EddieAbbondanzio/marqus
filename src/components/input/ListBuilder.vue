@@ -16,12 +16,9 @@
 <script lang="ts">
 import DeleteButton from '@/components/buttons/DeleteButton.vue';
 import { computed, defineComponent, Ref, ref } from 'vue';
-import { caseInsensitiveCompare } from '@/shared/utils/string/case-insensitive-compare';
-import { isBlank } from '@/shared/utils';
-import List from '@/components/layout/list/List.vue';
-import ListItem from '@/components/layout/list/ListItem.vue';
-
-// import Icon from '@/components/elements/Icon.vue';
+import List from '@/components/layout/List.vue';
+import ListItem from '@/components/layout/ListItem.vue';
+import { caseInsensitiveCompare } from '@/utils/string';
 
 export default defineComponent({
     setup(p, c) {

@@ -20,9 +20,9 @@
 
 <script lang="ts">
 import DropdownMenu from '@/components/dropdown/DropdownMenu.vue';
-import { climbDomHierarchy } from '@/shared/utils';
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
 import DropdownItem from '@/components/dropdown/DropdownItem.vue';
+import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
 
 export default defineComponent({
     components: { DropdownMenu, DropdownItem },

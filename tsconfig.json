@@ -35,7 +35,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-, "src/preload.js", "public/preload.ts", "src/features/ui/store/modules/global-navigation/mutations.spec.ts--fix", "src/features/ui/store/modules/local-navigation/mutations.spec.ts--fix", "src/features/ui/store/modules/local-navigation/actions.spec.ts--fix", "src/features/notebooks/store/index.spec.ts--fix"  ],
+, "src/preload.js", "public/preload.ts", "src/store/modules/store/modules/global-navigation/mutations.spec.ts--fix", "src/store/modules/store/modules/local-navigation/mutations.spec.ts--fix", "src/store/modules/store/modules/local-navigation/actions.spec.ts--fix", "src/store/modules/store/index.spec.ts--fix"  ],
   "exclude": [
     "node_modules"
   ],
