@@ -1,5 +1,6 @@
 import { NoteMutations } from "@/store/modules/notes/mutations";
 import { Note, NoteState } from "@/store/modules/notes/state";
+import { generateId } from "@/utils/id";
 import { inject } from "vuex-smart-module";
 
 describe("Note mutations", () => {
@@ -15,12 +16,12 @@ describe("Note mutations", () => {
 
   describe("SET_STATE", () => {
     it("sets state", () => {
-      let newState: NoteState = {
-        values: [{ id: "1" } as Note]
+      const newState: NoteState = {
+        values: []
       };
 
       mutations.SET_STATE(newState);
-      expect(state.values).toHaveLength(1);
+      expect(state.values).toHaveLength(0);
     });
   });
 
@@ -41,7 +42,6 @@ describe("Note mutations", () => {
     it("throws if name is blank", () => {
       expect(() => {
         mutations.CREATE({
-          id: "1",
           name: "  ",
           notebooks: [],
           tags: []
@@ -51,7 +51,6 @@ describe("Note mutations", () => {
 
     it("adds note to state", () => {
       mutations.CREATE({
-        id: "1",
         name: "test",
         notebooks: ["a"],
         tags: ["b"]
@@ -60,7 +59,7 @@ describe("Note mutations", () => {
       expect(state.values).toHaveLength(1);
       const note = state.values[0];
 
-      expect(note.id).toBe("1");
+      expect(note.id).not.toBeNull();
       expect(note.name).toBe("test");
       expect(note.notebooks![0]).toBe("a");
       expect(note.tags![0]).toBe("b");
@@ -75,7 +74,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: ["a"],
         tags: ["b"],
-        dateCreated: new Date()
+        created: new Date()
       });
 
       const note = state.values[0];
@@ -100,7 +99,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: ["a"],
         tags: ["b"],
-        dateCreated: new Date()
+        created: new Date()
       });
 
       state.values.push({
@@ -108,7 +107,7 @@ describe("Note mutations", () => {
         name: "test2",
         notebooks: ["a"],
         tags: ["b"],
-        dateCreated: new Date()
+        created: new Date()
       });
 
       mutations.DELETE({ id: "1" } as Note);
@@ -124,7 +123,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -144,7 +143,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -154,7 +153,7 @@ describe("Note mutations", () => {
         name: "test2",
         notebooks: [],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note2);
@@ -178,7 +177,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -198,7 +197,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -208,7 +207,7 @@ describe("Note mutations", () => {
         name: "test2",
         notebooks: [],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note2);
@@ -232,7 +231,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       note.notebooks!.push("a");
@@ -251,7 +250,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -261,7 +260,7 @@ describe("Note mutations", () => {
         name: "test2",
         notebooks: ["a"],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note2);
@@ -281,7 +280,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: ["a"],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -291,7 +290,7 @@ describe("Note mutations", () => {
         name: "test2",
         notebooks: ["a"],
         tags: [],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note2);
@@ -312,7 +311,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: ["a"],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -322,7 +321,7 @@ describe("Note mutations", () => {
         name: "test2",
         notebooks: [],
         tags: ["a", "b"],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note2);
@@ -341,7 +340,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: ["a"],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -351,7 +350,7 @@ describe("Note mutations", () => {
         name: "test2",
         notebooks: [],
         tags: ["a", "b"],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note2);
@@ -371,7 +370,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: ["a"],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -381,7 +380,7 @@ describe("Note mutations", () => {
         name: "test2",
         notebooks: [],
         tags: ["a", "b"],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note2);
@@ -402,7 +401,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: ["a"],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -421,7 +420,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: ["a"],
-        dateCreated: new Date(),
+        created: new Date(),
         trashed: true
       };
 
@@ -441,7 +440,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: ["a"],
-        dateCreated: new Date()
+        created: new Date()
       };
 
       state.values.push(note);
@@ -460,7 +459,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: ["a"],
-        dateCreated: new Date(),
+        created: new Date(),
         favorited: true
       };
 
@@ -480,7 +479,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: ["a"],
-        dateCreated: new Date(),
+        created: new Date(),
         hasUnsavedChanges: true
       };
 
@@ -491,7 +490,7 @@ describe("Note mutations", () => {
         name: "test",
         notebooks: [],
         tags: ["a"],
-        dateCreated: new Date(),
+        created: new Date(),
         hasUnsavedChanges: true
       };
 

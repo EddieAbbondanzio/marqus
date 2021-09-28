@@ -5,7 +5,8 @@ describe("fixNotebookParentReferences()", () => {
     const n: Notebook = {
       id: "1",
       name: "cat",
-      expanded: false
+      expanded: false,
+      created: new Date()
     };
 
     expect(() => fixNotebookParentReferences(n)).not.toThrow();
@@ -16,6 +17,7 @@ describe("fixNotebookParentReferences()", () => {
       id: "1",
       name: "cat",
       expanded: false,
+      created: new Date(),
       children: []
     };
 
@@ -26,10 +28,11 @@ describe("fixNotebookParentReferences()", () => {
     const n: Notebook = {
       id: "1",
       name: "cat",
+      created: new Date(),
       expanded: false,
       children: [
-        { id: "2", name: "dog", expanded: false },
-        { id: "3", name: "horse", expanded: false }
+        { id: "2", name: "dog", expanded: false, created: new Date() },
+        { id: "3", name: "horse", expanded: false, created: new Date() }
       ]
     };
 

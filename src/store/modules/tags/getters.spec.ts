@@ -7,9 +7,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -24,9 +24,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -41,9 +41,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -55,9 +55,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -70,9 +70,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -87,9 +87,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -102,9 +102,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -118,9 +118,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -136,9 +136,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -151,9 +151,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -168,9 +168,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });
@@ -183,9 +183,9 @@ describe("TagStore", () => {
       const getters = inject(TagGetters, {
         state: {
           values: [
-            { id: "1", name: "foo" },
-            { id: "2", name: "bar" },
-            { id: "3", name: "baz" }
+            { id: "1", name: "foo", created: new Date() },
+            { id: "2", name: "bar", created: new Date() },
+            { id: "3", name: "baz", created: new Date() }
           ]
         }
       });

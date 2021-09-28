@@ -32,12 +32,12 @@ describe("Notebook getters", () => {
 
   describe("flatten", () => {
     it("includes nested", () => {
-      state.values.push({ id: "1", name: "foo" });
-      state.values.push({ id: "2", name: "bar" });
-      state.values.push({ id: "3", name: "baz" });
+      state.values.push({ id: "1", name: "foo", created: new Date() });
+      state.values.push({ id: "2", name: "bar", created: new Date() });
+      state.values.push({ id: "3", name: "baz", created: new Date() });
 
       const parent = state.values[2];
-      parent.children = [{ id: "4", name: "cat", parent }];
+      parent.children = [{ id: "4", name: "cat", parent, created: new Date() }];
 
       expect(getters.flatten).toHaveLength(4);
     });
@@ -45,13 +45,13 @@ describe("Notebook getters", () => {
 
   describe("flattenVisible", () => {
     it("includes nested only if expanded", () => {
-      state.values.push({ id: "1", name: "foo" });
-      state.values.push({ id: "2", name: "bar" });
-      state.values.push({ id: "3", name: "baz" });
+      state.values.push({ id: "1", name: "foo", created: new Date() });
+      state.values.push({ id: "2", name: "bar", created: new Date() });
+      state.values.push({ id: "3", name: "baz", created: new Date() });
 
       const parent = state.values[2];
       parent.expanded = false;
-      parent.children = [{ id: "4", name: "cat", parent }];
+      parent.children = [{ id: "4", name: "cat", parent, created: new Date() }];
 
       expect(getters.flattenVisible).toHaveLength(3);
     });
@@ -59,8 +59,8 @@ describe("Notebook getters", () => {
 
   describe("first", () => {
     it("returns the first notebook", () => {
-      state.values.push({ id: "1", name: "foo" });
-      state.values.push({ id: "2", name: "bar" });
+      state.values.push({ id: "1", name: "foo", created: new Date() });
+      state.values.push({ id: "2", name: "bar", created: new Date() });
 
       const first = getters.first();
       expect(first).toHaveProperty("id", "1");
@@ -133,14 +133,14 @@ describe("Notebook getters", () => {
 
   describe("notebooksForNote", () => {
     it("returns all the notebooks of a note", () => {
-      state.values.push({ id: "1", name: "foo" });
-      state.values.push({ id: "2", name: "bar" });
-      state.values.push({ id: "3", name: "baz" });
+      state.values.push({ id: "1", name: "foo", created: new Date() });
+      state.values.push({ id: "2", name: "bar", created: new Date() });
+      state.values.push({ id: "3", name: "baz", created: new Date() });
 
       const note: Note = {
         id: "1",
         name: "test-note",
-        dateCreated: new Date(),
+        created: new Date(),
         notebooks: ["1", "2"],
         tags: []
       };
@@ -165,39 +165,39 @@ describe("Notebook getters", () => {
 
   describe("byId", () => {
     it("can find a root match", () => {
-      state.values.push({ id: "1", name: "foo" });
-      state.values.push({ id: "2", name: "bar" });
-      state.values.push({ id: "3", name: "baz" });
+      state.values.push({ id: "1", name: "foo", created: new Date() });
+      state.values.push({ id: "2", name: "bar", created: new Date() });
+      state.values.push({ id: "3", name: "baz", created: new Date() });
 
       const parent = state.values[2];
       parent.expanded = false;
-      parent.children = [{ id: "4", name: "cat", parent }];
+      parent.children = [{ id: "4", name: "cat", parent, created: new Date() }];
 
       const match = getters.byId("1");
       expect(match).toHaveProperty("id", "1");
     });
 
     it("can find a nested notebook", () => {
-      state.values.push({ id: "1", name: "foo" });
-      state.values.push({ id: "2", name: "bar" });
-      state.values.push({ id: "3", name: "baz" });
+      state.values.push({ id: "1", name: "foo", created: new Date() });
+      state.values.push({ id: "2", name: "bar", created: new Date() });
+      state.values.push({ id: "3", name: "baz", created: new Date() });
 
       const parent = state.values[2];
       parent.expanded = false;
-      parent.children = [{ id: "4", name: "cat", parent }];
+      parent.children = [{ id: "4", name: "cat", parent, created: new Date() }];
 
       const match = getters.byId("4");
       expect(match).toHaveProperty("id", "4");
     });
 
     it("returns nothing if no match found after searching", () => {
-      state.values.push({ id: "1", name: "foo" });
-      state.values.push({ id: "2", name: "bar" });
-      state.values.push({ id: "3", name: "baz" });
+      state.values.push({ id: "1", name: "foo", created: new Date() });
+      state.values.push({ id: "2", name: "bar", created: new Date() });
+      state.values.push({ id: "3", name: "baz", created: new Date() });
 
       const parent = state.values[2];
       parent.expanded = false;
-      parent.children = [{ id: "4", name: "cat", parent }];
+      parent.children = [{ id: "4", name: "cat", parent, created: new Date() }];
 
       const match = getters.byId("42");
       expect(match).toBeUndefined();

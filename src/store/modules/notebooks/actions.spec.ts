@@ -11,7 +11,8 @@ describe("Notebook actions", () => {
 
       const notebook = {
         id: "1",
-        name: "foo"
+        name: "foo",
+        created: new Date()
       };
 
       actions.setExpanded({ notebook, expanded: true, bubbleUp: false });

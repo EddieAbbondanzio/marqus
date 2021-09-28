@@ -1,5 +1,6 @@
 import { NotebookMutations } from "@/store/modules/notebooks/mutations";
 import { NotebookState } from "@/store/modules/notebooks/state";
+import { generateId } from "@/utils/id";
 import { inject } from "vuex-smart-module";
 
 describe("Notebook mutations", () => {
@@ -17,7 +18,7 @@ describe("Notebook mutations", () => {
   describe("SET_STATE", () => {
     it("sets state", () => {
       const newState = {
-        values: [{ id: "1", name: "foo" }]
+        values: [{ id: "1", name: "foo", created: new Date() }]
       };
 
       mutations.SET_STATE(newState);
@@ -46,25 +47,22 @@ describe("Notebook mutations", () => {
 
     it("creates a new notebook", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
       expect(state.values).toHaveLength(1);
-      expect(state.values[0]).toHaveProperty("id", "1");
+      expect(state.values[0]).toHaveProperty("id");
       expect(state.values[0]).toHaveProperty("name", "foo");
     });
 
     it("assigns parent", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
       const parent = state.values[0];
 
       mutations.CREATE({
-        id: "2",
         name: "bar",
         parent
       });
@@ -78,7 +76,6 @@ describe("Notebook mutations", () => {
   describe("SET_NAME", () => {
     it("throws if name is blank", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
@@ -94,7 +91,6 @@ describe("Notebook mutations", () => {
 
     it("throws if name is too long", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
@@ -113,13 +109,12 @@ describe("Notebook mutations", () => {
   describe("DELETE", () => {
     it("throws if notebook is not in state", () => {
       expect(() => {
-        mutations.DELETE({ id: "1", name: "foo" });
+        mutations.DELETE({ id: generateId(), name: "foo", created: new Date() });
       }).toThrow();
     });
 
     it("removes notebook", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
@@ -131,14 +126,12 @@ describe("Notebook mutations", () => {
 
     it("removes from .children of parent if nested", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
       const parent = state.values[0];
 
       mutations.CREATE({
-        id: "2",
         name: "bar",
         parent
       });
@@ -152,12 +145,10 @@ describe("Notebook mutations", () => {
   describe("DELETE_ALL", () => {
     it("removes all notebooks", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
       mutations.CREATE({
-        id: "2",
         name: "bar"
       });
 
@@ -170,7 +161,6 @@ describe("Notebook mutations", () => {
   describe("SET_EXPANDED", () => {
     it("sets expanded", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
@@ -187,14 +177,12 @@ describe("Notebook mutations", () => {
 
     it("bubbles up if desired", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
       const parent = state.values[0];
 
       mutations.CREATE({
-        id: "2",
         name: "bar",
         parent
       });
@@ -215,12 +203,10 @@ describe("Notebook mutations", () => {
   describe("SET_ALL_EXPANDED", () => {
     it("sets all expanded", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
       mutations.CREATE({
-        id: "2",
         name: "bar"
       });
 
@@ -232,14 +218,12 @@ describe("Notebook mutations", () => {
 
     it("sets nested expanded", () => {
       mutations.CREATE({
-        id: "1",
         name: "foo"
       });
 
       const parent = state.values[0];
 
       mutations.CREATE({
-        id: "2",
         name: "bar",
         parent
       });
