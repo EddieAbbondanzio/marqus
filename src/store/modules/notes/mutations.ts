@@ -46,17 +46,19 @@ export class NoteMutations extends Mutations<NoteState> {
     note: Note | Note[];
     notebookId: string;
   }) {
-    // if (notebookId == null) {
-    //     throw Error('No notebookId passed.');
-    // }
-    // const notes = Array.isArray(note) ? note : [note];
-    // for (const note of notes) {
-    //     // Check to see if the notebook is already present to prevent duplicates.
-    //     if (!note.notebooks.some((n) => n === notebookId)) {
-    //         note.notebooks.push(notebookId);
-    //         note.hasUnsavedChanges = true;
-    //     }
-    // }
+    if (notebookId == null) {
+        throw Error('No notebookId passed.');
+    }
+    const notes = Array.isArray(note) ? note : [note];
+    for (const note of notes) {
+      note.notebooks ??= [];
+
+        // Check to see if the notebook is already present to prevent duplicates.
+        if (!note.notebooks.some((n) => n === notebookId)) {
+            note.notebooks.push(notebookId);
+            note.hasUnsavedChanges = true;
+        }
+    }
   }
 
   /**
@@ -65,17 +67,19 @@ export class NoteMutations extends Mutations<NoteState> {
    * @param options.tagId Id of the tag to add.
    */
   ADD_TAG({ note, tagId }: { note: Note | Note[]; tagId: string }) {
-    // if (tagId == null) {
-    //     throw Error('No tagId passed.');
-    // }
-    // const notes = Array.isArray(note) ? note : [note];
-    // for (const note of notes) {
-    //     // Check to see if the tag is already present first to prevent duplicates.
-    //     if (!note.tags.some((t) => t === tagId)) {
-    //         note.tags.push(tagId);
-    //         note.hasUnsavedChanges = true;
-    //     }
-    // }
+    if (tagId == null) {
+        throw Error('No tagId passed.');
+    }
+    const notes = Array.isArray(note) ? note : [note];
+    for (const note of notes) {
+      note.tags ??= [];
+      
+        // Check to see if the tag is already present first to prevent duplicates.
+        if (!note.tags.some((t) => t === tagId)) {
+            note.tags.push(tagId);
+            note.hasUnsavedChanges = true;
+        }
+    }
   }
 
   /**

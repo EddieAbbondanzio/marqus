@@ -17,7 +17,9 @@ describe("Notebook actions", () => {
       actions.setExpanded({ notebook, expanded: true, bubbleUp: false });
 
       expect(commit).toHaveBeenCalledWith("SET_EXPANDED", {
-        value: { notebook, expanded: true, bubbleUp: false }
+        notebook,
+        expanded: true,
+        bubbleUp: false
       });
     });
   });

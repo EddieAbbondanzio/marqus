@@ -1,11 +1,11 @@
+import { DirectiveBinding } from "vue";
 import {
   mouse,
   mouseObjectManager,
   getAction,
-  getButton,
-  getCallback
-} from "@/utils/mouse";
-import { DirectiveBinding } from "vue";
+  getCallback,
+  getButton
+} from "./mouse";
 
 describe("v-mouse", () => {
   describe("beforeMount()", () => {

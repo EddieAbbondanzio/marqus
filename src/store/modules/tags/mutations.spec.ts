@@ -30,15 +30,6 @@ describe("Tag mutations", () => {
   });
 
   describe("CREATE", () => {
-    it("throws if id is blank", () => {
-      expect(() => {
-        mutations.CREATE({
-          id: "",
-          name: "foo"
-        });
-      }).toThrow();
-    });
-
     it("throws if name is blank", () => {
       expect(() => {
         mutations.CREATE({
@@ -69,7 +60,7 @@ describe("Tag mutations", () => {
     });
   });
 
-  describe("SET_NAME", () => {
+  describe("RENAME", () => {
     it("throws if name is blank", () => {
       mutations.CREATE({
         id: "1",

@@ -30,7 +30,7 @@ describe("Note mutations", () => {
       state.values.push({ id: "2", trashed: false } as Note);
       state.values.push({ id: "3", trashed: true } as Note);
 
-      mutations.EMPTY_TRASH({});
+      mutations.EMPTY_TRASH();
       expect(state.values).toHaveLength(2);
       expect(state.values[0]).toHaveProperty("id", "1");
       expect(state.values[1]).toHaveProperty("id", "2");
@@ -38,40 +38,23 @@ describe("Note mutations", () => {
   });
 
   describe("CREATE", () => {
-    it("throws if id is blank", () => {
-      expect(() => {
-        mutations.CREATE({
-          value: {
-            id: " ",
-            name: "test",
-            notebooks: [],
-            tags: []
-          }
-        });
-      }).toThrow();
-    });
-
     it("throws if name is blank", () => {
       expect(() => {
         mutations.CREATE({
-          value: {
-            id: "1",
-            name: "  ",
-            notebooks: [],
-            tags: []
-          }
+          id: "1",
+          name: "  ",
+          notebooks: [],
+          tags: []
         });
       }).toThrow();
     });
 
     it("adds note to state", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "test",
-          notebooks: ["a"],
-          tags: ["b"]
-        }
+        id: "1",
+        name: "test",
+        notebooks: ["a"],
+        tags: ["b"]
       });
 
       expect(state.values).toHaveLength(1);
@@ -79,13 +62,13 @@ describe("Note mutations", () => {
 
       expect(note.id).toBe("1");
       expect(note.name).toBe("test");
-      expect(note.notebooks[0]).toBe("a");
-      expect(note.tags[0]).toBe("b");
+      expect(note.notebooks![0]).toBe("a");
+      expect(note.tags![0]).toBe("b");
       expect(note.hasUnsavedChanges).toBeTruthy();
     });
   });
 
-  describe("SET_NAME", () => {
+  describe("RENAME", () => {
     it("sets new name and sets hasUnsavedChanges", () => {
       state.values.push({
         id: "1",
@@ -98,7 +81,7 @@ describe("Note mutations", () => {
       const note = state.values[0];
       expect(note.hasUnsavedChanges).toBeFalsy();
 
-      mutations.SET_NAME({ value: { newName: "foo", note } });
+      mutations.RENAME({ newName: "foo", note });
       expect(note).toHaveProperty("name", "foo");
       expect(note.hasUnsavedChanges).toBeTruthy();
     });
@@ -107,7 +90,7 @@ describe("Note mutations", () => {
   describe("DELETE", () => {
     it("throws if note is not in state", () => {
       expect(() => {
-        mutations.DELETE({ value: { id: "1" } as Note });
+        mutations.DELETE({ id: "1" } as Note);
       });
     });
 
@@ -128,7 +111,7 @@ describe("Note mutations", () => {
         dateCreated: new Date()
       });
 
-      mutations.DELETE({ value: { id: "1" } as Note });
+      mutations.DELETE({ id: "1" } as Note);
       expect(state.values).toHaveLength(1);
       expect(state.values[0]).toHaveProperty("id", "2");
     });
@@ -147,10 +130,8 @@ describe("Note mutations", () => {
       state.values.push(note);
 
       mutations.ADD_NOTEBOOK({
-        value: {
-          note,
-          notebookId: "a"
-        }
+        note,
+        notebookId: "a"
       });
 
       expect(note.notebooks).toHaveLength(1);
@@ -179,10 +160,8 @@ describe("Note mutations", () => {
       state.values.push(note2);
 
       mutations.ADD_NOTEBOOK({
-        value: {
-          note: [note, note2],
-          notebookId: "a"
-        }
+        note: [note, note2],
+        notebookId: "a"
       });
 
       expect(note.notebooks).toHaveLength(1);
@@ -205,10 +184,8 @@ describe("Note mutations", () => {
       state.values.push(note);
 
       mutations.ADD_TAG({
-        value: {
-          note,
-          tagId: "a"
-        }
+        note,
+        tagId: "a"
       });
 
       expect(note.tags).toHaveLength(1);
@@ -237,10 +214,8 @@ describe("Note mutations", () => {
       state.values.push(note2);
 
       mutations.ADD_TAG({
-        value: {
-          note: [note, note2],
-          tagId: "a"
-        }
+        note: [note, note2],
+        tagId: "a"
       });
 
       expect(note.tags).toHaveLength(1);
@@ -260,13 +235,11 @@ describe("Note mutations", () => {
         dateCreated: new Date()
       };
 
-      note.notebooks.push("a");
+      note.notebooks!.push("a");
 
       mutations.REMOVE_NOTEBOOK({
-        value: {
-          note,
-          notebookId: "a"
-        }
+        note,
+        notebookId: "a"
       });
 
       expect(note.notebooks).toHaveLength(0);
@@ -294,10 +267,8 @@ describe("Note mutations", () => {
       state.values.push(note2);
 
       mutations.REMOVE_NOTEBOOK({
-        value: {
-          note: [note, note2],
-          notebookId: "a"
-        }
+        note: [note, note2],
+        notebookId: "a"
       });
 
       expect(note.notebooks).toHaveLength(0);
@@ -326,9 +297,7 @@ describe("Note mutations", () => {
       state.values.push(note2);
 
       mutations.REMOVE_NOTEBOOK({
-        value: {
-          notebookId: "a"
-        }
+        notebookId: "a"
       });
 
       expect(note.notebooks).toHaveLength(0);
@@ -359,10 +328,8 @@ describe("Note mutations", () => {
       state.values.push(note2);
 
       mutations.REMOVE_TAG({
-        value: {
-          note,
-          tagId: "a"
-        }
+        note,
+        tagId: "a"
       });
 
       expect(note.tags).toHaveLength(0);
@@ -390,10 +357,8 @@ describe("Note mutations", () => {
       state.values.push(note2);
 
       mutations.REMOVE_TAG({
-        value: {
-          note: [note, note2],
-          tagId: "a"
-        }
+        note: [note, note2],
+        tagId: "a"
       });
 
       expect(note.tags).toHaveLength(0);
@@ -422,9 +387,7 @@ describe("Note mutations", () => {
       state.values.push(note2);
 
       mutations.REMOVE_TAG({
-        value: {
-          tagId: "a"
-        }
+        tagId: "a"
       });
 
       expect(note.tags).toHaveLength(0);
@@ -444,7 +407,7 @@ describe("Note mutations", () => {
 
       state.values.push(note);
 
-      mutations.MOVE_TO_TRASH({ value: note });
+      mutations.MOVE_TO_TRASH(note);
 
       expect(note.trashed).toBeTruthy();
       expect(note.hasUnsavedChanges).toBeTruthy();
@@ -464,7 +427,7 @@ describe("Note mutations", () => {
 
       state.values.push(note);
 
-      mutations.RESTORE_FROM_TRASH({ value: note });
+      mutations.RESTORE_FROM_TRASH(note);
 
       expect(note.trashed).toBeFalsy();
       expect(note.hasUnsavedChanges).toBeTruthy();
@@ -484,7 +447,7 @@ describe("Note mutations", () => {
       state.values.push(note);
 
       expect(note.favorited).toBeFalsy();
-      mutations.FAVORITE({ value: note });
+      mutations.FAVORITE(note);
       expect(note.favorited).toBeTruthy();
       expect(note.hasUnsavedChanges).toBeTruthy();
     });
@@ -504,7 +467,7 @@ describe("Note mutations", () => {
       state.values.push(note);
 
       expect(note.favorited).toBeTruthy();
-      mutations.UNFAVORITE({ value: note });
+      mutations.UNFAVORITE(note);
       expect(note.favorited).toBeFalsy();
       expect(note.hasUnsavedChanges).toBeTruthy();
     });

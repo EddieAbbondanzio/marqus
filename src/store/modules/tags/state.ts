@@ -1,4 +1,5 @@
 import { Entity, generateId } from "@/utils/entity";
+import { isBlank } from "@/utils/string";
 import * as yup from "yup";
 
 export interface Tag extends Entity {
@@ -18,6 +19,7 @@ export const tagSchema: yup.SchemaOf<Tag> = yup
       .default(generateId),
     name: yup
       .string()
+      .test(v => !isBlank(v))
       .min(1)
       .max(64)
       .required()

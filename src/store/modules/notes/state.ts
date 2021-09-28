@@ -1,4 +1,5 @@
 import { Entity, generateId } from "@/utils/entity";
+import { isBlank } from "@/utils/string";
 import * as yup from "yup";
 
 export interface Note extends Entity {
@@ -31,6 +32,7 @@ export const noteSchema: yup.SchemaOf<Note> = yup
       .default(generateId),
     name: yup
       .string()
+      .test(v => !isBlank(v))
       .min(1)
       .max(128)
       .required(),

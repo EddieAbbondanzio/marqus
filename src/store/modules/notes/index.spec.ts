@@ -15,7 +15,8 @@ describe("loadNoteContent()", () => {
     const noteId = "1";
     loadNoteContent(noteId);
     expect(mock).toHaveBeenCalledWith(
-      path.join(NOTE_DIRECTORY, noteId, NOTE_CONTENT_FILE_NAME)
+      path.join(NOTE_DIRECTORY, noteId, NOTE_CONTENT_FILE_NAME),
+      { root: true }
     );
   });
 });

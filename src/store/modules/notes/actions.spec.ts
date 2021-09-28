@@ -22,14 +22,14 @@ describe("Note actions", () => {
       const note = { favorited: false };
       actions.toggleFavorite(note as any);
 
-      expect(commit).toHaveBeenCalledWith("FAVORITE", { value: note });
+      expect(commit).toHaveBeenCalledWith("FAVORITE", note);
     });
 
     it("unfavorites if already favorited", () => {
       const note = { favorited: true };
       actions.toggleFavorite(note as any);
 
-      expect(commit).toHaveBeenCalledWith("UNFAVORITE", { value: note });
+      expect(commit).toHaveBeenCalledWith("UNFAVORITE", note);
     });
   });
 
@@ -39,7 +39,8 @@ describe("Note actions", () => {
       actions.addNotebook({ note, notebookId: "1" });
 
       expect(commit).toHaveBeenCalledWith("ADD_NOTEBOOK", {
-        value: { note, notebookId: "1" }
+        note,
+        notebookId: "1"
       });
     });
   });
@@ -50,7 +51,8 @@ describe("Note actions", () => {
       actions.addTag({ note, tagId: "1" });
 
       expect(commit).toHaveBeenCalledWith("ADD_TAG", {
-        value: { note, tagId: "1" }
+        note,
+        tagId: "1"
       });
     });
   });
@@ -61,7 +63,8 @@ describe("Note actions", () => {
       actions.removeNotebook({ note, notebookId: "1" });
 
       expect(commit).toHaveBeenCalledWith("REMOVE_NOTEBOOK", {
-        value: { note, notebookId: "1" }
+        note,
+        notebookId: "1"
       });
     });
   });
@@ -72,7 +75,8 @@ describe("Note actions", () => {
       actions.removeTag({ note, tagId: "1" });
 
       expect(commit).toHaveBeenCalledWith("REMOVE_TAG", {
-        value: { note, tagId: "1" }
+        note,
+        tagId: "1"
       });
     });
   });

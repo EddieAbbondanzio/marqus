@@ -1,4 +1,5 @@
 import { Entity, generateId } from "@/utils/entity";
+import { isBlank } from "@/utils/string";
 import * as yup from "yup";
 
 export interface Notebook extends Entity {
@@ -18,6 +19,7 @@ export const notebookSchema: yup.SchemaOf<Notebook> = yup
     name: yup
       .string()
       .required()
+      .test(v => !isBlank(v))
       .min(1)
       .max(64),
     parent: yup.object().optional(),

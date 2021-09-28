@@ -28,10 +28,8 @@ describe("Notebook mutations", () => {
     it("throws if name is blank", () => {
       expect(() => {
         mutations.CREATE({
-          value: {
-            id: "1",
-            name: null!
-          }
+          id: "1",
+          name: null!
         });
       }).toThrow();
     });
@@ -39,21 +37,17 @@ describe("Notebook mutations", () => {
     it("throws if name is too long", () => {
       expect(() => {
         mutations.CREATE({
-          value: {
-            id: "1",
-            name:
-              "012345678900123456789001234567890012345678900123456789001234567890"
-          }
+          id: "1",
+          name:
+            "012345678900123456789001234567890012345678900123456789001234567890"
         });
       }).toThrow();
     });
 
     it("creates a new notebook", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       expect(state.values).toHaveLength(1);
@@ -63,20 +57,16 @@ describe("Notebook mutations", () => {
 
     it("assigns parent", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       const parent = state.values[0];
 
       mutations.CREATE({
-        value: {
-          id: "2",
-          name: "bar",
-          parent
-        }
+        id: "2",
+        name: "bar",
+        parent
       });
 
       expect(parent.children).toHaveLength(1);
@@ -88,41 +78,33 @@ describe("Notebook mutations", () => {
   describe("SET_NAME", () => {
     it("throws if name is blank", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       const notebook = state.values[0];
 
       expect(() => {
-        mutations.SET_NAME({
-          value: {
-            notebook,
-            newName: null!
-          }
+        mutations.RENAME({
+          notebook,
+          newName: null!
         });
       }).toThrow();
     });
 
     it("throws if name is too long", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       const notebook = state.values[0];
 
       expect(() => {
-        mutations.SET_NAME({
-          value: {
-            notebook,
-            newName:
-              "012345678900123456789001234567890012345678900123456789001234567890"
-          }
+        mutations.RENAME({
+          notebook,
+          newName:
+            "012345678900123456789001234567890012345678900123456789001234567890"
         });
       }).toThrow();
     });
@@ -131,43 +113,37 @@ describe("Notebook mutations", () => {
   describe("DELETE", () => {
     it("throws if notebook is not in state", () => {
       expect(() => {
-        mutations.DELETE({ value: { id: "1", name: "foo" } });
+        mutations.DELETE({ id: "1", name: "foo" });
       }).toThrow();
     });
 
     it("removes notebook", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       const notebook = state.values[0];
 
-      mutations.DELETE({ value: notebook });
+      mutations.DELETE(notebook);
       expect(state.values).toHaveLength(0);
     });
 
     it("removes from .children of parent if nested", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       const parent = state.values[0];
 
       mutations.CREATE({
-        value: {
-          id: "2",
-          name: "bar",
-          parent
-        }
+        id: "2",
+        name: "bar",
+        parent
       });
 
-      mutations.DELETE({ value: parent.children![0] });
+      mutations.DELETE(parent.children![0]);
 
       expect(parent.children).toBeUndefined();
     });
@@ -176,20 +152,16 @@ describe("Notebook mutations", () => {
   describe("DELETE_ALL", () => {
     it("removes all notebooks", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       mutations.CREATE({
-        value: {
-          id: "2",
-          name: "bar"
-        }
+        id: "2",
+        name: "bar"
       });
 
-      mutations.DELETE_ALL({});
+      mutations.DELETE_ALL();
 
       expect(state.values).toHaveLength(0);
     });
@@ -198,20 +170,16 @@ describe("Notebook mutations", () => {
   describe("SET_EXPANDED", () => {
     it("sets expanded", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       const notebook = state.values[0];
 
       mutations.SET_EXPANDED({
-        value: {
-          notebook,
-          expanded: true,
-          bubbleUp: false
-        }
+        notebook,
+        expanded: true,
+        bubbleUp: false
       });
 
       expect(notebook.expanded).toBeTruthy();
@@ -219,30 +187,24 @@ describe("Notebook mutations", () => {
 
     it("bubbles up if desired", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       const parent = state.values[0];
 
       mutations.CREATE({
-        value: {
-          id: "2",
-          name: "bar",
-          parent
-        }
+        id: "2",
+        name: "bar",
+        parent
       });
 
       const notebook = parent.children![0];
 
       mutations.SET_EXPANDED({
-        value: {
-          notebook,
-          expanded: true,
-          bubbleUp: true
-        }
+        notebook,
+        expanded: true,
+        bubbleUp: true
       });
 
       expect(parent.expanded).toBeTruthy();
@@ -253,20 +215,16 @@ describe("Notebook mutations", () => {
   describe("SET_ALL_EXPANDED", () => {
     it("sets all expanded", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       mutations.CREATE({
-        value: {
-          id: "2",
-          name: "bar"
-        }
+        id: "2",
+        name: "bar"
       });
 
-      mutations.SET_ALL_EXPANDED({ value: { expanded: true } });
+      mutations.SET_ALL_EXPANDED({ expanded: true });
 
       expect(state.values[0].expanded).toBeTruthy();
       expect(state.values[1].expanded).toBeTruthy();
@@ -274,23 +232,19 @@ describe("Notebook mutations", () => {
 
     it("sets nested expanded", () => {
       mutations.CREATE({
-        value: {
-          id: "1",
-          name: "foo"
-        }
+        id: "1",
+        name: "foo"
       });
 
       const parent = state.values[0];
 
       mutations.CREATE({
-        value: {
-          id: "2",
-          name: "bar",
-          parent
-        }
+        id: "2",
+        name: "bar",
+        parent
       });
 
-      mutations.SET_ALL_EXPANDED({ value: { expanded: true } });
+      mutations.SET_ALL_EXPANDED({ expanded: true });
 
       expect(state.values[0].expanded).toBeTruthy();
       expect(state.values[0].children![0].expanded).toBeTruthy();
