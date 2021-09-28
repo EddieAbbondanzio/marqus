@@ -1,4 +1,4 @@
-import { generateId, isId } from "./entity";
+import { generateId, isId } from "./id";
 
 describe("generateId()", () => {
   it("generates an id", () => {

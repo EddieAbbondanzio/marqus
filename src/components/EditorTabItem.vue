@@ -25,7 +25,7 @@ import { computed, defineComponent } from 'vue';
 import DeleteButton from '@/components/buttons/DeleteButton.vue';
 import { useEditor } from '@/store/modules/ui/modules/editor';
 import { Tab } from '@/store/modules/ui/modules/editor/state';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { climbDomUntil } from '@/utils/dom/climb-dom-until';
 
 export default defineComponent({
     props: {
@@ -47,7 +47,7 @@ export default defineComponent({
                 return;
             }
 
-            const tabContainer = climbDomHierarchy(endedOnElement, {
+            const tabContainer = climbDomUntil(endedOnElement, {
                 match: (e) => e.id === 'editor-tabs',
                 matchValue: (e) => e
             });

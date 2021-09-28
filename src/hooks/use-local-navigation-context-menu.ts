@@ -1,14 +1,14 @@
 import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { store } from "@/store";
 import { Note } from "@/store/modules/notes/state";
-import { climbDomHierarchy } from "@/utils/dom/climb-dom-hierarchy";
+import { climbDomUntil } from "@/utils/dom/climb-dom-until";
 
 export const useLocalNavigationContextMenu = createContextMenuHook(
   "localNavigation",
   (_, p) => {
     const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
 
-    const id = climbDomHierarchy<string>(element, {
+    const id = climbDomUntil<string>(element, {
       match: el => el.hasAttribute("data-id"),
       matchValue: el => el.getAttribute("data-id")
     });

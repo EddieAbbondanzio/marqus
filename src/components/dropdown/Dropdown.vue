@@ -22,7 +22,7 @@
 import DropdownMenu from '@/components/dropdown/DropdownMenu.vue';
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
 import DropdownItem from '@/components/dropdown/DropdownItem.vue';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { climbDomUntil } from '@/utils/dom/climb-dom-until';
 
 export default defineComponent({
     components: { DropdownMenu, DropdownItem },
@@ -50,7 +50,7 @@ export default defineComponent({
                 return;
             }
 
-            const isWithinMenu = climbDomHierarchy<boolean>(e.target as HTMLElement, {
+            const isWithinMenu = climbDomUntil<boolean>(e.target as HTMLElement, {
                 match: (el) =>
                     el.classList.contains('dropdown-menu') ||
                     el.classList.contains('dropdown-trigger') ||

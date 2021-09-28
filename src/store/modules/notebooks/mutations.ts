@@ -1,4 +1,9 @@
-import { Notebook, notebookSchema, NotebookState } from "./state";
+import {
+  Notebook,
+  notebookNameSchema,
+  notebookSchema,
+  NotebookState
+} from "./state";
 import { Mutations } from "vuex-smart-module";
 import { caseInsensitiveCompare, isBlank } from "@/utils/string";
 import { reach } from "yup";
@@ -9,7 +14,13 @@ export class NotebookMutations extends Mutations<NotebookState> {
   }
 
   CREATE(p: Partial<Notebook>) {
-    const notebook = notebookSchema.validateSync(p);
+    const validated = notebookSchema.validateSync(p);
+
+    const notebook = {
+      ...validated,
+      created: new Date(),
+      hasUnsavedChanes: true
+    };
 
     if (notebook.parent == null) {
       this.state.values.push(notebook);
@@ -19,8 +30,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
   }
 
   RENAME({ notebook, newName }: { notebook: Notebook; newName: string }) {
-    const nameSchema = reach(notebookSchema, "name");
-    nameSchema.validateSync(newName);
+    notebookNameSchema.validateSync(newName);
 
     notebook.name = newName;
   }

@@ -1,22 +1,22 @@
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
-import { climbDomHierarchy } from "@/utils/dom/climb-dom-hierarchy";
 import { store } from "@/store";
+import { climbDomUntil } from "@/utils/dom/climb-dom-until";
 
 export const useGlobalNavigationContextMenu = createContextMenuHook(
   "globalNavigation",
   (_, p) => {
     const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
 
-    const isElementNotebook = climbDomHierarchy<boolean>(element, {
+    const isElementNotebook = climbDomUntil<boolean>(element, {
       match: el => el.classList.contains("global-navigation-notebook")
     });
 
-    const isElementTag = climbDomHierarchy<boolean>(element, {
+    const isElementTag = climbDomUntil<boolean>(element, {
       match: el => el.classList.contains("global-navigation-tag")
     });
 
-    const id = climbDomHierarchy<string>(element, {
+    const id = climbDomUntil<string>(element, {
       match: el => el.hasAttribute("data-id"),
       matchValue: el => el.getAttribute("data-id")
     });

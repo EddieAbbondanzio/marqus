@@ -1,178 +1,189 @@
 <template>
-    <EditorToolbarDropdown icon="fa-book" v-model:active="active">
-        <template #dropdown>
-            <ListBuilder
-                :selected="selectedNotebooks"
-                @add="onAdd"
-                @remove="onRemove"
-                v-input-scope:notebookListBuilder.hidden="{ querySelector: 'input' }"
-            >
-                <template #item="{item}">
-                    <p :title="fullyQualify(item)">{{ item.value }}</p>
-                </template>
-
-                <template #input="{ add }">
-                    <Form
-                        v-slot="{ meta }"
-                        @submit="onSubmit(add)"
-                        class="is-flex is-flex-column is-justify-center is-relative"
-                    >
-                        <InputField
-                            label="Notebook"
-                            :hideLabel="true"
-                            v-model="input"
-                            v-slot="{ field }"
-                            :rules="rules"
-                        >
-                            <Autocomplete
-                                placeholder="Type to add notebook"
-                                :modelValue="field.value"
-                                @update:modelValue="field['onUpdate:modelValue']"
-                                :values="unusedValues"
-                                @select="(notebook) => onSubmit(add, notebook)"
-                            >
-                                <template #empty>
-                                    <div class="m-2 is-flex is-align-items-center is-justify-content-center">
-                                        <span class="is-size-7">Notebooks can be used to group notes together</span>
-                                    </div>
-                                </template>
-
-                                <template #dropdown v-if="meta.dirty && !meta.valid">
-                                    <ErrorMessage name="Notebook" v-slot="{ message }">
-                                        <div
-                                            id="errorMessage"
-                                            class="notification is-danger p-1 mt-1 is-flex is-align-center"
-                                        >
-                                            <span class="icon is-small">
-                                                <i class="fas fa-exclamation"></i>
-                                            </span>
-
-                                            <span class="is-size-7 pr-2"> {{ message }} </span>
-                                        </div>
-                                    </ErrorMessage>
-                                </template>
-                            </Autocomplete>
-                        </InputField>
-                    </Form>
-                </template>
-            </ListBuilder>
+  <EditorToolbarDropdown icon="fa-book" v-model:active="active">
+    <template #dropdown>
+      <ListBuilder
+        :selected="selectedNotebooks"
+        @add="onAdd"
+        @remove="onRemove"
+        v-input-scope:notebookListBuilder.hidden="{ querySelector: 'input' }"
+      >
+        <template #item="{item}">
+          <p :title="fullyQualify(item)">{{ item.value }}</p>
         </template>
-    </EditorToolbarDropdown>
+
+        <template #input="{ add }">
+          <Form
+            v-slot="{ meta }"
+            @submit="onSubmit(add)"
+            class="is-flex is-flex-column is-justify-center is-relative"
+          >
+            <InputField
+              label="Notebook"
+              :hideLabel="true"
+              v-model="input"
+              v-slot="{ field }"
+              :rules="rules"
+            >
+              <Autocomplete
+                placeholder="Type to add notebook"
+                :modelValue="field.value"
+                @update:modelValue="field['onUpdate:modelValue']"
+                :values="unusedValues"
+                @select="notebook => onSubmit(add, notebook)"
+              >
+                <template #empty>
+                  <div
+                    class="m-2 is-flex is-align-items-center is-justify-content-center"
+                  >
+                    <span class="is-size-7"
+                      >Notebooks can be used to group notes together</span
+                    >
+                  </div>
+                </template>
+
+                <template #dropdown v-if="meta.dirty && !meta.valid">
+                  <ErrorMessage name="Notebook" v-slot="{ message }">
+                    <div
+                      id="errorMessage"
+                      class="notification is-danger p-1 mt-1 is-flex is-align-center"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-exclamation"></i>
+                      </span>
+
+                      <span class="is-size-7 pr-2"> {{ message }} </span>
+                    </div>
+                  </ErrorMessage>
+                </template>
+              </Autocomplete>
+            </InputField>
+          </Form>
+        </template>
+      </ListBuilder>
+    </template>
+  </EditorToolbarDropdown>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue';
-import EditorToolbarDropdown from '@/components/EditorToolbarDropdown.vue';
-import ListBuilder from '@/components/input/ListBuilder.vue';
-import Autocomplete from '@/components/input/Autocomplete.vue';
-import { ErrorMessage, Form } from 'vee-validate';
-import InputField from '@/components/input/InputField.vue';
-import { inputScopes } from '@/utils/scopes';
-import { useNotebookValidation } from '@/hooks/use-notebook-validation';
-import { useNotebooks } from '@/store/modules/notebooks';
-import { Notebook, fullyQualify } from '@/store/modules/notebooks/state';
-import { useNotes } from '@/store/modules/notes';
-import { useEditor } from '@/store/modules/ui/modules/editor';
-import { generateId } from '@/utils/entity';
-import { isBlank } from '@/utils/string';
+import { computed, defineComponent, ref } from "vue";
+import EditorToolbarDropdown from "@/components/EditorToolbarDropdown.vue";
+import ListBuilder from "@/components/input/ListBuilder.vue";
+import Autocomplete from "@/components/input/Autocomplete.vue";
+import { ErrorMessage, Form } from "vee-validate";
+import InputField from "@/components/input/InputField.vue";
+import { inputScopes } from "@/utils/scopes";
+import { useNotebookValidation } from "@/hooks/use-notebook-validation";
+import { useNotebooks } from "@/store/modules/notebooks";
+import { Notebook, fullyQualify } from "@/store/modules/notebooks/state";
+import { useNotes } from "@/store/modules/notes";
+import { useEditor } from "@/store/modules/ui/modules/editor";
+import { generateId } from "@/utils/id";
+import { isBlank } from "@/utils/string";
 
 export default defineComponent({
-    setup() {
-        const editor = useEditor();
-        const notebooks = useNotebooks();
-        const notes = useNotes();
+  setup() {
+    const editor = useEditor();
+    const notebooks = useNotebooks();
+    const notes = useNotes();
 
-        const note = computed(() => editor.getters.activeNote!);
-        const selectedNotebooks = computed(() => notebooks.getters.notebooksForNote(note.value));
+    const note = computed(() => editor.getters.activeNote!);
+    const selectedNotebooks = computed(() =>
+      notebooks.getters.notebooksForNote(note.value)
+    );
 
-        const input = ref('');
+    const input = ref("");
 
-        const unusedValues = computed(() => {
-            const unused = notebooks.getters.flatten.filter(
-                (v: any) => !selectedNotebooks.value.some((s: any) => s.id === v.id)
-            );
+    const unusedValues = computed(() => {
+      const unused = notebooks.getters.flatten.filter(
+        (v: any) => !selectedNotebooks.value.some((s: any) => s.id === v.id)
+      );
 
-            // Add the create option as needed
-            if (
-                !isBlank(input.value) &&
-                !notebooks.state.values.some((n) => n.name.toLowerCase() === input.value.toLowerCase())
-            ) {
-                unused.push({
-                    id: '',
-                    name: `Create new notebook '${input.value}'`
-                });
-            }
-
-            return unused;
+      // Add the create option as needed
+      if (
+        !isBlank(input.value) &&
+        !notebooks.state.values.some(
+          n => n.name.toLowerCase() === input.value.toLowerCase()
+        )
+      ) {
+        unused.push({
+          id: "",
+          created: new Date(),
+          name: `Create new notebook '${input.value}'`
         });
+      }
 
-        const onSubmit = (add: (v: any) => void, notebook?: Notebook) => {
-            // Handle easy case of clicking a pre-existing notebook
-            if (notebook != null) {
-                add(notebook);
-                return;
-            }
+      return unused;
+    });
 
-            // Stop if we already have it selected. Prevents duplicates
-            if (selectedNotebooks.value.some((v: any) => v.value === input.value)) {
-                return;
-            }
+    const onSubmit = (add: (v: any) => void, notebook?: Notebook) => {
+      // Handle easy case of clicking a pre-existing notebook
+      if (notebook != null) {
+        add(notebook);
+        return;
+      }
 
-            // Determine if it's a create, or add existing.
-            const existing: any = unusedValues.value.find(
-                (v: any) => v.value.toLowerCase() === input.value.toLowerCase()
-            );
+      // Stop if we already have it selected. Prevents duplicates
+      if (selectedNotebooks.value.some((v: any) => v.value === input.value)) {
+        return;
+      }
 
-            if (existing != null) {
-                add(existing);
-            } else {
-                const notebook = {
-                    id: generateId(),
-                    name: input.value
-                };
+      // Determine if it's a create, or add existing.
+      const existing: any = unusedValues.value.find(
+        (v: any) => v.value.toLowerCase() === input.value.toLowerCase()
+      );
 
-                editor.actions.createNotebook(notebook);
-                add(notebook);
-            }
-
-            input.value = '';
+      if (existing != null) {
+        add(existing);
+      } else {
+        const notebook = {
+          id: generateId(),
+          name: input.value
         };
 
-        const active = computed({
-            get: () => editor.getters.activeTab?.notebookDropdownVisible ?? false,
-            set: (v) => {
-                editor.actions.setNotebooksDropdownVisible(v);
-                inputScopes.focus({ name: 'notebookListBuilder' });
-            }
-        });
+        editor.actions.createNotebook(notebook);
+        add(notebook);
+      }
 
-        const onAdd = (n: Notebook) => notes.dispatch('addNotebook', { note: note.value, notebookId: n.id });
-        const onRemove = (n: Notebook) => notes.dispatch('removeNotebook', { note: note.value, notebookId: n.id });
+      input.value = "";
+    };
 
-        const { unique, ...rules } = useNotebookValidation();
+    const active = computed({
+      get: () => editor.getters.activeTab?.notebookDropdownVisible ?? false,
+      set: v => {
+        editor.actions.setNotebooksDropdownVisible(v);
+        inputScopes.focus({ name: "notebookListBuilder" });
+      }
+    });
 
-        return {
-            input,
-            unusedValues,
-            onAdd,
-            onRemove,
-            onSubmit,
-            active,
-            selectedNotebooks,
-            notebooks: computed(() => notebooks.state.values),
-            note: computed(() => editor.getters.activeNote),
-            notebooksForNote: computed(() => notebooks.getters.notebooksForNote),
-            rules,
-            fullyQualify
-        };
-    },
-    components: {
-        EditorToolbarDropdown,
-        ListBuilder,
-        InputField,
-        Form,
-        ErrorMessage,
-        Autocomplete
-    }
+    const onAdd = (n: Notebook) =>
+      notes.dispatch("addNotebook", { note: note.value, notebookId: n.id });
+    const onRemove = (n: Notebook) =>
+      notes.dispatch("removeNotebook", { note: note.value, notebookId: n.id });
+
+    const { unique, ...rules } = useNotebookValidation();
+
+    return {
+      input,
+      unusedValues,
+      onAdd,
+      onRemove,
+      onSubmit,
+      active,
+      selectedNotebooks,
+      notebooks: computed(() => notebooks.state.values),
+      note: computed(() => editor.getters.activeNote),
+      notebooksForNote: computed(() => notebooks.getters.notebooksForNote),
+      rules,
+      fullyQualify
+    };
+  },
+  components: {
+    EditorToolbarDropdown,
+    ListBuilder,
+    InputField,
+    Form,
+    ErrorMessage,
+    Autocomplete
+  }
 });
 </script>

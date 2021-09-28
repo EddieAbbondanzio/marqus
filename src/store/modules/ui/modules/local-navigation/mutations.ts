@@ -1,4 +1,4 @@
-import { generateId } from "@/utils/entity";
+import { generateId } from "@/utils/id";
 import { MutationTree } from "vuex";
 import { Mutations } from "vuex-smart-module";
 import { LocalNavigationState } from "./state";

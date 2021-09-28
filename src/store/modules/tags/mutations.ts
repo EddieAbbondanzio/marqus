@@ -2,7 +2,7 @@ import { caseInsensitiveCompare } from "@/utils/string";
 import { Mutation, MutationTree } from "vuex";
 import { Mutations } from "vuex-smart-module";
 import { reach } from "yup";
-import { Tag, tagSchema, TagState } from "./state";
+import { Tag, tagNameSchema, tagSchema, TagState } from "./state";
 
 export class TagMutations extends Mutations<TagState> {
   SET_STATE(s: TagState) {
@@ -14,15 +14,14 @@ export class TagMutations extends Mutations<TagState> {
 
     this.state.values.push({
       id,
-      name
+      name,
+      created: new Date()
     });
   }
 
   RENAME({ tag, newName }: { tag: Tag; newName: string }) {
-    const nameSchema = reach(tagSchema, "name");
-    const name = nameSchema.validateSync(newName);
-
-    tag.name = name;
+    tagNameSchema.validateSync(newName);
+    tag.name = newName;
   }
 
   DELETE(tag: Tag) {

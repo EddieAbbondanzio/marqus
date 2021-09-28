@@ -4,8 +4,7 @@ import {
   Tab,
   TabState
 } from "@/store/modules/ui/modules/editor/state";
-import { generateId } from "@/utils/entity";
-import { MutationTree } from "vuex";
+import { generateId } from "@/utils/id";
 import { Mutations } from "vuex-smart-module";
 
 // Temp bandaid
@@ -112,6 +111,7 @@ export class EditorMutations extends Mutations<EditorState> {
     // TODO: Move this to action
     const tab: Tab = {
       id: generateId(),
+      created: new Date(),
       content: p.value.content,
       noteId: p.value.noteId,
       state: p.value.preview ? "preview" : "normal"

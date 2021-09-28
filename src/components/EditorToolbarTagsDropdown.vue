@@ -57,23 +57,23 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, onMounted, onRenderTriggered, ref, watch } from 'vue';
-import EditorToolbarDropdown from '@/components/EditorToolbarDropdown.vue';
-import ListBuilder from '@/components/input/ListBuilder.vue';
-import { ErrorMessage, Form } from 'vee-validate';
-import InputField from '@/components/input/InputField.vue';
-import Autocomplete from '@/components/input/Autocomplete.vue';
-import { inputScopes } from '@/utils/scopes';
-import { useTagValidation } from '@/hooks/use-tag-validation';
-import { useNotes } from '@/store/modules/notes';
-import { useTags } from '@/store/modules/tags';
-import { Tag } from '@/store/modules/tags/state';
-import { useEditor } from '@/store/modules/ui/modules/editor';
-import { generateId } from '@/utils/entity';
-import { isBlank } from '@/utils/string';
+import { computed, defineComponent, ref } from "vue";
+import EditorToolbarDropdown from "@/components/EditorToolbarDropdown.vue";
+import ListBuilder from "@/components/input/ListBuilder.vue";
+import { ErrorMessage, Form } from "vee-validate";
+import InputField from "@/components/input/InputField.vue";
+import Autocomplete from "@/components/input/Autocomplete.vue";
+import { inputScopes } from "@/utils/scopes";
+import { useTagValidation } from "@/hooks/use-tag-validation";
+import { useNotes } from "@/store/modules/notes";
+import { useTags } from "@/store/modules/tags";
+import { Tag } from "@/store/modules/tags/state";
+import { useEditor } from "@/store/modules/ui/modules/editor";
+import { generateId } from "@/utils/id";
+import { isBlank } from "@/utils/string";
 
 export default defineComponent({
-    setup: function(p, c) {
+    setup: function (p, c) {
         const editor = useEditor();
         const tags = useTags();
         const notes = useNotes();
@@ -81,7 +81,7 @@ export default defineComponent({
         const note = computed(() => editor.getters.activeNote!);
         const selectedTags = computed(() => tags.getters.tagsForNote(note.value));
 
-        const input = ref('');
+        const input = ref("");
 
         const unusedValues = computed(() => {
             const unused = tags.state.values.filter((v: any) => !selectedTags.value.some((s: any) => s.id === v.id));
@@ -92,7 +92,8 @@ export default defineComponent({
                 !tags.state.values.some((t) => t.name.toLowerCase() === input.value.toLowerCase())
             ) {
                 unused.push({
-                    id: '',
+                    id: "",
+                    created: new Date(),
                     name: `Create new tag '${input.value}'`
                 });
             }
@@ -129,19 +130,19 @@ export default defineComponent({
                 add(tag);
             }
 
-            input.value = '';
+            input.value = "";
         };
 
         const active = computed({
             get: () => editor.getters.activeTab?.tagDropdownVisible ?? false,
             set: (v) => {
                 editor.actions.setTagsDropdownVisible(v);
-                inputScopes.focus({ name: 'tagListBuilder' });
+                inputScopes.focus({ name: "tagListBuilder" });
             }
         });
 
-        const onAdd = (t: Tag) => notes.dispatch('addTag', { note: note.value, tagId: t.id });
-        const onRemove = (t: Tag) => notes.dispatch('removeTag', { note: note.value, tagId: t.id });
+        const onAdd = (t: Tag) => notes.dispatch("addTag", { note: note.value, tagId: t.id });
+        const onRemove = (t: Tag) => notes.dispatch("removeTag", { note: note.value, tagId: t.id });
 
         const { unique, ...rules } = useTagValidation();
 

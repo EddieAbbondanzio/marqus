@@ -4,12 +4,11 @@ import { NoteActions } from '@/store/modules/notes/actions';
 import { NoteMutations } from '@/store/modules/notes/mutations';
 import { NoteGetters } from '@/store/modules/notes/getters';
 import { Note, NoteState } from '@/store/modules/notes/state';
-import { undo } from '@/store/plugins/undo';
-import { isId } from '@/utils/entity';
 import { fileSystem } from '@/utils/file-system';
 import moment from 'moment';
 import path from 'path';
 import { MutationPayload } from 'vuex';
+import { isId } from '@/utils/id';
 
 export const NOTE_DIRECTORY = 'notes';
 export const NOTE_CONTENT_FILE_NAME = 'index.md'
@@ -68,8 +67,8 @@ export async function deserialize() {
             const note: Note = {
                 id: noteId,
                 name: metaData.name,
-                dateCreated: moment(metaData.dateCreated).toDate(),
-                dateModified: moment(metaData.dateModified).toDate(),
+                created: moment(metaData.created).toDate(),
+                modified: moment(metaData.modified).toDate(),
                 notebooks: metaData.notebooks ?? [],
                 tags: metaData.tags ?? [],
                 trashed: metaData.trashed,
@@ -133,8 +132,8 @@ export async function saveNoteToFileSystem(rootState: any, noteOrId: Note | stri
 
     const json = {
         name: note.name,
-        dateCreated: note.dateCreated,
-        dateModified: note.dateModified,
+        created: note.created,
+        modified: note.modified,
         notebooks: note.notebooks,
         tags: note.tags,
         trashed: note.trashed,

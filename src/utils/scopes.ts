@@ -1,6 +1,6 @@
 import { nextTick, Ref, ref } from "vue";
-import { climbDomHierarchy } from "./dom/climb-dom-hierarchy";
-import { generateId } from "./entity";
+import { climbDomUntil } from "./dom/climb-dom-until";
+import { generateId } from "./id";
 
 /*
  * These types had to be moved to a seperate file otherwise we create a circular dependency issue that causes the compiler
@@ -11,6 +11,7 @@ export const INPUT_SCOPE_ATTRIBUTE = "data-focusable";
 export const INPUT_SCOPE_HIDDEN_ATTRIBUTE = "data-focusable-hidden";
 
 export class InputScope {
+  // eslint-disable-next-line
   constructor(
     public el: HTMLElement,
     public id: string,
@@ -18,7 +19,7 @@ export class InputScope {
   ) {}
 
   containsElement(element: HTMLElement): boolean {
-    return climbDomHierarchy(element, {
+    return climbDomUntil(element, {
       match: el => el.getAttribute(INPUT_SCOPE_ATTRIBUTE) === this.id
     });
   }
@@ -32,7 +33,7 @@ const scopes: InputScope[] = [];
  */
 function onFocusIn(event: FocusEvent) {
   // We might need to climb up the dom tree to handle nested children of a scope.
-  const scopeEl = climbDomHierarchy(event.target as HTMLElement, {
+  const scopeEl = climbDomUntil(event.target as HTMLElement, {
     match: el => el.hasAttribute(INPUT_SCOPE_ATTRIBUTE),
     matchValue: el => el
   });
@@ -170,7 +171,7 @@ export const inputScopes = {
       return inputScopes.active.value.name === name;
     }
 
-    const contains: boolean = climbDomHierarchy(inputScopes.active.value.el, {
+    const contains: boolean = climbDomUntil(inputScopes.active.value.el, {
       match: el => {
         const attr = el.getAttribute(INPUT_SCOPE_ATTRIBUTE);
 

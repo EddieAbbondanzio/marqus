@@ -54,7 +54,7 @@ import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
 import { useNotebooks } from '@/store/modules/notebooks';
 import { Notebook } from '@/store/modules/notebooks/state';
 import { useGlobalNavigation } from '@/store/modules/ui/modules/global-navigation';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
+import { climbDomUntil } from '@/utils/dom/climb-dom-until';
 
 export default defineComponent({
     props: {
@@ -93,7 +93,7 @@ export default defineComponent({
              * Try to find the id of the notebook we ended on. We may need to climb the DOM
              * as target could be a nested element inside of NavigationMenuItem.
              */
-            const id = climbDomHierarchy<string>(src, {
+            const id = climbDomUntil<string>(src, {
                 match: (el) => el.classList.contains('global-navigation-notebook') && el.hasAttribute('data-id'),
                 matchValue: (el) => el.getAttribute('data-id'),
                 defaultValue: () => null
@@ -106,7 +106,7 @@ export default defineComponent({
             const src = document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement;
 
             // Get the other notebook we dragged over
-            const id = climbDomHierarchy(src, {
+            const id = climbDomUntil(src, {
                 match: (el) => el.classList.contains('global-navigation-notebook') && el.hasAttribute('data-id'),
                 matchValue: (el) => el.getAttribute('data-id')
             });

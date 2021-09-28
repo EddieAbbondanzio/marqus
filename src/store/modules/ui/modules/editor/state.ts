@@ -1,8 +1,8 @@
-import { Entity } from "@/utils/entity";
+import { Base } from "@/store/base";
 
 export type TabState = "preview" | "normal" | "dirty";
 
-export interface Tab extends Entity {
+export interface Tab extends Base {
   noteId: string;
   state: TabState;
   content: string;

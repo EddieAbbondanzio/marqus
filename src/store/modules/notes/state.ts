@@ -1,13 +1,12 @@
-import { Entity, generateId } from "@/utils/entity";
+import { Base } from "@/store/base";
+import { idSchema } from "@/utils/id";
 import { isBlank } from "@/utils/string";
 import * as yup from "yup";
 
-export interface Note extends Entity {
+export interface Note extends Base {
   name: string;
   notebooks?: string[];
   tags?: string[];
-  dateCreated: Date;
-  dateModified?: Date;
   /**
    * Was this note moved to the trash bin?
    */
@@ -23,19 +22,18 @@ export interface Note extends Entity {
   hasUnsavedChanges?: boolean;
 }
 
+export const noteNameSchema = yup
+  .string()
+  .test(v => !isBlank(v))
+  .min(1)
+  .max(128)
+  .required();
+
 export const noteSchema: yup.SchemaOf<Note> = yup
   .object()
   .shape({
-    id: yup
-      .string()
-      .optional()
-      .default(generateId),
-    name: yup
-      .string()
-      .test(v => !isBlank(v))
-      .min(1)
-      .max(128)
-      .required(),
+    id: idSchema,
+    name: noteNameSchema,
     notebooks: yup.array().default([]),
     tags: yup.array().default([]),
     dateCreated: yup.date().default(new Date()),

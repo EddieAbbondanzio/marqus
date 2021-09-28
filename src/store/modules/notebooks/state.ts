@@ -1,27 +1,27 @@
-import { Entity, generateId } from "@/utils/entity";
+import { Base } from "@/store/base";
+import { idSchema } from "@/utils/id";
 import { isBlank } from "@/utils/string";
 import * as yup from "yup";
 
-export interface Notebook extends Entity {
+export interface Notebook extends Base {
   name: string;
   parent?: Notebook;
   children?: Notebook[];
   expanded?: boolean;
 }
 
+export const notebookNameSchema = yup
+  .string()
+  .required()
+  .test(v => !isBlank(v))
+  .min(1)
+  .max(64);
+
 export const notebookSchema: yup.SchemaOf<Notebook> = yup
   .object()
   .shape({
-    id: yup
-      .string()
-      .optional()
-      .default(generateId),
-    name: yup
-      .string()
-      .required()
-      .test(v => !isBlank(v))
-      .min(1)
-      .max(64),
+    id: idSchema,
+    name: notebookNameSchema,
     parent: yup.object().optional(),
     children: yup
       .array()

@@ -70,8 +70,8 @@
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue';
 import IconButton from '@/components/buttons/IconButton.vue';
-import { climbDomHierarchy } from '@/utils/dom/climb-dom-hierarchy';
-import { isElementAboveScroll, isElementBelowScroll } from '@/utils/dom/scroll-position';
+import { climbDomUntil } from '@/utils/dom/climb-dom-until';
+import { isElementAboveScroll, isElementBelowScroll } from '@/utils/dom/scroll';
 
 export default defineComponent({
     props: {
@@ -170,7 +170,7 @@ export default defineComponent({
                  * Try to see if we are in a scrollable, and need to scroll the item into focus.
                  */
                 if (newVal) {
-                    const scrollable = climbDomHierarchy(wrapper.value, {
+                    const scrollable = climbDomUntil(wrapper.value, {
                         match: (el) => el.classList.contains('scrollable-wrapper'),
                         matchValue: (el) => el
                     });
