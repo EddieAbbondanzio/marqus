@@ -112,8 +112,8 @@ export const persist = {
       }
 
       if (state != null) {
-        store.commit(
-          `${m.settings.namespace}/${m.settings.initMutation}`,
+        store.dispatch(
+          `${m.settings.namespace}/${m.settings.setStateAction}`,
           state
         );
       }

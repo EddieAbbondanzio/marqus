@@ -2,16 +2,17 @@ export interface GlobalNavigationNotebookInput {
     id?: string;
     name: string;
     parentId?: string;
-    mode: 'create' | 'update';
+    mode: "create" | "update";
 }
 
 export type GlobalNavigationTagInput =
     | {
-          mode: 'create';
+          mode: "create";
           name: string;
+
       }
     | {
-          mode: 'update';
+          mode: "update";
           id: string;
           name: string;
       };
@@ -28,23 +29,23 @@ export interface GlobalNavigationTagSection {
 }
 
 export type GlobalNavigationItem =
-    | { section: 'all' | 'favorites' | 'trash' }
-    | { section: 'notebook' | 'tag'; id?: string };
+    | { section: "all" | "favorites" | "trash" }
+    | { section: "notebook" | "tag"; id?: string };
 
 export class GlobalNavigationState {
-    width = '300px';
+    width = "300px";
     scrollPosition = 0;
 
     notebooks: GlobalNavigationNotebookSection = {
-        expanded: false
+      expanded: false
     };
 
     tags: GlobalNavigationTagSection = {
-        expanded: false
+      expanded: false
     };
 
     active: GlobalNavigationItem = {
-        section: 'all'
+      section: "all"
     };
 
     highlight?: GlobalNavigationItem;

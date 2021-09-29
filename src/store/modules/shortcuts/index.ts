@@ -19,7 +19,7 @@ export const useShortcuts = createComposable(shortcuts);
 
 persist.register({
   namespace: "shortcuts",
-  initMutation: "SET_STATE",
+  setStateAction: "setState",
   transformer,
   reviver
 });

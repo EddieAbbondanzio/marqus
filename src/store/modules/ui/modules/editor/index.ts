@@ -1,3 +1,4 @@
+import { store } from "@/store";
 import { EditorActions } from "@/store/modules/ui/modules/editor/actions";
 import { EditorGetters } from "@/store/modules/ui/modules/editor/getters";
 import { EditorMutations } from "@/store/modules/ui/modules/editor/mutations";
@@ -16,24 +17,24 @@ export const editor = new Module({
 
 export const useEditor = createComposable(editor);
 
-/*
- * Anytime a note is clicked in the local navigation menu, open it as a tab in the editor.
- */
-mediator.subscribe("ui/localNavigation/SET_ACTIVE", ({ payload }, store) => {
-  const noteId = payload.value;
-  store.dispatch("ui/editor/openTab", noteId);
-});
+// /*
+//  * Anytime a note is clicked in the local navigation menu, open it as a tab in the editor.
+//  */
+// mediator.subscribe("ui/localNavigation/SET_ACTIVE", ({ payload }) => {
+//   const noteId = payload.value;
+//   store.dispatch("ui/editor/openTab", noteId);
+// });
 
-/*
- * Close a tab if the note was deleted.
- */
-mediator.subscribe("notes/DELETE", ({ payload }, store) => {
-  const tab = store.getters["ui/editor/byNoteId"](payload.value);
+// /*
+//  * Close a tab if the note was deleted.
+//  */
+// mediator.subscribe("notes/DELETE", ({ payload }) => {
+//   const tab = store.getters["ui/editor/byNoteId"](payload.value);
 
-  if (tab != null) {
-    store.dispatch("ui/editor/closeTab", tab.id);
-  }
-});
+//   if (tab != null) {
+//     store.dispatch("ui/editor/closeTab", tab.id);
+//   }
+// });
 
 undo.registerContext({
   name: "editor",

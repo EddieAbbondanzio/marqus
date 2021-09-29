@@ -1,7 +1,6 @@
 import { NoteGetters } from "@/store/modules/notes/getters";
 import { NoteMutations } from "@/store/modules/notes/mutations";
 import { Note, NoteState } from "@/store/modules/notes/state";
-import { ActionTree } from "vuex";
 import { Actions } from "vuex-smart-module";
 
 export class NoteActions extends Actions<
@@ -10,6 +9,10 @@ export class NoteActions extends Actions<
   NoteMutations,
   NoteActions
 > {
+  setState(state: NoteState) {
+    this.commit("SET_STATE", state);
+  }
+
   toggleFavorite(note: Note) {
     if (note.favorited) {
       this.commit("UNFAVORITE", note);

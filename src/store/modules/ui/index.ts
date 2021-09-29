@@ -40,7 +40,7 @@ export type PersistedUserInterfaceState = RecursivePartial<{
 persist.register({
   namespace: "ui",
   fileName: "ui.json",
-  initMutation: "SET_STATE",
+  setStateAction: "setState",
   reviver: (s: PersistedUserInterfaceState) => {
     /*
         * These are intentionally written verbose. Smaller granular checks

@@ -2,10 +2,11 @@ import { persist } from "@/store/plugins/persist/persist";
 import {
   fixNotebookParentReferences,
   killNotebookParentReferences
+  , NotebookState
 } from "@/store/modules/notebooks/state";
 import { createComposable, Module } from "vuex-smart-module";
 import { NotebookActions } from "@/store/modules/notebooks/actions";
-import { NotebookState } from "@/store/modules/notebooks/state";
+
 import { NotebookMutations } from "@/store/modules/notebooks/mutations";
 import { NotebookGetters } from "@/store/modules/notebooks/getters";
 import { undo } from "@/store/plugins/undo";
@@ -22,7 +23,7 @@ export const useNotebooks = createComposable(notebooks);
 
 persist.register({
   namespace: "notebooks",
-  initMutation: "SET_STATE",
+  setStateAction: "setState",
   reviver: (s: NotebookState) => {
     for (const n of s.values) {
       fixNotebookParentReferences(n);

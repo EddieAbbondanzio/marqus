@@ -37,6 +37,10 @@ export class GlobalNavigationActions extends Actions<
     this.undo = undo.getModule({ name: "globalNavigation" });
   }
 
+  setState(state: GlobalNavigationState) {
+    this.commit("SET_STATE", state);
+  }
+
   setActive(a: GlobalNavigationItem) {
     // Stop if we're setting the same item active
     if (_.isEqual(this.state.active, a)) {

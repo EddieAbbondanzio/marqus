@@ -8,4 +8,8 @@ export class TagActions extends Actions<
   TagGetters,
   TagMutations,
   TagActions
-> {}
+> {
+  setState(state: TagState) {
+    this.commit("SET_STATE", state);
+  }
+}

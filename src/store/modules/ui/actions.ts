@@ -9,6 +9,10 @@ export class UserInterfaceActions extends Actions<
   UserInterfaceMutations,
   UserInterfaceActions
 > {
+  setState(state: UserInterfaceState) {
+    this.commit("SET_STATE", state);
+  }
+
   cursorDraggingStart() {
     this.commit("SET_CURSOR_ICON", "grabbing");
     this.commit("CURSOR_DRAGGING", true);

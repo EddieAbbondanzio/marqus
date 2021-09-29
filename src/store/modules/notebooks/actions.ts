@@ -9,6 +9,10 @@ export class NotebookActions extends Actions<
   NotebookMutations,
   NotebookActions
 > {
+  setState(state: NotebookState) {
+    this.commit("SET_STATE", state);
+  }
+
   setExpanded({
     notebook,
     expanded,

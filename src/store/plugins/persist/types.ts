@@ -28,7 +28,7 @@ export interface PersistModuleSettings {
   /**
    * Mutation to initialize store state. This will be commited after the json file of the store is loaded and revived.
    */
-  initMutation: string;
+  setStateAction: string;
   /**
    * Custom serialization handler. Will be called instead of the default handler that writes a JSON file.
    */

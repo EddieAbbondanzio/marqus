@@ -155,7 +155,7 @@ export const useNotes = createComposable(notes);
 
 persist.register({
   namespace: "notes",
-  initMutation: "SET_STATE",
+  setStateAction: "setState",
   serialize,
   deserialize
 });

@@ -59,9 +59,7 @@ export class LocalNavigationMutations extends Mutations<LocalNavigationState> {
           break;
         }
       }
-    }
-    // Update
-    else {
+    } else {
       this.state.notes.input = {
         id: note.id,
         name: note.name,

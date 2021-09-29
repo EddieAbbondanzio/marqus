@@ -3,7 +3,8 @@
         <div class="has-h-100 has-text-dark  is-size-7" style="min-width: 0px;">
             <!-- Header -->
             <!-- <div -->
-            <!-- class="is-flex is-flex-grow-1 is-justify-space-between is-align-center has-border-bottom-0 p-1 has-background-light" -->
+            <!-- class="is-flex is-flex-grow-1 is-justify-space-between is-align-center
+            has-border-bottom-0 p-1 has-background-light" -->
             <!-- > -->
             <!-- <LocalNavigationSearchBar /> -->
             <!-- <IconButton icon="fa-plus" size="is-small" @click="create" /> -->

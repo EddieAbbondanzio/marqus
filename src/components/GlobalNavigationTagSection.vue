@@ -65,7 +65,7 @@ import { useTags } from "@/store/modules/tags";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { shortcuts } from "@/utils/shortcuts";
 import { commandHistory } from "@/utils/commands";
-import { TestCommand } from "@/utils/commands/global-navigation/create-tag-command";
+import { CreateTagCommand } from "@/utils/commands/global-navigation";
 
 export default defineComponent({
   setup: function () {
@@ -91,7 +91,7 @@ export default defineComponent({
     shortcuts.subscribe("globalNavigationCreateTag", () => globalNav.actions.tagInputStart());
 
     const createTag = () => {
-      commandHistory.execute(new TestCommand());
+      commandHistory.execute(new CreateTagCommand());
     };
 
     return {

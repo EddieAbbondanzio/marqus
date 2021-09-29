@@ -31,6 +31,10 @@ export class EditorActions extends Actions<
     this.undoContext = undo.getModule({ name: "editor" });
   }
 
+  setState(state: EditorState) {
+    this.commit("SET_STATE", state);
+  }
+
   createTag(t: { id: string; name: string }) {
     // this.tags.commit('CREATE', {
     //     value: t,

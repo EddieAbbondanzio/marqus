@@ -27,6 +27,10 @@ export class LocalNavigationActions extends Actions<
     this.undoContext = undo.getModule({ name: "localNavigation" });
   }
 
+  setState(state: LocalNavigationState) {
+    this.commit("SET_STATE", state);
+  }
+
   setActive(id: string) {
     this.commit("SET_ACTIVE", { value: id });
   }
@@ -121,24 +125,24 @@ export class LocalNavigationActions extends Actions<
     const confirm = await confirmDeleteOrTrash("note", note.name);
 
     switch (confirm) {
-      case "delete":
-        // permanent wasn't a joke.
-        this.notes.commit("DELETE", note);
-        break;
+    case "delete":
+      // permanent wasn't a joke.
+      this.notes.commit("DELETE", note);
+      break;
 
-      case "trash":
-        // this.undoContext.group((_undo) => {
-        //     this.notes.commit('MOVE_TO_TRASH', {
-        //         value: note,
-        //         _undo: {
-        //             ..._undo,
-        //             undoCallback: (ctx) =>
-        //                 this.notes.commit('RESTORE_FROM_TRASH', { value: ctx.mutation.payload.value }),
-        //             redoCallback: (ctx) => ctx.replayMutation()
-        //         }
-        //     });
-        // });
-        break;
+    case "trash":
+      // this.undoContext.group((_undo) => {
+      //     this.notes.commit('MOVE_TO_TRASH', {
+      //         value: note,
+      //         _undo: {
+      //             ..._undo,
+      //             undoCallback: (ctx) =>
+      //                 this.notes.commit('RESTORE_FROM_TRASH', { value: ctx.mutation.payload.value }),
+      //             redoCallback: (ctx) => ctx.replayMutation()
+      //         }
+      //     });
+      // });
+      break;
     }
   }
 

@@ -9,7 +9,8 @@
             :style="`height: 30px; padding-left: ${indent}!important`"
         >
             <Field :name="fieldName" v-model="inputValue" v-slot="{ field }" :rules="rules">
-                <!-- Padding and margin is adjusted to get the text within the input to match perfectly to a menu item. -->
+                <!-- Padding and margin is adjusted to get the text within
+                the input to match perfectly to a menu item. -->
                 <input
                     id="inputField"
                     :class="
@@ -19,7 +20,8 @@
                     "
                     type="text"
                     v-bind="field"
-                    style="height: 21px!important; min-width: 0; width: 0; flex-grow: 1; padding: 2px 0px!important; margin-left: -2px!important; margin-top: -1px!important"
+                    style="height: 21px!important; min-width: 0; width: 0; flex-grow: 1; padding: 2px 0px!important;
+                    margin-left: -2px!important; margin-top: -1px!important"
                     v-focus
                     @blur="onBlur"
                     @keydown.space.stop
