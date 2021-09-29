@@ -2,7 +2,7 @@ import { ActionPayload, Store } from "vuex";
 
 let release: () => void;
 
-type Subscriber = (action: ActionPayload) => any;
+type Subscriber = {handler: (action: ActionPayload) => any, once?: boolean };
 
 export const mediator = {
   subscribers: {} as { [mutationType: string]: Subscriber[] },
@@ -19,22 +19,33 @@ export const mediator = {
     }
 
     for (let i = 0; i < subsToNotify.length; i++) {
-      subsToNotify[i](p);
+      const sub = subsToNotify[i];
+
+      sub.handler(p);
+
+      if (sub.once) {
+        subsToNotify.splice(i, 1);
+      }
     }
   },
 
-  subscribe(mutationType: string, fn: Subscriber) {
-    if (this.subscribers[mutationType] == null) {
-      this.subscribers[mutationType] = [fn];
+  subscribe(actionType: string, sub: Subscriber["handler"]) {
+    if (this.subscribers[actionType] == null) {
+      this.subscribers[actionType] = [{ handler: sub }];
     } else {
       // Do we have a duplicate?
-      const existing = this.subscribers[mutationType].find((s) => s === fn);
+      const existing = this.subscribers[actionType].find((s) => s.handler === sub);
       if (existing != null) {
-        throw Error(`Duplicate mediator subscriber detected for mutation type ${mutationType}`);
+        throw Error(`Duplicate mediator subscriber detected for action type ${actionType}`);
       }
 
-      this.subscribers[mutationType].push(fn);
+      this.subscribers[actionType].push({ handler: sub });
     }
+  },
+
+  subscribeOnce(actionType: string, sub: Subscriber["handler"]) {
+    this.subscribers[actionType] ??= [];
+    this.subscribers[actionType].push({ handler: sub, once: true });
   },
 
   release() {

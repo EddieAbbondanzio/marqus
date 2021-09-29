@@ -43,4 +43,16 @@ describe("mediator plugin", () => {
       expect(called).toHaveBeenCalled();
     });
   });
+
+  describe("notifyOnce()", () => {
+    it("only notifies once", () => {
+      const handler = jest.fn();
+      mediator.subscribeOnce("foo", handler);
+
+      mediator.notify({ type: "foo", payload: null! });
+      mediator.notify({ type: "foo", payload: null! });
+
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
+  });
 });
