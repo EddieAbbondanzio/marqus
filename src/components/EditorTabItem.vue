@@ -21,74 +21,72 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
-import DeleteButton from '@/components/buttons/DeleteButton.vue';
-import { useEditor } from '@/store/modules/ui/modules/editor';
-import { Tab } from '@/store/modules/ui/modules/editor/state';
-import { climbDomUntil } from '@/utils/dom/climb-dom-until';
+import { computed, defineComponent } from "vue";
+import DeleteButton from "@/components/buttons/DeleteButton.vue";
+import { useEditor } from "@/store/modules/ui/modules/editor";
+import { Tab } from "@/store/modules/ui/modules/editor/state";
+import { climbDomForMatch } from "@/utils/dom";
 
 export default defineComponent({
-    props: {
-        modelValue: Object,
-        index: Number
-    },
-    setup: (p) => {
-        const editor = useEditor();
+  props: {
+    modelValue: Object,
+    index: Number
+  },
+  setup: (p) => {
+    const editor = useEditor();
 
-        const onClick = () => editor.actions.openTab(p.modelValue!.noteId);
+    const onClick = () => editor.actions.openTab(p.modelValue!.noteId);
 
-        const onMoveStart = () => editor.actions.tabDragStart(p.modelValue as Tab);
+    const onMoveStart = () => editor.actions.tabDragStart(p.modelValue as Tab);
 
-        const onMoveEnd = (e: MouseEvent) => {
-            const endedOnElement: HTMLElement | null = document.elementFromPoint(e.x, e.y) as HTMLElement | null;
+    const onMoveEnd = (e: MouseEvent) => {
+      const endedOnElement: HTMLElement | null = document.elementFromPoint(e.x, e.y) as HTMLElement | null;
 
-            if (endedOnElement == null) {
-                editor.actions.tabDragCancel();
-                return;
-            }
+      if (endedOnElement == null) {
+        editor.actions.tabDragCancel();
+        return;
+      }
 
-            const tabContainer = climbDomUntil(endedOnElement, {
-                match: (e) => e.id === 'editor-tabs',
-                matchValue: (e) => e
-            });
+      const tabContainer = climbDomForMatch(endedOnElement, (e) => e.id === "editor-tabs",
+        { matchValue: e => e });
 
-            // If we can't find the tab container, we didn't finish our drag within it. Stop.
-            if (tabContainer == null) {
-                return;
-            }
+      // If we can't find the tab container, we didn't finish our drag within it. Stop.
+      if (tabContainer == null) {
+        return;
+      }
 
-            const endedAtXPositioned = e.offsetX;
-            const tabs = document.querySelectorAll('#editor-tabs .editor-tab');
+      const endedAtXPositioned = e.offsetX;
+      const tabs = document.querySelectorAll("#editor-tabs .editor-tab");
 
-            let tabIndex = 0;
-            let tabXPosition = 0;
+      let tabIndex = 0;
+      let tabXPosition = 0;
 
-            // Find the index of the last tab to the left of the drag end position based off local x coordinate.
-            while (tabXPosition < endedAtXPositioned && tabs.length > tabIndex) {
-                const tab = tabs.item(tabIndex) as HTMLElement;
-                const box = tab.getBoundingClientRect();
+      // Find the index of the last tab to the left of the drag end position based off local x coordinate.
+      while (tabXPosition < endedAtXPositioned && tabs.length > tabIndex) {
+        const tab = tabs.item(tabIndex) as HTMLElement;
+        const box = tab.getBoundingClientRect();
 
-                tabXPosition += box.width;
-                tabIndex++;
-            }
+        tabXPosition += box.width;
+        tabIndex++;
+      }
 
-            // Gotta minus 1 since the loop incremented preemptively.
-            tabIndex--;
+      // Gotta minus 1 since the loop incremented preemptively.
+      tabIndex--;
 
-            editor.actions.tabDragStop(tabIndex);
-        };
+      editor.actions.tabDragStop(tabIndex);
+    };
 
-        return {
-            onClick,
-            onMoveStart,
-            onMoveEnd,
-            closeTab: editor.actions.closeTab,
-            tabs: computed(() => editor.state.tabs),
-            noteName: editor.getters.noteName,
-            isTabActive: editor.getters.isTabActive
-        };
-    },
-    components: { DeleteButton }
+    return {
+      onClick,
+      onMoveStart,
+      onMoveEnd,
+      closeTab: editor.actions.closeTab,
+      tabs: computed(() => editor.state.tabs),
+      noteName: editor.getters.noteName,
+      isTabActive: editor.getters.isTabActive
+    };
+  },
+  components: { DeleteButton }
 });
 </script>
 

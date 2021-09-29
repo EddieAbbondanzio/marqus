@@ -1,5 +1,5 @@
 import { GlobalNavigationState, GlobalNavigationItem } from "./state";
-import { Actions, Context, Mutations } from "vuex-smart-module";
+import { Actions, Context } from "vuex-smart-module";
 import { GlobalNavigationGetters } from "@/store/modules/ui/modules/global-navigation/getters";
 import { GlobalNavigationMutations } from "@/store/modules/ui/modules/global-navigation/mutations";
 import { tags } from "@/store/modules/tags";
@@ -8,9 +8,10 @@ import { notes } from "@/store/modules/notes";
 import _ from "lodash";
 import { Store } from "vuex";
 import { undo, UndoModule } from "@/store/plugins/undo";
-import { confirmDelete } from "@/utils/prompts/confirm-delete";
+import { confirmDelete, confirmReplaceNotebook } from "@/utils/prompts";
 import { Notebook } from "@/store/modules/notebooks/state";
-import { confirmReplaceNotebook } from "@/utils/prompts/confirm-replace-notebook";
+import { Tag } from "@/store/modules/tags/state";
+import { generateId } from "@/utils";
 
 export class GlobalNavigationActions extends Actions<
   GlobalNavigationState,
@@ -50,44 +51,44 @@ export class GlobalNavigationActions extends Actions<
       let notebook: Notebook;
 
       switch (this.state.highlight?.section) {
-        case "notebook":
-          if (this.state.highlight.id == null) {
-            commit("SET_NOTEBOOKS_EXPANDED", !this.state.notebooks.expanded);
-          } else {
-            notebook = this.contexts.notebooks.getters.byId(
-              this.state.highlight.id
-            )!;
-            if (notebook.children == null || notebook.children.length === 0) {
-              return;
-            }
+      case "notebook":
+        if (this.state.highlight.id == null) {
+          commit("SET_NOTEBOOKS_EXPANDED", !this.state.notebooks.expanded);
+        } else {
+          notebook = this.contexts.notebooks.getters.byId(
+            this.state.highlight.id
+          )!;
+          if (notebook.children == null || notebook.children.length === 0) {
+            return;
+          }
 
-            commit(() =>
-              this.contexts.notebooks.commit("SET_EXPANDED", {
-                notebook,
-                expanded: !notebook.expanded,
-                bubbleUp: false
-              })
-            );
-          }
-          break;
-        case "tag":
-          if (this.state.highlight.id == null) {
-            this.commit("SET_TAGS_EXPANDED", !this.state.tags.expanded);
-          }
-          break;
+          commit(() =>
+            this.contexts.notebooks.commit("SET_EXPANDED", {
+              notebook,
+              expanded: !notebook.expanded,
+              bubbleUp: false
+            })
+          );
+        }
+        break;
+      case "tag":
+        if (this.state.highlight.id == null) {
+          this.commit("SET_TAGS_EXPANDED", !this.state.tags.expanded);
+        }
+        break;
       }
     });
   }
 
   clearHighlight() {
-    // this.commit('SET_HIGHLIGHT', { value: undefined! });
+    this.commit("CLEAR_HIGHLIGHT");
   }
 
   moveHighlightUp() {
     const next = this.getters.previousItem();
 
     if (!_.isEqual(this.state.highlight, next)) {
-      // this.commit('SET_HIGHLIGHT', { value: next });
+      this.commit("SET_HIGHLIGHT", next);
     }
   }
 
@@ -95,44 +96,44 @@ export class GlobalNavigationActions extends Actions<
     const next = this.getters.nextItem();
 
     if (!_.isEqual(this.state.highlight, next)) {
-      // this.commit('SET_HIGHLIGHT', { value: next });
+      this.commit("SET_HIGHLIGHT", next);
     }
   }
 
   setWidth(width: string) {
-    // this.commit('SET_WIDTH', { value: width, _undo: { ignore: true } });
+    this.commit("SET_WIDTH", width);
   }
 
   setScrollPosition(scrollPos: number) {
-    // this.commit('SET_SCROLL_POSITION', { value: scrollPos });
+    this.commit("SET_SCROLL_POSITION", scrollPos);
   }
 
   scrollUp(pixels = 30) {
-    const value = Math.max(this.state.scrollPosition - pixels, 0);
-    // this.commit('SET_SCROLL_POSITION', { value });
+    const newScrollPos = Math.max(this.state.scrollPosition - pixels, 0);
+    this.commit("SET_SCROLL_POSITION", newScrollPos);
   }
 
   scrollDown(pixels = 30) {
-    const value = Math.max(this.state.scrollPosition + pixels, 0);
-    // this.commit('SET_SCROLL_POSITION', { value });
+    const newScrollPos = Math.max(this.state.scrollPosition + pixels, 0);
+    this.commit("SET_SCROLL_POSITION", newScrollPos);
   }
 
-  tagInputStart({ id }: { id?: string } = {}) {
+  tagInputStart(id?: string) {
     // Stop if we already have an input in progress.
     if (this.state.tags.input?.mode != null) {
       // return;
     }
 
     // this.undo.group((_undo) => {
-    //     this.commit('SET_TAGS_EXPANDED', { value: true, _undo });
+    this.commit("SET_TAGS_EXPANDED", true);
 
-    //     if (id != null) {
-    //         const tag = this.contexts.tags.getters.byId(id, { required: true });
+    if (id != null) {
+      const tag = this.contexts.tags.getters.byId(id, { required: true });
 
-    //         this.commit('START_TAGS_INPUT', { value: { id: tag?.id, value: tag?.name }, _undo });
-    //     } else {
-    //         this.commit('START_TAGS_INPUT', { value: undefined, _undo });
-    //     }
+      this.commit("START_TAGS_INPUT", { id: tag?.id, value: tag?.name });
+    } else {
+      this.commit("START_TAGS_INPUT");
+    }
     // });
 
     // this.undo.setRollbackPoint();
@@ -140,76 +141,33 @@ export class GlobalNavigationActions extends Actions<
 
   tagInputUpdated(value: string) {
     if (value === this.state.tags.input?.name) {
-      // return;
+      return;
     }
 
-    // this.commit('SET_TAGS_INPUT', { value });
+    this.commit("SET_TAGS_INPUT", value);
   }
 
   tagInputConfirm() {
     // this.undo.group((_undo) => {
-    //     const input = this.state.tags.input;
-    //     let existing: Tag;
-    //     // this.contexts.tags.commit('CREATE', {
-    //     //     value: { id: generateId(), name: input!.name },
-    //     //     _undo: {
-    //     //         undoCallback: (ctx) => ctx.replayMutation(),
-    //     //         redoCallback: (ctx) => {
-    //     //             ctx.replayMutation();
-    //     //             this.commit('SET_TAGS_EXPANDED', true);
-    //     //         }
-    //     //     }
-    //     // });
-    //     this.commit('SET_TAGS_EXPANDED', true, {});
-    //     switch (input?.mode) {
-    //         case 'create':
-    //             this.contexts.tags.commit('CREATE', {
-    //                 value: { id: generateId(), name: input.name },
-    //                 _undo: {
-    //                     ..._undo,
-    //                     undoCallback: (ctx) => {
-    //                         this.contexts.tags.commit('DELETE', { value: ctx.value });
-    //                         this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
-    //                     },
-    //                     redoCallback: (ctx) => {
-    //                         ctx.replayMutation();
-    //                         this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
-    //                     }
-    //                 }
-    //             });
-    //             break;
-    //         case 'update':
-    //             existing = this.contexts.tags.getters.byId(input.id, { required: true });
-    //             this.contexts.tags.commit('SET_NAME', {
-    //                 value: { tag: existing, newName: input.name },
-    //                 _undo: {
-    //                     ..._undo,
-    //                     cache: { oldName: existing.name },
-    //                     // We have to trigger callbacks on modules that aren't tracked by undo.
-    //                     undoCallback: (m) => {
-    //                         console.log(
-    //                             'UNDO NAME. newName: ',
-    //                             m.payload.value.newName,
-    //                             ' old name: ',
-    //                             m.payload._undo.cache.oldName
-    //                         );
-    //                         this.contexts.tags.commit('SET_NAME', {
-    //                             value: { tag: m.payload.value.tag, newName: m.payload._undo.cache.oldName }
-    //                         });
-    //                         this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
-    //                     },
-    //                     redoCallback: (m) => {
-    //                         this.contexts.tags.commit('SET_NAME', {
-    //                             value: { tag: m.payload.value.tag, newName: m.payload.value.newName }
-    //                         });
-    //                         this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
-    //                     }
-    //                 }
-    //             });
-    //             break;
-    //     }
-    //     this.contexts.tags.commit('SORT', { _undo });
-    //     this.commit('CLEAR_TAGS_INPUT', { _undo });
+    const input = this.state.tags.input;
+    let existing: Tag;
+
+    this.commit("SET_TAGS_EXPANDED", true, {});
+    switch (input?.mode) {
+    case "create":
+      this.contexts.tags.commit("CREATE", {
+        id: generateId(), name: input.name
+      });
+      break;
+
+    case "update":
+      existing = this.contexts.tags.getters.byId(input.id, { required: true });
+      this.contexts.tags.commit("RENAME",
+        { tag: existing, newName: input.name });
+      break;
+    }
+    this.contexts.tags.commit("SORT");
+    this.commit("CLEAR_TAGS_INPUT");
     // });
     // this.undo.releaseRollbackPoint();
   }
@@ -223,42 +181,11 @@ export class GlobalNavigationActions extends Actions<
     const tag = this.contexts.tags.getters.byId(id, { required: true });
 
     if (await confirmDelete("tag", tag.name)) {
-      // await this.undo.group(async (_undo) => {
-      //     _undo.cache = { id, value: tag.name };
-      //     this.contexts.tags.commit('DELETE', {
-      //         value: tag,
-      //         _undo: {
-      //             ..._undo,
-      //             undoCallback: (m) => {
-      //                 this.contexts.tags.commit('CREATE', {
-      //                     value: { id: m.payload._undo.cache.id, name: m.payload._undo.cache.value }
-      //                 });
-      //                 this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
-      //             },
-      //             redoCallback: (m) => {
-      //                 this.contexts.tags.commit('DELETE', {
-      //                     value: m.payload._undo.cache.id
-      //                 });
-      //                 this.commit('SET_TAGS_EXPANDED', { value: true, _undo: { ignore: true } });
-      //             }
-      //         }
-      //     });
-      //     // Find out what notes had the tag so we can cache it.
-      //     const notesWithTag = this.contexts.notes.getters.notesByTag(id);
-      //     _undo.cache.noteIds = notesWithTag.map((n) => n.id);
-      //     this.contexts.notes.commit('REMOVE_TAG', {
-      //         value: { tagId: id },
-      //         _undo: {
-      //             ..._undo,
-      //             undoCallback: (m) =>
-      //                 this.contexts.notes.commit('ADD_TAG', {
-      //                     value: { note: m.payload._undo.cache.noteIds, tagId: m.payload.value.tagId },
-      //                     _undo: { ignore: true }
-      //                 }),
-      //             redoCallback: (m) =>
-      //                 this.contexts.notes.commit('REMOVE_TAG', { value: m.payload.value, _undo: { ignore: true } })
-      //         }
-      //     });
+      this.contexts.tags.commit("DELETE", tag);
+
+      // Find out what notes had the tag so we can cache it.
+      // const notesWithTag = this.contexts.notes.getters.notesByTag(id);
+      this.contexts.notes.commit("REMOVE_TAG", { tagId: id });
       // });
     }
   }
@@ -300,7 +227,7 @@ export class GlobalNavigationActions extends Actions<
   }
 
   setTagsExpanded(expanded: boolean) {
-    // this.commit('SET_TAGS_EXPANDED', { value: expanded });
+    this.commit("SET_TAGS_EXPANDED", expanded);
   }
 
   notebookInputStart({
@@ -341,7 +268,7 @@ export class GlobalNavigationActions extends Actions<
       };
     }
 
-    const _undo = { ignore: true };
+    // const _undo = { ignore: true };
 
     // this.commit('START_NOTEBOOKS_INPUT', { value: p, _undo });
     // this.commit('SET_NOTEBOOKS_EXPANDED', { value: true, _undo: { ignore: true } });
@@ -472,7 +399,7 @@ export class GlobalNavigationActions extends Actions<
       // });
 
       // Find out what notebooks had the tag so we can cache it.
-      const notesWithNotebook = this.contexts.notes.getters.notesByNotebook(id);
+      // const notesWithNotebook = this.contexts.notes.getters.notesByNotebook(id);
       // _undo.cache.noteIds = notesWithNotebook.map((n) => n.id);
 
       // this.contexts.notes.commit('REMOVE_NOTEBOOK', {

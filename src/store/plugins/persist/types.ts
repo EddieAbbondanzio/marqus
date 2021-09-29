@@ -1,4 +1,4 @@
-import { TaskScheduler } from "@/utils/task-scheduler";
+import { TaskScheduler } from "@/utils";
 import { MutationPayload, Commit } from "vuex";
 
 /**

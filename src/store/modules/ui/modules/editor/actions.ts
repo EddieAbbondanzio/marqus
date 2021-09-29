@@ -1,6 +1,5 @@
 import {
   EditorState,
-  EditorMode,
   Tab
 } from "@/store/modules/ui/modules/editor/state";
 import { Actions, Context } from "vuex-smart-module";
@@ -11,7 +10,7 @@ import { Store } from "vuex";
 import { undo, UndoModule } from "@/store/plugins/undo";
 import { tags } from "@/store/modules/tags";
 import { notebooks } from "@/store/modules/notebooks";
-import { confirmDeleteOrTrash } from "@/utils/prompts/confirm-delete-or-trash";
+import { confirmDeleteOrTrash } from "@/utils/prompts";
 
 export class EditorActions extends Actions<
   EditorState,
@@ -132,23 +131,23 @@ export class EditorActions extends Actions<
     const confirm = await confirmDeleteOrTrash("note", activeNote.name);
 
     switch (confirm) {
-      case "delete":
-        // permanent wasn't a joke.
-        this.notes.commit("DELETE", activeNote);
-        break;
+    case "delete":
+      // permanent wasn't a joke.
+      this.notes.commit("DELETE", activeNote);
+      break;
 
-      case "trash":
-        // this.undoContext.group((_undo) => {
-        //     this.notes.commit('MOVE_TO_TRASH', {
-        //         value: activeNote,
-        //         _undo: {
-        //             ..._undo,
-        //             undoCallback: (m) => this.notes.commit('RESTORE_FROM_TRASH', { value: m.payload.value }),
-        //             redoCallback: (m) => this.notes.commit('MOVE_TO_TRASH', { value: m.payload.value })
-        //         }
-        //     });
-        // });
-        break;
+    case "trash":
+      // this.undoContext.group((_undo) => {
+      //     this.notes.commit('MOVE_TO_TRASH', {
+      //         value: activeNote,
+      //         _undo: {
+      //             ..._undo,
+      //             undoCallback: (m) => this.notes.commit('RESTORE_FROM_TRASH', { value: m.payload.value }),
+      //             redoCallback: (m) => this.notes.commit('MOVE_TO_TRASH', { value: m.payload.value })
+      //         }
+      //     });
+      // });
+      break;
     }
   }
 
@@ -185,13 +184,13 @@ export class EditorActions extends Actions<
     }
 
     switch (this.state.mode) {
-      case "readonly":
-        this.commit("SET_EDITOR_MODE", { value: "edit" });
-        break;
+    case "readonly":
+      this.commit("SET_EDITOR_MODE", { value: "edit" });
+      break;
 
-      case "edit":
-        this.commit("SET_EDITOR_MODE", { value: "readonly" });
-        break;
+    case "edit":
+      this.commit("SET_EDITOR_MODE", { value: "readonly" });
+      break;
     }
   }
 }

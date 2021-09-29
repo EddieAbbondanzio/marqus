@@ -1,5 +1,4 @@
-import { KeyCode } from "@/utils/shortcuts/key-code";
-import { Shortcut } from "@/utils/shortcuts/shortcut";
+import { KeyCode, Shortcut } from "@/utils/shortcuts";
 
 describe("Shortcut {}", () => {
   describe("ctor", () => {

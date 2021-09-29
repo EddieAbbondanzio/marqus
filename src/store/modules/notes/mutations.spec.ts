@@ -1,6 +1,5 @@
 import { NoteMutations } from "@/store/modules/notes/mutations";
 import { Note, NoteState } from "@/store/modules/notes/state";
-import { generateId } from "@/utils/id";
 import { inject } from "vuex-smart-module";
 
 describe("Note mutations", () => {

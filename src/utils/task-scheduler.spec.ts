@@ -1,10 +1,11 @@
-import { TaskScheduler } from "@/utils/task-scheduler";
+import { TaskScheduler } from "@/utils";
 
 describe("TaskScheduler", () => {
   describe("ctor()", () => {
     it("throws if queue size is less than 1.", () => {
       expect(() => {
-        new TaskScheduler(0);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const ts = new TaskScheduler(0);
       }).toThrow();
     });
 

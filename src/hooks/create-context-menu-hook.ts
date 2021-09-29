@@ -1,5 +1,5 @@
 import { CONTEXT_MENU_ATTRIBUTE } from "@/directives/context-menu";
-import { climbDomUntil } from "@/utils/dom/climb-dom-until";
+import { climbDomForMatch } from "@/utils/dom";
 import contextMenu from "electron-context-menu";
 import { onBeforeUnmount, onMounted } from "vue";
 
@@ -22,10 +22,10 @@ export function createContextMenuHook(
         shouldShowMenu: (e, p) => {
           const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
 
-          const menuName = climbDomUntil(element, {
-            match: el => el.hasAttribute(CONTEXT_MENU_ATTRIBUTE),
-            matchValue: el => el.getAttribute(CONTEXT_MENU_ATTRIBUTE)
-          });
+          const menuName = climbDomForMatch(
+            element, el => el.hasAttribute(CONTEXT_MENU_ATTRIBUTE),
+            { matchValue: el => el.getAttribute(CONTEXT_MENU_ATTRIBUTE) }
+          );
 
           return menuName === name;
         }

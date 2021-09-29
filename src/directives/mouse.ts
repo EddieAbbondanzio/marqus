@@ -11,7 +11,7 @@ export const mouseObjectManager = new MouseObjectManager();
  * Expects a value of {click: () => any, hold: () => any, release: () => any}.
  */
 export const mouse = {
-  beforeMount: function(el: any, binding: DirectiveBinding) {
+  beforeMount: function (el: any, binding: DirectiveBinding) {
     const action = getAction(binding.arg);
     const callback = getCallback(binding.value);
     const button = getButton(binding.modifiers);
@@ -28,7 +28,7 @@ export const mouse = {
     el.mouseObject = obj;
   },
 
-  unmounted: function(el: HTMLElement, binding: DirectiveBinding) {
+  unmounted: function (el: HTMLElement, binding: DirectiveBinding) {
     const obj = mouseObjectManager.get(el);
 
     if (obj == null) {

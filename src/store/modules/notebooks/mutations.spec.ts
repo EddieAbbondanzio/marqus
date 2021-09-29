@@ -1,6 +1,6 @@
 import { NotebookMutations } from "@/store/modules/notebooks/mutations";
 import { NotebookState } from "@/store/modules/notebooks/state";
-import { generateId } from "@/utils/id";
+import { generateId } from "@/utils";
 import { inject } from "vuex-smart-module";
 
 describe("Notebook mutations", () => {

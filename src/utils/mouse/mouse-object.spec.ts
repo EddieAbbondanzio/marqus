@@ -1,6 +1,4 @@
-import { MouseObject } from "@/utils/mouse/mouse-object";
-import { MouseObjectManager } from "@/utils/mouse/mouse-object-manager";
-import { MouseObjectSubscriber } from "@/utils/mouse/mouse-object-subscriber";
+import { MouseObject, MouseObjectManager, MouseObjectSubscriber } from "@/utils/mouse";
 
 describe("MouseObject", () => {
   const mouseObjectManager = new MouseObjectManager();

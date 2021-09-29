@@ -1,4 +1,4 @@
-import { ShortcutSubscriber } from "@/utils/shortcuts/shortcut-subscriber";
+import { ShortcutSubscriber } from "@/utils/shortcuts";
 
 describe("ShortcutSubscriber", () => {
   describe("notify()", () => {

@@ -57,64 +57,64 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent} from 'vue';
-import Resizable from '@/components/layout/Resizable.vue';
-import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
-import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
-import { useLocalNavigationContextMenu } from '@/hooks/use-local-navigation-context-menu';
-import { useNotes } from '@/store/modules/notes';
-import { Note } from '@/store/modules/notes/state';
-import { useLocalNavigation } from '@/store/modules/ui/modules/local-navigation';
-import { inputScopes } from '@/utils/scopes';
-import { shortcuts } from '@/utils/shortcuts/shortcuts';
+import { computed, defineComponent } from "vue";
+import Resizable from "@/components/layout/Resizable.vue";
+import NavigationMenuItem from "@/components/navigation/NavigationMenuItem.vue";
+import NavigationMenuForm from "@/components/navigation/NavigationMenuForm.vue";
+import { useLocalNavigationContextMenu } from "@/hooks/use-local-navigation-context-menu";
+import { useNotes } from "@/store/modules/notes";
+import { Note } from "@/store/modules/notes/state";
+import { useLocalNavigation } from "@/store/modules/ui/modules/local-navigation";
+import { inputScopes } from "@/utils";
+import { shortcuts } from "@/utils/shortcuts";
 
 export default defineComponent({
-    setup: function() {
-        const localNav = useLocalNavigation();
-        const notes = useNotes();
+  setup: function () {
+    const localNav = useLocalNavigation();
+    const notes = useNotes();
 
-        const width = computed({
-            get: () => localNav.state.width,
-            set: localNav.actions.widthUpdated
-        });
+    const width = computed({
+      get: () => localNav.state.width,
+      set: localNav.actions.widthUpdated
+    });
 
-        const input = computed({
-            get: () => localNav.state.notes.input!.name,
-            set: localNav.actions.noteInputUpdate
-        });
+    const input = computed({
+      get: () => localNav.state.notes.input!.name,
+      set: localNav.actions.noteInputUpdate
+    });
 
-        const formRules = {
-            required: true,
-            unique: [() => notes.state.values, (n: Note) => n.id, (n: Note) => n.name, () => localNav.state.notes.input]
-        };
+    const formRules = {
+      required: true,
+      unique: [() => notes.state.values, (n: Note) => n.id, (n: Note) => n.name, () => localNav.state.notes.input]
+    };
 
-        shortcuts.subscribe('focusLocalNavigation', () => {
-            inputScopes.focus({ name: 'localNavigation' });
-        });
+    shortcuts.subscribe("focusLocalNavigation", () => {
+      inputScopes.focus({ name: "localNavigation" });
+    });
 
-        useLocalNavigationContextMenu();
+    useLocalNavigationContextMenu();
 
-        return {
-            width,
-            input,
-            formRules,
-            isNoteBeingCreated: computed(() => localNav.getters.isNoteBeingCreated),
-            isNoteBeingUpdated: computed(() => localNav.getters.isNoteBeingUpdated),
-            activeNotes: computed(() => localNav.getters.activeNotes),
-            isActive: computed(() => localNav.getters.isActive),
-            confirm: localNav.actions.noteInputConfirm,
-            cancel: localNav.actions.noteInputCancel,
-            create: localNav.actions.noteInputStart,
-            setActive: localNav.actions.setActive
-        };
-    },
-    components: {
-        Resizable,
-        // LocalNavigationSearchBar,
-        // IconButton,
-        NavigationMenuItem,
-        NavigationMenuForm
-    }
+    return {
+      width,
+      input,
+      formRules,
+      isNoteBeingCreated: computed(() => localNav.getters.isNoteBeingCreated),
+      isNoteBeingUpdated: computed(() => localNav.getters.isNoteBeingUpdated),
+      activeNotes: computed(() => localNav.getters.activeNotes),
+      isActive: computed(() => localNav.getters.isActive),
+      confirm: localNav.actions.noteInputConfirm,
+      cancel: localNav.actions.noteInputCancel,
+      create: localNav.actions.noteInputStart,
+      setActive: localNav.actions.setActive
+    };
+  },
+  components: {
+    Resizable,
+    // LocalNavigationSearchBar,
+    // IconButton,
+    NavigationMenuItem,
+    NavigationMenuForm
+  }
 });
 </script>
 

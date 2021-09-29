@@ -1,17 +1,18 @@
 import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { store } from "@/store";
 import { Note } from "@/store/modules/notes/state";
-import { climbDomUntil } from "@/utils/dom/climb-dom-until";
+import { climbDomForMatch } from "@/utils/dom";
 
 export const useLocalNavigationContextMenu = createContextMenuHook(
   "localNavigation",
   (_, p) => {
     const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
 
-    const id = climbDomUntil<string>(element, {
-      match: el => el.hasAttribute("data-id"),
-      matchValue: el => el.getAttribute("data-id")
-    });
+    const id = climbDomForMatch(
+      element,
+      el => el.hasAttribute("data-id"),
+      { matchValue: el => el.getAttribute("data-id") }
+    );
 
     // we can inject menu items as needed. This is called each time we right click
     const items = [] as any[];

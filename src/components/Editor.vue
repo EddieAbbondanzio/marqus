@@ -19,37 +19,37 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, } from 'vue';
-import EditorTabs from '@/components/EditorTabs.vue';
-import EditorToolbar from '@/components/EditorToolbar.vue';
-import MarkdownEditor from '@/components/MarkdownEditor.vue';
-import MarkdownRenderer from '@/components/MarkdownRenderer.vue';
-import { inputScopes } from '@/utils/scopes';
-import { useEditor } from '@/store/modules/ui/modules/editor';
-import { shortcuts } from '@/utils/shortcuts/shortcuts';
+import { computed, defineComponent } from "vue";
+import EditorTabs from "@/components/EditorTabs.vue";
+import EditorToolbar from "@/components/EditorToolbar.vue";
+import MarkdownEditor from "@/components/MarkdownEditor.vue";
+import MarkdownRenderer from "@/components/MarkdownRenderer.vue";
+import { inputScopes } from "@/utils";
+import { useEditor } from "@/store/modules/ui/modules/editor";
+import { shortcuts } from "@/utils/shortcuts";
 
 export default defineComponent({
-    setup: () => {
-        const editor = useEditor();
+  setup: () => {
+    const editor = useEditor();
 
-        shortcuts.subscribe('focusEditor', () => {
-            inputScopes.focus({ name: 'editor' });
-        });
+    shortcuts.subscribe("focusEditor", () => {
+      inputScopes.focus({ name: "editor" });
+    });
 
-        return {
-            isEmpty: computed(() => editor.getters.isEmpty),
-            activeTab: computed(() => editor.getters.activeTab),
-            mode: computed(() => editor.state.mode),
-            isFocus: computed(() => editor.state.isFocus),
-            focused: inputScopes.active
-        };
-    },
-    components: {
-        EditorToolbar,
-        EditorTabs,
-        MarkdownEditor,
-        MarkdownRenderer
-    }
+    return {
+      isEmpty: computed(() => editor.getters.isEmpty),
+      activeTab: computed(() => editor.getters.activeTab),
+      mode: computed(() => editor.state.mode),
+      isFocus: computed(() => editor.state.isFocus),
+      focused: inputScopes.active
+    };
+  },
+  components: {
+    EditorToolbar,
+    EditorTabs,
+    MarkdownEditor,
+    MarkdownRenderer
+  }
 });
 </script>
 

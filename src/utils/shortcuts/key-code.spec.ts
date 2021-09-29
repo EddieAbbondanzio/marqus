@@ -3,7 +3,7 @@ import {
   isModifier,
   KeyCode,
   isValidKeyCode
-} from "@/utils/shortcuts/key-code";
+} from "@/utils/shortcuts";
 
 describe("parseKey()", () => {
   it("returns space", () => {

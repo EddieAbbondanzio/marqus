@@ -1,4 +1,3 @@
-import { DEFAULT_SHORTCUTS } from "@/utils/shortcuts/default-shortcuts";
 import { KeyCode, parseKey } from "@/utils/shortcuts/key-code";
 import { Shortcut } from "@/utils/shortcuts/shortcut";
 import {

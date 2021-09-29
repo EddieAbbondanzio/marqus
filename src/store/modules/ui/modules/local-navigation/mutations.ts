@@ -1,5 +1,4 @@
-import { generateId } from "@/utils/id";
-import { MutationTree } from "vuex";
+import { generateId } from "@/utils";
 import { Mutations } from "vuex-smart-module";
 import { LocalNavigationState } from "./state";
 
@@ -51,13 +50,13 @@ export class LocalNavigationMutations extends Mutations<LocalNavigationState> {
         typeof globalNavigationActive !== "string"
       ) {
         switch (globalNavigationActive.type) {
-          case "notebook":
-            this.state.notes.input.notebooks = [globalNavigationActive.id];
-            break;
+        case "notebook":
+          this.state.notes.input.notebooks = [globalNavigationActive.id];
+          break;
 
-          case "tag":
-            this.state.notes.input.tags = [globalNavigationActive.id];
-            break;
+        case "tag":
+          this.state.notes.input.tags = [globalNavigationActive.id];
+          break;
         }
       }
     }

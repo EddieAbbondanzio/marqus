@@ -1,6 +1,6 @@
 import { TagMutations } from "@/store/modules/tags/mutations";
 import { TagState } from "@/store/modules/tags/state";
-import { generateId } from "@/utils/id";
+import { generateId } from "@/utils";
 import { inject } from "vuex-smart-module";
 
 describe("Tag mutations", () => {

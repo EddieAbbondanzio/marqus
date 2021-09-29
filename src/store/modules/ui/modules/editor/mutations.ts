@@ -4,7 +4,7 @@ import {
   Tab,
   TabState
 } from "@/store/modules/ui/modules/editor/state";
-import { generateId } from "@/utils/id";
+import { generateId } from "@/utils";
 import { Mutations } from "vuex-smart-module";
 
 // Temp bandaid

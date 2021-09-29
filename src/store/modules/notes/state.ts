@@ -1,6 +1,5 @@
 import { Base } from "@/store/base";
-import { idSchema } from "@/utils/id";
-import { isBlank } from "@/utils/string";
+import { idSchema, isBlank } from "@/utils";
 import * as yup from "yup";
 
 export interface Note extends Base {

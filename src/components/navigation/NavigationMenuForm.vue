@@ -52,94 +52,94 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
-import { Field, ErrorMessage, Form } from 'vee-validate';
-import { isBlank } from '@/utils/string';
+import { computed, defineComponent, onBeforeUnmount, onMounted } from "vue";
+import { Field, ErrorMessage, Form } from "vee-validate";
+import { isBlank } from "@/utils";
 
 /**
  * Inline form for creating values in nav menus that only have 1
  * field to populate.
  */
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: String,
-            default: ''
-        },
-        indent: {
-            type: String,
-            default: '0px'
-        },
-        fieldName: {
-            type: String,
-            default: 'Field'
-        },
-        rules: {
-            type: Object,
-            default: () => ({})
+  props: {
+    modelValue: {
+      type: String,
+      default: ""
+    },
+    indent: {
+      type: String,
+      default: "0px"
+    },
+    fieldName: {
+      type: String,
+      default: "Field"
+    },
+    rules: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  directives: {
+    focus: {
+      mounted(el, binding, vnode) {
+        el.focus();
+      }
+    }
+  },
+  setup(p, c) {
+    let isClean = true;
+    let submitted = false; // Used to prevent double submissions
+
+    const inputValue = computed({
+      get: () => p.modelValue,
+      set: (v) => {
+        // Dont' go any further if it's the same.
+        if (v !== p.modelValue) {
+          c.emit("update:modelValue", v);
+          isClean = false;
+          submitted = false;
         }
-    },
-    directives: {
-        focus: {
-            mounted(el, binding, vnode) {
-                el.focus();
-            }
-        }
-    },
-    setup(p, c) {
-        let isClean = true;
-        let submitted = false; // Used to prevent double submissions
+      }
+    });
 
-        const inputValue = computed({
-            get: () => p.modelValue,
-            set: (v) => {
-                // Dont' go any further if it's the same.
-                if (v !== p.modelValue) {
-                    c.emit('update:modelValue', v);
-                    isClean = false;
-                    submitted = false;
-                }
-            }
-        });
+    // When input is blurred, check to see if it was empty. If it was empty, cancel.
+    const onBlur = (e: any) => {
+      if (isBlank(inputValue.value)) {
+        c.emit("cancel");
+      } else if (!submitted) {
+        c.emit("submit");
+        submitted = true;
+      }
+    };
 
-        // When input is blurred, check to see if it was empty. If it was empty, cancel.
-        const onBlur = (e: any) => {
-            if (isBlank(inputValue.value)) {
-                c.emit('cancel');
-            } else if (!submitted) {
-                c.emit('submit');
-                submitted = true;
-            }
-        };
+    const onCancel = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        c.emit("cancel");
+      }
+    };
 
-        const onCancel = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                c.emit('cancel');
-            }
-        };
+    const onSubmit = () => {
+      if (!submitted) {
+        c.emit("submit");
+        submitted = true;
+      }
+    };
 
-        const onSubmit = () => {
-            if (!submitted) {
-                c.emit('submit');
-                submitted = true;
-            }
-        };
+    onMounted(() => {
+      window.addEventListener("keyup", onCancel);
+    });
 
-        onMounted(() => {
-            window.addEventListener('keyup', onCancel);
-        });
+    onBeforeUnmount(() => {
+      window.removeEventListener("keyup", onCancel);
+    });
 
-        onBeforeUnmount(() => {
-            window.removeEventListener('keyup', onCancel);
-        });
-
-        return {
-            inputValue,
-            onBlur,
-            onSubmit
-        };
-    },
-    emits: ['submit', 'cancel', 'update:modelValue'],
-    components: { Field, ErrorMessage, Form }
+    return {
+      inputValue,
+      onBlur,
+      onSubmit
+    };
+  },
+  emits: ["submit", "cancel", "update:modelValue"],
+  components: { Field, ErrorMessage, Form }
 });
 </script>

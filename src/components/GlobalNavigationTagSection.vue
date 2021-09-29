@@ -56,55 +56,62 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, nextTick } from 'vue';
-import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
-import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
-import IconButton from '@/components/buttons/IconButton.vue';
-import { useTagValidation } from '@/hooks/use-tag-validation';
-import { useTags } from '@/store/modules/tags';
-import { useGlobalNavigation } from '@/store/modules/ui/modules/global-navigation';
-import { shortcuts } from '@/utils/shortcuts/shortcuts';
+import { computed, defineComponent } from "vue";
+import NavigationMenuItem from "@/components/navigation/NavigationMenuItem.vue";
+import NavigationMenuForm from "@/components/navigation/NavigationMenuForm.vue";
+import IconButton from "@/components/buttons/IconButton.vue";
+import { useTagValidation } from "@/hooks/use-tag-validation";
+import { useTags } from "@/store/modules/tags";
+import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
+import { shortcuts } from "@/utils/shortcuts";
+import { commandHistory } from "@/utils/commands";
+import { TestCommand } from "@/utils/commands/global-navigation/create-tag-command";
 
 export default defineComponent({
-    setup: function() {
-        const globalNav = useGlobalNavigation();
-        const tags = useTags();
+  setup: function () {
+    const globalNav = useGlobalNavigation();
+    const tags = useTags();
 
-        const expanded = computed({
-            get: () => globalNav.state.tags.expanded,
-            set: (v: any) => {
-                globalNav.dispatch('setTagsExpanded', v);
-            }
-        });
+    const expanded = computed({
+      get: () => globalNav.state.tags.expanded,
+      set: (v: any) => {
+        globalNav.dispatch("setTagsExpanded", v);
+      }
+    });
 
-        const input = computed({
-            get: () => globalNav.state.tags.input!.name,
-            set: (v: string) => {
-                globalNav.dispatch('tagInputUpdated', v);
-            }
-        });
+    const input = computed({
+      get: () => globalNav.state.tags.input!.name,
+      set: (v: string) => {
+        globalNav.dispatch("tagInputUpdated", v);
+      }
+    });
 
-        const formRules = useTagValidation(() => globalNav.state.tags.input);
+    const formRules = useTagValidation(() => globalNav.state.tags.input);
 
-        shortcuts.subscribe('globalNavigationCreateTag', () => globalNav.actions.tagInputStart());
+    shortcuts.subscribe("globalNavigationCreateTag", () => globalNav.actions.tagInputStart());
 
-        return {
-            expanded,
-            input,
-            formRules,
-            tags: computed(() => tags.state.values),
-            confirm: globalNav.actions.tagInputConfirm,
-            cancel: globalNav.actions.tagInputCancel,
-            setActive: globalNav.actions.setActive,
-            createTag: globalNav.actions.tagInputStart,
-            isTagBeingUpdated: computed(() => globalNav.getters.isTagBeingUpdated),
-            isTagBeingCreated: computed(() => globalNav.getters.isTagBeingCreated),
-            indentation: computed(() => globalNav.getters.indentation),
-            isActive: computed(() => globalNav.getters.isActive),
-            isHighlighted: computed(() => globalNav.getters.isHighlighted),
-            count: computed(() => `${tags.getters.count} ${tags.getters.count === 1 ? 'tag' : 'tags'}`)
-        };
-    },
-    components: { NavigationMenuItem, NavigationMenuForm, IconButton }
+    const createTag = () => {
+      commandHistory.execute(new TestCommand());
+    };
+
+    return {
+      expanded,
+      input,
+      formRules,
+      tags: computed(() => tags.state.values),
+      confirm: globalNav.actions.tagInputConfirm,
+      cancel: globalNav.actions.tagInputCancel,
+      setActive: globalNav.actions.setActive,
+      createTag,
+      // createTag: globalNav.actions.tagInputStart,
+      isTagBeingUpdated: computed(() => globalNav.getters.isTagBeingUpdated),
+      isTagBeingCreated: computed(() => globalNav.getters.isTagBeingCreated),
+      indentation: computed(() => globalNav.getters.indentation),
+      isActive: computed(() => globalNav.getters.isActive),
+      isHighlighted: computed(() => globalNav.getters.isHighlighted),
+      count: computed(() => `${tags.getters.count} ${tags.getters.count === 1 ? "tag" : "tags"}`)
+    };
+  },
+  components: { NavigationMenuItem, NavigationMenuForm, IconButton }
 });
 </script>

@@ -1,4 +1,4 @@
-import { getButton } from "@/utils/mouse/mouse-button";
+import { getButton } from "@/utils/mouse";
 
 describe("getButton", () => {
   it("returns left for 0", () => {

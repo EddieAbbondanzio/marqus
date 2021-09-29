@@ -1,6 +1,4 @@
-import { KeyCode } from "@/utils/shortcuts/key-code";
-import { Shortcut } from "@/utils/shortcuts/shortcut";
-import { shortcuts, _onKeyDown, _onKeyUp } from "@/utils/shortcuts/shortcuts";
+import { KeyCode, Shortcut, shortcuts, _onKeyDown, _onKeyUp } from "@/utils/shortcuts";
 
 describe("_onKeyDown", () => {
   beforeEach(() => {

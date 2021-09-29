@@ -5,12 +5,12 @@ export type Task = () => Promise<any>;
  * Useful for preventing race conditions.
  */
 export class TaskScheduler {
-    /**
+  /**
      * Does the scheduler have tasks waiting to be executed?
      */
-    get hasTasks(): boolean {
-        return this.queue.length > 0;
-    }
+  get hasTasks(): boolean {
+    return this.queue.length > 0;
+  }
 
     /**
      * If the scheduler is currently running a task.
@@ -20,41 +20,41 @@ export class TaskScheduler {
     private queue: Task[];
 
     constructor(public queueSize: number) {
-        if (queueSize <= 0) {
-            throw Error('Queue size must be 1 or greater.');
-        }
+      if (queueSize <= 0) {
+        throw Error("Queue size must be 1 or greater.");
+      }
 
-        this.queue = [];
+      this.queue = [];
     }
 
     async schedule(task: Task): Promise<void> {
-        // Ensure the queue isn't too long, before adding another task.
-        if (this.queue.length >= this.queueSize) {
-            return;
-        }
+      // Ensure the queue isn't too long, before adding another task.
+      if (this.queue.length >= this.queueSize) {
+        return;
+      }
 
-        this.queue.push(task);
+      this.queue.push(task);
 
-        // Start a task if we haven't yet.
-        if (!this.hasActiveTask) {
-            this.startNext();
-        }
+      // Start a task if we haven't yet.
+      if (!this.hasActiveTask) {
+        this.startNext();
+      }
     }
 
     private async startNext() {
-        if (!this.hasTasks) {
-            throw Error('No next task to start.');
-        }
+      if (!this.hasTasks) {
+        throw Error("No next task to start.");
+      }
 
-        const t = this.queue.shift()!;
+      const t = this.queue.shift()!;
 
-        this.hasActiveTask = true;
-        await t();
-        this.hasActiveTask = false;
+      this.hasActiveTask = true;
+      await t();
+      this.hasActiveTask = false;
 
-        // Keep going?
-        if (this.hasTasks) {
-            this.startNext();
-        }
+      // Keep going?
+      if (this.hasTasks) {
+        this.startNext();
+      }
     }
 }

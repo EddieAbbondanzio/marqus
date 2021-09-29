@@ -1,5 +1,4 @@
-import { MouseObject } from "@/utils/mouse/mouse-object";
-import { MouseObjectManager } from "@/utils/mouse/mouse-object-manager";
+import { MouseObject, MouseObjectManager } from "@/utils/mouse/";
 import { store } from "@/store";
 
 describe("MouseObjectManager", () => {

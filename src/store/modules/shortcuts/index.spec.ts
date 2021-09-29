@@ -1,6 +1,4 @@
-import { DEFAULT_SHORTCUTS } from "@/utils/shortcuts/default-shortcuts";
-import { KeyCode } from "@/utils/shortcuts/key-code";
-import { Shortcut } from "@/utils/shortcuts/shortcut";
+import { DEFAULT_SHORTCUTS, KeyCode, Shortcut } from "@/utils/shortcuts";
 import { reviver, transformer } from "@/store/modules/shortcuts";
 import { ShortcutState } from "@/store/modules/shortcuts/state";
 

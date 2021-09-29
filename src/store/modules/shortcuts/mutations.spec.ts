@@ -1,6 +1,4 @@
-import { KeyCode } from "@/utils/shortcuts/key-code";
-import { Shortcut } from "@/utils/shortcuts/shortcut";
-import { shortcuts } from "@/utils/shortcuts/shortcuts";
+import { KeyCode, Shortcut, shortcuts } from "@/utils/shortcuts";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { ShortcutState } from "@/store/modules/shortcuts/state";
 import { inject } from "vuex-smart-module";

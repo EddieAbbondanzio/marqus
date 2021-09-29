@@ -1,25 +1,19 @@
-import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { store } from "@/store";
-import { climbDomUntil } from "@/utils/dom/climb-dom-until";
+import { climbDomForMatch } from "@/utils/dom";
 
 export const useGlobalNavigationContextMenu = createContextMenuHook(
   "globalNavigation",
-  (_, p) => {
+  (c, p) => {
     const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
+    const isElementNotebook = climbDomForMatch(element, el => el.classList.contains("global-navigation-notebook"));
+    const isElementTag = climbDomForMatch(element, el => el.classList.contains("global-navigation-tag"));
 
-    const isElementNotebook = climbDomUntil<boolean>(element, {
-      match: el => el.classList.contains("global-navigation-notebook")
-    });
-
-    const isElementTag = climbDomUntil<boolean>(element, {
-      match: el => el.classList.contains("global-navigation-tag")
-    });
-
-    const id = climbDomUntil<string>(element, {
-      match: el => el.hasAttribute("data-id"),
-      matchValue: el => el.getAttribute("data-id")
-    });
+    const id = climbDomForMatch(
+      element,
+      el => el.hasAttribute("data-id"),
+      { matchValue: el => el.getAttribute("data-id") }
+    );
 
     // we can inject menu items as needed. This is called each time we right click
     const items = [

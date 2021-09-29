@@ -3,7 +3,7 @@ import {
   isValidKeyCode,
   KeyCode
 } from "@/utils/shortcuts/key-code";
-import _, { trim } from "lodash";
+import _ from "lodash";
 
 export const SHORTCUT_STRING_DELIMITER = "+";
 

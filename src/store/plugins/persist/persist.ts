@@ -3,7 +3,7 @@ import { TaskScheduler } from "@/utils/task-scheduler";
 import { MutationPayload, Store } from "vuex";
 import * as _ from "lodash";
 import { PersistModule, PersistModuleSettings } from "./types";
-import { splitMutationAndNamespace } from "@/utils/vuex";
+import { splitMutationAndNamespace } from "@/utils";
 
 let release: () => void;
 
@@ -14,7 +14,7 @@ export const persist = {
   modules: [] as PersistModule[],
   plugin(store: Store<any>): any {
     release = store.subscribe(
-      function(this: typeof persist, p: MutationPayload, s: any): void {
+      function (this: typeof persist, p: MutationPayload, s: any): void {
         const [namespace, mutation] = splitMutationAndNamespace(p.type);
 
         // See if we can find a subscriber first

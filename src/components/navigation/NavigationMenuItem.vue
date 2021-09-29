@@ -68,148 +68,146 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue';
-import IconButton from '@/components/buttons/IconButton.vue';
-import { climbDomUntil } from '@/utils/dom/climb-dom-until';
-import { isElementAboveScroll, isElementBelowScroll } from '@/utils/dom/scroll';
+import { computed, defineComponent, onBeforeUnmount, Ref, ref, watch } from "vue";
+import IconButton from "@/components/buttons/IconButton.vue";
+import { climbDomForMatch, isElementAboveScroll, isElementBelowScroll } from "@/utils/dom";
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * If the background color of the item should be shaded to indicate
          * this is the active menu option
          */
-        active: {
-            type: Boolean,
-            default: false
-        },
-        highlight: {
-            type: Boolean,
-            default: false
-        },
-        /**
+    active: {
+      type: Boolean,
+      default: false
+    },
+    highlight: {
+      type: Boolean,
+      default: false
+    },
+    /**
          * Icon to display to the left of the label.
          */
-        icon: {
-            type: String,
-            default: ''
-        },
-        /**
+    icon: {
+      type: String,
+      default: ""
+    },
+    /**
          * Text label to describe the item
          */
-        label: {
-            type: String,
-            default: ''
-        },
-        /**
+    label: {
+      type: String,
+      default: ""
+    },
+    /**
          * If the items children are expanded, and visible.
          */
-        expanded: {
-            type: Boolean,
-            default: false
-        },
-        /**
+    expanded: {
+      type: Boolean,
+      default: false
+    },
+    /**
          * Indentation to the left of the icon / label. Used to indicate
          * level of depth in menu heirarchy.
          */
-        indent: {
-            type: String,
-            default: '0px'
-        },
-        /**
+    indent: {
+      type: String,
+      default: "0px"
+    },
+    /**
          * Hide the icon (or spacer) on the nav item so the label doesn't
          * have a huge gap to the left of it.
          */
-        hideIcon: {
-            type: Boolean,
-            default: false
-        },
-        /**
+    hideIcon: {
+      type: Boolean,
+      default: false
+    },
+    /**
          * If the expand / collapse trigger should be hidden.
          */
-        hideToggle: {
-            type: Boolean,
-            default: false
-        },
-        /**
+    hideToggle: {
+      type: Boolean,
+      default: false
+    },
+    /**
          * If the item should be expanded / collapsed from anywhere by clicking it.
          */
-        toggleAnywhere: {
-            type: Boolean,
-            default: false
-        }
-    },
-    setup(p, { slots, emit }) {
-        /*
+    toggleAnywhere: {
+      type: Boolean,
+      default: false
+    }
+  },
+  setup(p, { slots, emit }) {
+    /*
          * Expanded prop is optional, so we need to create a local variable
          * to store state in, in case no prop was passed.
          */
-        const localExpanded = ref(p.expanded);
-        const hasChildren = computed(() => !!slots.default);
+    const localExpanded = ref(p.expanded);
+    const hasChildren = computed(() => !!slots.default);
 
-        const toggle = () => {
-            localExpanded.value = !localExpanded.value;
-            emit('update:expanded', localExpanded.value);
-        };
+    const toggle = () => {
+      localExpanded.value = !localExpanded.value;
+      emit("update:expanded", localExpanded.value);
+    };
 
-        const isExpanded = () => localExpanded.value;
+    const isExpanded = () => localExpanded.value;
 
-        const wrapper = ref(null!) as Ref<HTMLDivElement>;
+    const wrapper = ref(null!) as Ref<HTMLDivElement>;
 
-        const releaseWatchExpanded = watch(
-            () => p.expanded,
-            () => {
-                localExpanded.value = p.expanded;
-            }
-        );
+    const releaseWatchExpanded = watch(
+      () => p.expanded,
+      () => {
+        localExpanded.value = p.expanded;
+      }
+    );
 
-        const releaseWatchHighlight = watch(
-            () => p.highlight,
-            (newVal) => {
-                /*
+    const releaseWatchHighlight = watch(
+      () => p.highlight,
+      (newVal) => {
+        /*
                  * Try to see if we are in a scrollable, and need to scroll the item into focus.
                  */
-                if (newVal) {
-                    const scrollable = climbDomUntil(wrapper.value, {
-                        match: (el) => el.classList.contains('scrollable-wrapper'),
-                        matchValue: (el) => el
-                    });
+        if (newVal) {
+          const scrollable = climbDomForMatch(wrapper.value, el => el.classList.contains("scrollable-wrapper"),
+            { matchValue: el => el }
+          );
 
-                    if (scrollable == null) {
-                        return;
-                    }
+          if (scrollable == null) {
+            return;
+          }
 
-                    if (isElementAboveScroll(scrollable, wrapper.value)) {
-                        wrapper.value.scrollIntoView();
-                    } else if (isElementBelowScroll(scrollable, wrapper.value)) {
-                        wrapper.value.scrollIntoView(false);
-                    }
-                }
-            }
-        );
+          if (isElementAboveScroll(scrollable, wrapper.value)) {
+            wrapper.value.scrollIntoView();
+          } else if (isElementBelowScroll(scrollable, wrapper.value)) {
+            wrapper.value.scrollIntoView(false);
+          }
+        }
+      }
+    );
 
-        const onClick = () => {
-            if (p.toggleAnywhere) {
-                toggle();
-            }
-        };
+    const onClick = () => {
+      if (p.toggleAnywhere) {
+        toggle();
+      }
+    };
 
-        onBeforeUnmount(() => {
-            releaseWatchExpanded();
-            releaseWatchHighlight();
-        });
+    onBeforeUnmount(() => {
+      releaseWatchExpanded();
+      releaseWatchHighlight();
+    });
 
-        return {
-            hasChildren,
-            toggle,
-            isExpanded,
-            onClick,
-            wrapper
-        };
-    },
-    name: 'menu-item',
-    emits: ['update:expanded'],
-    components: { IconButton }
+    return {
+      hasChildren,
+      toggle,
+      isExpanded,
+      onClick,
+      wrapper
+    };
+  },
+  name: "menu-item",
+  emits: ["update:expanded"],
+  components: { IconButton }
 });
 </script>
 

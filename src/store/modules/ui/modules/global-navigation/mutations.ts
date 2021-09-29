@@ -1,4 +1,3 @@
-import { MutationTree } from "vuex";
 import {
   GlobalNavigationState,
   GlobalNavigationItem
@@ -18,6 +17,10 @@ export class GlobalNavigationMutations extends Mutations<
 
   SET_HIGHLIGHT(item: GlobalNavigationItem) {
     this.state.highlight = item;
+  }
+
+  CLEAR_HIGHLIGHT() {
+    delete this.state.highlight;
   }
 
   SET_WIDTH(width: string) {

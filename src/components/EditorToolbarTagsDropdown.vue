@@ -69,104 +69,103 @@ import { useNotes } from "@/store/modules/notes";
 import { useTags } from "@/store/modules/tags";
 import { Tag } from "@/store/modules/tags/state";
 import { useEditor } from "@/store/modules/ui/modules/editor";
-import { generateId } from "@/utils/id";
-import { isBlank } from "@/utils/string";
+import { generateId, isBlank } from "@/utils";
 
 export default defineComponent({
-    setup: function (p, c) {
-        const editor = useEditor();
-        const tags = useTags();
-        const notes = useNotes();
+  setup: function (p, c) {
+    const editor = useEditor();
+    const tags = useTags();
+    const notes = useNotes();
 
-        const note = computed(() => editor.getters.activeNote!);
-        const selectedTags = computed(() => tags.getters.tagsForNote(note.value));
+    const note = computed(() => editor.getters.activeNote!);
+    const selectedTags = computed(() => tags.getters.tagsForNote(note.value));
 
-        const input = ref("");
+    const input = ref("");
 
-        const unusedValues = computed(() => {
-            const unused = tags.state.values.filter((v: any) => !selectedTags.value.some((s: any) => s.id === v.id));
+    const unusedValues = computed(() => {
+      const unused = tags.state.values.filter((v: any) => !selectedTags.value.some((s: any) => s.id === v.id));
 
-            // Add the create option as needed
-            if (
-                !isBlank(input.value) &&
+      // Add the create option as needed
+      if (
+        !isBlank(input.value) &&
                 !tags.state.values.some((t) => t.name.toLowerCase() === input.value.toLowerCase())
-            ) {
-                unused.push({
-                    id: "",
-                    created: new Date(),
-                    name: `Create new tag '${input.value}'`
-                });
-            }
-
-            return unused;
+      ) {
+        unused.push({
+          id: "",
+          created: new Date(),
+          name: `Create new tag '${input.value}'`
         });
+      }
 
-        const onSubmit = (add: (v: any) => void, tag?: Tag) => {
-            // Handle easy case of clicking a pre-existing tag
-            if (tag != null) {
-                add(tag);
-                return;
-            }
+      return unused;
+    });
 
-            // Stop if we already have it selected. Prevents duplicates
-            if (selectedTags.value.some((v: any) => v.value === input.value)) {
-                return;
-            }
+    const onSubmit = (add: (v: any) => void, tag?: Tag) => {
+      // Handle easy case of clicking a pre-existing tag
+      if (tag != null) {
+        add(tag);
+        return;
+      }
 
-            // Determine if it's a create, or add existing.
-            const existing: any = unusedValues.value.find(
-                (v: any) => v.value.toLowerCase() === input.value.toLowerCase()
-            );
+      // Stop if we already have it selected. Prevents duplicates
+      if (selectedTags.value.some((v: any) => v.value === input.value)) {
+        return;
+      }
 
-            if (existing != null) {
-                add(existing);
-            } else {
-                const tag = {
-                    id: generateId(),
-                    name: input.value
-                };
+      // Determine if it's a create, or add existing.
+      const existing: any = unusedValues.value.find(
+        (v: any) => v.value.toLowerCase() === input.value.toLowerCase()
+      );
 
-                editor.actions.createTag(tag);
-                add(tag);
-            }
-
-            input.value = "";
+      if (existing != null) {
+        add(existing);
+      } else {
+        const tag = {
+          id: generateId(),
+          name: input.value
         };
 
-        const active = computed({
-            get: () => editor.getters.activeTab?.tagDropdownVisible ?? false,
-            set: (v) => {
-                editor.actions.setTagsDropdownVisible(v);
-                inputScopes.focus({ name: "tagListBuilder" });
-            }
-        });
+        editor.actions.createTag(tag);
+        add(tag);
+      }
 
-        const onAdd = (t: Tag) => notes.dispatch("addTag", { note: note.value, tagId: t.id });
-        const onRemove = (t: Tag) => notes.dispatch("removeTag", { note: note.value, tagId: t.id });
+      input.value = "";
+    };
 
-        const { unique, ...rules } = useTagValidation();
+    const active = computed({
+      get: () => editor.getters.activeTab?.tagDropdownVisible ?? false,
+      set: (v) => {
+        editor.actions.setTagsDropdownVisible(v);
+        inputScopes.focus({ name: "tagListBuilder" });
+      }
+    });
 
-        return {
-            input,
-            unusedValues,
-            onAdd,
-            onRemove,
-            onSubmit,
-            active,
-            selectedTags,
-            tags: computed(() => tags.state.values),
-            note: computed(() => editor.getters.activeNote),
-            tagsForNote: computed(() => tags.getters.tagsForNote),
-            rules
-        };
-    },
-    components: {
-        EditorToolbarDropdown,
-        ListBuilder,
-        InputField,
-        Form,
-        ErrorMessage,
-        Autocomplete
-    }
+    const onAdd = (t: Tag) => notes.dispatch("addTag", { note: note.value, tagId: t.id });
+    const onRemove = (t: Tag) => notes.dispatch("removeTag", { note: note.value, tagId: t.id });
+
+    const { unique, ...rules } = useTagValidation();
+
+    return {
+      input,
+      unusedValues,
+      onAdd,
+      onRemove,
+      onSubmit,
+      active,
+      selectedTags,
+      tags: computed(() => tags.state.values),
+      note: computed(() => editor.getters.activeNote),
+      tagsForNote: computed(() => tags.getters.tagsForNote),
+      rules
+    };
+  },
+  components: {
+    EditorToolbarDropdown,
+    ListBuilder,
+    InputField,
+    Form,
+    ErrorMessage,
+    Autocomplete
+  }
 });
 </script>

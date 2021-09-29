@@ -1,10 +1,10 @@
 import { nextTick, Ref, ref } from "vue";
-import { climbDomUntil } from "./dom/climb-dom-until";
+import { climbDomForMatch } from "./dom";
 import { generateId } from "./id";
 
 /*
- * These types had to be moved to a seperate file otherwise we create a circular dependency issue that causes the compiler
- * to throw a TypeError X is not a constructor error.
+ * These types had to be moved to a seperate file otherwise we create a circular dependency
+ * issue that causes the compiler to throw a TypeError X is not a constructor error.
  */
 
 export const INPUT_SCOPE_ATTRIBUTE = "data-focusable";
@@ -19,9 +19,7 @@ export class InputScope {
   ) {}
 
   containsElement(element: HTMLElement): boolean {
-    return climbDomUntil(element, {
-      match: el => el.getAttribute(INPUT_SCOPE_ATTRIBUTE) === this.id
-    });
+    return climbDomForMatch(element, el => el.getAttribute(INPUT_SCOPE_ATTRIBUTE) === this.id);
   }
 }
 
@@ -33,10 +31,8 @@ const scopes: InputScope[] = [];
  */
 function onFocusIn(event: FocusEvent) {
   // We might need to climb up the dom tree to handle nested children of a scope.
-  const scopeEl = climbDomUntil(event.target as HTMLElement, {
-    match: el => el.hasAttribute(INPUT_SCOPE_ATTRIBUTE),
-    matchValue: el => el
-  });
+  const scopeEl = climbDomForMatch(event.target as HTMLElement, el => el.hasAttribute(INPUT_SCOPE_ATTRIBUTE),
+    { matchValue: el => el });
 
   if (scopeEl == null) {
     inputScopes.active.value = null;
@@ -171,21 +167,20 @@ export const inputScopes = {
       return inputScopes.active.value.name === name;
     }
 
-    const contains: boolean = climbDomUntil(inputScopes.active.value.el, {
-      match: el => {
-        const attr = el.getAttribute(INPUT_SCOPE_ATTRIBUTE);
+    const contains: boolean = climbDomForMatch(inputScopes.active.value.el, el => {
+      const attr = el.getAttribute(INPUT_SCOPE_ATTRIBUTE);
 
-        if (attr != null) {
-          const scope = scopes.find(f => f.id === attr);
+      if (attr != null) {
+        const scope = scopes.find(f => f.id === attr);
 
-          if (scope != null && scope.id === attr) {
-            return true;
-          }
+        if (scope != null && scope.id === attr) {
+          return true;
         }
-
-        return false;
       }
-    });
+
+      return false;
+    }
+    );
 
     return contains;
   },

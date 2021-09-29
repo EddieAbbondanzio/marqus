@@ -37,71 +37,71 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
-import GlobalNavigationNotebook from '@/components/GlobalNavigationNotebook.vue';
-import NavigationMenuForm from '@/components/navigation/NavigationMenuForm.vue';
-import NavigationMenuItem from '@/components/navigation/NavigationMenuItem.vue';
-import IconButton from '@/components/buttons/IconButton.vue';
-import { useNotebooks } from '@/store/modules/notebooks';
-import { Notebook } from '@/store/modules/notebooks/state';
-import { useGlobalNavigation } from '@/store/modules/ui/modules/global-navigation';
-import { shortcuts } from '@/utils/shortcuts/shortcuts';
+import { computed, defineComponent } from "vue";
+import GlobalNavigationNotebook from "@/components/GlobalNavigationNotebook.vue";
+import NavigationMenuForm from "@/components/navigation/NavigationMenuForm.vue";
+import NavigationMenuItem from "@/components/navigation/NavigationMenuItem.vue";
+import IconButton from "@/components/buttons/IconButton.vue";
+import { useNotebooks } from "@/store/modules/notebooks";
+import { Notebook } from "@/store/modules/notebooks/state";
+import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
+import { shortcuts } from "@/utils/shortcuts";
 
 export default defineComponent({
-    setup: function() {
-        const globalNav = useGlobalNavigation();
-        const notebooks = useNotebooks();
+  setup: function () {
+    const globalNav = useGlobalNavigation();
+    const notebooks = useNotebooks();
 
-        const expanded = computed({
-            get: () => globalNav.state.notebooks.expanded,
-            set: globalNav.actions.setNotebooksExpanded
-        });
+    const expanded = computed({
+      get: () => globalNav.state.notebooks.expanded,
+      set: globalNav.actions.setNotebooksExpanded
+    });
 
-        const input = computed({
-            get: () => globalNav.state.notebooks.input!.name,
-            set: globalNav.actions.notebookInputUpdated
-        });
+    const input = computed({
+      get: () => globalNav.state.notebooks.input!.name,
+      set: globalNav.actions.notebookInputUpdated
+    });
 
-        const formRules = {
-            required: true,
-            unique: [
-                () => notebooks.state.values,
-                (n: Notebook) => n.id,
-                (n: Notebook) => n.name,
-                () => globalNav.state.notebooks.input
-            ]
-        };
+    const formRules = {
+      required: true,
+      unique: [
+        () => notebooks.state.values,
+        (n: Notebook) => n.id,
+        (n: Notebook) => n.name,
+        () => globalNav.state.notebooks.input
+      ]
+    };
 
-        shortcuts.subscribe('globalNavigationCreateNotebook', () => {
-            const highlighted = globalNav.state.highlight;
+    shortcuts.subscribe("globalNavigationCreateNotebook", () => {
+      const highlighted = globalNav.state.highlight;
 
-            if (highlighted != null && highlighted.section === 'notebook') {
-                globalNav.actions.notebookInputStart({ parentId: highlighted.id });
-            } else {
-                globalNav.actions.notebookInputStart();
-            }
-        });
+      if (highlighted != null && highlighted.section === "notebook") {
+        globalNav.actions.notebookInputStart({ parentId: highlighted.id });
+      } else {
+        globalNav.actions.notebookInputStart();
+      }
+    });
 
-        return {
-            expanded,
-            input,
-            formRules,
-            getNotebookById: computed(() => notebooks.getters.byId),
-            notebooks: computed(() => notebooks.state.values),
-            dragging: computed(() => globalNav.state.notebooks.dragging),
-            isNotebookBeingCreated: computed(() => globalNav.getters.isNotebookBeingCreated),
-            isNotebookBeingDragged: computed(() => globalNav.getters.isNotebookBeingDragged),
-            confirm: globalNav.actions.notebookInputConfirm,
-            cancel: globalNav.actions.notebookInputCancel,
-            createNotebook: globalNav.actions.notebookInputStart,
-            isActive: computed(() => globalNav.getters.isActive),
-            isHighlighted: computed(() => globalNav.getters.isHighlighted),
-            setActive: globalNav.actions.setActive,
-            count: computed(
-                () => `${notebooks.getters.count} ${notebooks.getters.count === 1 ? 'notebook' : 'notebooks'}`
-            )
-        };
-    },
-    components: { GlobalNavigationNotebook, NavigationMenuForm, NavigationMenuItem, IconButton }
+    return {
+      expanded,
+      input,
+      formRules,
+      getNotebookById: computed(() => notebooks.getters.byId),
+      notebooks: computed(() => notebooks.state.values),
+      dragging: computed(() => globalNav.state.notebooks.dragging),
+      isNotebookBeingCreated: computed(() => globalNav.getters.isNotebookBeingCreated),
+      isNotebookBeingDragged: computed(() => globalNav.getters.isNotebookBeingDragged),
+      confirm: globalNav.actions.notebookInputConfirm,
+      cancel: globalNav.actions.notebookInputCancel,
+      createNotebook: globalNav.actions.notebookInputStart,
+      isActive: computed(() => globalNav.getters.isActive),
+      isHighlighted: computed(() => globalNav.getters.isHighlighted),
+      setActive: globalNav.actions.setActive,
+      count: computed(
+        () => `${notebooks.getters.count} ${notebooks.getters.count === 1 ? "notebook" : "notebooks"}`
+      )
+    };
+  },
+  components: { GlobalNavigationNotebook, NavigationMenuForm, NavigationMenuItem, IconButton }
 });
 </script>
