@@ -51,17 +51,17 @@ export class GlobalNavigationActions extends Actions<
     this.undo.sequence(commit => commit("SET_ACTIVE", a));
   }
 
-  toggleHighlighted() {
+  toggleSelected() {
     this.undo.sequence(commit => {
       let notebook: Notebook;
 
-      switch (this.state.highlight?.section) {
+      switch (this.state.selected?.section) {
       case "notebook":
-        if (this.state.highlight.id == null) {
+        if (this.state.selected.id == null) {
           commit("SET_NOTEBOOKS_EXPANDED", !this.state.notebooks.expanded);
         } else {
           notebook = this.contexts.notebooks.getters.byId(
-            this.state.highlight.id
+            this.state.selected.id
           )!;
           if (notebook.children == null || notebook.children.length === 0) {
             return;
@@ -77,7 +77,7 @@ export class GlobalNavigationActions extends Actions<
         }
         break;
       case "tag":
-        if (this.state.highlight.id == null) {
+        if (this.state.selected.id == null) {
           this.commit("SET_TAGS_EXPANDED", !this.state.tags.expanded);
         }
         break;
@@ -85,23 +85,23 @@ export class GlobalNavigationActions extends Actions<
     });
   }
 
-  clearHighlight() {
-    this.commit("CLEAR_HIGHLIGHT");
+  clearSelected() {
+    this.commit("CLEAR_SELECTED");
   }
 
-  moveHighlightUp() {
+  moveSelectionUp() {
     const next = this.getters.previousItem();
 
-    if (!_.isEqual(this.state.highlight, next)) {
-      this.commit("SET_HIGHLIGHT", next);
+    if (!_.isEqual(this.state.selected, next)) {
+      this.commit("SET_SELECTED", next);
     }
   }
 
-  moveHighlightDown() {
+  moveSelectionDown() {
     const next = this.getters.nextItem();
 
-    if (!_.isEqual(this.state.highlight, next)) {
-      this.commit("SET_HIGHLIGHT", next);
+    if (!_.isEqual(this.state.selected, next)) {
+      this.commit("SET_SELECTED", next);
     }
   }
 
@@ -542,8 +542,8 @@ export class GlobalNavigationActions extends Actions<
   }
 
   expandAll() {
-    // this.commit('SET_TAGS_EXPANDED', { value: true });
-    // this.commit('SET_NOTEBOOKS_EXPANDED', { value: true });
+    this.commit("SET_TAGS_EXPANDED", true);
+    this.commit("SET_NOTEBOOKS_EXPANDED", true);
 
     this.contexts.notebooks.commit("SET_ALL_EXPANDED", {
       expanded: false
@@ -551,8 +551,8 @@ export class GlobalNavigationActions extends Actions<
   }
 
   collapseAll() {
-    // this.commit('SET_TAGS_EXPANDED', { value: false });
-    // this.commit('SET_NOTEBOOKS_EXPANDED', { value: false });
+    this.commit("SET_TAGS_EXPANDED", false);
+    this.commit("SET_NOTEBOOKS_EXPANDED", false);
 
     this.contexts.notebooks.commit("SET_ALL_EXPANDED", {
       expanded: false

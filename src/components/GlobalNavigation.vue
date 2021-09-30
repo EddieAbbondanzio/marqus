@@ -6,20 +6,8 @@
         minWidth="160px"
         v-context-menu:globalNavigation
         v-input-scope:globalNavigation
-        v-shortcut:focusGlobalNavigation.global="focus"
-        v-shortcut:delete="deleteHighlightItem"
-        v-shortcut:enter="setHighlightActive"
-        v-shortcut:escape="clearHighlight"
-        v-shortcut:moveSelectionUp="moveHighlightUp"
-        v-shortcut:moveSelectionDown="moveHighlightDown"
-        v-shortcut:toggleSelection="toggleHighlighted"
-        v-shortcut:globalNavigationExpandAll="expandAll"
-        v-shortcut:globalNavigationCollapseAll="collapseAll"
-        v-shortcut:undo="undo"
-        v-shortcut:redo="redo"
-        v-shortcut:rename="rename"
     >
-        <Scrollable v-model="scrollPosition" v-shortcut:scrollUp="scrollUp" v-shortcut:scrollDown="scrollDown">
+        <Scrollable v-model="scrollPosition">
             <NavigationMenuItem
                 icon="file-alt"
                 label="ALL"
@@ -101,13 +89,13 @@ export default defineComponent({
     });
 
     const setHighlightActive = () => {
-      if (globalNav.state.highlight != null) {
-        globalNav.actions.setActive(globalNav.state.highlight);
+      if (globalNav.state.selected != null) {
+        globalNav.actions.setActive(globalNav.state.selected);
       }
     };
 
     const deleteHighlightItem = () => {
-      const highlight = globalNav.state.highlight;
+      const highlight = globalNav.state.selected;
 
       switch (highlight?.section) {
       case "notebook":
@@ -121,7 +109,7 @@ export default defineComponent({
     };
 
     const rename = () => {
-      const highlight = globalNav.state.highlight;
+      const highlight = globalNav.state.selected;
 
       switch (highlight?.section) {
       case "notebook":
@@ -141,15 +129,15 @@ export default defineComponent({
       setHighlightActive,
       scrollUp: () => globalNav.actions.scrollUp(),
       scrollDown: () => globalNav.actions.scrollDown(),
-      clearHighlight: () => globalNav.actions.clearHighlight(),
-      moveHighlightUp: () => globalNav.actions.moveHighlightUp(),
-      moveHighlightDown: () => globalNav.actions.moveHighlightDown(),
+      clearHighlight: () => globalNav.actions.clearSelected(),
+      moveHighlightUp: () => globalNav.actions.moveSelectionUp(),
+      moveHighlightDown: () => globalNav.actions.moveSelectionDown(),
       isActive: computed(() => globalNav.getters.isActive),
-      isHighlighted: computed(() => globalNav.getters.isHighlighted),
+      isHighlighted: computed(() => globalNav.getters.isSelected),
       expandAll: globalNav.actions.expandAll,
       collapseAll: globalNav.actions.collapseAll,
       setActive: globalNav.actions.setActive,
-      toggleHighlighted: () => globalNav.actions.toggleHighlighted(),
+      toggleHighlighted: () => globalNav.actions.toggleSelected(),
       ...mapUndoRedo({ name: "globalNavigation" }),
       focus: () => inputScopes.focus({ name: "globalNavigation" })
     };

@@ -89,9 +89,9 @@ export default defineComponent({
       unique: [() => notes.state.values, (n: Note) => n.id, (n: Note) => n.name, () => localNav.state.notes.input]
     };
 
-    shortcuts.subscribe("focusLocalNavigation", () => {
-      inputScopes.focus({ name: "localNavigation" });
-    });
+    // shortcuts.subscribe("focusLocalNavigation", () => {
+    //   inputScopes.focus({ name: "localNavigation" });
+    // });
 
     useLocalNavigationContextMenu();
 

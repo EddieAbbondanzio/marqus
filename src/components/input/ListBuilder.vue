@@ -14,43 +14,43 @@
 </template>
 
 <script lang="ts">
-import DeleteButton from '@/components/buttons/DeleteButton.vue';
-import { computed, defineComponent, Ref, ref } from 'vue';
-import List from '@/components/layout/List.vue';
-import ListItem from '@/components/layout/ListItem.vue';
-import { caseInsensitiveCompare } from '@/utils/string';
+import DeleteButton from "@/components/buttons/DeleteButton.vue";
+import { computed, defineComponent } from "vue";
+import List from "@/components/layout/List.vue";
+import ListItem from "@/components/layout/ListItem.vue";
+import { caseInsensitiveCompare } from "@/utils/string";
 
 export default defineComponent({
-    setup(p, c) {
-        const add = (opt: any) => {
-            c.emit('add', opt);
-            c.emit('update:selected', [...p.selected, opt]);
-        };
+  setup(p, c) {
+    const add = (opt: any) => {
+      c.emit("add", opt);
+      c.emit("update:selected", [...p.selected, opt]);
+    };
 
-        const remove = (opt: any) => {
-            c.emit('remove', opt);
-            c.emit('update:selected', opt);
-        };
+    const remove = (opt: any) => {
+      c.emit("remove", opt);
+      c.emit("update:selected", opt);
+    };
 
-        const sortedSelected = computed(() => {
-            const selected = p.selected as { value: string }[];
-            return selected.sort(caseInsensitiveCompare((v) => v.value));
-        });
+    const sortedSelected = computed(() => {
+      const selected = p.selected as { value: string }[];
+      return selected.sort(caseInsensitiveCompare((v) => v.value));
+    });
 
-        return {
-            sortedSelected,
-            add,
-            remove
-        };
-    },
-    props: {
-        selected: {
-            type: Array,
-            required: true
-        }
-    },
-    emits: ['update:selected', 'add', 'remove'],
-    components: { DeleteButton, List, ListItem }
+    return {
+      sortedSelected,
+      add,
+      remove
+    };
+  },
+  props: {
+    selected: {
+      type: Array,
+      required: true
+    }
+  },
+  emits: ["update:selected", "add", "remove"],
+  components: { DeleteButton, List, ListItem }
 });
 </script>
 

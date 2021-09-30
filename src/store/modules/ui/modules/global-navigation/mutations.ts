@@ -16,12 +16,12 @@ export class GlobalNavigationMutations extends Mutations<
     this.state.active = item;
   }
 
-  SET_HIGHLIGHT(item: GlobalNavigationItem) {
-    this.state.highlight = item;
+  SET_SELECTED(item: GlobalNavigationItem) {
+    this.state.selected = item;
   }
 
-  CLEAR_HIGHLIGHT() {
-    delete this.state.highlight;
+  CLEAR_SELECTED() {
+    delete this.state.selected;
   }
 
   SET_WIDTH(width: string) {

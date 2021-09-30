@@ -16,33 +16,33 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
-import { Field, ErrorMessage, Form } from 'vee-validate';
+import { computed, defineComponent } from "vue";
+import { Field } from "vee-validate";
 
 export default defineComponent({
-    setup(p, c) {
-        const computedModelValue = computed({
-            get: () => p.modelValue ?? '',
-            set: (v) => c.emit('update:modelValue', v)
-        });
+  setup(p, c) {
+    const computedModelValue = computed({
+      get: () => p.modelValue ?? "",
+      set: (v) => c.emit("update:modelValue", v)
+    });
 
-        return {
-            computedModelValue
-        };
+    return {
+      computedModelValue
+    };
+  },
+  props: {
+    modelValue: String,
+    label: String,
+    hideLabel: {
+      type: Boolean,
+      default: false
     },
-    props: {
-        modelValue: String,
-        label: String,
-        hideLabel: {
-            type: Boolean,
-            default: false
-        },
-        rules: {
-            type: Object,
-            default: () => ({})
-        }
-    },
-    emits: ['update:modelValue'],
-    components: { Field }
+    rules: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  emits: ["update:modelValue"],
+  components: { Field }
 });
 </script>

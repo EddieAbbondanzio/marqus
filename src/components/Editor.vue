@@ -32,9 +32,9 @@ export default defineComponent({
   setup: () => {
     const editor = useEditor();
 
-    shortcuts.subscribe("focusEditor", () => {
-      inputScopes.focus({ name: "editor" });
-    });
+    // shortcuts.subscribe("focusEditor", () => {
+    //   inputScopes.focus({ name: "editor" });
+    // });
 
     return {
       isEmpty: computed(() => editor.getters.isEmpty),

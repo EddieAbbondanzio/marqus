@@ -1,6 +1,7 @@
 <template>
     <div
-        class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center is-justify-content-space-between editor-toolbar"
+        class="has-background-white has-border-bottom-1-dark p-1 is-flex is-align-center
+         is-justify-content-space-between editor-toolbar"
     >
         <div class="is-flex is-align-center">
             <div class="mb-0 ">
@@ -10,7 +11,6 @@
                     icon="fa-edit"
                     size="is-size-6"
                     @click="toggleMode"
-                    v-shortcut:editorToggleMode="toggleMode"
                 />
                 <IconButton
                     id="saveButton"
@@ -19,7 +19,6 @@
                     icon="fa-save"
                     size="is-size-6"
                     @click="() => saveTab(note.id)"
-                    v-shortcut:editorSave="() => saveTab(note.id)"
                 />
             </div>
 
@@ -54,45 +53,45 @@
 </template>
 
 <script lang="ts">
-import { store } from '@/store';
-import EditorToolbarTagsDropdown from '@/components/EditorToolbarTagsDropdown.vue';
-import EditorToolbarNotebooksDropdown from '@/components/EditorToolbarNotebooksDropdown.vue';
-import { computed, defineComponent, ref } from 'vue';
-import { useEditor } from '@/store/modules/ui/modules/editor';
-import { useNotes } from '@/store/modules/notes';
-import IconButton from '@/components/buttons/IconButton.vue';
+import { store } from "@/store";
+import EditorToolbarTagsDropdown from "@/components/EditorToolbarTagsDropdown.vue";
+import EditorToolbarNotebooksDropdown from "@/components/EditorToolbarNotebooksDropdown.vue";
+import { computed, defineComponent, ref } from "vue";
+import { useEditor } from "@/store/modules/ui/modules/editor";
+import { useNotes } from "@/store/modules/notes";
+import IconButton from "@/components/buttons/IconButton.vue";
 
 export default defineComponent({
-    setup: function() {
-        const editor = useEditor();
-        const notes = useNotes();
+  setup: function () {
+    const editor = useEditor();
+    const notes = useNotes();
 
-        const onFavoriteClick = () => {
-            const note = editor.getters.activeNote;
+    const onFavoriteClick = () => {
+      const note = editor.getters.activeNote;
 
-            if (note == null) {
-                return;
-            }
+      if (note == null) {
+        return;
+      }
 
-            notes.actions.toggleFavorite(note);
-        };
+      notes.actions.toggleFavorite(note);
+    };
 
-        return {
-            onFavoriteClick,
-            mode: computed(() => editor.state.mode),
-            note: computed(() => editor.getters.activeNote),
-            isFavorited: computed(() => editor.getters.activeNote?.favorited ?? false),
-            deleteActiveNote: editor.actions.deleteActiveNote,
-            toggleMode: editor.actions.toggleMode,
-            saveTab: editor.actions.saveTab,
-            test: ref(false)
-        };
-    },
-    components: {
-        EditorToolbarNotebooksDropdown,
-        EditorToolbarTagsDropdown,
-        IconButton
-    }
+    return {
+      onFavoriteClick,
+      mode: computed(() => editor.state.mode),
+      note: computed(() => editor.getters.activeNote),
+      isFavorited: computed(() => editor.getters.activeNote?.favorited ?? false),
+      deleteActiveNote: editor.actions.deleteActiveNote,
+      toggleMode: editor.actions.toggleMode,
+      saveTab: editor.actions.saveTab,
+      test: ref(false)
+    };
+  },
+  components: {
+    EditorToolbarNotebooksDropdown,
+    EditorToolbarTagsDropdown,
+    IconButton
+  }
 });
 </script>
 

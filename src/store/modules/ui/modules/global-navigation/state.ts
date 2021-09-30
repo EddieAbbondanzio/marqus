@@ -45,5 +45,5 @@ export class GlobalNavigationState {
       section: "all"
     };
 
-    highlight?: GlobalNavigationItem;
+    selected?: GlobalNavigationItem;
 }

@@ -72,15 +72,15 @@ export default defineComponent({
       ]
     };
 
-    shortcuts.subscribe("globalNavigationCreateNotebook", () => {
-      const highlighted = globalNav.state.highlight;
+    // shortcuts.subscribe("globalNavigationCreateNotebook", () => {
+    //   const highlighted = globalNav.state.highlight;
 
-      if (highlighted != null && highlighted.section === "notebook") {
-        globalNav.actions.notebookInputStart({ parentId: highlighted.id });
-      } else {
-        globalNav.actions.notebookInputStart();
-      }
-    });
+    //   if (highlighted != null && highlighted.section === "notebook") {
+    //     globalNav.actions.notebookInputStart({ parentId: highlighted.id });
+    //   } else {
+    //     globalNav.actions.notebookInputStart();
+    //   }
+    // });
 
     return {
       expanded,
@@ -95,7 +95,7 @@ export default defineComponent({
       cancel: globalNav.actions.notebookInputCancel,
       createNotebook: globalNav.actions.notebookInputStart,
       isActive: computed(() => globalNav.getters.isActive),
-      isHighlighted: computed(() => globalNav.getters.isHighlighted),
+      isHighlighted: computed(() => globalNav.getters.isSelected),
       setActive: globalNav.actions.setActive,
       count: computed(
         () => `${notebooks.getters.count} ${notebooks.getters.count === 1 ? "notebook" : "notebooks"}`

@@ -1,5 +1,5 @@
-import { Shortcut } from "@/utils/shortcuts";
+import { ShortcutDefinition } from "@/utils/shortcuts";
 
 export class ShortcutState {
-  values: Shortcut[] = [];
+  values: ShortcutDefinition[] = [];
 }

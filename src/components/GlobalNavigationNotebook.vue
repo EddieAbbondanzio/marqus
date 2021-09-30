@@ -166,7 +166,7 @@ export default defineComponent({
       cancel: computed(() => globalNav.actions.notebookInputCancel),
       setActive: globalNav.actions.setActive,
       notebookDragCancel: globalNav.actions.notebookDragCancel,
-      isHighlighted: computed(() => globalNav.getters.isHighlighted)
+      isHighlighted: computed(() => globalNav.getters.isSelected)
     };
   },
   components: { NavigationMenuForm, NavigationMenuItem }

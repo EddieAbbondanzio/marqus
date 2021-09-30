@@ -1,7 +1,7 @@
 import { notebooks } from "@/store/modules/notebooks";
 import { Notebook } from "@/store/modules/notebooks/state";
 import { tags } from "@/store/modules/tags";
-import { GetterTree, Store } from "vuex";
+import { Store } from "vuex";
 import { Context, Getters } from "vuex-smart-module";
 import { GlobalNavigationState, GlobalNavigationItem } from "./state";
 
@@ -16,101 +16,101 @@ export class GlobalNavigationGetters extends Getters<GlobalNavigationState> {
 
   isActive(active: GlobalNavigationItem) {
     switch (this.state.active?.section) {
-      case "all":
-      case "favorites":
-      case "trash":
-        return active.section === this.state.active.section;
-      case "notebook":
-      case "tag":
-        return (
-          active.section === this.state.active.section &&
+    case "all":
+    case "favorites":
+    case "trash":
+      return active.section === this.state.active.section;
+    case "notebook":
+    case "tag":
+      return (
+        active.section === this.state.active.section &&
           active.id === this.state.active.id
-        );
-      default:
-        return false;
+      );
+    default:
+      return false;
     }
   }
 
-  isHighlighted(item: GlobalNavigationItem) {
-    if (this.state.highlight == null) {
+  isSelected(item: GlobalNavigationItem) {
+    if (this.state.selected == null) {
       return false;
     }
 
     return (
-      item.section === this.state.highlight.section &&
-      (item as any).id === (this.state.highlight as any).id
+      item.section === this.state.selected.section &&
+      (item as any).id === (this.state.selected as any).id
     );
   }
 
   previousItem(): GlobalNavigationItem {
-    if (this.state.highlight == null) {
+    if (this.state.selected == null) {
       return { section: "all" };
     }
 
-    const previous = this.state.highlight;
+    const previous = this.state.selected;
     let next;
 
     switch (previous.section) {
-      case "all":
-        return { section: "all" };
+    case "all":
+      return { section: "all" };
 
-      case "trash":
-        return { section: "favorites" };
+    case "trash":
+      return { section: "favorites" };
 
-      case "favorites":
-        if (this.state.tags.expanded) {
-          next = this.tags.getters.last();
-          return { section: "tag", id: next.id };
-        } else {
+    case "favorites":
+      if (this.state.tags.expanded) {
+        next = this.tags.getters.last();
+        return { section: "tag", id: next.id };
+      } else {
+        return { section: "tag" };
+      }
+
+      // eslint-disable-next-line no-fallthrough
+    case "tag":
+      if (previous.id != null) {
+        next = this.tags.getters.getPrevious(previous.id);
+
+        if (next == null) {
           return { section: "tag" };
-        }
-
-      // eslint-disable-next-line no-fallthrough
-      case "tag":
-        if (previous.id != null) {
-          next = this.tags.getters.getPrevious(previous.id);
-
-          if (next == null) {
-            return { section: "tag" };
-          } else {
-            return { section: "tag", id: next.id };
-          }
         } else {
-          if (this.state.notebooks.expanded) {
-            next = this.notebooks.getters.last();
-            return { section: "notebook", id: next!.id };
-          } else {
-            return { section: "notebook" };
-          }
+          return { section: "tag", id: next.id };
         }
-
-      // eslint-disable-next-line no-fallthrough
-      case "notebook":
-        if (previous.id != null && previous.section === "notebook") {
-          next = this.notebooks.getters.getPrevious(previous.id);
-
-          if (next == null) {
-            return { section: "notebook" };
-          } else {
-            return { section: "notebook", id: next.id };
-          }
+      } else {
+        if (this.state.notebooks.expanded) {
+          next = this.notebooks.getters.last();
+          return { section: "notebook", id: next!.id };
         } else {
-          return { section: "all" };
+          return { section: "notebook" };
         }
+      }
 
       // eslint-disable-next-line no-fallthrough
-      default:
+    case "notebook":
+      if (previous.id != null && previous.section === "notebook") {
+        next = this.notebooks.getters.getPrevious(previous.id);
+
+        if (next == null) {
+          return { section: "notebook" };
+        } else {
+          return { section: "notebook", id: next.id };
+        }
+      } else {
         return { section: "all" };
+      }
+
+      // eslint-disable-next-line no-fallthrough
+    default:
+      return { section: "all" };
     }
   }
 
   nextItem(): GlobalNavigationItem {
     // Start at the top
-    if (this.state.highlight == null) {
+    if (this.state.selected == null) {
       return { section: "all" };
     }
 
-    const previous = this.state.highlight;
+    const previous = this.state.selected;
     let next;
 
     /*
@@ -119,41 +119,41 @@ export class GlobalNavigationGetters extends Getters<GlobalNavigationState> {
      */
 
     switch (previous.section) {
-      case "all":
-        return { section: "notebook" };
+    case "all":
+      return { section: "notebook" };
 
-      case "notebook":
-        if (previous.id == null) {
-          next = this.notebooks.getters.first();
-        } else {
-          next = this.notebooks.getters.getNext(previous.id);
-        }
+    case "notebook":
+      if (previous.id == null) {
+        next = this.notebooks.getters.first();
+      } else {
+        next = this.notebooks.getters.getNext(previous.id);
+      }
 
-        if (next != null && this.state.notebooks.expanded) {
-          return { section: "notebook", id: next.id };
-        } else {
-          return { section: "tag" };
-        }
+      if (next != null && this.state.notebooks.expanded) {
+        return { section: "notebook", id: next.id };
+      } else {
+        return { section: "tag" };
+      }
 
-      case "tag":
-        if (previous.id == null) {
-          next = this.tags.getters.first();
-        } else {
-          next = this.tags.getters.getNext(previous.id);
-        }
+    case "tag":
+      if (previous.id == null) {
+        next = this.tags.getters.first();
+      } else {
+        next = this.tags.getters.getNext(previous.id);
+      }
 
-        if (next != null && this.state.tags.expanded) {
-          return { section: "tag", id: next.id };
-        } else {
-          return { section: "favorites" };
-        }
+      if (next != null && this.state.tags.expanded) {
+        return { section: "tag", id: next.id };
+      } else {
+        return { section: "favorites" };
+      }
 
-      case "favorites":
-      case "trash":
-        return { section: "trash" };
+    case "favorites":
+    case "trash":
+      return { section: "trash" };
 
-      default:
-        return { section: "all" };
+    default:
+      return { section: "all" };
     }
   }
 

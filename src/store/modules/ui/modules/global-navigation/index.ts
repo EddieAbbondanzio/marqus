@@ -9,6 +9,13 @@ import { commands } from "@/utils/commands";
 import { CreateTagCommand } from "@/utils/commands/global-navigation/create-tag-command";
 import { RenameTagCommand } from "@/utils/commands/global-navigation/rename-tag-command";
 import { DeleteTagCommand } from "@/utils/commands/global-navigation/delete-tag-command";
+import { FocusCommand } from "@/utils/commands/global-navigation/focus-command";
+import { ExpandAllCommand } from "@/utils/commands/global-navigation/expand-all-command";
+import { CollapseAllCommand } from "@/utils/commands/global-navigation/collapse-all-command";
+import { MoveSelectionUpCommand } from "@/utils/commands/global-navigation/move-selection-up-command";
+import { MoveSelectionDownCommand } from "@/utils/commands/global-navigation/move-selection-down-command";
+import { ScrolDownCommand } from "@/utils/commands/global-navigation/scroll-down-command";
+import { ScrolUpCommand } from "@/utils/commands/global-navigation/scroll-up-command";
 
 export const globalNavigation = new Module({
   namespaced: true,
@@ -31,11 +38,25 @@ undo.registerContext({
 });
 
 export enum GlobalNavigationCommand {
+  Focus = "focusGlobalNavigation",
   CreateTag = "globalNavigationCreateTag",
   RenameTag = "globalNavigationRenameTag",
-  DeleteTag = "globalNavigationDeleteTag"
+  DeleteTag = "globalNavigationDeleteTag",
+  ExpandAll = "globalNavigationExpandAll",
+  CollapseAll = "globalNavigationCollapseAll",
+  MoveSelectionUp = "globalNavigationMoveSelectionUp",
+  MoveSelectionDown = "globalNavigationMoveSelectionDown",
+  ScrollDown = "globalNavigationScrollDown",
+  ScrollUp = "globalNavigationScrollUp",
 }
 
 commands.register(GlobalNavigationCommand.CreateTag, CreateTagCommand);
 commands.register(GlobalNavigationCommand.RenameTag, RenameTagCommand);
 commands.register(GlobalNavigationCommand.DeleteTag, DeleteTagCommand);
+commands.register(GlobalNavigationCommand.Focus, FocusCommand);
+commands.register(GlobalNavigationCommand.ExpandAll, ExpandAllCommand);
+commands.register(GlobalNavigationCommand.CollapseAll, CollapseAllCommand);
+commands.register(GlobalNavigationCommand.MoveSelectionUp, MoveSelectionUpCommand);
+commands.register(GlobalNavigationCommand.MoveSelectionDown, MoveSelectionDownCommand);
+commands.register(GlobalNavigationCommand.ScrollDown, ScrolDownCommand);
+commands.register(GlobalNavigationCommand.ScrollUp, ScrolUpCommand);
