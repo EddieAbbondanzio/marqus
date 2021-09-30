@@ -39,6 +39,6 @@ export const useEditor = createComposable(editor);
 undo.registerContext({
   name: "editor",
   namespace: "ui/editor",
-  setStateMutation: "SET_STATE",
+  setStateAction: "SET_STATE",
   stateCacheInterval: 1000
 });

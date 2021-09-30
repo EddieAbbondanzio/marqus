@@ -83,12 +83,12 @@ export const undo = {
       throw Error(`Duplicate undo module name ${settings.name}`);
     }
 
-    settings.setStateMutation = "SET_STATE";
+    settings.setStateAction = "setState";
     settings.stateCacheInterval = 100;
 
     // Add set state commit to ignore list, and fully qualify user provided ones.
     settings.ignore ??= [];
-    settings.ignore.unshift(settings.setStateMutation);
+    settings.ignore.unshift(settings.setStateAction);
     settings.ignore = settings.ignore.map(m => `${settings.namespace}/${m}`);
 
     const id = settings.id ?? generateId();

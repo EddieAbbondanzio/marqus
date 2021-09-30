@@ -28,12 +28,15 @@ const plugins = [
   // comment is kept to prevent it from going to single line
 ];
 
-export const store = createStore(root, {
-  plugins,
-  /*
+export const store = createStore(
+  root,
+  {
+    plugins,
+    /*
    * Don't use strict mode in production.
    * Major performance hit.
    * See: https://next.vuex.vuejs.org/guide/strict.html#development-vs-production
    */
-  strict: process.env.NODE_ENV !== "production"
-});
+    strict: process.env.NODE_ENV !== "production"
+  }
+);

@@ -63,9 +63,7 @@ import IconButton from "@/components/buttons/IconButton.vue";
 import { useTagValidation } from "@/hooks/use-tag-validation";
 import { useTags } from "@/store/modules/tags";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
-import { shortcuts } from "@/utils/shortcuts";
-import { commandHistory } from "@/utils/commands";
-import { CreateTagCommand } from "@/utils/commands/global-navigation";
+import { commands } from "@/utils/commands";
 
 export default defineComponent({
   setup: function () {
@@ -88,10 +86,10 @@ export default defineComponent({
 
     const formRules = useTagValidation(() => globalNav.state.tags.input);
 
-    shortcuts.subscribe("globalNavigationCreateTag", () => globalNav.actions.tagInputStart());
+    // shortcuts.subscribe("globalNavigationCreateTag", () => globalNav.actions.tagInputStart({}));
 
     const createTag = () => {
-      commandHistory.execute(new CreateTagCommand());
+      commands.run("globalNavigationCreateTag");
     };
 
     return {

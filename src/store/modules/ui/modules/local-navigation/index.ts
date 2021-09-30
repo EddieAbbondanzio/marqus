@@ -18,6 +18,6 @@ export const useLocalNavigation = createComposable(localNavigation);
 undo.registerContext({
   name: "localNavigation",
   namespace: "ui/localNavigation",
-  setStateMutation: "SET_STATE",
+  setStateAction: "SET_STATE",
   stateCacheInterval: 100
 });

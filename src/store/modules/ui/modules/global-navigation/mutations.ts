@@ -3,6 +3,7 @@ import {
   GlobalNavigationItem
 } from "@/store/modules/ui/modules/global-navigation/state";
 import { Mutations } from "vuex-smart-module";
+import { InputMode } from "../../state";
 
 export class GlobalNavigationMutations extends Mutations<
   GlobalNavigationState
@@ -49,18 +50,19 @@ export class GlobalNavigationMutations extends Mutations<
     this.state.tags.input!.name = value;
   }
 
-  START_TAGS_INPUT(val?: { id: string; value: string }) {
-    if (val?.id == null) {
+  START_TAGS_INPUT({ id, mode, name }: {id: string, name?: string, mode: InputMode }) {
+    switch (mode) {
+    case "create":
       this.state.tags.input = {
-        mode: "create",
-        name: ""
+        id, mode, name: ""
       };
-    } else {
+      break;
+
+    case "update":
       this.state.tags.input = {
-        mode: "update",
-        id: val.id,
-        name: val.value
+        id, mode, name: name!
       };
+      break;
     }
   }
 

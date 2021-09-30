@@ -1,5 +1,7 @@
 import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { store } from "@/store";
+import { GlobalNavigationCommand } from "@/store/modules/ui/modules/global-navigation";
+import { commands } from "@/utils/commands";
 import { climbDomForMatch } from "@/utils/dom";
 
 export const useGlobalNavigationContextMenu = createContextMenuHook(
@@ -49,8 +51,7 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
     if (isElementNotebook) {
       items.push({
         label: "Rename Notebook",
-        click: () =>
-          store.dispatch("ui/globalNavigation/notebookInputStart", { id })
+        click: () => commands.run("globalNavigationRenameTag", id)
       });
 
       items.push({
@@ -73,7 +74,7 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
 
       items.push({
         label: "Delete Tag",
-        click: () => store.dispatch("ui/globalNavigation/tagDelete", id)
+        click: () => commands.run(GlobalNavigationCommand.DeleteTag, id)
       });
 
       items.push({

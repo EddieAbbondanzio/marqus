@@ -12,6 +12,7 @@ import { confirmDelete, confirmReplaceNotebook } from "@/utils/prompts";
 import { Notebook } from "@/store/modules/notebooks/state";
 import { Tag } from "@/store/modules/tags/state";
 import { generateId } from "@/utils";
+import { InputMode } from "../../state";
 
 export class GlobalNavigationActions extends Actions<
   GlobalNavigationState,
@@ -122,25 +123,20 @@ export class GlobalNavigationActions extends Actions<
     this.commit("SET_SCROLL_POSITION", newScrollPos);
   }
 
-  tagInputStart(id?: string) {
+  tagInputStart({ mode, id }: { mode: InputMode, id: string }) {
     // Stop if we already have an input in progress.
     if (this.state.tags.input?.mode != null) {
-      // return;
+      return;
     }
 
-    // this.undo.group((_undo) => {
     this.commit("SET_TAGS_EXPANDED", true);
 
-    if (id != null) {
-      const tag = this.contexts.tags.getters.byId(id, { required: true });
-
-      this.commit("START_TAGS_INPUT", { id: tag?.id, value: tag?.name });
+    if (mode === "update") {
+      const { name } = this.contexts.tags.getters.byId(id)!;
+      this.commit("START_TAGS_INPUT", { mode, id, name });
     } else {
-      this.commit("START_TAGS_INPUT");
+      this.commit("START_TAGS_INPUT", { mode, id });
     }
-    // });
-
-    // this.undo.setRollbackPoint();
   }
 
   tagInputUpdated(value: string) {

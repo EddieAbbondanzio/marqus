@@ -5,6 +5,10 @@ import { GlobalNavigationState } from "@/store/modules/ui/modules/global-navigat
 import { RecursivePartial } from "@/utils";
 import { undo } from "@/store/plugins/undo";
 import { createComposable, Module } from "vuex-smart-module";
+import { commands } from "@/utils/commands";
+import { CreateTagCommand } from "@/utils/commands/global-navigation/create-tag-command";
+import { RenameTagCommand } from "@/utils/commands/global-navigation/rename-tag-command";
+import { DeleteTagCommand } from "@/utils/commands/global-navigation/delete-tag-command";
 
 export const globalNavigation = new Module({
   namespaced: true,
@@ -13,6 +17,8 @@ export const globalNavigation = new Module({
   mutations: GlobalNavigationMutations,
   getters: GlobalNavigationGetters
 });
+
+export const useGlobalNavigation = createComposable(globalNavigation);
 
 undo.registerContext({
   name: "globalNavigation",
@@ -24,4 +30,12 @@ undo.registerContext({
   }
 });
 
-export const useGlobalNavigation = createComposable(globalNavigation);
+export enum GlobalNavigationCommand {
+  CreateTag = "globalNavigationCreateTag",
+  RenameTag = "globalNavigationRenameTag",
+  DeleteTag = "globalNavigationDeleteTag"
+}
+
+commands.register(GlobalNavigationCommand.CreateTag, CreateTagCommand);
+commands.register(GlobalNavigationCommand.RenameTag, RenameTagCommand);
+commands.register(GlobalNavigationCommand.DeleteTag, DeleteTagCommand);

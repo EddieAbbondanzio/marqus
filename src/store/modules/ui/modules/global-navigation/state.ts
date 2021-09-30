@@ -1,3 +1,5 @@
+import { InputMode } from "../../state";
+
 export interface GlobalNavigationNotebookInput {
     id?: string;
     name: string;
@@ -6,16 +8,11 @@ export interface GlobalNavigationNotebookInput {
 }
 
 export type GlobalNavigationTagInput =
-    | {
-          mode: "create";
-          name: string;
-
-      }
-    | {
-          mode: "update";
-          id: string;
-          name: string;
-      };
+{
+  mode: InputMode;
+  id: string;
+  name: string;
+};
 
 export interface GlobalNavigationNotebookSection {
     expanded: boolean;

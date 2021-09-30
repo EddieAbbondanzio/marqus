@@ -81,6 +81,7 @@ import Scrollable from "@/components/layout/Scrollable.vue";
 import { inputScopes } from "@/utils/scopes";
 import { mapUndoRedo } from "@/store/plugins/undo/utils/map-undo-redo";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
+import { commands } from "@/utils/commands";
 
 export default defineComponent({
   setup: function () {
@@ -127,7 +128,7 @@ export default defineComponent({
         if (highlight.id != null) globalNav.actions.notebookInputStart({ id: highlight.id });
         break;
       case "tag":
-        if (highlight.id != null) globalNav.actions.tagInputStart(highlight.id);
+        if (highlight.id != null) commands.run("globalNavigationRenameTag", highlight.id);
         break;
       }
     };

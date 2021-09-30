@@ -1,25 +1,23 @@
 import { store } from "@/store";
+import { Id } from "@/store/base";
 import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { mediator } from "@/store/plugins/mediator";
-import { generateId } from "@/utils";
 import { Command } from "../command";
 
-export class CreateTagCommand extends Command<void> {
-  async execute(): Promise<void> {
-    const id = generateId();
-    const globalNavCtx = globalNavigation.context(store);
-
-    globalNavCtx.actions.tagInputStart({ id, mode: "create" });
+export class RenameTagCommand extends Command<Id> {
+  async execute(id: Id): Promise<void> {
+    const context = globalNavigation.context(store);
+    context.actions.tagInputStart({ id, mode: "update" });
 
     // Listen in to see if we the input was confirmed, or stopped.
     await Promise.race([
       new Promise(res => mediator.subscribeOnce(
         "ui/globalNavigation/tagInputConfirm",
-        res
+        () => res("confirm")
       )),
       new Promise(res => mediator.subscribeOnce(
         "ui/globalNavigation/tagInputCancel",
-        res
+        () => res("cancel")
       ))
     ]);
   }

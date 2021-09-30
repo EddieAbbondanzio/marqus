@@ -5,7 +5,7 @@ import { LocalNavigationGetters } from "@/store/modules/ui/modules/local-navigat
 import { LocalNavigationMutations } from "@/store/modules/ui/modules/local-navigation/mutations";
 import { undo, UndoModule } from "@/store/plugins/undo";
 import { confirmDeleteOrTrash } from "@/utils/prompts/confirm-delete-or-trash";
-import { ActionTree, Store } from "vuex";
+import { Store } from "vuex";
 import { Actions, Context } from "vuex-smart-module";
 import { LocalNavigationState } from "./state";
 

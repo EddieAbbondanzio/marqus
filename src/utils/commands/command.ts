@@ -1,6 +1,5 @@
-
-export abstract class Command {
-    abstract execute(): void | Promise<void>;
+export abstract class Command<TInput> {
+    abstract execute(payload: TInput): Promise<void>;
 
   // abstract undo(): void | Promise<void>;
 

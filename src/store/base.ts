@@ -1,5 +1,7 @@
+export type Id = string;
+
 export interface Base {
-  id: string;
+  id: Id;
   created: Date;
   modified?: Date;
 }

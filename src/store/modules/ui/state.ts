@@ -1,3 +1,5 @@
+export type InputMode = "create" | "update"
+
 export interface Cursor {
     icon: string;
     title?: string;
@@ -6,6 +8,6 @@ export interface Cursor {
 
 export class UserInterfaceState {
     cursor: Cursor = {
-        icon: 'pointer'
+      icon: "pointer"
     };
 }
