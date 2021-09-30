@@ -1,8 +1,8 @@
-import { inputScopes } from "@/utils";
+import { contexts } from "@/utils";
 import { Command } from "../command";
 
 export class FocusCommand extends Command<void> {
   async execute(): Promise<void> {
-    inputScopes.focus({ name: "globalNavigation" });
+    contexts.focus({ name: "globalNavigation" });
   }
 }

@@ -8,7 +8,6 @@ describe("Persist plugin", () => {
   describe("register()", () => {
     it("throws error on duplicate module.", () => {
       persist.modules.push({
-        scheduler: null!,
         settings: {
           namespace: "cat",
           setStateAction: ""
@@ -37,8 +36,7 @@ describe("Persist plugin", () => {
   describe("getModuleFileName()", () => {
     it("returns fileName if defined", () => {
       const name = getModuleFileName({
-        settings: { namespace: "cat", fileName: "dog.json", setStateAction: "" },
-        scheduler: null!
+        settings: { namespace: "cat", fileName: "dog.json", setStateAction: "" }
       });
 
       expect(name).toBe("dog.json");
@@ -46,8 +44,7 @@ describe("Persist plugin", () => {
 
     it("returns namespace if no fileName specified.", () => {
       const name = getModuleFileName({
-        settings: { namespace: "cat", setStateAction: "" },
-        scheduler: null!
+        settings: { namespace: "cat", setStateAction: "" }
       });
 
       expect(name).toBe("cat.json");
@@ -55,8 +52,7 @@ describe("Persist plugin", () => {
 
     it("returns deepest namespace if nested namespace", () => {
       const name = getModuleFileName({
-        settings: { namespace: "super/nested/cat", setStateAction: "" },
-        scheduler: null!
+        settings: { namespace: "super/nested/cat", setStateAction: "" }
       });
 
       expect(name).toBe("cat.json");

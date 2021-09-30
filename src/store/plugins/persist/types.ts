@@ -1,4 +1,3 @@
-import { TaskScheduler } from "@/utils";
 import { MutationPayload, Commit } from "vuex";
 
 /**
@@ -48,6 +47,6 @@ export interface PersistModuleSettings {
 }
 
 export interface PersistModule {
-  scheduler: TaskScheduler;
   settings: PersistModuleSettings;
+  saving?: boolean;
 }

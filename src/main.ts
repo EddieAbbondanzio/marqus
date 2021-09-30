@@ -10,7 +10,7 @@ import "@/plugins/vee-validate";
 import { contextMenu } from "@/directives/context-menu";
 import { mouse } from "./directives/mouse";
 import { shortcut } from "./directives/shortcut";
-import { inputScope } from "./directives/input-scope";
+import { context } from "./directives/input-scope";
 
 const app = createApp(App);
 
@@ -21,5 +21,5 @@ app
 
 app.directive("mouse", mouse);
 app.directive("shortcut", shortcut);
-app.directive("input-scope", inputScope);
+app.directive("context", context);
 app.directive("context-menu", contextMenu);

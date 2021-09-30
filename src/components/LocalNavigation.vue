@@ -66,8 +66,6 @@ import { useLocalNavigationContextMenu } from "@/hooks/use-local-navigation-cont
 import { useNotes } from "@/store/modules/notes";
 import { Note } from "@/store/modules/notes/state";
 import { useLocalNavigation } from "@/store/modules/ui/modules/local-navigation";
-import { inputScopes } from "@/utils";
-import { shortcuts } from "@/utils/shortcuts";
 
 export default defineComponent({
   setup: function () {
@@ -88,10 +86,6 @@ export default defineComponent({
       required: true,
       unique: [() => notes.state.values, (n: Note) => n.id, (n: Note) => n.name, () => localNav.state.notes.input]
     };
-
-    // shortcuts.subscribe("focusLocalNavigation", () => {
-    //   inputScopes.focus({ name: "localNavigation" });
-    // });
 
     useLocalNavigationContextMenu();
 

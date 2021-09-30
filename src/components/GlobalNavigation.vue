@@ -5,7 +5,7 @@
         v-model="width"
         minWidth="160px"
         v-context-menu:globalNavigation
-        v-input-scope:globalNavigation
+        v-context:globalNavigation
     >
         <Scrollable v-model="scrollPosition">
             <NavigationMenuItem
@@ -66,7 +66,6 @@ import NavigationMenuItem from "@/components/navigation/NavigationMenuItem.vue";
 import IconButton from "@/components/buttons/IconButton.vue";
 import { useGlobalNavigationContextMenu } from "@/hooks/use-global-navigation-context-menu";
 import Scrollable from "@/components/layout/Scrollable.vue";
-import { inputScopes } from "@/utils/scopes";
 import { mapUndoRedo } from "@/store/plugins/undo/utils/map-undo-redo";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { commands } from "@/utils/commands";
@@ -138,8 +137,7 @@ export default defineComponent({
       collapseAll: globalNav.actions.collapseAll,
       setActive: globalNav.actions.setActive,
       toggleHighlighted: () => globalNav.actions.toggleSelected(),
-      ...mapUndoRedo({ name: "globalNavigation" }),
-      focus: () => inputScopes.focus({ name: "globalNavigation" })
+      ...mapUndoRedo({ name: "globalNavigation" })
     };
   },
   components: {

@@ -1,5 +1,4 @@
 import { DATA_DIRECTORY, fileSystem } from "@/utils/file-system";
-import { TaskScheduler } from "@/utils/task-scheduler";
 import { MutationPayload, Store } from "vuex";
 import * as _ from "lodash";
 import { PersistModule, PersistModuleSettings } from "./types";
@@ -32,8 +31,12 @@ export const persist = {
         ) {
           const state = (s as any)[subscriber.settings.namespace]; // TODO: Add support for non root namespaces
 
-          // Set up a save to file task
-          subscriber.scheduler.schedule(async () => {
+          if (subscriber.saving) {
+            return;
+          }
+
+          (async () => {
+            subscriber.saving = true;
             let s = _.cloneDeep(state);
 
             // Apply the transformer to the state if one exists
@@ -65,7 +68,10 @@ export const persist = {
                 console.log("State: ", s);
               }
             }
-          });
+
+            // Remove itself
+            delete subscriber.saving;
+          })();
         }
       }.bind(persist)
     );
@@ -130,7 +136,7 @@ export const persist = {
       throw Error(`Duplicate module registered ${pModule.namespace}`);
     }
 
-    const m = { scheduler: new TaskScheduler(2), settings: pModule };
+    const m = { settings: pModule };
 
     this.modules.push(m);
     return m;

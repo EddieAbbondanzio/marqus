@@ -5,7 +5,7 @@
         :selected="selectedNotebooks"
         @add="onAdd"
         @remove="onRemove"
-        v-input-scope:notebookListBuilder.hidden="{ querySelector: 'input' }"
+        v-context:notebookListBuilder.hidden="{ querySelector: 'input' }"
       >
         <template #item="{item}">
           <p :title="fullyQualify(item)">{{ item.value }}</p>
@@ -71,7 +71,6 @@ import ListBuilder from "@/components/input/ListBuilder.vue";
 import Autocomplete from "@/components/input/Autocomplete.vue";
 import { ErrorMessage, Form } from "vee-validate";
 import InputField from "@/components/input/InputField.vue";
-import { inputScopes } from "@/utils/scopes";
 import { useNotebookValidation } from "@/hooks/use-notebook-validation";
 import { useNotebooks } from "@/store/modules/notebooks";
 import { Notebook, fullyQualify } from "@/store/modules/notebooks/state";
@@ -79,6 +78,7 @@ import { useNotes } from "@/store/modules/notes";
 import { useEditor } from "@/store/modules/ui/modules/editor";
 import { generateId } from "@/utils/id";
 import { isBlank } from "@/utils/string";
+import { contexts } from "@/utils";
 
 export default defineComponent({
   setup() {
@@ -151,7 +151,7 @@ export default defineComponent({
       get: () => editor.getters.activeTab?.notebookDropdownVisible ?? false,
       set: v => {
         editor.actions.setNotebooksDropdownVisible(v);
-        inputScopes.focus({ name: "notebookListBuilder" });
+        contexts.focus({ name: "notebookListBuilder" });
       }
     });
 

@@ -5,7 +5,7 @@
                 :selected="selectedTags"
                 @add="onAdd"
                 @remove="onRemove"
-                v-input-scope:tagListBuilder.hidden="{ querySelector: 'input' }"
+                v-context:tagListBuilder.hidden="{ querySelector: 'input' }"
             >
                 <template #item="{item}">
                     {{ item.value }}
@@ -63,13 +63,12 @@ import ListBuilder from "@/components/input/ListBuilder.vue";
 import { ErrorMessage, Form } from "vee-validate";
 import InputField from "@/components/input/InputField.vue";
 import Autocomplete from "@/components/input/Autocomplete.vue";
-import { inputScopes } from "@/utils/scopes";
 import { useTagValidation } from "@/hooks/use-tag-validation";
 import { useNotes } from "@/store/modules/notes";
 import { useTags } from "@/store/modules/tags";
 import { Tag } from "@/store/modules/tags/state";
 import { useEditor } from "@/store/modules/ui/modules/editor";
-import { generateId, isBlank } from "@/utils";
+import { contexts, generateId, isBlank } from "@/utils";
 
 export default defineComponent({
   setup: function (p, c) {
@@ -136,7 +135,7 @@ export default defineComponent({
       get: () => editor.getters.activeTab?.tagDropdownVisible ?? false,
       set: (v) => {
         editor.actions.setTagsDropdownVisible(v);
-        inputScopes.focus({ name: "tagListBuilder" });
+        contexts.focus({ name: "tagListBuilder" });
       }
     });
 

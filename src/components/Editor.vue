@@ -24,9 +24,8 @@ import EditorTabs from "@/components/EditorTabs.vue";
 import EditorToolbar from "@/components/EditorToolbar.vue";
 import MarkdownEditor from "@/components/MarkdownEditor.vue";
 import MarkdownRenderer from "@/components/MarkdownRenderer.vue";
-import { inputScopes } from "@/utils";
 import { useEditor } from "@/store/modules/ui/modules/editor";
-import { shortcuts } from "@/utils/shortcuts";
+import { contexts } from "@/utils";
 
 export default defineComponent({
   setup: () => {
@@ -41,7 +40,7 @@ export default defineComponent({
       activeTab: computed(() => editor.getters.activeTab),
       mode: computed(() => editor.state.mode),
       isFocus: computed(() => editor.state.isFocus),
-      focused: inputScopes.active
+      focused: contexts.active
     };
   },
   components: {

@@ -1,4 +1,4 @@
-import { inputScopes } from "@/utils/scopes";
+import { contexts } from "@/utils";
 import { Directive, DirectiveBinding } from "@vue/runtime-core";
 
 /**
@@ -6,11 +6,11 @@ import { Directive, DirectiveBinding } from "@vue/runtime-core";
  * visually indicating where the users focus is.
  *
  * Example:
- * v-input-scope -> Nameless scope that can be focused
- * v-input-scope:TEST_NAME -> Scope that can be referenced via it's name "TEST_NAME"
- * v-input-scope:globalNavigation.visible -> highlight element when active
+ * v-context -> Nameless scope that can be focused
+ * v-context:TEST_NAME -> Scope that can be referenced via it's name "TEST_NAME"
+ * v-context:globalNavigation.visible -> highlight element when active
  */
-export const inputScope: Directive = {
+export const context: Directive = {
   mounted: (el: HTMLElement, binding: DirectiveBinding) => {
     const name = binding.arg;
 
@@ -18,11 +18,9 @@ export const inputScope: Directive = {
     const querySelector =
       binding.value != null ? binding.value.querySelector : null;
 
-    inputScopes.register(el, { hidden, querySelector, name });
+    contexts.register(el, { hidden, querySelector, name });
   },
-  beforeUnmount: (el: HTMLElement, binding: DirectiveBinding) => {
-    inputScopes.remove(el);
-  }
+  beforeUnmount: (el: HTMLElement) => contexts.remove(el)
 };
 
 function isHidden(modifiers: any) {
