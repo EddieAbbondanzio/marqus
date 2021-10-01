@@ -16,6 +16,7 @@ import { MoveSelectionUpCommand } from "@/utils/commands/global-navigation/move-
 import { MoveSelectionDownCommand } from "@/utils/commands/global-navigation/move-selection-down-command";
 import { ScrolDownCommand } from "@/utils/commands/global-navigation/scroll-down-command";
 import { ScrolUpCommand } from "@/utils/commands/global-navigation/scroll-up-command";
+import { KeyCode, shortcuts } from "@/utils/shortcuts";
 
 export const globalNavigation = new Module({
   namespaced: true,
@@ -37,26 +38,60 @@ undo.registerContext({
   }
 });
 
-export enum GlobalNavigationCommand {
-  Focus = "focusGlobalNavigation",
-  CreateTag = "globalNavigationCreateTag",
-  RenameTag = "globalNavigationRenameTag",
-  DeleteTag = "globalNavigationDeleteTag",
-  ExpandAll = "globalNavigationExpandAll",
-  CollapseAll = "globalNavigationCollapseAll",
-  MoveSelectionUp = "globalNavigationMoveSelectionUp",
-  MoveSelectionDown = "globalNavigationMoveSelectionDown",
-  ScrollDown = "globalNavigationScrollDown",
-  ScrollUp = "globalNavigationScrollUp",
-}
+export type GlobalNavigationCommand =
+  | "focusGlobalNavigation"
+  | "globalNavigationCreateTag"
+  | "globalNavigationCreateNotebook"
+  | "globalNavigationRenameTag"
+  | "globalNavigationDeleteTag"
+  | "globalNavigationExpandAll"
+  | "globalNavigationCollapseAll"
+  | "globalNavigationMoveSelectionUp"
+  | "globalNavigationMoveSelectionDown"
+  | "globalNavigationScrollDown"
+  | "globalNavigationScrollUp";
 
-commands.register(GlobalNavigationCommand.CreateTag, CreateTagCommand);
-commands.register(GlobalNavigationCommand.RenameTag, RenameTagCommand);
-commands.register(GlobalNavigationCommand.DeleteTag, DeleteTagCommand);
-commands.register(GlobalNavigationCommand.Focus, FocusCommand);
-commands.register(GlobalNavigationCommand.ExpandAll, ExpandAllCommand);
-commands.register(GlobalNavigationCommand.CollapseAll, CollapseAllCommand);
-commands.register(GlobalNavigationCommand.MoveSelectionUp, MoveSelectionUpCommand);
-commands.register(GlobalNavigationCommand.MoveSelectionDown, MoveSelectionDownCommand);
-commands.register(GlobalNavigationCommand.ScrollDown, ScrolDownCommand);
-commands.register(GlobalNavigationCommand.ScrollUp, ScrolUpCommand);
+export type GlobalNavigationShortcut =
+| "focusGlobalNavigation"
+| "globalNavigationCreateNotebook"
+| "globalNavigationCreateTag"
+| "globalNavigationCollapseAll"
+| "globalNavigationExpandAll"
+
+commands.register<GlobalNavigationCommand>({
+  focusGlobalNavigation: FocusCommand,
+  globalNavigationCollapseAll: CollapseAllCommand,
+  globalNavigationCreateTag: CreateTagCommand,
+  globalNavigationDeleteTag: DeleteTagCommand,
+  globalNavigationExpandAll: ExpandAllCommand,
+  globalNavigationMoveSelectionDown: MoveSelectionDownCommand,
+  globalNavigationMoveSelectionUp: MoveSelectionUpCommand,
+  globalNavigationRenameTag: RenameTagCommand,
+  globalNavigationScrollDown: ScrolDownCommand,
+  globalNavigationScrollUp: ScrolUpCommand
+});
+
+shortcuts.define<GlobalNavigationShortcut>({
+  focusGlobalNavigation: [KeyCode.Control, KeyCode.Digit1],
+  globalNavigationCreateNotebook: [KeyCode.Control, KeyCode.LetterN],
+  globalNavigationCreateTag: [KeyCode.Control, KeyCode.LetterT],
+  globalNavigationCollapseAll: [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowUp],
+  globalNavigationExpandAll: [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowDown]
+});
+
+// Globals
+shortcuts.map<GlobalNavigationShortcut, GlobalNavigationCommand>({
+  focusGlobalNavigation: "focusGlobalNavigation"
+});
+
+// Contextuals
+shortcuts.map<GlobalNavigationShortcut, GlobalNavigationCommand>({
+  globalNavigationCollapseAll: "globalNavigationCollapseAll",
+  globalNavigationCreateNotebook: "globalNavigationCreateNotebook",
+  globalNavigationCreateTag: "globalNavigationCreateTag",
+  globalNavigationExpandAll: "globalNavigationExpandAll",
+  moveSelectionDown: "globalNavigationMoveSelectionDown",
+  moveSelectionUp: "globalNavigationMoveSelectionUp",
+  scrollDown: "globalNavigationScrollDown",
+  scrollUp: "globalNavigationScrollUp"
+}, { context: "globalNavigation" });

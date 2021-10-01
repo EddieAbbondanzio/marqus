@@ -1,16 +1,24 @@
+import { PartialRecord } from "..";
 import { Command } from "./command";
 
-type CommandConstructor = new () => Command<any>;
+export type CommandConstructor = new () => Command<any>;
+
+export interface CommandMapping {
+  name: string;
+  type: CommandConstructor
+}
 
 const registry: {[name: string]: CommandConstructor} = {};
 
 export const commands = {
-  register(key: string, ctor: CommandConstructor) {
-    if (registry[key] != null) {
-      throw Error(`Command name collision. ${key} already exists`);
-    }
+  register<T extends string>(rec: PartialRecord<T, CommandConstructor>) {
+    for (const [name, type] of Object.entries(rec)) {
+      if (registry[name] != null) {
+        throw Error(`Command name collision. ${name} already exists`);
+      }
 
-    registry[key] = ctor;
+      registry[name] = type as any;
+    }
   },
 
   async run<T>(name: string, payload?: T) {

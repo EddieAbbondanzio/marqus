@@ -11,7 +11,6 @@ import { mouseObjectManager } from "@/directives/mouse";
 import { mediator } from "@/store/plugins/mediator/mediator";
 import { persist } from "@/store/plugins/persist/persist";
 import { shortcuts } from "./utils/shortcuts/shortcuts";
-import { DEFAULT_SHORTCUTS } from "./utils/shortcuts/default-shortcuts";
 import { contexts } from "./utils";
 
 export default {
@@ -21,7 +20,6 @@ export default {
 
     onMounted(() => {
       persist.init(s);
-      shortcuts.register(DEFAULT_SHORTCUTS as any);
     });
 
     onBeforeUnmount(() => {

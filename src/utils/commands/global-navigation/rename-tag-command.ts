@@ -1,7 +1,7 @@
 import { store } from "@/store";
-import { Id } from "@/store/base";
 import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { mediator } from "@/store/plugins/mediator";
+import { Id } from "@/utils";
 import { Command } from "../command";
 
 export class RenameTagCommand extends Command<Id> {

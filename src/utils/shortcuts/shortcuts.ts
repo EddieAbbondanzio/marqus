@@ -1,13 +1,24 @@
 import { isModifier, isValidKeyCode, KeyCode, parseKey } from "@/utils/shortcuts/key-code";
 import _ from "lodash";
+import { contexts } from "..";
 import { commands } from "../commands";
-import { flatten, OneOrMore } from "../one-or-more";
+import { flatten, OneOrMore, PartialRecord } from "../types";
 
 export const KEYCODE_DELIMITER = "+";
 
-export type ShortcutDefinition = {keys: OneOrMore<KeyCode>, command: string };
+export type GeneralUseShortcuts =
+| "toggleSelection"
+| "moveSelectionUp"
+| "moveSelectionDown"
+| "scrollUp"
+| "scrollDown"
+| "undo"
+| "redo"
+| "rename"
 
-let defined: { [keys: string]: { command: string }} = {};
+let defined: { [keys: string]: { name: string }} = {};
+let mapped: { [shortcut: string]: {command: string, context?: string } []} = {};
+
 let activeKeys: { [key: string]: boolean } = {};
 
 export function _onKeyDown(e: KeyboardEvent) {
@@ -32,13 +43,26 @@ export function _onKeyDown(e: KeyboardEvent) {
   // Retrieve the set of keys currently pressed down.
   const active = Object.keys(activeKeys) as KeyCode[];
   const keyCodeString = keyCodesToString(active);
+
   const shortcut = defined[keyCodeString];
 
   if (shortcut == null) {
     return;
   }
 
-  commands.run(shortcut.command);
+  console.log("shortcut", shortcut);
+  const maps = mapped[shortcut.name];
+
+  console.log("maps: ", mapped);
+  if (maps == null || maps.length === 0) {
+    return;
+  }
+
+  for (const { command, context } of maps) {
+    if (context == null || contexts.isFocused(context)) {
+      commands.run(command);
+    }
+  }
 }
 
 export function _onKeyUp(e: KeyboardEvent) {
@@ -61,8 +85,6 @@ export function keyCodesToString(keys: OneOrMore<KeyCode>): string {
     throw Error("Duplicate keys detected in shortcut");
   }
 
-  const shortcutKeys: KeyCode[] = [];
-
   const [modifiers, normalKeys] = _.partition(k, isModifier);
 
   // Map the values in the array into an object for that O(1) lookup.
@@ -74,6 +96,8 @@ export function keyCodesToString(keys: OneOrMore<KeyCode>): string {
   /*
    * Modifiers should always be first, and in a specific order.
    */
+
+  const shortcutKeys: KeyCode[] = [];
 
   if (modifierFlags.control) {
     shortcutKeys.push(KeyCode.Control);
@@ -113,21 +137,39 @@ export function parseKeyCodes(
   return keys;
 }
 
-export const shortcuts = {
-  register(mappings: OneOrMore<ShortcutDefinition>) {
-    const toRegister: ShortcutDefinition[] = flatten(mappings);
+export type GeneralShortcutOr<T extends string> = GeneralUseShortcuts | T;
 
-    for (const { keys, command } of toRegister) {
-      const keyString = keyCodesToString(keys);
-      defined[keyString] = { command };
+export const shortcuts = {
+  define<T extends string>(defs: PartialRecord<T, OneOrMore<KeyCode>>) {
+    for (const [name, keys] of Object.entries(defs)) {
+      const keyString = keyCodesToString(flatten(keys as any));
+      defined[keyString] = { name };
+    }
+  },
+  map<S extends string, C extends string>(maps: PartialRecord<GeneralShortcutOr<S>, C>, opts?: { context: string }) {
+    for (const [shortcut, command] of Object.entries(maps)) {
+      (mapped[shortcut!] ??= []).push({ command: command!, ...opts });
     }
   },
   reset() {
     activeKeys = {};
     defined = {};
+    mapped = {};
   },
   dispose() {
     window.removeEventListener("keydown", _onKeyDown);
     window.removeEventListener("keyup", _onKeyUp);
   }
 };
+
+shortcuts.define<GeneralUseShortcuts>({
+  moveSelectionUp: KeyCode.ArrowUp,
+  moveSelectionDown: KeyCode.ArrowDown,
+  redo: [KeyCode.Control, KeyCode.LetterZ],
+  undo: [KeyCode.Control, KeyCode.LetterY],
+  rename: KeyCode.F2,
+  toggleSelection: KeyCode.Space,
+  scrollUp: [KeyCode.Control, KeyCode.ArrowUp],
+  scrollDown: [KeyCode.Control, KeyCode.ArrowDown]
+})
+;

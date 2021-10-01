@@ -10,7 +10,7 @@ import { editor } from "@/store/modules/ui/modules/editor";
 import { GlobalNavigationState } from "@/store/modules/ui/modules/global-navigation/state";
 import { EditorState } from "@/store/modules/ui/modules/editor/state";
 import { LocalNavigationState } from "@/store/modules/ui/modules/local-navigation/state";
-import { RecursivePartial } from "@/utils/recursive-partial";
+import { RecursivePartial } from "@/utils";
 import { mediator } from "@/store/plugins/mediator";
 import { undo } from "@/store/plugins/undo";
 
@@ -100,7 +100,7 @@ persist.register({
 });
 
 // After loading state from file, set the initial state of the undo contexts so we can revert
-mediator.subscribe("ui/SET_STATE", (v) => {
+mediator.subscribe("ui/setState", (v) => {
   const { globalNavigation, localNavigation, editor } = v.payload;
 
   undo.getModule({ name: "globalNavigation" }).setInitialState(globalNavigation);

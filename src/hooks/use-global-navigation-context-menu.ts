@@ -1,6 +1,5 @@
 import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { store } from "@/store";
-import { GlobalNavigationCommand } from "@/store/modules/ui/modules/global-navigation";
 import { commands } from "@/utils/commands";
 import { climbDomForMatch } from "@/utils/dom";
 
@@ -72,10 +71,10 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
         click: () => store.dispatch("ui/globalNavigation/tagInputStart", { id })
       });
 
-      items.push({
-        label: "Delete Tag",
-        click: () => commands.run(GlobalNavigationCommand.DeleteTag, id)
-      });
+      // items.push({
+      // label: "Delete Tag",
+      // click: () => commands.run("", id)
+      // });
 
       items.push({
         label: "Delete All Tags",
