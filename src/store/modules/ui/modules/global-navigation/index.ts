@@ -16,7 +16,7 @@ import { MoveSelectionUpCommand } from "@/utils/commands/global-navigation/move-
 import { MoveSelectionDownCommand } from "@/utils/commands/global-navigation/move-selection-down-command";
 import { ScrolDownCommand } from "@/utils/commands/global-navigation/scroll-down-command";
 import { ScrolUpCommand } from "@/utils/commands/global-navigation/scroll-up-command";
-import { KeyCode, shortcuts } from "@/utils/shortcuts";
+import { GENERAL_USE_SHORTCUTS, KeyCode, shortcuts } from "@/utils/shortcuts";
 
 export const globalNavigation = new Module({
   namespaced: true,
@@ -38,27 +38,7 @@ undo.registerContext({
   }
 });
 
-export type GlobalNavigationCommand =
-  | "focusGlobalNavigation"
-  | "globalNavigationCreateTag"
-  | "globalNavigationCreateNotebook"
-  | "globalNavigationRenameTag"
-  | "globalNavigationDeleteTag"
-  | "globalNavigationExpandAll"
-  | "globalNavigationCollapseAll"
-  | "globalNavigationMoveSelectionUp"
-  | "globalNavigationMoveSelectionDown"
-  | "globalNavigationScrollDown"
-  | "globalNavigationScrollUp";
-
-export type GlobalNavigationShortcut =
-| "focusGlobalNavigation"
-| "globalNavigationCreateNotebook"
-| "globalNavigationCreateTag"
-| "globalNavigationCollapseAll"
-| "globalNavigationExpandAll"
-
-commands.register<GlobalNavigationCommand>({
+export const GLOBAL_NAVIGATION_COMMANDS = {
   focusGlobalNavigation: FocusCommand,
   globalNavigationCollapseAll: CollapseAllCommand,
   globalNavigationCreateTag: CreateTagCommand,
@@ -69,29 +49,29 @@ commands.register<GlobalNavigationCommand>({
   globalNavigationRenameTag: RenameTagCommand,
   globalNavigationScrollDown: ScrolDownCommand,
   globalNavigationScrollUp: ScrolUpCommand
-});
+};
 
-shortcuts.define<GlobalNavigationShortcut>({
+export type GlobalNavigationCommand = keyof typeof GLOBAL_NAVIGATION_COMMANDS;
+
+commands.register(GLOBAL_NAVIGATION_COMMANDS);
+
+export const GLOBAL_NAVIGATION_SHORTCUTS = {
   focusGlobalNavigation: [KeyCode.Control, KeyCode.Digit1],
   globalNavigationCreateNotebook: [KeyCode.Control, KeyCode.LetterN],
   globalNavigationCreateTag: [KeyCode.Control, KeyCode.LetterT],
   globalNavigationCollapseAll: [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowUp],
   globalNavigationExpandAll: [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowDown]
-});
+};
 
-// Globals
-shortcuts.map<GlobalNavigationShortcut, GlobalNavigationCommand>({
-  focusGlobalNavigation: "focusGlobalNavigation"
-});
+const context = { context: "globalNavigation" };
 
-// Contextuals
-shortcuts.map<GlobalNavigationShortcut, GlobalNavigationCommand>({
-  globalNavigationCollapseAll: "globalNavigationCollapseAll",
-  globalNavigationCreateNotebook: "globalNavigationCreateNotebook",
-  globalNavigationCreateTag: "globalNavigationCreateTag",
-  globalNavigationExpandAll: "globalNavigationExpandAll",
-  moveSelectionDown: "globalNavigationMoveSelectionDown",
-  moveSelectionUp: "globalNavigationMoveSelectionUp",
-  scrollDown: "globalNavigationScrollDown",
-  scrollUp: "globalNavigationScrollUp"
-}, { context: "globalNavigation" });
+shortcuts.map<GlobalNavigationCommand>([
+  { keys: GLOBAL_NAVIGATION_SHORTCUTS.focusGlobalNavigation, command: "focusGlobalNavigation" },
+  { keys: GLOBAL_NAVIGATION_SHORTCUTS.globalNavigationCollapseAll, command: "globalNavigationCollapseAll", ...context },
+  { keys: GLOBAL_NAVIGATION_SHORTCUTS.globalNavigationCreateTag, command: "globalNavigationCreateTag", ...context },
+  { keys: GLOBAL_NAVIGATION_SHORTCUTS.globalNavigationExpandAll, command: "globalNavigationExpandAll", ...context },
+  { keys: GENERAL_USE_SHORTCUTS.moveSelectionDown, command: "globalNavigationMoveSelectionDown", ...context },
+  { keys: GENERAL_USE_SHORTCUTS.moveSelectionUp, command: "globalNavigationMoveSelectionUp", ...context },
+  { keys: GENERAL_USE_SHORTCUTS.scrollDown, command: "globalNavigationScrollDown", ...context },
+  { keys: GENERAL_USE_SHORTCUTS.scrollUp, command: "globalNavigationScrollUp", ...context }
+]);

@@ -41,5 +41,6 @@ persist.register({
     }
 
     return s;
-  }
+  },
+  ignore: ["SET_STATE"]
 });

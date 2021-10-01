@@ -4,7 +4,7 @@ import { ShortcutActions } from "@/store/modules/shortcuts/actions";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { persist } from "@/store/plugins/persist";
-import { keyCodesToString, parseKeyCodes } from "@/utils/shortcuts";
+import { ShortcutMapping } from "@/utils/shortcuts";
 
 export const shortcuts = new Module({
   namespaced: true,
@@ -19,27 +19,7 @@ export const useShortcuts = createComposable(shortcuts);
 persist.register({
   namespace: "shortcuts",
   setStateAction: "setState",
-  transformer,
-  reviver
+  ignore: ["SET_STATE"],
+  transformer: state => state.values,
+  reviver: values => ({ values: values.map((v: ShortcutMapping) => ({ ...v, userDefined: true })) })
 });
-
-interface ShortcutRaw {
-  name: string, keys: string
-}
-
-export function transformer(state: ShortcutState): { values: ShortcutRaw} {
-  return {
-    values: state.values
-      .filter(sc => sc.userDefined)
-      .map(({ keys, name }) => ({ keys: keyCodesToString(keys), name })) as any
-  };
-}
-
-export function reviver(state: {
-  values: ShortcutRaw[];
-}): ShortcutState {
-  return {
-    values: state.values
-      .map(({ keys, name }) => ({ keys: parseKeyCodes(keys), name, userDefined: true }))
-  };
-}

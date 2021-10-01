@@ -157,5 +157,6 @@ persist.register({
   namespace: "notes",
   setStateAction: "setState",
   serialize,
-  deserialize
+  deserialize,
+  ignore: ["SET_STATE"]
 });

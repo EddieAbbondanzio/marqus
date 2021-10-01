@@ -6,6 +6,7 @@ import { Command } from "../command";
 
 export class CreateTagCommand extends Command<void> {
   async execute(): Promise<void> {
+    console.log("CREATE TAG!");
     const id = generateId();
     const globalNavCtx = globalNavigation.context(store);
 

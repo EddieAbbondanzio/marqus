@@ -2,22 +2,16 @@ import { isModifier, isValidKeyCode, KeyCode, parseKey } from "@/utils/shortcuts
 import _ from "lodash";
 import { contexts } from "..";
 import { commands } from "../commands";
-import { flatten, OneOrMore, PartialRecord } from "../types";
+import { flatten, OneOrMore } from "../types";
 
 export const KEYCODE_DELIMITER = "+";
 
-export type GeneralUseShortcuts =
-| "toggleSelection"
-| "moveSelectionUp"
-| "moveSelectionDown"
-| "scrollUp"
-| "scrollDown"
-| "undo"
-| "redo"
-| "rename"
+export interface ShortcutRaw<C extends string> { keys: KeyCode[], command: C, context?: string }
+export interface ShortcutMapping { keys: string, command: string, context?: string, userDefined?: boolean }
 
-let defined: { [keys: string]: { name: string }} = {};
-let mapped: { [shortcut: string]: {command: string, context?: string } []} = {};
+let map: { [keys: string]: {command: string, context?: string }[] } = {};
+
+const invertedMap: { [command: string]: { keys: string, userDefined?: boolean }} = {};
 
 let activeKeys: { [key: string]: boolean } = {};
 
@@ -44,16 +38,8 @@ export function _onKeyDown(e: KeyboardEvent) {
   const active = Object.keys(activeKeys) as KeyCode[];
   const keyCodeString = keyCodesToString(active);
 
-  const shortcut = defined[keyCodeString];
+  const maps = map[keyCodeString];
 
-  if (shortcut == null) {
-    return;
-  }
-
-  console.log("shortcut", shortcut);
-  const maps = mapped[shortcut.name];
-
-  console.log("maps: ", mapped);
   if (maps == null || maps.length === 0) {
     return;
   }
@@ -137,32 +123,7 @@ export function parseKeyCodes(
   return keys;
 }
 
-export type GeneralShortcutOr<T extends string> = GeneralUseShortcuts | T;
-
-export const shortcuts = {
-  define<T extends string>(defs: PartialRecord<T, OneOrMore<KeyCode>>) {
-    for (const [name, keys] of Object.entries(defs)) {
-      const keyString = keyCodesToString(flatten(keys as any));
-      defined[keyString] = { name };
-    }
-  },
-  map<S extends string, C extends string>(maps: PartialRecord<GeneralShortcutOr<S>, C>, opts?: { context: string }) {
-    for (const [shortcut, command] of Object.entries(maps)) {
-      (mapped[shortcut!] ??= []).push({ command: command!, ...opts });
-    }
-  },
-  reset() {
-    activeKeys = {};
-    defined = {};
-    mapped = {};
-  },
-  dispose() {
-    window.removeEventListener("keydown", _onKeyDown);
-    window.removeEventListener("keyup", _onKeyUp);
-  }
-};
-
-shortcuts.define<GeneralUseShortcuts>({
+export const GENERAL_USE_SHORTCUTS = {
   moveSelectionUp: KeyCode.ArrowUp,
   moveSelectionDown: KeyCode.ArrowDown,
   redo: [KeyCode.Control, KeyCode.LetterZ],
@@ -171,5 +132,30 @@ shortcuts.define<GeneralUseShortcuts>({
   toggleSelection: KeyCode.Space,
   scrollUp: [KeyCode.Control, KeyCode.ArrowUp],
   scrollDown: [KeyCode.Control, KeyCode.ArrowDown]
-})
-;
+};
+
+export const shortcuts = {
+  map<C extends string>(mappings: OneOrMore<ShortcutRaw<C> | ShortcutMapping>, userDefined = false) {
+    for (const { command, keys, context } of flatten(mappings)) {
+      const keyString = Array.isArray(keys) ? keyCodesToString(keys) : keys;
+
+      // If we are override an existing shortcut, remove the old one.
+      const existing = invertedMap[command];
+      if (existing != null) {
+        map[existing.keys] = map[existing.keys].filter(m => m.command !== command);
+      }
+
+      // Set up the new one
+      (map[keyString] ??= []).push({ command, context });
+      invertedMap[command] = { keys: keyString, userDefined };
+    }
+  },
+  reset() {
+    activeKeys = {};
+    map = {};
+  },
+  dispose() {
+    window.removeEventListener("keydown", _onKeyDown);
+    window.removeEventListener("keyup", _onKeyUp);
+  }
+};

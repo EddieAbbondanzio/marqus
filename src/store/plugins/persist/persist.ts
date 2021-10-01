@@ -31,11 +31,11 @@ export const persist = {
         ) {
           const state = (s as any)[subscriber.settings.namespace]; // TODO: Add support for non root namespaces
 
-          if (subscriber.saving) {
+          if (subscriber.saving || subscriber.settings.ignore.some(m => m === mutation)) {
             return;
           }
 
-          (async () => {
+          const f = async () => {
             subscriber.saving = true;
             let s = _.cloneDeep(state);
 
@@ -71,7 +71,9 @@ export const persist = {
 
             // Remove itself
             delete subscriber.saving;
-          })();
+          };
+
+          f();
         }
       }.bind(persist)
     );

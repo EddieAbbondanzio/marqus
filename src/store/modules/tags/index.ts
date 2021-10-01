@@ -17,5 +17,6 @@ export const useTags = createComposable(tags);
 
 persist.register({
   namespace: "tags",
-  setStateAction: "setState"
+  setStateAction: "setState",
+  ignore: ["SET_STATE"]
 });
