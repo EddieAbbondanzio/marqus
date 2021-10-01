@@ -1,5 +1,6 @@
-import { MouseObject, MouseObjectManager } from "@/utils/mouse/";
+import { MouseObjectPublisher } from "@/utils/mouse/";
 import { store } from "@/store";
+import { MouseObject } from "./mouse-object";
 
 describe("MouseObjectManager", () => {
   const mockCommit = jest.fn();
@@ -14,7 +15,7 @@ describe("MouseObjectManager", () => {
       const mockAddEventListener = jest.fn();
       window.addEventListener = mockAddEventListener;
 
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
 
       expect(mockAddEventListener).toHaveBeenCalledTimes(3);
       expect(mockAddEventListener.mock.calls[0][0]).toBe("click");
@@ -33,7 +34,7 @@ describe("MouseObjectManager", () => {
       window.addEventListener = mockAddEventListener;
       window.removeEventListener = mockRemoveEventListener;
 
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       m.dispose();
 
       expect(mockRemoveEventListener).toHaveBeenCalledTimes(3);
@@ -50,7 +51,7 @@ describe("MouseObjectManager", () => {
 
   describe("add()", () => {
     it("adds object to array", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       m.add(null!);
 
       expect(m.objects).toHaveLength(1);
@@ -59,7 +60,7 @@ describe("MouseObjectManager", () => {
 
   describe("get()", () => {
     it("returns mouse object by matching html element", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const el = document.createElement("div");
       const obj = new MouseObject(el, false, m);
       m.add(obj);
@@ -69,7 +70,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("returns null if no match", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const el = document.createElement("div");
 
       const found = m.get(el);
@@ -79,7 +80,7 @@ describe("MouseObjectManager", () => {
 
   describe("remove()", () => {
     it("removes object from array", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const el = document.createElement("div");
       const obj = new MouseObject(el, false, m);
       m.add(obj);
@@ -93,7 +94,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("calls dispose of object to prevent memory leak", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const el = document.createElement("div");
       const obj = new MouseObject(el, false, m);
       obj.dispose = jest.fn();
@@ -107,14 +108,14 @@ describe("MouseObjectManager", () => {
 
   describe("onKeyUp()", () => {
     it("does nothing if active is null", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
 
       m.onKeyUp({ key: "Escape" } as any);
       expect(m.cancelled).toBeFalsy();
     });
 
     it("does nothing if not holding", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const el = document.createElement("div");
 
       const obj = new MouseObject(el, false, m);
@@ -126,7 +127,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("sets cancelled as true when escape is pressed", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const el = document.createElement("div");
 
       const obj = new MouseObject(el, false, m);
@@ -139,7 +140,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("notifies active of dragcancel event", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const el = document.createElement("div");
 
       const obj = new MouseObject(el, false, m);
@@ -157,7 +158,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("resets cursor icon", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const el = document.createElement("div");
 
       const obj = new MouseObject(el, false, m);
@@ -178,7 +179,7 @@ describe("MouseObjectManager", () => {
 
   describe("onMouseMove()", () => {
     it("checks to see if active object exists first", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -190,7 +191,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("stops propagation", () => {
-      const manager = new MouseObjectManager();
+      const manager = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -206,7 +207,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("stops if mouseDown is false", () => {
-      const manager = new MouseObjectManager();
+      const manager = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -222,7 +223,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("sets holding to true if not already, and notifies hold + drag", () => {
-      const manager = new MouseObjectManager();
+      const manager = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -243,7 +244,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("notifies drag subscribers, but not hold if already holding", () => {
-      const manager = new MouseObjectManager();
+      const manager = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -266,7 +267,7 @@ describe("MouseObjectManager", () => {
 
   describe("onMouseUp()", () => {
     it("checks to see if active object exists first", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -278,7 +279,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("stops propagation", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -293,7 +294,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("notifies click subscribers if not holding", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -312,7 +313,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("notifies release subscribers if holding", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -332,7 +333,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("resets holding, mouseDown, and active", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;
@@ -353,7 +354,7 @@ describe("MouseObjectManager", () => {
     });
 
     it("does not notify release event subscribers if cancelled", () => {
-      const m = new MouseObjectManager();
+      const m = new MouseObjectPublisher();
       const mockEvent = {
         stopImmediatePropagation: jest.fn()
       } as any;

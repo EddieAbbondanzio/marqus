@@ -1,10 +1,8 @@
-import { MouseAction } from "@/utils/mouse/mouse-action";
-import { MouseActionFunction } from "@/utils/mouse/mouse-action-function";
-import { MouseObject } from "@/utils/mouse/mouse-object";
-import { MouseObjectManager } from "@/utils/mouse/mouse-object-manager";
-import { DirectiveBinding, VNode } from "vue";
+import { MouseObjectPublisher } from "@/utils/mouse";
+import { MouseObject, MouseAction, MouseActionFunction } from "@/utils/mouse/mouse-object";
+import { DirectiveBinding } from "vue";
 
-export const mouseObjectManager = new MouseObjectManager();
+export const mouseObjectPublisher = new MouseObjectPublisher();
 
 /**
  * Directive to abstract basic mouse events into a click, hold, or release event.
@@ -17,11 +15,11 @@ export const mouse = {
     const button = getButton(binding.modifiers);
     const self = binding.modifiers.self;
 
-    let obj = mouseObjectManager.get(el);
+    let obj = mouseObjectPublisher.get(el);
 
     if (obj == null) {
-      obj = new MouseObject(el, self, mouseObjectManager);
-      mouseObjectManager.add(obj);
+      obj = new MouseObject(el, self, mouseObjectPublisher);
+      mouseObjectPublisher.add(obj);
     }
 
     obj.subscribe(action, button, callback);
@@ -29,7 +27,7 @@ export const mouse = {
   },
 
   unmounted: function (el: HTMLElement, binding: DirectiveBinding) {
-    const obj = mouseObjectManager.get(el);
+    const obj = mouseObjectPublisher.get(el);
 
     if (obj == null) {
       return;
@@ -42,7 +40,7 @@ export const mouse = {
     obj.unsubscribe(action, button, callback);
 
     if (obj.subscriberCount === 0) {
-      mouseObjectManager.remove(obj);
+      mouseObjectPublisher.remove(obj);
     }
   }
 };

@@ -1,7 +1,23 @@
-import { MouseObject, MouseObjectManager, MouseObjectSubscriber } from "@/utils/mouse";
+/* eslint-disable @typescript-eslint/no-empty-function */
+import { MouseObjectPublisher } from ".";
+import { getButton, MouseObject, MouseObjectSubscriber } from "./mouse-object";
+
+describe("getButton", () => {
+  it("returns left for 0", () => {
+    expect(getButton(0)).toBe("left");
+  });
+
+  it("returns right for 2", () => {
+    expect(getButton(2)).toBe("right");
+  });
+
+  it("defaults to either", () => {
+    expect(getButton(13)).toBe("either");
+  });
+});
 
 describe("MouseObject", () => {
-  const mouseObjectManager = new MouseObjectManager();
+  const mouseObjectManager = new MouseObjectPublisher();
 
   describe("subscriberCount", () => {
     it("returns length of subscribers", () => {
@@ -110,6 +126,7 @@ describe("MouseObject", () => {
       const el = document.createElement("a");
       const manager = {} as any;
       const obj = new MouseObject(el, false, manager);
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       obj.subscribe("click", "left", () => {});
 
       obj.onMouseDown(({
@@ -117,6 +134,30 @@ describe("MouseObject", () => {
         stopImmediatePropagation: jest.fn()
       } as any) as MouseEvent);
       expect(manager.active).toBe(obj);
+    });
+  });
+});
+
+describe("MouseObjectSubscriber", () => {
+  describe("isMatch()", () => {
+    it("returns true if action and button match", () => {
+      const sub = new MouseObjectSubscriber("click", "left", () => {});
+      expect(sub.isMatch("click", "left")).toBeTruthy();
+    });
+
+    it("returns true if action match and button is either", () => {
+      const sub = new MouseObjectSubscriber("click", "either", () => {});
+      expect(sub.isMatch("click", "left")).toBeTruthy();
+    });
+
+    it("returns false if buttons don't match", () => {
+      const sub = new MouseObjectSubscriber("click", "right", () => {});
+      expect(sub.isMatch("click", "left")).toBeFalsy();
+    });
+
+    it("returns false if actions don't match", () => {
+      const sub = new MouseObjectSubscriber("click", "right", () => {});
+      expect(sub.isMatch("hold", "left")).toBeFalsy();
     });
   });
 });

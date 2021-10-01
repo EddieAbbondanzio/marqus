@@ -7,11 +7,11 @@
 import { onBeforeUnmount, onMounted } from "vue";
 import { useStore } from "vuex";
 import Cursor from "@/components/Cursor.vue";
-import { mouseObjectManager } from "@/directives/mouse";
 import { mediator } from "@/store/plugins/mediator/mediator";
 import { persist } from "@/store/plugins/persist/persist";
 import { shortcuts } from "./utils/shortcuts/shortcuts";
 import { contexts } from "./utils";
+import { mouseObjectPublisher } from "./directives/mouse";
 
 export default {
   components: { Cursor },
@@ -27,7 +27,7 @@ export default {
       mediator.release();
 
       contexts.dispose();
-      mouseObjectManager.dispose();
+      mouseObjectPublisher.dispose();
       shortcuts.dispose();
     });
   }

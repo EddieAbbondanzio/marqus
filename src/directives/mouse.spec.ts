@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { DirectiveBinding } from "vue";
 import {
   mouse,
-  mouseObjectManager,
+  mouseObjectPublisher,
   getAction,
   getCallback,
   getButton
@@ -18,7 +19,7 @@ describe("v-mouse", () => {
       } as any) as DirectiveBinding;
 
       mouse.beforeMount(el, binding);
-      expect(mouseObjectManager.objects).toHaveLength(1);
+      expect(mouseObjectPublisher.objects).toHaveLength(1);
     });
   });
 });

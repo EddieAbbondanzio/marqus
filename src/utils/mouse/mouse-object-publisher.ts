@@ -1,8 +1,7 @@
-import { MouseObject } from "./mouse-object";
-import { getButton } from "./mouse-button";
 import { store } from "@/store";
+import { getButton, MouseObject } from "./mouse-object";
 
-export class MouseObjectManager {
+export class MouseObjectPublisher {
     objects: MouseObject[];
     active: MouseObject | null = null;
 
