@@ -3,6 +3,8 @@ import { createComposable, Module } from "vuex-smart-module";
 import { ShortcutActions } from "@/store/modules/shortcuts/actions";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
+import { persist } from "@/store/plugins/persist";
+import { keyCodesToString, parseKeyCodes } from "@/utils/shortcuts";
 
 export const shortcuts = new Module({
   namespaced: true,
@@ -14,25 +16,30 @@ export const shortcuts = new Module({
 
 export const useShortcuts = createComposable(shortcuts);
 
-// persist.register({
-//   namespace: "shortcuts",
-//   setStateAction: "setState",
-//   transformer,
-//   reviver
-// });
+persist.register({
+  namespace: "shortcuts",
+  setStateAction: "setState",
+  transformer,
+  reviver
+});
 
-// export function transformer(state: ShortcutState): any {
-//   const customShortcuts = _.difference(state.values, DEFAULT_SHORTCUTS);
+interface ShortcutRaw {
+  name: string, keys: string
+}
 
-//   return {
-//     values: customShortcuts.map(s => ({ keys: s.keys, command: s.name }))
-//   };
-// }
+export function transformer(state: ShortcutState): { values: ShortcutRaw} {
+  return {
+    values: state.values
+      .filter(sc => sc.userDefined)
+      .map(({ keys, name }) => ({ keys: keyCodesToString(keys), name })) as any
+  };
+}
 
-// export function reviver(state: {
-//   values: { command: string; keys: string }[];
-// }): ShortcutState {
-//   return {
-//     values: [] // state.values.map(s => ({ keys: parseKeyCodes(s.keys), command: s.command }))
-//   };
-// }
+export function reviver(state: {
+  values: ShortcutRaw[];
+}): ShortcutState {
+  return {
+    values: state.values
+      .map(({ keys, name }) => ({ keys: parseKeyCodes(keys), name, userDefined: true }))
+  };
+}
