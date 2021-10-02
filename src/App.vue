@@ -1,5 +1,6 @@
 <template>
     <Cursor />
+    <Shortcuts />
     <router-view></router-view>
 </template>
 
@@ -9,12 +10,12 @@ import { useStore } from "vuex";
 import Cursor from "@/components/Cursor.vue";
 import { mediator } from "@/store/plugins/mediator/mediator";
 import { persist } from "@/store/plugins/persist/persist";
-import { shortcuts } from "./utils/shortcuts/shortcuts";
 import { contexts } from "./utils";
 import { mouseObjectPublisher } from "./directives/mouse";
+import Shortcuts from "@/components/Shortcuts.vue";
 
 export default {
-  components: { Cursor },
+  components: { Cursor, Shortcuts },
   setup: () => {
     const s = useStore();
 
@@ -28,7 +29,6 @@ export default {
 
       contexts.dispose();
       mouseObjectPublisher.dispose();
-      shortcuts.dispose();
     });
   }
 };

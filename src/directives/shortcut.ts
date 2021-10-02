@@ -1,4 +1,4 @@
-import { shortcuts } from "@/utils/shortcuts/shortcuts";
+// import { shortcuts } from "@/utils/shortcuts/shortcuts";
 import { DirectiveBinding } from "vue";
 
 export const shortcut = {

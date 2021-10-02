@@ -1,9 +1,4 @@
-import {
-  parseKey,
-  isModifier,
-  KeyCode,
-  isValidKeyCode
-} from "@/utils/shortcuts";
+import { parseKey, isModifier, KeyCode, isValidKeyCode } from "./key-code";
 
 describe("parseKey()", () => {
   it("returns space", () => {

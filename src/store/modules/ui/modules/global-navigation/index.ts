@@ -16,7 +16,7 @@ import { MoveSelectionUpCommand } from "@/utils/commands/global-navigation/move-
 import { MoveSelectionDownCommand } from "@/utils/commands/global-navigation/move-selection-down-command";
 import { ScrolDownCommand } from "@/utils/commands/global-navigation/scroll-down-command";
 import { ScrolUpCommand } from "@/utils/commands/global-navigation/scroll-up-command";
-import { GENERAL_USE_SHORTCUTS, KeyCode, shortcuts } from "@/utils/shortcuts";
+import { KeyCode } from "@/store/modules/shortcuts/key-code";
 
 export const globalNavigation = new Module({
   namespaced: true,
@@ -52,7 +52,6 @@ export const GLOBAL_NAVIGATION_COMMANDS = {
 };
 
 export type GlobalNavigationCommand = keyof typeof GLOBAL_NAVIGATION_COMMANDS;
-
 commands.register(GLOBAL_NAVIGATION_COMMANDS);
 
 export const GLOBAL_NAVIGATION_SHORTCUTS = {
@@ -62,16 +61,3 @@ export const GLOBAL_NAVIGATION_SHORTCUTS = {
   globalNavigationCollapseAll: [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowUp],
   globalNavigationExpandAll: [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowDown]
 };
-
-const context = { context: "globalNavigation" };
-
-shortcuts.map<GlobalNavigationCommand>([
-  { keys: GLOBAL_NAVIGATION_SHORTCUTS.focusGlobalNavigation, command: "focusGlobalNavigation" },
-  { keys: GLOBAL_NAVIGATION_SHORTCUTS.globalNavigationCollapseAll, command: "globalNavigationCollapseAll", ...context },
-  { keys: GLOBAL_NAVIGATION_SHORTCUTS.globalNavigationCreateTag, command: "globalNavigationCreateTag", ...context },
-  { keys: GLOBAL_NAVIGATION_SHORTCUTS.globalNavigationExpandAll, command: "globalNavigationExpandAll", ...context },
-  { keys: GENERAL_USE_SHORTCUTS.moveSelectionDown, command: "globalNavigationMoveSelectionDown", ...context },
-  { keys: GENERAL_USE_SHORTCUTS.moveSelectionUp, command: "globalNavigationMoveSelectionUp", ...context },
-  { keys: GENERAL_USE_SHORTCUTS.scrollDown, command: "globalNavigationScrollDown", ...context },
-  { keys: GENERAL_USE_SHORTCUTS.scrollUp, command: "globalNavigationScrollUp", ...context }
-]);

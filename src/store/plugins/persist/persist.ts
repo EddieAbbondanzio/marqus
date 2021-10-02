@@ -38,6 +38,7 @@ export const persist = {
           const f = async () => {
             subscriber.saving = true;
             let s = _.cloneDeep(state);
+            console.log(s);
 
             // Apply the transformer to the state if one exists
             if (subscriber.settings.transformer != null) {

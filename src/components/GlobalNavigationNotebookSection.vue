@@ -45,7 +45,6 @@ import IconButton from "@/components/buttons/IconButton.vue";
 import { useNotebooks } from "@/store/modules/notebooks";
 import { Notebook } from "@/store/modules/notebooks/state";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
-import { shortcuts } from "@/utils/shortcuts";
 
 export default defineComponent({
   setup: function () {
