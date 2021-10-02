@@ -68,7 +68,6 @@ import { useGlobalNavigationContextMenu } from "@/hooks/use-global-navigation-co
 import Scrollable from "@/components/layout/Scrollable.vue";
 import { mapUndoRedo } from "@/store/plugins/undo/utils/map-undo-redo";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
-import { commands } from "@/utils/commands";
 
 export default defineComponent({
   setup: function () {
@@ -87,56 +86,14 @@ export default defineComponent({
       }
     });
 
-    const setHighlightActive = () => {
-      if (globalNav.state.selected != null) {
-        globalNav.actions.setActive(globalNav.state.selected);
-      }
-    };
-
-    const deleteHighlightItem = () => {
-      const highlight = globalNav.state.selected;
-
-      switch (highlight?.section) {
-      case "notebook":
-        if (highlight.id != null) globalNav.actions.notebookDelete(highlight.id);
-        break;
-
-      case "tag":
-        if (highlight.id != null) globalNav.actions.tagDelete(highlight.id);
-        break;
-      }
-    };
-
-    const rename = () => {
-      const highlight = globalNav.state.selected;
-
-      switch (highlight?.section) {
-      case "notebook":
-        if (highlight.id != null) globalNav.actions.notebookInputStart({ id: highlight.id });
-        break;
-      case "tag":
-        if (highlight.id != null) commands.run("globalNavigationRenameTag", highlight.id);
-        break;
-      }
-    };
-
     return {
       width,
       scrollPosition,
-      rename,
-      deleteHighlightItem,
-      setHighlightActive,
-      scrollUp: () => globalNav.actions.scrollUp(),
-      scrollDown: () => globalNav.actions.scrollDown(),
-      clearHighlight: () => globalNav.actions.clearSelected(),
-      moveHighlightUp: () => globalNav.actions.moveSelectionUp(),
-      moveHighlightDown: () => globalNav.actions.moveSelectionDown(),
       isActive: computed(() => globalNav.getters.isActive),
       isHighlighted: computed(() => globalNav.getters.isSelected),
       expandAll: globalNav.actions.expandAll,
       collapseAll: globalNav.actions.collapseAll,
       setActive: globalNav.actions.setActive,
-      toggleHighlighted: () => globalNav.actions.toggleSelected(),
       ...mapUndoRedo({ name: "globalNavigation" })
     };
   },
