@@ -22,7 +22,7 @@
 import DropdownMenu from "@/components/dropdown/DropdownMenu.vue";
 import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import DropdownItem from "@/components/dropdown/DropdownItem.vue";
-import { climbDomForMatch } from "@/utils/dom";
+import { findParent } from "@/utils";
 
 export default defineComponent({
   components: { DropdownMenu, DropdownItem },
@@ -50,7 +50,7 @@ export default defineComponent({
         return;
       }
 
-      const isWithinMenu = climbDomForMatch(e.target as HTMLElement, (el) =>
+      const isWithinMenu = findParent(e.target as HTMLElement, (el) =>
         el.classList.contains("dropdown-menu") ||
         el.classList.contains("dropdown-trigger") ||
         el.classList.contains("dropdown-item")

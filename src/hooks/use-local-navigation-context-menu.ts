@@ -1,14 +1,14 @@
 import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { store } from "@/store";
 import { Note } from "@/store/modules/notes/state";
-import { climbDomForMatch } from "@/utils/dom";
+import { findParent } from "@/utils";
 
 export const useLocalNavigationContextMenu = createContextMenuHook(
   "localNavigation",
   (_, p) => {
     const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
 
-    const id = climbDomForMatch(
+    const id = findParent(
       element,
       el => el.hasAttribute("data-id"),
       { matchValue: el => el.getAttribute("data-id") }

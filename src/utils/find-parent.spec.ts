@@ -1,4 +1,4 @@
-import { climbDomForMatch } from "./climb-dom-for-match";
+import { findParent } from "./find-parent";
 
 describe("climbDomUntil()", () => {
   const parent = document.createElement("div");
@@ -6,22 +6,22 @@ describe("climbDomUntil()", () => {
   parent.append(child);
 
   it("it checks for stop condition before doing anything", () => {
-    const r = climbDomForMatch(child, () => true, { stop: () => true });
+    const r = findParent(child, () => true, { stop: () => true });
     expect(r).toBeFalsy();
   });
 
   it("returns true when match on initial element", () => {
-    const r = climbDomForMatch(child, el => el === child);
+    const r = findParent(child, el => el === child);
     expect(r).toBeTruthy();
   });
 
   it("returns true when match on parent", () => {
-    const r = climbDomForMatch(child, el => el === parent);
+    const r = findParent(child, el => el === parent);
     expect(r).toBeTruthy();
   });
 
   it("returns match value on match and passed", () => {
-    const r = climbDomForMatch(child, el => el === parent, {
+    const r = findParent(child, el => el === parent, {
       matchValue: () => 3
     });
 
@@ -29,13 +29,13 @@ describe("climbDomUntil()", () => {
   });
 
   it("returns false when no match, and no default value", () => {
-    const r = climbDomForMatch(child, () => false);
+    const r = findParent(child, () => false);
 
     expect(r).toBeFalsy();
   });
 
   it("returns default value on stop condition if passed", () => {
-    const r = climbDomForMatch(child, () => true, {
+    const r = findParent(child, () => true, {
       stop: () => true,
       matchValue: 42,
       defaultValue: 3
@@ -45,7 +45,7 @@ describe("climbDomUntil()", () => {
   });
 
   it("returns default value on failed if passed", () => {
-    const r = climbDomForMatch(child, () => false, {
+    const r = findParent(child, () => false, {
       matchValue: () => 42,
       defaultValue: () => 3
     });

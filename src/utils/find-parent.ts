@@ -22,7 +22,7 @@ type OptsForValueOrDefault<T> = OptsForValueOrNull<T> & {
  * @param opts Values to return based on if we hit a match, or missed and got the default back.
  * @returns matchValue if we got a hit, otherwise defaultValue or null.
  */
-export function climbDomForMatch<T>(
+export function findParent<T>(
   start: HTMLElement,
   match: Match,
   opts: OptsForValueOrDefault<T>
@@ -34,7 +34,7 @@ export function climbDomForMatch<T>(
  * @param opts Values to return based on if we hit a match, or missed and got null as the default.
  * @returns matchValue if we got a hit, otherwise null.
  */
-export function climbDomForMatch<T>(
+export function findParent<T>(
   start: HTMLElement,
   match: Match,
   opts: OptsForValueOrNull<T>
@@ -46,12 +46,12 @@ export function climbDomForMatch<T>(
  * @param opts When to stop.
  * @returns True if we found a match
  */
-export function climbDomForMatch(
+export function findParent(
   start: HTMLElement,
   match: Match,
   opts?: OptsForBoolean
 ): boolean;
-export function climbDomForMatch(
+export function findParent(
   start: HTMLElement,
   match: Match,
   opts?: any

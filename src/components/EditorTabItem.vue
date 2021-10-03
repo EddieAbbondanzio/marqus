@@ -25,7 +25,7 @@ import { computed, defineComponent } from "vue";
 import DeleteButton from "@/components/buttons/DeleteButton.vue";
 import { useEditor } from "@/store/modules/ui/modules/editor";
 import { Tab } from "@/store/modules/ui/modules/editor/state";
-import { climbDomForMatch } from "@/utils/dom";
+import { findParent } from "@/utils";
 
 export default defineComponent({
   props: {
@@ -47,7 +47,7 @@ export default defineComponent({
         return;
       }
 
-      const tabContainer = climbDomForMatch(endedOnElement, (e) => e.id === "editor-tabs",
+      const tabContainer = findParent(endedOnElement, (e) => e.id === "editor-tabs",
         { matchValue: e => e });
 
       // If we can't find the tab container, we didn't finish our drag within it. Stop.

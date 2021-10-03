@@ -1,16 +1,15 @@
 import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
-import { store } from "@/store";
 import { commands } from "@/commands";
-import { climbDomForMatch } from "@/utils/dom";
+import { findParent } from "@/utils";
 
 export const useGlobalNavigationContextMenu = createContextMenuHook(
   "globalNavigation",
   (c, p) => {
     const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
-    const isElementNotebook = climbDomForMatch(element, el => el.classList.contains("global-navigation-notebook"));
-    const isElementTag = climbDomForMatch(element, el => el.classList.contains("global-navigation-tag"));
+    const isElementNotebook = findParent(element, el => el.classList.contains("global-navigation-notebook"));
+    const isElementTag = findParent(element, el => el.classList.contains("global-navigation-tag"));
 
-    const id = climbDomForMatch(
+    const id = findParent(
       element,
       el => el.hasAttribute("data-id"),
       { matchValue: el => el.getAttribute("data-id") }

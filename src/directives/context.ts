@@ -1,5 +1,4 @@
-import { generateId } from "@/utils";
-import { climbDomForMatch } from "@/utils/dom";
+import { generateId, findParent } from "@/utils";
 import { Directive, DirectiveBinding } from "@vue/runtime-core";
 import { nextTick, ref, Ref } from "vue";
 
@@ -53,7 +52,7 @@ export class Context {
   ) {}
 
   containsElement(element: HTMLElement): boolean {
-    return climbDomForMatch(element, el => el.getAttribute(CONTEXT_ATTRIBUTE) === this.id);
+    return findParent(element, el => el.getAttribute(CONTEXT_ATTRIBUTE) === this.id);
   }
 }
 
@@ -65,7 +64,7 @@ const registered: Context[] = [];
  */
 function onFocusIn(event: FocusEvent) {
   // We might need to climb up the dom tree to handle nested children of a scope.
-  const scopeEl = climbDomForMatch(event.target as HTMLElement, el => el.hasAttribute(CONTEXT_ATTRIBUTE),
+  const scopeEl = findParent(event.target as HTMLElement, el => el.hasAttribute(CONTEXT_ATTRIBUTE),
     { matchValue: el => el });
 
   if (scopeEl == null) {
@@ -199,7 +198,7 @@ export const contexts = {
       return contexts.active.value.name === name;
     }
 
-    const contains: boolean = climbDomForMatch(contexts.active.value.el, el => {
+    const contains: boolean = findParent(contexts.active.value.el, el => {
       const attr = el.getAttribute(CONTEXT_ATTRIBUTE);
 
       if (attr != null) {

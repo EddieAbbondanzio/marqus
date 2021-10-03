@@ -70,7 +70,7 @@
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, Ref, ref, watch } from "vue";
 import IconButton from "@/components/buttons/IconButton.vue";
-import { climbDomForMatch, isElementAboveScroll, isElementBelowScroll } from "@/utils/dom";
+import { findParent, isElementAboveScroll, isElementBelowScroll } from "@/utils";
 
 export default defineComponent({
   props: {
@@ -169,7 +169,7 @@ export default defineComponent({
                  * Try to see if we are in a scrollable, and need to scroll the item into focus.
                  */
         if (newVal) {
-          const scrollable = climbDomForMatch(wrapper.value, el => el.classList.contains("scrollable-wrapper"),
+          const scrollable = findParent(wrapper.value, el => el.classList.contains("scrollable-wrapper"),
             { matchValue: el => el }
           );
 
