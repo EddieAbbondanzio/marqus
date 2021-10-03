@@ -1,4 +1,5 @@
 /* eslint-disable no-useless-constructor */
+import { Command } from "./command";
 import {
   FocusCommand, CollapseAllCommand,
   CreateTagCommand, DeleteTagCommand, ExpandAllCommand, MoveSelectionDownCommand,
@@ -6,10 +7,6 @@ import {
   CreateNotebookCommand, RenameNotebookCommand, DeleteAllTagsCommand,
   DeleteNotebookCommand, DeleteAllNotebooksCommand, EmptyTrashCommand
 } from "./global-navigation";
-
-export abstract class Command<TInput> {
-  abstract execute(payload: TInput): Promise<void>;
-}
 
 const COMMANDS = {
   globalNavigationFocus: FocusCommand,

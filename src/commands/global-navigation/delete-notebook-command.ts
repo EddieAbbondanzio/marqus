@@ -1,5 +1,5 @@
 import { Id } from "@/utils";
-import { Command } from "..";
+import { Command } from "../command";
 
 export class DeleteNotebookCommand extends Command<Id> {
   execute(payload: string): Promise<void> {
