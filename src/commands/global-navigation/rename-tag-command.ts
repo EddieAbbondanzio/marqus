@@ -2,7 +2,7 @@ import { store } from "@/store";
 import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { mediator } from "@/store/plugins/mediator";
 import { Id } from "@/utils";
-import { Command } from "../command";
+import { Command } from "..";
 
 export class RenameTagCommand extends Command<Id> {
   async execute(id: Id): Promise<void> {

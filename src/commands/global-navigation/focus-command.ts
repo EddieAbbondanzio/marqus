@@ -1,5 +1,5 @@
 import { contexts } from "@/directives/context";
-import { Command } from "../command";
+import { Command } from "..";
 
 export class FocusCommand extends Command<void> {
   async execute(): Promise<void> {

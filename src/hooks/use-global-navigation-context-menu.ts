@@ -1,5 +1,5 @@
-import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { commands } from "@/commands";
+import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { findParent } from "@/utils";
 
 export const useGlobalNavigationContextMenu = createContextMenuHook(
