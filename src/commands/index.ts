@@ -2,7 +2,9 @@
 import {
   FocusCommand, CollapseAllCommand,
   CreateTagCommand, DeleteTagCommand, ExpandAllCommand, MoveSelectionDownCommand,
-  MoveSelectionUpCommand, RenameTagCommand, ScrolDownCommand, ScrolUpCommand
+  MoveSelectionUpCommand, RenameTagCommand, ScrolDownCommand, ScrolUpCommand,
+  CreateNotebookCommand, RenameNotebookCommand, DeleteAllTagsCommand,
+  DeleteNotebookCommand, DeleteAllNotebooksCommand, EmptyTrashCommand
 } from "./global-navigation";
 
 export abstract class Command<TInput> {
@@ -11,15 +13,21 @@ export abstract class Command<TInput> {
 
 const COMMANDS = {
   globalNavigationFocus: FocusCommand,
+  globalNavigationExpandAll: ExpandAllCommand,
   globalNavigationCollapseAll: CollapseAllCommand,
   globalNavigationCreateTag: CreateTagCommand,
-  globalNavigationDeleteTag: DeleteTagCommand,
-  globalNavigationExpandAll: ExpandAllCommand,
-  globalNavigationMoveSelectionDown: MoveSelectionDownCommand,
-  globalNavigationMoveSelectionUp: MoveSelectionUpCommand,
   globalNavigationRenameTag: RenameTagCommand,
+  globalNavigationDeleteTag: DeleteTagCommand,
+  globalNavigationDeleteAllTags: DeleteAllTagsCommand,
+  globalNavigationCreateNotebook: CreateNotebookCommand,
+  globalNavigationRenameNotebook: RenameNotebookCommand,
+  globalNavigationDeleteNotebook: DeleteNotebookCommand,
+  globalNavigationDeleteAllNotebooks: DeleteAllNotebooksCommand,
+  globalNavigationMoveSelectionUp: MoveSelectionUpCommand,
+  globalNavigationMoveSelectionDown: MoveSelectionDownCommand,
+  globalNavigationScrollUp: ScrolUpCommand,
   globalNavigationScrollDown: ScrolDownCommand,
-  globalNavigationScrollUp: ScrolUpCommand
+  globalNavigationEmptyTrash: EmptyTrashCommand
 };
 
 export type CommandRegistry = typeof COMMANDS;
@@ -33,23 +41,22 @@ export function generate(registry: CommandRegistry) {
    * Here be dragons
    */
 
-  return {
-    /**
-     * Run a command via the name it's registered under.
-     * @param name The registered name of the command.
-     * @param payload Input to pass the command
-     */
-    async run<C extends keyof CommandRegistry>(name: C, payload: CommandInput<CommandRegistry[C]["prototype"]>) {
-      const ctor = registry[name];
+  async function run<C extends keyof CommandRegistry>(
+    name: C, payload?: CommandInput<CommandRegistry[C]["prototype"]>
+  ): Promise<void> {
+    const ctor = registry[name];
 
-      if (ctor == null) {
-        throw Error(`No command ${name} registered.`);
-      }
-
-      // eslint-disable-next-line new-cap
-      const command = new (ctor as any)();
-      await command.execute(payload);
+    if (ctor == null) {
+      throw Error(`No command ${name} registered.`);
     }
+
+    // eslint-disable-next-line new-cap
+    const command = new (ctor as any)();
+    await command.execute(payload);
+  }
+
+  return {
+    run
   };
 }
 

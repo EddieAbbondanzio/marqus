@@ -33,7 +33,7 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
         click: () => {
           if (isElementNotebook) {
             commands.run("globalNavigationCreateNotebook", {
-              parentId: id
+              parentId: id!
             });
           } else {
             commands.run("globalNavigationRenameNotebook");
@@ -49,12 +49,12 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
     if (isElementNotebook) {
       items.push({
         label: "Rename Notebook",
-        click: () => commands.run("globalNavigationRenameTag", id)
+        click: () => commands.run("globalNavigationRenameTag", id!)
       });
 
       items.push({
         label: "Delete Notebook",
-        click: () => commands.run("globalNavigationDeleteNotebook", id)
+        click: () => commands.run("globalNavigationDeleteNotebook", id!)
       });
 
       items.push({
@@ -67,12 +67,12 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
     if (isElementTag) {
       items.push({
         label: "Rename Tag",
-        click: () => commands.run("globalNavigationRenameTag", id)
+        click: () => commands.run("globalNavigationRenameTag", id!)
       });
 
       items.push({
         label: "Delete Tag",
-        click: () => commands.run("globalNavigationDeleteTag", id)
+        click: () => commands.run("globalNavigationDeleteTag", id!)
       });
 
       items.push({
