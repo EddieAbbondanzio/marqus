@@ -8,8 +8,9 @@
 import { store } from "@/store";
 import { shortcuts } from "@/store/modules/shortcuts";
 import { GENERAL_USE_SHORTCUTS, ShortcutRaw } from "@/store/modules/shortcuts/state";
-import { GLOBAL_NAVIGATION_SHORTCUTS, GlobalNavigationCommand } from "@/store/modules/ui/modules/global-navigation";
 import { defineComponent, onBeforeUnmount, onMounted } from "vue";
+import { GLOBAL_NAVIGATION_SHORTCUTS } from "@/store/modules/shortcuts/defaults";
+import { CommandName } from "@/commands";
 
 export default defineComponent({
   setup() {
@@ -33,7 +34,7 @@ export default defineComponent({
         { keys: GENERAL_USE_SHORTCUTS.moveSelectionUp, command: "globalNavigationMoveSelectionUp", context },
         { keys: GENERAL_USE_SHORTCUTS.scrollDown, command: "globalNavigationScrollDown", context },
         { keys: GENERAL_USE_SHORTCUTS.scrollUp, command: "globalNavigationScrollUp", context }
-      ] as ShortcutRaw<GlobalNavigationCommand>[]);
+      ] as ShortcutRaw<CommandName>[]);
 
       // Intentionally nested
       onBeforeUnmount(() => {
