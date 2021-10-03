@@ -1,4 +1,4 @@
-import { PartialRecord } from "..";
+import { PartialRecord } from "../utils";
 import { Command } from "./command";
 
 export type CommandConstructor = new () => Command<any>;

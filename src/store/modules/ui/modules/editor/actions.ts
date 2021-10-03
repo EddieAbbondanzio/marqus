@@ -10,7 +10,7 @@ import { Store } from "vuex";
 import { undo, UndoModule } from "@/store/plugins/undo";
 import { tags } from "@/store/modules/tags";
 import { notebooks } from "@/store/modules/notebooks";
-import { confirmDeleteOrTrash } from "@/utils/prompts";
+import { confirmDeleteOrTrash } from "@/prompts";
 
 export class EditorActions extends Actions<
   EditorState,

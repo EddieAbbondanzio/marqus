@@ -7,7 +7,7 @@ import { notebooks } from "@/store/modules/notebooks";
 import { notes } from "@/store/modules/notes";
 import _ from "lodash";
 import { Store } from "vuex";
-import { confirmDelete, confirmReplaceNotebook } from "@/utils/prompts";
+import { confirmDelete, confirmReplaceNotebook } from "@/prompts";
 import { Notebook } from "@/store/modules/notebooks/state";
 import { Tag } from "@/store/modules/tags/state";
 import { generateId } from "@/utils";
@@ -39,7 +39,7 @@ export class GlobalNavigationActions extends Actions<
         return;
       }
 
-      this.state.active = a;
+      this.commit("SET_ACTIVE", a);
     }
 
     toggleSelected() {

@@ -5,17 +5,17 @@ import { GlobalNavigationState } from "@/store/modules/ui/modules/global-navigat
 import { RecursivePartial } from "@/utils";
 import { undo } from "@/store/plugins/undo";
 import { createComposable, Module } from "vuex-smart-module";
-import { commands } from "@/utils/commands";
-import { CreateTagCommand } from "@/utils/commands/global-navigation/create-tag-command";
-import { RenameTagCommand } from "@/utils/commands/global-navigation/rename-tag-command";
-import { DeleteTagCommand } from "@/utils/commands/global-navigation/delete-tag-command";
-import { FocusCommand } from "@/utils/commands/global-navigation/focus-command";
-import { ExpandAllCommand } from "@/utils/commands/global-navigation/expand-all-command";
-import { CollapseAllCommand } from "@/utils/commands/global-navigation/collapse-all-command";
-import { MoveSelectionUpCommand } from "@/utils/commands/global-navigation/move-selection-up-command";
-import { MoveSelectionDownCommand } from "@/utils/commands/global-navigation/move-selection-down-command";
-import { ScrolDownCommand } from "@/utils/commands/global-navigation/scroll-down-command";
-import { ScrolUpCommand } from "@/utils/commands/global-navigation/scroll-up-command";
+import { commands } from "@/commands";
+import { CreateTagCommand } from "@/commands/global-navigation/create-tag-command";
+import { RenameTagCommand } from "@/commands/global-navigation/rename-tag-command";
+import { DeleteTagCommand } from "@/commands/global-navigation/delete-tag-command";
+import { FocusCommand } from "@/commands/global-navigation/focus-command";
+import { ExpandAllCommand } from "@/commands/global-navigation/expand-all-command";
+import { CollapseAllCommand } from "@/commands/global-navigation/collapse-all-command";
+import { MoveSelectionUpCommand } from "@/commands/global-navigation/move-selection-up-command";
+import { MoveSelectionDownCommand } from "@/commands/global-navigation/move-selection-down-command";
+import { ScrolDownCommand } from "@/commands/global-navigation/scroll-down-command";
+import { ScrolUpCommand } from "@/commands/global-navigation/scroll-up-command";
 import { KeyCode } from "@/store/modules/shortcuts/key-code";
 
 export const globalNavigation = new Module({

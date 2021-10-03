@@ -4,7 +4,7 @@ import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { LocalNavigationGetters } from "@/store/modules/ui/modules/local-navigation/getters";
 import { LocalNavigationMutations } from "@/store/modules/ui/modules/local-navigation/mutations";
 import { undo, UndoModule } from "@/store/plugins/undo";
-import { confirmDeleteOrTrash } from "@/utils/prompts/confirm-delete-or-trash";
+import { confirmDeleteOrTrash } from "@/prompts/confirm-delete-or-trash";
 import { Store } from "vuex";
 import { Actions, Context } from "vuex-smart-module";
 import { LocalNavigationState } from "./state";

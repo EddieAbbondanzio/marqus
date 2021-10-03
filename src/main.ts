@@ -10,7 +10,7 @@ import "@/plugins/vee-validate";
 import { contextMenu } from "@/directives/context-menu";
 import { mouse } from "./directives/mouse";
 import { shortcut } from "./directives/shortcut";
-import { context } from "./directives/input-scope";
+import { context } from "./directives/context";
 
 const app = createApp(App);
 

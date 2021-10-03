@@ -2,7 +2,7 @@ import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { keyCodesToString, ShortcutMapping, ShortcutRaw, ShortcutState } from "@/store/modules/shortcuts/state";
 import { contexts, flatten, OneOrMore } from "@/utils";
-import { commands } from "@/utils/commands";
+import { commands } from "@/commands";
 import { Actions } from "vuex-smart-module";
 import { KeyCode, parseKey } from "./key-code";
 

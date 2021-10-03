@@ -22,10 +22,8 @@ export function createContextMenuHook(
         shouldShowMenu: (e, p) => {
           const element = document.elementFromPoint(p.x, p.y) as HTMLElement;
 
-          const menuName = climbDomForMatch(
-            element, el => el.hasAttribute(CONTEXT_MENU_ATTRIBUTE),
-            { matchValue: el => el.getAttribute(CONTEXT_MENU_ATTRIBUTE) }
-          );
+          const menuName = climbDomForMatch(element, el => el.hasAttribute(CONTEXT_MENU_ATTRIBUTE),
+            { matchValue: el => el.getAttribute(CONTEXT_MENU_ATTRIBUTE) });
 
           return menuName === name;
         }

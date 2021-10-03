@@ -1,4 +1,5 @@
 <template>
+<!-- Don't change ID as it's used with Teleport -->
     <div id="cursor-dragging" class="is-absolute is-size-7" v-if="dragging">
         &nbsp;
     </div>

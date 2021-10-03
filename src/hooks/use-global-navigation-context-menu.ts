@@ -1,6 +1,6 @@
 import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { store } from "@/store";
-import { commands } from "@/utils/commands";
+import { commands } from "@/commands";
 import { climbDomForMatch } from "@/utils/dom";
 
 export const useGlobalNavigationContextMenu = createContextMenuHook(
@@ -20,11 +20,11 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
     const items = [
       {
         label: "Expand All",
-        click: () => store.dispatch("ui/globalNavigation/expandAll")
+        click: () => commands.run("globalNavigationExpandAll")
       },
       {
         label: "Collapse All",
-        click: () => store.dispatch("ui/globalNavigation/collapseAll")
+        click: () => commands.run("globalNavigationCollapseAll")
       },
       {
         type: "separator" as any
@@ -33,17 +33,17 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
         label: "Create Notebook",
         click: () => {
           if (isElementNotebook) {
-            store.dispatch("ui/globalNavigation/notebookInputStart", {
+            commands.run("globalNavigationCreateNotebook", {
               parentId: id
             });
           } else {
-            store.dispatch("ui/globalNavigation/notebookInputStart");
+            commands.run("globalNavigationRenameNotebook");
           }
         }
       },
       {
         label: "Create Tag",
-        click: () => store.dispatch("ui/globalNavigation/tagInputStart")
+        click: () => commands.run("globalNavigationCreateTag")
       }
     ];
 
@@ -55,12 +55,12 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
 
       items.push({
         label: "Delete Notebook",
-        click: () => store.dispatch("ui/globalNavigation/notebookDelete", id)
+        click: () => commands.run("globalNavigationDeleteNotebook", id)
       });
 
       items.push({
         label: "Delete All Notebooks",
-        click: () => store.dispatch("ui/globalNavigation/notebookDeleteAll")
+        click: () => commands.run("globalNavigationDeleteAllNotebooks")
       });
     }
 
@@ -68,23 +68,23 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
     if (isElementTag) {
       items.push({
         label: "Rename Tag",
-        click: () => store.dispatch("ui/globalNavigation/tagInputStart", { id })
+        click: () => commands.run("globalNavigationRenameTag", id)
       });
 
-      // items.push({
-      // label: "Delete Tag",
-      // click: () => commands.run("", id)
-      // });
+      items.push({
+        label: "Delete Tag",
+        click: () => commands.run("globalNavigationDeleteTag", id)
+      });
 
       items.push({
         label: "Delete All Tags",
-        click: () => store.dispatch("ui/globalNavigation/tagDeleteAll")
+        click: () => commands.run("globalNavigationDeleteAllTags")
       });
     }
 
     items.push({
       label: "Empty Trash",
-      click: () => store.dispatch("ui/globalNavigation/emptyTrash")
+      click: () => commands.run("globalNavigationEmptyTrash")
     });
     return items;
   }

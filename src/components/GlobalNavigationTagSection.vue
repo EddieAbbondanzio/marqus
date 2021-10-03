@@ -63,7 +63,7 @@ import IconButton from "@/components/buttons/IconButton.vue";
 import { useTagValidation } from "@/hooks/use-tag-validation";
 import { useTags } from "@/store/modules/tags";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
-import { commands } from "@/utils/commands";
+import { commands } from "@/commands";
 
 export default defineComponent({
   setup: function () {
