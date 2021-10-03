@@ -68,7 +68,8 @@ import { useNotes } from "@/store/modules/notes";
 import { useTags } from "@/store/modules/tags";
 import { Tag } from "@/store/modules/tags/state";
 import { useEditor } from "@/store/modules/ui/modules/editor";
-import { contexts, generateId, isBlank } from "@/utils";
+import { generateId, isBlank } from "@/utils";
+import { contexts } from "@/directives/context";
 
 export default defineComponent({
   setup: function (p, c) {

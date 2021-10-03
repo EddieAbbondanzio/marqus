@@ -78,7 +78,7 @@ import { useNotes } from "@/store/modules/notes";
 import { useEditor } from "@/store/modules/ui/modules/editor";
 import { generateId } from "@/utils/id";
 import { isBlank } from "@/utils/string";
-import { contexts } from "@/utils";
+import { contexts } from "@/directives/context";
 
 export default defineComponent({
   setup() {

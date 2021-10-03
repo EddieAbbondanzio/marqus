@@ -25,7 +25,7 @@ import EditorToolbar from "@/components/EditorToolbar.vue";
 import MarkdownEditor from "@/components/MarkdownEditor.vue";
 import MarkdownRenderer from "@/components/MarkdownRenderer.vue";
 import { useEditor } from "@/store/modules/ui/modules/editor";
-import { contexts } from "@/utils";
+import { contexts } from "@/directives/context";
 
 export default defineComponent({
   setup: () => {
