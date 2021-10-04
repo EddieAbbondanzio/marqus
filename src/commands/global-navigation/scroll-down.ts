@@ -1,11 +1,10 @@
 import { store } from "@/store";
 import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
-import { Id } from "@/utils";
 import { Command } from "../command";
 
-export class DeleteTagCommand extends Command<Id> {
-  async execute(payload: Id): Promise<void> {
+export class ScrolDown extends Command<void> {
+  async execute(): Promise<void> {
     const ctx = globalNavigation.context(store);
-    await ctx.actions.tagDelete(payload);
+    ctx.actions.scrollDown();
   }
 }

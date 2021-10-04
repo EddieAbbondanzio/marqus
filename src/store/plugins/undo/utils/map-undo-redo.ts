@@ -1,4 +1,4 @@
-import { undo } from '@/store/plugins/undo/undo';
+import { undo } from "@/store/plugins/undo/undo";
 
 /**
  * Helper to map undo / redo methods to component templates.
@@ -6,14 +6,14 @@ import { undo } from '@/store/plugins/undo/undo';
  * @returns
  */
 export function mapUndoRedo(opts: { id?: string; name?: string }) {
-    const context = undo.getModule(opts);
+  const context = undo.getModule(opts);
 
-    /*
+  /*
      * Soft fail undo / redo are returned because we don't want the user to have the program throw an exception
      * just because they didn't have anything they could undo, or redo.
      */
-    return {
-        undo: context.tryUndo,
-        redo: context.tryRedo
-    };
+  return {
+    undo: context.tryUndo,
+    redo: context.tryRedo
+  };
 }

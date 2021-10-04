@@ -185,6 +185,9 @@ export const contexts = {
       scope.el.focus();
     })();
   },
+  blur() {
+    contexts.active.value = null;
+  },
   findById(id: string) {
     return registered.find(f => f.id === id);
   },

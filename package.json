@@ -17,8 +17,7 @@
   "dependencies": {
     "@vee-validate/i18n": "^4.1.20",
     "@vee-validate/rules": "^4.1.20",
-    "bulma": "^0.9.2",
-    "bulmaswatch": "^0.8.1",
+    "bulma": "^0.9.3",
     "electron-context-menu": "^2.5.0",
     "lodash": "^4.17.21",
     "marked": "^2.0.5",

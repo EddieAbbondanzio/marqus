@@ -81,13 +81,13 @@ export function parseKeyCodes(
   return keys;
 }
 
-export const GENERAL_USE_SHORTCUTS = {
-  moveSelectionUp: KeyCode.ArrowUp,
-  moveSelectionDown: KeyCode.ArrowDown,
+export const GENERAL_USE_KEYS = {
+  moveSelectionUp: [KeyCode.ArrowUp],
+  moveSelectionDown: [KeyCode.ArrowDown],
   redo: [KeyCode.Control, KeyCode.LetterZ],
   undo: [KeyCode.Control, KeyCode.LetterY],
-  rename: KeyCode.F2,
-  toggleSelection: KeyCode.Space,
+  rename: [KeyCode.F2],
+  toggleSelection: [KeyCode.Space],
   scrollUp: [KeyCode.Control, KeyCode.ArrowUp],
   scrollDown: [KeyCode.Control, KeyCode.ArrowDown]
 };

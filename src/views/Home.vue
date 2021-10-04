@@ -1,6 +1,6 @@
 <template>
     <div class="is-flex is-flex-row has-h-100">
-        <command-modal />
+        <console />
         <global-navigation />
         <local-navigation />
         <editor />
@@ -12,11 +12,11 @@ import { defineComponent } from "vue";
 import Editor from "@/components/Editor.vue";
 import LocalNavigation from "@/components/LocalNavigation.vue";
 import GlobalNavigation from "@/components/GlobalNavigation.vue";
-import CommandModal from "@/components/CommandModal.vue";
+import Console from "@/components/Console.vue";
 
 export default defineComponent({
   components: {
-    CommandModal,
+    Console,
     Editor,
     LocalNavigation,
     GlobalNavigation

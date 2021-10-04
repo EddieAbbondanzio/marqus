@@ -13,6 +13,8 @@ import { LocalNavigationState } from "@/store/modules/ui/modules/local-navigatio
 import { RecursivePartial } from "@/utils";
 import { mediator } from "@/store/plugins/mediator";
 import { undo } from "@/store/plugins/undo";
+import { commandConsole } from "./modules/console";
+import { ConsoleState } from "./modules/console/state";
 
 export const userInterface = new Module({
   namespaced: true,
@@ -23,7 +25,8 @@ export const userInterface = new Module({
   modules: {
     globalNavigation,
     localNavigation,
-    editor
+    editor,
+    commandConsole: commandConsole
   }
 });
 
@@ -35,6 +38,7 @@ export type PersistedUserInterfaceState = RecursivePartial<{
     globalNavigation: GlobalNavigationState,
     localNavigation: LocalNavigationState
     editor: EditorState,
+    commandLine: ConsoleState
 } & UserInterfaceState>
 
 persist.register({

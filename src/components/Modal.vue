@@ -21,7 +21,7 @@ export default defineComponent({
     });
 
     return {
-      classes: ["modal", { "is-active": _isActive.value }]
+      classes: computed(() => ["modal", { "is-active": _isActive.value }])
     };
   },
   props: {
@@ -33,3 +33,8 @@ export default defineComponent({
   emits: ["update:modelValue"]
 });
 </script>
+
+<style lang="sass" scoped>
+.modal-background
+  color: red!important
+</style>

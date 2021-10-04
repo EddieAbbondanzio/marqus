@@ -1,30 +1,33 @@
 /* eslint-disable no-useless-constructor */
 import { Command } from "./command";
+import { HideConsole, ToggleConsole } from "./console";
 import {
-  FocusCommand, CollapseAllCommand,
-  CreateTagCommand, DeleteTagCommand, ExpandAllCommand, MoveSelectionDownCommand,
-  MoveSelectionUpCommand, RenameTagCommand, ScrolDownCommand, ScrolUpCommand,
-  CreateNotebookCommand, RenameNotebookCommand, DeleteAllTagsCommand,
-  DeleteNotebookCommand, DeleteAllNotebooksCommand, EmptyTrashCommand
+  Focus, CollapseAll,
+  CreateTag, DeleteTag, ExpandAll, MoveSelectionDown,
+  MoveSelectionUp, RenameTag, ScrolDown, ScrolUp,
+  CreateNotebook, RenameNotebook, DeleteAllTags,
+  DeleteNotebook, DeleteAllNotebooks, EmptyTrash
 } from "./global-navigation";
 
 const COMMANDS = {
-  globalNavigationFocus: FocusCommand,
-  globalNavigationExpandAll: ExpandAllCommand,
-  globalNavigationCollapseAll: CollapseAllCommand,
-  globalNavigationCreateTag: CreateTagCommand,
-  globalNavigationRenameTag: RenameTagCommand,
-  globalNavigationDeleteTag: DeleteTagCommand,
-  globalNavigationDeleteAllTags: DeleteAllTagsCommand,
-  globalNavigationCreateNotebook: CreateNotebookCommand,
-  globalNavigationRenameNotebook: RenameNotebookCommand,
-  globalNavigationDeleteNotebook: DeleteNotebookCommand,
-  globalNavigationDeleteAllNotebooks: DeleteAllNotebooksCommand,
-  globalNavigationMoveSelectionUp: MoveSelectionUpCommand,
-  globalNavigationMoveSelectionDown: MoveSelectionDownCommand,
-  globalNavigationScrollUp: ScrolUpCommand,
-  globalNavigationScrollDown: ScrolDownCommand,
-  globalNavigationEmptyTrash: EmptyTrashCommand
+  globalNavigationFocus: Focus,
+  globalNavigationExpandAll: ExpandAll,
+  globalNavigationCollapseAll: CollapseAll,
+  globalNavigationCreateTag: CreateTag,
+  globalNavigationRenameTag: RenameTag,
+  globalNavigationDeleteTag: DeleteTag,
+  globalNavigationDeleteAllTags: DeleteAllTags,
+  globalNavigationCreateNotebook: CreateNotebook,
+  globalNavigationRenameNotebook: RenameNotebook,
+  globalNavigationDeleteNotebook: DeleteNotebook,
+  globalNavigationDeleteAllNotebooks: DeleteAllNotebooks,
+  globalNavigationMoveSelectionUp: MoveSelectionUp,
+  globalNavigationMoveSelectionDown: MoveSelectionDown,
+  globalNavigationScrollUp: ScrolUp,
+  globalNavigationScrollDown: ScrolDown,
+  globalNavigationEmptyTrash: EmptyTrash,
+  consoleToggle: ToggleConsole,
+  consoleHide: HideConsole
 };
 
 export type CommandRegistry = typeof COMMANDS;
@@ -44,6 +47,7 @@ export function generate(registry: CommandRegistry) {
     const ctor = registry[name];
 
     if (ctor == null) {
+      console.log(registry);
       throw Error(`No command ${name} registered.`);
     }
 

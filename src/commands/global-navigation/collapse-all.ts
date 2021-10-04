@@ -2,9 +2,9 @@ import { store } from "@/store";
 import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { Command } from "../command";
 
-export class MoveSelectionUpCommand extends Command<void> {
+export class CollapseAll extends Command<void> {
   async execute(): Promise<void> {
     const ctx = globalNavigation.context(store);
-    ctx.actions.moveSelectionUp();
+    ctx.actions.collapseAll();
   }
 }

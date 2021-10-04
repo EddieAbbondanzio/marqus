@@ -3,20 +3,20 @@
 </template>
 
 <script lang="ts">
-import { useEditor } from '@/store/modules/ui/modules/editor';
-import { computed, defineComponent, ref, watch } from 'vue';
+import { useEditor } from "@/store/modules/ui/modules/editor";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
-    setup: () => {
-        const editor = useEditor();
+  setup: () => {
+    const editor = useEditor();
 
-        const content = computed({
-            get: () => editor.getters.activeTab?.content ?? '',
-            set: editor.actions.setTabContent
-        });
+    const content = computed({
+      get: () => editor.getters.activeTab?.content ?? "",
+      set: editor.actions.setTabContent
+    });
 
-        return { content };
-    }
+    return { content };
+  }
 });
 </script>
 

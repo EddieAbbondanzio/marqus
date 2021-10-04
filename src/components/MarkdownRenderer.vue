@@ -3,16 +3,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import marked from 'marked';
-import { useEditor } from '@/store/modules/ui/modules/editor';
+import { defineComponent } from "vue";
+import marked from "marked";
+import { useEditor } from "@/store/modules/ui/modules/editor";
 
 export default defineComponent({
-    setup: () => {
-        const editor = useEditor();
-        const content = marked(editor.getters.activeTab?.content ?? '');
+  setup: () => {
+    const editor = useEditor();
+    const content = marked(editor.getters.activeTab?.content ?? "");
 
-        return { content };
-    }
+    return { content };
+  }
 });
 </script>
