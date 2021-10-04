@@ -9,7 +9,6 @@ import "@fortawesome/fontawesome-free/js/all.js";
 import "@/plugins/vee-validate";
 import { contextMenu } from "@/directives/context-menu";
 import { mouse } from "./directives/mouse";
-import { shortcut } from "./directives/shortcut";
 import { context } from "./directives/context";
 
 const app = createApp(App);
@@ -20,6 +19,5 @@ app
   .mount("#app");
 
 app.directive("mouse", mouse);
-app.directive("shortcut", shortcut);
 app.directive("context", context);
 app.directive("context-menu", contextMenu);
