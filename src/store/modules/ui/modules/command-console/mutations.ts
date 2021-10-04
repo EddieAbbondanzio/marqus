@@ -1,7 +1,7 @@
 import { Mutations } from "vuex-smart-module";
-import { ConsoleState } from "./state";
+import { CommandConsoleState } from "./state";
 
-export class ConsoleMutations extends Mutations<ConsoleState> {
+export class CommandConsoleMutations extends Mutations<CommandConsoleState> {
   SHOW() {
     this.state.modalActive = true;
   }

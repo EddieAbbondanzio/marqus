@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-constructor */
 import { Command } from "./command";
-import { HideConsole, ToggleConsole } from "./console";
+import { HideCommandConsole, ToggleCommandConsole } from "./command-console";
 import {
   Focus, CollapseAll,
   CreateTag, DeleteTag, ExpandAll, MoveSelectionDown,
@@ -26,8 +26,8 @@ const COMMANDS = {
   globalNavigationScrollUp: ScrolUp,
   globalNavigationScrollDown: ScrolDown,
   globalNavigationEmptyTrash: EmptyTrash,
-  consoleToggle: ToggleConsole,
-  consoleHide: HideConsole
+  consoleToggle: ToggleCommandConsole,
+  consoleHide: HideCommandConsole
 };
 
 export type CommandRegistry = typeof COMMANDS;

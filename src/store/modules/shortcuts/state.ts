@@ -1,11 +1,12 @@
+import { CommandName } from "@/commands";
 import { flatten, OneOrMore } from "@/utils";
 import _ from "lodash";
 import { isModifier, isValidKeyCode, KeyCode } from "./key-code";
 
-export interface ShortcutRaw<C extends string> { keys: KeyCode[], command: C, context?: string }
+export interface ShortcutRaw { keys: KeyCode[], command: CommandName, context?: string }
 export interface ShortcutMapping { keys: string, command: string, context?: string, userDefined?: boolean }
 
-export type ShortcutRawOrMap<C extends string> = ShortcutRaw<C> | ShortcutMapping[];
+export type ShortcutRawOrMap = ShortcutRaw | ShortcutMapping[];
 
 export const KEYCODE_DELIMITER = "+";
 

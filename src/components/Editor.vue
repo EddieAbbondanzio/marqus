@@ -26,7 +26,7 @@ import MarkdownEditor from "@/components/MarkdownEditor.vue";
 import MarkdownRenderer from "@/components/MarkdownRenderer.vue";
 import { useEditor } from "@/store/modules/ui/modules/editor";
 import { contexts } from "@/directives/context";
-import { useConsole } from "@/store/modules/ui/modules/console";
+import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
 
 export default defineComponent({
   setup: () => {
@@ -36,7 +36,7 @@ export default defineComponent({
     //   inputScopes.focus({ name: "editor" });
     // });
 
-    const ctx = useConsole();
+    const ctx = useCommandConsole();
     return {
       test: computed(() => ctx.state.modalActive),
 

@@ -1,7 +1,7 @@
 <template>
     <modal :isActive="modalActive" >
       <div class="box mt-4">
-        <Form>
+        <Form @submit="onSubmit">
             <Field name="Command" v-model="inputValue" v-slot="{ field }">
               <input class="input" v-bind="field" placeholder="Type to run command..." v-context:console/>
             </Field>
@@ -13,18 +13,24 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
 import Modal from "@/components/Modal.vue";
-import { useConsole } from "@/store/modules/ui/modules/console";
+import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
 import { Field, Form } from "vee-validate";
+import { commands } from "@/commands";
 
 export default defineComponent({
   setup() {
-    const console = useConsole();
+    const commandConsole = useCommandConsole();
 
     const inputValue = ref("");
 
+    const onSubmit = () => {
+      commands.run(inputValue.value as any);
+    };
+
     return {
+      onSubmit,
       inputValue,
-      modalActive: computed(() => console.state.modalActive)
+      modalActive: computed(() => commandConsole.state.modalActive)
     };
   },
   components: { Modal, Field, Form }

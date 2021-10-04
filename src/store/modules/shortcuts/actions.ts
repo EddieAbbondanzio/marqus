@@ -20,7 +20,7 @@ export class ShortcutActions extends Actions<
     this.dispatch("map", state);
   }
 
-  default(mappings: OneOrMore<ShortcutRaw<any>>) {
+  default(mappings: OneOrMore<ShortcutRaw>) {
     for (const { command, keys, context } of flatten(mappings)) {
       const keyString = Array.isArray(keys) ? keyCodesToString(keys) : keys;
 

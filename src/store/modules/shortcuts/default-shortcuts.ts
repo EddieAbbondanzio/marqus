@@ -2,21 +2,21 @@ import { CommandName } from "@/commands";
 import { KeyCode } from "./key-code";
 import { GENERAL_USE_KEYS, ShortcutRaw } from "./state";
 
-export type ShortcutDef<C extends string> = { keys: KeyCode[], command: C };
+export type ShortcutDef = { keys: KeyCode[], command: CommandName };
 
-export function contextual<C extends string>(context: string, shortcuts: ShortcutDef<C>[]): ShortcutRaw<C>[] {
+export function contextual(context: string, shortcuts: ShortcutDef[]): ShortcutRaw[] {
   return shortcuts.map(s => ({ context, ...s }));
 }
 
-export function global<C extends string>(shortcuts: ShortcutDef<C>[]): ShortcutRaw<C>[] {
+export function global(shortcuts: ShortcutDef[]): ShortcutRaw[] {
   return shortcuts;
 }
 
 const GLOBAL_NAVIGATION_SHORTCUTS = [
-  ...global<CommandName>([
+  ...global([
     { command: "globalNavigationFocus", keys: [KeyCode.Control, KeyCode.Digit1] }
   ]),
-  ...contextual<CommandName>("globalNavigation", [
+  ...contextual("globalNavigation", [
     { command: "globalNavigationCollapseAll", keys: [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowUp] },
     { command: "globalNavigationExpandAll", keys: [KeyCode.Control, KeyCode.Shift, KeyCode.ArrowDown] },
     { command: "globalNavigationCreateTag", keys: [KeyCode.Control, KeyCode.LetterT] },
@@ -29,10 +29,10 @@ const GLOBAL_NAVIGATION_SHORTCUTS = [
 ];
 
 const CONSOLE_SHORTCUTS = [
-  ...global<CommandName>([
+  ...global([
     { command: "consoleToggle", keys: [KeyCode.Control, KeyCode.LetterP] }
   ]),
-  ...contextual<CommandName>("console", [
+  ...contextual("console", [
     { command: "consoleHide", keys: [KeyCode.Escape] }
   ])
 ];
