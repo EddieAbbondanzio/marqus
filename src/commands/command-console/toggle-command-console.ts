@@ -10,7 +10,7 @@ export class ToggleCommandConsole extends Command<void> {
       ctx.actions.hide();
     } else {
       ctx.actions.show();
-      contexts.focus({ name: "console" });
+      contexts.focus({ name: "commandConsole" });
     }
   }
 }

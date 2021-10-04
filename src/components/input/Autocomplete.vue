@@ -49,14 +49,14 @@ export default defineComponent({
       // Catch no input
       const value = inputRef.value?.value ?? "";
 
-      if (isBlank(value)) {
+      if (isBlank(value) || value == null) {
         return p.values;
       }
 
       // Find all the unused values
-      const unused = (p.values as { id: string; value: string }[]).filter((v: any) =>
-        v.value.toLowerCase().includes(value.toLowerCase())
-      );
+      const unused = (p.values as { id: string; value: string }[]).filter((v: any) => {
+        return v.value.toLowerCase().includes(value.toLowerCase());
+      });
 
       return unused;
     };

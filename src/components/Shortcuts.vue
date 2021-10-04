@@ -32,7 +32,3 @@ export default defineComponent({
   }
 });
 </script>
-
-function DEFAULT_SHORTCUTS(DEFAULT_SHORTCUTS: any) {
-  throw new Error("Function not implemented.");
-}

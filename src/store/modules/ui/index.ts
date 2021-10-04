@@ -38,7 +38,7 @@ export type PersistedUserInterfaceState = RecursivePartial<{
     globalNavigation: GlobalNavigationState,
     localNavigation: LocalNavigationState
     editor: EditorState,
-    commandLine: CommandConsoleState
+    commandConsole: CommandConsoleState
 } & UserInterfaceState>
 
 persist.register({
@@ -86,6 +86,7 @@ persist.register({
     }
 
     delete s.cursor;
+    delete s.commandConsole;
 
     if (s.editor != null) {
       if (s.editor.tabs != null) {

@@ -2,9 +2,9 @@
     <modal :isActive="modalActive" >
       <div class="box mt-4">
         <Form @submit="onSubmit">
-            <Field name="Command" v-model="inputValue" v-slot="{ field }">
-              <input class="input" v-bind="field" placeholder="Type to run command..." v-context:console/>
-            </Field>
+            <InputField label="Command" :hideLabel="true" v-model="inputValue" v-slot="{ field }">
+              <input class="input" v-bind="field" placeholder="Type to run command..." v-context:commandConsole/>
+            </InputField>
         </Form>
         </div>
     </modal>
@@ -14,8 +14,9 @@
 import { computed, defineComponent, ref } from "vue";
 import Modal from "@/components/Modal.vue";
 import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
-import { Field, Form } from "vee-validate";
-import { commands } from "@/commands";
+import { Form } from "vee-validate";
+import { COMMANDS, commands, isCommandName } from "@/commands";
+import InputField from "@/components/input/InputField.vue";
 
 export default defineComponent({
   setup() {
@@ -24,15 +25,23 @@ export default defineComponent({
     const inputValue = ref("");
 
     const onSubmit = () => {
-      commands.run(inputValue.value as any);
+      const { value: command } = inputValue;
+
+      if (isCommandName(command)) {
+        commands.run(command);
+
+        // Hide the console after
+        commandConsole.actions.hide();
+      }
     };
 
     return {
+      commands: computed(() => Object.keys(COMMANDS).map((value, id) => ({ id: String(id), value }))),
       onSubmit,
       inputValue,
       modalActive: computed(() => commandConsole.state.modalActive)
     };
   },
-  components: { Modal, Field, Form }
+  components: { Modal, Form, InputField }
 });
 </script>

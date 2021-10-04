@@ -9,7 +9,7 @@ import {
   DeleteNotebook, DeleteAllNotebooks, EmptyTrash
 } from "./global-navigation";
 
-const COMMANDS = {
+export const COMMANDS = {
   globalNavigationFocus: Focus,
   globalNavigationExpandAll: ExpandAll,
   globalNavigationCollapseAll: CollapseAll,
@@ -62,3 +62,7 @@ export function generate(registry: CommandRegistry) {
 }
 
 export const commands = generate(COMMANDS);
+
+export function isCommandName(name: string):name is CommandName {
+  return Object.keys(COMMANDS).some(c => c === name);
+}

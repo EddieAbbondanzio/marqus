@@ -32,7 +32,7 @@ const CONSOLE_SHORTCUTS = [
   ...global([
     { command: "consoleToggle", keys: [KeyCode.Control, KeyCode.LetterP] }
   ]),
-  ...contextual("console", [
+  ...contextual("commandConsole", [
     { command: "consoleHide", keys: [KeyCode.Escape] }
   ])
 ];
