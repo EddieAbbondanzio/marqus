@@ -1,5 +1,5 @@
 <template>
-    <modal :isActive="modalActive" >
+    <modal :isActive="modalActive" @update:modelValue="onUpdateModalActive" :focusTrap="focusTrap">
       <div class="box mt-4">
         <!-- Input -->
         <Form @submit="onSubmit">
@@ -23,6 +23,7 @@ import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
 import { Form } from "vee-validate";
 import { COMMANDS, commands, isCommandName } from "@/commands";
 import InputField from "@/components/input/InputField.vue";
+import { isBlank } from "@/utils";
 
 export default defineComponent({
   setup() {
@@ -47,12 +48,16 @@ export default defineComponent({
       return Object.keys(COMMANDS).filter(c => c.toLowerCase().includes(inputValue.value.toLowerCase()));
     });
 
+    const focusTrap = computed(() => !isBlank(inputValue.value) ? "hard" : "soft");
+
     return {
       available,
       matches,
       onSubmit,
       inputValue,
-      modalActive: computed(() => commandConsole.state.modalActive)
+      focusTrap,
+      modalActive: computed(() => commandConsole.state.modalActive),
+      onUpdateModalActive: commandConsole.actions.setActive
     };
   },
   components: { Modal, Form, InputField }

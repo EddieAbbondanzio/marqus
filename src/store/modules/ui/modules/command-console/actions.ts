@@ -16,4 +16,8 @@ export class CommandConsoleActions extends Actions<
   hide() {
     this.commit("HIDE");
   }
+
+  setActive(active: boolean) {
+    this.commit("SET_ACTIVE", active);
+  }
 }

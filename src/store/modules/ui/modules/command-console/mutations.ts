@@ -9,4 +9,8 @@ export class CommandConsoleMutations extends Mutations<CommandConsoleState> {
   HIDE() {
     this.state.modalActive = false;
   }
+
+  SET_ACTIVE(active: boolean) {
+    this.state.modalActive = active;
+  }
 }

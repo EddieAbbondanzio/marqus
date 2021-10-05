@@ -9,7 +9,8 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
+import { findParent } from "@/utils";
+import { computed, defineComponent, onBeforeUnmount, onMounted } from "vue";
 
 export default defineComponent({
   setup(p, c) {
@@ -20,6 +21,22 @@ export default defineComponent({
       }
     });
 
+    const onClick = ({ target }: MouseEvent) => {
+      const wasBackgroundClick = findParent(target as HTMLElement, el => el.classList.contains("modal-background"));
+
+      if (wasBackgroundClick && p.focusTrap === "soft") {
+        _isActive.value = false;
+      }
+    };
+
+    onMounted(() => {
+      window.addEventListener("click", onClick);
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener("click", onClick);
+    });
+
     return {
       classes: computed(() => ["modal", { "is-active": _isActive.value }])
     };
@@ -28,6 +45,10 @@ export default defineComponent({
     isActive: {
       type: Boolean,
       required: false
+    },
+    focusTrap: {
+      type: String,
+      default: "soft" // Can also be "hard"
     }
   },
   emits: ["update:modelValue"]
