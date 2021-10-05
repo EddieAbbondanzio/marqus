@@ -13,4 +13,12 @@ export class CommandConsoleMutations extends Mutations<CommandConsoleState> {
   SET_ACTIVE(active: boolean) {
     this.state.modalActive = active;
   }
+
+  SET_INPUT(input: string) {
+    this.state.input = input;
+  }
+
+  CLEAR_INPUT() {
+    this.state.input = "";
+  }
 }

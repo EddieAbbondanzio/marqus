@@ -3,7 +3,7 @@
       <div class="box mt-4">
         <!-- Input -->
         <Form @submit="onSubmit">
-            <InputField label="Command" :hideLabel="true" v-model="inputValue" v-slot="{ field }">
+            <InputField label="Command" :hideLabel="true" v-model="input" v-slot="{ field }">
               <input class="input" v-bind="field" placeholder="Type to run command..." v-context:commandConsole />
             </InputField>
         </Form>
@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 import Modal from "@/components/Modal.vue";
 import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
 import { Form } from "vee-validate";
@@ -29,13 +29,14 @@ export default defineComponent({
   setup() {
     const commandConsole = useCommandConsole();
 
-    const inputValue = ref("");
+    const input = computed({
+      get() { return commandConsole.state.input; },
+      set(v: string) { commandConsole.actions.setInput(v); }
+    });
 
     const onSubmit = () => {
-      const { value: command } = inputValue;
-
-      if (isCommandName(command)) {
-        commands.run(command);
+      if (isCommandName(input.value)) {
+        commands.run(input.value);
 
         // Hide the console after
         commandConsole.actions.hide();
@@ -45,16 +46,20 @@ export default defineComponent({
     const available = computed(() => Object.keys(COMMANDS));
 
     const matches = computed(() => {
-      return Object.keys(COMMANDS).filter(c => c.toLowerCase().includes(inputValue.value.toLowerCase()));
+      return Object.keys(COMMANDS).filter(c => c.toLowerCase().includes(input.value.toLowerCase()));
     });
 
-    const focusTrap = computed(() => !isBlank(inputValue.value) ? "hard" : "soft");
+    /*
+    * If the user provides an input, assume we should make it harder to exit the modal so they don't
+    * accidentally lose their place.
+    */
+    const focusTrap = computed(() => !isBlank(input.value) ? "hard" : "soft");
 
     return {
       available,
       matches,
       onSubmit,
-      inputValue,
+      input,
       focusTrap,
       modalActive: computed(() => commandConsole.state.modalActive),
       onUpdateModalActive: commandConsole.actions.setActive

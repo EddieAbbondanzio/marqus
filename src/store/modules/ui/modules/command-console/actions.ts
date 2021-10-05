@@ -10,6 +10,7 @@ export class CommandConsoleActions extends Actions<
   CommandConsoleActions
 > {
   show() {
+    this.commit("CLEAR_INPUT");
     this.commit("SHOW");
   }
 
@@ -19,5 +20,13 @@ export class CommandConsoleActions extends Actions<
 
   setActive(active: boolean) {
     this.commit("SET_ACTIVE", active);
+  }
+
+  setInput(input: string) {
+    this.commit("SET_INPUT", input);
+  }
+
+  clearInput() {
+    this.commit("CLEAR_INPUT");
   }
 }
