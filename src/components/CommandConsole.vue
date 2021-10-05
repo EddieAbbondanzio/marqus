@@ -1,12 +1,18 @@
 <template>
     <modal :isActive="modalActive" >
       <div class="box mt-4">
+        <!-- Input -->
         <Form @submit="onSubmit">
             <InputField label="Command" :hideLabel="true" v-model="inputValue" v-slot="{ field }">
-              <input class="input" v-bind="field" placeholder="Type to run command..." v-context:commandConsole/>
+              <input class="input" v-bind="field" placeholder="Type to run command..." v-context:commandConsole />
             </InputField>
         </Form>
+
+        <!-- Suggestions -->
+        <div v-for="(match, i) in matches" :key="i">
+          {{ match }}
         </div>
+      </div>
     </modal>
 </template>
 
@@ -35,8 +41,15 @@ export default defineComponent({
       }
     };
 
+    const available = computed(() => Object.keys(COMMANDS));
+
+    const matches = computed(() => {
+      return Object.keys(COMMANDS).filter(c => c.toLowerCase().includes(inputValue.value.toLowerCase()));
+    });
+
     return {
-      commands: computed(() => Object.keys(COMMANDS).map((value, id) => ({ id: String(id), value }))),
+      available,
+      matches,
       onSubmit,
       inputValue,
       modalActive: computed(() => commandConsole.state.modalActive)

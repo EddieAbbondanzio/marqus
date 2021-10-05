@@ -1,6 +1,6 @@
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
-import { keyCodesToString, ShortcutMapping, ShortcutRaw, ShortcutState } from "@/store/modules/shortcuts/state";
+import { keyCodesToString, Shortcut, ShortcutState } from "@/store/modules/shortcuts/state";
 import { flatten, OneOrMore } from "@/utils";
 import { commands } from "@/commands";
 import { Actions } from "vuex-smart-module";
@@ -13,40 +13,26 @@ export class ShortcutActions extends Actions<
   ShortcutMutations,
   ShortcutActions
 > {
-  setState(state: ShortcutMapping[]) {
+  setState(state: Shortcut[]) {
     this.commit("SET_STATE", state);
 
     // Apply the user defined shortcuts
     this.dispatch("map", state);
   }
 
-  default(mappings: OneOrMore<ShortcutRaw>) {
-    for (const { command, keys, context } of flatten(mappings)) {
-      const keyString = Array.isArray(keys) ? keyCodesToString(keys) : keys;
-
-      // Set up the new one
-      this.commit("CREATE_SHORTCUT", {
-        command,
-        keyString,
-        context
-      });
+  default(shortcuts: OneOrMore<Shortcut>) {
+    for (const shortcut of flatten(shortcuts)) {
+      this.commit("REGISTER_SHORTCUT", shortcut);
     }
   }
 
-  map(mappings: OneOrMore<ShortcutMapping>) {
-    for (const { command, keys, context } of flatten(mappings)) {
-      const keyString = Array.isArray(keys) ? keyCodesToString(keys) : keys;
+  map(shortcuts: OneOrMore<Shortcut>) {
+    for (const shortcut of flatten(shortcuts)) {
+      shortcut.userDefined = true;
 
       // If we are override an existing shortcut, (try to) remove the old one.
-      this.commit("REMOVE_SHORTCUT_FOR_COMMAND", command);
-
-      // Set up the new one
-      this.commit("CREATE_SHORTCUT", {
-        command,
-        keyString,
-        context,
-        userDefined: true
-      });
+      this.commit("REMOVE_SHORTCUT_FOR_COMMAND", shortcut.command);
+      this.commit("REGISTER_SHORTCUT", shortcut);
     }
   }
 

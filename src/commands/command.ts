@@ -3,7 +3,7 @@
  */
 
 /**
- * Base class for a command handler to implement.
+ * Base class for a command to implement.
  */
 export abstract class Command<TInput> {
     abstract execute(payload: TInput): Promise<void>;

@@ -1,9 +1,11 @@
-import { ShortcutMapping, ShortcutState } from "./state";
+import { parseKeyCodes, Shortcut, ShortcutState } from "./state";
 import { createComposable, Module } from "vuex-smart-module";
 import { ShortcutActions } from "@/store/modules/shortcuts/actions";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { persist } from "@/store/plugins/persist";
+import { string } from "yup/lib/locale";
+import { CommandName } from "@/commands";
 
 export const shortcuts = new Module({
   namespaced: true,
@@ -15,11 +17,17 @@ export const shortcuts = new Module({
 
 export const useShortcuts = createComposable(shortcuts);
 
+export interface SerializedShortcut {
+  keys: string;
+  command: CommandName;
+  context?: string;
+}
+
 persist.register({
   namespace: "shortcuts",
   setStateAction: "setState",
   ignore: ["SET_STATE", "REMOVE_SHORTCUT_FOR_COMMAND", "KEY_DOWN", "KEY_UP", "CREATE_SHORTCUT"],
-  transformer: (state: ShortcutState): ShortcutMapping[] => {
+  transformer: (state: ShortcutState): SerializedShortcut[] => {
     const shortcutMappings = [];
 
     for (const [keys, mappings] of Object.entries(state.map)) {
@@ -35,7 +43,7 @@ persist.register({
 
     return shortcutMappings;
   },
-  reviver: values => {
-    return values.map((v: ShortcutMapping) => ({ ...v, userDefined: true }));
+  reviver: (values: SerializedShortcut[]): Shortcut[] => {
+    return values.map((v: SerializedShortcut) => ({ ...v, keys: parseKeyCodes(v.keys), userDefined: true }));
   }
 });

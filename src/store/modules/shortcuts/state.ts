@@ -3,17 +3,42 @@ import { flatten, OneOrMore } from "@/utils";
 import _ from "lodash";
 import { isModifier, isValidKeyCode, KeyCode } from "./key-code";
 
-export interface ShortcutRaw { keys: KeyCode[], command: CommandName, context?: string }
-export interface ShortcutMapping { keys: string, command: string, context?: string, userDefined?: boolean }
-
-export type ShortcutRawOrMap = ShortcutRaw | ShortcutMapping[];
+export interface Shortcut {
+  /**
+   * Name of the command to run.
+   */
+  command: CommandName;
+  /**
+   * Trigger keys for the shortcut.
+   */
+  keys: KeyCode[];
+  /**
+   * Context that needs to be focused in order for the shortcut to trigger.
+   * Ignored if global is set to true.
+   */
+  context?: string;
+  /**
+   * If the shortcut should be triggerable from anywhere.
+   */
+  global?: boolean;
+  /**
+   * If the shortcut a custom one that the user created.
+   */
+  userDefined?: boolean;
+}
 
 export const KEYCODE_DELIMITER = "+";
 
 export class ShortcutState {
-  map: { [keys: string]: {command: string, context?: string }[] } = {};
+  /**
+   * Shortcut lookup via their delimited key string
+   */
+  map: { [keys: string]: Shortcut[] } = {};
 
-  invertedMap: { [command: string]: { keys: string, userDefined?: boolean }} = {};
+  /**
+   * Shortcut lookup via the command they invoke.
+   */
+  invertedMap: { [command: string]: Shortcut} = {};
 
   activeKeys: { [key: string]: boolean } = {};
 }

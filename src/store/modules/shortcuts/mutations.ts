@@ -1,30 +1,32 @@
-import { ShortcutMapping, ShortcutState } from "@/store/modules/shortcuts/state";
 import { Mutations } from "vuex-smart-module";
 import { KeyCode } from "./key-code";
+import { keyCodesToString, Shortcut, ShortcutState } from "./state";
 
 export class ShortcutMutations extends Mutations<ShortcutState> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  SET_STATE(s: ShortcutMapping[]) {
-    for (const { command, keys, userDefined, context } of s) {
-      (this.state.map[keys] ??= []).push({ command, context });
-      this.state.invertedMap[command] = { keys, userDefined };
-    }
+  SET_STATE(shortcuts: Shortcut[]) {
+    for (const shortcut of shortcuts) {
+      const keyString = keyCodesToString(shortcut.keys);
 
-    console.log("set this: ", s);
+      (this.state.map[keyString] ??= []).push(shortcut);
+      this.state.invertedMap[shortcut.command] = shortcut;
+    }
   }
 
-  CREATE_SHORTCUT(
-    { command, keyString, context, userDefined }
-    : {command: string, keyString: string, context?: string, userDefined?: boolean }) {
-    (this.state.map[keyString] ??= []).push({ command, context });
-    this.state.invertedMap[command] = { keys: keyString, userDefined };
+  REGISTER_SHORTCUT(shortcut: Shortcut) {
+    const keyString = keyCodesToString(shortcut.keys);
+
+    (this.state.map[keyString] ??= []).push(shortcut);
+    this.state.invertedMap[shortcut.command] = shortcut;
   }
 
   REMOVE_SHORTCUT_FOR_COMMAND(command: string) {
     const existing = this.state.invertedMap[command];
 
     if (existing != null) {
-      this.state.map[existing.keys] = this.state.map[existing.keys].filter(m => m.command !== command);
+      const keyString = keyCodesToString(existing.keys);
+
+      this.state.map[keyString] = this.state.map[keyString].filter(m => m.command !== command);
     }
   }
 
