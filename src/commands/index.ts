@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-constructor */
 import { COMMAND_CONSOLE_REGISTRY } from "./command-console";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./global-navigation";
+import { Command } from "./types";
 
 /**
  * Prefix a namespace to every property name delimited via a period.
@@ -26,14 +27,16 @@ export const COMMAND_REGISTRY = {
 
 export type CommandRegistry = typeof COMMAND_REGISTRY;
 export type NamespacedCommand = keyof CommandRegistry;
+export type CommandPayload<T> = T extends Command<infer U> ? U : T;
 
 export function generate(registry: CommandRegistry) {
   /*
    * Here be dragons
    */
 
-  async function run<C extends keyof CommandRegistry>(
-    name: C, payload?: CommandInput<CommandRegistry[C]["prototype"]>
+  // I wish this could be typed better. Paremeter isn't enforced...
+  async function run<C extends NamespacedCommand, P extends CommandPayload<CommandRegistry[C]["prototype"]>>(
+    name: C, payload?: P
   ): Promise<void> {
     const ctor = registry[name];
 
