@@ -29,4 +29,12 @@ export class CommandConsoleActions extends Actions<
   clearInput() {
     this.commit("CLEAR_INPUT");
   }
+
+  moveSelectionDown() {
+    this.commit("MOVE_SELECTION_DOWN");
+  }
+
+  moveSelectionUp() {
+    this.commit("MOVE_SELECTION_UP");
+  }
 }

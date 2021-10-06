@@ -1,5 +1,5 @@
 /*
- * This class cannot be in index.ts otherwise we introduce a circular dependency.
+ * These types cannot be in index.ts otherwise we introduce a circular dependency.
  */
 
 /**

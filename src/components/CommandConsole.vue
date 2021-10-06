@@ -9,19 +9,25 @@
         </Form>
 
         <!-- Suggestions -->
-        <div v-for="(match, i) in matches" :key="i">
-          {{ match }}
+        <div class="is-flex is-flex-column">
+            <a
+            :class="['has-text-dark py-1 has-background-hover-light', {'has-background-light': selectedIndex === i }
+            ]"
+              v-for="(suggestion, i) in suggestions" :key="i" @click="onItemClick(suggestion)"
+            >
+            {{ suggestion }}
+            </a>
         </div>
       </div>
     </modal>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import Modal from "@/components/Modal.vue";
 import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
 import { Form } from "vee-validate";
-import { COMMANDS, commands, isCommandName } from "@/commands";
+import { commands, isCommandName } from "@/commands";
 import InputField from "@/components/input/InputField.vue";
 import { isBlank } from "@/utils";
 
@@ -43,26 +49,32 @@ export default defineComponent({
       }
     };
 
-    const available = computed(() => Object.keys(COMMANDS));
-
-    const matches = computed(() => {
-      return Object.keys(COMMANDS).filter(c => c.toLowerCase().includes(input.value.toLowerCase()));
-    });
-
     /*
     * If the user provides an input, assume we should make it harder to exit the modal so they don't
     * accidentally lose their place.
     */
     const focusTrap = computed(() => !isBlank(input.value) ? "hard" : "soft");
 
+    const onItemClick = (item: string) => {
+      input.value = item;
+
+      if (isCommandName(input.value)) {
+        commands.run(input.value);
+        commandConsole.actions.hide();
+      }
+    };
+
+    const selectedIndex = ref(-1);
+
     return {
-      available,
-      matches,
+      suggestions: computed(() => commandConsole.getters.suggestions),
       onSubmit,
       input,
       focusTrap,
       modalActive: computed(() => commandConsole.state.modalActive),
-      onUpdateModalActive: commandConsole.actions.setActive
+      onUpdateModalActive: commandConsole.actions.setActive,
+      onItemClick,
+      selectedIndex
     };
   },
   components: { Modal, Form, InputField }

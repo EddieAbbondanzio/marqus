@@ -1,5 +1,5 @@
 import { Id } from "@/utils";
-import { Command } from "../command";
+import { Command } from "../types";
 
 export class RenameNotebook extends Command<Id> {
   async execute(payload: string): Promise<void> {

@@ -1,6 +1,6 @@
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
-import { keyCodesToString, Shortcut, ShortcutState } from "@/store/modules/shortcuts/state";
+import { Shortcut, ShortcutState } from "@/store/modules/shortcuts/state";
 import { flatten, OneOrMore } from "@/utils";
 import { commands } from "@/commands";
 import { Actions } from "vuex-smart-module";

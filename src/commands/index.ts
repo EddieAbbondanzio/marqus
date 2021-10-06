@@ -1,40 +1,31 @@
 /* eslint-disable no-useless-constructor */
-import { Command } from "./command";
-import { HideCommandConsole, ToggleCommandConsole } from "./command-console";
-import {
-  Focus, CollapseAll,
-  CreateTag, DeleteTag, ExpandAll, MoveSelectionDown,
-  MoveSelectionUp, RenameTag, ScrolDown, ScrolUp,
-  CreateNotebook, RenameNotebook, DeleteAllTags,
-  DeleteNotebook, DeleteAllNotebooks, EmptyTrash
-} from "./global-navigation";
+import { COMMAND_CONSOLE_REGISTRY } from "./command-console";
+import { GLOBAL_NAVIGATION_REGISTRY } from "./global-navigation";
 
-export const COMMANDS = {
-  globalNavigationFocus: Focus,
-  globalNavigationExpandAll: ExpandAll,
-  globalNavigationCollapseAll: CollapseAll,
-  globalNavigationCreateTag: CreateTag,
-  globalNavigationRenameTag: RenameTag,
-  globalNavigationDeleteTag: DeleteTag,
-  globalNavigationDeleteAllTags: DeleteAllTags,
-  globalNavigationCreateNotebook: CreateNotebook,
-  globalNavigationRenameNotebook: RenameNotebook,
-  globalNavigationDeleteNotebook: DeleteNotebook,
-  globalNavigationDeleteAllNotebooks: DeleteAllNotebooks,
-  globalNavigationMoveSelectionUp: MoveSelectionUp,
-  globalNavigationMoveSelectionDown: MoveSelectionDown,
-  globalNavigationScrollUp: ScrolUp,
-  globalNavigationScrollDown: ScrolDown,
-  globalNavigationEmptyTrash: EmptyTrash,
-  consoleToggle: ToggleCommandConsole,
-  consoleHide: HideCommandConsole
+/**
+ * Prefix a namespace to every property name delimited via a period.
+ */
+type Namespaced<N extends string, T> = {
+  [K in Extract<keyof T, string> as `${N}.${K}`]: T[K]
 };
 
-export type CommandRegistry = typeof COMMANDS;
+/**
+ * Add a namespace to the front of every command. { foo: Command } => { namespace.foo: Command }
+ * @param namespace The namespace to prefix to the commands.
+ * @param registry The command registry to map
+ * @returns The newly namespaced commands
+ */
+function namespace<N extends string, T extends Record<string, unknown>>(namespace: N, registry: T): Namespaced<N, T> {
+  return Object.assign({}, ...Object.entries(registry).map(([property, value]) => [`${namespace}.${property}`, value]));
+}
 
-export type CommandName = keyof CommandRegistry;
+export const COMMAND_REGISTRY = {
+  ...namespace("globalNavigation", GLOBAL_NAVIGATION_REGISTRY),
+  ...namespace("commandConsole", COMMAND_CONSOLE_REGISTRY)
+};
 
-export type CommandInput<T> = T extends Command<infer X> ? X : void
+export type CommandRegistry = typeof COMMAND_REGISTRY;
+export type NamespacedCommand = keyof CommandRegistry;
 
 export function generate(registry: CommandRegistry) {
   /*
@@ -61,8 +52,4 @@ export function generate(registry: CommandRegistry) {
   };
 }
 
-export const commands = generate(COMMANDS);
-
-export function isCommandName(name: string):name is CommandName {
-  return Object.keys(COMMANDS).some(c => c === name);
-}
+export const commands = generate(COMMAND_REGISTRY);

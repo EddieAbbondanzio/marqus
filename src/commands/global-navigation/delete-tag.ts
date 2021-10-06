@@ -1,7 +1,7 @@
 import { store } from "@/store";
 import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { Id } from "@/utils";
-import { Command } from "../command";
+import { Command } from "../types";
 
 export class DeleteTag extends Command<Id> {
   async execute(payload: Id): Promise<void> {

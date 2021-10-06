@@ -1,9 +1,9 @@
 import { contexts } from "@/directives/context";
 import { store } from "@/store";
 import { commandConsole } from "@/store/modules/ui/modules/command-console";
-import { Command } from "../command";
+import { Command } from "../types";
 
-export class ToggleCommandConsole extends Command<void> {
+export class Toggle extends Command<void> {
   async execute() {
     const ctx = commandConsole.context(store);
     if (ctx.state.modalActive) {

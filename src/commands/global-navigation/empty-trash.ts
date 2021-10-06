@@ -1,4 +1,4 @@
-import { Command } from "../command";
+import { Command } from "../types";
 
 export class EmptyTrash extends Command<void> {
   execute(payload: void): Promise<void> {

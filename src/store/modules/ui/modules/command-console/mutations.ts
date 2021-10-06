@@ -21,4 +21,12 @@ export class CommandConsoleMutations extends Mutations<CommandConsoleState> {
   CLEAR_INPUT() {
     this.state.input = "";
   }
+
+  MOVE_SELECTION_DOWN() {
+    throw Error();
+  }
+
+  MOVE_SELECTION_UP() {
+    throw Error();
+  }
 }

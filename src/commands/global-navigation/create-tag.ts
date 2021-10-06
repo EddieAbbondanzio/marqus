@@ -2,7 +2,7 @@ import { store } from "@/store";
 import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { mediator } from "@/store/plugins/mediator";
 import { generateId } from "@/utils";
-import { Command } from "../command";
+import { Command } from "../types";
 
 export class CreateTag extends Command<void> {
   async execute(): Promise<void> {
