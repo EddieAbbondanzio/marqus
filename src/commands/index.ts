@@ -27,16 +27,14 @@ export const COMMAND_REGISTRY = {
 
 export type CommandRegistry = typeof COMMAND_REGISTRY;
 export type NamespacedCommand = keyof CommandRegistry;
-export type CommandPayload<T> = T extends Command<infer U> ? U : T;
 
 export function generate(registry: CommandRegistry) {
   /*
    * Here be dragons
    */
 
-  // I wish this could be typed better. Paremeter isn't enforced...
-  async function run<C extends NamespacedCommand, P extends CommandPayload<CommandRegistry[C]["prototype"]>>(
-    name: C, payload?: P
+  async function run<C extends NamespacedCommand, P extends Parameters<CommandRegistry[C]["prototype"]["execute"]>>(
+    name: C, ...payload: P
   ): Promise<void> {
     const ctor = registry[name];
 
