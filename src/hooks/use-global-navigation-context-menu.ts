@@ -19,11 +19,11 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
     const items = [
       {
         label: "Expand All",
-        click: () => commands.run("globalNavigationExpandAll")
+        click: () => commands.run("globalNavigation.expandAll")
       },
       {
         label: "Collapse All",
-        click: () => commands.run("globalNavigationCollapseAll")
+        click: () => commands.run("globalNavigation.collapseAll")
       },
       {
         type: "separator" as any
@@ -32,34 +32,34 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
         label: "Create Notebook",
         click: () => {
           if (isElementNotebook) {
-            commands.run("globalNavigationCreateNotebook", {
+            commands.run("globalNavigation.createNotebook", {
               parentId: id!
             });
           } else {
-            commands.run("globalNavigationRenameNotebook");
+            commands.run("globalNavigation.renameNotebook", id!);
           }
         }
       },
       {
         label: "Create Tag",
-        click: () => commands.run("globalNavigationCreateTag")
+        click: () => commands.run("globalNavigation.createTag")
       }
     ];
 
     if (isElementNotebook) {
       items.push({
         label: "Rename Notebook",
-        click: () => commands.run("globalNavigationRenameTag", id!)
+        click: () => commands.run("globalNavigation.renameTag", id!)
       });
 
       items.push({
         label: "Delete Notebook",
-        click: () => commands.run("globalNavigationDeleteNotebook", id!)
+        click: () => commands.run("globalNavigation.deleteNotebook", id!)
       });
 
       items.push({
         label: "Delete All Notebooks",
-        click: () => commands.run("globalNavigationDeleteAllNotebooks")
+        click: () => commands.run("globalNavigation.deleteAllNotebooks")
       });
     }
 
@@ -67,23 +67,23 @@ export const useGlobalNavigationContextMenu = createContextMenuHook(
     if (isElementTag) {
       items.push({
         label: "Rename Tag",
-        click: () => commands.run("globalNavigationRenameTag", id!)
+        click: () => commands.run("globalNavigation.renameTag", id!)
       });
 
       items.push({
         label: "Delete Tag",
-        click: () => commands.run("globalNavigationDeleteTag", id!)
+        click: () => commands.run("globalNavigation.deleteTag", id!)
       });
 
       items.push({
         label: "Delete All Tags",
-        click: () => commands.run("globalNavigationDeleteAllTags")
+        click: () => commands.run("globalNavigation.deleteAllTags")
       });
     }
 
     items.push({
       label: "Empty Trash",
-      click: () => commands.run("globalNavigationEmptyTrash")
+      click: () => commands.run("globalNavigation.emptyTrash")
     });
     return items;
   }

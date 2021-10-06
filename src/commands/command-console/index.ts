@@ -1,4 +1,3 @@
-import { CommandRegistry } from "../types";
 import { Hide } from "./hide";
 import { MoveSelectionDown } from "./move-selection-down";
 import { MoveSelectionUp } from "./move-selection-up";

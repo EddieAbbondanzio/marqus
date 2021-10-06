@@ -1,4 +1,4 @@
-import { CommandName } from "@/commands";
+import { NamespacedCommand } from "@/commands";
 import { flatten, OneOrMore } from "@/utils";
 import _ from "lodash";
 import { isModifier, isValidKeyCode, KeyCode } from "./key-code";
@@ -7,7 +7,7 @@ export interface Shortcut {
   /**
    * Name of the command to run.
    */
-  command: CommandName;
+  command: NamespacedCommand;
   /**
    * Trigger keys for the shortcut.
    */

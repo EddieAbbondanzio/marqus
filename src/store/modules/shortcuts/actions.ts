@@ -68,6 +68,7 @@ export class ShortcutActions extends Actions<
     for (const { command, context } of maps) {
       if (context == null || contexts.isFocused(context)) {
         commands.run(command as unknown as any, undefined);
+        console.log(command);
       }
     }
   }

@@ -1,5 +1,4 @@
 import { MoveSelectionDown, MoveSelectionUp } from "../command-console";
-import { CommandRegistry } from "../types";
 import { CollapseAll } from "./collapse-all";
 import { CreateNotebook } from "./create-notebook";
 import { CreateTag } from "./create-tag";

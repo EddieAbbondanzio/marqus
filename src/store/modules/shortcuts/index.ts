@@ -4,8 +4,7 @@ import { ShortcutActions } from "@/store/modules/shortcuts/actions";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { persist } from "@/store/plugins/persist";
-import { string } from "yup/lib/locale";
-import { CommandName } from "@/commands";
+import { NamespacedCommand } from "@/commands";
 
 export const shortcuts = new Module({
   namespaced: true,
@@ -19,7 +18,7 @@ export const useShortcuts = createComposable(shortcuts);
 
 export interface SerializedShortcut {
   keys: string;
-  command: CommandName;
+  command: NamespacedCommand;
   context?: string;
 }
 

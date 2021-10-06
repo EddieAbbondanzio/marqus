@@ -87,7 +87,7 @@ export default defineComponent({
     const formRules = useTagValidation(() => globalNav.state.tags.input);
 
     const createTag = () => {
-      commands.run("globalNavigationCreateTag");
+      commands.run("globalNavigation.createTag");
     };
 
     return {

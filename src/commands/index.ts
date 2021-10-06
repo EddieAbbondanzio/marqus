@@ -1,7 +1,6 @@
 /* eslint-disable no-useless-constructor */
 import { COMMAND_CONSOLE_REGISTRY } from "./command-console";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./global-navigation";
-import { Command } from "./types";
 
 /**
  * Prefix a namespace to every property name delimited via a period.
@@ -17,7 +16,14 @@ type Namespaced<N extends string, T> = {
  * @returns The newly namespaced commands
  */
 function namespace<N extends string, T extends Record<string, unknown>>(namespace: N, registry: T): Namespaced<N, T> {
-  return Object.assign({}, ...Object.entries(registry).map(([property, value]) => [`${namespace}.${property}`, value]));
+  const mappings: Record<string, T> = {};
+
+  for (const [path, constructor] of Object.entries(registry)) {
+    mappings[`${namespace}.${path}`] = constructor as any;
+  }
+
+  // Casts aren't the best but they get the job done.
+  return mappings as Namespaced<N, T>;
 }
 
 export const COMMAND_REGISTRY = {
@@ -28,7 +34,12 @@ export const COMMAND_REGISTRY = {
 export type CommandRegistry = typeof COMMAND_REGISTRY;
 export type NamespacedCommand = keyof CommandRegistry;
 
+export function isNamespacedCommand(str: string): str is NamespacedCommand {
+  return Object.keys(COMMAND_REGISTRY).some(c => c === str);
+}
+
 export function generate(registry: CommandRegistry) {
+  console.log("generated shortcuts for: ", registry);
   /*
    * Here be dragons
    */

@@ -27,7 +27,7 @@ import { computed, defineComponent, ref } from "vue";
 import Modal from "@/components/Modal.vue";
 import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
 import { Form } from "vee-validate";
-import { commands, isCommandName } from "@/commands";
+import { commands, isNamespacedCommand } from "@/commands";
 import InputField from "@/components/input/InputField.vue";
 import { isBlank } from "@/utils";
 
@@ -41,7 +41,7 @@ export default defineComponent({
     });
 
     const onSubmit = () => {
-      if (isCommandName(input.value)) {
+      if (isNamespacedCommand(input.value)) {
         commands.run(input.value);
 
         // Hide the console after
@@ -58,7 +58,7 @@ export default defineComponent({
     const onItemClick = (item: string) => {
       input.value = item;
 
-      if (isCommandName(input.value)) {
+      if (isNamespacedCommand(input.value)) {
         commands.run(input.value);
         commandConsole.actions.hide();
       }
