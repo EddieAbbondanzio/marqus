@@ -108,6 +108,8 @@ export function parseKeyCodes(
 }
 
 export const GENERAL_USE_KEYS = {
+  tab: [KeyCode.Tab],
+  enter: [KeyCode.Enter],
   moveSelectionUp: [KeyCode.ArrowUp],
   moveSelectionDown: [KeyCode.ArrowDown],
   redo: [KeyCode.Control, KeyCode.LetterZ],

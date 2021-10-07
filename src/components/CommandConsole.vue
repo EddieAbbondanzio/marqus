@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent } from "vue";
 import Modal from "@/components/Modal.vue";
 import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
 import { Form } from "vee-validate";
@@ -40,14 +40,7 @@ export default defineComponent({
       set(v: string) { commandConsole.actions.setInput(v); }
     });
 
-    const onSubmit = () => {
-      if (isNamespacedCommand(input.value)) {
-        commands.run(input.value);
-
-        // Hide the console after
-        commandConsole.actions.hide();
-      }
-    };
+    const onSubmit = () => commandConsole.actions.selectAndRun();
 
     /*
     * If the user provides an input, assume we should make it harder to exit the modal so they don't
@@ -55,16 +48,7 @@ export default defineComponent({
     */
     const focusTrap = computed(() => !isBlank(input.value) ? "hard" : "soft");
 
-    const onItemClick = (item: string) => {
-      input.value = item;
-
-      if (isNamespacedCommand(input.value)) {
-        commands.run(input.value);
-        commandConsole.actions.hide();
-      }
-    };
-
-    const selectedIndex = ref(-1);
+    const onItemClick = () => commandConsole.actions.selectAndRun();
 
     return {
       suggestions: computed(() => commandConsole.getters.suggestions),
@@ -74,7 +58,7 @@ export default defineComponent({
       modalActive: computed(() => commandConsole.state.modalActive),
       onUpdateModalActive: commandConsole.actions.setActive,
       onItemClick,
-      selectedIndex
+      selectedIndex: computed(() => commandConsole.state.selectedIndex)
     };
   },
   components: { Modal, Form, InputField }

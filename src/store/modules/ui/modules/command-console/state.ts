@@ -2,5 +2,5 @@
 export class CommandConsoleState {
     modalActive?: boolean;
     input = "";
-    selectedIndex?: number;
+    selectedIndex = 0;
 }

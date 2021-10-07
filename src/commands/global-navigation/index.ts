@@ -48,4 +48,5 @@ export const GLOBAL_NAVIGATION_REGISTRY = {
   scrollUp: ScrolUp,
   scrollDown: ScrolDown,
   emptyTrash: EmptyTrash
+
 };

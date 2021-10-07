@@ -15,6 +15,10 @@ export class CommandConsoleMutations extends Mutations<CommandConsoleState> {
   }
 
   SET_INPUT(input: string) {
+    if (input == null) {
+      return;
+    }
+
     this.state.input = input;
   }
 
@@ -22,11 +26,7 @@ export class CommandConsoleMutations extends Mutations<CommandConsoleState> {
     this.state.input = "";
   }
 
-  MOVE_SELECTION_DOWN() {
-    throw Error();
-  }
-
-  MOVE_SELECTION_UP() {
-    throw Error();
+  SET_SELECTION(index: number) {
+    this.state.selectedIndex = index;
   }
 }

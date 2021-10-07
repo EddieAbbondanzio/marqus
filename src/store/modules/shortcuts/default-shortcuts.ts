@@ -14,12 +14,16 @@ const GLOBAL_NAVIGATION_SHORTCUTS: Shortcut[] = [
   { context: "globalNavigation", command: "globalNavigation.scrollUp", keys: GENERAL_USE_KEYS.scrollUp }
 ];
 
-const CONSOLE_SHORTCUTS: Shortcut[] = [
+const COMMAND_CONSOLE_SHORTCUTS: Shortcut[] = [
   { global: true, command: "commandConsole.toggle", keys: [KeyCode.Control, KeyCode.LetterP] },
-  { context: "commandConsole", command: "commandConsole.hide", keys: [KeyCode.Escape] }
+  { context: "commandConsole", command: "commandConsole.hide", keys: [KeyCode.Escape] },
+  { context: "commandConsole", command: "commandConsole.moveSelectionDown", keys: GENERAL_USE_KEYS.moveSelectionDown },
+  { context: "commandConsole", command: "commandConsole.moveSelectionUp", keys: GENERAL_USE_KEYS.moveSelectionUp },
+  { context: "commandConsole", command: "commandConsole.select", keys: GENERAL_USE_KEYS.tab },
+  { context: "commandConsole", command: "commandConsole.selectAndRun", keys: GENERAL_USE_KEYS.enter }
 ];
 
 export const DEFAULT_SHORTCUTS: Shortcut[] = [
   ...GLOBAL_NAVIGATION_SHORTCUTS,
-  ...CONSOLE_SHORTCUTS
+  ...COMMAND_CONSOLE_SHORTCUTS
 ];
