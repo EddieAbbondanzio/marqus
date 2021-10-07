@@ -39,7 +39,6 @@ export function isNamespacedCommand(str: string): str is NamespacedCommand {
 }
 
 export function generate(registry: CommandRegistry) {
-  console.log("generated shortcuts for: ", registry);
   /*
    * Here be dragons
    */
@@ -50,7 +49,6 @@ export function generate(registry: CommandRegistry) {
     const ctor = registry[name];
 
     if (ctor == null) {
-      console.log(registry);
       throw Error(`No command ${name} registered.`);
     }
 

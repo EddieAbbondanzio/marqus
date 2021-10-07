@@ -1,5 +1,4 @@
 import { NamespacedCommand } from "@/commands";
-import { flatten, OneOrMore } from "@/utils";
 import _ from "lodash";
 import { isModifier, isValidKeyCode, KeyCode } from "./key-code";
 
@@ -43,8 +42,8 @@ export class ShortcutState {
   activeKeys: { [key: string]: boolean } = {};
 }
 
-export function keyCodesToString(keys: OneOrMore<KeyCode>): string {
-  const k = flatten(keys);
+export function keyCodesToString(keys: KeyCode | KeyCode[]): string {
+  const k = Array.isArray(keys) ? keys : [keys];
 
   if (k.length === 0) {
     throw Error("Shortcut must have at least 1 key");

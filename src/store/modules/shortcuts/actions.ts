@@ -1,7 +1,6 @@
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { Shortcut, ShortcutState } from "@/store/modules/shortcuts/state";
-import { flatten, OneOrMore } from "@/utils";
 import { commands } from "@/commands";
 import { Actions } from "vuex-smart-module";
 import { KeyCode, parseKey } from "./key-code";
@@ -20,14 +19,14 @@ export class ShortcutActions extends Actions<
     this.dispatch("map", state);
   }
 
-  default(shortcuts: OneOrMore<Shortcut>) {
-    for (const shortcut of flatten(shortcuts)) {
+  default(shortcuts: Shortcut[]) {
+    for (const shortcut of shortcuts) {
       this.commit("REGISTER_SHORTCUT", shortcut);
     }
   }
 
-  map(shortcuts: OneOrMore<Shortcut>) {
-    for (const shortcut of flatten(shortcuts)) {
+  map(shortcuts: Shortcut[]) {
+    for (const shortcut of shortcuts) {
       shortcut.userDefined = true;
 
       // If we are override an existing shortcut, (try to) remove the old one.
