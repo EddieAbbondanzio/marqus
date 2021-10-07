@@ -2,14 +2,14 @@ import { persist } from "@/store/plugins/persist";
 import {
   fixNotebookParentReferences,
   killNotebookParentReferences
-  , NotebookState
+  , Notebook, notebookSchema, NotebookState
 } from "@/store/modules/notebooks/state";
 import { createComposable, Module } from "vuex-smart-module";
 import { NotebookActions } from "@/store/modules/notebooks/actions";
 
 import { NotebookMutations } from "@/store/modules/notebooks/mutations";
 import { NotebookGetters } from "@/store/modules/notebooks/getters";
-import { undo } from "@/store/plugins/undo";
+import * as yup from "yup";
 
 export const notebooks = new Module({
   namespaced: true,
@@ -23,13 +23,12 @@ export const useNotebooks = createComposable(notebooks);
 
 persist.register({
   namespace: "notebooks",
-  setStateAction: "setState",
-  reviver: (s: NotebookState) => {
-    for (const n of s.values) {
+  reviver: (values: Notebook[]) => {
+    for (const n of values) {
       fixNotebookParentReferences(n);
     }
 
-    return s;
+    return { values };
   },
   transformer: (s: NotebookState) => {
     /*
@@ -40,7 +39,7 @@ persist.register({
       killNotebookParentReferences(n);
     }
 
-    return s;
+    return s.values;
   },
-  ignore: ["SET_STATE"]
+  schema: yup.array().of(notebookSchema)
 });

@@ -109,6 +109,7 @@ export const persist = {
          * effect anything if we did read twice. Not that that would happen anyways.
          */
         const fileName = getModuleFileName(m);
+
         state = await deserializeJSON(fileName);
       }
 
@@ -176,7 +177,7 @@ async function deserializeJSON(fileName: string) {
     return null;
   }
 
-  return await fileSystem.readJSON(fileName);
+  return fileSystem.readJSON(fileName);
 }
 
 /**

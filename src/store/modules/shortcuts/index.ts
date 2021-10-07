@@ -24,7 +24,6 @@ export interface SerializedShortcut {
 
 persist.register({
   namespace: "shortcuts",
-  setStateAction: "setState",
   ignore: ["SET_STATE", "REMOVE_SHORTCUT_FOR_COMMAND", "KEY_DOWN", "KEY_UP", "CREATE_SHORTCUT"],
   transformer: (state: ShortcutState): SerializedShortcut[] => {
     const shortcutMappings = [];
