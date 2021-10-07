@@ -63,10 +63,9 @@ import ListBuilder from "@/components/input/ListBuilder.vue";
 import { ErrorMessage, Form } from "vee-validate";
 import InputField from "@/components/input/InputField.vue";
 import Autocomplete from "@/components/input/Autocomplete.vue";
-import { useTagValidation } from "@/hooks/use-tag-validation";
 import { useNotes } from "@/store/modules/notes";
 import { useTags } from "@/store/modules/tags";
-import { Tag } from "@/store/modules/tags/state";
+import { Tag, tagNameSchema } from "@/store/modules/tags/state";
 import { useEditor } from "@/store/modules/ui/modules/editor";
 import { generateId, isBlank } from "@/utils";
 import { contexts } from "@/directives/context";
@@ -143,8 +142,6 @@ export default defineComponent({
     const onAdd = (t: Tag) => notes.dispatch("addTag", { note: note.value, tagId: t.id });
     const onRemove = (t: Tag) => notes.dispatch("removeTag", { note: note.value, tagId: t.id });
 
-    const { unique, ...rules } = useTagValidation();
-
     return {
       input,
       unusedValues,
@@ -156,7 +153,7 @@ export default defineComponent({
       tags: computed(() => tags.state.values),
       note: computed(() => editor.getters.activeNote),
       tagsForNote: computed(() => tags.getters.tagsForNote),
-      rules
+      rules: tagNameSchema
     };
   },
   components: {

@@ -177,13 +177,7 @@ async function deserializeJSON(fileName: string) {
     return null;
   }
 
-  fileSystem.readJSON(fileName).then((val) => {
-    console.log("GOOD");
-    return val;
-  }).catch((err) => {
-    console.log("BAD", err);
-    return null;
-  });
+  fileSystem.readJSON(fileName).then(val => val).catch(() => null);
 }
 
 /**

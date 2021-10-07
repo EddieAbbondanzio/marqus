@@ -60,10 +60,10 @@ import { computed, defineComponent } from "vue";
 import NavigationMenuItem from "@/components/navigation/NavigationMenuItem.vue";
 import NavigationMenuForm from "@/components/navigation/NavigationMenuForm.vue";
 import IconButton from "@/components/buttons/IconButton.vue";
-import { useTagValidation } from "@/hooks/use-tag-validation";
 import { useTags } from "@/store/modules/tags";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { commands } from "@/commands";
+import { tagNameSchema } from "@/store/modules/tags/state";
 
 export default defineComponent({
   setup: function () {
@@ -84,7 +84,7 @@ export default defineComponent({
       }
     });
 
-    const formRules = useTagValidation(() => globalNav.state.tags.input);
+    const formRules = tagNameSchema;
 
     const createTag = () => {
       commands.run("globalNavigation.createTag");

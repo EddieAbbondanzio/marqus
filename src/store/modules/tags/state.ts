@@ -12,10 +12,16 @@ export class TagState {
 
 export const tagNameSchema = yup
   .string()
-  .test(v => !isBlank(v))
-  .min(1)
-  .max(64)
-  .required();
+  .required("Tag is required")
+  .test((v, ctx) => {
+    if (isBlank(v)) {
+      return ctx.createError({ message: "Tag cannot be blank" });
+    }
+
+    return true;
+  })
+  .min(1, "Tag must be atleast 1 character")
+  .max(64, "Tag cannot be more than 64 characters");
 
 export const tagSchema: yup.SchemaOf<Tag> = yup
   .object()
