@@ -119,8 +119,8 @@ export class GlobalNavigationActions extends Actions<
       this.commit("SET_TAGS_EXPANDED", true);
 
       if (mode === "update") {
-        const { name } = this.tags.getters.byId(id)!;
-        this.commit("START_TAGS_INPUT", { mode, id, name });
+        const tag = this.tags.getters.byId(id, { required: true });
+        this.commit("START_TAGS_INPUT", { mode, id, name: tag.name });
       } else {
         this.commit("START_TAGS_INPUT", { mode, id });
       }
@@ -235,8 +235,7 @@ export class GlobalNavigationActions extends Actions<
      */
 
       if (id != null) {
-        notebook = this.notebooks.getters.byId(id);
-        if (notebook == null) throw Error(`No notebook with id ${id} found.`);
+        notebook = this.notebooks.getters.byId(id, { required: true });
       }
 
       if (id == null && parentId != null) {

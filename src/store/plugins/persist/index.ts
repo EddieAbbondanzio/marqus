@@ -41,7 +41,6 @@ export const persist = {
           const f = async () => {
             subscriber.saving = true;
             let s = _.cloneDeep(state);
-            console.log(s);
 
             // Apply the transformer to the state if one exists
             if (subscriber.settings.transformer != null) {
@@ -101,18 +100,15 @@ export const persist = {
     for (const m of this.modules) {
       let state: undefined | any;
 
+      // Try to load in data
       if (m.settings.deserialize != null) {
         state = await m.settings.deserialize();
       } else {
-        /**
-         * We don't need to call the scheduler on read since it won't actually
-         * effect anything if we did read twice. Not that that would happen anyways.
-         */
         const fileName = getModuleFileName(m);
-
         state = await deserializeJSON(fileName);
       }
 
+      // Apply validation if needed
       if (state != null && m.settings.schema) {
         try {
           await m.settings.schema.validate(state);
@@ -134,6 +130,7 @@ export const persist = {
         }
       }
 
+      // Set the state in vuex
       if (state != null) {
         store.dispatch(
           `${m.settings.namespace}/${m.settings.setStateAction}`,
@@ -153,6 +150,7 @@ export const persist = {
       throw Error(`Duplicate module registered ${settings.namespace}`);
     }
 
+    // Apply defaults
     const m: PersistModule = {
       settings: {
         setStateAction: settings.setStateAction ?? "setState",
@@ -177,7 +175,12 @@ async function deserializeJSON(fileName: string) {
     return null;
   }
 
-  fileSystem.readJSON(fileName).then(val => val).catch(() => null);
+  try {
+    const contents = await fileSystem.readJSON(fileName);
+    return contents;
+  } catch {
+    return null;
+  }
 }
 
 /**

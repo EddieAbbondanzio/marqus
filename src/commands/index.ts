@@ -56,7 +56,7 @@ export function generate(registry: CommandRegistry) {
 
     // eslint-disable-next-line new-cap
     const command = new (ctor as any)();
-    await command.execute(payload);
+    await command.execute(...payload); // Payload comes in as an array so we have to spread it
   }
 
   return {

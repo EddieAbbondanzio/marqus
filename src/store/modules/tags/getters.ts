@@ -42,6 +42,10 @@ export class TagGetters extends Getters<TagState> {
   byId(id: string, opts: { required?: boolean } = {}) {
     const tag = this.state.values.find(t => t.id === id);
 
+    for (const t of this.state.values) {
+      console.log(t.id, " ", id);
+    }
+
     if (opts.required && tag == null) {
       throw Error(`No tag with id ${id} found.`);
     }
