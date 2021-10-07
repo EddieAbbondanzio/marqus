@@ -1,4 +1,4 @@
-import { persist } from "@/store/plugins/persist/persist";
+import { persist } from "@/store/plugins/persist";
 import { Commit, createComposable, Module } from "vuex-smart-module";
 import { NoteActions } from "@/store/modules/notes/actions";
 import { NoteMutations } from "@/store/modules/notes/mutations";

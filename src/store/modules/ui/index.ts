@@ -2,7 +2,7 @@ import { UserInterfaceState } from "./state";
 import { UserInterfaceGetters } from "./getters";
 import { UserInterfaceActions } from "./actions";
 import { UserInterfaceMutations } from "./mutations";
-import { persist } from "@/store/plugins/persist/persist";
+import { persist } from "@/store/plugins/persist";
 import { Module } from "vuex-smart-module";
 import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { localNavigation } from "@/store/modules/ui/modules/local-navigation";

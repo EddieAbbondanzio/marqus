@@ -1,4 +1,4 @@
-import { persist } from "@/store/plugins/persist/persist";
+import { persist } from "@/store/plugins/persist";
 import {
   fixNotebookParentReferences,
   killNotebookParentReferences

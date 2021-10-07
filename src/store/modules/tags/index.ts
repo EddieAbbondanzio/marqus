@@ -2,8 +2,9 @@ import { TagActions } from "@/store/modules/tags/actions";
 import { TagGetters } from "@/store/modules/tags/getters";
 import { TagMutations } from "@/store/modules/tags/mutations";
 import { TagState } from "@/store/modules/tags/state";
-import { persist } from "@/store/plugins/persist/persist";
+import { persist } from "@/store/plugins/persist";
 import { createComposable, Module } from "vuex-smart-module";
+import * as yup from "yup";
 
 export const tags = new Module({
   namespaced: true,
@@ -16,7 +17,5 @@ export const tags = new Module({
 export const useTags = createComposable(tags);
 
 persist.register({
-  namespace: "tags",
-  setStateAction: "setState",
-  ignore: ["SET_STATE"]
+  namespace: "tags"
 });

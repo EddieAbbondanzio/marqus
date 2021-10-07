@@ -10,6 +10,7 @@
 
         <!-- Suggestions -->
         <div class="is-flex is-flex-column">
+          <template v-if="suggestions.length > 1">
             <a
             :class="['has-text-dark py-1 has-background-hover-light', {'has-background-light': selectedIndex === i }
             ]"
@@ -17,6 +18,10 @@
             >
             {{ suggestion }}
             </a>
+          </template>
+          <div class="is-flex is-align-center py-2" v-else>
+            Press enter to run...
+          </div>
         </div>
       </div>
     </modal>
@@ -27,12 +32,15 @@ import { computed, defineComponent } from "vue";
 import Modal from "@/components/Modal.vue";
 import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
 import { Form } from "vee-validate";
-import { commands, isNamespacedCommand } from "@/commands";
 import InputField from "@/components/input/InputField.vue";
 import { isBlank } from "@/utils";
 
 export default defineComponent({
   setup() {
+    /*
+    * Command console should not run commands directly. Instead have it call the lower layer actions.
+    */
+
     const commandConsole = useCommandConsole();
 
     const input = computed({
