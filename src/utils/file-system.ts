@@ -37,8 +37,18 @@ export const fileSystem = {
     const fullPath = generateFullPath(path, root);
 
     return new Promise((res, rej) =>
-      fs.readFile(fullPath, "utf8", (err, data) =>
-        err == null ? res(JSON.parse(data)) : rej(err)
+      fs.readFile(fullPath, "utf8", (err, data) => {
+        if (err != null) {
+          return rej(err);
+        }
+
+        // Handle empty json file
+        if (data == null || data.length === 0) {
+          return res(null);
+        }
+
+        return res(JSON.parse(data));
+      }
       )
     );
   },
