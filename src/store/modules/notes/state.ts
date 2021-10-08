@@ -1,6 +1,4 @@
 import { Base } from "@/store/base";
-import { idSchema, isBlank } from "@/utils";
-import * as yup from "yup";
 
 export interface Note extends Base {
   name: string;
@@ -20,28 +18,6 @@ export interface Note extends Base {
    */
   hasUnsavedChanges?: boolean;
 }
-
-export const noteNameSchema = yup
-  .string()
-  .test(v => !isBlank(v))
-  .min(1)
-  .max(128)
-  .required();
-
-export const noteSchema: yup.SchemaOf<Note> = yup
-  .object()
-  .shape({
-    id: idSchema,
-    name: noteNameSchema,
-    notebooks: yup.array().default([]),
-    tags: yup.array().default([]),
-    dateCreated: yup.date().default(new Date()),
-    dateModified: yup.date().optional(),
-    trashed: yup.boolean().optional(),
-    favorited: yup.boolean().optional(),
-    hasUnsavedChanges: yup.boolean().optional()
-  })
-  .defined();
 
 export class NoteState {
   values: Note[] = [];

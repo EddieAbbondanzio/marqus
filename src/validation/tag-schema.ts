@@ -1,8 +1,9 @@
 import { store } from "@/store";
 import { tags } from "@/store/modules/tags";
 import { Tag } from "@/store/modules/tags/state";
-import { isBlank, idSchema } from "@/utils";
+import { isBlank } from "@/utils";
 import * as yup from "yup";
+import { idSchema } from "./id-schema";
 
 export const tagNameSchema = yup
   .string()

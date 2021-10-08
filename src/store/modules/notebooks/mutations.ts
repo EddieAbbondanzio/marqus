@@ -1,12 +1,10 @@
 import {
   Notebook,
-  notebookNameSchema,
-  notebookSchema,
   NotebookState
 } from "./state";
 import { Mutations } from "vuex-smart-module";
-import { caseInsensitiveCompare, isBlank } from "@/utils/string";
-import { reach } from "yup";
+import { caseInsensitiveCompare } from "@/utils/string";
+import { notebookSchema, notebookNameSchema } from "@/validation";
 
 export class NotebookMutations extends Mutations<NotebookState> {
   SET_STATE(s: NotebookState) {
@@ -25,6 +23,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
     if (notebook.parent == null) {
       this.state.values.push(notebook);
     } else {
+      // eslint-disable-next-line no-unused-expressions
       notebook.parent.children?.push(notebook);
     }
   }
@@ -91,6 +90,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
     do {
       n.expanded = expanded;
       n = n.parent;
+    // eslint-disable-next-line no-unmodified-loop-condition
     } while (n != null && bubbleUp);
   }
 

@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from "uuid";
-import * as yup from "yup";
 
 export type Id = string;
 
@@ -18,9 +17,3 @@ export function isId(id: string): boolean {
     id
   );
 }
-
-export const idSchema = yup
-  .string()
-  .optional()
-  .default(generateId)
-  .test(isId);

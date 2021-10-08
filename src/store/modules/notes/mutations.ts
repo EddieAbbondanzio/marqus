@@ -1,7 +1,6 @@
-import Vue from "*.vue";
-import { MutationTree } from "vuex";
+import { noteSchema } from "@/validation";
 import { Mutations } from "vuex-smart-module";
-import { Note, noteSchema, NoteState } from "./state";
+import { Note, NoteState } from "./state";
 
 export class NoteMutations extends Mutations<NoteState> {
   SET_STATE(s: NoteState) {
@@ -47,17 +46,17 @@ export class NoteMutations extends Mutations<NoteState> {
     notebookId: string;
   }) {
     if (notebookId == null) {
-        throw Error('No notebookId passed.');
+      throw Error("No notebookId passed.");
     }
     const notes = Array.isArray(note) ? note : [note];
     for (const note of notes) {
       note.notebooks ??= [];
 
-        // Check to see if the notebook is already present to prevent duplicates.
-        if (!note.notebooks.some((n) => n === notebookId)) {
-            note.notebooks.push(notebookId);
-            note.hasUnsavedChanges = true;
-        }
+      // Check to see if the notebook is already present to prevent duplicates.
+      if (!note.notebooks.some((n) => n === notebookId)) {
+        note.notebooks.push(notebookId);
+        note.hasUnsavedChanges = true;
+      }
     }
   }
 
@@ -68,23 +67,24 @@ export class NoteMutations extends Mutations<NoteState> {
    */
   ADD_TAG({ note, tagId }: { note: Note | Note[]; tagId: string }) {
     if (tagId == null) {
-        throw Error('No tagId passed.');
+      throw Error("No tagId passed.");
     }
     const notes = Array.isArray(note) ? note : [note];
     for (const note of notes) {
       note.tags ??= [];
-      
-        // Check to see if the tag is already present first to prevent duplicates.
-        if (!note.tags.some((t) => t === tagId)) {
-            note.tags.push(tagId);
-            note.hasUnsavedChanges = true;
-        }
+
+      // Check to see if the tag is already present first to prevent duplicates.
+      if (!note.tags.some((t) => t === tagId)) {
+        note.tags.push(tagId);
+        note.hasUnsavedChanges = true;
+      }
     }
   }
 
   /**
    * Remove a notebook from one, multiple, or all notes.
-   * @param options.noteId Id of one, or more notes to remove notebook from. If none passed, notebook is removed from all notes.
+   * @param options.noteId Id of one, or more notes to remove notebook from.
+   * If none passed, notebook is removed from all notes.
    * @param options.notebookId Id of the notebook to remove.
    */
   REMOVE_NOTEBOOK({
@@ -121,7 +121,8 @@ export class NoteMutations extends Mutations<NoteState> {
 
   /**
    * Remove a tag from one, multiple, or all notes.
-   * @param options.noteId Id of one, or more notes to remove the tag from. If none passed, tag is removed from all notes.
+   * @param options.noteId Id of one, or more notes to remove the tag from.
+   * If none passed, tag is removed from all notes.
    * @param options.tagId Id of the tag to be removed.
    */
   REMOVE_TAG({

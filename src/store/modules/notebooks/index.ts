@@ -2,7 +2,7 @@ import { persist } from "@/store/plugins/persist";
 import {
   fixNotebookParentReferences,
   killNotebookParentReferences
-  , Notebook, notebookSchema, NotebookState
+  , Notebook, NotebookState
 } from "@/store/modules/notebooks/state";
 import { createComposable, Module } from "vuex-smart-module";
 import { NotebookActions } from "@/store/modules/notebooks/actions";
@@ -10,6 +10,7 @@ import { NotebookActions } from "@/store/modules/notebooks/actions";
 import { NotebookMutations } from "@/store/modules/notebooks/mutations";
 import { NotebookGetters } from "@/store/modules/notebooks/getters";
 import * as yup from "yup";
+import { notebookSchema } from "@/validation";
 
 export const notebooks = new Module({
   namespaced: true,

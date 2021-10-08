@@ -1,6 +1,4 @@
 import { Base } from "@/store/base";
-import { idSchema, isBlank } from "@/utils";
-import * as yup from "yup";
 
 export interface Notebook extends Base {
   name: string;
@@ -8,30 +6,6 @@ export interface Notebook extends Base {
   children?: Notebook[];
   expanded?: boolean;
 }
-
-export const notebookNameSchema = yup
-  .string()
-  .required()
-  .test(v => !isBlank(v))
-  .min(1)
-  .max(64);
-
-export const notebookSchema: yup.SchemaOf<Notebook> = yup
-  .object()
-  .shape({
-    id: idSchema,
-    name: notebookNameSchema,
-    parent: yup.object().optional(),
-    children: yup
-      .array()
-      .optional()
-      .default([]),
-    expanded: yup
-      .boolean()
-      .optional()
-      .default(false)
-  })
-  .defined();
 
 /**
  * Recursively iterate notebooks and rebuilt their .parent references.
