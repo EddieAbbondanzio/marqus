@@ -1,6 +1,7 @@
 import { caseInsensitiveCompare } from "@/utils/string";
+import { tagNameSchema, tagSchema } from "@/validation/tag-schema";
 import { Mutations } from "vuex-smart-module";
-import { Tag, tagNameSchema, tagSchema, TagState } from "./state";
+import { Tag, TagState } from "./state";
 
 export class TagMutations extends Mutations<TagState> {
   SET_STATE(s: TagState): void {

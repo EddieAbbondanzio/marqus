@@ -65,10 +65,11 @@ import InputField from "@/components/input/InputField.vue";
 import Autocomplete from "@/components/input/Autocomplete.vue";
 import { useNotes } from "@/store/modules/notes";
 import { useTags } from "@/store/modules/tags";
-import { Tag, tagNameSchema } from "@/store/modules/tags/state";
+import { Tag } from "@/store/modules/tags/state";
 import { useEditor } from "@/store/modules/ui/modules/editor";
 import { generateId, isBlank } from "@/utils";
 import { contexts } from "@/directives/context";
+import { tagNameSchema } from "@/validation/tag-schema";
 
 export default defineComponent({
   setup: function (p, c) {

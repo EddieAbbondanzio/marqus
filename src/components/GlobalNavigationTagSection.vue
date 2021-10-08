@@ -63,7 +63,7 @@ import IconButton from "@/components/buttons/IconButton.vue";
 import { useTags } from "@/store/modules/tags";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
 import { commands } from "@/commands";
-import { tagNameSchema } from "@/store/modules/tags/state";
+import { tagNameSchema } from "@/validation/tag-schema";
 
 export default defineComponent({
   setup: function () {

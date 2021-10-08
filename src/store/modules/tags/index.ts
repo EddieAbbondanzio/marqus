@@ -1,8 +1,9 @@
 import { TagActions } from "@/store/modules/tags/actions";
 import { TagGetters } from "@/store/modules/tags/getters";
 import { TagMutations } from "@/store/modules/tags/mutations";
-import { Tag, tagSchema, TagState } from "@/store/modules/tags/state";
+import { Tag, TagState } from "@/store/modules/tags/state";
 import { persist } from "@/store/plugins/persist";
+import { tagSchema } from "@/validation/tag-schema";
 import { createComposable, Module } from "vuex-smart-module";
 import * as yup from "yup";
 
