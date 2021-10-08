@@ -1,5 +1,4 @@
 import { caseInsensitiveCompare } from "@/utils/string";
-import { tagNameSchema, tagSchema } from "@/validation/tag-schema";
 import { Mutations } from "vuex-smart-module";
 import { Tag, TagState } from "./state";
 
@@ -8,18 +7,15 @@ export class TagMutations extends Mutations<TagState> {
     Object.assign(this.state, s);
   }
 
-  CREATE(p: Partial<Tag>): void {
-    const { id, name } = tagSchema.validateSync(p);
-
+  CREATE(p: {id: string, name: string }): void {
     this.state.values.push({
-      id,
-      name,
+      id: p.id,
+      name: p.name,
       created: new Date()
     });
   }
 
   RENAME({ tag, newName }: { tag: Tag; newName: string }): void {
-    tagNameSchema.validateSync(newName);
     tag.name = newName;
   }
 

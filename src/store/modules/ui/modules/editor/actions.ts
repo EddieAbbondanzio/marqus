@@ -6,12 +6,13 @@ import {
 import { Actions, Context } from "vuex-smart-module";
 import { EditorGetters } from "@/store/modules/ui/modules/editor/getters";
 import { EditorMutations } from "@/store/modules/ui/modules/editor/mutations";
-import { loadNoteContent, notes, saveNoteContent } from "@/store/modules/notes";
+import { notes } from "@/store/modules/notes";
 import { Store } from "vuex";
 import { undo, UndoModule } from "@/store/plugins/undo";
 import { tags } from "@/store/modules/tags";
 import { notebooks } from "@/store/modules/notebooks";
 import { confirmDelete } from "@/prompts";
+import { loadNoteContent, saveNoteContent } from "@/store/modules/notes/plugins";
 
 export class EditorActions extends Actions<
   EditorState,

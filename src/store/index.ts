@@ -9,6 +9,16 @@ import { notes } from "@/store/modules/notes";
 import { undo } from "@/store/plugins/undo";
 import { createLogger } from "vuex";
 
+// Import plugin folders to enable them
+import "./modules/tags/plugins";
+import "./modules/notebooks/plugins";
+import "./modules/notes/plugins";
+import "./modules/ui/plugins";
+import "./modules/ui/modules/command-console/plugins";
+import "./modules/ui/modules/editor/plugins";
+import "./modules/ui/modules/global-navigation/plugins";
+import "./modules/ui/modules/local-navigation/plugins";
+
 export const root = new Module({
   namespaced: false,
   modules: {

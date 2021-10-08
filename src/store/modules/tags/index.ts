@@ -16,10 +16,3 @@ export const tags = new Module({
 });
 
 export const useTags = createComposable(tags);
-
-persist.register({
-  namespace: "tags",
-  transformer: (s: TagState) => s.values,
-  reviver: (values: Tag[]) => ({ values }),
-  schema: yup.array().of(tagSchema)
-});
