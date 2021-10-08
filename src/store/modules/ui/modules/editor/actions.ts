@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   EditorState,
   Tab
@@ -10,7 +11,7 @@ import { Store } from "vuex";
 import { undo, UndoModule } from "@/store/plugins/undo";
 import { tags } from "@/store/modules/tags";
 import { notebooks } from "@/store/modules/notebooks";
-import { confirmDeleteOrTrash } from "@/prompts";
+import { confirmDelete } from "@/prompts";
 
 export class EditorActions extends Actions<
   EditorState,
@@ -132,7 +133,7 @@ export class EditorActions extends Actions<
     }
 
     // TODO: This is redundant logic. See local navigation deleteNote action. Figure out how to commonize it.
-    const confirm = await confirmDeleteOrTrash("note", activeNote.name);
+    const confirm = await confirmDelete("note", activeNote.name, { showTrash: true });
 
     switch (confirm) {
     case "delete":
