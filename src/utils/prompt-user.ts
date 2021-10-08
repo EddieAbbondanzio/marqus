@@ -1,5 +1,7 @@
-import { dialog } from "electron";
+import { Dialog } from "electron";
 import { isPromise } from "./async";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const dialog = require("electron").remote.dialog as Dialog;
 
 export interface Button {
   text: string;
@@ -10,12 +12,13 @@ export interface Button {
 export type PromptType = "none" | "info" | "warning" | "error";
 
 export interface PromptOptions {
-  type: PromptType,
+  title?: string;
+  type?: PromptType,
   text: string,
   buttons: Button | Button[],
 }
 
-export async function prompt(options: PromptOptions) {
+export async function promptUser(options: PromptOptions) {
   const buttons = Array.isArray(options.buttons) ? options.buttons : [options.buttons];
 
   if (buttons.length > 1) {
@@ -29,7 +32,8 @@ export async function prompt(options: PromptOptions) {
   }
 
   const returnVal = await dialog.showMessageBox({
-    type: options.type,
+    title: options.title,
+    type: options.type ?? "info",
     message: options.text,
     buttons: buttons.map(b => b.text)
   });

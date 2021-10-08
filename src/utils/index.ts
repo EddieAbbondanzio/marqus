@@ -5,3 +5,4 @@ export * from "./string";
 export * from "./vuex";
 export * from "./dom";
 export * from "./scroll";
+export * from "./prompt-user";
