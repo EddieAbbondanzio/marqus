@@ -1,7 +1,6 @@
-import { createContextMenuHook } from "@/hooks/create-context-menu-hook";
 import { store } from "@/store";
 import { Note } from "@/store/modules/notes/state";
-import { findParent } from "@/utils";
+import { createContextMenuHook, findParent } from "@/utils";
 
 export const useLocalNavigationContextMenu = createContextMenuHook(
   "localNavigation",

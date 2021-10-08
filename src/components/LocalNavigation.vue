@@ -62,7 +62,7 @@ import { computed, defineComponent } from "vue";
 import Resizable from "@/components/layout/Resizable.vue";
 import NavigationMenuItem from "@/components/navigation/NavigationMenuItem.vue";
 import NavigationMenuForm from "@/components/navigation/NavigationMenuForm.vue";
-import { useLocalNavigationContextMenu } from "@/hooks/use-local-navigation-context-menu";
+import { useLocalNavigationContextMenu } from "@/context-menus/local-navigation-context-menu";
 import { useNotes } from "@/store/modules/notes";
 import { Note } from "@/store/modules/notes/state";
 import { useLocalNavigation } from "@/store/modules/ui/modules/local-navigation";

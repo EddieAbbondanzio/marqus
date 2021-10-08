@@ -71,7 +71,6 @@ import ListBuilder from "@/components/input/ListBuilder.vue";
 import Autocomplete from "@/components/input/Autocomplete.vue";
 import { ErrorMessage, Form } from "vee-validate";
 import InputField from "@/components/input/InputField.vue";
-import { useNotebookValidation } from "@/hooks/use-notebook-validation";
 import { useNotebooks } from "@/store/modules/notebooks";
 import { Notebook, fullyQualify } from "@/store/modules/notebooks/state";
 import { useNotes } from "@/store/modules/notes";
@@ -79,6 +78,7 @@ import { useEditor } from "@/store/modules/ui/modules/editor";
 import { generateId } from "@/utils/id";
 import { isBlank } from "@/utils/string";
 import { contexts } from "@/directives/context";
+import { notebookSchema } from "@/validation";
 
 export default defineComponent({
   setup() {
@@ -160,8 +160,6 @@ export default defineComponent({
     const onRemove = (n: Notebook) =>
       notes.dispatch("removeNotebook", { note: note.value, notebookId: n.id });
 
-    const { unique, ...rules } = useNotebookValidation();
-
     return {
       input,
       unusedValues,
@@ -173,7 +171,7 @@ export default defineComponent({
       notebooks: computed(() => notebooks.state.values),
       note: computed(() => editor.getters.activeNote),
       notebooksForNote: computed(() => notebooks.getters.notebooksForNote),
-      rules,
+      rules: notebookSchema,
       fullyQualify
     };
   },

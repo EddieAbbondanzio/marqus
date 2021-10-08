@@ -64,7 +64,7 @@ import GlobalNavigationTagSection from "@/components/GlobalNavigationTagSection.
 import GlobalNavigationNotebookSection from "@/components/GlobalNavigationNotebookSection.vue";
 import NavigationMenuItem from "@/components/navigation/NavigationMenuItem.vue";
 import IconButton from "@/components/buttons/IconButton.vue";
-import { useGlobalNavigationContextMenu } from "@/hooks/use-global-navigation-context-menu";
+import { useGlobalNavigationContextMenu } from "@/context-menus/global-navigation-context-menu";
 import Scrollable from "@/components/layout/Scrollable.vue";
 import { mapUndoRedo } from "@/store/plugins/undo/utils/map-undo-redo";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
