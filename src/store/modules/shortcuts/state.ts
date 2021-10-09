@@ -1,6 +1,6 @@
 import { NamespacedCommand } from "@/commands";
 import _ from "lodash";
-import { isModifier, isValidKeyCode, KeyCode } from "./key-code";
+import { isModifier, isValidKeyCode, KeyCode } from "./keyCode";
 
 export interface Shortcut {
   /**

@@ -1,5 +1,5 @@
 import { IpcRenderer } from "electron";
 
-declare interface Window {
+interface Window {
   ipcRenderer: IpcRenderer;
 }

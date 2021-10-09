@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import Dropdown from '@/components/dropdown/Dropdown.vue';
+import Dropdown from '@/components/dropdown/dropdown';
 import IconButton from '@/components/buttons/IconButton.vue';
 
 export default defineComponent({

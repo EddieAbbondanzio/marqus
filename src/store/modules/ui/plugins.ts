@@ -2,10 +2,10 @@ import { mediator } from "@/store/plugins/mediator";
 import { persist } from "@/store/plugins/persist";
 import { undo } from "@/store/plugins/undo";
 import { RecursivePartial } from "@/utils";
-import { CommandConsoleState } from "./modules/command-console/state";
+import { CommandConsoleState } from "./modules/commandConsole/state";
 import { EditorState } from "./modules/editor/state";
-import { GlobalNavigationState } from "./modules/global-navigation/state";
-import { LocalNavigationState } from "./modules/local-navigation/state";
+import { GlobalNavigationState } from "./modules/globalNavigation/state";
+import { LocalNavigationState } from "./modules/localNavigation/state";
 import { UserInterfaceState } from "./state";
 
 /**

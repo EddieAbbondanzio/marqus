@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import DeleteButton from "@/components/buttons/DeleteButton.vue";
+import DeleteButton from "@/components/buttons/deleteButton";
 import { computed, defineComponent } from "vue";
 import List from "@/components/layout/List.vue";
 import ListItem from "@/components/layout/ListItem.vue";

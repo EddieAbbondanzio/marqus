@@ -51,11 +51,7 @@ export function findParent(
   match: Match,
   opts?: OptsForBoolean
 ): boolean;
-export function findParent(
-  start: HTMLElement,
-  match: Match,
-  opts?: any
-): any {
+export function findParent(start: HTMLElement, match: Match, opts?: any): any {
   const found = climbRecursiveStep(start, match, opts?.stop);
 
   if (found.el != null && !found.hitStop) {

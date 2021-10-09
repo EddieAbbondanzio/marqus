@@ -3,7 +3,7 @@ import { tags } from "@/store/modules/tags";
 import { Tag } from "@/store/modules/tags/state";
 import { isBlank } from "@/utils";
 import * as yup from "yup";
-import { idSchema } from "./id-schema";
+import { idSchema } from "./idSchema";
 
 export const tagNameSchema = yup
   .string()

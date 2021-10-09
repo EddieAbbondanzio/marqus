@@ -3,7 +3,7 @@ import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { Shortcut, ShortcutState } from "@/store/modules/shortcuts/state";
 import { commands } from "@/commands";
 import { Actions } from "vuex-smart-module";
-import { KeyCode, parseKey } from "./key-code";
+import { KeyCode, parseKey } from "./keyCode";
 import { contexts } from "@/directives/context";
 
 export class ShortcutActions extends Actions<

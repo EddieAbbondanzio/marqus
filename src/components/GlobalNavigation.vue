@@ -60,13 +60,13 @@
 <script lang="ts">
 import { computed, defineComponent } from "vue";
 import Resizable from "@/components/layout/Resizable";
-import GlobalNavigationTagSection from "@/components/GlobalNavigationTagSection.vue";
-import GlobalNavigationNotebookSection from "@/components/GlobalNavigationNotebookSection.vue";
+import GlobalNavigationTagSection from "@/components/GlobalNavigationTagSection";
+import GlobalNavigationNotebookSection from "@/components/GlobalNavigationNotebookSection";
 import NavigationMenuItem from "@/components/navigation/NavigationMenuItem";
 import IconButton from "@/components/buttons/IconButton.vue";
 import { useGlobalNavigationContextMenu } from "@/context-menus/global-navigation-context-menu";
 import Scrollable from "@/components/layout/Scrollable";
-import { mapUndoRedo } from "@/store/plugins/undo/utils/map-undo-redo";
+import { mapUndoRedo } from "@/store/plugins/undo/utils/mapUndoRedo";
 import { useGlobalNavigation } from "@/store/modules/ui/modules/global-navigation";
 
 export default defineComponent({

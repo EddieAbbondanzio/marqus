@@ -59,9 +59,9 @@
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
-import Resizable from "@/components/layout/Resizable.vue";
-import NavigationMenuItem from "@/components/navigation/NavigationMenuItem.vue";
-import NavigationMenuForm from "@/components/navigation/NavigationMenuForm.vue";
+import Resizable from "@/components/layout/Resizable";
+import NavigationMenuItem from "@/components/navigation/NavigationMenuItem";
+import NavigationMenuForm from "@/components/navigation/NavigationMenuForm";
 import { useLocalNavigationContextMenu } from "@/context-menus/local-navigation-context-menu";
 import { useNotes } from "@/store/modules/notes";
 import { Note } from "@/store/modules/notes/state";

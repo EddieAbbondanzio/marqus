@@ -1,4 +1,4 @@
-import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
+import { useCommandConsole } from "@/store/modules/ui/modules/commandConsole";
 import { Command } from "../types";
 
 export class Show extends Command<void> {

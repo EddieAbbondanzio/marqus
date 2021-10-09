@@ -1,5 +1,5 @@
 import { Mutations } from "vuex-smart-module";
-import { KeyCode } from "./key-code";
+import { KeyCode } from "./keyCode";
 import { keyCodesToString, Shortcut, ShortcutState } from "./state";
 
 export class ShortcutMutations extends Mutations<ShortcutState> {

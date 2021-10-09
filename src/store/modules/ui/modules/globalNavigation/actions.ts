@@ -1,7 +1,7 @@
 import { GlobalNavigationState, GlobalNavigationItem } from "./state";
 import { Actions, Context } from "vuex-smart-module";
-import { GlobalNavigationGetters } from "@/store/modules/ui/modules/global-navigation/getters";
-import { GlobalNavigationMutations } from "@/store/modules/ui/modules/global-navigation/mutations";
+import { GlobalNavigationGetters } from "@/store/modules/ui/modules/globalNavigation/getters";
+import { GlobalNavigationMutations } from "@/store/modules/ui/modules/globalNavigation/mutations";
 import { tags } from "@/store/modules/tags";
 import { notebooks } from "@/store/modules/notebooks";
 import { notes } from "@/store/modules/notes";

@@ -3,7 +3,7 @@ import { notebooks } from "@/store/modules/notebooks";
 import { Notebook } from "@/store/modules/notebooks/state";
 import { isBlank } from "@/utils";
 import * as yup from "yup";
-import { idSchema } from "./id-schema";
+import { idSchema } from "./idSchema";
 
 export const notebookNameSchema = yup
   .string()

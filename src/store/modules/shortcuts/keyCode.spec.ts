@@ -1,4 +1,4 @@
-import { parseKey, isModifier, KeyCode, isValidKeyCode } from "./key-code";
+import { parseKey, isModifier, KeyCode, isValidKeyCode } from "./keyCode";
 
 describe("parseKey()", () => {
   it("returns space", () => {

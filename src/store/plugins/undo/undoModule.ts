@@ -1,5 +1,5 @@
 import { UndoHistory, UndoSequence, UndoSequenceCommit } from "@/store/plugins/undo/undo-history";
-import { UndoStateCache } from "@/store/plugins/undo/undo-state-cache";
+import { UndoStateCache } from "@/store/plugins/undo/undoStateCache";
 import _ from "lodash";
 import { Store } from "vuex";
 import { Mutations } from "vuex-smart-module";

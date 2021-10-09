@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
-import DeleteButton from "@/components/buttons/DeleteButton.vue";
+import DeleteButton from "@/components/buttons/deleteButton";
 import { useEditor } from "@/store/modules/ui/modules/editor";
 import { Tab } from "@/store/modules/ui/modules/editor/state";
 import { findParent } from "@/utils";

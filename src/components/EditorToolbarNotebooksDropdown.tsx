@@ -66,9 +66,9 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
-import EditorToolbarDropdown from "@/components/EditorToolbarDropdown.vue";
-import ListBuilder from "@/components/input/ListBuilder.vue";
-import Autocomplete from "@/components/input/Autocomplete.vue";
+import EditorToolbarDropdown from "@/components/EditorToolbarDropdown";
+import ListBuilder from "@/components/input/ListBuilder";
+import Autocomplete from "@/components/input/Autocomplete";
 import { ErrorMessage, Form } from "vee-validate";
 import InputField from "@/components/input/InputField.vue";
 import { useNotebooks } from "@/store/modules/notebooks";

@@ -1,4 +1,4 @@
-import { fileSystem } from "@/utils/file-system";
+import { fileSystem } from "@/utils/fileSystem";
 import path from "path";
 import {
   loadNoteContent,

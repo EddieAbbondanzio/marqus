@@ -69,7 +69,7 @@ import { Tag } from "@/store/modules/tags/state";
 import { useEditor } from "@/store/modules/ui/modules/editor";
 import { generateId, isBlank } from "@/utils";
 import { contexts } from "@/directives/context";
-import { tagNameSchema } from "@/validation/tag-schema";
+import { tagNameSchema } from "@/validation/tagSchema";
 
 export default defineComponent({
   setup: function (p, c) {

@@ -1,4 +1,4 @@
-import { contextMenu, CONTEXT_MENU_ATTRIBUTE } from '@/directives/context-menu';
+import { contextMenu, CONTEXT_MENU_ATTRIBUTE } from '@/directives/contextMenu';
 
 describe('contextMenu directive', () => {
     describe('mounted()', () => {

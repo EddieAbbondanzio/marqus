@@ -1,9 +1,9 @@
 import { confirmDelete } from "@/prompts";
 import { notes } from "@/store/modules/notes";
 import { Note } from "@/store/modules/notes/state";
-import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
-import { LocalNavigationGetters } from "@/store/modules/ui/modules/local-navigation/getters";
-import { LocalNavigationMutations } from "@/store/modules/ui/modules/local-navigation/mutations";
+import { globalNavigation } from "@/store/modules/ui/modules/globalNavigation";
+import { LocalNavigationGetters } from "@/store/modules/ui/modules/localNavigation/getters";
+import { LocalNavigationMutations } from "@/store/modules/ui/modules/localNavigation/mutations";
 import { undo, UndoModule } from "@/store/plugins/undo";
 import { Store } from "vuex";
 import { Actions, Context } from "vuex-smart-module";

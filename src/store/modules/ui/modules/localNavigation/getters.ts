@@ -1,7 +1,7 @@
 import { notebooks } from "@/store/modules/notebooks";
 import { Notebook } from "@/store/modules/notebooks/state";
 import { notes } from "@/store/modules/notes";
-import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
+import { globalNavigation } from "@/store/modules/ui/modules/globalNavigation";
 import { GetterTree, Store } from "vuex";
 import { Context, Getters } from "vuex-smart-module";
 import { LocalNavigationState } from "./state";

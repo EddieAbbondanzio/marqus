@@ -38,9 +38,9 @@
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
-import GlobalNavigationNotebook from "@/components/GlobalNavigationNotebook.vue";
-import NavigationMenuForm from "@/components/navigation/NavigationMenuForm.vue";
-import NavigationMenuItem from "@/components/navigation/NavigationMenuItem.vue";
+import GlobalNavigationNotebook from "@/components/GlobalNavigationNotebook";
+import NavigationMenuForm from "@/components/navigation/NavigationMenuForm";
+import NavigationMenuItem from "@/components/navigation/NavigationMenuItem";
 import IconButton from "@/components/buttons/IconButton.vue";
 import { useNotebooks } from "@/store/modules/notebooks";
 import { Notebook } from "@/store/modules/notebooks/state";

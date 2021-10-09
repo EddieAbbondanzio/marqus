@@ -1,7 +1,7 @@
 import {
   GlobalNavigationState,
   GlobalNavigationItem
-} from "@/store/modules/ui/modules/global-navigation/state";
+} from "@/store/modules/ui/modules/globalNavigation/state";
 import { Mutations } from "vuex-smart-module";
 import { InputMode } from "../../state";
 

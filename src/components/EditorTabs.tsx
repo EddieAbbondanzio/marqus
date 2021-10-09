@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
-import EditorTabItem from "@/components/EditorTabItem.vue";
+import EditorTabItem from "@/components/EditorTabItem";
 import { useEditor } from "@/store/modules/ui/modules/editor";
 
 export default defineComponent({

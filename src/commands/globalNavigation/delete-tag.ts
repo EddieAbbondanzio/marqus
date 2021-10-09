@@ -1,5 +1,5 @@
 import { store } from "@/store";
-import { globalNavigation } from "@/store/modules/ui/modules/global-navigation";
+import { globalNavigation } from "@/store/modules/ui/modules/globalNavigation";
 import { Id } from "@/utils";
 import { Command } from "../types";
 

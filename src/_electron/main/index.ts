@@ -1,13 +1,11 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, ipcMain } from "electron";
+import { app, protocol, BrowserWindow } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
-
-ipcMain.on("test", () => console.log("FUCK"));
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { KeyCode } from "./key-code";
+import { KeyCode } from "./keyCode";
 import { GENERAL_USE_KEYS, Shortcut } from "./state";
 
 const GLOBAL_NAVIGATION_SHORTCUTS: Shortcut[] = [

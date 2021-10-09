@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-constructor */
-import { COMMAND_CONSOLE_REGISTRY } from "./command-console";
-import { GLOBAL_NAVIGATION_REGISTRY } from "./global-navigation";
+import { COMMAND_CONSOLE_REGISTRY } from "./commandConsole";
+import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 
 /**
  * Prefix a namespace to every property name delimited via a period.

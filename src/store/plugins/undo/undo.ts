@@ -1,4 +1,4 @@
-import { UndoModule, UndoModuleSettings } from "@/store/plugins/undo/undo-module";
+import { UndoModule, UndoModuleSettings } from "@/store/plugins/undo/undoModule";
 import { generateId } from "@/utils/id";
 import { MutationPayload, Store } from "vuex";
 import { Commit, Mutations } from "vuex-smart-module";
