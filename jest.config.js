@@ -1,7 +1,6 @@
 module.exports = {
-    preset: '@vue/cli-plugin-unit-jest/presets/typescript',
-    transform: {
-        '^.+\\.vue$': 'vue-jest'
-    }
-    // setupFilesAfterEnv: ['<rootDir>/tests/unit/setup.ts']
+  preset: "@vue/cli-plugin-unit-jest/presets/typescript-and-babel",
+  transform: {
+    "^.+\\.vue$": "vue-jest",
+  },
 };

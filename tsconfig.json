@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "esnext",
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
@@ -9,10 +9,10 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "strictNullChecks": true,
+    "noImplicitAny": true,
     "types": [
       "webpack-env",
       "jest"
@@ -35,9 +35,8 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-, "src/preload.js", "public/preload.ts", "src/store/modules/store/modules/global-navigation/mutations.spec.ts--fix", "src/store/modules/store/modules/local-navigation/mutations.spec.ts--fix", "src/store/modules/store/modules/local-navigation/actions.spec.ts--fix", "src/store/modules/store/index.spec.ts--fix"  ],
+  ],
   "exclude": [
     "node_modules"
-  ],
-  
+  ]
 }
