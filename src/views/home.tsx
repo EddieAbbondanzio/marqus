@@ -8,9 +8,13 @@ export default defineComponent({
     return () => {
       const message = props.message;
       return (
-        <div id="app">
-          YOUR AD HERE
-        </div>
+        <div class="is-flex is-flex-row has-h-100">
+          hi
+        {/* <CommandConsole />
+        <GlobalNavigation />
+        <LocalNavigation />
+        <Editor /> */}
+    </div>
       );
     };
   },
