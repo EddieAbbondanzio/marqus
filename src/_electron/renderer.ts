@@ -1,7 +1,7 @@
 import App from "@/App";
 import router from "@/router";
-import store from "@/store";
 import { createApp } from "vue";
+import { store } from "@/store";
 
 // Pull in css
 import "bulma";
