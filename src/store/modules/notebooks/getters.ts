@@ -74,7 +74,7 @@ export class NotebookGetters extends Getters<NotebookState> {
 
   getNext(id: string) {
     const visible = this.getters.flattenVisible;
-    const index = visible.findIndex(n => n.id === id);
+    const index = visible.findIndex((n) => n.id === id);
 
     if (index >= visible.length - 1) {
       return null;
@@ -85,7 +85,7 @@ export class NotebookGetters extends Getters<NotebookState> {
 
   getPrevious(id: string) {
     const visible = this.getters.flattenVisible;
-    const index = visible.findIndex(n => n.id === id);
+    const index = visible.findIndex((n) => n.id === id);
 
     if (index <= 0) {
       return null;

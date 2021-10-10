@@ -9,7 +9,7 @@ export const shortcuts = new Module({
   actions: ShortcutActions,
   mutations: ShortcutMutations,
   getters: ShortcutGetters,
-  state: ShortcutState
+  state: ShortcutState,
 });
 
 export const useShortcuts = createComposable(shortcuts);

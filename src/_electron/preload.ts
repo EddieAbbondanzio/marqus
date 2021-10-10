@@ -4,6 +4,9 @@ import { contextBridge, ipcRenderer } from "electron";
 import { IpcType } from ".";
 import { promptUser } from "./promptUser/renderer";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require("lodash");
+
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
   reject: (err: any) => unknown;

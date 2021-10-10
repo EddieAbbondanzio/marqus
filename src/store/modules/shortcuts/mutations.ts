@@ -26,7 +26,9 @@ export class ShortcutMutations extends Mutations<ShortcutState> {
     if (existing != null) {
       const keyString = keyCodesToString(existing.keys);
 
-      this.state.map[keyString] = this.state.map[keyString].filter(m => m.command !== command);
+      this.state.map[keyString] = this.state.map[keyString].filter(
+        (m) => m.command !== command
+      );
     }
   }
 

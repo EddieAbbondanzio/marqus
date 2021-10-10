@@ -25,14 +25,14 @@ export const root = new Module({
     tags,
     shortcuts,
     notes,
-    ui: userInterface,
+    // ui: userInterface,
   },
 });
 
 const plugins = [
   createLogger({ logActions: false }),
   // persist.plugin,
-  mediator.plugin,
+  // mediator.plugin,
   // comment is kept to prevent it from going to single line
 ];
 

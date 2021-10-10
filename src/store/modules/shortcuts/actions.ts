@@ -1,10 +1,10 @@
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { Shortcut, ShortcutState } from "@/store/modules/shortcuts/state";
-import { commands } from "@/commands";
 import { Actions } from "vuex-smart-module";
 import { KeyCode, parseKey } from "./keyCode";
 import { contexts } from "@/directives/context";
+import { commands } from "@/commands";
 
 export class ShortcutActions extends Actions<
   ShortcutState,
@@ -50,9 +50,9 @@ export class ShortcutActions extends Actions<
     }
 
     /*
-    * Prevent duplicate triggers from firing when keys with multiples
-    * such as control (left side, right side) are pressed.
-    */
+     * Prevent duplicate triggers from firing when keys with multiples
+     * such as control (left side, right side) are pressed.
+     */
     if (this.getters.isKeyDown(key)) {
       return;
     }
@@ -67,7 +67,7 @@ export class ShortcutActions extends Actions<
 
     for (const { command, context } of maps) {
       if (context == null || contexts.isFocused(context)) {
-        commands.run(command as unknown as any, undefined);
+        // commands.run(command as unknown as any, undefined);
       }
     }
   }

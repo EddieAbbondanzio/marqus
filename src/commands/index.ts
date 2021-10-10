@@ -6,7 +6,7 @@ import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
  * Prefix a namespace to every property name delimited via a period.
  */
 type Namespaced<N extends string, T> = {
-  [K in Extract<keyof T, string> as `${N}.${K}`]: T[K]
+  [K in Extract<keyof T, string> as `${N}.${K}`]: T[K];
 };
 
 /**
@@ -15,7 +15,10 @@ type Namespaced<N extends string, T> = {
  * @param registry The command registry to map
  * @returns The newly namespaced commands
  */
-function namespace<N extends string, T extends Record<string, unknown>>(namespace: N, registry: T): Namespaced<N, T> {
+function namespace<N extends string, T extends Record<string, unknown>>(
+  namespace: N,
+  registry: T
+): Namespaced<N, T> {
   const mappings: Record<string, T> = {};
 
   for (const [path, constructor] of Object.entries(registry)) {
@@ -28,14 +31,14 @@ function namespace<N extends string, T extends Record<string, unknown>>(namespac
 
 export const COMMAND_REGISTRY = {
   ...namespace("globalNavigation", GLOBAL_NAVIGATION_REGISTRY),
-  ...namespace("commandConsole", COMMAND_CONSOLE_REGISTRY)
+  ...namespace("commandConsole", COMMAND_CONSOLE_REGISTRY),
 };
 
 export type CommandRegistry = typeof COMMAND_REGISTRY;
 export type NamespacedCommand = keyof CommandRegistry;
 
 export function isNamespacedCommand(str: string): str is NamespacedCommand {
-  return Object.keys(COMMAND_REGISTRY).some(c => c === str);
+  return Object.keys(COMMAND_REGISTRY).some((c) => c === str);
 }
 
 export function generate(registry: CommandRegistry) {
@@ -43,9 +46,10 @@ export function generate(registry: CommandRegistry) {
    * Here be dragons
    */
 
-  async function run<C extends NamespacedCommand, P extends Parameters<CommandRegistry[C]["prototype"]["execute"]>>(
-    name: C, ...payload: P
-  ): Promise<void> {
+  async function run<
+    C extends NamespacedCommand,
+    P extends Parameters<CommandRegistry[C]["prototype"]["execute"]>
+  >(name: C, ...payload: P): Promise<void> {
     const ctor = registry[name];
 
     if (ctor == null) {
@@ -58,7 +62,7 @@ export function generate(registry: CommandRegistry) {
   }
 
   return {
-    run
+    run,
   };
 }
 

@@ -2,7 +2,7 @@ import { ActionPayload, Store } from "vuex";
 
 let release: () => void;
 
-type Subscriber = {handler: (action: ActionPayload) => any, once?: boolean };
+type Subscriber = { handler: (action: ActionPayload) => any; once?: boolean };
 
 export const mediator = {
   subscribers: {} as { [mutationType: string]: Subscriber[] },
@@ -34,9 +34,13 @@ export const mediator = {
       this.subscribers[actionType] = [{ handler: sub }];
     } else {
       // Do we have a duplicate?
-      const existing = this.subscribers[actionType].find((s) => s.handler === sub);
+      const existing = this.subscribers[actionType].find(
+        (s) => s.handler === sub
+      );
       if (existing != null) {
-        throw Error(`Duplicate mediator subscriber detected for action type ${actionType}`);
+        throw Error(
+          `Duplicate mediator subscriber detected for action type ${actionType}`
+        );
       }
 
       this.subscribers[actionType].push({ handler: sub });
@@ -52,5 +56,5 @@ export const mediator = {
     if (release != null) {
       release();
     }
-  }
+  },
 };

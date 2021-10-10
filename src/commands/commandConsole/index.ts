@@ -24,5 +24,5 @@ export const COMMAND_CONSOLE_REGISTRY = {
   moveSelectionUp: MoveSelectionUp,
   select: Select,
   selectAndRun: SelectAndRun,
-  run: Run
+  run: Run,
 };

@@ -9,9 +9,9 @@ import "@fortawesome/fontawesome-free";
 import "@/assets/styles/main.sass";
 import { PromptUser } from "./promptUser/common";
 
-// @ts-ignore
+// prettier-ignore
 createApp(App)
-  // .use(store)
+  .use(store)
   .use(router)
   .mount("#app");
 

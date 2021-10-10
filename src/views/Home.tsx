@@ -1,4 +1,6 @@
+import { CreateTag } from "@/commands/globalNavigation";
 import { confirmDelete } from "@/prompts";
+import { store } from "@/store";
 import { defineComponent, onMounted } from "vue";
 
 export default defineComponent({

@@ -14,14 +14,12 @@ export class CreateTag extends Command<void> {
 
     // Listen in to see if we the input was confirmed, or stopped.
     await Promise.race([
-      new Promise(res => mediator.subscribeOnce(
-        "ui/globalNavigation/tagInputConfirm",
-        res
-      )),
-      new Promise(res => mediator.subscribeOnce(
-        "ui/globalNavigation/tagInputCancel",
-        res
-      ))
+      new Promise((res) =>
+        mediator.subscribeOnce("ui/globalNavigation/tagInputConfirm", res)
+      ),
+      new Promise((res) =>
+        mediator.subscribeOnce("ui/globalNavigation/tagInputCancel", res)
+      ),
     ]);
   }
 }

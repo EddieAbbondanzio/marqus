@@ -6,5 +6,5 @@
  * Base class for a command to implement.
  */
 export abstract class Command<TInput> {
-    abstract execute(payload: TInput): Promise<void>;
+  abstract execute(payload: TInput): Promise<void>;
 }

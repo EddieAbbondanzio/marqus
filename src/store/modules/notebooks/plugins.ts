@@ -1,7 +1,12 @@
 import * as yup from "yup";
 import { notebookSchema } from "@/validation";
 import { persist } from "@/store/plugins/persist";
-import { Notebook, fixNotebookParentReferences, NotebookState, killNotebookParentReferences } from "./state";
+import {
+  Notebook,
+  fixNotebookParentReferences,
+  NotebookState,
+  killNotebookParentReferences,
+} from "./state";
 
 persist.register({
   namespace: "notebooks",
@@ -23,5 +28,5 @@ persist.register({
 
     return s.values;
   },
-  schema: yup.array().of(notebookSchema)
+  schema: yup.array().of(notebookSchema),
 });

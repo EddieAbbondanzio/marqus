@@ -8,7 +8,7 @@ export const fileSystem: IpcHandler<FileSystemIpc<any>> = async (opts) => {
 
   switch (opts.action) {
     case "createDirectory":
-      return fs.mkdirSync(path);
+      return createDirectory(path);
     case "deleteDirectory":
       return deleteDirectory(path);
     case "readDirectory":
@@ -23,6 +23,12 @@ export const fileSystem: IpcHandler<FileSystemIpc<any>> = async (opts) => {
       return fs.existsSync(path);
   }
 };
+
+async function createDirectory(path: string): Promise<void> {
+  return new Promise((res, rej) => {
+    fs.mkdir(path, (err) => (err != null ? rej(err) : res()));
+  });
+}
 
 async function deleteDirectory(path: string): Promise<void> {
   return new Promise((res, rej) => {

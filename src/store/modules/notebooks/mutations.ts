@@ -1,7 +1,4 @@
-import {
-  Notebook,
-  NotebookState
-} from "./state";
+import { Notebook, NotebookState } from "./state";
 import { Mutations } from "vuex-smart-module";
 import { caseInsensitiveCompare } from "@/utils/string";
 import { notebookSchema, notebookNameSchema } from "@/validation";
@@ -17,7 +14,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
     const notebook = {
       ...validated,
       created: new Date(),
-      hasUnsavedChanes: true
+      hasUnsavedChanes: true,
     };
 
     if (notebook.parent == null) {
@@ -37,7 +34,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
   DELETE(notebook: Notebook) {
     const array =
       notebook.parent == null ? this.state.values : notebook.parent!.children!;
-    const index = array.findIndex(n => n.id === notebook.id);
+    const index = array.findIndex((n) => n.id === notebook.id);
 
     if (index === -1) {
       throw new Error("No notebook found.");
@@ -65,20 +62,20 @@ export class NotebookMutations extends Mutations<NotebookState> {
         const n = notebooks[i];
 
         if (n.children != null) {
-          n.children.sort(caseInsensitiveCompare(v => v.name));
+          n.children.sort(caseInsensitiveCompare((v) => v.name));
           recursiveSort(n.children);
         }
       }
     }
 
     // Sort root
-    this.state.values.sort(caseInsensitiveCompare(v => v.name));
+    this.state.values.sort(caseInsensitiveCompare((v) => v.name));
   }
 
   SET_EXPANDED({
     notebook,
     expanded,
-    bubbleUp
+    bubbleUp,
   }: {
     notebook: Notebook;
     expanded: boolean;
@@ -90,7 +87,7 @@ export class NotebookMutations extends Mutations<NotebookState> {
     do {
       n.expanded = expanded;
       n = n.parent;
-    // eslint-disable-next-line no-unmodified-loop-condition
+      // eslint-disable-next-line no-unmodified-loop-condition
     } while (n != null && bubbleUp);
   }
 

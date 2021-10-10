@@ -37,7 +37,7 @@ export class ShortcutState {
   /**
    * Shortcut lookup via the command they invoke.
    */
-  invertedMap: { [command: string]: Shortcut} = {};
+  invertedMap: { [command: string]: Shortcut } = {};
 
   activeKeys: { [key: string]: boolean } = {};
 }
@@ -86,10 +86,8 @@ export function keyCodesToString(keys: KeyCode | KeyCode[]): string {
   return shortcutKeys.join(KEYCODE_DELIMITER);
 }
 
-export function parseKeyCodes(
-  shortcutString: string
-): KeyCode[] {
-// Split up the keys, and remove any duplicates.
+export function parseKeyCodes(shortcutString: string): KeyCode[] {
+  // Split up the keys, and remove any duplicates.
   const rawKeys = _.uniq(shortcutString.split(KEYCODE_DELIMITER));
   const keys: KeyCode[] = [];
 
@@ -116,5 +114,5 @@ export const GENERAL_USE_KEYS = {
   rename: [KeyCode.F2],
   toggleSelection: [KeyCode.Space],
   scrollUp: [KeyCode.Control, KeyCode.ArrowUp],
-  scrollDown: [KeyCode.Control, KeyCode.ArrowDown]
+  scrollDown: [KeyCode.Control, KeyCode.ArrowDown],
 };

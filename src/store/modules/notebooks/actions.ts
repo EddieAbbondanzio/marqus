@@ -16,7 +16,7 @@ export class NotebookActions extends Actions<
   setExpanded({
     notebook,
     expanded,
-    bubbleUp
+    bubbleUp,
   }: {
     notebook: Notebook;
     expanded: boolean;
@@ -25,7 +25,7 @@ export class NotebookActions extends Actions<
     this.commit("SET_EXPANDED", {
       notebook,
       expanded,
-      bubbleUp
+      bubbleUp,
     });
   }
 }

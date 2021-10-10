@@ -11,14 +11,16 @@ export class RenameTag extends Command<Id> {
 
     // Listen in to see if we the input was confirmed, or stopped.
     await Promise.race([
-      new Promise(res => mediator.subscribeOnce(
-        "ui/globalNavigation/tagInputConfirm",
-        () => res("confirm")
-      )),
-      new Promise(res => mediator.subscribeOnce(
-        "ui/globalNavigation/tagInputCancel",
-        () => res("cancel")
-      ))
+      new Promise((res) =>
+        mediator.subscribeOnce("ui/globalNavigation/tagInputConfirm", () =>
+          res("confirm")
+        )
+      ),
+      new Promise((res) =>
+        mediator.subscribeOnce("ui/globalNavigation/tagInputCancel", () =>
+          res("cancel")
+        )
+      ),
     ]);
   }
 }
