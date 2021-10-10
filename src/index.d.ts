@@ -1,5 +1,1 @@
-import { IpcRenderer } from "electron";
-
-interface Window {
-  ipcRenderer: IpcRenderer;
-}
+import { PromptUser } from "./_electron";

@@ -1,13 +1,20 @@
 import { defineComponent, onMounted } from "vue";
-import { promptUser } from "./utils";
+import { PromptUser } from "./_electron";
+
+declare global {
+  interface Window {
+    promptUser: PromptUser;
+  }
+}
 
 export default defineComponent({
   setup() {
-    onMounted(() => {
-      // promptUser({
-      //   buttons: [{text: "Yes", role: "cancel"}],
-      //   text: "hi"
-      // })
+    onMounted(async () => {
+      const res = await window.promptUser({
+        buttons: [{text: "Yes", role: "cancel"}, ],
+        text: "hi"
+      })
+      console.log("button selected: ", res)
     });
 
     return () => {

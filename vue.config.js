@@ -11,7 +11,7 @@ module.exports = {
         // Chain webpack config for electron renderer process only (won't be applied to web builds)
       },
       // Use this to change the entrypoint of your app's main process
-      preload: "src/_electron/renderer/preload",
+      preload: "src/_electron/renderer/preload.ts",
       mainProcessFile: "src/_electron/main",
       // Use this to change the entry point of your app's render process. default src/[main|index].[js|ts]
       rendererProcessFile: "src/_electron/renderer",

@@ -1,9 +1,11 @@
 "use strict";
 
-import { app, protocol, BrowserWindow } from "electron";
+import { app, protocol, BrowserWindow, ipcMain } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
+import { promptHandler } from "./promptHandler";
+import { IpcType } from "..";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -11,6 +13,49 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { secure: true, standard: true } },
 ]);
+
+export type IpcHandler<I> = (arg: I) => Promise<any>;
+export type IpcArgument = { id: string; type: IpcType; value: any };
+
+/*
+ * Register new handlers here. You'll need to update IpcType too
+ */
+export const handlers: Record<IpcType, IpcHandler<any>> = {
+  prompt: promptHandler,
+};
+
+ipcMain.on("send", async (ev, arg: IpcArgument) => {
+  const respond = (value: any) =>
+    ev.sender.send("send", {
+      id: arg.id,
+      type: arg.type,
+      value,
+    });
+
+  const respondError = () =>
+    ev.sender.send("send", {
+      error: "An error has occured",
+    });
+
+  const handler: IpcHandler<any> = handlers[arg.type as IpcType];
+
+  if (handler == null) {
+    respondError();
+
+    if (isDevelopment) {
+      console.warn("Main recieved ipc: ", arg.type, " but no handler found?");
+    }
+  }
+
+  try {
+    const res = await handler(arg.value);
+    respond(res);
+  } catch (e) {
+    respondError();
+
+    console.error(`Caught error from ipc handler for type "${arg.type}"`, e);
+  }
+});
 
 async function createWindow() {
   // Create the browser window.
@@ -62,7 +107,7 @@ app.on("ready", async () => {
     try {
       await installExtension(VUEJS3_DEVTOOLS);
     } catch (e) {
-      console.error("Vue Devtools failed to install:", e.toString());
+      console.error("Vue Devtools failed to install:", (e as Error).toString());
     }
   }
   createWindow();

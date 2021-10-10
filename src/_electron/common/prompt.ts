@@ -1,6 +1,8 @@
+export type PromptButtonRole = "cancel" | "default";
+
 export interface PromptButton {
   text: string;
-  role?: "cancel" | "default";
+  role?: PromptButtonRole;
   value?: any;
 }
 
@@ -12,3 +14,5 @@ export interface PromptOptions {
   text: string;
   buttons: PromptButton[];
 }
+
+export type PromptUser = (opts: PromptOptions) => Promise<PromptButton>;

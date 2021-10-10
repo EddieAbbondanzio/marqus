@@ -35,7 +35,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx",
-    "src/_renderer/preload.ts"
+    "src/_electron/renderer/preload.ts"
   ],
   "exclude": [
     "node_modules"

@@ -4,5 +4,4 @@ export * from "./string";
 export * from "./vuex";
 export * from "./dom";
 export * from "./scroll";
-export * from "./promptUser";
 // export * from "./createContextMenuHook";
