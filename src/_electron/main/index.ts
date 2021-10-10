@@ -6,6 +6,7 @@ import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
 import { IpcType } from "..";
 import { promptUser } from "./promptUser";
+import { fileSystem } from "./fileSystem";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -22,6 +23,7 @@ export type IpcArgument = { id: string; type: IpcType; value: any };
  */
 export const handlers: Record<IpcType, IpcHandler<any>> = {
   promptUser,
+  fileSystem,
 };
 
 ipcMain.on("send", async (ev, arg: IpcArgument) => {

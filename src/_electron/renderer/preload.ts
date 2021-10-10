@@ -1,6 +1,7 @@
 import { generateId } from "@/utils";
 import { contextBridge, ipcRenderer } from "electron";
 import { IpcType } from "..";
+import { fileSystem } from "./fileSystem";
 import { promptUser } from "./promptUser";
 
 export interface ExposedPromise {
@@ -53,6 +54,7 @@ export async function sendIpc<R>(type: IpcType, value: any): Promise<R> {
 }
 
 contextBridge.exposeInMainWorld("promptUser", promptUser);
+contextBridge.exposeInMainWorld("fileSystem", fileSystem);
 
 export function isError(
   err: Record<string, unknown>

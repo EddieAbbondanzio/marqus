@@ -11,47 +11,6 @@ export const DATA_DIRECTORY = "data";
  */
 export const fileSystem = {
   /**
-   * Create a new directory at the specified path.
-   * @param path The path of the directory
-   * @param options If the path should be defaulted under the data directory
-   */
-  createDirectory(path: string, { root = false } = {}) {
-    const fullPath = generateFullPath(path, root);
-    fs.mkdirSync(fullPath);
-  },
-  /**
-   * Check to see if a directory or file exists.
-   * @param path The path to check for
-   * @param options If the path should be defaulted under the data directory
-   */
-  exists(path: string, { root = false } = {}) {
-    const fullPath = generateFullPath(path, root);
-    return fs.existsSync(fullPath);
-  },
-  /**
-   * Read a JSON file from the file system.
-   * @param path The path to read.
-   * @param options If the path should be defaulted under the data directory
-   */
-  async readJSON(path: string, { root = false } = {}): Promise<any> {
-    return null;
-  },
-  /**
-   * Read all of the directories / files under a directory.
-   * @param path The path to read.
-   * @param options If the path should be defaulted under the data directory
-   * @returns List of directory or file names.
-   */
-  async readDirectory(path: string, { root = false } = {}): Promise<string[]> {
-    const fullPath = generateFullPath(path, root);
-
-    return new Promise((res, rej) =>
-      fs.readdir(fullPath, (err, files) =>
-        err == null ? res(files) : rej(err)
-      )
-    );
-  },
-  /**
    * Write a JSON file to the file system.
    * @param path The path to write to.
    * @param content The content of the file to store as JSON.
