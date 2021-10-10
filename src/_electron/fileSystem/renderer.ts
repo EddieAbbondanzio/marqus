@@ -1,5 +1,6 @@
 // import * as p from "path";
 
+import { sendIpc } from "../preload";
 import { FileSystemIpc, FileSystemReadFile, FileSystemWriteFile } from "./common";
 
 export const fileSystem = {
