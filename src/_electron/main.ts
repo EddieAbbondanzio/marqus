@@ -23,6 +23,12 @@ export const handlers: Record<IpcType, IpcHandler<any>> = {
   fileSystem,
 };
 
+if (ipcMain == null) {
+  throw Error(
+    "ipcMain is null. Did you accidentally call main.ts on the renderer thread?"
+  );
+}
+
 ipcMain.on("send", async (ev, arg: IpcArgument) => {
   const respond = (value: any) =>
     ev.sender.send("send", {
@@ -57,6 +63,12 @@ ipcMain.on("send", async (ev, arg: IpcArgument) => {
 });
 
 async function createWindow() {
+  if (isDevelopment) {
+    console.log("Creating new electron window.");
+    console.log("Node integration: ", process.env.ELECTRON_NODE_INTEGRATION);
+    console.log("Context isolation: ", !process.env.ELECTRON_NODE_INTEGRATION);
+  }
+
   // Create the browser window.
   const win = new BrowserWindow({
     width: 800,

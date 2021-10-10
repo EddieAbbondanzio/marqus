@@ -10,13 +10,14 @@ module.exports = {
       chainWebpackRendererProcess: (config) => {
         // Chain webpack config for electron renderer process only (won't be applied to web builds)
       },
+      nodeIntegration: false,
+      contextIsolation: true,
       // Use this to change the entrypoint of your app's main process
       mainProcessFile: "src/_electron/main.ts",
       // Use this to change the entry point of your app's render process. default src/[main|index].[js|ts]
       rendererProcessFile: "src/_electron/renderer.ts",
       preload: "src/_electron/preload.ts",
-      nodeIntegration: false,
-      contextIsolation: true,
+      
       // Provide an array of files that, when changed, will recompile the main process and restart Electron
       // Your main process file will be added by default
       // mainProcessWatch: ["src/myFile1", "src/myFile2"],

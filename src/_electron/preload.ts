@@ -1,7 +1,7 @@
 // import { generateId } from "@/utils";
+import { generateId } from "@/utils";
 import { contextBridge, ipcRenderer } from "electron";
 import { IpcType } from ".";
-import { fileSystem } from "./fileSystem/renderer";
 import { promptUser } from "./promptUser/renderer";
 
 export interface ExposedPromise {
@@ -10,6 +10,12 @@ export interface ExposedPromise {
 }
 
 const promises: { [id: string]: ExposedPromise } = {};
+
+if (ipcRenderer == null) {
+  throw Error(
+    "ipcRenderer is null. Did you accidentally import 'preload.ts' into a main process file?"
+  );
+}
 
 /*
  * Listen on render for main responses.
@@ -26,8 +32,11 @@ ipcRenderer.on("send", async (ev, arg) => {
     return;
   }
 
-  // eslint-disable-next-line no-prototype-builtins
   if (isError(arg)) {
+    /*
+     * This will let us "throw" errors from the main thread. No stack trace included
+     * for security reasons.
+     */
     p.reject(arg.error);
   } else {
     p.resolve(value);
@@ -42,29 +51,23 @@ ipcRenderer.on("send", async (ev, arg) => {
  */
 export async function sendIpc<R>(type: IpcType, value: any): Promise<R> {
   return new Promise((resolve, reject) => {
-    throw Error("Finish this dummby")
+    const id = generateId();
+    promises[id] = { resolve, reject };
 
-    // const id = generateId();
-    // promises[id] = { resolve, reject };
-
-    // ipcRenderer.send("send", {
-      // id,
-      // type,
-      // value,
-    // });
+    ipcRenderer.send("send", {
+      id,
+      type,
+      value,
+    });
   });
 }
-
 contextBridge.exposeInMainWorld("promptUser", promptUser);
-contextBridge.exposeInMainWorld("fileSystem", fileSystem);
+// contextBridge.exposeInMainWorld("fileSystem", fileSystem);
 
 export function isError(
   err: Record<string, unknown>
 ): err is { error: string } {
-  // eslint-disable-next-line no-prototype-builtins
   return err.hasOwnProperty("error");
 }
 
 console.log("preloaded");
-
-alert("preloaded");

@@ -7,5 +7,17 @@ import { store } from "@/store";
 import "bulma";
 import "@fortawesome/fontawesome-free";
 import "@/assets/styles/main.sass";
+import { PromptUser } from "./promptUser/common";
 
-createApp(App).use(store).use(router).mount("#app");
+// @ts-ignore
+createApp(App)
+  // .use(store)
+  .use(router)
+  .mount("#app");
+
+// Make our contextBridge properties type safe.
+declare global {
+  interface Window {
+    promptUser: PromptUser;
+  }
+}
