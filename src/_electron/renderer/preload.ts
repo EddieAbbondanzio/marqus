@@ -1,6 +1,7 @@
 import { generateId } from "@/utils";
 import { contextBridge, ipcRenderer } from "electron";
 import { IpcType, PromptButton, PromptOptions, PromptUser } from "..";
+import { promptUser } from "./promptUser";
 
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
@@ -50,11 +51,6 @@ export async function sendIpc<T>(type: IpcType, value: T): Promise<T> {
     });
   });
 }
-
-const promptUser: PromptUser = async (opts: PromptOptions) => {
-  const button: PromptButton = await sendIpc("prompt", opts);
-  return button;
-};
 
 contextBridge.exposeInMainWorld("promptUser", promptUser);
 

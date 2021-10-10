@@ -4,8 +4,8 @@ import { app, protocol, BrowserWindow, ipcMain } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
-import { promptHandler } from "./promptHandler";
 import { IpcType } from "..";
+import { promptUser } from "./promptUser";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -21,7 +21,7 @@ export type IpcArgument = { id: string; type: IpcType; value: any };
  * Register new handlers here. You'll need to update IpcType too
  */
 export const handlers: Record<IpcType, IpcHandler<any>> = {
-  prompt: promptHandler,
+  promptUser,
 };
 
 ipcMain.on("send", async (ev, arg: IpcArgument) => {

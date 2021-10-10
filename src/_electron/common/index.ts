@@ -1,3 +1,3 @@
-export type IpcType = "prompt";
+export type IpcType = "promptUser";
 
-export * from "./prompt";
+export * from "./promptUser";

@@ -2,7 +2,7 @@ import { dialog } from "electron";
 import { IpcHandler } from ".";
 import { PromptOptions } from "..";
 
-export const promptHandler: IpcHandler<PromptOptions> = async (opts) => {
+export const promptUser: IpcHandler<PromptOptions> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
   const defaultCount = opts.buttons.filter((b) => b.role === "default").length;
 
