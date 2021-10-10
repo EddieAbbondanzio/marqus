@@ -11,17 +11,6 @@ declare global {
 
 export default defineComponent({
   setup() {
-    onMounted(async () => {
-     const files = await window.fileSystem.readDirectory("/")
-     console.log(files);
-     
-      // const res = await window.promptUser({
-        // buttons: [{text: "Yes", role: "cancel"}, ],
-        // text: "hi"
-      // })
-      // console.log("button selected: ", res)
-    });
-
     return () => {
       return (
         <div id="app">
