@@ -10,11 +10,11 @@ declare global {
 export default defineComponent({
   setup() {
     onMounted(async () => {
-      const res = await window.promptUser({
-        buttons: [{text: "Yes", role: "cancel"}, ],
-        text: "hi"
-      })
-      console.log("button selected: ", res)
+      // const res = await window.promptUser({
+        // buttons: [{text: "Yes", role: "cancel"}, ],
+        // text: "hi"
+      // })
+      // console.log("button selected: ", res)
     });
 
     return () => {

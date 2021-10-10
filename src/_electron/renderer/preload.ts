@@ -1,6 +1,6 @@
 import { generateId } from "@/utils";
 import { contextBridge, ipcRenderer } from "electron";
-import { IpcType, PromptButton, PromptOptions, PromptUser } from "..";
+import { IpcType } from "..";
 import { promptUser } from "./promptUser";
 
 export interface ExposedPromise {
@@ -39,7 +39,7 @@ ipcRenderer.on("send", async (ev, arg) => {
  * @param value Payload.
  * @returns The response the main thread gave
  */
-export async function sendIpc<T>(type: IpcType, value: T): Promise<T> {
+export async function sendIpc<R>(type: IpcType, value: any): Promise<R> {
   return new Promise((resolve, reject) => {
     const id = generateId();
     promises[id] = { resolve, reject };
