@@ -50,16 +50,14 @@ export default defineComponent({
 
     const isDragging = computed(() => s.state?.ui?.cursor?.dragging ?? false);
 
-    return () => {
-      return (
-        <div
-          id={CURSOR_DRAGGING_ID}
-          class="is-absolute is-size-7"
-          v-show={isDragging}
-        >
-          &nbsp;
-        </div>
-      );
-    };
+    return () => (
+      <div
+        id={CURSOR_DRAGGING_ID}
+        class="is-absolute is-size-7"
+        v-show={isDragging}
+      >
+        &nbsp;
+      </div>
+    );
   },
 });

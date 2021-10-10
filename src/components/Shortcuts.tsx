@@ -1,10 +1,3 @@
-<template>
-  <span class="is-hidden">&nbsp;</span>
-</template>
-
-<script lang="ts">
-/* eslint-disable max-len */
-
 import { store } from "@/store";
 import { shortcuts } from "@/store/modules/shortcuts";
 import { defineComponent, onBeforeUnmount, onMounted } from "vue";
@@ -15,8 +8,12 @@ export default defineComponent({
     onMounted(() => {
       const ctx = shortcuts.context(store);
 
-      const onKeyDown = (e:KeyboardEvent) => { ctx.actions.keyDown(e); };
-      const onKeyUp = (e:KeyboardEvent) => { ctx.actions.keyUp(e); };
+      const onKeyDown = (e: KeyboardEvent) => {
+        ctx.actions.keyDown(e);
+      };
+      const onKeyUp = (e: KeyboardEvent) => {
+        ctx.actions.keyUp(e);
+      };
 
       window.addEventListener("keydown", onKeyDown);
       window.addEventListener("keyup", onKeyUp);
@@ -29,6 +26,7 @@ export default defineComponent({
         window.removeEventListener("keyup", onKeyUp);
       });
     });
-  }
+
+    return () => <span class="is-hidden">&nbsp;</span>;
+  },
 });
-</script>
