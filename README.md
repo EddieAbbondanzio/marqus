@@ -1,5 +1,7 @@
 # marker
 
+Requires node v 14.10.0 (nvm use)
+
 ## Project setup
 ```
 npm install
