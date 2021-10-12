@@ -2,7 +2,7 @@ import { GlobalNavigationActions } from "@/store/modules/ui/modules/globalNaviga
 import { GlobalNavigationGetters } from "@/store/modules/ui/modules/globalNavigation/getters";
 import { GlobalNavigationMutations } from "@/store/modules/ui/modules/globalNavigation/mutations";
 import { GlobalNavigationState } from "@/store/modules/ui/modules/globalNavigation/state";
-import { createComposable, Module } from "vuex-smart-module";
+import { Module } from "vuex-smart-module";
 
 export const globalNavigation = new Module({
   namespaced: true,
@@ -11,5 +11,3 @@ export const globalNavigation = new Module({
   mutations: GlobalNavigationMutations,
   getters: GlobalNavigationGetters,
 });
-
-export const useGlobalNavigation = createComposable(globalNavigation);

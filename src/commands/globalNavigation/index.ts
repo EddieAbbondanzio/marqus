@@ -14,23 +14,6 @@ import { RenameTag } from "./rename-tag";
 import { ScrolDown } from "./scroll-down";
 import { ScrolUp } from "./scroll-up";
 
-export * from "./collapse-all";
-export * from "./create-tag";
-export * from "./delete-tag";
-export * from "./expand-all";
-export * from "./focus";
-export * from "./move-selection-down";
-export * from "./move-selection-up";
-export * from "./rename-tag";
-export * from "./scroll-down";
-export * from "./scroll-up";
-export * from "./rename-notebook";
-export * from "./create-notebook";
-export * from "./delete-notebook";
-export * from "./delete-all-notebooks";
-export * from "./delete-all-tags";
-export * from "./empty-trash";
-
 export const GLOBAL_NAVIGATION_REGISTRY = {
   focus: Focus,
   expandAll: ExpandAll,

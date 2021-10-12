@@ -1,17 +1,15 @@
-import { CreateTag } from "@/commands/globalNavigation";
-import { confirmDelete } from "@/prompts";
-import { store } from "@/store";
-import { defineComponent, onMounted } from "vue";
+import { defineComponent } from "vue";
+import CommandConsole from "@/components/CommandConsole";
 
 export default defineComponent({
   setup() {
-    onMounted(async () => {
-      // const res = await window.promptUser({text: "Are you sure?", buttons: [{text: "Yes", role: "default"}]});
-      // console.log('res: ', res);
-    });
-
-    return () => {
-      return <div>Content here!</div>;
-    };
+    return () => (
+      <div class="is-flex is-flex-row has-h-100">
+        <CommandConsole />
+        {/* <GlobalNavigation /> */}
+        {/* <LocalNavigation  /> */}
+        {/* <Editor /> */}
+      </div>
+    );
   },
 });

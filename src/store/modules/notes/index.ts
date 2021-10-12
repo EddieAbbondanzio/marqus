@@ -1,4 +1,4 @@
-import { createComposable, Module } from "vuex-smart-module";
+import { Module } from "vuex-smart-module";
 import { NoteActions } from "@/store/modules/notes/actions";
 import { NoteMutations } from "@/store/modules/notes/mutations";
 import { NoteGetters } from "@/store/modules/notes/getters";
@@ -9,7 +9,5 @@ export const notes = new Module({
   actions: NoteActions,
   mutations: NoteMutations,
   getters: NoteGetters,
-  state: NoteState
+  state: NoteState,
 });
-
-export const useNotes = createComposable(notes);

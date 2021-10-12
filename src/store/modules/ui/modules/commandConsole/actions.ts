@@ -49,7 +49,7 @@ export class CommandConsoleActions extends Actions<
       return;
     }
 
-    commands.run(input);
+    // commands.run(input);
     this.commit("HIDE");
   }
 
@@ -57,14 +57,17 @@ export class CommandConsoleActions extends Actions<
     const { input } = this.state;
 
     if (isNamespacedCommand(input)) {
-      commands.run(input);
+      // commands.run(input);
     }
 
     this.commit("HIDE");
   }
 
   moveSelectionDown() {
-    const next = Math.min(this.state.selectedIndex + 1, this.getters.suggestions.length);
+    const next = Math.min(
+      this.state.selectedIndex + 1,
+      this.getters.suggestions.length
+    );
     this.commit("SET_SELECTION", next);
   }
 

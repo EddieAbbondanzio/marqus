@@ -6,13 +6,13 @@ describe("Notebook actions", () => {
     it("commits", () => {
       const commit = jest.fn();
       const actions = inject(NotebookActions, {
-        commit
+        commit,
       });
 
       const notebook = {
         id: "1",
         name: "foo",
-        created: new Date()
+        created: new Date(),
       };
 
       actions.setExpanded({ notebook, expanded: true, bubbleUp: false });
@@ -20,7 +20,7 @@ describe("Notebook actions", () => {
       expect(commit).toHaveBeenCalledWith("SET_EXPANDED", {
         notebook,
         expanded: true,
-        bubbleUp: false
+        bubbleUp: false,
       });
     });
   });

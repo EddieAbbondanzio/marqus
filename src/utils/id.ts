@@ -1,11 +1,11 @@
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 
 export type Id = string;
 
 /**
  * Generate a new entity id.
  */
-export const generateId = uuidv4 as () => Id;
+export const generateId = () => "1" as Id; //uuidv4 as () => Id;
 
 /**
  * Check if a string matches the uuid format being used.

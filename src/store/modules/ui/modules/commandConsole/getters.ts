@@ -13,6 +13,6 @@ export class CommandConsoleGetters extends Getters<CommandConsoleState> {
       return commandNames;
     }
 
-    return commandNames.filter(c => c.toLowerCase().includes(input));
+    return commandNames.filter((c) => c.toLowerCase().includes(input));
   }
 }

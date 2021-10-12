@@ -1,74 +1,80 @@
-<template>
-    <modal :isActive="modalActive" @update:modelValue="onUpdateModalActive" :focusTrap="focusTrap">
-      <div class="box mt-4">
-        <!-- Input -->
-        <Form @submit="onSubmit">
-            <InputField label="Command" :hideLabel="true" v-model="input" v-slot="{ field }">
-              <input class="input" v-bind="field" placeholder="Type to run command..." v-context:commandConsole />
-            </InputField>
-        </Form>
-
-        <!-- Suggestions -->
-        <div class="is-flex is-flex-column">
-          <template v-if="suggestions.length > 1">
-            <a
-            :class="['has-text-dark py-1 has-background-hover-light', {'has-background-light': selectedIndex === i }
-            ]"
-              v-for="(suggestion, i) in suggestions" :key="i" @click="onItemClick(suggestion)"
-            >
-            {{ suggestion }}
-            </a>
-          </template>
-          <div class="is-flex is-align-center py-2" v-else>
-            Press enter to run...
-          </div>
-        </div>
-      </div>
-    </modal>
-</template>
-
-<script lang="ts">
-import { computed, defineComponent } from "vue";
-import Modal from "@/components/Modal.vue";
-import { useCommandConsole } from "@/store/modules/ui/modules/command-console";
-import { Form } from "vee-validate";
-import InputField from "@/components/input/InputField.vue";
-import { isBlank } from "@/utils";
+import { computed, defineComponent, ref, watch } from "vue";
+import { generateId, isBlank } from "@/utils";
+import Modal from "./Modal";
+import { useStore } from "vuex";
+import { commandConsole } from "@/store/modules/ui/modules/commandConsole";
+import _ from "lodash";
+import { commands } from "@/commands";
+import { globalNavigation } from "@/store/modules/ui/modules/globalNavigation";
+import { localNavigation } from "@/store/modules/ui/modules/localNavigation";
 
 export default defineComponent({
   setup() {
     /*
-    * Command console should not run commands directly. Instead have it call the lower layer actions.
-    */
+     * Command console should not run commands directly. Instead have it call the lower layer actions.
+     */
 
-    const commandConsole = useCommandConsole();
+    const store = useStore();
+    // const ctx = localNavigation;
+    commands;
+    // const cc = commandConsole.context(store);
 
-    const input = computed({
-      get() { return commandConsole.state.input; },
-      set(v: string) { commandConsole.actions.setInput(v); }
-    });
+    // const input = computed({
+    //   get() {
+    //     return commandConsole.state.input;
+    //   },
+    //   set(v: string) {
+    //     commandConsole.actions.setInput(v);
+    //   },
+    // });
 
-    const onSubmit = () => commandConsole.actions.selectAndRun();
+    // const onSubmit = () => commandConsole.actions.selectAndRun();
 
     /*
-    * If the user provides an input, assume we should make it harder to exit the modal so they don't
-    * accidentally lose their place.
-    */
-    const focusTrap = computed(() => !isBlank(input.value) ? "hard" : "soft");
+     * If the user provides an input, assume we should make it harder to exit the modal so they don't
+     * accidentally lose their place.
+     */
+    // const focusTrap = computed(() => (!isBlank(input.value) ? "hard" : "soft"));
 
-    const onItemClick = () => commandConsole.actions.selectAndRun();
+    let isActive = ref(true);
 
-    return {
-      suggestions: computed(() => commandConsole.getters.suggestions),
-      onSubmit,
-      input,
-      focusTrap,
-      modalActive: computed(() => commandConsole.state.modalActive),
-      onUpdateModalActive: commandConsole.actions.setActive,
-      onItemClick,
-      selectedIndex: computed(() => commandConsole.state.selectedIndex)
-    };
+    // const onItemClick = () => commandConsole.actions.selectAndRun();
+    const onUpdateModelValue = () => console.log("hi");
+
+    return () => (
+      <Modal focusTrap="soft" v-models={[[isActive.value, "isActive"]]}>
+        <div class="has-text-danger">OF COURSE!</div>
+      </Modal>
+    );
+    {
+      /* 
+    //     <Form @submit="onSubmit">
+    //         <InputField label="Command" :hideLabel="true" v-model="input" v-slot="{ field }">
+    //           <input class="input" v-bind="field" placeholder="Type to run command..." v-context:commandConsole />
+    //         </InputField>
+    //     </Form>
+
+    //     <!-- Suggestions -->
+    //     <div class="is-flex is-flex-column">
+    //       <template v-if="suggestions.length > 1">
+    //         <a
+    //         :class="['has-text-dark py-1 has-background-hover-light', {'has-background-light': selectedIndex === i }
+    //         ]"
+    //           v-for="(suggestion, i) in suggestions" :key="i" @click="onItemClick(suggestion)"
+    //         >
+    //         {{ suggestion }}
+    //         </a>
+    //       </template>
+    //       <div class="is-flex is-align-center py-2" v-else>
+    //         Press enter to run...
+    //       </div>
+    //     </div>
+    //   </div>
+    // </modal>
+    // ; */
+    }
+
+    // return {
+    //
   },
-  components: { Modal, Form, InputField }
 });
-</script>
