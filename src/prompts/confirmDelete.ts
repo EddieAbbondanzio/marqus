@@ -3,7 +3,6 @@
 import { PromptButton } from "@/_electron/promptUser/common";
 import { promptUser } from "@/_electron/promptUser/renderer";
 
-
 export async function confirmDelete(
   type: string,
   name: string
@@ -33,7 +32,7 @@ export async function confirmDelete(
     ];
   }
 
-  const pick = await promptUser({
+  const pick = await window.promptUser({
     type: "warning",
     text: `Are you sure you want to delete ${type} ${name}`,
     buttons,

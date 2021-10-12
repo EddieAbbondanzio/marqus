@@ -62,14 +62,7 @@ const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
   });
 };
 
-/*
- * Even though we expose this it really shouldn't be directly
- * called if other ways exist. This is just how we can interact
- * with the main thread .
- */
-contextBridge.exposeInMainWorld("sendIpc", sendIpc);
-
-contextBridge.exposeInMainWorld("promptUser", promptUser);
+contextBridge.exposeInMainWorld("promptUser", promptUser(sendIpc));
 // contextBridge.exposeInMainWorld("fileSystem", fileSystem);
 
 export function isError(
