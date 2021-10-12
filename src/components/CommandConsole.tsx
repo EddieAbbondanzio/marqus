@@ -5,14 +5,13 @@ import _ from "lodash";
 import { commands } from "@/commands";
 import { globalNavigation } from "@/store/modules/ui/modules/globalNavigation";
 import { confirmDelete } from "@/prompts";
+import { useCommandConsole } from "@/hooks/vuex";
 
 export default defineComponent({
   setup() {
     /*
      * Command console should not run commands directly. Instead have it call the lower layer actions.
      */
-
-    const ctx = globalNavigation;
 
     // const cc = commandConsole.context(store);
 
