@@ -4,8 +4,8 @@ import { app, protocol, BrowserWindow, ipcMain } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
-import { promptUser } from "./promptUser/main";
-import { fileSystem } from "./fileSystem/main";
+import { promptUserHandler } from "./promptUser";
+import { fileSystemHandler } from "./fileSystem";
 import { IpcType, IpcHandler, IpcArgument } from ".";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -19,8 +19,8 @@ protocol.registerSchemesAsPrivileged([
  * Register new handlers here. You'll need to update IpcType too
  */
 export const handlers: Record<IpcType, IpcHandler<any>> = {
-  promptUser,
-  fileSystem,
+  promptUser: promptUserHandler,
+  fileSystem: fileSystemHandler,
 };
 
 if (ipcMain == null) {

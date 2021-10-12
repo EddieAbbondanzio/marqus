@@ -2,7 +2,8 @@
 import { generateId } from "@/utils";
 import { contextBridge, ipcRenderer } from "electron";
 import { IpcType, SendIpc } from ".";
-import { promptUser } from "./promptUser/renderer";
+import { fileSystemPlugin } from "./fileSystem";
+import { promptUserPlugin } from "./promptUser";
 
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
@@ -62,7 +63,8 @@ const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
   });
 };
 
-contextBridge.exposeInMainWorld("promptUser", promptUser(sendIpc));
+contextBridge.exposeInMainWorld("promptUser", promptUserPlugin(sendIpc));
+contextBridge.exposeInMainWorld("fileSystem", fileSystemPlugin(sendIpc));
 // contextBridge.exposeInMainWorld("fileSystem", fileSystem);
 
 export function isError(

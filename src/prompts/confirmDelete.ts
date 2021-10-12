@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 
-import { PromptButton } from "@/_electron/promptUser/common";
-import { promptUser } from "@/_electron/promptUser/renderer";
+import { PromptButton } from "@/_electron/promptUser/types";
+import { promptUserPlugin } from "@/_electron/promptUser/renderer";
 
 export async function confirmDelete(
   type: string,

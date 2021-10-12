@@ -1,8 +1,14 @@
 import { dialog } from "electron";
-import { IpcHandler } from "..";
-import { PromptOptions } from "./common";
+import { IpcHandler, IpcPlugin } from "..";
+import { PromptButton, PromptOptions, PromptUser } from "./types";
 
-export const promptUser: IpcHandler<PromptOptions> = async (opts) => {
+export const promptUserPlugin: IpcPlugin<PromptUser> =
+  (sendIpc) => async (opts: PromptOptions) => {
+    const button: PromptButton = await sendIpc("promptUser", opts);
+    return button;
+  };
+
+export const promptUserHandler: IpcHandler<PromptOptions> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
   const defaultCount = opts.buttons.filter((b) => b.role === "default").length;
 

@@ -15,6 +15,8 @@ export default defineComponent({
 
     // const cc = commandConsole.context(store);
 
+    // confirmDelete("fart", "Boo");
+
     // const input = computed({
     //   get() {
     //     return commandConsole.state.input;

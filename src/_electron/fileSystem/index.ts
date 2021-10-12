@@ -1,9 +1,80 @@
 import fs from "fs";
 import p from "path";
-import { IpcHandler } from "..";
-import { FileSystemIpc, FileContentType, DATA_DIRECTORY } from "./common";
+import { IpcHandler, IpcPlugin } from "..";
+import {
+  FileSystemIpc,
+  FileContentType,
+  DATA_DIRECTORY,
+  FileSystem,
+  FileSystemReadFile,
+  FileSystemWriteFile,
+} from "./types";
 
-export const fileSystem: IpcHandler<FileSystemIpc<any>> = async (opts) => {
+export const fileSystemPlugin: IpcPlugin<FileSystem> = (sendIpc) => ({
+  async createDirectory(path: string): Promise<void> {
+    const ipc: FileSystemIpc = {
+      action: "createDirectory",
+      value: { path },
+    };
+
+    await sendIpc("fileSystem", ipc);
+  },
+  async readJSON(path: string): Promise<any> {
+    const ipc: FileSystemIpc<FileSystemReadFile> = {
+      action: "readFile",
+      value: { path, contentType: "json" },
+    };
+
+    const json = await sendIpc("fileSystem", ipc);
+    return json;
+  },
+  async readDirectory(path: string): Promise<string[]> {
+    const ipc: FileSystemIpc = {
+      action: "readDirectory",
+      value: { path },
+    };
+
+    const files = await sendIpc("fileSystem", ipc);
+    return files;
+  },
+  async writeJSON(path: string, content: any): Promise<void> {
+    const ipc: FileSystemIpc<FileSystemWriteFile> = {
+      action: "writeFile",
+      value: { path, content, contentType: "json" },
+    };
+
+    await sendIpc("fileSystem", ipc);
+  },
+  async readText(path: string): Promise<string> {
+    const ipc: FileSystemIpc<FileSystemReadFile> = {
+      action: "readFile",
+      value: { path, contentType: "text" },
+    };
+
+    const text = await sendIpc("fileSystem", ipc);
+    return text;
+  },
+  async writeText(path: string, content: string): Promise<void> {
+    const ipc: FileSystemIpc<FileSystemWriteFile> = {
+      action: "writeFile",
+      value: { path, content, contentType: "text" },
+    };
+
+    await sendIpc("fileSystem", ipc);
+  },
+  async deleteDirectory(path: string): Promise<void> {
+    const ipc: FileSystemIpc = {
+      action: "deleteDirectory",
+      value: { path },
+    };
+
+    await sendIpc("fileSystem", ipc);
+  },
+});
+
+export const fileSystemHandler: IpcHandler<FileSystemIpc<any>> = async (
+  opts
+) => {
   const path = generateFullPath(opts.value.path);
 
   switch (opts.action) {
@@ -19,8 +90,6 @@ export const fileSystem: IpcHandler<FileSystemIpc<any>> = async (opts) => {
       return readFile(path, opts.value.contentType);
     case "writeFile":
       return writeFile(path, opts.value.content, opts.value.contentType);
-    case "exists":
-      return fs.existsSync(path);
   }
 };
 

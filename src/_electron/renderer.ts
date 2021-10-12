@@ -7,7 +7,7 @@ import { store } from "@/store";
 import "bulma";
 import "@fortawesome/fontawesome-free";
 import "@/assets/styles/main.sass";
-import { PromptUser } from "./promptUser/common";
+import { PromptUser } from "./promptUser/types";
 
 // prettier-ignore
 createApp(App)
