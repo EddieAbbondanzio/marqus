@@ -1,5 +1,5 @@
 import { NotebookState } from "@/store/modules/notebooks/state";
-import { Module } from "vuex-smart-module";
+import { createComposable, Module } from "vuex-smart-module";
 import { NotebookActions } from "@/store/modules/notebooks/actions";
 import { NotebookMutations } from "@/store/modules/notebooks/mutations";
 import { NotebookGetters } from "@/store/modules/notebooks/getters";

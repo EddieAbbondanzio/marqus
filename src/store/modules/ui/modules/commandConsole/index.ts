@@ -1,4 +1,4 @@
-import { Module } from "vuex-smart-module";
+import { createComposable, Module } from "vuex-smart-module";
 import { CommandConsoleActions } from "./actions";
 import { CommandConsoleGetters } from "./getters";
 import { CommandConsoleMutations } from "./mutations";

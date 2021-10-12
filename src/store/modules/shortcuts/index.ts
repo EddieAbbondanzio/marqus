@@ -1,5 +1,5 @@
 import { ShortcutState } from "./state";
-import { Module } from "vuex-smart-module";
+import { createComposable, Module } from "vuex-smart-module";
 import { ShortcutActions } from "@/store/modules/shortcuts/actions";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
