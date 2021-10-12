@@ -7,14 +7,10 @@ import { Select } from "./select";
 import { Toggle } from "./toggle";
 import { Run } from "./run";
 
-export * from "./show";
-export * from "./hide";
-export * from "./toggle";
-export * from "./move-selection-down";
-export * from "./move-selection-up";
-export * from "./select";
-export * from "./select-and-run";
-export * from "./run";
+/**
+ * Don't export commands here unless you want a circular
+ * dependency issue.
+ */
 
 export const COMMAND_CONSOLE_REGISTRY = {
   hide: Hide,

@@ -1,4 +1,3 @@
-import { MoveSelectionDown, MoveSelectionUp } from "../commandConsole";
 import { CollapseAll } from "./collapse-all";
 import { CreateNotebook } from "./create-notebook";
 import { CreateTag } from "./create-tag";
@@ -9,6 +8,8 @@ import { DeleteTag } from "./delete-tag";
 import { EmptyTrash } from "./empty-trash";
 import { ExpandAll } from "./expand-all";
 import { Focus } from "./focus";
+import { MoveSelectionDown } from "./move-selection-down";
+import { MoveSelectionUp } from "./move-selection-up";
 import { RenameNotebook } from "./rename-notebook";
 import { RenameTag } from "./rename-tag";
 import { ScrolDown } from "./scroll-down";

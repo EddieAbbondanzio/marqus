@@ -1,7 +1,7 @@
 // import { generateId } from "@/utils";
 import { generateId } from "@/utils";
 import { contextBridge, ipcRenderer } from "electron";
-import { IpcType } from ".";
+import { IpcType, SendIpc } from ".";
 import { promptUser } from "./promptUser/renderer";
 
 export interface ExposedPromise {
@@ -49,7 +49,7 @@ ipcRenderer.on("send", async (ev, arg) => {
  * @param value Payload.
  * @returns The response the main thread gave
  */
-export async function sendIpc<R>(type: IpcType, value: any): Promise<R> {
+const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     const id = generateId();
     promises[id] = { resolve, reject };
@@ -60,16 +60,20 @@ export async function sendIpc<R>(type: IpcType, value: any): Promise<R> {
       value,
     });
   });
-}
+};
+
+/*
+ * Even though we expose this it really shouldn't be directly
+ * called if other ways exist. This is just how we can interact
+ * with the main thread .
+ */
+contextBridge.exposeInMainWorld("sendIpc", sendIpc);
+
 contextBridge.exposeInMainWorld("promptUser", promptUser);
 // contextBridge.exposeInMainWorld("fileSystem", fileSystem);
-
-// contextBridge.exposeInMainWorld("__dirname", __dirname);
 
 export function isError(
   err: Record<string, unknown>
 ): err is { error: string } {
   return err.hasOwnProperty("error");
 }
-
-console.log("preloaded");

@@ -1,12 +1,10 @@
 import { computed, defineComponent, ref, watch } from "vue";
-import { generateId, isBlank } from "@/utils";
 import Modal from "./Modal";
 import { useStore } from "vuex";
-import { commandConsole } from "@/store/modules/ui/modules/commandConsole";
 import _ from "lodash";
 import { commands } from "@/commands";
 import { globalNavigation } from "@/store/modules/ui/modules/globalNavigation";
-import { localNavigation } from "@/store/modules/ui/modules/localNavigation";
+import { confirmDelete } from "@/prompts";
 
 export default defineComponent({
   setup() {
@@ -14,9 +12,8 @@ export default defineComponent({
      * Command console should not run commands directly. Instead have it call the lower layer actions.
      */
 
-    const store = useStore();
-    // const ctx = localNavigation;
-    commands;
+    const ctx = globalNavigation;
+
     // const cc = commandConsole.context(store);
 
     // const input = computed({
