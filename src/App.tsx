@@ -21,7 +21,7 @@ export default defineComponent({
       );
 
       if (scopeEl == null) {
-        ui.actions.blur();
+        ui.actions.blurFocused();
       } else {
         const id = scopeEl.getAttribute(FOCUSABLE_ATTRIBUTE)!;
         ui.actions.focus({ id });

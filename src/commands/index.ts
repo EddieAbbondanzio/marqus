@@ -2,6 +2,12 @@
 import { COMMAND_CONSOLE_REGISTRY } from "./commandConsole";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 
+/*
+ * Commands are meant to act as a layer on top of vuex. They are meant to give us a way
+ * to perform 1 or more actions and give us an easy way to support shortcuts along with
+ * undo / redo support.
+ */
+
 /**
  * Prefix a namespace to every property name delimited via a period.
  */

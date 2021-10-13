@@ -159,7 +159,7 @@ export class UserInterfaceActions extends Actions<
     })();
   }
 
-  blur() {
+  blurFocused() {
     this.commit("CLEAR_ACTIVE");
   }
 }

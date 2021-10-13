@@ -6,8 +6,6 @@ import { Store } from "vuex";
 import { Actions, Context } from "vuex-smart-module";
 import { userInterface } from "../ui";
 import { KeyCode, parseKey } from "./keyCode";
-// import { contexts } from "@/directives/context";
-// import { commands } from "@/commands";
 
 export class ShortcutActions extends Actions<
   ShortcutState,

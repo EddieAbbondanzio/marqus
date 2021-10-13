@@ -4,7 +4,7 @@ import { Command } from "../types";
 
 export class ScrolUp extends Command<void> {
   async execute(): Promise<void> {
-    // const ctx = globalNavigation.context(store);
-    // ctx.actions.scrollUp();
+    const gn = globalNavigation.context(store);
+    gn.actions.scrollUp();
   }
 }

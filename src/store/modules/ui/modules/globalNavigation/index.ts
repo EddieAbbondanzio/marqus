@@ -6,7 +6,7 @@ import { createComposable, Module } from "vuex-smart-module";
 
 export const globalNavigation = new Module({
   namespaced: true,
-  // actions: GlobalNavigationActions,
+  actions: GlobalNavigationActions,
   state: GlobalNavigationState,
   mutations: GlobalNavigationMutations,
   getters: GlobalNavigationGetters,

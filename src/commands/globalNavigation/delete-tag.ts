@@ -5,7 +5,7 @@ import { Command } from "../types";
 
 export class DeleteTag extends Command<Id> {
   async execute(payload: Id): Promise<void> {
-    // const ctx = globalNavigation.context(store);
-    // await ctx.actions.tagDelete(payload);
+    const gn = globalNavigation.context(store);
+    await gn.actions.tagDelete(payload);
   }
 }

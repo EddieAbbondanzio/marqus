@@ -4,7 +4,7 @@ import { Command } from "../types";
 
 export class SelectAndRun extends Command<void> {
   async execute(): Promise<void> {
-    // const ctx = commandConsole.context(store);
-    // ctx.actions.selectAndRun();
+    const cc = commandConsole.context(store);
+    cc.actions.selectAndRun();
   }
 }

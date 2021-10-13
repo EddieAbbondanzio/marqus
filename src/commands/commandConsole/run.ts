@@ -4,7 +4,7 @@ import { Command } from "../types";
 
 export class Run extends Command<void> {
   async execute() {
-    // const ctx = commandConsole.context(store);
-    // ctx.actions.run();
+    const cc = commandConsole.context(store);
+    cc.actions.run();
   }
 }
