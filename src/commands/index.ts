@@ -66,4 +66,4 @@ export function generate(registry: CommandRegistry) {
   };
 }
 
-export const commands = {} as any; //generate(COMMAND_REGISTRY);
+export const commands = generate(COMMAND_REGISTRY);

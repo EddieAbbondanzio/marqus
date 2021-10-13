@@ -2,7 +2,9 @@ import { commands } from "@/commands";
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { Shortcut, ShortcutState } from "@/store/modules/shortcuts/state";
-import { Actions } from "vuex-smart-module";
+import { Store } from "vuex";
+import { Actions, Context } from "vuex-smart-module";
+import { userInterface } from "../ui";
 import { KeyCode, parseKey } from "./keyCode";
 // import { contexts } from "@/directives/context";
 // import { commands } from "@/commands";
@@ -13,6 +15,12 @@ export class ShortcutActions extends Actions<
   ShortcutMutations,
   ShortcutActions
 > {
+  ui!: Context<typeof userInterface>;
+
+  $init(store: Store<any>) {
+    this.ui = userInterface.context(store);
+  }
+
   setState(state: Shortcut[]) {
     this.commit("SET_STATE", state);
 
@@ -67,9 +75,9 @@ export class ShortcutActions extends Actions<
     }
 
     for (const { command, context } of maps) {
-      // if (context == null || contexts.isFocused(context)) {
-      // commands.run(command as unknown as any, undefined);
-      // }
+      if (context == null || this.ui.actions.isFocused(context)) {
+        commands.run(command as unknown as any, undefined);
+      }
     }
   }
 

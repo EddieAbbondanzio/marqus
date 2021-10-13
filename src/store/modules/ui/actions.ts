@@ -31,46 +31,44 @@ export class UserInterfaceActions extends Actions<
     this.commit("CURSOR_DRAGGING", false);
   }
 
-  registerFocusable(focusable: FocusableRegistration) {
+  registerFocusable(reg: FocusableRegistration) {
     // If no element to focus or query string was passed, default it.
-    if (focusable.focusElement == null) {
-      focusable.querySelector ??= "input";
+    if (reg.focusElement == null) {
+      reg.querySelector ??= "input";
 
       // Try to find the element we'll need to focus later on
-      const focusElement = focusable.directiveElement.querySelector(
-        focusable.querySelector
+      const focusElement = reg.directiveElement.querySelector(
+        reg.querySelector
       );
 
       if (focusElement == null) {
         throw Error(
-          `No element matches query string for v-focusable on ${focusable.directiveElement}`
+          `No element matches query string for v-focusable on ${reg.directiveElement}`
         );
       }
 
-      focusable.focusElement = focusElement as HTMLElement;
+      reg.focusElement = focusElement as HTMLElement;
     }
 
-    if (focusable.name != null) {
-      const existing = this.getters.focusableByName(focusable.name);
+    if (reg.name != null) {
+      const existing = this.getters.focusableByName(reg.name);
 
       if (existing != null) {
         throw Error(`Focusable with name ${existing.name} already exists.`);
       }
     }
 
+    const f: Focusable = {
+      ...reg,
+      id: generateId(),
+    } as Focusable;
+
     // Assign some attributes to the directive element
-    focusable.directiveElement.setAttribute(FOCUSABLE_ATTRIBUTE, focusable.id);
+    reg.directiveElement.setAttribute(FOCUSABLE_ATTRIBUTE, f.id);
 
-    if (focusable.hidden) {
-      focusable.directiveElement.setAttribute(
-        FOCUSABLE_HIDDEN_ATTRIBUTE,
-        String(focusable.hidden)
-      );
+    if (f.hidden) {
+      f.directiveElement.setAttribute(FOCUSABLE_HIDDEN_ATTRIBUTE, String(true));
     }
-
-    const f = focusable as Focusable;
-
-    f.id = generateId();
 
     this.commit("ADD_FOCUSABLE", f);
   }
