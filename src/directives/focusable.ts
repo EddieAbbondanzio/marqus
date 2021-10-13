@@ -1,6 +1,7 @@
 import { store } from "@/store";
 import { userInterface } from "@/store/modules/ui";
 import { generateId, findParent } from "@/utils";
+import { DirectiveDefinition } from "@/utils/vue";
 import { Directive, DirectiveBinding } from "@vue/runtime-core";
 import { nextTick, ref, Ref } from "vue";
 
@@ -16,22 +17,25 @@ const { registerFocusable, removeFocusable } =
  * v-focusable:TEST_NAME -> Scope that can be referenced via it's name "TEST_NAME"
  * v-focusable:globalNavigation.visible -> highlight element when active
  */
-export const focusable: Directive = {
-  mounted: (directiveElement: HTMLElement, binding: DirectiveBinding) => {
-    const name = binding.arg;
+export const focusable: DirectiveDefinition = [
+  "focusable",
+  {
+    mounted: (directiveElement: HTMLElement, binding: DirectiveBinding) => {
+      const name = binding.arg;
 
-    const hidden = isHidden(binding.modifiers);
-    const querySelector = binding.value.querySelector ?? "input";
+      const hidden = isHidden(binding.modifiers);
+      const querySelector = binding.value.querySelector ?? "input";
 
-    registerFocusable({
-      directiveElement,
-      hidden,
-      querySelector,
-      name,
-    });
+      registerFocusable({
+        directiveElement,
+        hidden,
+        querySelector,
+        name,
+      });
+    },
+    beforeUnmount: (el: HTMLElement) => removeFocusable(el),
   },
-  beforeUnmount: (el: HTMLElement) => removeFocusable(el),
-};
+];
 
 function isHidden(modifiers: any) {
   if (modifiers.hidden != null && modifiers.visible != null) {

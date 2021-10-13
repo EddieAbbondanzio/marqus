@@ -1,5 +1,6 @@
 /* eslint-disable no-use-before-define */
 import { store } from "@/store";
+import { DirectiveDefinition } from "@/utils/vue";
 import { DirectiveBinding } from "vue";
 
 export function getDirectiveAction(arg?: string): MouseAction {
@@ -302,39 +303,42 @@ export const mouseObjectPublisher = new MouseObjectPublisher();
  * Directive to abstract basic mouse events into a click, hold, or release event.
  * Expects a value of {click: () => any, hold: () => any, release: () => any}.
  */
-export const mouse = {
-  beforeMount: function (el: any, binding: DirectiveBinding) {
-    const action = getDirectiveAction(binding.arg);
-    const callback = getDirectiveCallback(binding.value);
-    const button = getDirectiveButton(binding.modifiers);
-    const self = binding.modifiers.self;
+export const mouse: DirectiveDefinition = [
+  "mouse",
+  {
+    beforeMount: function (el: any, binding: DirectiveBinding) {
+      const action = getDirectiveAction(binding.arg);
+      const callback = getDirectiveCallback(binding.value);
+      const button = getDirectiveButton(binding.modifiers);
+      const self = binding.modifiers.self;
 
-    let obj = mouseObjectPublisher.get(el);
+      let obj = mouseObjectPublisher.get(el);
 
-    if (obj == null) {
-      obj = new MouseObject(el, self, mouseObjectPublisher);
-      mouseObjectPublisher.add(obj);
-    }
+      if (obj == null) {
+        obj = new MouseObject(el, self, mouseObjectPublisher);
+        mouseObjectPublisher.add(obj);
+      }
 
-    obj.subscribe(action, button, callback);
-    el.mouseObject = obj;
+      obj.subscribe(action, button, callback);
+      el.mouseObject = obj;
+    },
+
+    unmounted: function (el: HTMLElement, binding: DirectiveBinding) {
+      const obj = mouseObjectPublisher.get(el);
+
+      if (obj == null) {
+        return;
+      }
+
+      const action = getDirectiveAction(binding.arg);
+      const callback = getDirectiveCallback(binding.value);
+      const button = getDirectiveButton(binding.modifiers);
+
+      obj.unsubscribe(action, button, callback);
+
+      if (obj.subscriberCount === 0) {
+        mouseObjectPublisher.remove(obj);
+      }
+    },
   },
-
-  unmounted: function (el: HTMLElement, binding: DirectiveBinding) {
-    const obj = mouseObjectPublisher.get(el);
-
-    if (obj == null) {
-      return;
-    }
-
-    const action = getDirectiveAction(binding.arg);
-    const callback = getDirectiveCallback(binding.value);
-    const button = getDirectiveButton(binding.modifiers);
-
-    obj.unsubscribe(action, button, callback);
-
-    if (obj.subscriberCount === 0) {
-      mouseObjectPublisher.remove(obj);
-    }
-  },
-};
+];
