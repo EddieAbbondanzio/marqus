@@ -25,7 +25,7 @@ export const root = new Module({
     tags,
     shortcuts,
     notes,
-    // ui: userInterface,
+    ui: userInterface,
   },
 });
 

@@ -21,14 +21,14 @@ export class TagGetters extends Getters<TagState> {
     }
 
     return this.state.values.filter(
-      t => note.tags != null && note.tags.some(tagId => t.id === tagId)
+      (t) => note.tags != null && note.tags.some((tagId) => t.id === tagId)
     );
   }
 
   byName(name: string): Tag | undefined;
   byName(name: string, opts: { required: true }): Tag;
   byName(name: string, opts: { required?: boolean } = {}) {
-    const tag = this.state.values.find(t => t.name === name);
+    const tag = this.state.values.find((t) => t.name === name);
 
     if (opts.required && tag == null) {
       throw Error(`No tag with name ${name} found.`);
@@ -40,7 +40,7 @@ export class TagGetters extends Getters<TagState> {
   byId(id: string): Tag | undefined;
   byId(id: string, opts: { required: true }): Tag;
   byId(id: string, opts: { required?: boolean } = {}) {
-    const tag = this.state.values.find(t => t.id === id);
+    const tag = this.state.values.find((t) => t.id === id);
 
     for (const t of this.state.values) {
       console.log(t.id, " ", id);
@@ -54,7 +54,7 @@ export class TagGetters extends Getters<TagState> {
   }
 
   getPrevious(id: string) {
-    const index = this.state.values.findIndex(t => t.id === id);
+    const index = this.state.values.findIndex((t) => t.id === id);
 
     if (index <= 0) {
       return null;
@@ -64,7 +64,7 @@ export class TagGetters extends Getters<TagState> {
   }
 
   getNext(id: string) {
-    const index = this.state.values.findIndex(t => t.id === id);
+    const index = this.state.values.findIndex((t) => t.id === id);
 
     if (index >= this.state.values.length - 1) {
       return null;

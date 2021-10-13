@@ -23,8 +23,8 @@ export default defineComponent({
     });
 
     const onClick = ({ target }: MouseEvent) => {
-      const wasBackgroundClick = findParent(target as HTMLElement, (el) =>
-        el.classList.contains("modal-background")
+      const wasBackgroundClick = (target as HTMLElement).classList.contains(
+        "modal-background"
       );
 
       // Only allow click outside to close if focus trap is set to soft

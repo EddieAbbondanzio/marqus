@@ -10,10 +10,15 @@ import "@/assets/styles/main.sass";
 import { PromptUser } from "./promptUser/types";
 
 // prettier-ignore
-createApp(App)
-  .use(store)
-  .use(router)
-  .mount("#app");
+const app = createApp(App);
+
+app.directive("test", (el, binding) => {
+  console.log("arg: ", binding.arg);
+  console.log("value: ", binding.value);
+  console.log("modifiers: ", binding.modifiers);
+});
+
+app.use(store).use(router).mount("#app");
 
 // Make our contextBridge properties type safe.
 declare global {

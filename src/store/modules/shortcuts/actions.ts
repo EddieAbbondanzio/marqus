@@ -1,3 +1,4 @@
+import { commands } from "@/commands";
 import { ShortcutGetters } from "@/store/modules/shortcuts/getters";
 import { ShortcutMutations } from "@/store/modules/shortcuts/mutations";
 import { Shortcut, ShortcutState } from "@/store/modules/shortcuts/state";
