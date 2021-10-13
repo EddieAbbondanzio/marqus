@@ -1,7 +1,7 @@
-import { SelectAndRun } from "./select-and-run";
+import { SelectAndRun } from "./selectAndRun";
 import { Hide } from "./hide";
-import { MoveSelectionDown } from "./move-selection-down";
-import { MoveSelectionUp } from "./move-selection-up";
+import { MoveSelectionDown } from "./moveSelectionDown";
+import { MoveSelectionUp } from "./moveSelectionUp";
 import { Show } from "./show";
 import { Select } from "./select";
 import { Toggle } from "./toggle";

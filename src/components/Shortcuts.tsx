@@ -1,7 +1,7 @@
 import { store } from "@/store";
 import { shortcuts } from "@/store/modules/shortcuts";
 import { defineComponent, onBeforeUnmount, onMounted } from "vue";
-import { DEFAULT_SHORTCUTS } from "@/store/modules/shortcuts/default-shortcuts";
+import { DEFAULT_SHORTCUTS } from "@/store/modules/shortcuts/defaultShortcuts";
 
 export default defineComponent({
   setup() {

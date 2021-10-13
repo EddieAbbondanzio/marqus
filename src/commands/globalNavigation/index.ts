@@ -1,19 +1,19 @@
-import { CollapseAll } from "./collapse-all";
-import { CreateNotebook } from "./create-notebook";
-import { CreateTag } from "./create-tag";
-import { DeleteAllNotebooks } from "./delete-all-notebooks";
-import { DeleteAllTags } from "./delete-all-tags";
-import { DeleteNotebook } from "./delete-notebook";
-import { DeleteTag } from "./delete-tag";
-import { EmptyTrash } from "./empty-trash";
-import { ExpandAll } from "./expand-all";
+import { CollapseAll } from "./collapseAll";
+import { CreateNotebook } from "./createNotebook";
+import { CreateTag } from "./createTag";
+import { DeleteAllNotebooks } from "./deleteAllNotebooks";
+import { DeleteAllTags } from "./deleteAllTags";
+import { DeleteNotebook } from "./deleteNotebook";
+import { DeleteTag } from "./deleteTag";
+import { EmptyTrash } from "./emptyTrash";
+import { ExpandAll } from "./expandAll";
 import { Focus } from "./focus";
-import { MoveSelectionDown } from "./move-selection-down";
-import { MoveSelectionUp } from "./move-selection-up";
-import { RenameNotebook } from "./rename-notebook";
-import { RenameTag } from "./rename-tag";
-import { ScrolDown } from "./scroll-down";
-import { ScrolUp } from "./scroll-up";
+import { MoveSelectionDown } from "./moveSelectionDown";
+import { MoveSelectionUp } from "./moveSelectionUp";
+import { RenameNotebook } from "./renameNotebook";
+import { RenameTag } from "./renameTag";
+import { ScrolDown } from "./scrollDown";
+import { ScrolUp } from "./scrollUp";
 
 export const GLOBAL_NAVIGATION_REGISTRY = {
   focus: Focus,
