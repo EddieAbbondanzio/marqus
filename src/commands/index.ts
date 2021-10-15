@@ -40,8 +40,8 @@ export const COMMAND_REGISTRY = {
   ...namespace("commandConsole", COMMAND_CONSOLE_REGISTRY),
 };
 
-export type CommandRegistry = any; // typeof COMMAND_REGISTRY;
-export type NamespacedCommand = any; //keyof CommandRegistry;
+export type CommandRegistry = typeof COMMAND_REGISTRY;
+export type NamespacedCommand = keyof CommandRegistry;
 
 export function isNamespacedCommand(str: string): str is NamespacedCommand {
   return Object.keys(COMMAND_REGISTRY).some((c) => c === str);

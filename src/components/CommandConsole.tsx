@@ -4,6 +4,7 @@ import _ from "lodash";
 import { useCommandConsole } from "@/hooks/vuex";
 import { isBlank } from "@/utils";
 import { Form, Field } from "vee-validate";
+import { NamespacedCommand } from "@/commands";
 
 export default defineComponent({
   setup(p, c) {
@@ -29,37 +30,43 @@ export default defineComponent({
      */
     const focusTrap = computed(() => (!isBlank(input.value) ? "hard" : "soft"));
 
-    const onItemClick = () => commandConsole.actions.selectAndRun();
+    const onItemClick = (suggestion: NamespacedCommand) => {
+      commandConsole.actions.selectAndRun() as any;
+    };
 
     const onSubmit = () => {
       commandConsole.actions.selectAndRun();
     };
 
+    const selectedIndex = computed(() => commandConsole.state.selectedIndex);
+
+    const suggestions = computed(() =>
+      commandConsole.getters.suggestions.map((suggestion, i) => (
+        <a
+          onClick={() => onItemClick(suggestion)}
+          class={[
+            "has-text-dark py-1 has-background-hover-light",
+            { "has-background-light": selectedIndex.value === i },
+          ]}
+        >
+          {suggestion}
+        </a>
+      ))
+    );
+
     return () => (
-      <Modal
-        focusTrap={focusTrap.value}
-        v-models={[[isActive.value, "isActive"]]}
-      >
+      <Modal focusTrap={focusTrap.value} v-model={[isActive.value, "isActive"]}>
         <Form onSubmit={onSubmit}>
-          <Field name="Command" v-models={[[input.value, "modelValue"]]} />
+          <Field
+            name="Command"
+            class="input is-small"
+            style="height:32px!important"
+            v-model={[input.value, "modelValue"]}
+            v-focusable={[null, "commandConsole"]}
+          />
         </Form>
+        <div class="is-flex is-flex-column">{suggestions.value}</div>
       </Modal>
     );
   },
 });
-
-/* <div class="is-flex is-flex-column">
-          <template v-if="suggestions.length > 1">
-            <a
-            :class="['has-text-dark py-1 has-background-hover-light', {'has-background-light': selectedIndex === i }
-            ]"
-              v-for="(suggestion, i) in suggestions" :key="i" @click="onItemClick(suggestion)"
-            >
-            {{ suggestion }}
-            </a>
-          </template>
-          <div class="is-flex is-align-center py-2" v-else>
-            Press enter to run...
-          </div>
-        </div>
-      </div> */

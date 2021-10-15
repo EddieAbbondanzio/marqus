@@ -49,7 +49,7 @@ export class CommandConsoleActions extends Actions<
       return;
     }
 
-    // commands.run(input);
+    commands.run(input);
     this.commit("HIDE");
   }
 

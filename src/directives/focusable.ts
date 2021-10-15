@@ -24,8 +24,9 @@ export const focusable: DirectiveDefinition = [
       const name = binding.arg;
 
       const hidden = isHidden(binding.modifiers);
-      const querySelector = binding.value.querySelector ?? "input";
+      const querySelector = binding.value?.querySelector ?? "input";
 
+      console.log("name: ", name, binding);
       registerFocusable({
         directiveElement,
         hidden,

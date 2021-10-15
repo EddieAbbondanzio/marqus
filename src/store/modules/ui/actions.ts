@@ -32,6 +32,10 @@ export class UserInterfaceActions extends Actions<
   }
 
   registerFocusable(reg: FocusableRegistration) {
+    if (reg.directiveElement.tagName === "INPUT") {
+      reg.focusElement = reg.directiveElement;
+    }
+
     // If no element to focus or query string was passed, default it.
     if (reg.focusElement == null) {
       reg.querySelector ??= "input";
@@ -62,6 +66,8 @@ export class UserInterfaceActions extends Actions<
       ...reg,
       id: generateId(),
     } as Focusable;
+
+    console.log(f);
 
     // Assign some attributes to the directive element
     reg.directiveElement.setAttribute(FOCUSABLE_ATTRIBUTE, f.id);

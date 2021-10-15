@@ -23,13 +23,15 @@ export default defineComponent({
     });
 
     const onClick = ({ target }: MouseEvent) => {
-      const wasBackgroundClick = (target as HTMLElement).classList.contains(
-        "modal-background"
+      // It's easier to determine if we clicked within the modal than outside.
+      const wasWithinModal = findParent(target as HTMLElement, (el) =>
+        el.classList.contains("modal-content")
       );
 
       // Only allow click outside to close if focus trap is set to soft
-      if (wasBackgroundClick && p.focusTrap === "soft") {
+      if (!wasWithinModal && p.focusTrap === "soft") {
         _isActive.value = false;
+        console.log("HIDE IT!");
       }
     };
 
@@ -41,13 +43,16 @@ export default defineComponent({
       window.removeEventListener("click", onClick);
     });
 
-    const classes = computed(() => ["modal", { "is-active": _isActive.value }]);
+    const classes = computed(() => [
+      "modal",
+      { "is-active": _isActive.value, "is-clipped": _isActive.value },
+    ]);
 
     return () => {
       return (
         <div class={classes.value}>
-          <div class="modal-background">
-            <div class="modal-content">
+          <div class="modal-background is-flex is-align-center">
+            <div class="modal-content box">
               {c.slots.default != null ? c.slots.default() : null}
             </div>
           </div>
