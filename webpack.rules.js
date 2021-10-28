@@ -27,6 +27,10 @@ module.exports = [
     }
   },
   {
+    test: /\.css$/,
+    use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+  },
+  {
     test: /\.s[ac]ss$/i,
     use: [
       // Creates `style` nodes from JS strings
@@ -36,5 +40,5 @@ module.exports = [
       // Compiles Sass to CSS
       "sass-loader",
     ],
-  },
+  }
 ];

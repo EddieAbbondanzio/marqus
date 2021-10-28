@@ -10,26 +10,16 @@
  * more about security risks here:
  *
  * https://electronjs.org/docs/tutorial/security
- *
- * To enable Node.js integration in this file, open up `main.js` and enable the `nodeIntegration`
- * flag:
- *
- * ```
- *  // Create the browser window.
- *  mainWindow = new BrowserWindow({
- *    width: 800,
- *    height: 600,
- *    webPreferences: {
- *      nodeIntegration: true
- *    }
- *  });
- * ```
  */
+import "../../assets/styles/index.sass";
 
-import "../assets/styles/index.sass";
+import "../app";
+import { PromptUser } from "../../src/common/promptUser";
 
-console.log(
-  '👋 This message is being logged by "renderer.js", included via webpack'
-);
-
-import "./app";
+// Make our contextBridge properties type safe.
+declare global {
+  interface Window {
+    promptUser: PromptUser;
+    fileSystem: FileSystem;
+  }
+}
