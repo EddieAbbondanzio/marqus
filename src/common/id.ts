@@ -5,6 +5,7 @@ export type Id = string;
 /**
  * Generate a new entity id.
  */
+// Do not rename to id() unless you never want to use const id = id()
 export const generateId = uuidv4 as () => Id;
 
 /**
