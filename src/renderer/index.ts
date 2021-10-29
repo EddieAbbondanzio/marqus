@@ -14,7 +14,7 @@
 import "../../assets/styles/index.sass";
 
 import "../app";
-import { PromptUser } from "../../src/common/promptUser";
+import { PromptUser } from "../common/promptUser";
 
 // Make our contextBridge properties type safe.
 declare global {
