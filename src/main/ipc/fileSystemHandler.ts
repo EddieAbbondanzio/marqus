@@ -1,6 +1,6 @@
-import { IpcHandler } from "../common/ipc";
-import { DATA_DIRECTORY, FileSystemIpc } from "../common/fileSystem";
-import { FileContentType } from "../common/fileSystem";
+import { IpcHandler } from "../../common/ipc";
+import { DATA_DIRECTORY, FileSystemIpc } from "../../common/fileSystem";
+import { FileContentType } from "../../common/fileSystem";
 import * as p from "path";
 import * as fs from "fs";
 

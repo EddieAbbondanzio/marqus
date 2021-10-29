@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { IpcType, IpcHandler, IpcArgument } from "../common/ipc";
-import { fileSystemHandler } from "./fileSystemHandler";
-import { promptUserHandler } from "./promptUserHandler";
+import { fileSystemHandler } from "./ipc/fileSystemHandler";
+import { promptUserHandler } from "./ipc/promptUserHandler";
 import path from "path";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
