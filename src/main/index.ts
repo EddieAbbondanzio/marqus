@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import { IpcType, IpcHandler, IpcArgument } from "../common/ipc";
+import { IpcType, IpcHandler, IpcArgument } from "../common/ipc/ipc";
 import { fileSystemHandler } from "./ipc/fileSystemHandler";
 import { promptUserHandler } from "./ipc/promptUserHandler";
 import path from "path";

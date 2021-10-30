@@ -1,9 +1,9 @@
-import { IpcPlugin } from "../../src/common/ipc";
+import { IpcPlugin } from "../../common/ipc/ipc";
 import {
   PromptUser,
   PromptOptions,
   PromptButton,
-} from "../../src/common/promptUser";
+} from "../../common/ipc/promptUser";
 
 export const promptUserPlugin: IpcPlugin<PromptUser> =
   (sendIpc) => async (opts: PromptOptions) => {
