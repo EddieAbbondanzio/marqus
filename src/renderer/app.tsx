@@ -1,10 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useFontAwesome } from "./fontawesome";
+import { fontAwesomeLib } from "./libs/fontAwesome";
+import { Resizable } from "./components/Resizable";
+import { GlobalNavigation } from "./components/GlobalNavigation";
+import { Layout } from "./components/Layout";
 
 function render() {
-  useFontAwesome();
+  fontAwesomeLib();
 
   const dom = document.getElementById("app");
 
@@ -13,10 +16,11 @@ function render() {
   }
 
   ReactDOM.render(
-    <div>
-      Hello world!
-      <FontAwesomeIcon icon="coffee" />
-    </div>,
+    <Layout>
+      <GlobalNavigation />
+      <Resizable>B</Resizable>
+      <Resizable>C</Resizable>
+    </Layout>,
     dom
   );
 }

@@ -1,1 +1,19 @@
+@import "./_utils/_size"
+@import "./_utils/_overflow"
+
 @import 'bulma/css/bulma.css'
+
+html, body, #app
+  padding: 0
+  margin: 0
+
+// Lock height of html and body to screen height
+html
+  overflow: hidden
+  height: 100%
+
+  body
+    height: 100%
+
+    #app
+      height: 100%
