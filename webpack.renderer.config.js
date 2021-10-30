@@ -4,6 +4,9 @@ const rules = require('./webpack.rules');
 const plugins = require('./webpack.plugins');
 
 module.exports = {
+  devServer: {
+    historyApiFallback: true
+  },
   module: {
     rules,
   },
@@ -11,4 +14,5 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', ".scss", ".sass"],
   },
+  
 };

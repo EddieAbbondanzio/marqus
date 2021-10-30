@@ -6,6 +6,8 @@ import path from "path";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
+const { session } = require("electron");
+
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
