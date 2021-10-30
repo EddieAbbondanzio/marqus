@@ -1,14 +1,24 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useFontAwesome } from "./fontawesome";
 
 function render() {
-  const app = document.getElementById("app");
+  useFontAwesome();
 
-  if (app == null) {
+  const dom = document.getElementById("app");
+
+  if (dom == null) {
     throw Error("No root container to render in");
   }
 
-  ReactDOM.render(<h2>Hello from React!</h2>, app);
+  ReactDOM.render(
+    <div>
+      Hello world!
+      <FontAwesomeIcon icon="coffee" />
+    </div>,
+    dom
+  );
 }
 
 render();
