@@ -3,8 +3,8 @@ import {
   FileSystemIpc,
   FileSystemReadFile,
   FileSystemWriteFile,
-} from "../../common/ipc/fileSystem";
-import { IpcPlugin } from "../../common/ipc/ipc";
+} from "../../shared/ipc/fileSystem";
+import { IpcPlugin } from "../../shared/ipc/ipc";
 
 export const fileSystemPlugin: IpcPlugin<FileSystem> = (sendIpc) => ({
   async createDirectory(path: string): Promise<void> {

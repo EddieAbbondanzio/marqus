@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { fontAwesomeLib } from "./libs/fontAwesome";
-import { Resizable } from "./components/Resizable";
+import { Resizable } from "./components/shared/Resizable";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
 

@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { generateId } from "../../src/common/id";
-import { SendIpc, IpcType } from "../common/ipc/ipc";
+import { generateId } from "../shared/id";
+import { SendIpc, IpcType } from "../shared/ipc/ipc";
 import { fileSystemPlugin } from "./ipc/fileSystemPlugin";
 import { promptUserPlugin } from "./ipc/promptUserPlugin";
 
