@@ -1,5 +1,6 @@
 /* eslint-disable no-use-before-define */
 
+import { debounce } from "lodash";
 import React, { useEffect } from "react";
 
 export type MouseActionFunction = (event: globalThis.MouseEvent) => any;
@@ -68,9 +69,9 @@ export class MouseObject {
   }
 
   notify(action: MouseAction, button: MouseButton, event: MouseEvent) {
-    for (let i = 0; i < this.subscribers.length; i++) {
-      if (this.subscribers[i].isMatch(action, button)) {
-        this.subscribers[i].callback(event);
+    for (const sub of this.subscribers) {
+      if (sub.isMatch(action, button)) {
+        sub.callback(event);
       }
     }
   }
@@ -252,7 +253,7 @@ export const mouseObjectPublisher = new MouseObjectPublisher();
 export interface MouseHandler {
   action: MouseAction;
   callback: MouseActionFunction;
-  button: MouseButton;
+  button?: MouseButton;
   self?: boolean;
 }
 
@@ -260,6 +261,7 @@ export function useMouse<TElement extends HTMLElement = HTMLElement>(
   element: React.RefObject<TElement>,
   handlers: MouseHandler[]
 ) {
+  
   // Subscribe to it after render
   useEffect(() => {
     const subscribers: MouseObjectSubscriber[] = [];
@@ -278,7 +280,7 @@ export function useMouse<TElement extends HTMLElement = HTMLElement>(
         mouseObjectPublisher.add(obj);
       }
 
-      const sub = obj.subscribe(h.action, h.button, h.callback);
+      const sub = obj.subscribe(h.action, h.button ?? "left", h.callback);
       subscribers.push(sub);
     }
 

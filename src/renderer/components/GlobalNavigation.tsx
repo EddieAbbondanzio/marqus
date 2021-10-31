@@ -1,15 +1,19 @@
-import React from "react";
+import React, { useCallback, useRef, useState } from "react";
+import { px } from "../dom/units";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
 export function GlobalNavigation() {
-  const onScroll = (scrollPos: number) => {
-    console.log(scrollPos);
+  const [width, setWidth] = useState(px(120));
+
+  const onResize = (newWidth: string) => {
+    setWidth(newWidth);
+    console.log("on resize: ", newWidth);
   };
 
   return (
-    <Resizable>
-      <Scrollable onScroll={onScroll}>
+    <Resizable width={width} onResize={onResize}>
+      <Scrollable>
         <div>Here</div>
         <div>Here</div>
         <div>Here</div>
