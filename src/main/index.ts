@@ -1,19 +1,15 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc/ipc";
-import { fileSystemHandler } from "./ipc/fileSystemHandler";
 import { promptUserHandler } from "./ipc/promptUserHandler";
 import path from "path";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
-
-const { session } = require("electron");
 
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
 export const handlers: Record<IpcType, IpcHandler<any>> = {
   promptUser: promptUserHandler,
-  fileSystem: fileSystemHandler,
 };
 
 if (ipcMain == null) {

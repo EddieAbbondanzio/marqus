@@ -3,6 +3,13 @@
 import { debounce } from "lodash";
 import React, { useEffect } from "react";
 
+/*
+ * TODO: Refactor this file. It's a bit sloppy because it was copied and pasted
+ * from the original Vue codebase.
+ *
+ * Be careful messing with it for now.
+ */
+
 export type MouseActionFunction = (event: globalThis.MouseEvent) => any;
 
 export type MouseAction = "click" | "hold" | "drag" | "dragcancel" | "release";
@@ -261,7 +268,6 @@ export function useMouse<TElement extends HTMLElement = HTMLElement>(
   element: React.RefObject<TElement>,
   handlers: MouseHandler[]
 ) {
-  
   // Subscribe to it after render
   useEffect(() => {
     const subscribers: MouseObjectSubscriber[] = [];

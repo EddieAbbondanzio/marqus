@@ -1,4 +1,4 @@
-export type IpcType = "promptUser" | "fileSystem";
+export type IpcType = "promptUser";
 export type SendIpc<R> = (type: IpcType, value: any) => Promise<R>;
 
 export type IpcHandler<I> = (arg: I) => Promise<any>;

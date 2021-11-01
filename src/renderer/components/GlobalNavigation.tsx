@@ -3,78 +3,22 @@ import { px } from "../dom/units";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
-export function GlobalNavigation() {
-  const [width, setWidth] = useState(px(120));
+export interface GlobalNavigationProps {
+  width: string;
+  scroll: number;
+  onResize: (newWidth: string) => void;
+  onScroll: (newScroll: number) => void;
+}
 
-  const onResize = (newWidth: string) => {
-    setWidth(newWidth);
-    console.log("on resize: ", newWidth);
-  };
-
+export function GlobalNavigation({
+  width,
+  scroll,
+  onResize,
+  onScroll,
+}: GlobalNavigationProps) {
   return (
     <Resizable width={width} onResize={onResize}>
-      <Scrollable>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Here</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
-        <div>Is</div>
+      <Scrollable scroll={scroll} onScroll={onScroll}>
         <div>Some</div>
         <div>Some</div>
         <div>Some</div>
@@ -82,31 +26,69 @@ export function GlobalNavigation() {
         <div>Some</div>
         <div>Some</div>
         <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
-        <div>Some</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
+        <div>Long</div>
         <div>Long</div>
         <div>Long</div>
         <div>Long</div>
