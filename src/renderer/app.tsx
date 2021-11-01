@@ -48,7 +48,7 @@ function App() {
 }
 
 let globalNavigation: GlobalNavigationState = {
-  scroll: 0,
+  scroll: 400,
   width: px(300),
 };
 

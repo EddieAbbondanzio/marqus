@@ -1,5 +1,5 @@
 import { debounce } from "lodash";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 export interface ScrollableProps {
   scroll?: number;
@@ -26,8 +26,16 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
     [props.onScroll]
   );
 
+  const wrapper = useRef(null as unknown as HTMLDivElement);
+
+  useEffect(() => {
+    if (props.scroll != null && wrapper.current != null) {
+      wrapper.current.scrollTop = props.scroll;
+    }
+  });
+
   return (
-    <div className="h-100" style={styles} onScroll={onScroll}>
+    <div className="h-100" style={styles} onScroll={onScroll} ref={wrapper}>
       {props.children}
     </div>
   );
