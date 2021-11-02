@@ -35,6 +35,14 @@ export async function deleteFile(path: string): Promise<void> {
 
 export async function readFile(
   path: string,
+  contentType: "json"
+): Promise<{} | null>;
+export async function readFile(
+  path: string,
+  contentType: "text"
+): Promise<string | null>;
+export async function readFile(
+  path: string,
   contentType: FileContentType
 ): Promise<any> {
   return new Promise((res, rej) => {
@@ -58,6 +66,16 @@ export async function readFile(
 
 export async function writeFile(
   path: string,
+  content: {},
+  contentType: "json"
+): Promise<void>;
+export async function writeFile(
+  path: string,
+  content: string,
+  contentType: "text"
+): Promise<void>;
+export async function writeFile(
+  path: string,
   content: any,
   contentType: FileContentType
 ): Promise<void> {
@@ -74,6 +92,6 @@ export async function writeFile(
   });
 }
 
-export function generateFullPath(path: string): string {
-  return p.join(DATA_DIRECTORY, path);
+export function generateFullPath(...path: string[]): string {
+  return p.join(DATA_DIRECTORY, ...path);
 }
