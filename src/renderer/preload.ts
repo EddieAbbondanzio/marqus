@@ -1,8 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { generateId } from "../shared/id";
 import { SendIpc, IpcType } from "../shared/ipc/ipc";
-import { tagsPlugin } from "./ipc/apiPlugin";
-import { promptUserPlugin } from "./ipc/promptUserPlugin";
+import { tagsPlugin } from "./api/apiPlugin";
+import { promptUserPlugin } from "./ui/promptUser";
 
 export interface ExposedPromise {
   resolve: (val: any) => unknown;

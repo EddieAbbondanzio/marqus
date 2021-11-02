@@ -10,3 +10,5 @@ export const promptUserPlugin: IpcPlugin<PromptUser> =
     const button: PromptButton = await sendIpc("promptUser", opts);
     return button;
   };
+
+declare const promptUser: PromptUser;

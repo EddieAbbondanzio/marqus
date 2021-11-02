@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc/ipc";
 import { promptUserHandler } from "./ipc/promptUserHandler";
 import path from "path";
+import { appStateLoader, appStateSaver } from "./ipc/appStateHandler";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -10,6 +11,8 @@ const isDevelopment = process.env.NODE_ENV !== "production";
  */
 export const handlers: Record<IpcType, IpcHandler<any>> = {
   promptUser: promptUserHandler,
+  loadAppState: appStateLoader,
+  saveAppState: appStateSaver,
 };
 
 if (ipcMain == null) {
