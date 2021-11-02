@@ -1,4 +1,5 @@
 import { IpcPlugin } from "../../shared/ipc/ipc";
+import * as yup from "yup";
 
 export interface GlobalNavigation {
   width: string;
@@ -17,6 +18,10 @@ interface AppStateHandler {
 export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
   const load = async () => {
     const state = await sendIpc("loadAppState");
+
+    // Throws if invalid
+    await appStateSchema.validate(state);
+
     return state;
   };
 
@@ -29,3 +34,10 @@ export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
     save,
   };
 };
+
+const appStateSchema = yup.object().shape({
+  globalNavigation: yup.object().shape({
+    width: yup.string().required(),
+    scroll: yup.number().required().min(0),
+  }),
+});
