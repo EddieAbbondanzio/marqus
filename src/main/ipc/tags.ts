@@ -2,6 +2,7 @@ import { Layout } from "../../renderer/components/Layout";
 import { Tag } from "../../shared/domain/tag";
 import { IpcHandler, TagIpcType } from "../../shared/ipc/ipc";
 import { Tags } from "../../shared/ipc/tags";
+import { onReady } from "../hooks";
 
 const getAllTags = async (): Promise<Tag[]> => {
   throw Error();
@@ -31,3 +32,8 @@ export const tagHandlers: Record<TagIpcType, IpcHandler<any>> = {
   "tags.update": updateTag,
   "tags.delete": deleteTag,
 };
+
+onReady(async () => {
+  // finish implementing this
+  throw Error("TODO: Load initial tag state from file");
+});

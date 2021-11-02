@@ -4,6 +4,7 @@ import { promptUserHandler } from "./ipc/promptUserHandler";
 import path from "path";
 import { appStateLoader, appStateSaver } from "./ipc/appStateHandler";
 import { tagHandlers } from "./ipc/tags";
+import { notify } from "./hooks";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -68,7 +69,7 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-const createWindow = (): void => {
+const createWindow = async (): Promise<void> => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 600,
@@ -85,6 +86,9 @@ const createWindow = (): void => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  //Notify hooks
+  notify();
 };
 
 // This method will be called when Electron has finished
