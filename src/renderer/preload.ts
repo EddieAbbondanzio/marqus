@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { generateId } from "../shared/id";
 import { SendIpc, IpcType } from "../shared/ipc/ipc";
-import { tagsPlugin } from "./api/apiPlugin";
+import { tagsPlugin } from "./api/tags";
 import { promptUserPlugin } from "./ui/promptUser";
 
 export interface ExposedPromise {

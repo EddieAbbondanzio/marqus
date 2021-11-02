@@ -1,4 +1,12 @@
-export type IpcType = "promptUser" | "loadAppState" | "saveAppState";
+export type TagIpcType =
+  | "tags.getAll"
+  | "tags.create"
+  | "tags.update"
+  | "tags.delete";
+export type AppStateIpcType = "appState.load" | "appState.save";
+export type UIIpcType = "ui.promptUser";
+
+export type IpcType = TagIpcType | AppStateIpcType | UIIpcType;
 
 export type SendIpc<R> = (type: IpcType, value?: any) => Promise<R>;
 

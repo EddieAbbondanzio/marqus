@@ -17,7 +17,11 @@ interface AppStateHandler {
 
 export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
   const load = async () => {
-    const state = await sendIpc("loadAppState");
+    const state = await sendIpc("appState.load");
+
+    if (state == null) {
+      return null;
+    }
 
     // Throws if invalid
     await appStateSchema.validate(state);
@@ -26,7 +30,7 @@ export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
   };
 
   const save = async (state: AppState) => {
-    await sendIpc("saveAppState", state);
+    await sendIpc("appState.save", state);
   };
 
   return {

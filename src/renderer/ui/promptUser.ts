@@ -7,7 +7,7 @@ import {
 
 export const promptUserPlugin: IpcPlugin<PromptUser> =
   (sendIpc) => async (opts: PromptOptions) => {
-    const button: PromptButton = await sendIpc("promptUser", opts);
+    const button: PromptButton = await sendIpc("ui.promptUser", opts);
     return button;
   };
 

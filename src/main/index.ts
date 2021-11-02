@@ -3,6 +3,7 @@ import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc/ipc";
 import { promptUserHandler } from "./ipc/promptUserHandler";
 import path from "path";
 import { appStateLoader, appStateSaver } from "./ipc/appStateHandler";
+import { tagHandlers } from "./ipc/tags";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -10,9 +11,10 @@ const isDevelopment = process.env.NODE_ENV !== "production";
  * Register new handlers here. You'll need to update IpcType too
  */
 export const handlers: Record<IpcType, IpcHandler<any>> = {
-  promptUser: promptUserHandler,
-  loadAppState: appStateLoader,
-  saveAppState: appStateSaver,
+  "ui.promptUser": promptUserHandler,
+  "appState.load": appStateLoader,
+  "appState.save": appStateSaver,
+  ...tagHandlers,
 };
 
 if (ipcMain == null) {
