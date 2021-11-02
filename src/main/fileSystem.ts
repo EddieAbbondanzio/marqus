@@ -5,20 +5,26 @@ export const DATA_DIRECTORY = "data";
 export type FileContentType = "text" | "json";
 
 export async function createDirectory(path: string): Promise<void> {
+  const fullPath = generateFullPath(path);
+
   return new Promise((res, rej) => {
-    fs.mkdir(path, (err) => (err != null ? rej(err) : res()));
+    fs.mkdir(fullPath, err => (err != null ? rej(err) : res()));
   });
 }
 
 export async function deleteDirectory(path: string): Promise<void> {
+  const fullPath = generateFullPath(path);
+
   return new Promise((res, rej) => {
-    fs.rmdir(path, (err) => (err != null ? rej(err) : res()));
+    fs.rmdir(fullPath, err => (err != null ? rej(err) : res()));
   });
 }
 
 export async function readDirectory(path: string): Promise<string[]> {
+  const fullPath = generateFullPath(path);
+
   return new Promise((res, rej) => {
-    fs.readdir(path, (err, files) => {
+    fs.readdir(fullPath, (err, files) => {
       if (err != null) {
         return rej(err);
       }
@@ -28,25 +34,29 @@ export async function readDirectory(path: string): Promise<string[]> {
 }
 
 export async function deleteFile(path: string): Promise<void> {
+  const fullPath = generateFullPath(path);
+
   return new Promise((res, rej) => {
-    fs.rm(path, (err) => (err != null ? rej(err) : res()));
+    fs.rm(fullPath, err => (err != null ? rej(err) : res()));
   });
 }
 
 export async function readFile(
   path: string,
-  contentType: "json"
-): Promise<{} | null>;
+  contentType: "json",
+): Promise<unknown | null>;
 export async function readFile(
   path: string,
-  contentType: "text"
+  contentType: "text",
 ): Promise<string | null>;
 export async function readFile(
   path: string,
-  contentType: FileContentType
+  contentType: FileContentType,
 ): Promise<any> {
+  const fullPath = generateFullPath(path);
+
   return new Promise((res, rej) => {
-    fs.readFile(path, { encoding: "utf-8" }, (err, data) => {
+    fs.readFile(fullPath, { encoding: "utf-8" }, (err, data) => {
       if (err != null) {
         return rej(err);
       }
@@ -66,28 +76,32 @@ export async function readFile(
 
 export async function writeFile(
   path: string,
-  content: {},
-  contentType: "json"
+  content: unknown,
+  contentType: "json",
 ): Promise<void>;
 export async function writeFile(
   path: string,
   content: string,
-  contentType: "text"
+  contentType: "text",
 ): Promise<void>;
 export async function writeFile(
   path: string,
-  content: any,
-  contentType: FileContentType
+  content: string | unknown,
+  contentType: FileContentType,
 ): Promise<void> {
+  const fullPath = generateFullPath(path);
+
   return new Promise((res, rej) => {
-    let data: string = content;
+    let data: string;
 
     if (contentType === "json") {
       data = JSON.stringify(content);
+    } else {
+      data = content as string;
     }
 
-    fs.writeFile(path, data, { encoding: "utf-8" }, (err) =>
-      err != null ? rej(err) : res()
+    fs.writeFile(fullPath, data, { encoding: "utf-8" }, err =>
+      err != null ? rej(err) : res(),
     );
   });
 }

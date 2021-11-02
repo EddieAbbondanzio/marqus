@@ -1,7 +1,5 @@
-import { Layout } from "../../renderer/components/Layout";
 import { Tag } from "../../shared/domain/tag";
 import { IpcHandler, TagIpcType } from "../../shared/ipc/ipc";
-import { Tags } from "../../shared/ipc/tags";
 import { onReady } from "../hooks";
 
 const getAllTags = async (): Promise<Tag[]> => {

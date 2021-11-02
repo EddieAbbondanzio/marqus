@@ -1,9 +1,9 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc/ipc";
-import { promptUserHandler } from "./ipc/promptUserHandler";
+import { promptUserHandler } from "./ui/promptUserHandler";
 import path from "path";
-import { appStateLoader, appStateSaver } from "./ipc/appStateHandler";
-import { tagHandlers } from "./ipc/tags";
+import { appStateLoader, appStateSaver } from "./ui/appStateHandler";
+import { tagHandlers } from "./api/tags";
 import { notify } from "./hooks";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
