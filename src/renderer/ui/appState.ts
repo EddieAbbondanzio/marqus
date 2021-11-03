@@ -54,5 +54,5 @@ const appStateSchema = yup.object().shape({
 });
 
 declare global {
-  const appState: AppStateHandler;
+  const AppState: AppStateHandler;
 }

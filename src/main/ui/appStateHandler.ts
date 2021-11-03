@@ -1,9 +1,9 @@
-import { IpcHandler } from "../../shared/ipc/ipc";
+import { AppStateIpcType, IpcHandler } from "../../shared/ipc/ipc";
 import { fileExists, readFile, writeFile } from "../fileSystem";
 
 export const APP_STATE_FILE = "appstate.json";
 
-export const appStateLoader: IpcHandler<void> = async () => {
+const load: IpcHandler<void> = async () => {
   if (!fileExists(APP_STATE_FILE)) {
     return null;
   }
@@ -12,6 +12,11 @@ export const appStateLoader: IpcHandler<void> = async () => {
   return state;
 };
 
-export const appStateSaver: IpcHandler<unknown> = async (state: unknown) => {
+const save: IpcHandler<unknown> = async (state: unknown) => {
   await writeFile(APP_STATE_FILE, state, "json");
+};
+
+export const appStateHandlers: Record<AppStateIpcType, IpcHandler<any>> = {
+  "appState.load": load,
+  "appState.save": save,
 };

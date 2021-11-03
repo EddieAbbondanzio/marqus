@@ -65,7 +65,7 @@ const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
 
 contextBridge.exposeInMainWorld("promptUser", promptUserPlugin(sendIpc));
 contextBridge.exposeInMainWorld("api", tagsPlugin(sendIpc));
-contextBridge.exposeInMainWorld("appState", appStatePlugin(sendIpc));
+contextBridge.exposeInMainWorld("AppState", appStatePlugin(sendIpc));
 
 export function isError(
   err: Record<string, unknown>,

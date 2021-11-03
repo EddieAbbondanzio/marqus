@@ -23,7 +23,7 @@ type GlobalNavigationAction =
     throw Error("No root container to render in");
   }
 
-  const state = await appState.load();
+  const state = await AppState.load();
   console.log("Loaded app state: ", state);
 
   function App() {

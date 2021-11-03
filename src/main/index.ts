@@ -1,8 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc/ipc";
 import { promptUserHandler } from "./ui/promptUserHandler";
-import path from "path";
-import { appStateLoader, appStateSaver } from "./ui/appStateHandler";
+import { appStateHandlers } from "./ui/appStateHandler";
 import { tagHandlers } from "./api/tags";
 import { notify } from "./hooks";
 
@@ -13,14 +12,13 @@ const isDevelopment = process.env.NODE_ENV !== "production";
  */
 export const handlers: Record<IpcType, IpcHandler<any>> = {
   "ui.promptUser": promptUserHandler,
-  "appState.load": appStateLoader,
-  "appState.save": appStateSaver,
+  ...appStateHandlers,
   ...tagHandlers,
 };
 
 if (ipcMain == null) {
   throw Error(
-    "ipcMain is null. Did you accidentally call main.ts on the renderer thread?"
+    "ipcMain is null. Did you accidentally call main.ts on the renderer thread?",
   );
 }
 
