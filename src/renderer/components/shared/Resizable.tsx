@@ -1,12 +1,6 @@
-import _, { debounce } from "lodash";
-import React, {
-  HtmlHTMLAttributes,
-  useCallback,
-  useRef,
-  useState,
-} from "react";
-import { getPx, isPx, px } from "../../dom/units";
-import { MouseButton, MouseHandler, useMouse } from "../../hooks/mouse";
+import React, { useCallback, useRef, useState } from "react";
+import { getPx, isPx, px } from "../../../shared/dom/units";
+import { MouseHandler, useMouse } from "../../hooks/mouse";
 
 export interface ResizableProps {
   minWidth?: string;
@@ -18,7 +12,9 @@ export interface ResizableState {
   width: string;
 }
 
-export function Resizable(props: React.PropsWithChildren<ResizableProps>) {
+export function Resizable(
+  props: React.PropsWithChildren<ResizableProps>,
+): JSX.Element {
   if (props.width != null && !isPx(props.width)) {
     throw Error("Invalid width format. Expected pixels");
   }
@@ -42,12 +38,9 @@ export function Resizable(props: React.PropsWithChildren<ResizableProps>) {
     setState({ width } as any);
   }, []);
 
-  const release = useCallback(
-    (event: MouseEvent) => {
-      props.onResize!(state.width);
-    },
-    [state]
-  );
+  const release = useCallback(() => {
+    props.onResize!(state.width);
+  }, [state]);
 
   const mouseHandlers: MouseHandler[] = [
     {

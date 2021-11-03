@@ -14,13 +14,3 @@
 import "../../assets/styles/index.sass";
 
 import "./app";
-import { PromptUser } from "../shared/ipc/promptUser";
-import { Tags } from "../shared/ipc/tags";
-
-// Make our contextBridge properties type safe.
-declare global {
-  interface Window {
-    promptUser: PromptUser;
-    tags: Tags;
-  }
-}

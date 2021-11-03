@@ -1,5 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
-import { px } from "../dom/units";
+import React from "react";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
@@ -15,7 +14,7 @@ export function GlobalNavigation({
   scroll,
   onResize,
   onScroll,
-}: GlobalNavigationProps) {
+}: GlobalNavigationProps): JSX.Element {
   return (
     <Resizable width={width} onResize={onResize}>
       <Scrollable scroll={scroll} onScroll={onScroll}>

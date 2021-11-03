@@ -4,6 +4,11 @@ import * as fs from "fs";
 export const DATA_DIRECTORY = "data";
 export type FileContentType = "text" | "json";
 
+export function fileExists(path: string): boolean {
+  const fullPath = generateFullPath(path);
+  return fs.existsSync(fullPath);
+}
+
 export async function createDirectory(path: string): Promise<void> {
   const fullPath = generateFullPath(path);
 

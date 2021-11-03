@@ -1,7 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { generateId } from "../shared/id";
+import { generateId } from "../shared/domain/id";
 import { SendIpc, IpcType } from "../shared/ipc/ipc";
 import { tagsPlugin } from "./api/tags";
+import { appStatePlugin } from "./ui/appState";
 import { promptUserPlugin } from "./ui/promptUser";
 
 export interface ExposedPromise {
@@ -13,7 +14,7 @@ const promises: { [id: string]: ExposedPromise } = {};
 
 if (ipcRenderer == null) {
   throw Error(
-    "ipcRenderer is null. Did you accidentally import 'preload.ts' into a main process file?"
+    "ipcRenderer is null. Did you accidentally import 'preload.ts' into a main process file?",
   );
 }
 
@@ -64,10 +65,12 @@ const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
 
 contextBridge.exposeInMainWorld("promptUser", promptUserPlugin(sendIpc));
 contextBridge.exposeInMainWorld("api", tagsPlugin(sendIpc));
+contextBridge.exposeInMainWorld("appState", appStatePlugin(sendIpc));
 
 export function isError(
-  err: Record<string, unknown>
+  err: Record<string, unknown>,
 ): err is { error: string } {
+  // eslint-disable-next-line no-prototype-builtins
   return err.hasOwnProperty("error");
 }
 
