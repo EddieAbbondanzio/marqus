@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { generateId } from "../shared/domain/id";
-import { SendIpc, IpcType } from "../shared/ipc/ipc";
+import { SendIpc, IpcType } from "../shared/ipc";
 import { tagsPlugin } from "./api/tags";
 import { appStatePlugin } from "./ui/appState";
 import { promptUserPlugin } from "./ui/promptUser";

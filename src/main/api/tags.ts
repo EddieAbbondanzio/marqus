@@ -1,10 +1,10 @@
 import { debounce } from "lodash";
 import { Tag, tagSchema } from "../../shared/domain/tag";
-import { IpcHandler, TagIpcType } from "../../shared/ipc/ipc";
 import { fileExists, readFile, writeFile } from "../fileSystem";
 import { onReady } from "../hooks";
 import * as yup from "yup";
 import { generateId } from "../../shared/domain/id";
+import { TagIpcType, IpcHandler } from "../../shared/ipc";
 
 const FILE_NAME = "tags.json";
 

@@ -13,7 +13,7 @@ export async function createDirectory(path: string): Promise<void> {
   const fullPath = generateFullPath(path);
 
   return new Promise((res, rej) => {
-    fs.mkdir(fullPath, err => (err != null ? rej(err) : res()));
+    fs.mkdir(fullPath, (err) => (err != null ? rej(err) : res()));
   });
 }
 
@@ -21,7 +21,7 @@ export async function deleteDirectory(path: string): Promise<void> {
   const fullPath = generateFullPath(path);
 
   return new Promise((res, rej) => {
-    fs.rmdir(fullPath, err => (err != null ? rej(err) : res()));
+    fs.rmdir(fullPath, (err) => (err != null ? rej(err) : res()));
   });
 }
 
@@ -42,23 +42,27 @@ export async function deleteFile(path: string): Promise<void> {
   const fullPath = generateFullPath(path);
 
   return new Promise((res, rej) => {
-    fs.rm(fullPath, err => (err != null ? rej(err) : res()));
+    fs.rm(fullPath, (err) => (err != null ? rej(err) : res()));
   });
 }
 
 export async function readFile(
   path: string,
-  contentType: "json",
+  contentType: "json"
 ): Promise<unknown | null>;
 export async function readFile(
   path: string,
-  contentType: "text",
+  contentType: "text"
 ): Promise<string | null>;
 export async function readFile(
   path: string,
-  contentType: FileContentType,
+  contentType: FileContentType
 ): Promise<any> {
   const fullPath = generateFullPath(path);
+
+  if (!fileExists(fullPath)) {
+    return;
+  }
 
   return new Promise((res, rej) => {
     fs.readFile(fullPath, { encoding: "utf-8" }, (err, data) => {
@@ -82,17 +86,17 @@ export async function readFile(
 export async function writeFile(
   path: string,
   content: unknown,
-  contentType: "json",
+  contentType: "json"
 ): Promise<void>;
 export async function writeFile(
   path: string,
   content: string,
-  contentType: "text",
+  contentType: "text"
 ): Promise<void>;
 export async function writeFile(
   path: string,
   content: string | unknown,
-  contentType: FileContentType,
+  contentType: FileContentType
 ): Promise<void> {
   const fullPath = generateFullPath(path);
 
@@ -105,8 +109,8 @@ export async function writeFile(
       data = content as string;
     }
 
-    fs.writeFile(fullPath, data, { encoding: "utf-8" }, err =>
-      err != null ? rej(err) : res(),
+    fs.writeFile(fullPath, data, { encoding: "utf-8" }, (err) =>
+      err != null ? rej(err) : res()
     );
   });
 }

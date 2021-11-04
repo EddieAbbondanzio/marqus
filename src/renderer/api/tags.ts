@@ -1,6 +1,12 @@
 import { Tag } from "../../shared/domain/tag";
-import { IpcPlugin } from "../../shared/ipc/ipc";
-import { Tags } from "../../shared/ipc/tags";
+import { IpcPlugin } from "../../shared/ipc";
+
+export interface Tags {
+  getAll(): Promise<Tag[]>;
+  create(name: string): Promise<Tag>;
+  update(id: string, newName: string): Promise<Tag>;
+  delete(id: string): Promise<void>;
+}
 
 export const tagsPlugin: IpcPlugin<Tags> = (sendIpc) => ({
   async getAll(): Promise<Tag[]> {

@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc/ipc";
+import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc";
 import { promptUserHandler } from "./ui/promptUserHandler";
 import { appStateHandlers } from "./ui/appStateHandler";
 import { tagHandlers } from "./api/tags";

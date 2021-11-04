@@ -3,7 +3,8 @@ import * as ReactDOM from "react-dom";
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
+import { wrap } from "lodash";
 
 type GlobalNavigationState = {
   scroll: number;
@@ -23,8 +24,7 @@ type GlobalNavigationAction =
     throw Error("No root container to render in");
   }
 
-  const state = await AppState.load();
-  console.log("Loaded app state: ", state);
+  const state = await AppState.load("globalNavigation", { width: "300px", scroll: 0});
 
   function App() {
     function reducer(
@@ -40,14 +40,22 @@ type GlobalNavigationAction =
       }
     }
 
-    const [s, dispatch] = useReducer(reducer, state.globalNavigation);
+    const [s, dispatch] = useReducer(reducer, state);
+
+    // Should I wrap the reducer, or dispatch?
+
+    const dispatchSave = wrap(dispatch, (...args: any[]) => { 
+      dispatch.apply(null, args);
+      AppState.save("globalNavigation", s);
+    });
+
 
     return (
       <Layout>
         <GlobalNavigation
           {...s}
-          onResize={newWidth => dispatch({ type: "resize", newWidth })}
-          onScroll={newScroll => dispatch({ type: "scroll", newScroll })}
+          onResize={newWidth => dispatchSave({ type: "resize", newWidth })}
+          onScroll={newScroll => dispatchSave({ type: "scroll", newScroll })}
         />
       </Layout>
     );

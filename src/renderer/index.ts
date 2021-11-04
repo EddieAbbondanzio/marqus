@@ -13,4 +13,4 @@
  */
 import "../../assets/styles/index.sass";
 
-import "./app";
+import "./App";

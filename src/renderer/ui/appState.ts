@@ -1,4 +1,4 @@
-import { IpcPlugin } from "../../shared/ipc/ipc";
+import { IpcPlugin } from "../../shared/ipc";
 import * as yup from "yup";
 import { px } from "../../shared/dom/units";
 
@@ -11,33 +11,42 @@ export interface AppState {
   globalNavigation: GlobalNavigation;
 }
 
+export type AppStateSection = keyof AppState;
+
 export interface AppStateHandler {
-  load(): Promise<AppState>;
-  save(appState: AppState): Promise<void>;
+  load<Section extends keyof AppState, State extends AppState[Section]>(
+    section: Section,
+    defaultState: State
+  ): Promise<State>;
+  save(
+    section: AppStateSection,
+    state: AppState[typeof section]
+  ): Promise<void>;
 }
 
 export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
-  const load = async () => {
-    const state = await sendIpc("appState.load");
+  const load = async <
+    Section extends keyof AppState,
+    State extends AppState[Section]
+  >(
+    section: Section,
+    defaultState: State
+  ) => {
+    const state = await sendIpc("appState.load", { section });
 
     // Validate contents
     if (state != null) {
       await appStateSchema.validate(state);
     }
 
-    return (
-      state ??
-      ({
-        globalNavigation: {
-          width: px(300),
-          scroll: 0,
-        },
-      } as AppState)
-    );
+    return state ?? defaultState;
   };
 
-  const save = async (state: AppState) => {
-    await sendIpc("appState.save", state);
+  const save = async (
+    section: AppStateSection,
+    state: AppState[typeof section]
+  ) => {
+    await sendIpc("appState.save", { section, state });
   };
 
   return {
