@@ -3,6 +3,7 @@ import { IpcHandler } from "../../shared/ipc";
 import { PromptOptions } from "../../shared/ui/promptUser";
 
 export const promptUserHandler: IpcHandler<PromptOptions> = async (opts) => {
+  console.log("WAS CALLED!");
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
   const defaultCount = opts.buttons.filter((b) => b.role === "default").length;
 

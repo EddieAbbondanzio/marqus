@@ -3,63 +3,39 @@ import * as ReactDOM from "react-dom";
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
-import { useEffect, useReducer } from "react";
-import { wrap } from "lodash";
+import { createContext, useEffect, useReducer } from "react";
+import { AppState } from "./ui/appState";
 
-type GlobalNavigationState = {
-  scroll: number;
-  width: string;
+
+interface AppContext {
+  state: AppState,
+  // execute(command: string, payload?: any): Promise<void>;
+  // TODO: Theme support
 };
 
-type GlobalNavigationAction =
-  | { type: "scroll"; newScroll: number }
-  | { type: "resize"; newWidth: string };
+fontAwesomeLib();
 
-(async () => {
-  fontAwesomeLib();
+const state = window.appState.get();
 
-  const dom = document.getElementById("app");
+export const AppContext = createContext<AppContext>({
+  state,
+} as any);
 
-  if (dom == null) {
-    throw Error("No root container to render in");
-  }
+const dom = document.getElementById("app");
 
-  const state = await AppState.load("globalNavigation", { width: "300px", scroll: 0});
+if (dom == null) {
+  throw Error("No root container to render in");
+}
 
-  function App() {
-    function reducer(
-      state: GlobalNavigationState,
-      action: GlobalNavigationAction,
-    ): GlobalNavigationState {
-      switch (action.type) {
-        case "resize":
-          return { ...state, width: action.newWidth };
-
-        case "scroll":
-          return { ...state, scroll: action.newScroll };
-      }
-    }
-
-    const [s, dispatch] = useReducer(reducer, state);
-
-    // Should I wrap the reducer, or dispatch?
-
-    const dispatchSave = wrap(dispatch, (...args: any[]) => { 
-      dispatch.apply(null, args);
-      AppState.save("globalNavigation", s);
-    });
-
-
-    return (
+function App() {
+  return (
+    <AppContext.Provider value={{ state }}>
       <Layout>
         <GlobalNavigation
-          {...s}
-          onResize={newWidth => dispatchSave({ type: "resize", newWidth })}
-          onScroll={newScroll => dispatchSave({ type: "scroll", newScroll })}
         />
       </Layout>
-    );
-  }
+    </AppContext.Provider>
+  );
+}
 
-  ReactDOM.render(<App />, dom);
-})();
+ReactDOM.render(<App />, dom);

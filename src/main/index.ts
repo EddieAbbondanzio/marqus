@@ -3,9 +3,17 @@ import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc";
 import { promptUserHandler } from "./ui/promptUserHandler";
 import { appStateHandlers } from "./ui/appStateHandler";
 import { tagHandlers } from "./api/tags";
-import { notify } from "./hooks";
+import { notifyOnReady } from "./events";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
+
+const DEBUG = true;
+
+const debug = (message: string, ...args: any[]) => {
+  if (isDevelopment && DEBUG) {
+    console.log(message, args);
+  }
+};
 
 /*
  * Register new handlers here. You'll need to update IpcType too
@@ -18,7 +26,7 @@ export const handlers: Record<IpcType, IpcHandler<any>> = {
 
 if (ipcMain == null) {
   throw Error(
-    "ipcMain is null. Did you accidentally call main.ts on the renderer thread?",
+    "ipcMain is null. Did you accidentally call main.ts on the renderer thread?"
   );
 }
 
@@ -30,15 +38,16 @@ ipcMain.on("send", async (ev, arg: IpcArgument) => {
       value,
     });
 
-  const respondError = () =>
+  const respondError = (error: Error) => {
     ev.sender.send("send", {
-      error: "An error has occured",
+      error,
     });
+  };
 
   const handler: IpcHandler<any> = handlers[arg.type as IpcType];
 
   if (handler == null) {
-    respondError();
+    respondError(Error("An error has occured."));
 
     if (isDevelopment) {
       console.warn("Main recieved ipc: ", arg.type, " but no handler found?");
@@ -47,11 +56,13 @@ ipcMain.on("send", async (ev, arg: IpcArgument) => {
 
   try {
     const res = await handler(arg.value);
+
     respond(res);
   } catch (e) {
-    respondError();
+    respondError(e);
 
     console.error(`Caught error from ipc handler for type "${arg.type}"`, e);
+    console.error("Ipc argument: ", arg);
   }
 });
 
@@ -86,7 +97,7 @@ const createWindow = async (): Promise<void> => {
   mainWindow.webContents.openDevTools();
 
   //Notify hooks
-  notify();
+  notifyOnReady();
 };
 
 // This method will be called when Electron has finished

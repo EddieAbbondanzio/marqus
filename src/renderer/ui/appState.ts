@@ -1,6 +1,5 @@
-import { IpcPlugin } from "../../shared/ipc";
+import { IpcPlugin, onInitPlugin as onInitPlugin } from "../../shared/ipc";
 import * as yup from "yup";
-import { px } from "../../shared/dom/units";
 
 export interface GlobalNavigation {
   width: string;
@@ -13,47 +12,50 @@ export interface AppState {
 
 export type AppStateSection = keyof AppState;
 
+/*
+ * AppState get / set are intentionally left sync. React function components
+ * don't bode well with async plus it's not really needed.
+ */
+
 export interface AppStateHandler {
-  load<Section extends keyof AppState, State extends AppState[Section]>(
-    section: Section,
-    defaultState: State
-  ): Promise<State>;
-  save(
-    section: AppStateSection,
-    state: AppState[typeof section]
-  ): Promise<void>;
+  get(): AppState;
+  get(section: AppStateSection): AppState[typeof section];
+  set(section: AppStateSection, state: AppState[typeof section]): void;
 }
 
+let state: AppState = {} as any;
+
 export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
-  const load = async <
-    Section extends keyof AppState,
-    State extends AppState[Section]
-  >(
-    section: Section,
-    defaultState: State
-  ) => {
-    const state = await sendIpc("appState.load", { section });
-
-    // Validate contents
-    if (state != null) {
-      await appStateSchema.validate(state);
-    }
-
-    return state ?? defaultState;
+  const get = (section?: AppStateSection) => {
+    return section ? state[section] : (state as any);
   };
 
-  const save = async (
+  const set = (
     section: AppStateSection,
-    state: AppState[typeof section]
+    stateSection: AppState[typeof section]
   ) => {
-    await sendIpc("appState.save", { section, state });
+    state[section] = stateSection;
+
+    // We don't await it.
+    sendIpc("appState.save", { state });
   };
 
   return {
-    load,
-    save,
+    get,
+    set,
   };
 };
+
+onInitPlugin(async (sendIpc) => {
+  const s = await sendIpc("appState.load");
+
+  // Validate contents
+  if (s != null) {
+    await appStateSchema.validate(s);
+    state = s;
+    console.log("Set state");
+  }
+});
 
 const appStateSchema = yup.object().shape({
   globalNavigation: yup.object().shape({
@@ -63,5 +65,7 @@ const appStateSchema = yup.object().shape({
 });
 
 declare global {
-  const AppState: AppStateHandler;
+  interface Window {
+    appState: AppStateHandler;
+  }
 }

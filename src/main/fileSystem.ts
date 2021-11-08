@@ -59,8 +59,8 @@ export async function readFile(
   contentType: FileContentType
 ): Promise<any> {
   const fullPath = generateFullPath(path);
-
   if (!fileExists(fullPath)) {
+    console.log(`readFile(): File ${fullPath} did not exist.`);
     return;
   }
 
@@ -74,7 +74,7 @@ export async function readFile(
         if (data == null || data.length === 0) {
           res(null);
         } else {
-          return JSON.parse(data);
+          res(JSON.parse(data));
         }
       } else {
         res(data);
@@ -116,5 +116,5 @@ export async function writeFile(
 }
 
 export function generateFullPath(...path: string[]): string {
-  return p.join(DATA_DIRECTORY, ...path);
+  return p.resolve(DATA_DIRECTORY, ...path);
 }

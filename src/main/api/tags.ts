@@ -1,7 +1,7 @@
 import { debounce } from "lodash";
 import { Tag, tagSchema } from "../../shared/domain/tag";
 import { fileExists, readFile, writeFile } from "../fileSystem";
-import { onReady } from "../hooks";
+import { onReady } from "../events";
 import * as yup from "yup";
 import { generateId } from "../../shared/domain/id";
 import { TagIpcType, IpcHandler } from "../../shared/ipc";
@@ -33,7 +33,7 @@ onReady(async () => {
 const getAllTags = async (): Promise<Tag[]> => tags;
 
 const createTag = async (name: string): Promise<Tag> => {
-  if (tags.some(t => t.name === name)) {
+  if (tags.some((t) => t.name === name)) {
     throw Error(`Tag name ${name} already in use`);
   }
 
@@ -56,11 +56,11 @@ const updateTag = async ({
   id: string;
   newName: string;
 }): Promise<Tag> => {
-  if (tags.some(t => t.name === newName && t.id !== id)) {
+  if (tags.some((t) => t.name === newName && t.id !== id)) {
     throw Error(`Tag name ${newName} already in use`);
   }
 
-  const tag = tags.find(t => t.id === id);
+  const tag = tags.find((t) => t.id === id);
 
   if (tag == null) {
     throw Error(`No tag with id ${id} found`);
@@ -75,7 +75,7 @@ const updateTag = async ({
 };
 
 const deleteTag = async (id: string): Promise<void> => {
-  const index = tags.findIndex(t => t.id === id);
+  const index = tags.findIndex((t) => t.id === id);
 
   if (index !== -1) {
     tags.splice(index, 1);

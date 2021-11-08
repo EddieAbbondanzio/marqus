@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { generateId } from "../shared/domain/id";
-import { SendIpc, IpcType } from "../shared/ipc";
+import { isDevelopment } from "../shared/env";
+import { SendIpc, IpcType, notifyOnInitPlugin } from "../shared/ipc";
 import { tagsPlugin } from "./api/tags";
 import { appStatePlugin } from "./ui/appState";
 import { promptUserPlugin } from "./ui/promptUser";
@@ -14,7 +15,7 @@ const promises: { [id: string]: ExposedPromise } = {};
 
 if (ipcRenderer == null) {
   throw Error(
-    "ipcRenderer is null. Did you accidentally import 'preload.ts' into a main process file?",
+    "ipcRenderer is null. Did you accidentally import 'preload.ts' into a main process file?"
   );
 }
 
@@ -35,8 +36,7 @@ ipcRenderer.on("send", async (ev, arg) => {
 
   if (isError(arg)) {
     /*
-     * This will let us "throw" errors from the main thread. No stack trace included
-     * for security reasons.
+     * This will let us "throw" errors from the main thread.
      */
     p.reject(arg.error);
   } else {
@@ -65,10 +65,12 @@ const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
 
 contextBridge.exposeInMainWorld("promptUser", promptUserPlugin(sendIpc));
 contextBridge.exposeInMainWorld("api", tagsPlugin(sendIpc));
-contextBridge.exposeInMainWorld("AppState", appStatePlugin(sendIpc));
+contextBridge.exposeInMainWorld("appState", appStatePlugin(sendIpc));
+
+notifyOnInitPlugin(sendIpc);
 
 export function isError(
-  err: Record<string, unknown>,
+  err: Record<string, unknown>
 ): err is { error: string } {
   // eslint-disable-next-line no-prototype-builtins
   return err.hasOwnProperty("error");

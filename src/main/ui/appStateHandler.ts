@@ -4,7 +4,7 @@ import { fileExists, readFile, writeFile } from "../fileSystem";
 
 export const APP_STATE_FILE = "appstate.json";
 
-let loadedState: Record<string, unknown> | undefined;
+let loadedState: unknown | undefined;
 let wasInitialized = false;
 
 const _init = async () => {
@@ -13,6 +13,7 @@ const _init = async () => {
     unknown
   >;
   wasInitialized = true;
+  console.log("init: ", res);
 
   return res;
 };
@@ -23,12 +24,13 @@ const _update = debounce(async (state) => {
   await writeFile(APP_STATE_FILE, state, "json");
 }, 1000);
 
-const load: IpcHandler<{ section: string }> = async ({ section }) => {
+const load: IpcHandler<void> = async () => {
   if (!fileExists(APP_STATE_FILE)) {
     return null;
   }
 
   if (!wasInitialized) {
+    console.log("Load app state. INIT!");
     loadedState = await _init();
   }
 
@@ -37,21 +39,17 @@ const load: IpcHandler<{ section: string }> = async ({ section }) => {
    * anything about the file since it's all renderer thread specific.
    */
 
-  return loadedState![section];
+  return loadedState!;
 };
 
-const save: IpcHandler<{ section: string; state: unknown }> = async ({
-  section,
-  state,
-}) => {
+const save: IpcHandler<{ state: unknown }> = async ({ state }) => {
   if (!wasInitialized) {
     loadedState = await _init();
   }
 
   // Apply update to state, and save off newest version to file.
-  loadedState![section] = state;
+  loadedState = state;
   await _update(loadedState);
-  console.log(loadedState);
 };
 
 export const appStateHandlers: Record<AppStateIpcType, IpcHandler<any>> = {
