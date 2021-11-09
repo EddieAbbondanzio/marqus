@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-constructor */
 
+import _ from "lodash";
 import { AppState } from "../ui/appState";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 import { Command } from "./types";
@@ -59,6 +60,28 @@ export function generateCommands(state: AppState): Execute {
       throw Error(`No command ${name} registered.`);
     }
 
-    await command(state, payload);
+    let stateCopy = _.cloneDeep(state);
+
+    let called: "commit" | "rollback" | undefined;
+
+    const commit = async (newState: AppState): Promise<void> => {
+      if (called != null) {
+        throw Error(`Cannot commit. Already called ${called}`);
+      }
+
+      state = newState;
+      await window.appState.set(newState);
+      called = "commit";
+    };
+
+    const rollback = async (): Promise<void> => {
+      if (called != null) {
+        throw Error(`Cannot rollback. Already called ${called}`);
+      }
+
+      called = "rollback";
+    };
+
+    await command({ state: stateCopy, commit, rollback }, payload);
   };
 }

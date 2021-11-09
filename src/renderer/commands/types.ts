@@ -4,7 +4,13 @@
 
 import { AppState } from "../ui/appState";
 
+export interface CommandContext {
+  state: AppState;
+  commit(newState: AppState): Promise<void>;
+  rollback(): Promise<void>;
+}
+
 export type Command<TInput = void> = (
-  state: AppState,
+  context: CommandContext,
   payload: TInput
 ) => Promise<void>;
