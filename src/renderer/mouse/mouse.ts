@@ -4,7 +4,7 @@ import { debounce } from "lodash";
 import React, { useEffect } from "react";
 
 /*
- * TODO: Refactor this file. It's a bit sloppy because it was copied and pasted
+ * TODO: Refactor this file. It's a bit sloppy because we copied and pasted
  * from the original Vue codebase.
  *
  * Be careful messing with it for now.

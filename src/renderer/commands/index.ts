@@ -39,10 +39,6 @@ export const COMMAND_REGISTRY = {
 export type CommandRegistry = typeof COMMAND_REGISTRY;
 export type CommandName = keyof CommandRegistry;
 
-export function isCommandName(str: string): str is CommandName {
-  return Object.keys(COMMAND_REGISTRY).some((c) => c === str);
-}
-
 export type Execute = <
   Name extends CommandName,
   Payload extends Parameters<CommandRegistry[Name]>[1]
@@ -60,10 +56,17 @@ export function generateCommands(state: AppState): Execute {
       throw Error(`No command ${name} registered.`);
     }
 
+    /*
+     * Making a deep copy of state allows us to make changes without applying
+     * anything until we call commit().
+     */
     let stateCopy = _.cloneDeep(state);
-
     let called: "commit" | "rollback" | undefined;
 
+    /**
+     * Apply local changes made to state from a command.
+     * @param newState The new application state to save.
+     */
     const commit = async (newState: AppState): Promise<void> => {
       if (called != null) {
         throw Error(`Cannot commit. Already called ${called}`);
@@ -74,6 +77,9 @@ export function generateCommands(state: AppState): Execute {
       called = "commit";
     };
 
+    /**
+     * Revert local changes made by a command.
+     */
     const rollback = async (): Promise<void> => {
       if (called != null) {
         throw Error(`Cannot rollback. Already called ${called}`);
