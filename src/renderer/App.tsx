@@ -5,13 +5,13 @@ import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
 import { createContext, useEffect, useReducer } from "react";
 import { AppState } from "./ui/appState";
-
+import { execute } from "./commands/index";
 
 interface AppContext {
-  state: AppState,
-  // execute(command: string, payload?: any): Promise<void>;
+  state: AppState;
+  execute: typeof execute;
   // TODO: Theme support
-};
+}
 
 fontAwesomeLib();
 
@@ -29,10 +29,9 @@ if (dom == null) {
 
 function App() {
   return (
-    <AppContext.Provider value={{ state }}>
+    <AppContext.Provider value={{ state, execute }}>
       <Layout>
-        <GlobalNavigation
-        />
+        <GlobalNavigation />
       </Layout>
     </AppContext.Provider>
   );

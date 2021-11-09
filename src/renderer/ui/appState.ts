@@ -20,7 +20,7 @@ export type AppStateSection = keyof AppState;
 export interface AppStateHandler {
   get(): AppState;
   get(section: AppStateSection): AppState[typeof section];
-  set(section: AppStateSection, state: AppState[typeof section]): void;
+  set(section: AppStateSection, state: AppState[typeof section]): Promise<void>;
 }
 
 let state: AppState = {} as any;
@@ -30,14 +30,14 @@ export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
     return section ? state[section] : (state as any);
   };
 
-  const set = (
+  // Set should only be used by commands
+  const set = async (
     section: AppStateSection,
     stateSection: AppState[typeof section]
   ) => {
     state[section] = stateSection;
 
-    // We don't await it.
-    sendIpc("appState.save", { state });
+    await sendIpc("appState.save", { state });
   };
 
   return {

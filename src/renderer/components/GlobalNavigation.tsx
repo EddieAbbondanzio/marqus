@@ -28,9 +28,12 @@ function reducer(
 export function GlobalNavigation(): JSX.Element {
   const {
     state: { globalNavigation },
+    execute,
   } = useContext(AppContext);
 
   const [state, dispatch] = useReducer(reducer, globalNavigation);
+
+  execute("globalNavigation.resizeWidth");
 
   return (
     <Resizable
