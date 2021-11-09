@@ -10,8 +10,6 @@ export interface AppState {
   globalNavigation: GlobalNavigation;
 }
 
-export type AppStateSection = keyof AppState;
-
 /*
  * AppState get / set are intentionally left sync. React function components
  * don't bode well with async plus it's not really needed.
@@ -19,24 +17,17 @@ export type AppStateSection = keyof AppState;
 
 export interface AppStateHandler {
   get(): AppState;
-  get(section: AppStateSection): AppState[typeof section];
-  set(section: AppStateSection, state: AppState[typeof section]): Promise<void>;
+  set(state: AppState): Promise<void>;
 }
 
 let state: AppState = {} as any;
 
 export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
-  const get = (section?: AppStateSection) => {
-    return section ? state[section] : (state as any);
-  };
+  const get = () => state;
 
   // Set should only be used by commands
-  const set = async (
-    section: AppStateSection,
-    stateSection: AppState[typeof section]
-  ) => {
-    state[section] = stateSection;
-
+  const set = async (s: AppState) => {
+    state = s;
     await sendIpc("appState.save", { state });
   };
 

@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-constructor */
 
+import { AppState } from "../ui/appState";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 import { Command } from "./types";
 
@@ -41,16 +42,23 @@ export function isCommandName(str: string): str is CommandName {
   return Object.keys(COMMAND_REGISTRY).some((c) => c === str);
 }
 
-export async function execute<
-  C extends CommandName,
-  P extends Parameters<CommandRegistry[C]>
->(name: C, ...payload: P): Promise<void> {
-  const command: Command = COMMAND_REGISTRY[name];
+export type Execute = <
+  Name extends CommandName,
+  Payload extends Parameters<CommandRegistry[Name]>[1]
+>(
+  command: Name,
+  payload: Payload
+) => Promise<void>;
 
-  if (command == null) {
-    console.log(COMMAND_REGISTRY);
-    throw Error(`No command ${name} registered.`);
-  }
+export function generateCommands(state: AppState): Execute {
+  return async (name, payload: any) => {
+    const command: Command<any> = COMMAND_REGISTRY[name];
 
-  await command(payload as any);
+    if (command == null) {
+      console.log(COMMAND_REGISTRY);
+      throw Error(`No command ${name} registered.`);
+    }
+
+    await command(state, payload);
+  };
 }

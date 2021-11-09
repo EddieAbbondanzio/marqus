@@ -1,5 +1,7 @@
 import { Command } from "../types";
 
-export const resizeWidth: Command = async () => {
-  console.log("DO THE THING", 1);
+export const resizeWidth: Command<string> = async (state, newWidth: string) => {
+  state.globalNavigation.width = newWidth;
+
+  await window.appState.set(state);
 };

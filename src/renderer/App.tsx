@@ -5,20 +5,22 @@ import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
 import { createContext, useEffect, useReducer } from "react";
 import { AppState } from "./ui/appState";
-import { execute } from "./commands/index";
+import { Execute, generateCommands } from "./commands/index";
 
 interface AppContext {
   state: AppState;
-  execute: typeof execute;
+  execute: Execute;
   // TODO: Theme support
 }
 
 fontAwesomeLib();
 
 const state = window.appState.get();
+const execute = generateCommands(state);
 
 export const AppContext = createContext<AppContext>({
   state,
+  execute,
 } as any);
 
 const dom = document.getElementById("app");
