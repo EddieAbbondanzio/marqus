@@ -23,7 +23,12 @@ export function GlobalNavigation(): JSX.Element {
       width={state.width}
       onResize={(newWidth) => execute("globalNavigation.resizeWidth", newWidth)}
     >
-      <Scrollable scroll={state.scroll}>
+      <Scrollable
+        scroll={state.scroll}
+        onScroll={(newScroll) =>
+          execute("globalNavigation.updateScroll", newScroll)
+        }
+      >
         <div>Some</div>
         <div>Some</div>
         <div>Some</div>
