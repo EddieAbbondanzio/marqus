@@ -1,13 +1,32 @@
 import { useEffect } from "react";
 import { KeyCode, parseKey } from "./keyCode";
 
-let activeKeys: Record<string, boolean> = {};
+let activeKeys: Record<string, boolean | undefined> | undefined;
 
+/**
+ * Check if a specific key is currently active.
+ * @param key The key to check for.
+ * @returns True if the user currently has the key pressed.
+ */
 export function isKeyDown(key: KeyCode): boolean {
+  if (activeKeys == null) {
+    throw Error("Not listening for keys");
+  }
+
   return activeKeys[key] ?? false;
 }
 
+/**
+ * Hook to listen for keys being pressed / released.
+ * Should only be called once in the root React component.
+ */
 export function useKeyboard() {
+  if (activeKeys != null) {
+    throw Error(`useKeyboard() was already called. Cannot listen twice.`);
+  }
+
+  activeKeys = {};
+
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
@@ -15,6 +34,8 @@ export function useKeyboard() {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
+
+      activeKeys = undefined;
     };
   });
 }
@@ -42,8 +63,7 @@ function onKeyDown(e: KeyboardEvent) {
   }
 
   // Flag key as active
-  activeKeys[key] = true;
-  console.log("key down: ", key);
+  activeKeys![key] = true;
 
   //   const maps = this.state.map[this.getters.activeKeyString];
 
@@ -61,8 +81,6 @@ function onKeyDown(e: KeyboardEvent) {
 function onKeyUp(e: KeyboardEvent) {
   const key = parseKey(e.code);
 
-  console.log("key up: ", key);
-
-  // Remove active key
-  delete activeKeys[key];
+  // Remove key flag
+  delete activeKeys![key];
 }

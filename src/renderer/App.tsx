@@ -7,6 +7,8 @@ import { createContext, useEffect, useReducer } from "react";
 import { AppState } from "./ui/appState";
 import { Execute, generateCommands } from "./commands/index";
 import { useKeyboard } from "./keyboard";
+import { useFocusables } from "./ui/focusables";
+import { Focusable } from "./components/shared/Focusable";
 
 interface AppContext {
   state: AppState;
@@ -32,6 +34,7 @@ if (dom == null) {
 
 function App() {
   useKeyboard();
+  useFocusables();
 
   return (
     <AppContext.Provider value={{ state, execute }}>

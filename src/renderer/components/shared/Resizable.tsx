@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { PropsWithChildren, useCallback, useRef, useState } from "react";
 import { getPx, isPx, px } from "../../../shared/dom/units";
 import { MouseHandler, useMouse } from "../../mouse/mouse";
 
@@ -13,7 +13,7 @@ export interface ResizableState {
 }
 
 export function Resizable(
-  props: React.PropsWithChildren<ResizableProps>
+  props: PropsWithChildren<ResizableProps>
 ): JSX.Element {
   if (props.width != null && !isPx(props.width)) {
     throw Error("Invalid width format. Expected pixels");
