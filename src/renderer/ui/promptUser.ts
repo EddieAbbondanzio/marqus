@@ -1,9 +1,7 @@
 import { IpcPlugin } from "../../shared/ipc";
-import {
-  PromptUser,
-  PromptOptions,
-  PromptButton,
-} from "../../shared/ui/promptUser";
+import { PromptOptions, PromptButton } from "../../shared/ipc/promptUser";
+
+export type PromptUser = (opts: PromptOptions) => Promise<PromptButton>;
 
 export const promptUserPlugin: IpcPlugin<PromptUser> =
   (sendIpc) => async (opts: PromptOptions) => {

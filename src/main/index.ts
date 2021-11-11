@@ -1,26 +1,18 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc";
-import { promptUserHandler } from "./ui/promptUserHandler";
-import { appStateHandlers } from "./ui/appStateHandler";
-import { tagHandlers } from "./api/tags";
+import { promptUserHandler } from "./ipcHandlers/promptUser";
+import { tagHandlers } from "./ipcHandlers/tags";
 import { notifyOnReady } from "./events";
+import { configHandlers } from "./ipcHandlers/config";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
-
-const DEBUG = true;
-
-const debug = (message: string, ...args: any[]) => {
-  if (isDevelopment && DEBUG) {
-    console.log(message, args);
-  }
-};
 
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
 export const handlers: Record<IpcType, IpcHandler<any>> = {
   "ui.promptUser": promptUserHandler,
-  ...appStateHandlers,
+  ...configHandlers,
   ...tagHandlers,
 };
 

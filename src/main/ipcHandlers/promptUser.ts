@@ -1,6 +1,6 @@
 import { dialog } from "electron";
 import { IpcHandler } from "../../shared/ipc";
-import { PromptOptions } from "../../shared/ui/promptUser";
+import { PromptOptions } from "../../shared/ipc/promptUser";
 
 export const promptUserHandler: IpcHandler<PromptOptions> = async (opts) => {
   console.log("WAS CALLED!");

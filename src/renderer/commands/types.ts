@@ -12,5 +12,7 @@ export interface CommandContext {
 
 export type Command<TInput = void> = (
   context: CommandContext,
-  payload: TInput
+  // Payload is nullable because we can't pass parameters
+  // when invoking via a shortcut
+  payload?: TInput
 ) => Promise<void>;

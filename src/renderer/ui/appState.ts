@@ -20,15 +20,18 @@ export interface AppStateHandler {
   set(state: AppState): Promise<void>;
 }
 
+export const APP_STATE_FILE = "appstate.json";
+
 let state: AppState = {} as any;
 
 export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
+  // Read side is intentionally sync to make it easier to work with
   const get = () => state;
 
   // Set should only be used by commands
   const set = async (s: AppState) => {
     state = s;
-    await sendIpc("appState.save", { state });
+    await sendIpc("config.save", { name: APP_STATE_FILE, content: state });
   };
 
   return {
@@ -38,7 +41,7 @@ export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
 };
 
 onInitPlugin(async (sendIpc) => {
-  const s = await sendIpc("appState.load");
+  const s = await sendIpc("config.load", { name: APP_STATE_FILE });
 
   // Validate contents
   if (s != null) {

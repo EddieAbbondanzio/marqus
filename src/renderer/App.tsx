@@ -33,7 +33,7 @@ if (dom == null) {
 }
 
 function App() {
-  useKeyboard();
+  useKeyboard(execute);
   useFocusables();
 
   return (
