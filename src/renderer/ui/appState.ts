@@ -1,4 +1,4 @@
-import { IpcPlugin, onInitPlugin as onInitPlugin } from "../../shared/ipc";
+import { IpcPlugin } from "../../shared/ipc";
 import * as yup from "yup";
 
 export interface GlobalNavigation {
@@ -22,9 +22,23 @@ export interface AppStateHandler {
 
 export const APP_STATE_FILE = "appstate.json";
 
-let state: AppState = {} as any;
+export const appStatePlugin: IpcPlugin<AppStateHandler> = function ({
+  sendIpc,
+  onInstall: onInit,
+}) {
+  let state: AppState = {} as any;
 
-export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
+  onInit(async () => {
+    const s = await sendIpc("config.load", { name: APP_STATE_FILE });
+
+    // Validate contents
+    if (s != null) {
+      await appStateSchema.validate(s);
+      state = s;
+      console.log("Set state");
+    }
+  });
+
   // Read side is intentionally sync to make it easier to work with
   const get = () => state;
 
@@ -39,17 +53,6 @@ export const appStatePlugin: IpcPlugin<AppStateHandler> = function (sendIpc) {
     set,
   };
 };
-
-onInitPlugin(async (sendIpc) => {
-  const s = await sendIpc("config.load", { name: APP_STATE_FILE });
-
-  // Validate contents
-  if (s != null) {
-    await appStateSchema.validate(s);
-    state = s;
-    console.log("Set state");
-  }
-});
 
 const appStateSchema = yup.object().shape({
   globalNavigation: yup.object().shape({

@@ -1,5 +1,3 @@
-import * as yup from "yup";
-
 export interface LoadConfig {
   name: string;
 }

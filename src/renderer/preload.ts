@@ -1,7 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { generateId } from "../shared/domain/id";
 import { isDevelopment } from "../shared/env";
-import { SendIpc, IpcType, notifyOnInitPlugin } from "../shared/ipc";
+import { generateEventHook } from "../shared/events";
+import { SendIpc, IpcType } from "../shared/ipc";
 import { tagsPlugin } from "./api/tags";
 import { appStatePlugin } from "./ui/appState";
 import { promptUserPlugin } from "./ui/promptUser";
@@ -63,11 +64,17 @@ const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
   });
 };
 
-contextBridge.exposeInMainWorld("promptUser", promptUserPlugin(sendIpc));
-contextBridge.exposeInMainWorld("api", tagsPlugin(sendIpc));
-contextBridge.exposeInMainWorld("appState", appStatePlugin(sendIpc));
+export const [onInstall, notify] = generateEventHook();
+const pluginOpts = {
+  sendIpc,
+  onInstall,
+};
 
-notifyOnInitPlugin(sendIpc);
+contextBridge.exposeInMainWorld("promptUser", promptUserPlugin(pluginOpts));
+contextBridge.exposeInMainWorld("api", tagsPlugin(pluginOpts));
+contextBridge.exposeInMainWorld("appState", appStatePlugin(pluginOpts));
+
+notify();
 
 export function isError(
   err: Record<string, unknown>

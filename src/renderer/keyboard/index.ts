@@ -1,35 +1,70 @@
-import { useEffect } from "react";
+import { Reducer, useCallback, useEffect, useReducer } from "react";
 import { CommandName, Execute } from "../commands";
 import { KeyCode, parseKey } from "./keyCode";
 import { findShortcut } from "./shortcuts";
+import { useAsync } from "react-async-hook";
 
-let activeKeys: Record<string, boolean | undefined> | undefined;
-let execute: Execute;
-
-/**
- * Check if a specific key is currently active.
- * @param key The key to check for.
- * @returns True if the user currently has the key pressed.
- */
-export function isKeyDown(key: KeyCode): boolean {
-  if (activeKeys == null) {
-    throw Error("Not listening for keys");
-  }
-
-  return activeKeys[key] ?? false;
+export interface Keyboard {
+  enabled: boolean;
+  activeKeys: Record<string, boolean | undefined>;
 }
+
+export interface KeyboardActionEnable {
+  type: "enable";
+}
+
+export interface KeyboardActionDisable {
+  type: "disable";
+}
+
+export interface KeyboardActionKeyDown {
+  type: "keyDown";
+  key: KeyCode;
+}
+
+export interface KeyboardActionKeyUp {
+  type: "keyUp";
+  key: KeyCode;
+}
+
+export type KeyboardAction =
+  | KeyboardActionEnable
+  | KeyboardActionDisable
+  | KeyboardActionKeyDown
+  | KeyboardActionKeyUp;
+
+let execute: Execute;
 
 /**
  * Hook to listen for keys being pressed / released.
  * Should only be called once in the root React component.
  */
 export function useKeyboard(exe: Execute) {
-  if (activeKeys != null) {
-    throw Error(`useKeyboard() was already called. Cannot listen twice.`);
-  }
+  const [state, dispatch] = useReducer(reducer, {
+    enabled: true,
+    activeKeys: {},
+  });
 
-  activeKeys = {};
-  execute = exe;
+  const onKeyDown = ({ code }: KeyboardEvent) => {
+    const key = parseKey(code);
+    dispatch({ type: "keyDown", key });
+
+    // See if we have any shortcuts to trigger
+    const keys = Object.entries(state.activeKeys)
+      .filter(([, active]) => active)
+      .map(([key]) => key as KeyCode);
+
+    const shortcut = findShortcut(keys);
+
+    if (shortcut != null) {
+      void execute(shortcut.command as CommandName, null!);
+    }
+  };
+
+  const onKeyUp = ({ code }: KeyboardEvent) => {
+    const key = parseKey(code);
+    dispatch({ type: "keyUp", key });
+  };
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
@@ -38,52 +73,30 @@ export function useKeyboard(exe: Execute) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
-
-      activeKeys = undefined;
     };
   });
+
+  return {
+    isKeyDown: (key: KeyCode) => state.activeKeys[key] ?? false,
+  };
 }
 
-function onKeyDown(e: KeyboardEvent) {
-  const key = parseKey(e.code);
+const reducer: Reducer<Keyboard, KeyboardAction> = (state, action) => {
+  let key: KeyCode;
 
-  // Disable default arrow key actions
-  if (
-    key === KeyCode.ArrowLeft ||
-    key === KeyCode.ArrowRight ||
-    key === KeyCode.ArrowUp ||
-    key === KeyCode.ArrowDown ||
-    key === KeyCode.Tab
-  ) {
-    e.preventDefault();
+  switch (action.type) {
+    case "enable":
+      return { ...state, enabled: true };
+
+    case "disable":
+      return { ...state, enabled: false };
+
+    case "keyUp":
+      ({ key } = action);
+      return { ...state, activeKeys: { ...state.activeKeys, key: undefined } };
+
+    case "keyDown":
+      ({ key } = action);
+      return { ...state, activeKeys: { ...state.activeKeys, key: true } };
   }
-
-  /*
-   * Prevent duplicate triggers from firing when keys with multiples
-   * such as control (left side, right side) are pressed.
-   */
-  if (isKeyDown(key)) {
-    return;
-  }
-
-  // Flag key as active
-  activeKeys![key] = true;
-
-  // See if we have any shortcuts to trigger
-  const keys = Object.entries(activeKeys!)
-    .filter(([, active]) => active)
-    .map(([key]) => key as KeyCode);
-
-  const shortcut = findShortcut(keys);
-
-  if (shortcut != null) {
-    execute(shortcut.command as CommandName, null!);
-  }
-}
-
-function onKeyUp(e: KeyboardEvent) {
-  const key = parseKey(e.code);
-
-  // Remove key flag
-  delete activeKeys![key];
-}
+};

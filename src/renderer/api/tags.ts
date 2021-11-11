@@ -8,7 +8,7 @@ export interface Tags {
   delete(id: string): Promise<void>;
 }
 
-export const tagsPlugin: IpcPlugin<Tags> = (sendIpc) => ({
+export const tagsPlugin: IpcPlugin<Tags> = ({ sendIpc }) => ({
   async getAll(): Promise<Tag[]> {
     const tags = await sendIpc("tags.getAll");
     return tags;
