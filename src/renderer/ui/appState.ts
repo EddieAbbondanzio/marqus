@@ -13,6 +13,8 @@ export interface AppState {
   globalNavigation: GlobalNavigation;
 }
 
+export type SetAppState = (appState: AppState) => Promise<void>;
+
 export const APP_STATE_FILE = "appstate.json";
 
 export function useAppState(): [AppState, any] {
@@ -30,11 +32,15 @@ export function useAppState(): [AppState, any] {
     if (appState != null) {
       await appStateSchema.validate(appState);
       setState(appState);
-      console.log("set state: ", appState);
     }
   }, []);
 
-  return [state, setState];
+  const setStateAndPersist: SetAppState = async (appState: AppState) => {
+    await window.config.saveConfig({ name: APP_STATE_FILE, content: appState });
+    setState(appState);
+  };
+
+  return [state, setStateAndPersist];
 }
 
 const appStateSchema = yup.object().shape({

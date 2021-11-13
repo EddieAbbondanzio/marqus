@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-constructor */
 
 import _ from "lodash";
-import { AppState } from "../ui/appState";
+import { AppState, SetAppState } from "../ui/appState";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 import { Command } from "./types";
 
@@ -47,7 +47,10 @@ export type Execute = <
   payload: Payload
 ) => Promise<void>;
 
-export function generateCommands(state: AppState): Execute {
+export function useCommands(
+  state: AppState,
+  setAppState: SetAppState
+): Execute {
   return async (name, payload: any) => {
     const command: Command<any> = COMMAND_REGISTRY[name];
 
@@ -58,7 +61,8 @@ export function generateCommands(state: AppState): Execute {
 
     /*
      * Making a deep copy of state allows us to make changes without applying
-     * anything until we call commit().
+     * anything until we call commit(). Sometimes we might start making changes
+     * to state but need to cancel things out and revert back to the previous
      */
     let stateCopy = _.cloneDeep(state);
     let called: "commit" | "rollback" | undefined;
@@ -73,7 +77,7 @@ export function generateCommands(state: AppState): Execute {
       }
 
       state = newState;
-      // await window.appState.set(newState);
+      await setAppState(newState);
       called = "commit";
     };
 

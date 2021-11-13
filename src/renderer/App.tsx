@@ -5,7 +5,7 @@ import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
 import { createContext, useEffect, useReducer } from "react";
 import { AppState, useAppState } from "./ui/appState";
-import { Execute, generateCommands } from "./commands/index";
+import { Execute, useCommands } from "./commands/index";
 import { useKeyboard } from "./keyboard";
 import { useFocusables } from "./ui/focusables";
 import { Focusable } from "./components/shared/Focusable";
@@ -35,7 +35,7 @@ function App() {
   const isFocused = useFocusables();
 
   const [state, setState] = useAppState();
-  const execute = generateCommands(state);
+  const execute = useCommands(state, setState);
 
   useKeyboard(execute, isFocused);
 
