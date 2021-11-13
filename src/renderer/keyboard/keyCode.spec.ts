@@ -1,160 +1,160 @@
-import { parseKey, isModifier, KeyCode, isValidKeyCode } from "./keyCode";
+import { parseKeyCode, isModifier, KeyCode, isValidKeyCode } from "./keyCode";
 
 describe("parseKey()", () => {
   it("returns space", () => {
-    expect(parseKey("Space")).toBe("space");
+    expect(parseKeyCode("Space")).toBe("space");
   });
 
   it("returns escape", () => {
-    expect(parseKey("Escape")).toBe("esc");
+    expect(parseKeyCode("Escape")).toBe("esc");
   });
 
   it("returns f keys", () => {
     for (let i = 1; i <= 12; i++) {
-      expect(parseKey(`F${i}`)).toBe(`f${i}`);
+      expect(parseKeyCode(`F${i}`)).toBe(`f${i}`);
     }
   });
 
   it("returns insert", () => {
-    expect(parseKey("Insert")).toBe("insert");
+    expect(parseKeyCode("Insert")).toBe("insert");
   });
 
   it("returns delete", () => {
-    expect(parseKey("Delete")).toBe("delete");
+    expect(parseKeyCode("Delete")).toBe("delete");
   });
 
   it("returns backquote", () => {
-    expect(parseKey("Backquote")).toBe("`");
+    expect(parseKeyCode("Backquote")).toBe("`");
   });
 
   it("returns digits", () => {
     for (let i = 0; i <= 9; i++) {
-      expect(parseKey(`Digit${i}`)).toBe(i.toString());
+      expect(parseKeyCode(`Digit${i}`)).toBe(i.toString());
     }
   });
 
   it("returns minus", () => {
-    expect(parseKey("Minus")).toBe("-");
+    expect(parseKeyCode("Minus")).toBe("-");
   });
 
   it("returns equal", () => {
-    expect(parseKey("Equal")).toBe("=");
+    expect(parseKeyCode("Equal")).toBe("=");
   });
 
   it("returns backspace", () => {
-    expect(parseKey("Backspace")).toBe("backspace");
+    expect(parseKeyCode("Backspace")).toBe("backspace");
   });
 
   it("returns tab", () => {
-    expect(parseKey("Tab")).toBe("tab");
+    expect(parseKeyCode("Tab")).toBe("tab");
   });
 
   it("returns alphabet letters", () => {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
     for (const letter of alphabet) {
-      expect(parseKey(`Key${letter}`)).toBe(letter.toLowerCase());
+      expect(parseKeyCode(`Key${letter}`)).toBe(letter.toLowerCase());
     }
   });
 
   it("returns left bracket", () => {
-    expect(parseKey("BracketLeft")).toBe("[");
+    expect(parseKeyCode("BracketLeft")).toBe("[");
   });
 
   it("returns right bracket", () => {
-    expect(parseKey("BracketRight")).toBe("]");
+    expect(parseKeyCode("BracketRight")).toBe("]");
   });
 
   it("returns back slash", () => {
-    expect(parseKey("Backslash")).toBe("\\");
+    expect(parseKeyCode("Backslash")).toBe("\\");
   });
 
   it("returns caps lock", () => {
-    expect(parseKey("CapsLock")).toBe("capslock");
+    expect(parseKeyCode("CapsLock")).toBe("capslock");
   });
 
   it("returns semicolon", () => {
-    expect(parseKey("Semicolon")).toBe(";");
+    expect(parseKeyCode("Semicolon")).toBe(";");
   });
 
   it("returns quote", () => {
-    expect(parseKey("Quote")).toBe("'");
+    expect(parseKeyCode("Quote")).toBe("'");
   });
 
   it("returns enter", () => {
-    expect(parseKey("Enter")).toBe("enter");
+    expect(parseKeyCode("Enter")).toBe("enter");
   });
 
   it("returns shift", () => {
-    expect(parseKey("ShiftLeft")).toBe("shift");
-    expect(parseKey("ShiftRight")).toBe("shift");
+    expect(parseKeyCode("ShiftLeft")).toBe("shift");
+    expect(parseKeyCode("ShiftRight")).toBe("shift");
   });
 
   it("returns comma", () => {
-    expect(parseKey("Comma")).toBe(",");
+    expect(parseKeyCode("Comma")).toBe(",");
   });
 
   it("returns period", () => {
-    expect(parseKey("Period")).toBe(".");
+    expect(parseKeyCode("Period")).toBe(".");
   });
 
   it("returns slash", () => {
-    expect(parseKey("Slash")).toBe("/");
+    expect(parseKeyCode("Slash")).toBe("/");
   });
 
   it("returns control", () => {
-    expect(parseKey("ControlLeft")).toBe("control");
-    expect(parseKey("ControlRight")).toBe("control");
+    expect(parseKeyCode("ControlLeft")).toBe("control");
+    expect(parseKeyCode("ControlRight")).toBe("control");
   });
 
   it("returns alt", () => {
-    expect(parseKey("AltLeft")).toBe("alt");
-    expect(parseKey("AltRight")).toBe("alt");
+    expect(parseKeyCode("AltLeft")).toBe("alt");
+    expect(parseKeyCode("AltRight")).toBe("alt");
   });
 
   it("returns arrows", () => {
-    expect(parseKey("ArrowUp")).toBe("up");
-    expect(parseKey("ArrowDown")).toBe("down");
-    expect(parseKey("ArrowLeft")).toBe("left");
-    expect(parseKey("ArrowRight")).toBe("right");
+    expect(parseKeyCode("ArrowUp")).toBe("up");
+    expect(parseKeyCode("ArrowDown")).toBe("down");
+    expect(parseKeyCode("ArrowLeft")).toBe("left");
+    expect(parseKeyCode("ArrowRight")).toBe("right");
   });
 
   it("returns numpad digits", () => {
     for (let i = 0; i <= 9; i++) {
-      expect(parseKey(`Numpad${i}`)).toBe(`numpad${i}`);
+      expect(parseKeyCode(`Numpad${i}`)).toBe(`numpad${i}`);
     }
   });
 
   it("returns numpad add", () => {
-    expect(parseKey("NumpadAdd")).toBe("numpad_add");
+    expect(parseKeyCode("NumpadAdd")).toBe("numpad_add");
   });
 
   it("returns numpad subtract", () => {
-    expect(parseKey("NumpadSubtract")).toBe("numpad_subtract");
+    expect(parseKeyCode("NumpadSubtract")).toBe("numpad_subtract");
   });
 
   it("returns numpad multiply", () => {
-    expect(parseKey("NumpadMultiply")).toBe("numpad_multiply");
+    expect(parseKeyCode("NumpadMultiply")).toBe("numpad_multiply");
   });
 
   it("returns numpad divide", () => {
-    expect(parseKey("NumpadDivide")).toBe("numpad_divide");
+    expect(parseKeyCode("NumpadDivide")).toBe("numpad_divide");
   });
 
   it("returns numpad_separator", () => {
-    expect(parseKey("NumpadSeparator")).toBe("numpad_separator");
+    expect(parseKeyCode("NumpadSeparator")).toBe("numpad_separator");
   });
 
   it("returns numpad decimal", () => {
-    expect(parseKey("NumpadDecimal")).toBe("numpad_decimal");
+    expect(parseKeyCode("NumpadDecimal")).toBe("numpad_decimal");
   });
 
   it("returns page up", () => {
-    expect(parseKey("PageUp")).toBe("page_up");
+    expect(parseKeyCode("PageUp")).toBe("page_up");
   });
 
   it("returns page down", () => {
-    expect(parseKey("PageDown")).toBe("page_down");
+    expect(parseKeyCode("PageDown")).toBe("page_down");
   });
 });
 

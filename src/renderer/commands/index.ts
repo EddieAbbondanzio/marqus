@@ -73,7 +73,7 @@ export function generateCommands(state: AppState): Execute {
       }
 
       state = newState;
-      await window.appState.set(newState);
+      // await window.appState.set(newState);
       called = "commit";
     };
 

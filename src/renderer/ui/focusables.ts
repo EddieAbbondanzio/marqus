@@ -10,6 +10,11 @@ export interface Focusable {
   name?: string;
 }
 
+export type IsFocused = (
+  opts: RequireOne<Focusable, "id" | "name">,
+  checkChildren?: boolean
+) => boolean;
+
 let focusables: Focusable[] = [];
 let active: Focusable | undefined;
 let enabled: boolean = false;
@@ -31,6 +36,9 @@ export function useFocusables() {
       enabled = false;
     };
   });
+
+  // isFocused shim
+  return () => false;
 }
 
 /**

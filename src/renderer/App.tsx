@@ -4,11 +4,12 @@ import { fontAwesomeLib } from "./libs/fontAwesome";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
 import { createContext, useEffect, useReducer } from "react";
-import { AppState } from "./ui/appState";
+import { AppState, useAppState } from "./ui/appState";
 import { Execute, generateCommands } from "./commands/index";
 import { useKeyboard } from "./keyboard";
 import { useFocusables } from "./ui/focusables";
 import { Focusable } from "./components/shared/Focusable";
+import { px } from "../shared/dom/units";
 
 interface AppContext {
   state: AppState;
@@ -18,26 +19,33 @@ interface AppContext {
 
 fontAwesomeLib();
 
-const state = window.appState.get();
-const execute = generateCommands(state);
-
-export const AppContext = createContext<AppContext>({
-  state,
-  execute,
-} as any);
-
 const dom = document.getElementById("app");
 
 if (dom == null) {
   throw Error("No root container to render in");
 }
 
+export const AppContext = createContext<AppContext>({
+  // Stubs to keep things from blowing up
+  state: { globalNavigation: {} },
+  execute: () => {},
+} as any);
+
 function App() {
-  useKeyboard(execute);
-  useFocusables();
+  const isFocused = useFocusables();
+
+  const [state, setState] = useAppState();
+  const execute = generateCommands(state);
+
+  useKeyboard(execute, isFocused);
 
   return (
-    <AppContext.Provider value={{ state, execute }}>
+    <AppContext.Provider
+      value={{
+        state,
+        execute,
+      }}
+    >
       <Layout>
         <GlobalNavigation />
       </Layout>

@@ -32,6 +32,7 @@ export function GlobalNavigation(): JSX.Element {
             execute("globalNavigation.updateScroll", newScroll)
           }
         >
+          {state.width}
           <div>Some</div>
           <div>Some</div>
           <div>Some</div>

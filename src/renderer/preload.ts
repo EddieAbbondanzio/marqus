@@ -4,7 +4,7 @@ import { isDevelopment } from "../shared/env";
 import { generateEventHook } from "../shared/events";
 import { SendIpc, IpcType } from "../shared/ipc";
 import { tagsPlugin } from "./api/tags";
-import { appStatePlugin } from "./ui/appState";
+import { loadConfigPlugin } from "./loadConfig";
 import { promptUserPlugin } from "./ui/promptUser";
 
 export interface ExposedPromise {
@@ -72,7 +72,7 @@ const pluginOpts = {
 
 contextBridge.exposeInMainWorld("promptUser", promptUserPlugin(pluginOpts));
 contextBridge.exposeInMainWorld("api", tagsPlugin(pluginOpts));
-contextBridge.exposeInMainWorld("appState", appStatePlugin(pluginOpts));
+contextBridge.exposeInMainWorld("config", loadConfigPlugin(pluginOpts));
 
 notify();
 

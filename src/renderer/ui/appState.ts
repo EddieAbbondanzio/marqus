@@ -1,5 +1,8 @@
 import { IpcPlugin } from "../../shared/ipc";
 import * as yup from "yup";
+import { useAsync } from "react-async-hook";
+import { useState } from "react";
+import { px } from "../../shared/dom/units";
 
 export interface GlobalNavigation {
   width: string;
@@ -10,49 +13,29 @@ export interface AppState {
   globalNavigation: GlobalNavigation;
 }
 
-/*
- * AppState get / set are intentionally left sync. React function components
- * don't bode well with async plus it's not really needed.
- */
-
-export interface AppStateHandler {
-  get(): AppState;
-  set(state: AppState): Promise<void>;
-}
-
 export const APP_STATE_FILE = "appstate.json";
 
-export const appStatePlugin: IpcPlugin<AppStateHandler> = function ({
-  sendIpc,
-  onInstall: onInit,
-}) {
-  let state: AppState = {} as any;
+export function useAppState(): [AppState, any] {
+  const [state, setState] = useState({
+    globalNavigation: {
+      width: px(300),
+      scroll: 0,
+    },
+  } as AppState);
 
-  onInit(async () => {
-    const s = await sendIpc("config.load", { name: APP_STATE_FILE });
+  // Load state from file (if any)
+  useAsync(async () => {
+    const appState = await window.config.loadConfig({ name: APP_STATE_FILE });
 
-    // Validate contents
-    if (s != null) {
-      await appStateSchema.validate(s);
-      state = s;
-      console.log("Set state");
+    if (appState != null) {
+      await appStateSchema.validate(appState);
+      setState(appState);
+      console.log("set state: ", appState);
     }
-  });
+  }, []);
 
-  // Read side is intentionally sync to make it easier to work with
-  const get = () => state;
-
-  // Set should only be used by commands
-  const set = async (s: AppState) => {
-    state = s;
-    await sendIpc("config.save", { name: APP_STATE_FILE, content: state });
-  };
-
-  return {
-    get,
-    set,
-  };
-};
+  return [state, setState];
+}
 
 const appStateSchema = yup.object().shape({
   globalNavigation: yup.object().shape({
@@ -60,9 +43,3 @@ const appStateSchema = yup.object().shape({
     scroll: yup.number().required().min(0),
   }),
 });
-
-declare global {
-  interface Window {
-    appState: AppStateHandler;
-  }
-}
