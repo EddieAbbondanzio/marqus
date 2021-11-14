@@ -69,7 +69,6 @@ export function Resizable(
   });
 
   const hold = useCallback(() => {
-    console.log(" DRAG START!");
     dispatch({ type: "resizeStart" });
     setCursor("col-resize");
   }, [dispatch]);
