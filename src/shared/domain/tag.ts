@@ -21,4 +21,3 @@ export const tagSchema: yup.SchemaOf<Tag> = yup
     dateUpdated: yup.date().optional(),
   })
   .defined();
-

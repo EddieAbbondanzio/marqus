@@ -6,12 +6,14 @@ import {
   useEffect,
   useReducer,
 } from "react";
-import { CommandName, Execute } from "../commands";
+import { CommandName, COMMAND_REGISTRY, Execute } from "../commands";
 import { isModifier, isValidKeyCode, KeyCode, parseKeyCode } from "./keyCode";
 import { useAsync } from "react-async-hook";
-import { isEqual, partition, uniq } from "lodash";
+import { chain, isEqual, partition, uniq } from "lodash";
 import { DEFAULT_SHORTCUTS } from "./defaultShortcuts";
 import { IsFocused } from "../ui/focusables";
+import * as yup from "yup";
+import { SchemaOf } from "yup";
 
 export interface Keyboard {
   enabled: boolean;
@@ -62,6 +64,27 @@ export interface ShortcutOverride {
   disabled?: boolean;
   when?: string;
 }
+
+export const validCommands: string[] = chain(COMMAND_REGISTRY).keys().value();
+export const validWhens: string[] = chain(DEFAULT_SHORTCUTS)
+  .filter((s) => s.when != null)
+  .map((s) => s.when!)
+  .uniq()
+  .value();
+
+export const SHORTCUT_FILE_SCHEMA: SchemaOf<ShortcutOverride[]> = yup
+  .array()
+  .of(
+    yup.object().shape({
+      command: yup
+        .string()
+        .required()
+        .oneOf(validCommands) as yup.StringSchema<CommandName>,
+      keys: yup.string().optional(),
+      disabled: yup.boolean().optional(),
+      when: yup.string().optional().oneOf(validWhens),
+    })
+  );
 
 export const SHORTCUT_FILE = "shortcuts.json";
 export const KEYCODE_DELIMITER = "+";
@@ -149,7 +172,7 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
   }, []);
 
   const context = {
-    execute,
+    execute: useCallback(execute, [state.activeKeys]),
     dispatch,
     state,
   };
@@ -170,33 +193,40 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
 
   const keyUp = (ev: KeyboardEvent) => onKeyUp(dispatch, ev);
 
-  useEffect(() => {
-    // Retrieve every currently pressed key
-    const keys = Object.entries(state.activeKeys)
-      .filter(([, active]) => active)
-      .map(([key]) => key as KeyCode);
+  useEffect(
+    () => {
+      // Retrieve every currently pressed key
+      const keys = Object.entries(state.activeKeys)
+        .filter(([, active]) => active)
+        .map(([key]) => key as KeyCode);
 
-    // Check to see if we have a shortcut that matches the current combo
-    const shortcut = state.shortcuts.find((s) => isEqual(s.keys, keys));
+      // Check to see if we have a shortcut that matches the current combo
+      const shortcut = state.shortcuts.find((s) => isEqual(s.keys, keys));
 
+      /*
+       * If we found a shortcut fire it.
+       * Everytime state changes, aka dispatch() is fired we trigger a
+       * re-render. This gives us the perfect change to check for commands
+       * to fire because it means the keys have changed.
+       */
+      if (shortcut != null && !shortcut.disabled) {
+        void execute(shortcut.command as CommandName, null!);
+      }
+
+      window.addEventListener("keydown", keyDown);
+      window.addEventListener("keyup", keyUp);
+
+      return () => {
+        window.removeEventListener("keydown", keyDown);
+        window.removeEventListener("keyup", keyUp);
+      };
+    },
     /*
-     * If we found a shortcut fire it.
-     * Everytime state changes, aka dispatch() is fired we trigger a
-     * re-render. This gives us the perfect change to check for commands
-     * to fire because it means the keys have changed.
+     * state.activeKeys is a required dependency as it protects us from
+     * rapidly re-executing the command on each render.
      */
-    if (shortcut != null) {
-      void execute(shortcut.command as CommandName, null!);
-    }
-
-    window.addEventListener("keydown", keyDown);
-    window.addEventListener("keyup", keyUp);
-
-    return () => {
-      window.removeEventListener("keydown", keyDown);
-      window.removeEventListener("keyup", keyUp);
-    };
-  });
+    [state.activeKeys]
+  );
 
   return {
     isKeyDown: (key: KeyCode) => state.activeKeys[key] ?? false,
@@ -284,5 +314,23 @@ export function parseKeyCodes(shortcutString: string): KeyCode[] {
 }
 
 export async function loadUserShortcuts(): Promise<ShortcutOverride[]> {
-  return [];
+  const raw = await window.config.loadConfig({ name: SHORTCUT_FILE });
+
+  if (raw == null) {
+    return [];
+  }
+
+  const overrides = (await SHORTCUT_FILE_SCHEMA.validate(raw))!;
+
+  // Is there any redundant keys?
+  const duplicates = overrides.filter(
+    (item, index) => overrides.findIndex((i) => i.keys === item.keys) != index
+  );
+
+  if (duplicates.length > 0) {
+    throw Error(`Duplicate shortcuts for keys ${duplicates[0].keys}`);
+    console.log("Error: Complete list of duplicate shortcuts: ", duplicates);
+  }
+
+  return overrides;
 }

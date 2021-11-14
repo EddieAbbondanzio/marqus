@@ -36,6 +36,7 @@ const scrollDown: Command<number> = async (
 ) => {
   state.globalNavigation.scroll += increment;
   await commit(state);
+  console.log("SCROLL DOWN!");
 };
 
 const scrollUp: Command<number> = async ({ commit, state }, increment = 30) => {

@@ -14,7 +14,7 @@ const save = debounce(async (tags: Tag[]) => {
 
 let tags: Tag[] = [];
 
-const tagFileSchema = yup.array(tagSchema);
+const TAG_FILE_SCHEMA = yup.array(tagSchema);
 
 /*
  * Load tags from file on startup
@@ -26,7 +26,7 @@ onReady(async () => {
 
   const raw = await readFile(FILE_NAME, "json");
 
-  await tagFileSchema.validate(raw);
+  await TAG_FILE_SCHEMA.validate(raw);
   tags = raw as Tag[];
 });
 
