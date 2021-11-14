@@ -14,11 +14,13 @@ import { DEFAULT_SHORTCUTS } from "./defaultShortcuts";
 import { IsFocused } from "../ui/focusables";
 import * as yup from "yup";
 import { SchemaOf } from "yup";
+import { sleep } from "../../shared/utils/sleep";
 
 export interface Keyboard {
   enabled: boolean;
   activeKeys: Record<string, boolean | undefined>;
   shortcuts: Shortcut[];
+  repeating?: NodeJS.Timer;
 }
 
 export interface KeyboardActionLoadShortcuts {
@@ -44,18 +46,33 @@ export interface KeyboardActionKeyUp {
   key: KeyCode;
 }
 
+export interface KeyboardStartRepeat {
+  type: "startRepeat";
+  shortcut: Shortcut;
+  repeating: NodeJS.Timer;
+}
+
+export interface KeyboardStopRepeat {
+  type: "stopRepeat";
+}
+
+// Add start timer event?
+
 export type KeyboardAction =
   | KeyboardActionEnable
   | KeyboardActionDisable
   | KeyboardActionKeyDown
   | KeyboardActionKeyUp
-  | KeyboardActionLoadShortcuts;
+  | KeyboardActionLoadShortcuts
+  | KeyboardStartRepeat
+  | KeyboardStopRepeat;
 
 export interface Shortcut {
   command: CommandName;
   keys: KeyCode[];
   disabled?: boolean;
   when?: string;
+  repeat?: boolean;
 }
 
 export interface ShortcutOverride {
@@ -63,10 +80,16 @@ export interface ShortcutOverride {
   keys?: string;
   disabled?: boolean;
   when?: string;
+  repeat?: boolean;
 }
 
-export const validCommands: string[] = chain(COMMAND_REGISTRY).keys().value();
-export const validWhens: string[] = chain(DEFAULT_SHORTCUTS)
+export enum RepeatDelay {
+  First = 500,
+  Remainder = 100,
+}
+
+export const VALID_COMMANDS: string[] = chain(COMMAND_REGISTRY).keys().value();
+export const VALID_WHENS: string[] = chain(DEFAULT_SHORTCUTS)
   .filter((s) => s.when != null)
   .map((s) => s.when!)
   .uniq()
@@ -79,52 +102,72 @@ export const SHORTCUT_FILE_SCHEMA: SchemaOf<ShortcutOverride[]> = yup
       command: yup
         .string()
         .required()
-        .oneOf(validCommands) as yup.StringSchema<CommandName>,
+        .oneOf(VALID_COMMANDS) as yup.StringSchema<CommandName>,
       keys: yup.string().optional(),
       disabled: yup.boolean().optional(),
-      when: yup.string().optional().oneOf(validWhens),
+      when: yup.string().optional().oneOf(VALID_WHENS),
+      repeat: yup.bool().optional(),
     })
   );
 
 export const SHORTCUT_FILE = "shortcuts.json";
 export const KEYCODE_DELIMITER = "+";
 
-const reducer: Reducer<Keyboard, KeyboardAction> = (state, action) => {
-  let key: KeyCode;
+let isRepeating = false;
 
-  switch (action.type) {
-    case "enable":
-      return { ...state, enabled: true };
-
-    case "disable":
-      return { ...state, enabled: false };
-
-    case "keyUp":
-      ({ key } = action);
-      return {
-        ...state,
-        activeKeys: { ...state.activeKeys, [key]: undefined },
-      };
-
-    case "keyDown":
-      ({ key } = action);
-      return { ...state, activeKeys: { ...state.activeKeys, [key]: true } };
-
-    case "loadShortcuts":
-      return {
-        ...state,
-        // s.disabled != false is intentional. !s.disabled will exclude shortcuts
-        // with disabled = undefined.
-        shortcuts: action.shortcuts.filter((s) => s.disabled != false),
-      };
-  }
-};
+export const toArray = (activeKeys: Keyboard["activeKeys"]): KeyCode[] =>
+  Object.entries(activeKeys)
+    .filter(([, active]) => active)
+    .map(([key]) => key as KeyCode)
+    .sort();
 
 /**
  * Hook to listen for keys being pressed / released.
  * Should only be called once in the root React component.
  */
 export function useKeyboard(execute: Execute, isFocused: IsFocused) {
+  const reducer: Reducer<Keyboard, KeyboardAction> = (state, action) => {
+    let key: KeyCode;
+
+    switch (action.type) {
+      case "enable":
+        return { ...state, enabled: true };
+
+      case "disable":
+        return { ...state, enabled: false };
+
+      case "keyUp":
+        ({ key } = action);
+        return {
+          ...state,
+          activeKeys: { ...state.activeKeys, [key]: undefined },
+        };
+
+      case "keyDown":
+        ({ key } = action);
+        return { ...state, activeKeys: { ...state.activeKeys, [key]: true } };
+
+      case "loadShortcuts":
+        return {
+          ...state,
+          // s.disabled != false is intentional. !s.disabled will exclude shortcuts
+          // with disabled = undefined.
+          shortcuts: action.shortcuts.filter((s) => s.disabled != false),
+        };
+
+      case "startRepeat":
+        return { ...state, repeating: action.repeating };
+
+      case "stopRepeat":
+        if (state.repeating == null) {
+          return state;
+        }
+
+        isRepeating = false;
+        return { ...state, repeating: undefined };
+    }
+  };
+
   const [state, dispatch] = useReducer(reducer, {
     enabled: true,
     activeKeys: {},
@@ -196,12 +239,15 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
   useEffect(
     () => {
       // Retrieve every currently pressed key
-      const keys = Object.entries(state.activeKeys)
-        .filter(([, active]) => active)
-        .map(([key]) => key as KeyCode);
+      const keys = toArray(state.activeKeys);
 
       // Check to see if we have a shortcut that matches the current combo
       const shortcut = state.shortcuts.find((s) => isEqual(s.keys, keys));
+
+      // Kill previous shortcut if running on repeat in loop (.repeat = true)
+      dispatch({ type: "stopRepeat" });
+
+      let repeating: NodeJS.Timer | undefined;
 
       /*
        * If we found a shortcut fire it.
@@ -210,16 +256,35 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
        * to fire because it means the keys have changed.
        */
       if (shortcut != null && !shortcut.disabled) {
-        void execute(shortcut.command as CommandName, null!);
+        // undefined! over null! so we can support default parameters
+        void execute(shortcut.command as CommandName, undefined!);
+
+        (async () => {
+          console.log("prev keys: ", keys);
+          const prevKeys = keys;
+          await sleep(RepeatDelay.First);
+          const currKeys = toArray(state.activeKeys);
+
+          if (isEqual(currKeys, prevKeys)) {
+            repeating = setInterval(() => {
+              void execute(shortcut.command, undefined!);
+            }, RepeatDelay.Remainder);
+
+            dispatch({ type: "startRepeat", shortcut, repeating });
+          }
+        })();
+
+        /*
+         * Prevent the chance of creating a memory leak.
+         * Also prevents from spamming intervals
+         */
+        return () => {
+          if (repeating != null) {
+            clearInterval(repeating);
+            repeating = undefined;
+          }
+        };
       }
-
-      window.addEventListener("keydown", keyDown);
-      window.addEventListener("keyup", keyUp);
-
-      return () => {
-        window.removeEventListener("keydown", keyDown);
-        window.removeEventListener("keyup", keyUp);
-      };
     },
     /*
      * state.activeKeys is a required dependency as it protects us from
@@ -227,6 +292,16 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
      */
     [state.activeKeys]
   );
+
+  useEffect(() => {
+    window.addEventListener("keydown", keyDown);
+    window.addEventListener("keyup", keyUp);
+
+    return () => {
+      window.removeEventListener("keydown", keyDown);
+      window.removeEventListener("keyup", keyUp);
+    };
+  }, []);
 
   return {
     isKeyDown: (key: KeyCode) => state.activeKeys[key] ?? false,
@@ -247,6 +322,7 @@ const onKeyUp = (
 ) => {
   const key = parseKeyCode(code);
   dispatch({ type: "keyUp", key });
+  console.log("key up");
 };
 
 export function sort(keys: KeyCode[]): KeyCode[] {

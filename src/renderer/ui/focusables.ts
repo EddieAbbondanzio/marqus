@@ -35,7 +35,7 @@ export function useFocusables() {
       window.removeEventListener("focusin", onFocusIn);
       enabled = false;
     };
-  });
+  }, []);
 
   // isFocused shim
   return () => false;
