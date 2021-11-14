@@ -23,6 +23,8 @@ export interface Keyboard {
   repeating?: NodeJS.Timer;
 }
 
+export type IsKeyDown = (key: KeyCode) => boolean;
+
 export interface KeyboardActionLoadShortcuts {
   type: "loadShortcuts";
   shortcuts: Shortcut[];
@@ -304,7 +306,7 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
 
   return {
     isKeyDown: (key: KeyCode) => state.activeKeys[key] ?? false,
-  };
+  } as { isKeyDown: IsKeyDown };
 }
 
 const onKeyDown = (

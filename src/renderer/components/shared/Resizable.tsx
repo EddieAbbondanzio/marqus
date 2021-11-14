@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 import { getPx, isPx, px } from "../../../shared/dom/units";
-import { MouseHandler, useMouse } from "../../mouse/mouse";
+import { useMouse } from "../../io/mouse";
 import { resetCursor, setCursor } from "../../ui/cursor";
 
 export interface ResizableProps {
@@ -101,16 +101,24 @@ export function Resizable(
 
   useMouse(handle, [
     {
-      action: "hold",
+      action: "dragStart",
       callback: hold,
     },
     {
-      action: "drag",
+      action: "dragMove",
       callback: drag,
     },
     {
-      action: "release",
+      action: "dragEnd",
       callback: release,
+    },
+    {
+      action: "dragCancel",
+      callback: () => {
+        // Reset it but don't notify prop onResize.
+        dispatch({ type: "resizeWidth", width: props.width });
+        dispatch({ type: "resizeEnd" });
+      },
     },
   ]);
 

@@ -3,7 +3,7 @@ import { ConfigIpcType, IpcHandler } from "../../shared/ipc";
 import { LoadConfig, SaveConfig } from "../../shared/ipc/config";
 import { readFile, writeFile } from "../fileSystem";
 
-const FILE_WHITELIST = ["appState.json", "shortcuts.json"];
+const FILE_WHITELIST = ["appstate.json", "shortcuts.json"];
 
 const load: IpcHandler<LoadConfig> = async ({ name }) => {
   if (FILE_WHITELIST.indexOf(name) === -1) {

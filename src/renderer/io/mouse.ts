@@ -1,129 +1,300 @@
-import { RefObject, useEffect } from "react";
+import { Reducer, RefObject, useCallback, useEffect, useReducer } from "react";
+import { resetCursor, setCursor } from "../ui/cursor";
+import { KeyCode, parseKeyCode } from "./keyCode";
 
-export type MouseActionFunction = (event: globalThis.MouseEvent) => any;
-export type MouseAction = "click" | "hold" | "drag" | "dragcancel" | "release";
 export type MouseButton = "left" | "right" | "either";
 
-export interface MouseEventHandler {
-  action: MouseAction;
-  callback: MouseActionFunction;
-  button?: MouseButton;
-  self?: boolean;
+function getButton({ button, ctrlKey }: MouseEvent): MouseButton {
+  switch (button) {
+    case 0:
+      // Support holding ctrl + click to right click
+      return !ctrlKey ? "left" : "right";
+    case 2:
+      return "right";
+    default:
+      return "either";
+  }
 }
 
-export function useMouse<TElement extends HTMLElement = HTMLElement>(
-  element: RefObject<TElement>,
+export type MouseState = "idle" | "holding";
+
+export type MouseTransistionType =
+  | "click"
+  | "dragStart"
+  | "dragMove"
+  | "dragEnd"
+  | "dragCancel";
+
+export interface MouseClick {
+  type: "click";
+}
+
+export interface MouseDragStart {
+  type: "dragStart";
+  element: HTMLElement;
+}
+
+export interface MouseDragMove {
+  type: "dragMove";
+}
+
+export interface MouseDragEnd {
+  type: "dragEnd";
+}
+
+export interface MouseDragCancel {
+  type: "dragCancel";
+}
+
+export type MouseTransition =
+  | MouseClick
+  | MouseDragStart
+  | MouseDragMove
+  | MouseDragEnd
+  | MouseDragCancel;
+
+export type MouseCallback = (event: MouseEvent) => any;
+export interface MouseListener {
+  button: MouseButton;
+  transition: MouseTransistionType;
+  callback: MouseCallback;
+}
+
+export interface MouseActive {
+  element: HTMLElement;
+  hasMoved?: boolean;
+}
+
+export interface Mouse {
+  state: MouseState;
+  active?: MouseActive;
+  listeners: MouseListener[];
+}
+
+export function canApplyTransition(
+  state: MouseState,
+  type: MouseTransistionType
+): boolean {
+  switch (state) {
+    case "idle":
+      return type === "dragStart";
+    case "holding":
+      return (
+        type === "click" ||
+        type === "dragMove" ||
+        type === "dragEnd" ||
+        type === "dragCancel"
+      );
+  }
+}
+
+const transition: Reducer<Mouse, MouseTransition> = (mouse, transition) => {
+  const { state, active, listeners } = mouse;
+  const { type } = transition;
+
+  // Prevent invalid operations
+  if (!canApplyTransition(state, type)) {
+    return mouse;
+  }
+
+  switch (state) {
+    case "idle":
+      const { element } = transition as MouseDragStart;
+
+      switch (type) {
+        case "dragStart":
+          return {
+            state: "holding",
+            active: { element, dragPhase: "init" },
+            listeners,
+          };
+      }
+
+    case "holding":
+      switch (type) {
+        case "click":
+          return { state: "idle", listeners };
+
+        case "dragMove":
+          return {
+            state: "holding",
+            active: { element: active!.element, dragPhase: "moving" },
+            listeners,
+          };
+
+        case "dragCancel":
+          return {
+            state: "idle",
+            listeners,
+          };
+
+        case "dragEnd":
+          return { state: "idle", active: undefined, listeners };
+
+        default:
+          throw Error(
+            `Invalid transition type for state holding recieved: ${type}`
+          );
+      }
+  }
+};
+
+export interface MouseEventHandler {
+  action: MouseTransistionType;
+  button?: MouseButton;
+  callback: MouseCallback;
+}
+
+export function useMouse<El extends HTMLElement = HTMLElement>(
+  element: RefObject<El>,
   handlers: MouseEventHandler[]
 ) {
+  // Initialize state
+  const [mouse, applyTransition] = useReducer(transition, {
+    state: "idle",
+    listeners: handlers.map((h) => ({
+      // Assume they want left click if no button passed.
+      button: h.button ?? "left",
+      callback: h.callback,
+      transition: h.action,
+    })),
+  });
+
+  const onMouseDown = (event: MouseEvent) => {
+    const { target } = event;
+
+    if (mouse.state === "holding") {
+      console.error(
+        "Error: onMouseDown() fired when mouse state was already holding"
+      );
+      return;
+    }
+
+    // Change state to be holding
+    applyTransition({
+      type: "dragStart",
+      element: target as HTMLElement,
+    });
+  };
+
   const onMouseMove = (event: MouseEvent) => {
-    if (this.active == null) {
+    // Don't track movement when not holding.
+    if (mouse.state === "idle" || mouse.active == null) {
       return;
     }
 
-    // Don't trigger event if self option is set, and trigger element was different.
-    if (this.active.self && this.active.element !== event.target) {
+    const button = getButton(event);
+
+    applyTransition({ type: "dragMove" });
+    notifyListeners(mouse.listeners, {
+      button,
+      event,
+      transition: "dragMove",
+    });
+  };
+
+  const onMouseUp = (event: MouseEvent) => {
+    /*
+     * If the mouse state is idle and an onMouseUp event was fired it means
+     * the drag was cancelled and should be ignored.
+     */
+    if (mouse.state === "idle") {
       return;
     }
 
-    event.stopImmediatePropagation();
-
-    // If mouse is down, and moved assume drag
-    if (this.active.mouseDown) {
-      const button = getButton(event.button);
-
-      if (!this.active.holding) {
-        this.active.holding = true;
-        this.active.notify("hold", button, event);
-
-        // store.dispatch("ui/cursorDraggingStart");
-      }
-
-      this.active.notify("drag", button, event);
-    }
-  }
-
-  /**
-   * Mouse button was released event handler.
-   * @param event MouseEvent details
-   */
-   const onMouseUp = (event: MouseEvent) => {
-    if (this.active == null) {
+    if (mouse.active == null) {
       return;
     }
 
-    // Don't trigger event if self option is set, and trigger element was different.
-    if (this.active.self && this.active.element !== event.target) {
-      return;
-    }
+    const button = getButton(event);
+    const { hasMoved } = mouse.active;
 
-    event.stopImmediatePropagation();
-    const button = getButton(event.button);
-
-    if (!this.active.holding) {
-      this.active.notify("click", button, event);
+    if (!hasMoved) {
+      /*
+       * If a mouse up event fired before we changed the drag phase of the
+       * active mouse object the user never tried to move the element so
+       * we should consider it a click.
+       */
+      applyTransition({ type: "click" });
+      notifyListeners(mouse.listeners, {
+        button,
+        event,
+        transition: "click",
+      });
     } else {
-      if (!this.cancelled) {
-        this.active.notify("release", button, event);
-      }
-
-      // store.dispatch("ui/cursorDraggingStop");
+      applyTransition({ type: "dragEnd" });
+      notifyListeners(mouse.listeners, {
+        button,
+        event,
+        transition: "dragEnd",
+      });
     }
+  };
 
-    this.active.holding = false;
-    this.active.mouseDown = false;
-    this.active.activeButton = undefined;
-    this.active = null;
-    this.cancelled = false;
-  }
-}
+  const onKeyUp = (event: KeyboardEvent) => {
+    const key = parseKeyCode(event.key);
 
+    if (key === KeyCode.Escape) {
+      console.log("KEY UP!", key);
+      applyTransition({ type: "dragCancel" });
+      notifyListeners(mouse.listeners, {
+        transition: "dragCancel",
+        event,
+      });
+    }
+  };
 
   // Subscribe to it after render
   useEffect(() => {
-    const subscribers: any[] = [];
     const el = element.current;
 
     if (el == null) {
       throw Error("No DOM element passed");
     }
 
-    for(const h of handlers) {
+    el.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("keyup", onKeyUp);
 
-      
-      subscribers.push({})
-    }
-
-    let obj = mouseObjectPublisher.get(el);
-
-    for (const h of handlers) {
-      if (obj == null) {
-        obj = new MouseObject(el, h.self ?? false, mouseObjectPublisher);
-        mouseObjectPublisher.add(obj);
-      }
-
-      const sub = obj.subscribe(h.action, h.button ?? "left", h.callback);
-      subscribers.push(sub);
-    }
-
-    return function cleanUp() {
-      for (const sub of subscribers) {
-        el.removeEventListener("")
-      }
+    return () => {
+      el.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("keyup", onKeyUp);
     };
-  }, [element, handlers]);
+  }, [element, mouse]);
 }
 
-/**
- * Get the mouse button from it's index.
- * @param index The mouse button's index.
- */
-function getButton(index: number): MouseButton {
-  switch (index) {
-    case 0:
-      return "left";
-    case 2:
-      return "right";
-    default:
-      return "either";
+export function notifyListeners(
+  listeners: MouseListener[],
+
+  context:
+    | {
+        button: MouseButton;
+        transition: "click" | "dragStart" | "dragMove" | "dragEnd";
+        event: MouseEvent;
+      }
+    | {
+        transition: "dragCancel";
+        event: KeyboardEvent;
+      }
+) {
+  for (const l of listeners) {
+    const { transition, button = "left " } = l;
+
+    // HERE BE DRAGONS
+
+    if (transition === "dragCancel" && context.transition === "dragCancel") {
+      l.callback(context.event as any);
+      continue;
+    }
+
+    if (
+      transition === context.transition &&
+      (button === (context as any).button || button === "either")
+    ) {
+      l.callback(context.event as any);
+    }
   }
 }

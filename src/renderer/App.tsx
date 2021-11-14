@@ -6,7 +6,7 @@ import { Layout } from "./components/Layout";
 import { createContext, useEffect, useReducer } from "react";
 import { AppState, useAppState } from "./ui/appState";
 import { Execute, useCommands } from "./commands/index";
-import { useKeyboard } from "./keyboard";
+import { useKeyboard } from "./io/keyboard";
 import { useFocusables } from "./ui/focusables";
 import { useAsync } from "react-async-hook";
 import { sleep } from "../shared/utils/sleep";

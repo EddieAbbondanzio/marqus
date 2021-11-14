@@ -16,7 +16,7 @@ export interface AppState {
 
 export type SetAppState = (appState: AppState) => Promise<void>;
 
-export const APP_STATE_FILE = "appstatde.json";
+export const APP_STATE_FILE = "appstate.json";
 
 export function useAppState(): [AppState, any] {
   const [state, setState] = useState({
