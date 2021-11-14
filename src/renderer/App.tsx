@@ -8,8 +8,6 @@ import { AppState, useAppState } from "./ui/appState";
 import { Execute, useCommands } from "./commands/index";
 import { useKeyboard } from "./keyboard";
 import { useFocusables } from "./ui/focusables";
-import { Focusable } from "./components/shared/Focusable";
-import { px } from "../shared/dom/units";
 
 interface AppContext {
   state: AppState;

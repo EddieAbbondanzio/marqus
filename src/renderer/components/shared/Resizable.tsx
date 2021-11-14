@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { getPx, isPx, px } from "../../../shared/dom/units";
 import { MouseHandler, useMouse } from "../../mouse/mouse";
+import { resetCursor, setCursor } from "../../ui/cursor";
 
 export interface ResizableProps {
   minWidth?: string;
@@ -67,31 +68,41 @@ export function Resizable(
     width: props.width,
   });
 
-  const drag = useCallback((event: MouseEvent) => {
-    const minWidth = props.minWidth ?? px(100);
-    const minWidthInt = getPx(minWidth);
+  const hold = useCallback(() => {
+    dispatch({ type: "resizeStart" });
+    setCursor("col-resize");
+  }, [dispatch]);
 
-    const containerOffsetLeft = wrapper.current.offsetLeft;
-    const pointerRelativeXpos = event.clientX - containerOffsetLeft;
+  const drag = useCallback(
+    (event: MouseEvent) => {
+      const minWidth = props.minWidth ?? px(100);
+      const minWidthInt = getPx(minWidth);
 
-    const width = px(Math.max(minWidthInt, pointerRelativeXpos));
-    dispatch({ type: "resizeWidth", width: width });
-  }, []);
+      const containerOffsetLeft = wrapper.current.offsetLeft;
+      const pointerRelativeXpos = event.clientX - containerOffsetLeft;
+
+      const width = px(Math.max(minWidthInt, pointerRelativeXpos));
+      dispatch({ type: "resizeWidth", width: width });
+    },
+    [dispatch, props.minWidth]
+  );
 
   const release = useCallback(() => {
     dispatch({ type: "resizeEnd" });
     props.onResize!(state.width);
-  }, [state]);
+
+    resetCursor();
+  }, [state, props.onResize]);
 
   // Listen for prop change and update width
   useEffect(() => {
     dispatch({ type: "resizeWidth", width: props.width });
-  }, [props.width]);
+  }, [dispatch, props.width]);
 
   useMouse(handle, [
     {
       action: "hold",
-      callback: () => dispatch({ type: "resizeStart" }),
+      callback: hold,
     },
     {
       action: "drag",

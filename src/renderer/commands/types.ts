@@ -10,9 +10,14 @@ export interface CommandContext {
   rollback(): Promise<void>;
 }
 
-export type Command<TInput = void> = (
+export type Reducer<State, Input> = (
+  state: State,
+  input: Input
+) => State | Promise<State>;
+
+export type Command<Input = void> = (
   context: CommandContext,
   // Payload is nullable because we can't pass parameters
   // when invoking via a shortcut
-  payload?: TInput
+  payload?: Input
 ) => Promise<void>;

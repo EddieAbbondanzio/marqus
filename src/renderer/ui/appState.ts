@@ -3,6 +3,7 @@ import * as yup from "yup";
 import { useAsync } from "react-async-hook";
 import { useState } from "react";
 import { px } from "../../shared/dom/units";
+import { CursorIcon } from "./cursor";
 
 export interface GlobalNavigation {
   width: string;
@@ -19,6 +20,7 @@ export const APP_STATE_FILE = "appstate.json";
 
 export function useAppState(): [AppState, any] {
   const [state, setState] = useState({
+    cursor: "auto",
     globalNavigation: {
       width: px(300),
       scroll: 0,
@@ -27,6 +29,7 @@ export function useAppState(): [AppState, any] {
 
   // Load state from file (if any)
   useAsync(async () => {
+    console.log("load app state");
     const appState = await window.config.loadConfig({ name: APP_STATE_FILE });
 
     if (appState != null) {
