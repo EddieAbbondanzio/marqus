@@ -175,7 +175,6 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
   });
 
   useAsync(async () => {
-    console.log("useAsync");
     /*
      * Load user shortcuts. User's should be able to change the keys, when,
      * or disable an existing shortcut. User's should also be able to create
