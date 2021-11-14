@@ -105,7 +105,7 @@ const transition: Reducer<Mouse, MouseTransition> = (mouse, transition) => {
         case "dragStart":
           return {
             state: "holding",
-            active: { element, dragPhase: "init" },
+            active: { element },
             listeners,
           };
       }
@@ -118,7 +118,7 @@ const transition: Reducer<Mouse, MouseTransition> = (mouse, transition) => {
         case "dragMove":
           return {
             state: "holding",
-            active: { element: active!.element, dragPhase: "moving" },
+            active: { element: active!.element, hasMoved: true },
             listeners,
           };
 
@@ -185,6 +185,18 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
 
     const button = getButton(event);
 
+    if (!mouse.active.hasMoved) {
+      /*
+       * We don't notify the listeners until after a first move otherwise it
+       * can be difficult to distinguish a click from drag start.
+       */
+      notifyListeners(mouse.listeners, {
+        button,
+        event,
+        transition: "dragStart",
+      });
+    }
+
     applyTransition({ type: "dragMove" });
     notifyListeners(mouse.listeners, {
       button,
@@ -234,8 +246,10 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
   const onKeyUp = (event: KeyboardEvent) => {
     const key = parseKeyCode(event.key);
 
+    /*
+     * Allow user to cancel dragging if escape key was pressed.
+     */
     if (key === KeyCode.Escape) {
-      console.log("KEY UP!", key);
       applyTransition({ type: "dragCancel" });
       notifyListeners(mouse.listeners, {
         transition: "dragCancel",

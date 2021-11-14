@@ -49,9 +49,11 @@ export async function temporaryCursor(cursorIcon: CursorIcon, cb: () => any) {
 }
 
 export function setCursor(cursor: CursorIcon) {
+  console.log("cursor: ", cursor);
   document.body.style.cursor = cursor;
 }
 
 export function resetCursor() {
   document.body.style.cursor = DEFAULT_CURSOR;
+  console.log("cursor: ", DEFAULT_CURSOR);
 }
