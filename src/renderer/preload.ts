@@ -1,11 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { generateId } from "../shared/domain/id";
-import { isDevelopment } from "../shared/env";
-import { generateEventHook } from "../shared/events";
 import { SendIpc, IpcType } from "../shared/ipc";
-import { tagsPlugin } from "./api/tags";
-import { loadConfigPlugin } from "./loadConfig";
-import { promptUserPlugin } from "./ui/promptUser";
 
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
@@ -64,17 +59,14 @@ const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
   });
 };
 
-export const [onInstall, notify] = generateEventHook();
-const pluginOpts = {
-  sendIpc,
-  onInstall,
-};
+// Only thing that should be exposed.
+contextBridge.exposeInMainWorld("sendIpc", sendIpc);
 
-contextBridge.exposeInMainWorld("promptUser", promptUserPlugin(pluginOpts));
-contextBridge.exposeInMainWorld("api", tagsPlugin(pluginOpts));
-contextBridge.exposeInMainWorld("config", loadConfigPlugin(pluginOpts));
-
-notify();
+declare global {
+  interface Window {
+    sendIpc: SendIpc<any>;
+  }
+}
 
 export function isError(
   err: Record<string, unknown>
