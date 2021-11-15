@@ -68,6 +68,8 @@ export function Resizable(
     width: props.width,
   });
 
+  let widthRef = useRef(state.width);
+
   const hold = useCallback(() => {
     dispatch({ type: "resizeStart" });
     setCursor("col-resize");
@@ -83,16 +85,17 @@ export function Resizable(
 
       const width = px(Math.max(minWidthInt, pointerRelativeXpos));
       dispatch({ type: "resizeWidth", width: width });
+      widthRef.current = width;
     },
-    [dispatch, props.minWidth]
+    [state, props]
   );
 
   const release = useCallback(() => {
     dispatch({ type: "resizeEnd" });
-    props.onResize!(state.width);
+    props.onResize!(widthRef.current);
 
     resetCursor();
-  }, [state, props.onResize]);
+  }, [state.width]);
 
   // Listen for prop change and update width
   useEffect(() => {

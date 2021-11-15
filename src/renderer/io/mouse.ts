@@ -265,7 +265,6 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
     if (el == null) {
       throw Error("No DOM element passed");
     }
-
     el.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);

@@ -11,6 +11,7 @@ const resizeWidth: Command<string> = async ({ commit, state }, newWidth) => {
 
   state.globalNavigation.width = newWidth;
   await commit(state);
+  console.log("set width: ", newWidth);
 };
 
 /**
