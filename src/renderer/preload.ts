@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { generateId } from "../shared/domain/id";
-import { SendIpc, IpcType } from "../shared/ipc";
+import { IpcType, SendIpc } from "../shared/ipc";
 
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
@@ -46,7 +46,7 @@ ipcRenderer.on("send", async (ev, arg) => {
  * @param value Payload.
  * @returns The response the main thread gave
  */
-const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
+const sendIpc: SendIpc = (type: IpcType, value: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     const id = generateId();
     promises[id] = { resolve, reject };
@@ -59,12 +59,13 @@ const sendIpc: SendIpc<any> = (type: IpcType, value: any): Promise<any> => {
   });
 };
 
+
 // Only thing that should be exposed.
 contextBridge.exposeInMainWorld("sendIpc", sendIpc);
 
 declare global {
   interface Window {
-    sendIpc: SendIpc<any>;
+    sendIpc: SendIpc;
   }
 }
 

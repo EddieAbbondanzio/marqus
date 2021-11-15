@@ -1,5 +1,5 @@
 import { isDevelopment } from "../../shared/env";
-import { ConfigIpcType, IpcHandler } from "../../shared/ipc";
+import { IpcHandler } from "../../shared/ipc";
 import { LoadConfig, SaveConfig } from "../../shared/ipc/config";
 import { readFile, writeFile } from "../fileSystem";
 
@@ -30,7 +30,7 @@ const save: IpcHandler<SaveConfig> = async ({ name, content }) => {
   writeFile(name, content, "json");
 };
 
-export const configHandlers: Record<ConfigIpcType, IpcHandler> = {
+export const configHandlers: Record<string, IpcHandler> = {
   "config.load": load,
   "config.save": save,
 };

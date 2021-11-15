@@ -14,3 +14,5 @@ export interface PromptOptions {
   text: string;
   buttons: PromptButton[];
 }
+
+export type PromptUser = (opts: PromptOptions) => Promise<PromptButton>;

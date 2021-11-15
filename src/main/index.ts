@@ -10,7 +10,7 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
-export const handlers: Record<IpcType, IpcHandler<any>> = {
+export const handlers: Record<string, IpcHandler<any>> = {
   "ui.promptUser": promptUserHandler,
   ...configHandlers,
   ...tagHandlers,

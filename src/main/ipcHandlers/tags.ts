@@ -4,7 +4,7 @@ import { fileExists, readFile, writeFile } from "../fileSystem";
 import { onReady } from "../events";
 import * as yup from "yup";
 import { generateId } from "../../shared/domain/id";
-import { TagIpcType, IpcHandler } from "../../shared/ipc";
+import { IpcHandler } from "../../shared/ipc";
 
 const FILE_NAME = "tags.json";
 
@@ -32,7 +32,7 @@ onReady(async () => {
 
 const getAllTags = async (): Promise<Tag[]> => tags;
 
-const createTag = async (name: string): Promise<Tag> => {
+const createTag = async ({ name }: { name: string }): Promise<Tag> => {
   if (tags.some((t) => t.name === name)) {
     throw Error(`Tag name ${name} already in use`);
   }
@@ -84,7 +84,7 @@ const deleteTag = async (id: string): Promise<void> => {
   await save(tags);
 };
 
-export const tagHandlers: Record<TagIpcType, IpcHandler<any>> = {
+export const tagHandlers: Record<string, IpcHandler<any>> = {
   "tags.getAll": getAllTags,
   "tags.create": createTag,
   "tags.update": updateTag,
