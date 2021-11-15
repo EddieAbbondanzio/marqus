@@ -324,7 +324,6 @@ const onKeyUp = (
 ) => {
   const key = parseKeyCode(code);
   dispatch({ type: "keyUp", key });
-  console.log("key up");
 };
 
 export function sort(keys: KeyCode[]): KeyCode[] {

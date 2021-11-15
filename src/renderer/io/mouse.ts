@@ -244,7 +244,7 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
   };
 
   const onKeyUp = (event: KeyboardEvent) => {
-    const key = parseKeyCode(event.key);
+    const key = parseKeyCode(event.code);
 
     /*
      * Allow user to cancel dragging if escape key was pressed.

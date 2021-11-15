@@ -292,7 +292,9 @@ export function parseKeyCode(code: string): KeyCode {
     case "PageUp":
       return KeyCode.PageUp;
     default:
-      throw Error(`Unsupported code: ${code}`);
+      throw Error(
+        `Unsupported code: ${code}. Did you pass .code from the keyboard event?`
+      );
   }
 }
 
