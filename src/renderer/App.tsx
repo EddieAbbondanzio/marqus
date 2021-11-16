@@ -45,6 +45,8 @@ function App() {
         execute,
       }}
     >
+      <span className="is-size-1">SMALL TEST</span>
+
       <Layout>
         <GlobalNavigation />
       </Layout>

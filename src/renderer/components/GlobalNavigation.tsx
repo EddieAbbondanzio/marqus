@@ -1,20 +1,19 @@
-import { faCoffee } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBook,
+  faCoffee,
+  faFile,
+  faStar,
+  faTag,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import React, { useContext, useReducer, useState } from "react";
 import { generateId } from "../../shared/domain/id";
 import { AppContext } from "../App";
+import { NavigationMenu } from "./shared/NavigationMenu";
 import { Focusable } from "./shared/Focusable";
 import { Icon, IconButton } from "./shared/Icon";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
-
-type GlobalNavigationState = {
-  scroll: number;
-  width: string;
-};
-
-type GlobalNavigationAction =
-  | { type: "scroll"; newScroll: number }
-  | { type: "resize"; newWidth: string };
 
 export function GlobalNavigation(): JSX.Element {
   const {
@@ -34,109 +33,11 @@ export function GlobalNavigation(): JSX.Element {
             execute("globalNavigation.updateScroll", newScroll)
           }
         >
-          <Icon icon={faCoffee} />
-          <IconButton icon={faCoffee} />
-
-          <div>Some</div>
-          <div>Some</div>
-          <div>Some</div>
-          <div>Some</div>
-          <div>Some</div>
-          <div>Some</div>
-          <div>Some</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
-          <div>Long</div>
+          <NavigationMenu label="ALL" icon={faFile}/>
+          <NavigationMenu label="NOTEBOOKS" icon={faBook} />
+          <NavigationMenu label="TAGS" icon={faTag} />
+          <NavigationMenu label="FAVORITES" icon={faStar} />
+          <NavigationMenu label="TRASH" icon={faTrash} />
         </Scrollable>
       </Focusable>
     </Resizable>
