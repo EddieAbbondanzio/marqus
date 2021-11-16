@@ -1,7 +1,9 @@
+import { faCoffee } from "@fortawesome/free-solid-svg-icons";
 import React, { useContext, useReducer, useState } from "react";
 import { generateId } from "../../shared/domain/id";
 import { AppContext } from "../App";
 import { Focusable } from "./shared/Focusable";
+import { Icon, IconButton } from "./shared/Icon";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
@@ -32,7 +34,9 @@ export function GlobalNavigation(): JSX.Element {
             execute("globalNavigation.updateScroll", newScroll)
           }
         >
-          {state.width}
+          <Icon icon={faCoffee} />
+          <IconButton icon={faCoffee} />
+
           <div>Some</div>
           <div>Some</div>
           <div>Some</div>

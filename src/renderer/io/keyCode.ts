@@ -291,6 +291,13 @@ export function parseKeyCode(code: string): KeyCode {
       return KeyCode.PageDown;
     case "PageUp":
       return KeyCode.PageUp;
+    /*
+     * It's unlikely we'll use thse but we leave it here because it prevents
+     * an error from being thrown when the user presses them.
+     */
+    case "MetaLeft":
+    case "MetaRight":
+      return KeyCode.Meta;
     default:
       throw Error(
         `Unsupported code: ${code}. Did you pass .code from the keyboard event?`
