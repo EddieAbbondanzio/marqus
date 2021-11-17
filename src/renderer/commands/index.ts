@@ -57,7 +57,6 @@ export function useCommands(
     const command: Command<any> = COMMAND_REGISTRY[name];
 
     if (command == null) {
-      console.log(COMMAND_REGISTRY);
       throw Error(`No command ${name} registered.`);
     }
 

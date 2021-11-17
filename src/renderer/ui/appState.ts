@@ -2,7 +2,8 @@ import * as yup from "yup";
 import { useAsync } from "react-async-hook";
 import { useState } from "react";
 import { px } from "../../shared/dom/units";
-import { Config } from "../config";
+
+const { rpc } = window;
 
 export interface GlobalNavigation {
   width: string;
@@ -29,7 +30,7 @@ export function useAppState(): [AppState, any] {
   // Load state from file (if any)
   useAsync(async () => {
     console.log("load app state");
-    const appState = await Config.load({ name: APP_STATE_FILE });
+    const appState = await rpc("config.load", { name: APP_STATE_FILE });
 
     if (appState != null) {
       await appStateSchema.validate(appState);
@@ -38,7 +39,7 @@ export function useAppState(): [AppState, any] {
   }, []);
 
   const setStateAndPersist: SetAppState = async (appState: AppState) => {
-    Config.save({ name: APP_STATE_FILE, content: appState });
+    await rpc("config.save", { name: APP_STATE_FILE, content: appState });
     setState(appState);
   };
 

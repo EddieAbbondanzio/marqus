@@ -23,8 +23,8 @@ export interface RpcSchema {
   "tags.update": InOut<{ id: string; name: string }, Tag>;
   "tags.delete": In<{ id: string }>;
   // Config
-  "config.load": InOut<LoadConfig, Config>;
-  "config.save": InOut<SaveConfig, Config>;
+  "config.load": InOut<LoadConfig, any>;
+  "config.save": InOut<SaveConfig, any>;
   // UI
   "ui.promptUser": InOut<PromptOptions, PromptButton>;
 }

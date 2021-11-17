@@ -15,7 +15,8 @@ import { IsFocused } from "../ui/focusables";
 import * as yup from "yup";
 import { SchemaOf } from "yup";
 import { sleep } from "../../shared/utils/sleep";
-import { Config } from "../config";
+
+const { rpc } = window;
 
 export interface Keyboard {
   enabled: boolean;
@@ -391,7 +392,7 @@ export function parseKeyCodes(shortcutString: string): KeyCode[] {
 }
 
 export async function loadUserShortcuts(): Promise<ShortcutOverride[]> {
-  const raw = await Config.load({ name: SHORTCUT_FILE });
+  const raw = await rpc("config.load", { name: SHORTCUT_FILE });
 
   if (raw == null) {
     return [];
