@@ -1,16 +1,16 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import { IpcType, IpcHandler, IpcArgument } from "../shared/ipc";
-import { promptUserHandler } from "./ipcHandlers/promptUser";
-import { tagHandlers } from "./ipcHandlers/tags";
+import { RpcType, RpcHandler, RpcArgument } from "../shared/rpc";
+import { promptUserHandler } from "./rpcs/promptUser";
+import { tagHandlers } from "./rpcs/tags";
 import { notifyOnReady } from "./events";
-import { configHandlers } from "./ipcHandlers/config";
+import { configHandlers } from "./rpcs/config";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
-export const handlers: Record<string, IpcHandler<any>> = {
+export const handlers: Record<string, RpcHandler<any>> = {
   "ui.promptUser": promptUserHandler,
   ...configHandlers,
   ...tagHandlers,
@@ -22,7 +22,7 @@ if (ipcMain == null) {
   );
 }
 
-ipcMain.on("send", async (ev, arg: IpcArgument) => {
+ipcMain.on("send", async (ev, arg: RpcArgument) => {
   const respond = (value: any) =>
     ev.sender.send("send", {
       id: arg.id,
@@ -36,13 +36,13 @@ ipcMain.on("send", async (ev, arg: IpcArgument) => {
     });
   };
 
-  const handler: IpcHandler<any> = handlers[arg.type as IpcType];
+  const handler: RpcHandler<any> = handlers[arg.type as RpcType];
 
   if (handler == null) {
     respondError(Error("An error has occured."));
 
     if (isDevelopment) {
-      console.warn("Main recieved ipc: ", arg.type, " but no handler found?");
+      console.warn("Main recieved rpc: ", arg.type, " but no handler found?");
     }
   }
 
@@ -53,8 +53,8 @@ ipcMain.on("send", async (ev, arg: IpcArgument) => {
   } catch (e) {
     respondError(e);
 
-    console.error(`Caught error from ipc handler for type "${arg.type}"`, e);
-    console.error("Ipc argument: ", arg);
+    console.error(`Caught error from rpc handler for type "${arg.type}"`, e);
+    console.error("Rpc argument: ", arg);
   }
 });
 

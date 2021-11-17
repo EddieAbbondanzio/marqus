@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { generateId } from "../shared/domain/id";
-import { IpcType, SendIpc } from "../shared/ipc";
+import { RpcType, Rpc } from "../shared/rpc";
 
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
@@ -41,12 +41,12 @@ ipcRenderer.on("send", async (ev, arg) => {
 });
 
 /**
- * Send an ipc to the main thread.
+ * Send an rpc to the main thread.
  * @param type String of the type
  * @param value Payload.
  * @returns The response the main thread gave
  */
-const sendIpc: SendIpc = (type: IpcType, value: any): Promise<any> => {
+const rpc: Rpc = (type: RpcType, value: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     const id = generateId();
     promises[id] = { resolve, reject };
@@ -59,13 +59,12 @@ const sendIpc: SendIpc = (type: IpcType, value: any): Promise<any> => {
   });
 };
 
-
 // Only thing that should be exposed.
-contextBridge.exposeInMainWorld("sendIpc", sendIpc);
+contextBridge.exposeInMainWorld("rpc", rpc);
 
 declare global {
   interface Window {
-    sendIpc: SendIpc;
+    rpc: Rpc;
   }
 }
 

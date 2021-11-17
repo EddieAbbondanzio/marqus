@@ -4,7 +4,7 @@ import { fileExists, readFile, writeFile } from "../fileSystem";
 import { onReady } from "../events";
 import * as yup from "yup";
 import { generateId } from "../../shared/domain/id";
-import { IpcHandler } from "../../shared/ipc";
+import { RpcHandler } from "../../shared/rpc";
 
 const FILE_NAME = "tags.json";
 
@@ -84,7 +84,7 @@ const deleteTag = async (id: string): Promise<void> => {
   await save(tags);
 };
 
-export const tagHandlers: Record<string, IpcHandler<any>> = {
+export const tagHandlers: Record<string, RpcHandler<any>> = {
   "tags.getAll": getAllTags,
   "tags.create": createTag,
   "tags.update": updateTag,

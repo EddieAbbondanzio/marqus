@@ -1,8 +1,8 @@
 import { dialog } from "electron";
-import { IpcHandler } from "../../shared/ipc";
-import { PromptOptions } from "../../shared/ipc/promptUser";
+import { RpcHandler } from "../../shared/rpc";
+import { PromptOptions } from "../../shared/rpc/promptUser";
 
-export const promptUserHandler: IpcHandler<"ui.promptUser"> = async (opts) => {
+export const promptUserHandler: RpcHandler<"ui.promptUser"> = async (opts) => {
   console.log("WAS CALLED!");
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
   const defaultCount = opts.buttons.filter((b) => b.role === "default").length;

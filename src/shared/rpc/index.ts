@@ -3,7 +3,7 @@ import { Config, LoadConfig, SaveConfig } from "./config";
 import { PromptButton, PromptOptions } from "./promptUser";
 
 /*
- * Helper types to define inputs and outputs of IPC handlers.
+ * Helper types to define inputs and outputs of RPC handlers.
  */
 
 export type In<I> = [I, Promise<void>];
@@ -12,11 +12,11 @@ export type Out<O> = [void, Promise<O>];
 
 /*
  * TypeScript can't infer keys of a union type.
- * Don't break out IpcSchema into sub modules unless you
+ * Don't break out RpcSchema into sub modules unless you
  * want to lose intellisense.
  */
 
-export interface IpcSchema {
+export interface RpcSchema {
   // Tags
   "tags.getAll": Out<Tag[]>;
   "tags.create": InOut<{ name: string }, Tag>;
@@ -29,33 +29,33 @@ export interface IpcSchema {
   "ui.promptUser": InOut<PromptOptions, PromptButton>;
 }
 
-export type IpcType = keyof IpcSchema;
+export type RpcType = keyof RpcSchema;
 
-export type SendIpc = <Type extends IpcType>(
+export type Rpc = <Type extends RpcType>(
   type: Type,
-  value: IpcSchema[Type][0]
-) => Promise<IpcSchema[Type][1]>;
+  value: RpcSchema[Type][0]
+) => Promise<RpcSchema[Type][1]>;
 
 /**
- * Used internally by sendIpc by both the main and renderer side.
+ * Used internally by rpc by both the main and renderer side.
  */
-export type IpcArgument = {
+export type RpcArgument = {
   id: string;
-  type: IpcType;
-  value: IpcSchema[IpcType];
+  type: RpcType;
+  value: RpcSchema[RpcType];
 };
 
 /**
- * Handler that implements a specific IPC action. These should only be
+ * Handler that implements a specific RPC action. These should only be
  * defined on the main thread.
  */
-export type IpcHandler<Type extends IpcType> = (
-  input: IpcSchema[Type][0]
-) => IpcSchema[Type][1];
+export type RpcHandler<Type extends RpcType> = (
+  input: RpcSchema[Type][0]
+) => RpcSchema[Type][1];
 
 /**
- * Registry for defining multiple IPC handlers.
+ * Registry for defining multiple RPC handlers.
  */
-export type IpcRegistry = Partial<{
-  [key in IpcType]: IpcHandler<key>;
+export type RpcRegistry = Partial<{
+  [key in RpcType]: RpcHandler<key>;
 }>;

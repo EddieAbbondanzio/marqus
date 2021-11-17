@@ -31,11 +31,10 @@ export const AppContext = createContext<AppContext>({
 } as any);
 
 function App() {
-  const isFocused = useFocusables();
-
   const [state, setState] = useAppState();
-  const execute = useCommands(state, setState);
 
+  const execute = useCommands(state, setState);
+  const isFocused = useFocusables();
   useKeyboard(execute, isFocused);
 
   return (
@@ -45,8 +44,6 @@ function App() {
         execute,
       }}
     >
-      <span className="is-size-1">SMALL TEST</span>
-
       <Layout>
         <GlobalNavigation />
       </Layout>

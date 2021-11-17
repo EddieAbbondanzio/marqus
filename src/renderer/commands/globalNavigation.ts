@@ -11,7 +11,6 @@ const resizeWidth: Command<string> = async ({ commit, state }, newWidth) => {
 
   state.globalNavigation.width = newWidth;
   await commit(state);
-  console.log("set width: ", newWidth);
 };
 
 /**
@@ -23,11 +22,7 @@ const updateScroll: Command<number> = async ({ commit, state }, newScroll) => {
     throw Error();
   }
 
-  if (newScroll < 0) {
-    throw Error(`Invalid scroll position. Scroll was negative: ${newScroll}`);
-  }
-
-  state.globalNavigation.scroll = newScroll;
+  state.globalNavigation.scroll = Math.max(newScroll, 0);
   await commit(state);
 };
 
@@ -35,18 +30,16 @@ const scrollDown: Command<number> = async (
   { commit, state },
   increment = 30
 ) => {
-  state.globalNavigation.scroll += increment;
+  const newScroll = Math.max(state.globalNavigation.scroll + increment, 0);
+  state.globalNavigation.scroll = newScroll;
+
   await commit(state);
-  console.log(
-    "SCROLL DOWN!",
-    state.globalNavigation.scroll,
-    " inc:",
-    increment
-  );
 };
 
 const scrollUp: Command<number> = async ({ commit, state }, increment = 30) => {
-  state.globalNavigation.scroll -= increment;
+  const newScroll = Math.max(state.globalNavigation.scroll - increment, 0);
+  state.globalNavigation.scroll = newScroll;
+
   await commit(state);
 };
 

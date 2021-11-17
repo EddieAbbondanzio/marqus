@@ -1,11 +1,11 @@
 import { isDevelopment } from "../../shared/env";
-import { IpcHandler, IpcRegistry } from "../../shared/ipc";
-import { Config, LoadConfig, SaveConfig } from "../../shared/ipc/config";
+import { RpcHandler, RpcRegistry } from "../../shared/rpc";
+import { Config, LoadConfig, SaveConfig } from "../../shared/rpc/config";
 import { readFile, writeFile } from "../fileSystem";
 
 const FILE_WHITELIST = ["appstate.json", "shortcuts.json"];
 
-const load: IpcHandler<"config.load"> = async ({ name }) => {
+const load: RpcHandler<"config.load"> = async ({ name }) => {
   if (FILE_WHITELIST.indexOf(name) === -1) {
     const message = isDevelopment()
       ? `Unauthorized. File ${name} is not whitelisted. Please check the spelling or add it to FILE_WHITELIST`
@@ -18,7 +18,7 @@ const load: IpcHandler<"config.load"> = async ({ name }) => {
   return file as Config;
 };
 
-const save: IpcHandler<"config.save"> = async ({ name, content }) => {
+const save: RpcHandler<"config.save"> = async ({ name, content }) => {
   if (FILE_WHITELIST.indexOf(name) === -1) {
     const message = isDevelopment()
       ? `Unauthorized. File ${name} is not whitelisted.`
@@ -31,7 +31,7 @@ const save: IpcHandler<"config.save"> = async ({ name, content }) => {
   return content;
 };
 
-export const configHandlers: IpcRegistry = {
+export const configHandlers: RpcRegistry = {
   "config.load": load,
   "config.save": save,
 };

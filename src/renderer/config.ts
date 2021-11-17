@@ -1,14 +1,14 @@
-import { Config as ConfigType } from "../shared/ipc/config";
+import { Config as ConfigType } from "../shared/rpc/config";
 
-const { sendIpc } = window;
+const { rpc } = window;
 
 export const Config: ConfigType = {
   async load(p) {
-    const c = await sendIpc("config.load", p);
+    const c = await rpc("config.load", p);
     return c;
   },
   async save(p) {
-    const c = await sendIpc("config.save", p);
+    const c = await rpc("config.save", p);
     return c;
   },
 };
