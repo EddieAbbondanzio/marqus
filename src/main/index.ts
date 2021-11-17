@@ -42,7 +42,11 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
     respondError(Error("An error has occured."));
 
     if (isDevelopment) {
-      console.warn("Main recieved rpc: ", arg.type, " but no handler found?");
+      console.warn(
+        `Main recieved rpc: ${
+        arg.type}
+        " but no handler was found. Any changes made to main thread code require a restart."
+      );
     }
   }
 

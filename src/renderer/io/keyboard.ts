@@ -406,8 +406,8 @@ export async function loadUserShortcuts(): Promise<ShortcutOverride[]> {
   );
 
   if (duplicates.length > 0) {
-    throw Error(`Duplicate shortcuts for keys ${duplicates[0].keys}`);
     console.log("Error: Complete list of duplicate shortcuts: ", duplicates);
+    throw Error(`Duplicate shortcuts for keys ${duplicates[0].keys}`);
   }
 
   return overrides;

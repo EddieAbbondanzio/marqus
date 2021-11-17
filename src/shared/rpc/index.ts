@@ -1,5 +1,4 @@
 import { Tag } from "../domain/tag";
-import { Config, LoadConfig, SaveConfig } from "./config";
 import { PromptButton, PromptOptions } from "./promptUser";
 
 /*
@@ -17,24 +16,27 @@ export type Out<O> = [void, Promise<O>];
  */
 
 export interface RpcSchema {
+  // AppState
+  // "appState.load": Out<AppState>;
+  // "appState.save": InOut<AppState, AppState>;
   // Tags
   "tags.getAll": Out<Tag[]>;
   "tags.create": InOut<{ name: string }, Tag>;
   "tags.update": InOut<{ id: string; name: string }, Tag>;
   "tags.delete": In<{ id: string }>;
-  // Config
-  "config.load": InOut<LoadConfig, any>;
-  "config.save": InOut<SaveConfig, any>;
   // UI
   "ui.promptUser": InOut<PromptOptions, PromptButton>;
 }
 
 export type RpcType = keyof RpcSchema;
 
+export type RpcInput<Type extends RpcType> = RpcSchema[Type][0];
+export type RpcOutput<Type extends RpcType> = RpcSchema[Type][1];
+
 export type Rpc = <Type extends RpcType>(
-  type: Type,
-  value: RpcSchema[Type][0]
-) => Promise<RpcSchema[Type][1]>;
+  // Allows for passing just the type ex: "tags.getAll" if no input expected
+  ...params: RpcInput<Type> extends void ? [Type] : [Type, RpcInput<Type>]
+) => Promise<RpcOutput<Type>>;
 
 /**
  * Used internally by rpc by both the main and renderer side.
@@ -50,8 +52,8 @@ export type RpcArgument = {
  * defined on the main thread.
  */
 export type RpcHandler<Type extends RpcType> = (
-  input: RpcSchema[Type][0]
-) => RpcSchema[Type][1];
+  input: RpcInput<Type>
+) => RpcOutput<Type>;
 
 /**
  * Registry for defining multiple RPC handlers.

@@ -29,18 +29,19 @@ export function useAppState(): [AppState, any] {
 
   // Load state from file (if any)
   useAsync(async () => {
-    console.log("load app state");
-    const appState = await rpc("config.load", { name: APP_STATE_FILE });
+    // const appState =
+    await rpc("tags.getAll", 1);
+    await rpc("tags.create", { name: "foo" });
 
-    if (appState != null) {
-      await appStateSchema.validate(appState);
-      setState(appState);
-    }
+    // if (appState != null) {
+    //   await appStateSchema.validate(appState);
+    //   setState(appState);
+    // }
   }, []);
 
   const setStateAndPersist: SetAppState = async (appState: AppState) => {
-    await rpc("config.save", { name: APP_STATE_FILE, content: appState });
-    setState(appState);
+    // await rpc("config.save", { name: APP_STATE_FILE, content: appState });
+    // setState(appState);
   };
 
   return [state, setStateAndPersist];
