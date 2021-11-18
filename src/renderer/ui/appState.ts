@@ -2,35 +2,23 @@ import * as yup from "yup";
 import { useAsync } from "react-async-hook";
 import { useState } from "react";
 import { px } from "../../shared/dom/units";
+import { State } from "../../shared/domain/state";
 
 const { rpc } = window;
 
-export interface GlobalNavigation {
-  width: string;
-  scroll: number;
-}
-
-export interface AppState {
-  globalNavigation: GlobalNavigation;
-}
-
-export type SetAppState = (appState: AppState) => Promise<void>;
-
-export const APP_STATE_FILE = "appstate.json";
-
-export function useAppState(): [AppState, any] {
+export function useAppState(): [State] {
   const [state, setState] = useState({
     cursor: "auto",
     globalNavigation: {
       width: px(300),
       scroll: 0,
     },
-  } as AppState);
+  } as State);
 
   // Load state from file (if any)
   useAsync(async () => {
     // const appState =
-    await rpc("tags.getAll", 1);
+    await rpc("tags.getAll");
     await rpc("tags.create", { name: "foo" });
 
     // if (appState != null) {
@@ -39,7 +27,7 @@ export function useAppState(): [AppState, any] {
     // }
   }, []);
 
-  const setStateAndPersist: SetAppState = async (appState: AppState) => {
+  const setStateAndPersist: SetAppState = async (appState: State) => {
     // await rpc("config.save", { name: APP_STATE_FILE, content: appState });
     // setState(appState);
   };

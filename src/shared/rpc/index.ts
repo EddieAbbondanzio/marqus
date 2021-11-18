@@ -1,3 +1,4 @@
+import { State } from "../domain/state";
 import { Tag } from "../domain/tag";
 import { PromptButton, PromptOptions } from "./promptUser";
 
@@ -14,11 +15,10 @@ export type Out<O> = [void, Promise<O>];
  * Don't break out RpcSchema into sub modules unless you
  * want to lose intellisense.
  */
-
 export interface RpcSchema {
   // AppState
-  // "appState.load": Out<AppState>;
-  // "appState.save": InOut<AppState, AppState>;
+  "appState.load": Out<State>;
+  "appState.save": InOut<State, State>;
   // Tags
   "tags.getAll": Out<Tag[]>;
   "tags.create": InOut<{ name: string }, Tag>;

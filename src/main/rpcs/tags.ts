@@ -1,30 +1,26 @@
 import { debounce } from "lodash";
-import { Tag, tagSchema } from "../../shared/domain/tag";
+import { Tag, TAG_SCHEMA } from "../../shared/domain/tag";
 import { fileExists, readFile, writeFile } from "../fileSystem";
 import { onReady } from "../events";
 import * as yup from "yup";
 import { generateId } from "../../shared/domain/id";
 import { RpcHandler } from "../../shared/rpc";
 
-const FILE_NAME = "tags.json";
-
 const save = debounce(async (tags: Tag[]) => {
-  await writeFile(FILE_NAME, tags, "json");
+  await writeFile(FileName.TAGS, tags, "json");
 }, 1000);
 
 let tags: Tag[] = [];
-
-const TAG_FILE_SCHEMA = yup.array(tagSchema);
 
 /*
  * Load tags from file on startup
  */
 onReady(async () => {
-  if (!fileExists(FILE_NAME)) {
+  if (!fileExists(FileName.TAGS)) {
     return;
   }
 
-  const raw = await readFile(FILE_NAME, "json");
+  const raw = await readFile(FileName.TAGS, "json");
 
   await TAG_FILE_SCHEMA.validate(raw);
   tags = raw as Tag[];

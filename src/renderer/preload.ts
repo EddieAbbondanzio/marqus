@@ -46,15 +46,15 @@ ipcRenderer.on("send", async (ev, arg) => {
  * @param value Payload.
  * @returns The response the main thread gave
  */
-const rpc: Rpc = (type: RpcType, value: any): Promise<any> => {
+const rpc: Rpc = async (...params): Promise<any> => {
   return new Promise((resolve, reject) => {
     const id = generateId();
     promises[id] = { resolve, reject };
 
     ipcRenderer.send("send", {
       id,
-      type,
-      value,
+      type: params[0],
+      value: params[1],
     });
   });
 };
