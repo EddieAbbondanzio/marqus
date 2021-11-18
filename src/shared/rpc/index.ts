@@ -1,5 +1,4 @@
-import { State } from "../domain/state";
-import { Tag } from "../domain/tag";
+import { State, Tag } from "../domain";
 import { PromptButton, PromptOptions } from "./promptUser";
 
 /*
@@ -17,8 +16,8 @@ export type Out<O> = [void, Promise<O>];
  */
 export interface RpcSchema {
   // AppState
-  "appState.load": Out<State>;
-  "appState.save": InOut<State, State>;
+  "state.load": Out<State>;
+  "state.save": In<State>;
   // Tags
   "tags.getAll": Out<Tag[]>;
   "tags.create": InOut<{ name: string }, Tag>;

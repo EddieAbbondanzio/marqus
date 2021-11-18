@@ -1,19 +1,17 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import { RpcType, RpcHandler, RpcArgument } from "../shared/rpc";
-import { promptUserHandler } from "./rpcs/promptUser";
-import { tagHandlers } from "./rpcs/tags";
+import { RpcType, RpcHandler, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { notifyOnReady } from "./events";
-import { configHandlers } from "./rpcs/config";
+import { PROMPT_USER_RPCS } from "./rpcs/promptUser";
+import { stateRpcs } from "./rpcs/state";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
-export const handlers: Record<string, RpcHandler<any>> = {
-  "ui.promptUser": promptUserHandler,
-  ...configHandlers,
-  ...tagHandlers,
+export const handlers: RpcRegistry = {
+  ...PROMPT_USER_RPCS,
+  ...stateRpcs,
 };
 
 if (ipcMain == null) {
@@ -36,22 +34,24 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
     });
   };
 
-  const handler: RpcHandler<any> = handlers[arg.type as RpcType];
+  const handler = handlers[arg.type as RpcType];
 
   if (handler == null) {
     respondError(Error("An error has occured."));
 
     if (isDevelopment) {
       console.warn(
-        `Main recieved rpc: ${
-        arg.type}
-        " but no handler was found. Any changes made to main thread code require a restart."
+        `Main recieved rpc: ${arg.type}
+         but no handler was found. Any changes made to main thread code require a restart.`
       );
     }
+
+    return;
   }
 
   try {
-    const res = await handler(arg.value);
+    // Cast is gross
+    const res = await handler(arg.value as any);
 
     respond(res);
   } catch (e) {

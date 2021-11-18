@@ -46,25 +46,33 @@ export async function deleteFile(path: string): Promise<void> {
   });
 }
 
-export async function readFile(
+export type ContentType = "json" | "text";
+export type ReadOpts = { required: boolean };
+export async function readFile<
+  Content extends ContentType,
+  Opts extends ReadOpts
+>(
   path: string,
-  contentType: "json"
-): Promise<unknown | null>;
-export async function readFile(
-  path: string,
-  contentType: "text"
-): Promise<string | null>;
-export async function readFile(
-  path: string,
-  contentType: FileContentType
-): Promise<any> {
-  const fullPath = generateFullPath(path);
-  if (!fileExists(fullPath)) {
-    console.log(`readFile(): File ${fullPath} did not exist.`);
-    return;
-  }
-
+  contentType: Content,
+  opts?: Opts
+): Promise<
+  Content extends "json"
+    ? any
+    : Opts extends { required: true }
+    ? string
+    : string | null
+> {
   return new Promise((res, rej) => {
+    const fullPath = generateFullPath(path);
+
+    if (!fileExists(fullPath)) {
+      if (opts?.required) {
+        return res(null as any);
+      }
+
+      throw Error(`readFile(): File ${fullPath} did not exist.`);
+    }
+
     fs.readFile(fullPath, { encoding: "utf-8" }, (err, data) => {
       if (err != null) {
         return rej(err);
@@ -72,7 +80,7 @@ export async function readFile(
 
       if (contentType === "json") {
         if (data == null || data.length === 0) {
-          res(null);
+          res(null as any);
         } else {
           res(JSON.parse(data));
         }
@@ -98,9 +106,8 @@ export async function writeFile(
   content: string | unknown,
   contentType: FileContentType
 ): Promise<void> {
-  const fullPath = generateFullPath(path);
-
   return new Promise((res, rej) => {
+    const fullPath = generateFullPath(path);
     let data: string;
 
     if (contentType === "json") {

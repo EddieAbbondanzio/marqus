@@ -1,9 +1,8 @@
 import { dialog } from "electron";
-import { RpcHandler } from "../../shared/rpc";
+import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import { PromptOptions } from "../../shared/rpc/promptUser";
 
-export const promptUserHandler: RpcHandler<"ui.promptUser"> = async (opts) => {
-  console.log("WAS CALLED!");
+const promptUser: RpcHandler<"ui.promptUser"> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
   const defaultCount = opts.buttons.filter((b) => b.role === "default").length;
 
@@ -24,4 +23,8 @@ export const promptUserHandler: RpcHandler<"ui.promptUser"> = async (opts) => {
 
   // Return back the button that was selected.
   return opts.buttons[returnVal.response];
+};
+
+export const PROMPT_USER_RPCS: RpcRegistry = {
+  "ui.promptUser": promptUser,
 };

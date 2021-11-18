@@ -73,20 +73,24 @@ export function isId(id: string): boolean {
   );
 }
 
-export const ID_SCHEMA = yup.string().optional().default(generateId).test(isId);
+export const idSchema = yup.string().optional().default(generateId).test(isId);
 
-export const TAG_NAME_SCHEMA = yup
+export const tagNameSchema = yup
   .string()
   .required("Tag is required")
   .min(1, "Tag must be atleast 1 character")
   .max(64, "Tag cannot be more than 64 characters");
 
-export const TAG_SCHEMA: yup.SchemaOf<Tag> = yup
+export const tagSchema: yup.SchemaOf<Tag> = yup
   .object()
   .shape({
-    id: ID_SCHEMA,
-    name: TAG_NAME_SCHEMA,
+    id: idSchema,
+    name: tagNameSchema,
     dateCreated: yup.date(),
     dateUpdated: yup.date().optional(),
   })
   .defined();
+
+export const notebookSchema: yup.SchemaOf<Notebook> = yup
+  .object()
+  .shape({} as any);

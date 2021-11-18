@@ -2,7 +2,7 @@ import * as yup from "yup";
 import { useAsync } from "react-async-hook";
 import { useState } from "react";
 import { px } from "../../shared/dom/units";
-import { State } from "../../shared/domain/state";
+import { State } from "../../shared/domain";
 
 const { rpc } = window;
 
@@ -18,9 +18,6 @@ export function useAppState(): [State] {
   // Load state from file (if any)
   useAsync(async () => {
     // const appState =
-    await rpc("tags.getAll");
-    await rpc("tags.create", { name: "foo" });
-
     // if (appState != null) {
     //   await appStateSchema.validate(appState);
     //   setState(appState);
