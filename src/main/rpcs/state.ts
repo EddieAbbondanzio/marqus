@@ -84,13 +84,16 @@ export async function save(state: State): Promise<void> {
   ]);
 }
 
-const uiFile = createFileHandler<UI>("ui.json", uiSchema);
+const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
+  defaultState: DEFAULT_STATE.ui,
+});
 const tagFile = createFileHandler<Tags>(
   "tags.json",
   yup.object().shape({
     values: yup.array(tagSchema).optional(),
   }),
   {
+    defaultState: DEFAULT_STATE.tags,
     serialize: (n) => n.values,
     deserialize: (c) => ({ values: c ?? [] }),
   }
@@ -101,6 +104,7 @@ const notebookFile = createFileHandler<Notebooks>(
     values: yup.array(notebookSchema).optional(),
   }),
   {
+    defaultState: DEFAULT_STATE.notebooks,
     serialize: (n) => n.values,
     deserialize: (c) => ({ values: c ?? [] }),
   }
@@ -111,6 +115,7 @@ const shortcutFile = createFileHandler<Shortcuts>(
     values: yup.array(shortcutSchema).optional(),
   }),
   {
+    defaultState: DEFAULT_STATE.shortcuts,
     serialize: (shortcuts) =>
       shortcuts.values
         .filter((s) => s.userDefined)
@@ -135,6 +140,14 @@ const shortcutFile = createFileHandler<Shortcuts>(
         );
         throw Error(`Duplicate shortcuts for keys ${duplicates[0].keys}`);
       }
+
+      /*
+       * Custom shortcut uses cases:
+       * - Disable an existing shortcut
+       * - Modify the keys of an existing shortcut
+       * - Modify the "when" of an existing shortuct
+       * - Create a new custom shortcut
+       */
 
       const values = [];
       for (const defaultShortcut of DEFAULT_SHORTCUTS) {
@@ -178,7 +191,11 @@ const DEBOUNCE_INTERVAL = 250;
 function createFileHandler<Content>(
   name: FileName,
   schema: yup.SchemaOf<Content>,
-  opts?: { serialize?: (c: Content) => any; deserialize?: (c: any) => Content }
+  opts?: {
+    defaultState?: Content;
+    serialize?: (c: Content) => any;
+    deserialize?: (c: any) => Content;
+  }
 ): FileHandler<Content> {
   if (!isValidFileName(name)) {
     throw Error(`Invalid file name ${name}`);
@@ -218,6 +235,8 @@ function createFileHandler<Content>(
 
     if (c != null) {
       await schema.validate(c);
+    } else {
+      c = opts?.defaultState;
     }
 
     return c;

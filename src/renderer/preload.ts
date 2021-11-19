@@ -75,6 +75,7 @@ export function isError(
   return err.hasOwnProperty("error");
 }
 
+// Sanity check
 if (process.env.NODE_ENV === "development") {
   console.log("preload complete");
 }

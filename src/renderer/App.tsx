@@ -24,6 +24,7 @@ if (dom == null) {
   throw Error("No root container to render in");
 }
 
+// Context allows us to access root state from any component
 export const AppContext = createContext<AppContext | undefined>(undefined);
 export const useAppContext = () => {
   const ctx = React.useContext(AppContext);
@@ -36,6 +37,7 @@ export const useAppContext = () => {
 };
 
 (async () => {
+  // Initialize app state
   const state = await rpc("state.load");
   const setState = async (s: State) => rpc("state.save", s);
 

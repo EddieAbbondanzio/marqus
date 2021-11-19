@@ -62,6 +62,7 @@ export function GlobalNavigation(): JSX.Element {
     // Recursively render the menus
     const mapper = (item: NavigationItem) => (
       <NavigationMenu
+        key={items.length}
         label={item.label}
         icon={item.icon}
         children={item.children?.map(mapper)}
@@ -70,6 +71,7 @@ export function GlobalNavigation(): JSX.Element {
     return items.map(mapper);
   }, [state]);
 
+  console.log("State: ", state);
   const { width, scroll } = state.ui.globalNavigation;
 
   return (
