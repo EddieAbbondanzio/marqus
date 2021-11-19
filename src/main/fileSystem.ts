@@ -66,7 +66,7 @@ export async function readFile<
     const fullPath = generateFullPath(path);
 
     if (!fileExists(fullPath)) {
-      if (opts?.required) {
+      if (!(opts?.required ?? false)) {
         return res(null as any);
       }
 

@@ -1,20 +1,36 @@
-import _, { cloneDeep, debounce, isEqual } from "lodash";
+import _, { cloneDeep, debounce, isEqual, over } from "lodash";
 import * as yup from "yup";
 import { px } from "../../shared/dom/units";
 import {
   Notebook,
+  Notebooks,
   notebookSchema,
+  ShortcutOverride,
+  shortcutSchema,
+  Shortcuts,
   State,
   Tag,
+  Tags,
   tagSchema,
+  UI,
+  uiSchema,
+  Shortcut,
 } from "../../shared/domain";
+import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
+import {
+  keyCodesToString,
+  parseKeyCode,
+  parseKeyCodes,
+} from "../../shared/io/keyCode";
 import { RpcRegistry } from "../../shared/rpc";
 import { readFile, writeFile } from "../fileSystem";
 
 export const DEFAULT_STATE: State = {
-  globalNavigation: {
-    width: px(300),
-    scroll: 0,
+  ui: {
+    globalNavigation: {
+      width: px(300),
+      scroll: 0,
+    },
   },
   tags: {
     values: [],
@@ -42,44 +58,115 @@ function isValidFileName(fileName: FileName) {
   );
 }
 
-const uiFile = getFileHandler<Pick<State, "globalNavigation">>(
-  "ui.json",
-  yup.object().shape({
-    globalNavigation: yup.object().shape({
-      width: yup.string().required(),
-      scroll: yup.number().required().min(0),
-    }),
-  })
-);
-const tagFile = getFileHandler<Tag[]>("tags.json", yup.array(tagSchema));
-const notebookFile = getFileHandler<Notebook[]>(
-  "notebooks.json",
-  yup.array(notebookSchema)
-);
-
 export async function load(): Promise<State> {
-  const [ui, tags, notebooks] = await Promise.all([
+  const [ui, tags, notebooks, shortcuts] = await Promise.all([
     uiFile.load(),
     tagFile.load(),
     notebookFile.load(),
+    shortcutFile.load(),
   ]);
 
   return {
-    globalNavigation: ui.globalNavigation,
-    tags: { values: tags },
-    notebooks: { values: notebooks },
+    ui,
+    tags,
+    notebooks,
+    shortcuts,
   };
 }
 
 export async function save(state: State): Promise<void> {
+  const { ui, tags, notebooks } = state;
+
   await Promise.all([
-    uiFile.save({
-      globalNavigation: state.globalNavigation,
-    }),
-    tagFile.save(state.tags.values),
-    notebookFile.save(state.notebooks.values),
+    uiFile.save(ui),
+    tagFile.save(tags),
+    notebookFile.save(notebooks),
   ]);
 }
+
+const uiFile = createFileHandler<UI>("ui.json", uiSchema);
+const tagFile = createFileHandler<Tags>(
+  "tags.json",
+  yup.object().shape({
+    values: yup.array(tagSchema).optional(),
+  }),
+  {
+    serialize: (n) => n.values,
+    deserialize: (c) => ({ values: c ?? [] }),
+  }
+);
+const notebookFile = createFileHandler<Notebooks>(
+  "notebooks.json",
+  yup.object().shape({
+    values: yup.array(notebookSchema).optional(),
+  }),
+  {
+    serialize: (n) => n.values,
+    deserialize: (c) => ({ values: c ?? [] }),
+  }
+);
+const shortcutFile = createFileHandler<Shortcuts>(
+  "shortcuts.json",
+  yup.object().shape({
+    values: yup.array(shortcutSchema).optional(),
+  }),
+  {
+    serialize: (shortcuts) =>
+      shortcuts.values
+        .filter((s) => s.userDefined)
+        .map((s) => ({
+          ...s,
+          keys: keyCodesToString(s.keys),
+        })),
+    deserialize: (raw: ShortcutOverride[]) => {
+      if (raw == null || raw.length === 0) {
+        return { values: [] };
+      }
+
+      // Is there any redundant keys?
+      const duplicates = raw.filter(
+        (item, index) => raw.findIndex((i) => i.keys === item.keys) != index
+      );
+
+      if (duplicates.length > 0) {
+        console.log(
+          "Error: Complete list of duplicate shortcuts: ",
+          duplicates
+        );
+        throw Error(`Duplicate shortcuts for keys ${duplicates[0].keys}`);
+      }
+
+      const values = [];
+      for (const defaultShortcut of DEFAULT_SHORTCUTS) {
+        const userOverride = raw.find(
+          (s) => s.command === defaultShortcut.command
+        );
+
+        let shortcut: Shortcut;
+
+        if (userOverride == null) {
+          shortcut = Object.assign({}, defaultShortcut, userOverride);
+        } else {
+          // Validate it has keys if it's new.
+          if (userOverride.keys == null) {
+            throw Error(
+              `User defined shortcut for ${userOverride.command} does not have any keys specified`
+            );
+          }
+
+          shortcut = Object.assign(
+            {},
+            { ...userOverride, keys: parseKeyCodes(userOverride.keys) }
+          );
+        }
+
+        values.push(shortcut);
+      }
+
+      return { values };
+    },
+  }
+);
 
 interface FileHandler<Content> {
   save(content: Content): Promise<Content>;
@@ -88,9 +175,10 @@ interface FileHandler<Content> {
 
 const DEBOUNCE_INTERVAL = 250;
 
-function getFileHandler<Content>(
+function createFileHandler<Content>(
   name: FileName,
-  schema: yup.AnySchema
+  schema: yup.SchemaOf<Content>,
+  opts?: { serialize?: (c: Content) => any; deserialize?: (c: any) => Content }
 ): FileHandler<Content> {
   if (!isValidFileName(name)) {
     throw Error(`Invalid file name ${name}`);
@@ -104,7 +192,15 @@ function getFileHandler<Content>(
     }
 
     await schema.validate(content);
-    await writeFile(name, content, "json");
+
+    let c;
+    if (opts?.serialize != null) {
+      c = opts.serialize(content);
+    } else {
+      c = content;
+    }
+
+    await writeFile(name, c, "json");
     previous = cloneDeep(content);
 
     return content;
@@ -113,11 +209,18 @@ function getFileHandler<Content>(
   const load = async () => {
     const content = await readFile(name, "json");
 
-    if (content != null) {
-      await schema.validate(content);
+    let c;
+    if (opts?.deserialize != null) {
+      c = opts.deserialize(content);
+    } else {
+      c = content;
     }
 
-    return content;
+    if (c != null) {
+      await schema.validate(c);
+    }
+
+    return c;
   };
 
   return {

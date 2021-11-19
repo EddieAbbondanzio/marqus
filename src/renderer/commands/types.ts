@@ -2,11 +2,11 @@
  * These types cannot be in index.ts otherwise we introduce a circular dependency.
  */
 
-import { AppState } from "../state";
+import { State } from "../../shared/domain";
 
 export interface CommandContext {
-  state: AppState;
-  commit(newState: AppState): Promise<void>;
+  state: State;
+  commit(newState: State): Promise<void>;
   rollback(): Promise<void>;
 }
 

@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-constructor */
 
 import _ from "lodash";
-import { AppState, SetAppState } from "../state";
+import { State } from "../../shared/domain";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 import { TAG_REGISTRY } from "./reducers/tags";
 import { Command } from "./types";
@@ -50,8 +50,8 @@ export type Execute = <
 ) => Promise<void>;
 
 export function useCommands(
-  state: AppState,
-  setAppState: SetAppState
+  state: State,
+  setAppState: (s: State) => Promise<void>
 ): Execute {
   return async (name, payload: any) => {
     const command: Command<any> = COMMAND_REGISTRY[name];
@@ -72,7 +72,7 @@ export function useCommands(
      * Apply local changes made to state from a command.
      * @param newState The new application state to save.
      */
-    const commit = async (newState: AppState): Promise<void> => {
+    const commit = async (newState: State): Promise<void> => {
       if (called != null) {
         throw Error(`Cannot commit. Already called ${called}`);
       }

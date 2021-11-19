@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { PropsWithChildren } from "react";
-import { generateId } from "../../../shared/domain/id";
+import { generateId } from "../../../shared/domain";
 import {
   FOCUSABLE_ID_ATTRIBUTE,
   registerFocusable,

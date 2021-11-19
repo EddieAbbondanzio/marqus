@@ -7,16 +7,20 @@ import {
   useReducer,
 } from "react";
 import { CommandName, COMMAND_REGISTRY, Execute } from "../commands";
-import { isModifier, isValidKeyCode, KeyCode, parseKeyCode } from "./keyCode";
 import { useAsync } from "react-async-hook";
 import { chain, isEqual, partition, uniq } from "lodash";
-import { DEFAULT_SHORTCUTS } from "./defaultShortcuts";
+import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { IsFocused } from "../ui/focusables";
 import * as yup from "yup";
 import { SchemaOf } from "yup";
 import { sleep } from "../../shared/utils/sleep";
-
-const { rpc } = window;
+import { Shortcut, ShortcutOverride } from "../../shared/domain";
+import {
+  isModifier,
+  isValidKeyCode,
+  KeyCode,
+  parseKeyCode,
+} from "../../shared/io/keyCode";
 
 export interface Keyboard {
   enabled: boolean;
@@ -71,51 +75,10 @@ export type KeyboardAction =
   | KeyboardStartRepeat
   | KeyboardStopRepeat;
 
-export interface Shortcut {
-  command: CommandName;
-  keys: KeyCode[];
-  disabled?: boolean;
-  when?: string;
-  repeat?: boolean;
-}
-
-export interface ShortcutOverride {
-  command: CommandName;
-  keys?: string;
-  disabled?: boolean;
-  when?: string;
-  repeat?: boolean;
-}
-
 export enum RepeatDelay {
   First = 500,
   Remainder = 100,
 }
-
-export const VALID_COMMANDS: string[] = chain(COMMAND_REGISTRY).keys().value();
-export const VALID_WHENS: string[] = chain(DEFAULT_SHORTCUTS)
-  .filter((s) => s.when != null)
-  .map((s) => s.when!)
-  .uniq()
-  .value();
-
-export const SHORTCUT_FILE_SCHEMA: SchemaOf<ShortcutOverride[]> = yup
-  .array()
-  .of(
-    yup.object().shape({
-      command: yup
-        .string()
-        .required()
-        .oneOf(VALID_COMMANDS) as yup.StringSchema<CommandName>,
-      keys: yup.string().optional(),
-      disabled: yup.boolean().optional(),
-      when: yup.string().optional().oneOf(VALID_WHENS),
-      repeat: yup.bool().optional(),
-    })
-  );
-
-export const SHORTCUT_FILE = "shortcuts.json";
-export const KEYCODE_DELIMITER = "+";
 
 let isRepeating = false;
 
@@ -178,45 +141,6 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
     shortcuts: [],
   });
 
-  useAsync(async () => {
-    /*
-     * Load user shortcuts. User's should be able to change the keys, when,
-     * or disable an existing shortcut. User's should also be able to create
-     * new shortcuts.
-     */
-
-    const userShortcuts = await loadUserShortcuts();
-    let newShortcuts = [];
-
-    for (const defaultShortcut of DEFAULT_SHORTCUTS) {
-      const userOverride = userShortcuts.find(
-        (s) => s.command === defaultShortcut.command
-      );
-
-      let shortcut: Shortcut;
-
-      if (userOverride == null) {
-        shortcut = Object.assign({}, defaultShortcut, userOverride);
-      } else {
-        // Validate it has keys if it's new.
-        if (userOverride.keys == null) {
-          throw Error(
-            `User defined shortcut for ${userOverride.command} does not have any keys specified`
-          );
-        }
-
-        shortcut = Object.assign(
-          {},
-          { ...userOverride, keys: parseKeyCodes(userOverride.keys) }
-        );
-      }
-
-      newShortcuts.push(shortcut);
-    }
-
-    dispatch({ type: "loadShortcuts", shortcuts: newShortcuts });
-  }, []);
-
   const context = {
     execute: useCallback(execute, [state.activeKeys]),
     dispatch,
@@ -241,10 +165,7 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
 
   useEffect(
     () => {
-      // Retrieve every currently pressed key
       const keys = toArray(state.activeKeys);
-
-      // Check to see if we have a shortcut that matches the current combo
       const shortcut = state.shortcuts.find((s) => isEqual(s.keys, keys));
 
       // Kill previous shortcut if running on repeat in loop (.repeat = true)
@@ -253,7 +174,7 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
       let repeating: NodeJS.Timer | undefined;
 
       /*
-       * If we found a shortcut fire it.
+       * Try to find a shortcut and execute it.
        * Everytime state changes, aka dispatch() is fired we trigger a
        * re-render. This gives us the perfect change to check for commands
        * to fire because it means the keys have changed.
@@ -270,7 +191,8 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
 
           if (isEqual(currKeys, prevKeys)) {
             repeating = setInterval(() => {
-              void execute(shortcut.command, undefined!);
+              // Casts are gross
+              void execute(shortcut.command as CommandName, undefined!);
             }, RepeatDelay.Remainder);
 
             dispatch({ type: "startRepeat", shortcut, repeating });
@@ -326,89 +248,3 @@ const onKeyUp = (
   const key = parseKeyCode(code);
   dispatch({ type: "keyUp", key });
 };
-
-export function sort(keys: KeyCode[]): KeyCode[] {
-  const [modifiers, normalKeys] = partition(keys, isModifier);
-
-  // Map the values in the array into an object for that O(1) lookup.
-  const modifierFlags = modifiers.reduce(
-    (accumulator: any, modifier) => ({ ...accumulator, [modifier]: true }),
-    {}
-  );
-
-  /*
-   * Modifiers should always be first, and in a specific order.
-   */
-
-  const sorted: KeyCode[] = [];
-
-  if (modifierFlags.control) {
-    sorted.push(KeyCode.Control);
-  }
-
-  if (modifierFlags.shift) {
-    sorted.push(KeyCode.Shift);
-  }
-
-  if (modifierFlags.alt) {
-    sorted.push(KeyCode.Alt);
-  }
-
-  // Add the rest of the keys. Sorted alphabetically lol.
-  sorted.push(...normalKeys.sort());
-  return sorted;
-}
-
-export function keyCodesToString(keys: KeyCode[]): string {
-  if (keys.length === 0) {
-    throw Error("Shortcut must have at least 1 key");
-  }
-
-  if (new Set(keys).size !== keys.length) {
-    console.error("Duplicate keys in shortcut: ", keys);
-    throw Error("Duplicate keys detected in shortcut");
-  }
-
-  const shortcutKeys = sort(keys);
-  return shortcutKeys.join(KEYCODE_DELIMITER);
-}
-
-export function parseKeyCodes(shortcutString: string): KeyCode[] {
-  // Split up the keys, and remove any duplicates.
-  const rawKeys = uniq(shortcutString.split(KEYCODE_DELIMITER));
-  const keys: KeyCode[] = [];
-
-  for (const key of rawKeys) {
-    const trimmedKey = key.trim();
-
-    if (!isValidKeyCode(trimmedKey)) {
-      throw Error(`Invalid key code: ${trimmedKey}`);
-    }
-
-    keys.push(trimmedKey);
-  }
-
-  return sort(keys);
-}
-
-export async function loadUserShortcuts(): Promise<ShortcutOverride[]> {
-  const raw = await rpc("config.load", { name: SHORTCUT_FILE });
-
-  if (raw == null) {
-    return [];
-  }
-
-  const overrides = (await SHORTCUT_FILE_SCHEMA.validate(raw))!;
-
-  // Is there any redundant keys?
-  const duplicates = overrides.filter(
-    (item, index) => overrides.findIndex((i) => i.keys === item.keys) != index
-  );
-
-  if (duplicates.length > 0) {
-    console.log("Error: Complete list of duplicate shortcuts: ", duplicates);
-    throw Error(`Duplicate shortcuts for keys ${duplicates[0].keys}`);
-  }
-
-  return overrides;
-}

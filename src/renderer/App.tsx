@@ -3,15 +3,15 @@ import * as ReactDOM from "react-dom";
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
-import { createContext, useEffect, useReducer } from "react";
-import { useAppState } from "./state";
+import { createContext } from "react";
 import { Execute, useCommands } from "./commands/index";
 import { useKeyboard } from "./io/keyboard";
 import { useFocusables } from "./ui/focusables";
-import { promptUser } from "./ui/promptUser";
 import { State } from "../shared/domain";
 
-interface AppContext {
+const { rpc } = window;
+
+export interface AppContext {
   state: State;
   execute: Execute;
   // TODO: Theme support
@@ -31,27 +31,32 @@ export const useAppContext = () => {
   if (ctx == null) {
     throw Error(`useAppContext must be called within the AppContext.Provider`);
   }
+
+  return ctx;
 };
 
-function App() {
-  const [state, setState] = useAppState();
+(async () => {
+  const state = await rpc("state.load");
+  const setState = async (s: State) => rpc("state.save", s);
 
-  const execute = useCommands(state, setState);
-  const isFocused = useFocusables();
-  useKeyboard(execute, isFocused);
+  function App() {
+    const execute = useCommands(state, setState);
+    const isFocused = useFocusables();
+    useKeyboard(execute, isFocused);
 
-  return (
-    <AppContext.Provider
-      value={{
-        state,
-        execute,
-      }}
-    >
-      <Layout>
-        <GlobalNavigation />
-      </Layout>
-    </AppContext.Provider>
-  );
-}
+    return (
+      <AppContext.Provider
+        value={{
+          state,
+          execute,
+        }}
+      >
+        <Layout>
+          <GlobalNavigation />
+        </Layout>
+      </AppContext.Provider>
+    );
+  }
 
-ReactDOM.render(<App />, dom);
+  ReactDOM.render(<App />, dom);
+})();

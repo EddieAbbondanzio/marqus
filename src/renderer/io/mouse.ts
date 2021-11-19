@@ -1,6 +1,5 @@
 import { Reducer, RefObject, useCallback, useEffect, useReducer } from "react";
-import { resetCursor, setCursor } from "../ui/cursor";
-import { KeyCode, parseKeyCode } from "./keyCode";
+import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
 
 export type MouseButton = "left" | "right" | "either";
 

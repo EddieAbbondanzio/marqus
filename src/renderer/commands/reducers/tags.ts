@@ -1,4 +1,3 @@
-import { Tag } from "../../../shared/domain/tag";
 import { Command } from "../types";
 
 export const create: Command<string> = async (context, name: string) => {

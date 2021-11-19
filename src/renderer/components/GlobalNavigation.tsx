@@ -14,14 +14,11 @@ import React, {
   useReducer,
   useState,
 } from "react";
-import { generateId } from "../../shared/domain/id";
-import { AppContext } from "../App";
+import { AppContext, useAppContext } from "../App";
 import { NavigationMenu } from "./shared/NavigationMenu";
 import { Focusable } from "./shared/Focusable";
-import { Icon, IconButton } from "./shared/Icon";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
-import { AppState } from "../state";
 
 export interface NavigationItem {
   icon: IconDefinition;
@@ -31,7 +28,7 @@ export interface NavigationItem {
 }
 
 export function GlobalNavigation(): JSX.Element {
-  const { state, execute } = useContext(AppContext);
+  const { state, execute } = useAppContext();
 
   /**
    * Generate the navigation menu components. This isn't something we want
@@ -73,7 +70,7 @@ export function GlobalNavigation(): JSX.Element {
     return items.map(mapper);
   }, [state]);
 
-  const { width, scroll } = state.globalNavigation;
+  const { width, scroll } = state.ui.globalNavigation;
 
   return (
     <Resizable

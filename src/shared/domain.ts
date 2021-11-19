@@ -1,11 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
 import * as yup from "yup";
+import { KeyCode } from "./io/keyCode";
 
 export interface State {
-  globalNavigation: GlobalNavigation;
+  ui: UI;
   tags: Tags;
   notebooks: Notebooks;
   shortcuts: Shortcuts;
+}
+
+export interface UI {
+  globalNavigation: GlobalNavigation;
 }
 
 export interface GlobalNavigation {
@@ -17,6 +22,14 @@ export interface Tags {
   values: Tag[];
 }
 
+export interface Tag extends UserResource {
+  name: string;
+}
+
+export interface Notebooks {
+  values: Notebook[];
+}
+
 export interface Notebook extends UserResource {
   name: string;
   expanded?: boolean;
@@ -24,12 +37,25 @@ export interface Notebook extends UserResource {
   children?: Notebook[];
 }
 
-export interface Notebooks {
-  values: Notebook[];
+export interface Shortcuts {
+  values: Shortcut[];
 }
 
-export interface Shortcuts {
-  values: Shortcuts[];
+export interface Shortcut {
+  command: string;
+  keys: KeyCode[];
+  disabled?: boolean;
+  when?: string;
+  repeat?: boolean;
+  userDefined?: boolean;
+}
+
+export interface ShortcutOverride {
+  command: string;
+  keys?: string;
+  disabled?: boolean;
+  when?: string;
+  repeat?: boolean;
 }
 
 export enum NoteFlag {
@@ -50,10 +76,6 @@ export interface UserResource {
   id: string;
   dateCreated: Date;
   dateUpdated?: Date;
-}
-
-export interface Tag extends UserResource {
-  name: string;
 }
 
 /**
@@ -94,3 +116,19 @@ export const tagSchema: yup.SchemaOf<Tag> = yup
 export const notebookSchema: yup.SchemaOf<Notebook> = yup
   .object()
   .shape({} as any);
+
+export const uiSchema = yup.object().shape({
+  globalNavigation: yup.object().shape({
+    width: yup.string().required(),
+    scroll: yup.number().required().min(0),
+  }),
+});
+
+export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
+  command: yup.string().required(),
+  keys: yup.array(),
+  disabled: yup.boolean().optional(),
+  when: yup.string().optional(),
+  repeat: yup.bool().optional(),
+  userDefined: yup.bool().optional(),
+});
