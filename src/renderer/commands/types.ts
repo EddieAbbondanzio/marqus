@@ -2,7 +2,7 @@
  * These types cannot be in index.ts otherwise we introduce a circular dependency.
  */
 
-import { AppState } from "../ui/appState";
+import { AppState } from "../state";
 
 export interface CommandContext {
   state: AppState;

@@ -21,7 +21,7 @@ import { Focusable } from "./shared/Focusable";
 import { Icon, IconButton } from "./shared/Icon";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
-import { AppState } from "../ui/appState";
+import { AppState } from "../state";
 
 export interface NavigationItem {
   icon: IconDefinition;

@@ -1,5 +1,6 @@
 import _, { cloneDeep, debounce, isEqual } from "lodash";
 import * as yup from "yup";
+import { px } from "../../shared/dom/units";
 import {
   Notebook,
   notebookSchema,
@@ -10,11 +11,36 @@ import {
 import { RpcRegistry } from "../../shared/rpc";
 import { readFile, writeFile } from "../fileSystem";
 
+export const DEFAULT_STATE: State = {
+  globalNavigation: {
+    width: px(300),
+    scroll: 0,
+  },
+  tags: {
+    values: [],
+  },
+  notebooks: {
+    values: [],
+  },
+  shortcuts: {
+    values: [],
+  },
+};
+
 export type FileName =
   | "tags.json"
   | "notebooks.json"
   | "shortcuts.json"
   | "ui.json";
+
+function isValidFileName(fileName: FileName) {
+  return (
+    fileName === "tags.json" ||
+    fileName === "notebooks.json" ||
+    fileName === "ui.json" ||
+    fileName === "shortcuts.json"
+  );
+}
 
 const uiFile = getFileHandler<Pick<State, "globalNavigation">>(
   "ui.json",
@@ -57,16 +83,22 @@ export async function save(state: State): Promise<void> {
 
 interface FileHandler<Content> {
   save(content: Content): Promise<Content>;
-  load(opts?: { required: boolean }): Promise<Content>;
+  load(): Promise<Content>;
 }
+
+const DEBOUNCE_INTERVAL = 250;
 
 function getFileHandler<Content>(
   name: FileName,
   schema: yup.AnySchema
 ): FileHandler<Content> {
+  if (!isValidFileName(name)) {
+    throw Error(`Invalid file name ${name}`);
+  }
+
   let previous: Content;
 
-  const save: any = async (content: Content): Promise<Content> => {
+  const save: any = debounce(async (content: Content): Promise<Content> => {
     if (previous != null && isEqual(content, previous)) {
       return content;
     }
@@ -76,10 +108,10 @@ function getFileHandler<Content>(
     previous = cloneDeep(content);
 
     return content;
-  };
+  }, DEBOUNCE_INTERVAL);
 
-  const load = async (opts?: { required: boolean }) => {
-    const content = await readFile(name, "json", opts);
+  const load = async () => {
+    const content = await readFile(name, "json");
 
     if (content != null) {
       await schema.validate(content);

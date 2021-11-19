@@ -4,14 +4,15 @@ import { fontAwesomeLib } from "./libs/fontAwesome";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
 import { createContext, useEffect, useReducer } from "react";
-import { AppState, useAppState } from "./ui/appState";
+import { useAppState } from "./state";
 import { Execute, useCommands } from "./commands/index";
 import { useKeyboard } from "./io/keyboard";
 import { useFocusables } from "./ui/focusables";
 import { promptUser } from "./ui/promptUser";
+import { State } from "../shared/domain";
 
 interface AppContext {
-  state: AppState;
+  state: State;
   execute: Execute;
   // TODO: Theme support
 }
@@ -19,16 +20,18 @@ interface AppContext {
 fontAwesomeLib();
 
 const dom = document.getElementById("app");
-
 if (dom == null) {
   throw Error("No root container to render in");
 }
 
-export const AppContext = createContext<AppContext>({
-  // Stubs to keep things from blowing up
-  state: { globalNavigation: {} },
-  execute: () => {},
-} as any);
+export const AppContext = createContext<AppContext | undefined>(undefined);
+export const useAppContext = () => {
+  const ctx = React.useContext(AppContext);
+
+  if (ctx == null) {
+    throw Error(`useAppContext must be called within the AppContext.Provider`);
+  }
+};
 
 function App() {
   const [state, setState] = useAppState();

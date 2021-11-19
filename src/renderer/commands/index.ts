@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-constructor */
 
 import _ from "lodash";
-import { AppState, SetAppState } from "../ui/appState";
+import { AppState, SetAppState } from "../state";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 import { TAG_REGISTRY } from "./reducers/tags";
 import { Command } from "./types";
