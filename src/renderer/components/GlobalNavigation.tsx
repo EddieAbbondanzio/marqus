@@ -15,17 +15,10 @@ import React, {
   useState,
 } from "react";
 import { AppContext, useAppContext } from "../App";
-import { NavigationMenu } from "./shared/NavigationMenu";
+import { NavigationMenu, NavigationMenuProps } from "./shared/NavigationMenu";
 import { Focusable } from "./shared/Focusable";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
-
-export interface NavigationItem {
-  icon: IconDefinition;
-  label: string;
-  expanded?: boolean;
-  children?: NavigationItem[];
-}
 
 export function GlobalNavigation(): JSX.Element {
   const { state, execute } = useAppContext();
@@ -36,35 +29,48 @@ export function GlobalNavigation(): JSX.Element {
    */
   const menus = useMemo(() => {
     const all = {
-      label: "ALL",
+      label: "all",
       icon: faFile,
+      path: "all",
     };
     const notebooks = {
-      label: "NOTEBOOKS",
+      label: "notebooks",
       icon: faBook,
+      path: "notebooks",
     };
     const tags = {
-      label: "TAGS",
+      label: "tags",
       icon: faTag,
+      path: "tags",
     };
+
     const favorites = {
-      label: "FAVORITES",
+      label: "favorites",
       icon: faStar,
+      path: "favorites",
     };
     const trash = {
-      label: "TRASH",
+      label: "trash",
       icon: faTrash,
+      path: "trash",
     };
 
     // TODO: Allow the user to reorder / hide these
-    const items: NavigationItem[] = [all, notebooks, tags, favorites, trash];
+    const items: Array<NavigationMenuProps & { path: string }> = [
+      all,
+      notebooks,
+      tags,
+      favorites,
+      trash,
+    ];
 
     // Recursively render the menus
-    const mapper = (item: NavigationItem) => (
+    const mapper = (item: NavigationMenuProps & { path: string }) => (
       <NavigationMenu
-        key={items.length}
+        key={item.path}
         label={item.label}
         icon={item.icon}
+        parent={item.parent}
         children={item.children?.map(mapper)}
       />
     );
