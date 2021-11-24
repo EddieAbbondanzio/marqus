@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { generateId } from "../shared/domain";
+import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, Rpc } from "../shared/rpc";
-
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
   reject: (err: any) => unknown;
@@ -9,7 +9,7 @@ export interface ExposedPromise {
 
 const promises: { [id: string]: ExposedPromise } = {};
 
-if (ipcRenderer == null) {
+if (getProcessType() === "main") {
   throw Error(
     "ipcRenderer is null. Did you accidentally import 'preload.ts' into a main process file?"
   );
@@ -76,6 +76,6 @@ export function isError(
 }
 
 // Sanity check
-if (process.env.NODE_ENV === "development") {
+if (getNodeEnv() === "development") {
   console.log("preload complete");
 }

@@ -1,19 +1,11 @@
 import {
   faBook,
-  faCoffee,
   faFile,
   faStar,
   faTag,
   faTrash,
-  IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
-import React, {
-  Component,
-  useContext,
-  useMemo,
-  useReducer,
-  useState,
-} from "react";
+import React, { useMemo } from "react";
 import { AppContext, useAppContext } from "../App";
 import { NavigationMenu, NavigationMenuProps } from "./shared/NavigationMenu";
 import { Focusable } from "./shared/Focusable";
@@ -77,7 +69,6 @@ export function GlobalNavigation(): JSX.Element {
     return items.map(mapper);
   }, [state]);
 
-  console.log("State: ", state);
   const { width, scroll } = state.ui.globalNavigation;
 
   return (
@@ -98,3 +89,17 @@ export function GlobalNavigation(): JSX.Element {
     </Resizable>
   );
 }
+
+// const useGlobalNavigationContextMenu = createContextMenu(
+//   "globalNavigation",
+//   (c: any, p: any) => {
+//     const element = document.elementFromPoint(p.x, p.y) as HTMLElement | null;
+
+//     return [
+//       {
+//         label: "Foo",
+//       },
+//       { label: "Bar" },
+//     ];
+//   }
+// );

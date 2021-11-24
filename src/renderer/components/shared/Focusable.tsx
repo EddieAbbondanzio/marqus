@@ -15,10 +15,6 @@ export function Focusable({ children }: PropsWithChildren<FocusableProps>) {
   const [id] = useState(generateId);
   const el = useRef<HTMLDivElement>(null);
 
-  const customAttributes = {
-    [FOCUSABLE_ID_ATTRIBUTE]: id,
-  };
-
   useEffect(() => {
     const f = {
       id,
@@ -34,7 +30,7 @@ export function Focusable({ children }: PropsWithChildren<FocusableProps>) {
   });
 
   return (
-    <div tabIndex={-1} ref={el} {...customAttributes}>
+    <div tabIndex={-1} ref={el} {...{ [FOCUSABLE_ID_ATTRIBUTE]: id }}>
       {children}
     </div>
   );

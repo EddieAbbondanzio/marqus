@@ -1,10 +1,9 @@
 import { app, BrowserWindow, ipcMain } from "electron";
+import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcHandler, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { notifyOnReady } from "./events";
 import { PROMPT_USER_RPCS } from "./rpcs/promptUser";
 import { stateRpcs } from "./rpcs/state";
-
-const isDevelopment = process.env.NODE_ENV !== "production";
 
 /*
  * Register new handlers here. You'll need to update IpcType too
@@ -14,7 +13,7 @@ export const handlers: RpcRegistry = {
   ...stateRpcs,
 };
 
-if (ipcMain == null) {
+if (getProcessType() !== "main") {
   throw Error(
     "ipcMain is null. Did you accidentally call main.ts on the renderer thread?"
   );
@@ -39,7 +38,7 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
   if (handler == null) {
     respondError(Error("An error has occured."));
 
-    if (isDevelopment) {
+    if (getNodeEnv() === "development") {
       console.warn(
         `Main recieved rpc: ${arg.type}
          but no handler was found. Any changes made to main thread code require a restart.`
