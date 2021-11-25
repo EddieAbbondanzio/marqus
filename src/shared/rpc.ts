@@ -1,5 +1,6 @@
-import { State, Tag } from "../domain";
-import { PromptButton, PromptOptions } from "./promptUser";
+import { State, Tag } from "./domain";
+import { ContextMenu, ContextMenuItem } from "./ui/contextMenu";
+import { PromptButton, PromptOptions } from "./ui/promptUser";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.

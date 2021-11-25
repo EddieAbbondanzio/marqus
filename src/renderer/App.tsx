@@ -8,6 +8,8 @@ import { Execute, useCommands } from "./commands/index";
 import { useKeyboard } from "./io/keyboard";
 import { useFocusables } from "./ui/focusables";
 import { State } from "../shared/domain";
+import { promptUser } from "./ui/promptUser";
+import { curry } from "lodash";
 
 const { rpc } = window;
 

@@ -2,14 +2,14 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcHandler, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { notifyOnReady } from "./events";
-import { PROMPT_USER_RPCS } from "./rpcs/promptUser";
+import { promptUserRpcs } from "./rpcs/promptUser";
 import { stateRpcs } from "./rpcs/state";
 
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
 export const handlers: RpcRegistry = {
-  ...PROMPT_USER_RPCS,
+  ...promptUserRpcs,
   ...stateRpcs,
 };
 

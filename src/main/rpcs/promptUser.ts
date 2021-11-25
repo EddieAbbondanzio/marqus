@@ -1,6 +1,6 @@
 import { dialog } from "electron";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
-import { PromptOptions } from "../../shared/rpc/promptUser";
+import { PromptOptions } from "../../shared/ui/promptUser";
 
 const promptUser: RpcHandler<"ui.promptUser"> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
@@ -25,6 +25,6 @@ const promptUser: RpcHandler<"ui.promptUser"> = async (opts) => {
   return opts.buttons[returnVal.response];
 };
 
-export const PROMPT_USER_RPCS: RpcRegistry = {
+export const promptUserRpcs: RpcRegistry = {
   "ui.promptUser": promptUser,
 };
