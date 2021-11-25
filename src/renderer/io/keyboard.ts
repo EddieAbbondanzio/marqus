@@ -148,7 +148,6 @@ export function useKeyboard(
         return { ...state, repeating: undefined };
 
       case "setPreviousKeys":
-        console.log("set active keys: ", action.previousKeys);
         return { ...state, previousKeys: action.previousKeys };
     }
   };
@@ -166,17 +165,17 @@ export function useKeyboard(
    */
 
   const keyDown = (ev: KeyboardEvent) => {
-    // Prevent redundant calls
-    if (ev.repeat) {
-      return;
-    }
-
     /*
      * Disable all default shortcuts. It seems a little silly to re-implement
      * everything but this gives the user a chance to redefine or disable any
      * shortcut.
      */
     ev.preventDefault();
+
+    // Prevent redundant calls
+    if (ev.repeat) {
+      return;
+    }
 
     onKeyDown(dispatch, ev);
   };
@@ -191,8 +190,6 @@ export function useKeyboard(
       let repeating: NodeJS.Timer | undefined;
 
       if (!isEqual(activeKeys, previousKeys)) {
-        console.log("keys weren't active! prev keys: ", previousKeys);
-
         // Kill previous shortcut if running on repeat in loop (.repeat = true)
         dispatch({ type: "stopRepeat" });
 

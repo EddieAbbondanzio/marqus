@@ -29,7 +29,23 @@ const openDevTools: RpcHandler<"ui.openDevTools"> = async () => {
   BrowserWindow.getFocusedWindow()?.webContents.openDevTools();
 };
 
+const reload: RpcHandler<"ui.reload"> = async () => {
+  BrowserWindow.getFocusedWindow()?.webContents.reload();
+};
+
+const toggleFullScreen: RpcHandler<"ui.toggleFullScreen"> = async () => {
+  const bw = BrowserWindow.getFocusedWindow();
+
+  if (bw == null) {
+    return;
+  }
+
+  bw.setFullScreen(!bw.isFullScreen());
+};
+
 export const promptUserRpcs: RpcRegistry = {
   "ui.promptUser": promptUser,
   "ui.openDevTools": openDevTools,
+  "ui.reload": reload,
+  "ui.toggleFullScreen": toggleFullScreen,
 };

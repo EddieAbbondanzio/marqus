@@ -23,6 +23,14 @@ const shortcuts: Shortcut[] = [
     command: "app.openDevTools",
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterI],
   },
+  {
+    command: "app.reload",
+    keys: [KeyCode.Control, KeyCode.LetterR],
+  },
+  {
+    command: "app.toggleFullScreen",
+    keys: [KeyCode.F11],
+  },
 ];
 
 export const DEFAULT_SHORTCUTS = shortcuts.map((s) => ({

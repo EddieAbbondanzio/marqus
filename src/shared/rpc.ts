@@ -28,6 +28,8 @@ export interface RpcSchema {
   // UI
   "ui.promptUser": RpcInOut<PromptOptions, PromptButton>;
   "ui.openDevTools": RpcVoid;
+  "ui.reload": RpcVoid;
+  "ui.toggleFullScreen": RpcVoid;
 }
 
 export type RpcType = keyof RpcSchema;
