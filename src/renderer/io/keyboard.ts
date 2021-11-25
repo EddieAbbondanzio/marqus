@@ -26,31 +26,32 @@ import {
 export interface Keyboard {
   enabled: boolean;
   activeKeys: Record<string, boolean | undefined>;
+  previousKeys: KeyCode[];
   shortcuts: Shortcut[];
   repeating?: NodeJS.Timer;
 }
 
 export type IsKeyDown = (key: KeyCode) => boolean;
 
-export interface KeyboardActionLoadShortcuts {
+export interface KeyboardLoadShortcuts {
   type: "loadShortcuts";
   shortcuts: Shortcut[];
 }
 
-export interface KeyboardActionEnable {
+export interface KeyboardEnable {
   type: "enable";
 }
 
-export interface KeyboardActionDisable {
+export interface KeyboardDisable {
   type: "disable";
 }
 
-export interface KeyboardActionKeyDown {
+export interface KeyboardKeyDown {
   type: "keyDown";
   key: KeyCode;
 }
 
-export interface KeyboardActionKeyUp {
+export interface KeyboardKeyUp {
   type: "keyUp";
   key: KeyCode;
 }
@@ -65,16 +66,22 @@ export interface KeyboardStopRepeat {
   type: "stopRepeat";
 }
 
+export interface KeyboardSetPreviousKeys {
+  type: "setPreviousKeys";
+  previousKeys: KeyCode[];
+}
+
 // Add start timer event?
 
 export type KeyboardAction =
-  | KeyboardActionEnable
-  | KeyboardActionDisable
-  | KeyboardActionKeyDown
-  | KeyboardActionKeyUp
-  | KeyboardActionLoadShortcuts
+  | KeyboardEnable
+  | KeyboardDisable
+  | KeyboardKeyDown
+  | KeyboardKeyUp
+  | KeyboardLoadShortcuts
   | KeyboardStartRepeat
-  | KeyboardStopRepeat;
+  | KeyboardStopRepeat
+  | KeyboardSetPreviousKeys;
 
 export enum RepeatDelay {
   First = 500,
@@ -139,12 +146,17 @@ export function useKeyboard(
 
         isRepeating = false;
         return { ...state, repeating: undefined };
+
+      case "setPreviousKeys":
+        console.log("set active keys: ", action.previousKeys);
+        return { ...state, previousKeys: action.previousKeys };
     }
   };
 
   const [state, dispatch] = useReducer(reducer, {
     enabled: true,
     activeKeys: {},
+    previousKeys: [],
     shortcuts: shortcuts.values,
   });
 
@@ -173,50 +185,60 @@ export function useKeyboard(
 
   useEffect(
     () => {
-      const keys = toArray(state.activeKeys);
-      const shortcut = state.shortcuts.find((s) => isEqual(s.keys, keys));
-
-      // Kill previous shortcut if running on repeat in loop (.repeat = true)
-      dispatch({ type: "stopRepeat" });
+      const activeKeys = toArray(state.activeKeys);
+      const { previousKeys } = state;
 
       let repeating: NodeJS.Timer | undefined;
 
-      /*
-       * Try to find a shortcut and execute it.
-       * Everytime state changes, aka dispatch() is fired we trigger a
-       * re-render. This gives us the perfect change to check for commands
-       * to fire because it means the keys have changed.
-       */
-      // console.log("keys: ", keys, " shortcut matched: ", shortcut);
-      if (shortcut != null && !shortcut.disabled) {
-        // undefined! over null! so we can support default parameters
-        void execute(shortcut.command as CommandName, undefined!);
+      if (!isEqual(activeKeys, previousKeys)) {
+        console.log("keys weren't active! prev keys: ", previousKeys);
 
-        (async () => {
-          const prevKeys = keys;
-          await sleep(RepeatDelay.First);
-          const currKeys = toArray(state.activeKeys);
+        // Kill previous shortcut if running on repeat in loop (.repeat = true)
+        dispatch({ type: "stopRepeat" });
 
-          if (isEqual(currKeys, prevKeys)) {
-            repeating = setInterval(() => {
-              // Casts are gross
-              void execute(shortcut.command as CommandName, undefined!);
-            }, RepeatDelay.Remainder);
-
-            dispatch({ type: "startRepeat", shortcut, repeating });
-          }
-        })();
+        const shortcut = state.shortcuts.find((s) =>
+          isEqual(s.keys, activeKeys)
+        );
 
         /*
-         * Prevent the chance of creating a memory leak.
-         * Also prevents from spamming intervals
+         * Try to find a shortcut and execute it.
+         * Everytime state changes, aka dispatch() is fired we trigger a
+         * re-render. This gives us the perfect change to check for commands
+         * to fire because it means the keys have changed.
          */
-        return () => {
-          if (repeating != null) {
-            clearInterval(repeating);
-            repeating = undefined;
+        if (shortcut != null && !shortcut.disabled) {
+          // undefined! over null! so we can support default parameters
+          void execute(shortcut.command as CommandName, undefined!);
+          dispatch({ type: "setPreviousKeys", previousKeys });
+
+          if (shortcut.repeat) {
+            (async () => {
+              const prevKeys = activeKeys;
+              await sleep(RepeatDelay.First);
+              const currKeys = toArray(state.activeKeys);
+
+              if (isEqual(currKeys, prevKeys)) {
+                repeating = setInterval(() => {
+                  // Casts are gross
+                  void execute(shortcut.command as CommandName, undefined!);
+                }, RepeatDelay.Remainder);
+
+                dispatch({ type: "startRepeat", shortcut, repeating });
+              }
+            })();
           }
-        };
+
+          /*
+           * Prevent the chance of creating a memory leak.
+           * Also prevents from spamming intervals
+           */
+          return () => {
+            if (repeating != null) {
+              clearInterval(repeating);
+              repeating = undefined;
+            }
+          };
+        }
       }
     },
     /*
