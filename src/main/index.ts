@@ -2,14 +2,14 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcHandler, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { notifyOnReady } from "./events";
-import { promptUserRpcs } from "./rpcs/promptUser";
+import { promptUserRpcs as uiRpcs } from "./rpcs/ui";
 import { stateRpcs } from "./rpcs/state";
 
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
 export const handlers: RpcRegistry = {
-  ...promptUserRpcs,
+  ...uiRpcs,
   ...stateRpcs,
 };
 
@@ -119,3 +119,5 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+// console.log("RPC handlers loaded.", handlers);

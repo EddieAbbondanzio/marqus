@@ -39,7 +39,7 @@ export const DEFAULT_STATE: State = {
     values: [],
   },
   shortcuts: {
-    values: [],
+    values: DEFAULT_SHORTCUTS,
   },
 };
 
@@ -125,7 +125,7 @@ const shortcutFile = createFileHandler<Shortcuts>(
         })),
     deserialize: (raw: ShortcutOverride[]) => {
       if (raw == null || raw.length === 0) {
-        return { values: [] };
+        return;
       }
 
       // Is there any redundant keys?
@@ -175,7 +175,6 @@ const shortcutFile = createFileHandler<Shortcuts>(
 
         values.push(shortcut);
       }
-
       return { values };
     },
   }
@@ -194,7 +193,7 @@ function createFileHandler<Content>(
   opts?: {
     defaultState?: Content;
     serialize?: (c: Content) => any;
-    deserialize?: (c: any) => Content;
+    deserialize?: (c: any) => Content | undefined;
   }
 ): FileHandler<Content> {
   if (!isValidFileName(name)) {

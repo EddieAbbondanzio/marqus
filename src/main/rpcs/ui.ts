@@ -1,4 +1,4 @@
-import { dialog } from "electron";
+import { BrowserWindow, dialog } from "electron";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import { PromptOptions } from "../../shared/ui/promptUser";
 
@@ -25,6 +25,11 @@ const promptUser: RpcHandler<"ui.promptUser"> = async (opts) => {
   return opts.buttons[returnVal.response];
 };
 
+const openDevTools: RpcHandler<"ui.openDevTools"> = async () => {
+  BrowserWindow.getFocusedWindow()?.webContents.openDevTools();
+};
+
 export const promptUserRpcs: RpcRegistry = {
   "ui.promptUser": promptUser,
+  "ui.openDevTools": openDevTools,
 };

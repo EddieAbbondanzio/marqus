@@ -6,9 +6,10 @@ import { PromptButton, PromptOptions } from "./ui/promptUser";
  * Helper types to define inputs and outputs of RPC handlers.
  */
 
-export type In<I> = [I, Promise<void>];
-export type InOut<I, O> = [I, Promise<O>];
-export type Out<O> = [void, Promise<O>];
+export type RpcIn<I> = [I, Promise<void>];
+export type RpcInOut<I, O> = [I, Promise<O>];
+export type RpcOut<O> = [void, Promise<O>];
+export type RpcVoid = [void, void];
 
 /*
  * TypeScript can't infer keys of a union type.
@@ -17,15 +18,16 @@ export type Out<O> = [void, Promise<O>];
  */
 export interface RpcSchema {
   // AppState
-  "state.load": Out<State>;
-  "state.save": In<State>;
+  "state.load": RpcOut<State>;
+  "state.save": RpcIn<State>;
   // Tags
-  "tags.getAll": Out<Tag[]>;
-  "tags.create": InOut<{ name: string }, Tag>;
-  "tags.update": InOut<{ id: string; name: string }, Tag>;
-  "tags.delete": In<{ id: string }>;
+  "tags.getAll": RpcOut<Tag[]>;
+  "tags.create": RpcInOut<{ name: string }, Tag>;
+  "tags.update": RpcInOut<{ id: string; name: string }, Tag>;
+  "tags.delete": RpcIn<{ id: string }>;
   // UI
-  "ui.promptUser": InOut<PromptOptions, PromptButton>;
+  "ui.promptUser": RpcInOut<PromptOptions, PromptButton>;
+  "ui.openDevTools": RpcVoid;
 }
 
 export type RpcType = keyof RpcSchema;

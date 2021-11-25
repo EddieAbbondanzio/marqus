@@ -14,12 +14,13 @@ import { IsFocused } from "../ui/focusables";
 import * as yup from "yup";
 import { SchemaOf } from "yup";
 import { sleep } from "../../shared/utils/sleep";
-import { Shortcut, ShortcutOverride } from "../../shared/domain";
+import { Shortcut, ShortcutOverride, Shortcuts } from "../../shared/domain";
 import {
   isModifier,
   isValidKeyCode,
   KeyCode,
   parseKeyCode,
+  sort,
 } from "../../shared/io/keyCode";
 
 export interface Keyboard {
@@ -83,16 +84,22 @@ export enum RepeatDelay {
 let isRepeating = false;
 
 export const toArray = (activeKeys: Keyboard["activeKeys"]): KeyCode[] =>
-  Object.entries(activeKeys)
-    .filter(([, active]) => active)
+  chain(activeKeys)
+    .entries()
+    .filter(([, active]) => active === true)
     .map(([key]) => key as KeyCode)
-    .sort();
+    .tap(sort)
+    .value();
 
 /**
  * Hook to listen for keys being pressed / released.
  * Should only be called once in the root React component.
  */
-export function useKeyboard(execute: Execute, isFocused: IsFocused) {
+export function useKeyboard(
+  shortcuts: Shortcuts,
+  execute: Execute,
+  isFocused: IsFocused
+) {
   const reducer: Reducer<Keyboard, KeyboardAction> = (state, action) => {
     let key: KeyCode;
 
@@ -138,14 +145,8 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
   const [state, dispatch] = useReducer(reducer, {
     enabled: true,
     activeKeys: {},
-    shortcuts: [],
+    shortcuts: shortcuts.values,
   });
-
-  const context = {
-    execute: useCallback(execute, [state.activeKeys]),
-    dispatch,
-    state,
-  };
 
   /*
    * We have to wrap event listeners so we can pass and additional
@@ -157,6 +158,13 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
     if (ev.repeat) {
       return;
     }
+
+    /*
+     * Disable all default shortcuts. It seems a little silly to re-implement
+     * everything but this gives the user a chance to redefine or disable any
+     * shortcut.
+     */
+    ev.preventDefault();
 
     onKeyDown(dispatch, ev);
   };
@@ -179,12 +187,12 @@ export function useKeyboard(execute: Execute, isFocused: IsFocused) {
        * re-render. This gives us the perfect change to check for commands
        * to fire because it means the keys have changed.
        */
+      // console.log("keys: ", keys, " shortcut matched: ", shortcut);
       if (shortcut != null && !shortcut.disabled) {
         // undefined! over null! so we can support default parameters
         void execute(shortcut.command as CommandName, undefined!);
 
         (async () => {
-          console.log("prev keys: ", keys);
           const prevKeys = keys;
           await sleep(RepeatDelay.First);
           const currKeys = toArray(state.activeKeys);

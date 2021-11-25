@@ -46,7 +46,7 @@ export const useAppContext = () => {
   function App() {
     const execute = useCommands(state, setState);
     const isFocused = useFocusables();
-    useKeyboard(execute, isFocused);
+    useKeyboard(state.shortcuts, execute, isFocused);
 
     return (
       <AppContext.Provider

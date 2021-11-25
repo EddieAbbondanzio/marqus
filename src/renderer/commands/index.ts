@@ -2,6 +2,7 @@
 
 import _ from "lodash";
 import { State } from "../../shared/domain";
+import { APP_REGISTRY } from "./app";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 import { TAG_REGISTRY } from "./reducers/tags";
 import { Command } from "./types";
@@ -36,6 +37,7 @@ function namespace<N extends string, T extends Record<string, unknown>>(
 export const COMMAND_REGISTRY = {
   ...namespace("globalNavigation", GLOBAL_NAVIGATION_REGISTRY),
   ...namespace("tags", TAG_REGISTRY),
+  ...namespace("app", APP_REGISTRY),
 };
 
 export type CommandRegistry = typeof COMMAND_REGISTRY;
