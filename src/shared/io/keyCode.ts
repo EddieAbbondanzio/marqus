@@ -91,14 +91,14 @@ export enum KeyCode {
   Numpad7 = "numpad7",
   Numpad8 = "numpad8",
   Numpad9 = "numpad9",
-  NumpadMultiply = "numpad_multiply",
-  NumpadAdd = "numpad_add",
-  NumpadSubtract = "numpad_subtract",
-  NumpadSeparator = "numpad_separator",
-  NumpadDivide = "numpad_divide",
-  NumpadDecimal = "numpad_decimal",
-  PageDown = "page_down",
-  PageUp = "page_up",
+  NumpadMultiply = "numpadMultiply",
+  NumpadAdd = "numpadAdd",
+  NumpadSubtract = "numpadSubtract",
+  NumpadSeparator = "numpadSeparator",
+  NumpadDivide = "numpadDivide",
+  NumpadDecimal = "numpadDecimal",
+  PageDown = "pageDown",
+  PageUp = "pageUp",
 }
 
 /**
@@ -327,13 +327,114 @@ export function parseKeyCodes(shortcutString: string): KeyCode[] {
   return sort(keys);
 }
 
-/**
- * If the key is modifier such as control, alt, or shift.
- * @param key The key to check.
- * @returns
- */
+export function sortKeyCodes(keyCodes: KeyCode[]): KeyCode[] {
+  let modifiers = [];
+  const fns = [];
+  const actions = [];
+  const arrows = [];
+  const letters = [];
+  const numbers = [];
+  const numpads = [];
+
+  // Group each key to it's respective group
+  for (const key of keyCodes) {
+    if (isModifier(key)) modifiers.push(key);
+    else if (isFn(key)) fns.push(key);
+    else if (isAction(key)) actions.push(key);
+    else if (isArrow(key)) arrows.push(key);
+    else if (isLetter(key)) letters.push(key);
+    else if (isNumber(key)) numbers.push(key);
+    else if (isNumpad(key)) numpads.push(key);
+    else throw Error(`Unsupported key ${key} cannot sort.`);
+  }
+
+  // Map the values in the array into an object for that O(1) lookup.
+  const modifierFlags = modifiers.reduce(
+    (accumulator: any, modifier: any) => ({ ...accumulator, [modifier]: true }),
+    {}
+  );
+
+  const sorted: KeyCode[] = [];
+  if (modifierFlags.meta) sorted.push(KeyCode.Meta);
+  if (modifierFlags.control) sorted.push(KeyCode.Control);
+  if (modifierFlags.shift) sorted.push(KeyCode.Shift);
+  if (modifierFlags.alt) sorted.push(KeyCode.Alt);
+  modifiers = sorted;
+
+  // TODO: Sort modifiers
+  fns.sort((a, b) => {
+    const numA = Number.parseInt(a.substring(1), 10);
+    const numB = Number.parseInt(b.substring(1), 10);
+    return numA - numB;
+  });
+  actions.sort();
+  arrows.sort();
+  letters.sort();
+  numbers.sort((a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10));
+  numpads.sort(); // This could cause an edge case but oh well.
+
+  return [
+    ...modifiers,
+    ...fns,
+    ...actions,
+    ...arrows,
+    ...letters,
+    ...numbers,
+    ...numpads,
+  ];
+}
+
 export function isModifier(key: KeyCode) {
-  return key === "control" || key === "alt" || key === "shift";
+  switch (key) {
+    case KeyCode.Meta:
+    case KeyCode.Control:
+    case KeyCode.Alt:
+    case KeyCode.Shift:
+      return true;
+    default:
+      return false;
+  }
+}
+
+export function isNumber(key: KeyCode) {
+  // Match numpad#, or # where # = 0 - 9
+  return /^\d\Z/.test(key);
+}
+
+export function isLetter(key: KeyCode) {
+  // Match a, b, c
+  return /^[a-z]\z/.test(key);
+}
+
+export function isFn(key: KeyCode) {
+  // Match f1 - f12
+  return /^f([0-9]|1[0-2])$/.test(key);
+}
+
+export function isNumpad(key: KeyCode) {
+  return /^numpad[\S]+\z/.test(key);
+}
+
+export function isArrow(key: KeyCode) {
+  return /^arrow[\S]+\z/.test(key);
+}
+
+export function isAction(key: KeyCode) {
+  switch (key) {
+    case KeyCode.Insert:
+    case KeyCode.Escape:
+    case KeyCode.Delete:
+    case KeyCode.Backspace:
+    case KeyCode.Tab:
+    case KeyCode.CapsLock:
+    case KeyCode.Enter:
+    case KeyCode.Space:
+    case KeyCode.PageDown:
+    case KeyCode.PageUp:
+      return true;
+    default:
+      return false;
+  }
 }
 
 /**
@@ -373,6 +474,10 @@ export function sort(keys: KeyCode[]): KeyCode[] {
    */
 
   const sorted: KeyCode[] = [];
+
+  if (modifierFlags.meta) {
+    sorted.push(KeyCode.Meta);
+  }
 
   if (modifierFlags.control) {
     sorted.push(KeyCode.Control);
