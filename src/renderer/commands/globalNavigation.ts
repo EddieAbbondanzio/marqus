@@ -1,5 +1,10 @@
 import { Command } from "./types";
 
+const focus: Command = async ({ commit, state }) => {
+  state.ui.focused = "globalNavigation";
+  await commit(state);
+};
+
 /**
  * Resize global navigation width.
  * @param newWidth New width string ex: '120px'
@@ -37,6 +42,7 @@ const scrollDown: Command<number> = async (
 };
 
 const scrollUp: Command<number> = async ({ commit, state }, increment = 30) => {
+  console.log("SCROLL UP!");
   const newScroll = Math.max(state.ui.globalNavigation.scroll - increment, 0);
   state.ui.globalNavigation.scroll = newScroll;
 
@@ -44,6 +50,7 @@ const scrollUp: Command<number> = async ({ commit, state }, increment = 30) => {
 };
 
 export const GLOBAL_NAVIGATION_REGISTRY = {
+  focus,
   resizeWidth,
   updateScroll,
   scrollDown,

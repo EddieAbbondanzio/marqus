@@ -74,7 +74,7 @@ export function findParent(start: HTMLElement, match: Match, opts?: any): any {
       ? typeof opts.defaultValue === "function"
         ? opts.defaultValue()
         : opts.defaultValue
-      : null;
+      : undefined;
   }
 }
 

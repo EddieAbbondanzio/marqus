@@ -1,27 +1,8 @@
-import {
-  Dispatch,
-  Reducer,
-  ReducerAction,
-  useCallback,
-  useEffect,
-  useReducer,
-} from "react";
-import { CommandName, COMMAND_REGISTRY, Execute } from "../commands";
-import { useAsync } from "react-async-hook";
-import { chain, isEqual, partition, uniq } from "lodash";
-import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
-import { IsFocused } from "../ui/focusables";
-import * as yup from "yup";
-import { SchemaOf } from "yup";
-import { sleep } from "../../shared/utils/sleep";
-import { Shortcut, ShortcutOverride, Shortcuts } from "../../shared/domain";
-import {
-  isModifier,
-  isValidKeyCode,
-  KeyCode,
-  parseKeyCode,
-  sort,
-} from "../../shared/io/keyCode";
+import { Dispatch, Reducer, useEffect, useReducer } from "react";
+import { CommandName, Execute } from "../commands";
+import { chain, cloneDeep, isEqual } from "lodash";
+import { Shortcut, Shortcuts, UISection } from "../../shared/domain";
+import { KeyCode, parseKeyCode, sort } from "../../shared/io/keyCode";
 
 export interface Keyboard {
   enabled: boolean;
@@ -56,16 +37,6 @@ export interface KeyboardKeyUp {
   key: KeyCode;
 }
 
-export interface KeyboardStartRepeat {
-  type: "startRepeat";
-  shortcut: Shortcut;
-  repeating: NodeJS.Timer;
-}
-
-export interface KeyboardStopRepeat {
-  type: "stopRepeat";
-}
-
 export interface KeyboardSetPreviousKeys {
   type: "setPreviousKeys";
   previousKeys: KeyCode[];
@@ -79,16 +50,12 @@ export type KeyboardAction =
   | KeyboardKeyDown
   | KeyboardKeyUp
   | KeyboardLoadShortcuts
-  | KeyboardStartRepeat
-  | KeyboardStopRepeat
   | KeyboardSetPreviousKeys;
 
 export enum RepeatDelay {
   First = 500,
   Remainder = 100,
 }
-
-let isRepeating = false;
 
 export const toArray = (activeKeys: Keyboard["activeKeys"]): KeyCode[] =>
   chain(activeKeys)
@@ -105,10 +72,11 @@ export const toArray = (activeKeys: Keyboard["activeKeys"]): KeyCode[] =>
 export function useKeyboard(
   shortcuts: Shortcuts,
   execute: Execute,
-  isFocused: IsFocused
+  isFocused: (section: UISection) => boolean
 ) {
   const reducer: Reducer<Keyboard, KeyboardAction> = (state, action) => {
     let key: KeyCode;
+    let previousKeys: KeyCode[];
 
     switch (action.type) {
       case "enable":
@@ -136,19 +104,9 @@ export function useKeyboard(
           shortcuts: action.shortcuts.filter((s) => s.disabled != false),
         };
 
-      case "startRepeat":
-        return { ...state, repeating: action.repeating };
-
-      case "stopRepeat":
-        if (state.repeating == null) {
-          return state;
-        }
-
-        isRepeating = false;
-        return { ...state, repeating: undefined };
-
       case "setPreviousKeys":
-        return { ...state, previousKeys: action.previousKeys };
+        previousKeys = cloneDeep(action.previousKeys);
+        return { ...state, previousKeys };
     }
   };
 
@@ -173,11 +131,9 @@ export function useKeyboard(
     ev.preventDefault();
 
     // Prevent redundant calls
-    if (ev.repeat) {
-      return;
+    if (!ev.repeat) {
+      onKeyDown(dispatch, ev);
     }
-
-    onKeyDown(dispatch, ev);
   };
 
   const keyUp = (ev: KeyboardEvent) => onKeyUp(dispatch, ev);
@@ -187,14 +143,9 @@ export function useKeyboard(
       const activeKeys = toArray(state.activeKeys);
       const { previousKeys } = state;
 
-      let repeating: NodeJS.Timer | undefined;
-
       if (!isEqual(activeKeys, previousKeys)) {
-        // Kill previous shortcut if running on repeat in loop (.repeat = true)
-        dispatch({ type: "stopRepeat" });
-
-        const shortcut = state.shortcuts.find((s) =>
-          isEqual(s.keys, activeKeys)
+        const shortcut = state.shortcuts.find(
+          (s) => isEqual(s.keys, activeKeys) && !s.disabled
         );
 
         /*
@@ -203,38 +154,14 @@ export function useKeyboard(
          * re-render. This gives us the perfect change to check for commands
          * to fire because it means the keys have changed.
          */
-        if (shortcut != null && !shortcut.disabled) {
-          // undefined! over null! so we can support default parameters
-          void execute(shortcut.command as CommandName, undefined!);
-          dispatch({ type: "setPreviousKeys", previousKeys });
-
-          if (shortcut.repeat) {
-            (async () => {
-              const prevKeys = activeKeys;
-              await sleep(RepeatDelay.First);
-              const currKeys = toArray(state.activeKeys);
-
-              if (isEqual(currKeys, prevKeys)) {
-                repeating = setInterval(() => {
-                  // Casts are gross
-                  void execute(shortcut.command as CommandName, undefined!);
-                }, RepeatDelay.Remainder);
-
-                dispatch({ type: "startRepeat", shortcut, repeating });
-              }
-            })();
+        if (shortcut != null) {
+          if (shortcut.when != null && !isFocused(shortcut.when)) {
+            return;
           }
 
-          /*
-           * Prevent the chance of creating a memory leak.
-           * Also prevents from spamming intervals
-           */
-          return () => {
-            if (repeating != null) {
-              clearInterval(repeating);
-              repeating = undefined;
-            }
-          };
+          // undefined over null so we can support default parameters
+          void execute(shortcut.command as CommandName, undefined!);
+          dispatch({ type: "setPreviousKeys", previousKeys });
         }
       }
     },

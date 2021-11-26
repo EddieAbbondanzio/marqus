@@ -40,8 +40,12 @@ export type CursorIcon =
   | "zoom-in"
   | "zoom-out";
 
-export async function temporaryCursor(cursorIcon: CursorIcon, cb: () => any) {
+export async function useCursor(
+  cursorIcon: CursorIcon,
+  cb: () => Promise<any>
+) {
   const original = document.body.style.cursor;
+  document.body.style.cursor = cursorIcon;
 
   await cb();
 

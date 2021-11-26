@@ -5,10 +5,10 @@ import {
   faTag,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useMemo } from "react";
-import { AppContext, useAppContext } from "../App";
+import React, { createRef, useMemo, useRef } from "react";
+import { useAppContext } from "../App";
+import { focusable } from "../ui/focusable";
 import { NavigationMenu, NavigationMenuProps } from "./shared/NavigationMenu";
-import { Focusable } from "./shared/Focusable";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
@@ -70,36 +70,23 @@ export function GlobalNavigation(): JSX.Element {
   }, [state]);
 
   const { width, scroll } = state.ui.globalNavigation;
+  const focusableProps = focusable("globalNavigation");
 
   return (
     <Resizable
       width={width}
       onResize={(newWidth) => execute("globalNavigation.resizeWidth", newWidth)}
     >
-      <Focusable>
-        <Scrollable
-          scroll={scroll}
-          onScroll={(newScroll) =>
-            execute("globalNavigation.updateScroll", newScroll)
-          }
-        >
+      <Scrollable
+        scroll={scroll}
+        onScroll={(newScroll) =>
+          execute("globalNavigation.updateScroll", newScroll)
+        }
+      >
+        <div {...focusableProps} className="h-100">
           {menus}
-        </Scrollable>
-      </Focusable>
+        </div>
+      </Scrollable>
     </Resizable>
   );
 }
-
-// const useGlobalNavigationContextMenu = createContextMenu(
-//   "globalNavigation",
-//   (c: any, p: any) => {
-//     const element = document.elementFromPoint(p.x, p.y) as HTMLElement | null;
-
-//     return [
-//       {
-//         label: "Foo",
-//       },
-//       { label: "Bar" },
-//     ];
-//   }
-// );

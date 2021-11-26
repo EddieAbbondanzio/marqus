@@ -15,6 +15,7 @@ import {
   UI,
   uiSchema,
   Shortcut,
+  UISection,
 } from "../../shared/domain";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import {
@@ -169,7 +170,12 @@ const shortcutFile = createFileHandler<Shortcuts>(
 
           shortcut = Object.assign(
             {},
-            { ...userOverride, keys: parseKeyCodes(userOverride.keys) }
+            {
+              ...userOverride,
+              keys: parseKeyCodes(userOverride.keys),
+              // Just so ts doesn't complain
+              when: userOverride.when as UISection,
+            }
           );
         }
 
