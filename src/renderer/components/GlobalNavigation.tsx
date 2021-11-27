@@ -6,8 +6,11 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { createRef, useMemo, useRef } from "react";
+import { ContextMenu } from "../../shared/ui/contextMenu";
 import { useAppContext } from "../App";
-import { focusable } from "../ui/focusable";
+import { useContextMenu } from "../ui/contextMenu";
+import { ContextMenu as ContextMenuComp } from "./shared/ContextMenu";
+import { Focusable } from "./shared/Focusable";
 import { NavigationMenu, NavigationMenuProps } from "./shared/NavigationMenu";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
@@ -70,7 +73,16 @@ export function GlobalNavigation(): JSX.Element {
   }, [state]);
 
   const { width, scroll } = state.ui.globalNavigation;
-  const focusableProps = focusable("globalNavigation");
+
+  const contextMenu: ContextMenu = {
+    name: "globalNavigation",
+    items: (t) => [
+      {
+        text: "HI",
+        command: "",
+      },
+    ],
+  };
 
   return (
     <Resizable
@@ -83,10 +95,22 @@ export function GlobalNavigation(): JSX.Element {
           execute("globalNavigation.updateScroll", newScroll)
         }
       >
-        <div {...focusableProps} className="h-100">
-          {menus}
-        </div>
+        <Focusable name="globalNavigation">
+          <ContextMenuComp menu={contextMenu}>{menus}</ContextMenuComp>
+        </Focusable>
       </Scrollable>
     </Resizable>
   );
 }
+
+/*
+ * <Resizable>
+ *   <Scrollable>
+ *     <Focusable>
+ *       <ContextMenu>
+ *         {children}
+ *       </ContextMenu>
+ *     </Focusable>
+ *   </Scrollable>
+ * </Resizable
+ */

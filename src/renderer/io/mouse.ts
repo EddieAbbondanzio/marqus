@@ -1,7 +1,9 @@
 import { Reducer, RefObject, useCallback, useEffect, useReducer } from "react";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
+import { Action } from "../types";
 
 export type MouseButton = "left" | "right" | "either";
+export type MouseState = "idle" | "holding";
 
 function getButton({ button, ctrlKey }: MouseEvent): MouseButton {
   switch (button) {
@@ -15,42 +17,13 @@ function getButton({ button, ctrlKey }: MouseEvent): MouseButton {
   }
 }
 
-export type MouseState = "idle" | "holding";
-
-export type MouseTransistionType =
-  | "click"
-  | "dragStart"
-  | "dragMove"
-  | "dragEnd"
-  | "dragCancel";
-
-export interface MouseClick {
-  type: "click";
-}
-
-export interface MouseDragStart {
-  type: "dragStart";
-  element: HTMLElement;
-}
-
-export interface MouseDragMove {
-  type: "dragMove";
-}
-
-export interface MouseDragEnd {
-  type: "dragEnd";
-}
-
-export interface MouseDragCancel {
-  type: "dragCancel";
-}
-
 export type MouseTransition =
-  | MouseClick
-  | MouseDragStart
-  | MouseDragMove
-  | MouseDragEnd
-  | MouseDragCancel;
+  | Action<"click">
+  | Action<"dragStart", { element: HTMLElement }>
+  | Action<"dragMove">
+  | Action<"dragEnd">
+  | Action<"dragCancel">;
+export type MouseTransistionType = MouseTransition["type"];
 
 export type MouseCallback = (event: MouseEvent) => any;
 export interface MouseListener {
@@ -98,7 +71,7 @@ const transition: Reducer<Mouse, MouseTransition> = (mouse, transition) => {
 
   switch (state) {
     case "idle":
-      const { element } = transition as MouseDragStart;
+      const { element } = transition as any;
 
       switch (type) {
         case "dragStart":

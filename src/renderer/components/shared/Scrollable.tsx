@@ -35,7 +35,12 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
   });
 
   return (
-    <div className="h-100" style={styles} onScroll={onScroll} ref={wrapper}>
+    <div
+      className="is-flex is-flex-direction-column is-flex-grow-1"
+      style={styles}
+      onScroll={onScroll}
+      ref={wrapper}
+    >
       {props.children}
     </div>
   );

@@ -6,5 +6,5 @@ export interface ContextMenuItem {
 
 export interface ContextMenu {
   name: string;
-  items: ContextMenu[];
+  items: (target: HTMLElement) => ContextMenuItem[];
 }

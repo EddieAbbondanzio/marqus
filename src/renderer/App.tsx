@@ -8,7 +8,7 @@ import { Execute, useCommands } from "./commands/index";
 import { useKeyboard } from "./io/keyboard";
 import { State, UISection } from "../shared/domain";
 import { findParent } from "./ui/findParent";
-import { FOCUSABLE_ATTRIBUTE } from "./ui/focusable";
+import { FOCUSABLE_ATTRIBUTE } from "./components/shared/Focusable";
 
 const { rpc } = window;
 

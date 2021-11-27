@@ -1,5 +1,5 @@
 export function sleep(milliseconds: number): Promise<void> {
-  return new Promise((res, rej) => {
+  return new Promise((res) => {
     setTimeout(res, milliseconds);
   });
 }
