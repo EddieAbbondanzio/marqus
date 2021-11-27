@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
-import { createContext, useEffect } from "react";
+import { createContext, useEffect, useRef } from "react";
 import { Execute, useCommands } from "./commands/index";
 import { useKeyboard } from "./io/keyboard";
 import { State, UISection } from "../shared/domain";
@@ -17,6 +17,8 @@ export interface AppContext {
   execute: Execute;
   // TODO: Theme support
 }
+
+export type IsFocused = (section: UISection) => boolean;
 
 fontAwesomeLib();
 
@@ -43,12 +45,13 @@ export const useAppContext = () => {
   const setState = async (s: State) => {
     await rpc("state.save", s);
     state = s;
+    console.log("state was saved: ", state);
   };
 
   function App() {
     const execute = useCommands(state, setState);
-    // const isFocused = useFocusable();
     useKeyboard(state.shortcuts, execute, (section: UISection) => {
+      console.log("Curr state: ", state.ui);
       return state.ui.focused === section;
     });
 
@@ -64,6 +67,7 @@ export const useAppContext = () => {
       );
 
       const { ui } = state;
+      console.log("new focus: ", focused);
       setState({
         ...state,
         ui: { ...ui, focused: focused == null ? undefined : focused },
