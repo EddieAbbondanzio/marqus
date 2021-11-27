@@ -8,7 +8,7 @@ import { Execute, useCommands } from "./commands/index";
 import { useKeyboard } from "./io/keyboard";
 import { State, UISection } from "../shared/domain";
 import { findParent } from "./ui/findParent";
-import { FOCUSABLE_ATTRIBUTE } from "./components/shared/Focusable";
+import { FOCUSABLE_ATTRIBUTE, useFocus } from "./components/shared/Focusable";
 
 const { rpc } = window;
 
@@ -54,32 +54,7 @@ export const useAppContext = () => {
       execute,
       (section: UISection) => state.ui.focused === section
     );
-
-    function onFocusIn(event: FocusEvent) {
-      // We might need to climb up the dom tree to handle nested children of a scope.
-      const focused = findParent(
-        event.target as HTMLElement,
-        (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
-        {
-          matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE),
-          defaultValue: undefined,
-        }
-      );
-
-      const { ui } = state;
-      setState({
-        ...state,
-        ui: { ...ui, focused: focused == null ? undefined : focused },
-      });
-    }
-
-    useEffect(() => {
-      window.addEventListener("focusin", onFocusIn);
-
-      return () => {
-        window.removeEventListener("focusin", onFocusIn);
-      };
-    });
+    useFocus(state, setState);
 
     return (
       <AppContext.Provider
