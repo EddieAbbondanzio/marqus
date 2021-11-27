@@ -13,7 +13,7 @@ export interface UI {
   globalNavigation: GlobalNavigation;
   focused?: string;
 }
-export type UISection = keyof UI;
+export type UISection = Exclude<keyof UI, "focused">;
 
 export interface GlobalNavigation {
   width: string;

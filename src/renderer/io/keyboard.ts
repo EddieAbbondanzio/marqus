@@ -10,10 +10,6 @@ export interface Keyboard {
   shortcuts: Shortcut[];
 }
 
-/**
- * Hook to listen for keys being pressed / released.
- * Should only be called once in the root React component.
- */
 export function useKeyboard(
   shortcuts: Shortcuts,
   execute: Execute,
@@ -27,7 +23,6 @@ export function useKeyboard(
     () => {
       const keyTracker: Record<string, boolean | undefined> = {};
       let interval: NodeJS.Timer;
-      let prevKeys: KeyCode[];
 
       const keyDown = (ev: KeyboardEvent) => {
         /*
@@ -50,31 +45,22 @@ export function useKeyboard(
               (s.when == null || isFocused(s.when))
           );
 
-          console.log("focused: ", isFocused("globalNavigation"));
-
           if (shortcut != null) {
             void execute(shortcut.command as CommandName, undefined!);
 
             if (shortcut.repeat) {
               (async () => {
-                await sleep(500);
+                await sleep(250);
                 const currKeys = toKeyArray(keyTracker);
 
                 if (isEqual(currKeys, activeKeys)) {
                   interval = setInterval(() => {
-                    console.log("LOOP");
                     void execute(shortcut.command as CommandName, undefined!);
-                  }, 250);
+                  }, 125);
                 }
               })();
             }
-          } else {
-            console.log("No shortcut for: ", activeKeys);
-            console.log("shortcuts: ", shortcuts);
           }
-
-          // Clone
-          prevKeys = [...activeKeys];
         }
       };
 

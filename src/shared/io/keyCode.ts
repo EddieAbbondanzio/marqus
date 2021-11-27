@@ -21,7 +21,7 @@ export enum KeyCode {
   F12 = "f12",
   Insert = "insert",
   Delete = "delete",
-  BackQuote = "`",
+  Backquote = "`",
   Digit1 = "1",
   Digit2 = "2",
   Digit3 = "3",
@@ -38,7 +38,7 @@ export enum KeyCode {
   Tab = "tab",
   BracketLeft = "[",
   BracketRight = "]",
-  BackSlash = "\\",
+  Backslash = "\\",
   CapsLock = "capslock",
   Semicolon = ";",
   Quote = "'",
@@ -141,7 +141,7 @@ export function parseKeyCode(code: string): KeyCode {
     case "Delete":
       return KeyCode.Delete;
     case "Backquote":
-      return KeyCode.BackQuote;
+      return KeyCode.Backquote;
     case "Digit1":
       return KeyCode.Digit1;
     case "Digit2":
@@ -227,7 +227,7 @@ export function parseKeyCode(code: string): KeyCode {
     case "BracketRight":
       return KeyCode.BracketRight;
     case "Backslash":
-      return KeyCode.BackSlash;
+      return KeyCode.Backslash;
     case "CapsLock":
       return KeyCode.CapsLock;
     case "Semicolon":
@@ -309,24 +309,6 @@ export function parseKeyCode(code: string): KeyCode {
   }
 }
 
-export function parseKeyCodes(shortcutString: string): KeyCode[] {
-  // Split up the keys, and remove any duplicates.
-  const rawKeys = uniq(shortcutString.split(KEYCODE_DELIMITER));
-  const keys: KeyCode[] = [];
-
-  for (const key of rawKeys) {
-    const trimmedKey = key.trim();
-
-    if (!isValidKeyCode(trimmedKey)) {
-      throw Error(`Invalid key code: ${trimmedKey}`);
-    }
-
-    keys.push(trimmedKey);
-  }
-
-  return sort(keys);
-}
-
 export function sortKeyCodes(keyCodes: KeyCode[]): KeyCode[] {
   let modifiers = [];
   const fns = [];
@@ -397,13 +379,13 @@ export function isModifier(key: KeyCode) {
 }
 
 export function isNumber(key: KeyCode) {
-  // Match numpad#, or # where # = 0 - 9
-  return /^\d\Z/.test(key);
+  // Match #, or # where # = 0 - 9
+  return /^\d$/.test(key);
 }
 
 export function isLetter(key: KeyCode) {
   // Match a, b, c
-  return /^[a-z]\z/.test(key);
+  return /^[a-z]$/.test(key);
 }
 
 export function isFn(key: KeyCode) {
@@ -412,11 +394,19 @@ export function isFn(key: KeyCode) {
 }
 
 export function isNumpad(key: KeyCode) {
-  return /^numpad[\S]+\z/.test(key);
+  return /^numpad[\S]+$/.test(key);
 }
 
 export function isArrow(key: KeyCode) {
-  return /^arrow[\S]+\z/.test(key);
+  switch (key) {
+    case KeyCode.ArrowLeft:
+    case KeyCode.ArrowRight:
+    case KeyCode.ArrowUp:
+    case KeyCode.ArrowDown:
+      return true;
+    default:
+      return false;
+  }
 }
 
 export function isAction(key: KeyCode) {
@@ -446,6 +436,24 @@ export function isValidKeyCode(key: string): key is KeyCode {
   return Object.values<string>(KeyCode).includes(key);
 }
 
+export function parseKeyCodes(shortcutString: string): KeyCode[] {
+  // Split up the keys, and remove any duplicates.
+  const rawKeys = uniq(shortcutString.split(KEYCODE_DELIMITER));
+  const keys: KeyCode[] = [];
+
+  for (const key of rawKeys) {
+    const trimmedKey = key.trim();
+
+    if (!isValidKeyCode(trimmedKey)) {
+      throw Error(`Invalid key code: ${trimmedKey}`);
+    }
+
+    keys.push(trimmedKey);
+  }
+
+  return sortKeyCodes(keys);
+}
+
 export function keyCodesToString(keys: KeyCode[]): string {
   if (keys.length === 0) {
     throw Error("Shortcut must have at least 1 key");
@@ -456,42 +464,6 @@ export function keyCodesToString(keys: KeyCode[]): string {
     throw Error("Duplicate keys detected in shortcut");
   }
 
-  const shortcutKeys = sort(keys);
+  const shortcutKeys = sortKeyCodes(keys);
   return shortcutKeys.join(KEYCODE_DELIMITER);
-}
-
-export function sort(keys: KeyCode[]): KeyCode[] {
-  const [modifiers, normalKeys] = partition(keys, isModifier);
-
-  // Map the values in the array into an object for that O(1) lookup.
-  const modifierFlags = modifiers.reduce(
-    (accumulator: any, modifier: any) => ({ ...accumulator, [modifier]: true }),
-    {}
-  );
-
-  /*
-   * Modifiers should always be first, and in a specific order.
-   */
-
-  const sorted: KeyCode[] = [];
-
-  if (modifierFlags.meta) {
-    sorted.push(KeyCode.Meta);
-  }
-
-  if (modifierFlags.control) {
-    sorted.push(KeyCode.Control);
-  }
-
-  if (modifierFlags.shift) {
-    sorted.push(KeyCode.Shift);
-  }
-
-  if (modifierFlags.alt) {
-    sorted.push(KeyCode.Alt);
-  }
-
-  // Add the rest of the keys. Sorted alphabetically lol.
-  sorted.push(...normalKeys.sort());
-  return sorted;
 }

@@ -2,6 +2,7 @@
 
 import _ from "lodash";
 import { State } from "../../shared/domain";
+import { useAppContext } from "../App";
 import { APP_REGISTRY } from "./app";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 import { TAG_REGISTRY } from "./reducers/tags";
@@ -52,7 +53,8 @@ export type Execute = <
 ) => Promise<void>;
 
 export function useCommands(
-  state: State,
+  // () => guarantees us to have up to date state
+  state: () => State,
   setAppState: (s: State) => Promise<void>
 ): Execute {
   return async (name, payload: any) => {
@@ -67,7 +69,7 @@ export function useCommands(
      * anything until we call commit(). Sometimes we might start making changes
      * to state but need to cancel things out and revert back to the previous
      */
-    let stateCopy = _.cloneDeep(state);
+    let stateCopy = _.cloneDeep(state());
     let called: "commit" | "rollback" | undefined;
 
     /**
@@ -75,11 +77,11 @@ export function useCommands(
      * @param newState The new application state to save.
      */
     const commit = async (newState: State): Promise<void> => {
+      console.log("commit(): ", newState);
       if (called != null) {
         throw Error(`Cannot commit. Already called ${called}`);
       }
 
-      state = newState;
       await setAppState(newState);
       called = "commit";
     };

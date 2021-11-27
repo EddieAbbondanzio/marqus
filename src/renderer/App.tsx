@@ -45,15 +45,15 @@ export const useAppContext = () => {
   const setState = async (s: State) => {
     await rpc("state.save", s);
     state = s;
-    console.log("state was saved: ", state);
   };
 
   function App() {
-    const execute = useCommands(state, setState);
-    useKeyboard(state.shortcuts, execute, (section: UISection) => {
-      console.log("Curr state: ", state.ui);
-      return state.ui.focused === section;
-    });
+    const execute = useCommands(() => state, setState);
+    useKeyboard(
+      state.shortcuts,
+      execute,
+      (section: UISection) => state.ui.focused === section
+    );
 
     function onFocusIn(event: FocusEvent) {
       // We might need to climb up the dom tree to handle nested children of a scope.
@@ -67,7 +67,6 @@ export const useAppContext = () => {
       );
 
       const { ui } = state;
-      console.log("new focus: ", focused);
       setState({
         ...state,
         ui: { ...ui, focused: focused == null ? undefined : focused },
