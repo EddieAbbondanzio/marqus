@@ -1,5 +1,5 @@
 import { Shortcut } from "../domain";
-import { KeyCode, sort } from "./keyCode";
+import { KeyCode, sortKeyCodes } from "./keyCode";
 
 export const COMMON_KEY_COMBOS: Record<string, KeyCode[]> = {
   scrollDown: [KeyCode.Control, KeyCode.ArrowDown],
@@ -36,5 +36,5 @@ const shortcuts: Shortcut[] = [
 export const DEFAULT_SHORTCUTS = shortcuts.map((s) => ({
   ...s,
   // Ensure keys are always in correct order
-  keys: sort(s.keys),
+  keys: sortKeyCodes(s.keys),
 }));

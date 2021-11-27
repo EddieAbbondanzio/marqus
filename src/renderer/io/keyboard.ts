@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CommandName, Execute } from "../commands";
 import { chain, isEqual } from "lodash";
 import { Shortcut, Shortcuts, UISection } from "../../shared/domain";
-import { KeyCode, parseKeyCode, sort } from "../../shared/io/keyCode";
+import { KeyCode, parseKeyCode, sortKeyCodes } from "../../shared/io/keyCode";
 import { sleep } from "../../shared/utils/sleep";
 import { IsFocused } from "../App";
 
@@ -93,5 +93,5 @@ export const toKeyArray = (
     .entries()
     .filter(([, active]) => active === true)
     .map(([key]) => key as KeyCode)
-    .tap(sort)
+    .tap(sortKeyCodes)
     .value();
