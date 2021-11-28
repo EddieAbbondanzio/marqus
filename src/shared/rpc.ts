@@ -1,5 +1,4 @@
 import { State, Tag } from "./domain";
-import { ContextMenu, ContextMenuItem } from "./ui/contextMenu";
 import { PromptButton, PromptOptions } from "./ui/promptUser";
 
 /*
