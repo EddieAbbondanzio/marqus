@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { PropsWithChildren } from "react";
 import { generateId } from "../../../shared/domain";
+import { keyCodesToString } from "../../../shared/io/keyCode";
 import { AppContext, useAppContext } from "../../App";
 import { CommandName } from "../../commands";
 import { findParent } from "../../ui/findParent";
@@ -33,20 +34,33 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
 
       const onClick = (item: ContextMenuItem) => {
         if (item.command != null && item.command.length > 0) {
+          console.log("Execute command!");
           void context.execute(item.command as CommandName, undefined!);
         }
       };
 
       // Render each item
-      const items = props.items(target).map((item) => (
-        <div
-          onClick={() => onClick(item)}
-          className="has-background-primary-hover px-2 py-1"
-          key={item.text}
-        >
-          {item.text}
-        </div>
-      ));
+      const items = props.items(target).map((item) => {
+        const shortcut = context.state.shortcuts.values.find(
+          (s) => s.command === item.command
+        );
+
+        const shortcutString =
+          shortcut != null ? keyCodesToString(shortcut.keys) : null;
+
+        return (
+          <div
+            onClick={() => onClick(item)}
+            className="has-background-primary-hover px-2 py-1"
+            key={item.text}
+          >
+            {item.text}
+            <span className="is-size-7 is-uppercase has-text-grey pl-2">
+              {shortcutString}
+            </span>
+          </div>
+        );
+      });
 
       const id = generateId();
       const top = ev.clientY;
