@@ -91,6 +91,7 @@ const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
 const tagFile = createFileHandler<Tags>(
   "tags.json",
   yup.object().shape({
+    input: yup.object().optional().default(undefined) as any,
     values: yup.array(tagSchema).optional(),
   }),
   {

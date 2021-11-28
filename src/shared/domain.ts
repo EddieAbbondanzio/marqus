@@ -22,6 +22,12 @@ export interface GlobalNavigation {
 
 export interface Tags {
   values: Tag[];
+  input?: {
+    mode: "create" | "update";
+    value: string;
+    confirm: () => void;
+    cancel: () => void;
+  };
 }
 
 export interface Tag extends UserResource {

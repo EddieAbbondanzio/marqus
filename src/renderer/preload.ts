@@ -43,18 +43,25 @@ ipcRenderer.on("send", async (ev, arg) => {
 /**
  * Send an rpc to the main thread.
  * @param type String of the type
- * @param value Payload.
+ * @param input Payload.
  * @returns The response the main thread gave
  */
-const rpc: Rpc = async (...params): Promise<any> => {
+const rpc: Rpc = async (type: string, input?: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     const id = generateId();
     promises[id] = { resolve, reject };
 
+    let value;
+
+    // Remove out any methods
+    if (input != null) {
+      value = JSON.parse(JSON.stringify(input));
+    }
+
     ipcRenderer.send("send", {
       id,
-      type: params[0],
-      value: params[1],
+      type,
+      value,
     });
   });
 };

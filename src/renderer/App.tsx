@@ -45,6 +45,7 @@ export const useAppContext = () => {
   const setState = async (s: State) => {
     await rpc("state.save", s);
     state = s;
+    console.log("new state: ", state);
   };
 
   function App() {

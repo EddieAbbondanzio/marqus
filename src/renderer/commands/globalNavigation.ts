@@ -1,3 +1,5 @@
+import { generateId, Tag } from "../../shared/domain";
+import { UnsupportedError } from "../../shared/errors";
 import { Command } from "./types";
 
 const focus: Command = async ({ commit, state }) => {
@@ -49,10 +51,61 @@ const scrollUp: Command<number> = async ({ commit, state }, increment = 30) => {
   await commit(state);
 };
 
+const createTag: Command = async ({ commit, state }) => {
+  if (state.tags.input != null) {
+    throw Error(`Tag input already started`);
+  }
+
+  let confirm: () => void;
+  let cancel: () => void;
+
+  let confirmPromise: Promise<string> = new Promise(
+    (res) => (confirm = () => res("confirm"))
+  );
+  let cancelPromise: Promise<string> = new Promise(
+    (res) => (cancel = () => res("cancel"))
+  );
+
+  state.tags.input = {
+    mode: "create",
+    value: "",
+    confirm: confirm!,
+    cancel: cancel!,
+  };
+
+  await commit(state);
+  console.log("Now we wait");
+
+  const result = await Promise.race([confirmPromise, cancelPromise]);
+  switch (result) {
+    case "confirm":
+      const tag: Tag = {
+        id: generateId(),
+        name: state.tags.input.value,
+        dateCreated: new Date(),
+      };
+
+      delete state.tags.input;
+      state.tags.values = [...state.tags.values, tag];
+      // state.tags.values.push(tag);
+      await commit(state);
+      break;
+
+    case "cancel":
+      delete state.tags.input;
+      await commit(state);
+      break;
+
+    default:
+      throw new UnsupportedError(`Invalid input response ${result}`);
+  }
+};
+
 export const GLOBAL_NAVIGATION_REGISTRY = {
   focus,
   resizeWidth,
   updateScroll,
   scrollDown,
   scrollUp,
+  createTag,
 };
