@@ -4,7 +4,7 @@ import { chain, isEqual } from "lodash";
 import { Shortcut, Shortcuts, UISection } from "../../shared/domain";
 import { KeyCode, parseKeyCode, sortKeyCodes } from "../../shared/io/keyCode";
 import { sleep } from "../../shared/utils/sleep";
-import { IsFocused } from "../App";
+import { IsFocused } from "../components/shared/Focusable";
 
 export interface Keyboard {
   shortcuts: Shortcut[];

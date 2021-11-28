@@ -1,16 +1,13 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
-import { createContext, useEffect, useRef } from "react";
+import { createContext, useState } from "react";
 import { Execute, useCommands } from "./commands/index";
 import { useKeyboard } from "./io/keyboard";
 import { State, UISection } from "../shared/domain";
-import { findParent } from "./ui/findParent";
-import { FOCUSABLE_ATTRIBUTE, useFocus } from "./components/shared/Focusable";
-
-const { rpc } = window;
+import { useFocus } from "./components/shared/Focusable";
+import { render } from "react-dom";
+import React from "react";
 
 export interface AppContext {
   state: State;
@@ -18,13 +15,9 @@ export interface AppContext {
   // TODO: Theme support
 }
 
-export type IsFocused = (section: UISection) => boolean;
-
-fontAwesomeLib();
-
 const dom = document.getElementById("app");
 if (dom == null) {
-  throw Error("No root container to render in");
+  throw Error("No root container to mount");
 }
 
 // Context allows us to access root state from any component
@@ -33,29 +26,30 @@ export const useAppContext = () => {
   const ctx = React.useContext(AppContext);
 
   if (ctx == null) {
-    throw Error(`useAppContext must be called within the AppContext.Provider`);
+    throw Error(
+      `useAppContext() must be called within the AppContext.Provider`
+    );
   }
 
   return ctx;
 };
 
 (async () => {
-  // Initialize app state
-  let state = await rpc("state.load");
-  const setState = async (s: State) => {
-    await rpc("state.save", s);
-    state = s;
-    console.log("new state: ", state);
-  };
+  fontAwesomeLib();
+  const { rpc } = window;
+  let initialState = await rpc("state.load");
 
   function App() {
-    const execute = useCommands(() => state, setState);
-    useKeyboard(
-      state.shortcuts,
-      execute,
-      (section: UISection) => state.ui.focused === section
-    );
-    useFocus(state, setState);
+    let [state, setState] = useState(initialState);
+
+    const saveToFile = (s: State) => {
+      setState(s);
+      void rpc("state.save", s);
+    };
+
+    const execute = useCommands(state, saveToFile);
+    const isFocused = useFocus(state, saveToFile);
+    useKeyboard(state.shortcuts, execute, isFocused);
 
     return (
       <AppContext.Provider
@@ -71,5 +65,5 @@ export const useAppContext = () => {
     );
   }
 
-  ReactDOM.render(<App />, dom);
+  render(<App />, dom);
 })();

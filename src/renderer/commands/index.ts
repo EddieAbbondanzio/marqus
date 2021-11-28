@@ -52,8 +52,8 @@ export type Execute = <
 
 export function useCommands(
   // () => guarantees us to have up to date state
-  state: () => State,
-  setAppState: (s: State) => Promise<void>
+  state: State,
+  saveState: (s: State) => void
 ): Execute {
   return async (name, payload: any) => {
     const command: Command<any> = COMMAND_REGISTRY[name];
@@ -67,7 +67,7 @@ export function useCommands(
      * anything until we call commit(). Sometimes we might start making changes
      * to state but need to cancel things out and revert back to the previous
      */
-    let stateCopy = _.cloneDeep(state());
+    let stateCopy = _.cloneDeep(state);
     let called: "commit" | "rollback" | undefined;
 
     /**
@@ -80,7 +80,7 @@ export function useCommands(
         throw Error(`Cannot commit. Already called ${called}`);
       }
 
-      await setAppState(newState);
+      await saveState(newState);
       called = "commit";
     };
 

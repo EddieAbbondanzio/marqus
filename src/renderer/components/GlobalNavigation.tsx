@@ -15,7 +15,6 @@ import { Scrollable } from "./shared/Scrollable";
 
 export function GlobalNavigation(): JSX.Element {
   const { state, execute } = useAppContext();
-  console.log("Global nav render!");
   /**
    * Generate the navigation menu components. This isn't something we want
    * to do unless things change so we memo it to save on performace costs
@@ -36,7 +35,7 @@ export function GlobalNavigation(): JSX.Element {
     path: "tags",
   };
 
-  console.log("RENDER tags");
+  console.log("RENDER tags", state.tags.input);
   if (state.tags.input != null) {
     console.log("INPUT STARTED!");
   }

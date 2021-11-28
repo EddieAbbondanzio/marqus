@@ -1,10 +1,12 @@
 import React, { createRef, PropsWithChildren, useEffect, useRef } from "react";
-import { State } from "../../../shared/domain";
+import { State, UISection } from "../../../shared/domain";
 import { findParent } from "../../ui/findParent";
 
 export interface FocusableProps {
   name: string;
 }
+
+export type IsFocused = (section: UISection) => boolean;
 
 export function Focusable(props: PropsWithChildren<FocusableProps>) {
   const divProps = {
@@ -24,10 +26,7 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
 
 export const FOCUSABLE_ATTRIBUTE = "data-focusable";
 
-export function useFocus(
-  state: State,
-  setAppState: (s: State) => Promise<void>
-) {
+export function useFocus(state: State, saveState: (s: State) => void) {
   useEffect(() => {
     window.addEventListener("focusin", onFocusIn);
 
@@ -48,9 +47,12 @@ export function useFocus(
     );
 
     const { ui } = state;
-    setAppState({
+    console.log("focus: ", focused);
+    saveState({
       ...state,
       ui: { ...ui, focused: focused == null ? undefined : focused },
     });
   }
+
+  return ((section: UISection) => state.ui.focused === section) as IsFocused;
 }
