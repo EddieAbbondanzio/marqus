@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { PropsWithChildren } from "react";
 import { generateId } from "../../../shared/domain";
+import { getNodeEnv } from "../../../shared/env";
 import { keyCodesToString } from "../../../shared/io/keyCode";
 import { AppContext, useAppContext } from "../../App";
 import { CommandName } from "../../commands";
@@ -39,8 +40,18 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
         }
       };
 
+      const items = props.items(target);
+
+      // Add dev mode helpers
+      if (getNodeEnv() === "development") {
+        items.push({
+          text: "Open Dev Tools",
+          command: "app.openDevTools",
+        });
+      }
+
       // Render each item
-      const items = props.items(target).map((item) => {
+      const renderedItems = items.map((item) => {
         const shortcut = context.state.shortcuts.values.find(
           (s) => s.command === item.command
         );
@@ -72,7 +83,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
           id={id}
           style={{ position: "absolute", zIndex: 1, top, left }}
         >
-          <div>{items}</div>
+          <div>{renderedItems}</div>
         </div>
       );
 
