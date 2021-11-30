@@ -3,11 +3,11 @@ import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
 import { createContext, useState } from "react";
 import { Execute, useCommands } from "./commands/index";
-import { useKeyboard } from "./io/keyboard";
-import { State, UISection } from "../shared/domain";
-import { useFocus } from "./components/shared/Focusable";
+import { State } from "../shared/domain";
 import { render } from "react-dom";
 import React from "react";
+import { useShortcuts } from "./io/shortcuts";
+import { useFocus } from "./io/focus";
 
 export interface AppContext {
   state: State;
@@ -19,6 +19,8 @@ const dom = document.getElementById("app");
 if (dom == null) {
   throw Error("No root container to mount");
 }
+
+export type SaveToFile = (s: State) => void;
 
 // Context allows us to access root state from any component
 export const AppContext = createContext<AppContext | undefined>(undefined);
@@ -42,22 +44,17 @@ export const useAppContext = () => {
   function App() {
     let [state, setState] = useState(initialState);
 
-    const saveToFile = (s: State) => {
+    const saveToFile: SaveToFile = (s: State) => {
       setState(s);
       void rpc("state.save", s);
     };
 
     const execute = useCommands(state, saveToFile);
     const isFocused = useFocus(state, saveToFile);
-    useKeyboard(state.shortcuts, execute, isFocused);
+    useShortcuts(state, execute, isFocused);
 
     return (
-      <AppContext.Provider
-        value={{
-          state,
-          execute,
-        }}
-      >
+      <AppContext.Provider value={{ state, execute }}>
         <Layout>
           <GlobalNavigation />
         </Layout>

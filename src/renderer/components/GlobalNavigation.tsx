@@ -9,7 +9,11 @@ import React, { createRef, useMemo, useRef } from "react";
 import { useAppContext } from "../App";
 import { ContextMenu } from "./shared/ContextMenu";
 import { Focusable } from "./shared/Focusable";
-import { NavigationMenu, NavigationMenuProps } from "./shared/NavigationMenu";
+import {
+  addChild,
+  NavigationMenu,
+  NavigationMenuProps,
+} from "./shared/NavigationMenu";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
@@ -29,15 +33,29 @@ export function GlobalNavigation(): JSX.Element {
     icon: faBook,
     path: "notebooks",
   };
+
   const tags = {
     label: "tags",
     icon: faTag,
     path: "tags",
   };
 
-  console.log("RENDER tags", state.tags.input);
+  for (const tag of state.tags.values) {
+    addChild(tags, {
+      label: tag.name,
+      path: `tags/${tag.name}`,
+    });
+  }
+
   if (state.tags.input != null) {
-    console.log("INPUT STARTED!");
+    console.log("callbacks: ", state.tags.input);
+    addChild(tags, {
+      path: "tags/___input",
+      enableInput: true,
+      label: state.tags.input.value,
+      onInputCancel: state.tags.input.cancel,
+      onInputConfirm: state.tags.input.confirm,
+    });
   }
 
   const favorites = {
@@ -68,6 +86,9 @@ export function GlobalNavigation(): JSX.Element {
       icon={item.icon}
       parent={item.parent}
       children={item.children?.map(mapper)}
+      enableInput={item.enableInput}
+      onInputCancel={item.onInputCancel}
+      onInputConfirm={item.onInputConfirm}
     />
   );
   const renderedItems = items.map(mapper);

@@ -77,6 +77,7 @@ const createTag: Command = async ({ commit, state }) => {
   console.log("Now we wait");
 
   const result = await Promise.race([confirmPromise, cancelPromise]);
+  console.log("CREATE TAG: ", result);
   switch (result) {
     case "confirm":
       const tag: Tag = {

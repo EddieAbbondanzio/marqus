@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import { State } from "../../shared/domain";
-import { useAppContext } from "../App";
+import { SaveToFile, useAppContext } from "../App";
 import { APP_REGISTRY } from "./app";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 import { Command } from "./types";
@@ -53,7 +53,7 @@ export type Execute = <
 export function useCommands(
   // () => guarantees us to have up to date state
   state: State,
-  saveState: (s: State) => void
+  saveToFile: SaveToFile
 ): Execute {
   return async (name, payload: any) => {
     const command: Command<any> = COMMAND_REGISTRY[name];
@@ -75,12 +75,11 @@ export function useCommands(
      * @param newState The new application state to save.
      */
     const commit = async (newState: State): Promise<void> => {
-      console.log("commit(): ", newState);
-      if (called != null) {
-        throw Error(`Cannot commit. Already called ${called}`);
+      if (called === "rollback") {
+        throw Error(`Cannot commit. Already called rollback`);
       }
 
-      await saveState(newState);
+      await saveToFile(newState);
       called = "commit";
     };
 
@@ -88,8 +87,8 @@ export function useCommands(
      * Revert local changes made by a command.
      */
     const rollback = async (): Promise<void> => {
-      if (called != null) {
-        throw Error(`Cannot rollback. Already called ${called}`);
+      if (called === "commit") {
+        throw Error(`Cannot rollback. Already called commit`);
       }
 
       called = "rollback";

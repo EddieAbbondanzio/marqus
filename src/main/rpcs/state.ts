@@ -1,4 +1,13 @@
-import _, { cloneDeep, debounce, isEqual, over } from "lodash";
+import _, {
+  chain,
+  cloneDeep,
+  debounce,
+  groupBy,
+  isEqual,
+  over,
+  uniq,
+  uniqBy,
+} from "lodash";
 import * as yup from "yup";
 import { px } from "../../shared/dom/units";
 import {
@@ -97,7 +106,28 @@ const tagFile = createFileHandler<Tags>(
   {
     defaultState: DEFAULT_STATE.tags,
     serialize: (n) => n.values,
-    deserialize: (c) => ({ values: c ?? [] }),
+    deserialize: (c) => {
+      const duplicates = chain(c)
+        .groupBy("name")
+        .pickBy((tags) => tags.length > 1)
+        .values()
+        .flatMap()
+        .value();
+
+      if (duplicates.length > 0) {
+        const duplicateNames = chain(duplicates)
+          .map((t) => t.name)
+          .uniq()
+          .value();
+        throw Error(
+          `Tag names must be unique. The following names are defined more than once: ${duplicateNames.join(
+            ", "
+          )}`
+        );
+      }
+
+      return { values: c ?? [] };
+    },
   }
 );
 const notebookFile = createFileHandler<Notebooks>(
