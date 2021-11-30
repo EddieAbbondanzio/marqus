@@ -55,19 +55,10 @@ export const useAppContext = () => {
     const isFocused = useFocus(state, saveToFile);
     useShortcuts(state, execute, isFocused);
 
-    const div = useRef(null! as HTMLDivElement);
-    const m = useMouse(div);
-    m.listen({ event: "click", button: "left" }, () => {
-      console.log("CLICK!");
-    });
-
     return (
       <AppContext.Provider value={{ state, execute }}>
         <Layout>
           <GlobalNavigation />
-          <div ref={div} className="has-background-danger">
-            Click me!
-          </div>
         </Layout>
       </AppContext.Provider>
     );

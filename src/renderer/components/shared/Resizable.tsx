@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import { getPx, isPx, px } from "../../../shared/dom/units";
 import { useMouse } from "../../io/mouse";
-import { resetCursor, setCursor } from "../../ui/cursor";
 
 export interface ResizableProps {
   minWidth?: string;
@@ -68,11 +67,13 @@ export function Resizable(
     width: props.width,
   });
 
+  const mouse = useMouse(handle);
+
   let widthRef = useRef(state.width);
 
   const hold = useCallback(() => {
     dispatch({ type: "resizeStart" });
-    setCursor("col-resize");
+    mouse.setCursor("col-resize");
   }, [dispatch]);
 
   const drag = useCallback(
@@ -94,7 +95,7 @@ export function Resizable(
     dispatch({ type: "resizeEnd" });
     props.onResize!(widthRef.current);
 
-    resetCursor();
+    mouse.resetCursor();
   }, [state.width]);
 
   // Listen for prop change and update width
@@ -102,29 +103,14 @@ export function Resizable(
     dispatch({ type: "resizeWidth", width: props.width });
   }, [dispatch, props.width]);
 
-  // console.log("Resizable render");
-  // useMouse(handle, [
-  //   {
-  //     action: "dragStart",
-  //     callback: hold,
-  //   },
-  //   {
-  //     action: "dragMove",
-  //     callback: drag,
-  //   },
-  //   {
-  //     action: "dragEnd",
-  //     callback: release,
-  //   },
-  //   {
-  //     action: "dragCancel",
-  //     callback: () => {
-  //       // Reset it but don't notify prop onResize.
-  //       dispatch({ type: "resizeWidth", width: props.width });
-  //       dispatch({ type: "resizeEnd" });
-  //     },
-  //   },
-  // ]);
+  mouse.listen({ event: "dragStart" }, hold);
+  mouse.listen({ event: "dragMove" }, drag);
+  mouse.listen({ event: "dragEnd" }, release);
+  mouse.listen({ event: "dragCancel" }, () => {
+    // Reset it but don't notify prop onResize.
+    dispatch({ type: "resizeWidth", width: props.width });
+    dispatch({ type: "resizeEnd" });
+  });
 
   return (
     <div className="resizable-wrapper" ref={wrapper} style={state}>

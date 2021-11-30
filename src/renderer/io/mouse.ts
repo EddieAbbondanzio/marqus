@@ -3,6 +3,46 @@ import { UnsupportedError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
 import { Action } from "../types";
 
+export const DEFAULT_CURSOR = "auto";
+
+export type CursorIcon =
+  | "auto"
+  | "default"
+  | "none"
+  | "context-menu"
+  | "help"
+  | "pointer"
+  | "progress"
+  | "wait"
+  | "cell"
+  | "crosshair"
+  | "text"
+  | "vertical-text"
+  | "alias"
+  | "copy"
+  | "move"
+  | "no-drop"
+  | "not-allowed"
+  | "grab"
+  | "grabbing"
+  | "all-scroll"
+  | "col-resize"
+  | "row-resize"
+  | "n-resize"
+  | "e-resize"
+  | "s-resize"
+  | "w-resize"
+  | "ne-resize"
+  | "nw-resize"
+  | "se-resize"
+  | "sw-resize"
+  | "ew-resize"
+  | "ns-resie"
+  | "nesw-resize"
+  | "nwse-resize"
+  | "zoom-in"
+  | "zoom-out";
+
 export type MouseButton = "left" | "right" | "either";
 export type MouseEventType =
   | "dragStart"
@@ -37,9 +77,7 @@ const reducer: Reducer<MouseDragging, MouseAction> = (dragging, action) => {
       return { element: undefined, hasMoved: undefined };
 
     default:
-      throw new UnsupportedError(
-        `Invalid transition type for state holding recieved: ${type}`
-      );
+      throw new UnsupportedError(`Invalid mouse action ${type}`);
   }
 };
 
@@ -47,37 +85,59 @@ export type MouseListenOpts =
   | { event: "click"; button?: MouseButton }
   | { event: Exclude<MouseEventType, "click"> };
 
+export type MouseCallback = (ev: MouseEvent) => void;
+
 export interface Mouse {
-  listen(opts: MouseListenOpts, callback: () => void): void;
+  listen(opts: MouseListenOpts, callback: MouseCallback): void;
+  cursor(cursor: CursorIcon, cb: () => Promise<any>): Promise<void>;
+  setCursor(cursor: CursorIcon): void;
+  resetCursor(): void;
 }
 
 export class MouseController implements Mouse {
   listeners: {
-    [ev in MouseEventType]+?: { callback: () => void; button?: MouseButton };
+    [ev in MouseEventType]+?: { callback: MouseCallback; button?: MouseButton };
   } = {};
 
-  listen(opts: MouseListenOpts, callback: () => void): void {
+  listen(opts: MouseListenOpts, callback: MouseCallback): void {
     this.listeners[opts.event] = {
       callback,
       button: opts.event === "click" ? opts.button ?? "left" : undefined,
     };
   }
 
-  notify(event: MouseEventType, button?: MouseButton) {
-    const listener = this.listeners[event];
+  notify(event: MouseEvent, type: MouseEventType, button?: MouseButton) {
+    const listener = this.listeners[type];
     if (listener == null) {
       return;
     }
 
-    switch (event) {
+    switch (type) {
       case "click":
         if (listener.button !== button) {
           return;
         }
       default:
-        listener.callback();
+        listener.callback(event);
         break;
     }
+  }
+
+  async cursor(cursorIcon: CursorIcon, cb: () => Promise<any>) {
+    const original = document.body.style.cursor;
+    document.body.style.cursor = cursorIcon;
+
+    await cb();
+
+    document.body.style.cursor = original;
+  }
+
+  setCursor(cursor: CursorIcon) {
+    document.body.style.cursor = cursor;
+  }
+
+  resetCursor() {
+    document.body.style.cursor = DEFAULT_CURSOR;
   }
 }
 
@@ -111,11 +171,11 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
        * We don't notify the listeners until after a first move otherwise it
        * can be difficult to distinguish a click from drag start.
        */
-      mouse.notify("dragStart");
+      mouse.notify(event, "dragStart");
     }
 
     dispatch({ type: "dragMove" });
-    mouse.notify("dragMove");
+    mouse.notify(event, "dragMove");
   };
 
   const onMouseUp = (event: MouseEvent) => {
@@ -134,18 +194,18 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
      * we should consider it a click.
      */
     if (!dragging.hasMoved) {
-      mouse.notify("click", button);
+      mouse.notify(event, "click", button);
     }
 
     dispatch({ type: "dragEnd" });
-    mouse.notify("dragEnd", button);
+    mouse.notify(event, "dragEnd", button);
   };
 
   const onKeyUp = (event: KeyboardEvent) => {
     const key = parseKeyCode(event.code);
     if (key === KeyCode.Escape) {
       dispatch({ type: "dragCancel" });
-      mouse.notify("dragCancel");
+      mouse.notify(null!, "dragCancel");
     }
   };
 
