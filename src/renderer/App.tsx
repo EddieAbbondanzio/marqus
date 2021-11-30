@@ -1,13 +1,14 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import { Execute, useCommands } from "./commands/index";
 import { State } from "../shared/domain";
 import { render } from "react-dom";
 import React from "react";
 import { useShortcuts } from "./io/shortcuts";
 import { useFocus } from "./io/focus";
+import { useMouse } from "./io/mouse";
 
 export interface AppContext {
   state: State;
@@ -42,6 +43,7 @@ export const useAppContext = () => {
   let initialState = await rpc("state.load");
 
   function App() {
+    console.log("Render app!");
     let [state, setState] = useState(initialState);
 
     const saveToFile: SaveToFile = (s: State) => {
@@ -53,10 +55,19 @@ export const useAppContext = () => {
     const isFocused = useFocus(state, saveToFile);
     useShortcuts(state, execute, isFocused);
 
+    const div = useRef(null! as HTMLDivElement);
+    const m = useMouse(div);
+    m.listen({ event: "click", button: "left" }, () => {
+      console.log("CLICK!");
+    });
+
     return (
       <AppContext.Provider value={{ state, execute }}>
         <Layout>
           <GlobalNavigation />
+          <div ref={div} className="has-background-danger">
+            Click me!
+          </div>
         </Layout>
       </AppContext.Provider>
     );

@@ -102,28 +102,29 @@ export function Resizable(
     dispatch({ type: "resizeWidth", width: props.width });
   }, [dispatch, props.width]);
 
-  useMouse(handle, [
-    {
-      action: "dragStart",
-      callback: hold,
-    },
-    {
-      action: "dragMove",
-      callback: drag,
-    },
-    {
-      action: "dragEnd",
-      callback: release,
-    },
-    {
-      action: "dragCancel",
-      callback: () => {
-        // Reset it but don't notify prop onResize.
-        dispatch({ type: "resizeWidth", width: props.width });
-        dispatch({ type: "resizeEnd" });
-      },
-    },
-  ]);
+  // console.log("Resizable render");
+  // useMouse(handle, [
+  //   {
+  //     action: "dragStart",
+  //     callback: hold,
+  //   },
+  //   {
+  //     action: "dragMove",
+  //     callback: drag,
+  //   },
+  //   {
+  //     action: "dragEnd",
+  //     callback: release,
+  //   },
+  //   {
+  //     action: "dragCancel",
+  //     callback: () => {
+  //       // Reset it but don't notify prop onResize.
+  //       dispatch({ type: "resizeWidth", width: props.width });
+  //       dispatch({ type: "resizeEnd" });
+  //     },
+  //   },
+  // ]);
 
   return (
     <div className="resizable-wrapper" ref={wrapper} style={state}>
