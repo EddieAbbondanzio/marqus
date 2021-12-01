@@ -1,13 +1,7 @@
 import { IconDefinition } from "@fortawesome/fontawesome-common-types";
-import React, {
-  PropsWithChildren,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { px } from "../../../shared/dom/units";
+import { UnsupportedError } from "../../../shared/errors";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { isBlank } from "../../../shared/utils/string";
 import { useKeyboard } from "../../io/keyboard";
@@ -25,7 +19,22 @@ export interface NavigationMenuProps {
   onInputCancel?: () => void;
 }
 
+export interface NavigationMenuInputState {
+  value: string;
+  wasFinished: boolean;
+  wasFocused: boolean;
+}
+
 export function NavigationMenu(props: NavigationMenuProps) {
+  const [state, setState] = useState<NavigationMenuInputState>({
+    value: props.label,
+    wasFinished: false,
+    wasFocused: false,
+  });
+
+  let inputRef = useRef(null as unknown as HTMLInputElement);
+  const keyboard = useKeyboard(inputRef);
+
   // Root menu labels are ALL CAPS
   const formattedLabel =
     props.parent == null ? props.label.toUpperCase() : props.label;
@@ -33,15 +42,6 @@ export function NavigationMenu(props: NavigationMenuProps) {
   const indent = useMemo(
     () => calculateIndent(props),
     [props.children, props.parent]
-  );
-
-  let inputRef = useRef(null as unknown as HTMLInputElement);
-  const keyboard = useKeyboard(inputRef);
-
-  const labelEl = !props.enableInput ? (
-    <div className="is-size-7">{formattedLabel}</div>
-  ) : (
-    <input ref={inputRef} />
   );
 
   useEffect(() => {
@@ -52,58 +52,65 @@ export function NavigationMenu(props: NavigationMenuProps) {
       return;
     }
 
-    // On first render focus it
-    if (props.enableInput) {
+    if (!state.wasFocused) {
       input.focus();
+      setState({
+        ...state,
+        wasFocused: true,
+      });
     }
 
-    const onBlur = () => {
-      // If we already cancelled out on esc key down, stop.
-      if (input !== document.activeElement) {
+    const finish = (calledFrom: "blur" | "keydown.enter" | "keydown.esc") => {
+      if (state.wasFinished) {
         return;
       }
 
-      if (!isBlank(input.value)) {
-        if (props.onInputConfirm != null) {
-          props.onInputConfirm(input.value);
-        }
-      } else {
-        if (props.onInputCancel != null) {
-          props.onInputCancel();
-        }
+      switch (calledFrom) {
+        case "blur":
+          if (!isBlank(state.value)) {
+            props.onInputConfirm?.(state.value);
+          } else {
+            props.onInputCancel?.();
+          }
+          break;
+
+        case "keydown.enter":
+          props.onInputConfirm?.(state.value);
+          break;
+
+        case "keydown.esc":
+          props.onInputCancel?.();
+          break;
+
+        default:
+          throw new UnsupportedError(`Invalid calledFrom: ${calledFrom}`);
       }
+
+      setState({
+        ...state,
+        wasFinished: true,
+      });
     };
 
     keyboard.listen(
       { event: "keydown", keys: [KeyCode.Enter, KeyCode.Escape] },
-      (_, key) => {
-        input.blur();
-
-        switch (key) {
-          case KeyCode.Enter:
-            console.log("enter key trigged blur");
-            if (props.onInputConfirm != null) {
-              props.onInputConfirm(input.value);
-            }
-            break;
-
-          case KeyCode.Escape:
-            console.log("esc key trigged blur");
-            if (props.onInputCancel != null) {
-              props.onInputCancel();
-            }
-            break;
-        }
-      }
+      (_, key: KeyCode.Enter | KeyCode.Escape) => finish(`keydown.${key}`)
     );
 
+    const onBlur = () => finish("blur");
     input.addEventListener("blur", onBlur);
-
-    console.log(props.label, " rendered");
     return () => {
       input.removeEventListener("blur", onBlur);
     };
-  }, []);
+  });
+
+  const onInput = (ev: FormEvent) => {
+    const value = (ev.target as HTMLInputElement).value;
+    setState({
+      ...state,
+      value,
+    });
+  };
 
   return (
     <div style={{ paddingLeft: indent }}>
@@ -111,7 +118,11 @@ export function NavigationMenu(props: NavigationMenuProps) {
         {props.icon && (
           <Icon icon={props.icon} className="mr-1 has-text-grey" />
         )}
-        {labelEl}
+        {!props.enableInput ? (
+          <div className="is-size-7">{formattedLabel}</div>
+        ) : (
+          <input ref={inputRef} value={state.value} onInput={onInput} />
+        )}
       </div>
       {props.children}
     </div>

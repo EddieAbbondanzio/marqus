@@ -2,7 +2,7 @@
  * These types cannot be in index.ts otherwise we introduce a circular dependency.
  */
 
-import { State } from "../../shared/domain";
+import { State } from "../../shared/state";
 
 export interface CommandContext {
   state: State;

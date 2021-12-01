@@ -1,4 +1,4 @@
-import { generateId, Tag } from "../../shared/domain";
+import { generateId, Tag } from "../../shared/state";
 import { UnsupportedError } from "../../shared/errors";
 import { Command } from "./types";
 
@@ -44,14 +44,13 @@ const scrollDown: Command<number> = async (
 };
 
 const scrollUp: Command<number> = async ({ commit, state }, increment = 30) => {
-  console.log("SCROLL UP!");
   const newScroll = Math.max(state.ui.globalNavigation.scroll - increment, 0);
   state.ui.globalNavigation.scroll = newScroll;
 
   await commit(state);
 };
 
-const createTag: Command = async ({ commit, state }) => {
+const createTag: Command = async ({ commit, rollback, state }) => {
   if (state.tags.input != null) {
     throw Error(`Tag input already started`);
   }
@@ -72,13 +71,9 @@ const createTag: Command = async ({ commit, state }) => {
     confirm: confirm!,
     cancel: cancel!,
   };
-
   await commit(state);
-  console.log("Now we wait");
 
   const result = await Promise.race([confirmPromise, cancelPromise]);
-  console.log("CREATE TAG: ", result);
-
   switch (result) {
     case "confirm":
       const tag: Tag = {
@@ -87,15 +82,13 @@ const createTag: Command = async ({ commit, state }) => {
         dateCreated: new Date(),
       };
 
-      delete state.tags.input;
+      state.tags.input = undefined;
       state.tags.values = [...state.tags.values, tag];
       await commit(state);
       break;
 
     case "cancel":
-      delete state.tags.input;
-      await commit(state);
-      console.log("cancel. new state: ", state);
+      await rollback();
       break;
 
     default:

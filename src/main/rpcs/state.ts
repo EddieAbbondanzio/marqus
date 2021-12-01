@@ -25,7 +25,7 @@ import {
   uiSchema,
   Shortcut,
   UISection,
-} from "../../shared/domain";
+} from "../../shared/state";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import {
   keyCodesToString,
@@ -166,7 +166,7 @@ const shortcutFile = createFileHandler<Shortcuts>(
       );
 
       if (duplicates.length > 0) {
-        console.log(
+        console.error(
           "Error: Complete list of duplicate shortcuts: ",
           duplicates
         );

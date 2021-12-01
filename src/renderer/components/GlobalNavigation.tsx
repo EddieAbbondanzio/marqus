@@ -18,6 +18,8 @@ import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
 export function GlobalNavigation(): JSX.Element {
+  console.log("GlobalNavigation()");
+
   const { state, execute } = useAppContext();
   /**
    * Generate the navigation menu components. This isn't something we want
@@ -76,8 +78,6 @@ export function GlobalNavigation(): JSX.Element {
     favorites,
     trash,
   ];
-
-  console.log("gnav render");
 
   // Recursively render the menus
   const mapper = (item: NavigationMenuProps & { path: string }) => (

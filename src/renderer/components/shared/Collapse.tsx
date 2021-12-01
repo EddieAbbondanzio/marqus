@@ -15,8 +15,6 @@ export function Collapse(props: React.PropsWithChildren<CollapseProps>) {
     props.onCollapse?.(!collapsed);
   };
 
-  console.log("Collapsed: ", collapsed);
-
   return (
     <div>
       <div onClick={toggle}>{props.trigger}</div>

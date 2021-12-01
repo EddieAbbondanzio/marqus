@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { generateId } from "../shared/domain";
+import { generateId } from "../shared/state";
 import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, Rpc } from "../shared/rpc";
 export interface ExposedPromise {

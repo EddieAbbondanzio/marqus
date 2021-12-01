@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { PropsWithChildren } from "react";
-import { generateId } from "../../../shared/domain";
+import { generateId } from "../../../shared/state";
 import { getNodeEnv } from "../../../shared/env";
 import { keyCodesToString } from "../../../shared/io/keyCode";
 import { AppContext, useAppContext } from "../../App";
@@ -35,7 +35,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
 
       const onClick = (item: ContextMenuItem) => {
         if (item.command != null && item.command.length > 0) {
-          console.log("Execute command!");
+          console.log("Execute: ", item.command);
           void context.execute(item.command as CommandName, undefined!);
         }
       };

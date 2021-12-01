@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-constructor */
 
 import _ from "lodash";
-import { State } from "../../shared/domain";
+import { State } from "../../shared/state";
 import { SaveToFile, useAppContext } from "../App";
 import { APP_REGISTRY } from "./app";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
@@ -68,30 +68,23 @@ export function useCommands(
      * to state but need to cancel things out and revert back to the previous
      */
     let stateCopy = _.cloneDeep(state);
-    let called: "commit" | "rollback" | undefined;
+    let rollbackCopy = _.cloneDeep(state);
 
     /**
      * Apply local changes made to state from a command.
      * @param newState The new application state to save.
      */
     const commit = async (newState: State): Promise<void> => {
-      if (called === "rollback") {
-        throw Error(`Cannot commit. Already called rollback`);
-      }
-
+      console.log("commit: ", newState);
       await saveToFile(newState);
-      called = "commit";
     };
 
     /**
      * Revert local changes made by a command.
      */
     const rollback = async (): Promise<void> => {
-      if (called === "commit") {
-        throw Error(`Cannot rollback. Already called commit`);
-      }
-
-      called = "rollback";
+      console.log("rollback: ", rollbackCopy);
+      await saveToFile(rollbackCopy);
     };
 
     await command({ state: stateCopy, commit, rollback }, payload);

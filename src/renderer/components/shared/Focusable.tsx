@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import { UISection } from "../../../shared/domain";
+import { UISection } from "../../../shared/state";
 
 export interface FocusableProps {
   name: string;

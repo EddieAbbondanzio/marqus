@@ -3,7 +3,7 @@ import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
 import { createContext, useEffect, useRef, useState } from "react";
 import { Execute, useCommands } from "./commands/index";
-import { State } from "../shared/domain";
+import { State } from "../shared/state";
 import { render } from "react-dom";
 import React from "react";
 import { useShortcuts } from "./io/shortcuts";
@@ -45,7 +45,6 @@ export const useAppContext = () => {
   let initialState = await rpc("state.load");
 
   function App() {
-    console.log("Render app!");
     let [state, setState] = useState(initialState);
 
     const saveToFile: SaveToFile = (s: State) => {
@@ -57,17 +56,10 @@ export const useAppContext = () => {
     const isFocused = useFocus(state, saveToFile);
     // useShortcuts(state, execute, isFocused);
 
-    const ref = useRef(null! as HTMLInputElement);
-
     return (
       <AppContext.Provider value={{ state, execute }}>
         <Layout>
           <GlobalNavigation />
-          <input
-            ref={ref}
-            className="has-background-danger"
-            style={{ width: px(200), height: px(200) }}
-          ></input>
         </Layout>
       </AppContext.Provider>
     );

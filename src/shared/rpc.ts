@@ -1,4 +1,4 @@
-import { State, Tag } from "./domain";
+import { State, Tag } from "./state";
 import { PromptButton, PromptOptions } from "./ui/promptUser";
 
 /*

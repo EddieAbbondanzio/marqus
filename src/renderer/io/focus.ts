@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { State, UISection } from "../../shared/domain";
+import { State, UISection } from "../../shared/state";
 import { SaveToFile } from "../App";
 import { FOCUSABLE_ATTRIBUTE, IsFocused } from "../components/shared/Focusable";
 import { findParent } from "../ui/findParent";
