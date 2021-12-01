@@ -12,6 +12,7 @@ export function useShortcuts(
   isFocused: IsFocused
 ) {
   const [shortcuts] = useState(state.shortcuts.values);
+  console.log("use shortcuts");
 
   useEffect(
     () => {

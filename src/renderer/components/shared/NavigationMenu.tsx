@@ -5,9 +5,12 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { px } from "../../../shared/dom/units";
+import { KeyCode } from "../../../shared/io/keyCode";
 import { isBlank } from "../../../shared/utils/string";
+import { useKeyboard } from "../../io/keyboard";
 import { Icon } from "./Icon";
 
 export interface NavigationMenuProps {
@@ -33,25 +36,36 @@ export function NavigationMenu(props: NavigationMenuProps) {
   );
 
   let inputRef = useRef(null as unknown as HTMLInputElement);
+  const keyboard = useKeyboard(inputRef);
 
   const labelEl = !props.enableInput ? (
     <div className="is-size-7">{formattedLabel}</div>
   ) : (
-    <input ref={inputRef} value={props.label} onInput={() => 1} />
+    <input ref={inputRef} />
   );
 
   useEffect(() => {
     const input = inputRef.current;
 
+    // Input ref will be null if not in input mode
     if (input == null) {
       return;
     }
 
-    input.focus();
+    // On first render focus it
+    if (props.enableInput) {
+      input.focus();
+    }
+
     const onBlur = () => {
+      // If we already cancelled out on esc key down, stop.
+      if (input !== document.activeElement) {
+        return;
+      }
+
       if (!isBlank(input.value)) {
         if (props.onInputConfirm != null) {
-          props?.onInputConfirm(input.value);
+          props.onInputConfirm(input.value);
         }
       } else {
         if (props.onInputCancel != null) {
@@ -60,13 +74,32 @@ export function NavigationMenu(props: NavigationMenuProps) {
       }
     };
 
-    const onKeyDown = (ev: KeyboardEvent) => {
-      console.log(ev.key);
-    };
+    keyboard.listen(
+      { event: "keydown", keys: [KeyCode.Enter, KeyCode.Escape] },
+      (_, key) => {
+        input.blur();
+
+        switch (key) {
+          case KeyCode.Enter:
+            console.log("enter key trigged blur");
+            if (props.onInputConfirm != null) {
+              props.onInputConfirm(input.value);
+            }
+            break;
+
+          case KeyCode.Escape:
+            console.log("esc key trigged blur");
+            if (props.onInputCancel != null) {
+              props.onInputCancel();
+            }
+            break;
+        }
+      }
+    );
 
     input.addEventListener("blur", onBlur);
-    window.addEventListener("keydown", onKeyDown);
 
+    console.log(props.label, " rendered");
     return () => {
       input.removeEventListener("blur", onBlur);
     };

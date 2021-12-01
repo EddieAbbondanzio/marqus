@@ -9,6 +9,8 @@ import React from "react";
 import { useShortcuts } from "./io/shortcuts";
 import { useFocus } from "./io/focus";
 import { useMouse } from "./io/mouse";
+import { useKeyboard } from "./io/keyboard";
+import { px } from "../shared/dom/units";
 
 export interface AppContext {
   state: State;
@@ -53,12 +55,19 @@ export const useAppContext = () => {
 
     const execute = useCommands(state, saveToFile);
     const isFocused = useFocus(state, saveToFile);
-    useShortcuts(state, execute, isFocused);
+    // useShortcuts(state, execute, isFocused);
+
+    const ref = useRef(null! as HTMLInputElement);
 
     return (
       <AppContext.Provider value={{ state, execute }}>
         <Layout>
           <GlobalNavigation />
+          <input
+            ref={ref}
+            className="has-background-danger"
+            style={{ width: px(200), height: px(200) }}
+          ></input>
         </Layout>
       </AppContext.Provider>
     );

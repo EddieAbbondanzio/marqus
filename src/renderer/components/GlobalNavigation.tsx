@@ -48,7 +48,6 @@ export function GlobalNavigation(): JSX.Element {
   }
 
   if (state.tags.input != null) {
-    console.log("callbacks: ", state.tags.input);
     addChild(tags, {
       path: "tags/___input",
       enableInput: true,
@@ -77,6 +76,8 @@ export function GlobalNavigation(): JSX.Element {
     favorites,
     trash,
   ];
+
+  console.log("gnav render");
 
   // Recursively render the menus
   const mapper = (item: NavigationMenuProps & { path: string }) => (

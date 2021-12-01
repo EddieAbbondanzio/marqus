@@ -78,6 +78,7 @@ const createTag: Command = async ({ commit, state }) => {
 
   const result = await Promise.race([confirmPromise, cancelPromise]);
   console.log("CREATE TAG: ", result);
+
   switch (result) {
     case "confirm":
       const tag: Tag = {
@@ -88,13 +89,13 @@ const createTag: Command = async ({ commit, state }) => {
 
       delete state.tags.input;
       state.tags.values = [...state.tags.values, tag];
-      // state.tags.values.push(tag);
       await commit(state);
       break;
 
     case "cancel":
       delete state.tags.input;
       await commit(state);
+      console.log("cancel. new state: ", state);
       break;
 
     default:

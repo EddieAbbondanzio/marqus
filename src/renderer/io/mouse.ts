@@ -5,7 +5,7 @@ import { Action } from "../types";
 
 export const DEFAULT_CURSOR = "auto";
 
-export type CursorIcon =
+export type Cursor =
   | "auto"
   | "default"
   | "none"
@@ -62,25 +62,6 @@ interface MouseDragging {
   hasMoved?: boolean;
 }
 
-const reducer: Reducer<MouseDragging, MouseAction> = (dragging, action) => {
-  const { type } = action;
-  switch (type) {
-    case "dragStart":
-      console.log("set draggin el ");
-      return { element: action.element, hasMoved: undefined };
-
-    case "dragMove":
-      return { ...dragging, hasMoved: true };
-
-    case "dragCancel":
-    case "dragEnd":
-      return { element: undefined, hasMoved: undefined };
-
-    default:
-      throw new UnsupportedError(`Invalid mouse action ${type}`);
-  }
-};
-
 export type MouseListenOpts =
   | { event: "click"; button?: MouseButton }
   | { event: Exclude<MouseEventType, "click"> };
@@ -89,8 +70,8 @@ export type MouseCallback = (ev: MouseEvent) => void;
 
 export interface Mouse {
   listen(opts: MouseListenOpts, callback: MouseCallback): void;
-  cursor(cursor: CursorIcon, cb: () => Promise<any>): Promise<void>;
-  setCursor(cursor: CursorIcon): void;
+  cursor(cursor: Cursor, cb: () => Promise<any>): Promise<void>;
+  setCursor(cursor: Cursor): void;
   resetCursor(): void;
 }
 
@@ -123,7 +104,7 @@ export class MouseController implements Mouse {
     }
   }
 
-  async cursor(cursorIcon: CursorIcon, cb: () => Promise<any>) {
+  async cursor(cursorIcon: Cursor, cb: () => Promise<any>) {
     const original = document.body.style.cursor;
     document.body.style.cursor = cursorIcon;
 
@@ -132,7 +113,7 @@ export class MouseController implements Mouse {
     document.body.style.cursor = original;
   }
 
-  setCursor(cursor: CursorIcon) {
+  setCursor(cursor: Cursor) {
     document.body.style.cursor = cursor;
   }
 
@@ -141,9 +122,26 @@ export class MouseController implements Mouse {
   }
 }
 
+const reducer: Reducer<MouseDragging, MouseAction> = (dragging, action) => {
+  const { type } = action;
+  switch (type) {
+    case "dragStart":
+      return { element: action.element, hasMoved: undefined };
+
+    case "dragMove":
+      return { ...dragging, hasMoved: true };
+
+    case "dragCancel":
+    case "dragEnd":
+      return { element: undefined, hasMoved: undefined };
+
+    default:
+      throw new UnsupportedError(`Invalid mouse action ${type}`);
+  }
+};
 export function useMouse<El extends HTMLElement = HTMLElement>(
   element: RefObject<El>
-) {
+): Mouse {
   const [dragging, dispatch] = useReducer(reducer, {});
   const mouse = new MouseController();
 
@@ -220,7 +218,6 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("keyup", onKeyUp);
-
     return () => {
       el.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
