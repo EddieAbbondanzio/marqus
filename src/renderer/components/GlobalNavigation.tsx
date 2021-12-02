@@ -6,62 +6,104 @@ import {
   faTrash,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
-import { chain } from "lodash";
-import React, { createRef, useMemo, useRef } from "react";
+import React from "react";
 import { px } from "../../shared/dom/units";
+import { State } from "../../shared/state";
 import { useAppContext } from "../App";
 import { ContextMenu } from "./shared/ContextMenu";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
-import { NavigationMenu, NavigationMenuProps } from "./shared/NavigationMenu";
+import { NavigationMenu } from "./shared/NavigationMenu";
+import { NavigationMenuInput } from "./shared/NavigationMenuInput";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
 export function GlobalNavigation(): JSX.Element {
-  const { state, execute } = useAppContext();
+  const { state, execute, saveState } = useAppContext();
 
   const all = (
     <NavigationMenu
       collapsed={false}
-      key="all"
       trigger={buildTrigger("ALL", faFile)}
+      key="all"
     ></NavigationMenu>
   );
 
   const notebooks = (
     <NavigationMenu
       collapsed={false}
-      key="notebooks"
       trigger={buildTrigger("NOTEBOOKS", faBook)}
+      key="notebooks"
     ></NavigationMenu>
   );
+
+  const tagsChildren = [];
+  for (const tag of state.tags.values) {
+    tagsChildren.push(
+      <NavigationMenu
+        collapsed={false}
+        trigger={buildTrigger(tag.name)}
+        depth={1}
+        key={`tags/${tag.name}`}
+      ></NavigationMenu>
+    );
+  }
+
+  const tagsInput = state.tags.input;
+  if (tagsInput?.mode === "create") {
+    const onInput = (val: string) => {
+      console.log("onInput: ", val);
+      const s: State = {
+        ...state,
+        tags: {
+          ...state.tags,
+          input: { ...tagsInput, value: val },
+        },
+      };
+
+      saveState(s);
+    };
+
+    tagsChildren.push(
+      <NavigationMenu
+        collapsed={false}
+        trigger={
+          <NavigationMenuInput
+            value={tagsInput.value}
+            onInput={onInput}
+            onConfirm={tagsInput.confirm}
+            onCancel={tagsInput.cancel}
+          />
+        }
+        depth={1}
+        key="tags/input"
+      />
+    );
+  }
 
   const tags = (
     <NavigationMenu
       collapsed={false}
-      key="tags"
       trigger={buildTrigger("TAGS", faTag)}
+      key="tags"
     >
-      <NavigationMenu
-        collapsed={false}
-        trigger={buildTrigger("TagA")}
-      ></NavigationMenu>
+      {tagsChildren}
     </NavigationMenu>
   );
 
   const favorites = (
     <NavigationMenu
       collapsed={false}
-      key="favorites"
       trigger={buildTrigger("FAVORITES", faStar)}
+      key="favorites"
     ></NavigationMenu>
   );
 
   const trash = (
     <NavigationMenu
       collapsed={false}
-      key="trash"
       trigger={buildTrigger("TRASH", faTrash)}
+      key="trash"
     ></NavigationMenu>
   );
 

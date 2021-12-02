@@ -15,6 +15,7 @@ import { px } from "../shared/dom/units";
 export interface AppContext {
   state: State;
   execute: Execute;
+  saveState: SaveState;
   // TODO: Theme support
 }
 
@@ -23,7 +24,7 @@ if (dom == null) {
   throw Error("No root container to mount");
 }
 
-export type SaveToFile = (s: State) => void;
+export type SaveState = (s: State) => void;
 
 // Context allows us to access root state from any component
 export const AppContext = createContext<AppContext | undefined>(undefined);
@@ -47,17 +48,17 @@ export const useAppContext = () => {
   function App() {
     let [state, setState] = useState(initialState);
 
-    const saveToFile: SaveToFile = (s: State) => {
+    const saveState: SaveState = (s: State) => {
       setState(s);
       void rpc("state.save", s);
     };
 
-    const execute = useCommands(state, saveToFile);
-    const isFocused = useFocus(state, saveToFile);
-    // useShortcuts(state, execute, isFocused);
+    const execute = useCommands(state, saveState);
+    const isFocused = useFocus(state, saveState);
+    useShortcuts(state, execute, isFocused);
 
     return (
-      <AppContext.Provider value={{ state, execute }}>
+      <AppContext.Provider value={{ state, execute, saveState }}>
         <Layout>
           <GlobalNavigation />
         </Layout>

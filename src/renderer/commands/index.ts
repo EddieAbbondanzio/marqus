@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import { State } from "../../shared/state";
-import { SaveToFile, useAppContext } from "../App";
+import { SaveState, useAppContext } from "../App";
 import { APP_REGISTRY } from "./app";
 import { GLOBAL_NAVIGATION_REGISTRY } from "./globalNavigation";
 import { Command } from "./types";
@@ -53,7 +53,7 @@ export type Execute = <
 export function useCommands(
   // () => guarantees us to have up to date state
   state: State,
-  saveToFile: SaveToFile
+  saveState: SaveState
 ): Execute {
   return async (name, payload: any) => {
     const command: Command<any> = COMMAND_REGISTRY[name];
@@ -76,7 +76,7 @@ export function useCommands(
      */
     const commit = async (newState: State): Promise<void> => {
       console.log("commit: ", newState);
-      await saveToFile(newState);
+      await saveState(newState);
     };
 
     /**
@@ -84,7 +84,7 @@ export function useCommands(
      */
     const rollback = async (): Promise<void> => {
       console.log("rollback: ", rollbackCopy);
-      await saveToFile(rollbackCopy);
+      await saveState(rollbackCopy);
     };
 
     await command({ state: stateCopy, commit, rollback }, payload);

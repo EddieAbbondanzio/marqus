@@ -1,5 +1,5 @@
 import { Reducer, RefObject, useCallback, useEffect, useReducer } from "react";
-import { UnsupportedError } from "../../shared/errors";
+import { InvalidOpError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
 import { Action } from "../types";
 
@@ -136,7 +136,7 @@ const reducer: Reducer<MouseDragging, MouseAction> = (dragging, action) => {
       return { element: undefined, hasMoved: undefined };
 
     default:
-      throw new UnsupportedError(`Invalid mouse action ${type}`);
+      throw new InvalidOpError(`Invalid mouse action ${type}`);
   }
 };
 export function useMouse<El extends HTMLElement = HTMLElement>(

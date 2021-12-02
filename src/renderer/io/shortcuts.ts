@@ -25,7 +25,9 @@ export function useShortcuts(
          * everything but this gives the user a chance to redefine or disable any
          * shortcut.
          */
-        ev.preventDefault();
+        if ((ev.target as HTMLElement).tagName !== "INPUT") {
+          ev.preventDefault();
+        }
 
         // Prevent redundant calls
         if (!ev.repeat) {

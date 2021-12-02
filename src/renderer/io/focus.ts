@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { State, UISection } from "../../shared/state";
-import { SaveToFile } from "../App";
+import { SaveState } from "../App";
 import { FOCUSABLE_ATTRIBUTE, IsFocused } from "../components/shared/Focusable";
 import { findParent } from "../ui/findParent";
 
-export function useFocus(state: State, saveToFile: SaveToFile) {
+export function useFocus(state: State, saveState: SaveState) {
   useEffect(() => {
     window.addEventListener("focusin", onFocusIn);
 
@@ -26,7 +26,7 @@ export function useFocus(state: State, saveToFile: SaveToFile) {
 
     const { ui } = state;
     console.log("focus: ", focused);
-    saveToFile({
+    saveState({
       ...state,
       ui: { ...ui, focused: focused == null ? undefined : focused },
     });

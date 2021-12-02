@@ -1,5 +1,5 @@
 import { generateId, Tag } from "../../shared/state";
-import { UnsupportedError } from "../../shared/errors";
+import { InvalidOpError } from "../../shared/errors";
 import { Command } from "./types";
 
 const focus: Command = async ({ commit, state }) => {
@@ -51,6 +51,7 @@ const scrollUp: Command<number> = async ({ commit, state }, increment = 30) => {
 };
 
 const createTag: Command = async ({ commit, rollback, state }) => {
+  console.log("CREATE TAG!");
   if (state.tags.input != null) {
     throw Error(`Tag input already started`);
   }
@@ -92,7 +93,7 @@ const createTag: Command = async ({ commit, rollback, state }) => {
       break;
 
     default:
-      throw new UnsupportedError(`Invalid input response ${result}`);
+      throw new InvalidOpError(`Invalid input response ${result}`);
   }
 };
 
