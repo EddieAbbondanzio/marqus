@@ -62,7 +62,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
         return (
           <div
             onClick={() => onClick(item)}
-            className="has-background-primary-hover px-2 py-1"
+            className="has-background-primary-hover px-2 py-1 is-flex is-justify-content-space-between is-align-items-center"
             key={item.text}
           >
             {item.text}

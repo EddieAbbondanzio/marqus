@@ -4,95 +4,74 @@ import {
   faStar,
   faTag,
   faTrash,
+  IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
+import { chain } from "lodash";
 import React, { createRef, useMemo, useRef } from "react";
+import { px } from "../../shared/dom/units";
 import { useAppContext } from "../App";
 import { ContextMenu } from "./shared/ContextMenu";
 import { Focusable } from "./shared/Focusable";
-import {
-  addChild,
-  NavigationMenu,
-  NavigationMenuProps,
-} from "./shared/NavigationMenu";
+import { Icon } from "./shared/Icon";
+import { NavigationMenu, NavigationMenuProps } from "./shared/NavigationMenu";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
 export function GlobalNavigation(): JSX.Element {
-  console.log("GlobalNavigation()");
-
   const { state, execute } = useAppContext();
-  /**
-   * Generate the navigation menu components. This isn't something we want
-   * to do unless things change so we memo it to save on performace costs
-   */
-  const all = {
-    label: "all",
-    icon: faFile,
-    path: "all",
-  };
-  const notebooks = {
-    label: "notebooks",
-    icon: faBook,
-    path: "notebooks",
-  };
 
-  const tags = {
-    label: "tags",
-    icon: faTag,
-    path: "tags",
-  };
+  const all = (
+    <NavigationMenu
+      collapsed={false}
+      key="all"
+      trigger={buildTrigger("ALL", faFile)}
+    ></NavigationMenu>
+  );
 
-  for (const tag of state.tags.values) {
-    addChild(tags, {
-      label: tag.name,
-      path: `tags/${tag.name}`,
-    });
-  }
+  const notebooks = (
+    <NavigationMenu
+      collapsed={false}
+      key="notebooks"
+      trigger={buildTrigger("NOTEBOOKS", faBook)}
+    ></NavigationMenu>
+  );
 
-  if (state.tags.input != null) {
-    addChild(tags, {
-      path: "tags/___input",
-      enableInput: true,
-      label: state.tags.input.value,
-      onInputCancel: state.tags.input.cancel,
-      onInputConfirm: state.tags.input.confirm,
-    });
-  }
+  const tags = (
+    <NavigationMenu
+      collapsed={false}
+      key="tags"
+      trigger={buildTrigger("TAGS", faTag)}
+    >
+      <NavigationMenu
+        collapsed={false}
+        trigger={buildTrigger("TagA")}
+      ></NavigationMenu>
+    </NavigationMenu>
+  );
 
-  const favorites = {
-    label: "favorites",
-    icon: faStar,
-    path: "favorites",
-  };
-  const trash = {
-    label: "trash",
-    icon: faTrash,
-    path: "trash",
-  };
+  const favorites = (
+    <NavigationMenu
+      collapsed={false}
+      key="favorites"
+      trigger={buildTrigger("FAVORITES", faStar)}
+    ></NavigationMenu>
+  );
 
-  // TODO: Allow the user to reorder / hide these
-  const items: Array<NavigationMenuProps & { path: string }> = [
-    all,
-    notebooks,
-    tags,
-    favorites,
-    trash,
-  ];
+  const trash = (
+    <NavigationMenu
+      collapsed={false}
+      key="trash"
+      trigger={buildTrigger("TRASH", faTrash)}
+    ></NavigationMenu>
+  );
+
+  // TODO: Allow user to customize order
+  const menus = [all, notebooks, tags, favorites, trash];
 
   // Recursively render the menus
-  const mapper = (item: NavigationMenuProps & { path: string }) => (
-    <NavigationMenu
-      key={item.path}
-      label={item.label}
-      icon={item.icon}
-      parent={item.parent}
-      children={item.children?.map(mapper)}
-      enableInput={item.enableInput}
-      onInputCancel={item.onInputCancel}
-      onInputConfirm={item.onInputConfirm}
-    />
-  );
-  const renderedItems = items.map(mapper);
+  // const mapper = (item: NavigationMenuProps & { path: string }) => (
+  //   <NavigationMenu collapsed={false} key={item.path} parent={item.parent} />
+  // );
 
   const { width, scroll } = state.ui.globalNavigation;
 
@@ -116,10 +95,19 @@ export function GlobalNavigation(): JSX.Element {
       >
         <Focusable name="globalNavigation">
           <ContextMenu name="globalNavigation" items={contextMenuItems}>
-            {renderedItems}
+            {menus}
           </ContextMenu>
         </Focusable>
       </Scrollable>
     </Resizable>
+  );
+}
+
+export function buildTrigger(text: string, icon?: IconDefinition): JSX.Element {
+  return (
+    <div className="m-1 is-flex is-flex-row is-align-items-center has-text-grey is-size-7">
+      {icon != null && <Icon icon={icon} className="mr-1" />}
+      <span style={icon == null ? { paddingLeft: px(16) } : {}}>{text}</span>
+    </div>
   );
 }

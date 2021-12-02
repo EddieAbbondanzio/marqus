@@ -20,6 +20,11 @@ const shortcuts: Shortcut[] = [
     repeat: true,
   },
   {
+    command: "globalNavigation.createTag",
+    keys: [KeyCode.Control, KeyCode.LetterT],
+    when: "globalNavigation",
+  },
+  {
     command: "app.openDevTools",
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterI],
   },
