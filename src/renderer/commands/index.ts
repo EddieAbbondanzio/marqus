@@ -50,25 +50,24 @@ export type Execute = <
   payload: Payload
 ) => Promise<void>;
 
-export function useCommands(
-  // () => guarantees us to have up to date state
-  state: State,
-  saveState: SaveState
-): Execute {
+export function useCommands(state: State, saveState: SaveState): Execute {
+  /*
+   * Prevent stale closure:
+   * https://dmitripavlutin.com/react-hooks-stale-closures/
+   */
+  let s = state;
+  let save = saveState;
+
   return async (name, payload: any) => {
+    console.log("exe command: ", s);
     const command: Command<any> = COMMAND_REGISTRY[name];
 
     if (command == null) {
       throw Error(`No command ${name} registered.`);
     }
 
-    /*
-     * Making a deep copy of state allows us to make changes without applying
-     * anything until we call commit(). Sometimes we might start making changes
-     * to state but need to cancel things out and revert back to the previous
-     */
-    let stateCopy = _.cloneDeep(state);
-    let rollbackCopy = _.cloneDeep(state);
+    // let stateCopy = _.cloneDeep(s);
+    let rollbackCopy = _.cloneDeep(s);
 
     /**
      * Apply local changes made to state from a command.
@@ -76,7 +75,7 @@ export function useCommands(
      */
     const commit = async (newState: State): Promise<void> => {
       console.log("commit: ", newState);
-      await saveState(newState);
+      await save(newState);
     };
 
     /**
@@ -84,9 +83,9 @@ export function useCommands(
      */
     const rollback = async (): Promise<void> => {
       console.log("rollback: ", rollbackCopy);
-      await saveState(rollbackCopy);
+      await save(rollbackCopy);
     };
 
-    await command({ state: stateCopy, commit, rollback }, payload);
+    await command({ state: s, commit, rollback }, payload);
   };
 }

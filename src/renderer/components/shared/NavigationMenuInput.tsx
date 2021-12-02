@@ -7,7 +7,7 @@ import { useKeyboard } from "../../io/keyboard";
 export interface NavigationMenuInputProps {
   value: string;
   onInput: (newValue: string) => void;
-  onConfirm: () => void;
+  onConfirm: (val: string) => void;
   onCancel: () => void;
 }
 
@@ -44,7 +44,7 @@ export function NavigationMenuInput(
         return;
       }
 
-      if (!isBlank(props.value)) props.onConfirm();
+      if (!isBlank(props.value)) props.onConfirm(props.value);
       else props.onCancel();
 
       setState({ ...state, wasFinalized: true });
@@ -66,7 +66,7 @@ export function NavigationMenuInput(
 
       switch (key) {
         case KeyCode.Enter:
-          props.onConfirm();
+          props.onConfirm(props.value);
           break;
         case KeyCode.Escape:
           props.onCancel();

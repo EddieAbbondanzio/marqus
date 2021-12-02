@@ -56,6 +56,7 @@ const createTag: Command = async ({ commit, rollback, state }) => {
     throw Error(`Tag input already started`);
   }
 
+  // Enable user input
   let [confirm, cancel, response] = createConfirmOrCancel();
   state.tags.input = {
     mode: "create",
@@ -63,15 +64,16 @@ const createTag: Command = async ({ commit, rollback, state }) => {
     confirm: confirm,
     cancel: cancel,
   };
-
   await commit(state);
-  const outcome = await response;
 
+  // Create new tag, or cancel.
+  const [outcome, value] = await response;
   switch (outcome) {
     case "confirm":
+      console.log(`confirm create tag: value from confirm: ${value}`);
       const tag: Tag = {
         id: generateId(),
-        name: state.tags.input.value,
+        name: value!,
         dateCreated: new Date(),
       };
 

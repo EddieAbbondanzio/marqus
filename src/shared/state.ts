@@ -25,7 +25,7 @@ export interface Tags {
   input?: {
     mode: "create" | "update";
     value: string;
-    confirm: () => void;
+    confirm: (val: string) => void;
     cancel: () => void;
   };
 }

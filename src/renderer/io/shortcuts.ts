@@ -42,6 +42,7 @@ export function useShortcuts(
               (s.when == null || isFocused(s.when))
           );
 
+          console.log("shortcut found: ", shortcut);
           if (shortcut != null) {
             void execute(shortcut.command as CommandName, undefined!);
 

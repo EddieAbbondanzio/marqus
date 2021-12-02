@@ -52,7 +52,6 @@ export function GlobalNavigation(): JSX.Element {
   const tagsInput = state.tags.input;
   if (tagsInput?.mode === "create") {
     const onInput = (val: string) => {
-      console.log("onInput: ", val);
       const s: State = {
         ...state,
         tags: {
