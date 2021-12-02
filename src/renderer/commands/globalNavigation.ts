@@ -1,6 +1,7 @@
 import { generateId, Tag } from "../../shared/state";
 import { InvalidOpError } from "../../shared/errors";
 import { Command } from "./types";
+import { createConfirmOrCancel } from "../io/confirmOrCancel";
 
 const focus: Command = async ({ commit, state }) => {
   state.ui.focused = "globalNavigation";
@@ -51,31 +52,22 @@ const scrollUp: Command<number> = async ({ commit, state }, increment = 30) => {
 };
 
 const createTag: Command = async ({ commit, rollback, state }) => {
-  console.log("CREATE TAG!");
   if (state.tags.input != null) {
     throw Error(`Tag input already started`);
   }
 
-  let confirm: () => void;
-  let cancel: () => void;
-
-  let confirmPromise: Promise<string> = new Promise(
-    (res) => (confirm = () => res("confirm"))
-  );
-  let cancelPromise: Promise<string> = new Promise(
-    (res) => (cancel = () => res("cancel"))
-  );
-
+  let [confirm, cancel, response] = createConfirmOrCancel();
   state.tags.input = {
     mode: "create",
     value: "",
-    confirm: confirm!,
-    cancel: cancel!,
+    confirm: confirm,
+    cancel: cancel,
   };
-  await commit(state);
 
-  const result = await Promise.race([confirmPromise, cancelPromise]);
-  switch (result) {
+  await commit(state);
+  const outcome = await response;
+
+  switch (outcome) {
     case "confirm":
       const tag: Tag = {
         id: generateId(),
@@ -93,7 +85,7 @@ const createTag: Command = async ({ commit, rollback, state }) => {
       break;
 
     default:
-      throw new InvalidOpError(`Invalid input response ${result}`);
+      throw new InvalidOpError(`Invalid input response ${outcome}`);
   }
 };
 
