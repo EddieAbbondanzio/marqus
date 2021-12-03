@@ -8,6 +8,10 @@ export const COMMON_KEY_COMBOS: Record<string, KeyCode[]> = {
 
 const shortcuts: Shortcut[] = [
   {
+    command: "globalNavigation.focus",
+    keys: [KeyCode.Control, KeyCode.Digit1],
+  },
+  {
     command: "globalNavigation.scrollDown",
     keys: COMMON_KEY_COMBOS.scrollDown,
     when: "globalNavigation",

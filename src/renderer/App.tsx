@@ -1,70 +1,63 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
-import { GlobalNavigation } from "./components/GlobalNavigation";
 import { Layout } from "./components/Layout";
-import { createContext, useEffect, useRef, useState } from "react";
-import { Execute, useCommands } from "./commands/index";
-import { State } from "../shared/state";
 import { render } from "react-dom";
-import React from "react";
-import { useShortcuts } from "./io/shortcuts";
-import { useFocus } from "./io/focus";
-import { useMouse } from "./io/mouse";
-import { useKeyboard } from "./io/keyboard";
-import { px } from "../shared/dom/units";
+import React, { Reducer, useReducer } from "react";
+import { Action, Command, useCommands } from "./io/commands";
+import { sleep } from "../shared/utils/sleep";
 
-export interface AppContext {
-  state: State;
-  execute: Execute;
-  saveState: SaveState;
-  // TODO: Theme support
-}
+type AppState = {
+  foo: number;
+  bar: string;
+};
 
-const dom = document.getElementById("app");
-if (dom == null) {
-  throw Error("No root container to mount");
-}
+type AppActions = Action<"foo"> | Action<"bar">;
 
-export type SaveState = (s: State) => void;
-
-// Context allows us to access root state from any component
-export const AppContext = createContext<AppContext | undefined>(undefined);
-export const useAppContext = () => {
-  const ctx = React.useContext(AppContext);
-
-  if (ctx == null) {
-    throw Error(
-      `useAppContext() must be called within the AppContext.Provider`
-    );
+const reducer: Reducer<AppState, AppActions> = (state, action) => {
+  switch (action.type) {
+    case "foo":
+      return { ...state, foo: state.foo + 1 };
+    case "bar":
+      return { ...state, bar: state.bar + "A" };
   }
+};
 
-  return ctx;
+const foo: Command<number> = async (ctx) => {
+  console.log("1st", ctx.getState());
+  ctx.dispatch({ type: "foo" });
+  await sleep(3000);
+  console.log("2nd", ctx.getState());
+  ctx.dispatch({ type: "foo" });
+  await sleep(3000);
+  console.log("3rd", ctx.getState());
+};
+
+const reg = {
+  foo,
 };
 
 (async () => {
   fontAwesomeLib();
-  const { rpc } = window;
-  let initialState = await rpc("state.load");
 
   function App() {
-    let [state, setState] = useState(initialState);
-
-    const saveState: SaveState = (s: State) => {
-      setState(s);
-      void rpc("state.save", s);
+    const onClick = async () => {
+      console.log("execute!");
+      await execute("foo");
+      console.log("complete");
     };
 
-    const execute = useCommands(state, saveState);
-    const isFocused = useFocus(state, saveState);
-    useShortcuts(state, execute, isFocused);
+    const [state, execute] = useCommands(reducer, reg, {
+      foo: 0,
+      bar: "a",
+    });
 
     return (
-      <AppContext.Provider value={{ state, execute, saveState }}>
-        <Layout>
-          <GlobalNavigation />
-        </Layout>
-      </AppContext.Provider>
+      <Layout>
+        <button className="button" onClick={onClick}>
+          Click me!
+        </button>
+      </Layout>
     );
   }
 
-  render(<App />, dom);
+  render(<App />, document.getElementById("app"));
 })();

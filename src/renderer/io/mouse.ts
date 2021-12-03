@@ -1,7 +1,7 @@
 import { Reducer, RefObject, useCallback, useEffect, useReducer } from "react";
 import { InvalidOpError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
-import { Action } from "../types";
+import { Action } from "./commands";
 
 export const DEFAULT_CURSOR = "auto";
 
