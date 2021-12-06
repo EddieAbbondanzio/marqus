@@ -7,7 +7,10 @@ import { CommandType } from "./commands/types";
 import { Execute } from "./commands";
 
 export function useShortcuts(state: State, execute: Execute) {
-  const [shortcuts] = useState(state.shortcuts.values);
+  const { shortcuts } = state;
+
+  const isFocused = (when?: string) =>
+    when == null || when === state.ui.focused;
 
   useEffect(() => {
     const keyTracker: Record<string, boolean | undefined> = {};
@@ -30,8 +33,7 @@ export function useShortcuts(state: State, execute: Execute) {
 
         const activeKeys = toKeyArray(keyTracker);
         const shortcut = shortcuts.find(
-          (s) => isEqual(s.keys, activeKeys) && !s.disabled
-          // && (s.when == null || isFocused(s.when))
+          (s) => isEqual(s.keys, activeKeys) && !s.disabled && isFocused(s.when)
         );
 
         console.log("active keys: ", activeKeys);

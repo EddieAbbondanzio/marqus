@@ -4,9 +4,9 @@ import { KeyCode } from "./io/keyCode";
 
 export interface State {
   ui: UI;
-  tags: Tags;
-  notebooks: Notebooks;
-  shortcuts: Shortcuts;
+  tags: Tag[];
+  notebooks: Notebook[];
+  shortcuts: Shortcut[];
 }
 
 export interface UI {
@@ -20,22 +20,8 @@ export interface GlobalNavigation {
   scroll: number;
 }
 
-export interface Tags {
-  values: Tag[];
-  input?: {
-    mode: "create" | "update";
-    value: string;
-    confirm: (val: string) => void;
-    cancel: () => void;
-  };
-}
-
 export interface Tag extends UserResource {
   name: string;
-}
-
-export interface Notebooks {
-  values: Notebook[];
 }
 
 export interface Notebook extends UserResource {
@@ -43,10 +29,6 @@ export interface Notebook extends UserResource {
   expanded?: boolean;
   parent?: Notebook;
   children?: Notebook[];
-}
-
-export interface Shortcuts {
-  values: Shortcut[];
 }
 
 export interface Shortcut {

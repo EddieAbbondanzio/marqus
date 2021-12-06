@@ -1,4 +1,4 @@
-import { State, Tag } from "./state";
+import { State, Tag, UI } from "./state";
 import { PromptButton, PromptOptions } from "./ui/promptUser";
 
 /*
@@ -18,7 +18,8 @@ export type RpcVoid = [void, void];
 export interface RpcSchema {
   // AppState
   "state.load": RpcOut<State>;
-  "state.save": RpcIn<State>;
+  // All non ui state changes is performed via specific rpcs ex: tag.create...
+  "state.saveUI": RpcIn<UI>;
   // Tags
   "tags.getAll": RpcOut<Tag[]>;
   "tags.create": RpcInOut<{ name: string }, Tag>;
