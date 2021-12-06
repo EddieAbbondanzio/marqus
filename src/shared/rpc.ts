@@ -24,11 +24,11 @@ export interface RpcSchema {
   "tags.create": RpcInOut<{ name: string }, Tag>;
   "tags.update": RpcInOut<{ id: string; name: string }, Tag>;
   "tags.delete": RpcIn<{ id: string }>;
-  // UI
-  "ui.promptUser": RpcInOut<PromptOptions, PromptButton>;
-  "ui.openDevTools": RpcVoid;
-  "ui.reload": RpcVoid;
-  "ui.toggleFullScreen": RpcVoid;
+  // App
+  "app.promptUser": RpcInOut<PromptOptions, PromptButton>;
+  "app.openDevTools": RpcVoid;
+  "app.reload": RpcVoid;
+  "app.toggleFullScreen": RpcVoid;
 }
 
 export type RpcType = keyof RpcSchema;

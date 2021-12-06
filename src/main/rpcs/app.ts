@@ -2,7 +2,7 @@ import { BrowserWindow, dialog } from "electron";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import { PromptOptions } from "../../shared/ui/promptUser";
 
-const promptUser: RpcHandler<"ui.promptUser"> = async (opts) => {
+const promptUser: RpcHandler<"app.promptUser"> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
   const defaultCount = opts.buttons.filter((b) => b.role === "default").length;
 
@@ -25,15 +25,15 @@ const promptUser: RpcHandler<"ui.promptUser"> = async (opts) => {
   return opts.buttons[returnVal.response];
 };
 
-const openDevTools: RpcHandler<"ui.openDevTools"> = async () => {
+const openDevTools: RpcHandler<"app.openDevTools"> = async () => {
   BrowserWindow.getFocusedWindow()?.webContents.openDevTools();
 };
 
-const reload: RpcHandler<"ui.reload"> = async () => {
+const reload: RpcHandler<"app.reload"> = async () => {
   BrowserWindow.getFocusedWindow()?.webContents.reload();
 };
 
-const toggleFullScreen: RpcHandler<"ui.toggleFullScreen"> = async () => {
+const toggleFullScreen: RpcHandler<"app.toggleFullScreen"> = async () => {
   const bw = BrowserWindow.getFocusedWindow();
 
   if (bw == null) {
@@ -44,8 +44,8 @@ const toggleFullScreen: RpcHandler<"ui.toggleFullScreen"> = async () => {
 };
 
 export const promptUserRpcs: RpcRegistry = {
-  "ui.promptUser": promptUser,
-  "ui.openDevTools": openDevTools,
-  "ui.reload": reload,
-  "ui.toggleFullScreen": toggleFullScreen,
+  "app.promptUser": promptUser,
+  "app.openDevTools": openDevTools,
+  "app.reload": reload,
+  "app.toggleFullScreen": toggleFullScreen,
 };

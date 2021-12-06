@@ -1,91 +1,91 @@
-// import { isEqual, chain } from "lodash";
-// import { RefObject, useEffect, useState } from "react";
-// import { State } from "../../shared/state";
-// import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
-// import { sleep } from "../../shared/utils/sleep";
-// import { CommandName, Execute } from "../commands";
-// import { IsFocused } from "../components/shared/Focusable";
+import { isEqual, chain } from "lodash";
+import { RefObject, useEffect, useState } from "react";
+import { Shortcut, State } from "../../shared/state";
+import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
+import { sleep } from "../../shared/utils/sleep";
+import { CommandType } from "./commands/types";
+import { Execute } from "./commands";
 
-// export function useShortcuts(
-//   state: State,
-//   execute: Execute,
-//   isFocused: IsFocused
-// ) {
-//   const [shortcuts] = useState(state.shortcuts.values);
-//   useEffect(() => {
-//     const keyTracker: Record<string, boolean | undefined> = {};
-//     let interval: NodeJS.Timer;
+export function useShortcuts(state: State, execute: Execute) {
+  const [shortcuts] = useState(state.shortcuts.values);
 
-//     const keyDown = (ev: KeyboardEvent) => {
-//       /*
-//        * Disable all default shortcuts. This does require us to re-implement
-//        * everything but this gives the user a chance to redefine or disable any
-//        * shortcut.
-//        */
-//       if ((ev.target as HTMLElement).tagName !== "INPUT") {
-//         ev.preventDefault();
-//       }
+  useEffect(() => {
+    const keyTracker: Record<string, boolean | undefined> = {};
+    let interval: NodeJS.Timer;
 
-//       // Prevent redundant calls
-//       if (!ev.repeat) {
-//         const key = parseKeyCode(ev.code);
-//         keyTracker[key] = true;
+    const keyDown = (ev: KeyboardEvent) => {
+      /*
+       * Disable all default shortcuts. This does require us to re-implement
+       * everything but this gives the user a chance to redefine or disable any
+       * shortcut.
+       */
+      if ((ev.target as HTMLElement).tagName !== "INPUT") {
+        ev.preventDefault();
+      }
 
-//         const activeKeys = toKeyArray(keyTracker);
-//         const shortcut = shortcuts.find(
-//           (s) =>
-//             isEqual(s.keys, activeKeys) &&
-//             !s.disabled &&
-//             (s.when == null || isFocused(s.when))
-//         );
+      // Prevent redundant calls
+      if (!ev.repeat) {
+        const key = parseKeyCode(ev.code);
+        keyTracker[key] = true;
 
-//         console.log("active keys: ", activeKeys);
+        const activeKeys = toKeyArray(keyTracker);
+        const shortcut = shortcuts.find(
+          (s) => isEqual(s.keys, activeKeys) && !s.disabled
+          // && (s.when == null || isFocused(s.when))
+        );
 
-//         if (shortcut != null) {
-//           console.log("execute: ", shortcut);
-//           void execute(shortcut.command as CommandName, undefined!);
+        console.log("active keys: ", activeKeys);
 
-//           if (shortcut.repeat) {
-//             (async () => {
-//               await sleep(250);
-//               const currKeys = toKeyArray(keyTracker);
+        if (shortcut != null) {
+          console.log("execute: ", shortcut);
+          void execute(shortcut.command as CommandType, undefined!);
 
-//               if (isEqual(currKeys, activeKeys)) {
-//                 interval = setInterval(() => {
-//                   void execute(shortcut.command as CommandName, undefined!);
-//                 }, 125);
-//               }
-//             })();
-//           }
-//         }
-//       }
-//     };
+          if (shortcut.repeat) {
+            (async () => {
+              /*
+               * First pause is twice as long to ensure a user really
+               * wants it to repeat (IE hold to continue scrolling down)
+               * vs just being a false negative.
+               */
+              await sleep(250);
+              const currKeys = toKeyArray(keyTracker);
 
-//     const keyUp = ({ code }: KeyboardEvent) => {
-//       const key = parseKeyCode(code);
-//       delete keyTracker[key];
+              if (isEqual(currKeys, activeKeys)) {
+                interval = setInterval(() => {
+                  void execute(shortcut.command as CommandType, undefined!);
+                }, 125);
+              }
+            })();
+          }
+        }
+      }
+    };
 
-//       if (interval != null) {
-//         clearInterval(interval);
-//       }
-//     };
+    const keyUp = ({ code }: KeyboardEvent) => {
+      const key = parseKeyCode(code);
+      delete keyTracker[key];
 
-//     window.addEventListener("keydown", keyDown);
-//     window.addEventListener("keyup", keyUp);
+      if (interval != null) {
+        clearInterval(interval);
+      }
+    };
 
-//     return () => {
-//       window.removeEventListener("keydown", keyDown);
-//       window.removeEventListener("keyup", keyUp);
-//     };
-//   }, [state, execute, isFocused]);
-// }
+    window.addEventListener("keydown", keyDown);
+    window.addEventListener("keyup", keyUp);
 
-// export const toKeyArray = (
-//   activeKeys: Record<string, boolean | undefined>
-// ): KeyCode[] =>
-//   chain(activeKeys)
-//     .entries()
-//     .filter(([, active]) => active == true)
-//     .map(([key]) => key as KeyCode)
-//     .thru(sortKeyCodes)
-//     .value();
+    return () => {
+      window.removeEventListener("keydown", keyDown);
+      window.removeEventListener("keyup", keyUp);
+    };
+  }, [shortcuts, execute]);
+}
+
+export const toKeyArray = (
+  activeKeys: Record<string, boolean | undefined>
+): KeyCode[] =>
+  chain(activeKeys)
+    .entries()
+    .filter(([, active]) => active == true)
+    .map(([key]) => key as KeyCode)
+    .thru(sortKeyCodes)
+    .value();

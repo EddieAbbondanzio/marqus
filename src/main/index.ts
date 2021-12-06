@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcHandler, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { notifyOnReady } from "./events";
-import { promptUserRpcs as uiRpcs } from "./rpcs/ui";
+import { promptUserRpcs as uiRpcs } from "./rpcs/app";
 import { stateRpcs } from "./rpcs/state";
 
 /*

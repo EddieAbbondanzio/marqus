@@ -50,6 +50,7 @@ export interface Shortcuts {
 }
 
 export interface Shortcut {
+  // Command is of type string as shared doesn't have access to CommandType.
   command: string;
   keys: KeyCode[];
   disabled?: boolean;

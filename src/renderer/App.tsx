@@ -1,21 +1,18 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { Layout } from "./components/Layout";
 import { render } from "react-dom";
-import React, { Reducer, useReducer } from "react";
-import { Action, Command, CommandRegistry, useCommands } from "./io/commands";
-import { sleep } from "../shared/utils/sleep";
-
-export const appRegistry: CommandRegistry = {
-  openDevTools: async () => window.rpc("ui.openDevTools"),
-  reload: async () => window.rpc("ui.reload"),
-  toggleFullScreen: async () => window.rpc("ui.toggleFullScreen"),
-};
+import React, { useState } from "react";
+import { State } from "../shared/state";
+import { useCommands } from "./io/commands";
+import { useShortcuts } from "./io/shortcuts";
 
 (async () => {
   fontAwesomeLib();
+  const initialState = await window.rpc("state.load");
 
   function App() {
-    const [state, execute] = useCommands(() => ({}), appRegistry, {});
+    const [state, execute] = useCommands(initialState);
+    useShortcuts(state, execute);
 
     return <Layout>hi</Layout>;
   }
