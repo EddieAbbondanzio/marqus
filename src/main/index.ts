@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
-import { RpcType, RpcHandler, RpcArgument, RpcRegistry } from "../shared/rpc";
-import { notifyOnReady } from "./events";
+import { RpcType, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { promptUserRpcs as uiRpcs } from "./rpcs/app";
 import { stateRpcs } from "./rpcs/state";
 
@@ -90,9 +89,6 @@ const createWindow = async (): Promise<void> => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
-
-  //Notify hooks
-  notifyOnReady();
 };
 
 // This method will be called when Electron has finished

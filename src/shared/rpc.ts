@@ -23,7 +23,7 @@ export interface RpcSchema {
   // Tags
   "tags.getAll": RpcOut<Tag[]>;
   "tags.create": RpcInOut<{ name: string }, Tag>;
-  "tags.update": RpcInOut<{ id: string; name: string }, Tag>;
+  "tags.update": RpcInOut<{ id: string; newName: string }, Tag>;
   "tags.delete": RpcIn<{ id: string }>;
   // App
   "app.promptUser": RpcInOut<PromptOptions, PromptButton>;

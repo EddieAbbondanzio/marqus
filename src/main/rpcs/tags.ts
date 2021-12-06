@@ -1,86 +1,68 @@
-// import { debounce } from "lodash";
-// import { fileExists, readFile, writeFile } from "../fileSystem";
-// import { onReady } from "../events";
-// import * as yup from "yup";
-// import { RpcHandler, RpcRegistry } from "../../shared/rpc";
+import { RpcRegistry } from "../../shared/rpc";
+import { tagFile } from "../fileHandlers";
+import { generateId, Tag } from "../../shared/state";
 
-// const save = debounce(async (tags: Tag[]) => {
-//   await writeFile(FileName.TAGS, tags, "json");
-// }, 1000);
+const getAllTags = async (): Promise<Tag[]> => tagFile.load();
 
-// let tags: Tag[] = [];
+const createTag = async ({ name }: { name: string }): Promise<Tag> => {
+  const tags = await tagFile.load();
 
-// /*
-//  * Load tags from file on startup
-//  */
-// onReady(async () => {
-//   if (!fileExists(FileName.TAGS)) {
-//     return;
-//   }
+  if (tags.some((t) => t.name === name)) {
+    throw Error(`Tag name ${name} already in use`);
+  }
 
-//   const raw = await readFile(FileName.TAGS, "json");
+  const tag: Tag = {
+    id: generateId(),
+    name,
+    dateCreated: new Date(),
+  };
 
-//   await TAG_FILE_SCHEMA.validate(raw);
-//   tags = raw as Tag[];
-// });
+  tags.push(tag);
+  await tagFile.save(tags);
 
-// const getAllTags = async (): Promise<Tag[]> => tags;
+  return tag;
+};
 
-// const createTag = async ({ name }: { name: string }): Promise<Tag> => {
-//   if (tags.some((t) => t.name === name)) {
-//     throw Error(`Tag name ${name} already in use`);
-//   }
+const updateTag = async ({
+  id,
+  newName,
+}: {
+  id: string;
+  newName: string;
+}): Promise<Tag> => {
+  const tags = await tagFile.load();
 
-//   const tag: Tag = {
-//     id: generateId(),
-//     name,
-//     dateCreated: new Date(),
-//   };
+  if (tags.some((t) => t.name === newName && t.id !== id)) {
+    throw Error(`Tag name ${name} already in use`);
+  }
 
-//   tags.push(tag);
-//   await save(tags);
+  const tag = tags.find((t) => t.id === id);
 
-//   return tag;
-// };
+  if (tag == null) {
+    throw Error(`No tag with id ${id} found`);
+  }
 
-// const updateTag = async ({
-//   id,
-//   name,
-// }: {
-//   id: string;
-//   newName: string;
-// }): Promise<Tag> => {
-//   if (tags.some((t) => t.name === name && t.id !== id)) {
-//     throw Error(`Tag name ${name} already in use`);
-//   }
+  tag.name = newName;
+  tag.dateUpdated = new Date();
 
-//   const tag = tags.find((t) => t.id === id);
+  await tagFile.save(tags);
+  return tag;
+};
 
-//   if (tag == null) {
-//     throw Error(`No tag with id ${id} found`);
-//   }
+const deleteTag = async ({ id }: { id: string }): Promise<void> => {
+  const tags = await tagFile.load();
+  const index = tags.findIndex((t) => t.id === id);
 
-//   tag.name = name;
-//   tag.dateUpdated = new Date();
+  if (index !== -1) {
+    tags.splice(index, 1);
+  }
 
-//   await save(tags);
+  await tagFile.save(tags);
+};
 
-//   return tag;
-// };
-
-// const deleteTag = async (id: string): Promise<void> => {
-//   const index = tags.findIndex((t) => t.id === id);
-
-//   if (index !== -1) {
-//     tags.splice(index, 1);
-//   }
-
-//   await save(tags);
-// };
-
-// export const tagHandlers: RpcRegistry = {
-//   "tags.getAll": getAllTags,
-//   "tags.create": createTag,
-//   "tags.update": updateTag,
-//   "tags.delete": deleteTag,
-// };
+export const tagHandlers: RpcRegistry = {
+  "tags.getAll": getAllTags,
+  "tags.create": createTag,
+  "tags.update": updateTag,
+  "tags.delete": deleteTag,
+};

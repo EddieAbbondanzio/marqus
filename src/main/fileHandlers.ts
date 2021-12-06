@@ -198,6 +198,11 @@ function createFileHandler<Content>(
   }, DEBOUNCE_INTERVAL);
 
   const load = async () => {
+    // File will never change unless we save it, so we can return cached state.
+    if (previous != null) {
+      return previous;
+    }
+
     const content = await readFile(name, "json");
 
     let c;
