@@ -3,6 +3,7 @@ import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { promptUserRpcs as uiRpcs } from "./rpcs/app";
 import { stateRpcs } from "./rpcs/state";
+import { tagRpcs } from "./rpcs/tags";
 
 /*
  * Register new handlers here. You'll need to update IpcType too
@@ -10,6 +11,7 @@ import { stateRpcs } from "./rpcs/state";
 export const handlers: RpcRegistry = {
   ...uiRpcs,
   ...stateRpcs,
+  ...tagRpcs,
 };
 
 if (getProcessType() !== "main") {

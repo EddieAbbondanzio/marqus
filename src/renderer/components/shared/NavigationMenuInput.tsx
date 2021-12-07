@@ -55,7 +55,7 @@ export function NavigationMenuInput(
     return () => {
       input.removeEventListener("blur", onBlur);
     };
-  }, [props.value]);
+  });
 
   keyboard.listen(
     { event: "keydown", keys: [KeyCode.Enter, KeyCode.Escape] },

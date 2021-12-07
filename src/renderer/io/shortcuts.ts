@@ -9,8 +9,9 @@ import { Execute } from "./commands";
 export function useShortcuts(state: State, execute: Execute) {
   const { shortcuts } = state;
 
-  const isFocused = (when?: string) =>
-    when == null || when === state.ui.focused;
+  if (shortcuts.length === 0) {
+    console.warn("No shortcuts passed to useShortcuts() hook.");
+  }
 
   useEffect(() => {
     const keyTracker: Record<string, boolean | undefined> = {};
@@ -33,10 +34,11 @@ export function useShortcuts(state: State, execute: Execute) {
 
         const activeKeys = toKeyArray(keyTracker);
         const shortcut = shortcuts.find(
-          (s) => isEqual(s.keys, activeKeys) && !s.disabled && isFocused(s.when)
+          (s) =>
+            isEqual(s.keys, activeKeys) &&
+            !s.disabled &&
+            isFocused(state, s.when)
         );
-
-        console.log("active keys: ", activeKeys);
 
         if (shortcut != null) {
           console.log("execute: ", shortcut);
@@ -80,6 +82,16 @@ export function useShortcuts(state: State, execute: Execute) {
       window.removeEventListener("keyup", keyUp);
     };
   }, [shortcuts, execute]);
+}
+
+export function isFocused(state: State, when?: string): boolean {
+  if (state.ui.focused == null) {
+    return when == null;
+  } else if (when == null) {
+    return true;
+  } else {
+    return when === state.ui.focused;
+  }
 }
 
 export const toKeyArray = (

@@ -1,8 +1,27 @@
-import { State } from "../../../shared/state";
+import {
+  InputMode,
+  Note,
+  Notebook,
+  Shortcut,
+  State,
+  Tag,
+  UI,
+} from "../../../shared/state";
+import { StartsWith } from "../../types";
+
+export type Transformer<S> = (previous: S) => S;
+
+export type SetUI = (t: Transformer<UI>) => void;
+export type SetTags = (t: Transformer<Tag[]>) => void;
+export type SetNotebooks = (t: Transformer<Notebook[]>) => void;
+export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
 
 export interface ExecutionContext {
-  setState: (state: State) => void;
   getState: () => State;
+  setUI: SetUI;
+  setTags: SetTags;
+  setNotebooks: SetNotebooks;
+  setShortcuts: SetShortcuts;
 }
 
 export type Command<Input = void> = (
@@ -17,40 +36,47 @@ export interface CommandSchema {
   "app.toggleFullScreen": Command;
   "globalNavigation.updateScroll": Command<number>;
   "globalNavigation.resizeWidth": Command<string>;
+  "globalNavigation.createTag": Command;
 }
 export type CommandType = keyof CommandSchema;
-export type CommandRegistry = Partial<CommandSchema>;
 
-export type ConfirmOrCancel = [
-  /**
-   * Callback to trigger when user wishes to save input
-   */
-  confirm: (value: string) => void,
-  /**
-   * Callback to trigger when the user wants to cancel input
-   */
-  cancel: () => void,
-  /**
-   * Awaitable promise that is resolved upon confirm or cancel.
-   */
-  response: Promise<[outcome: "confirm" | "cancel", value?: string]>
-];
+export type CommandsForNamespace<Namespace extends string> = Pick<
+  CommandSchema,
+  StartsWith<keyof CommandSchema, Namespace>
+>;
 
-/**
- * Helper to await user input that can be categorized as yay or nay.
- * Useful for performing finalizing actions such as creating resources
- * when a user confirms it, or reverting state if they wish to cancel.
- */
-export function createConfirmOrCancel(): ConfirmOrCancel {
-  let confirm: (value: string) => void;
+export interface AwaitableInput {
+  mode: InputMode;
+  value: string;
+  onInput: (value: string) => void;
+  confirm: () => void;
+  cancel: () => void;
+}
+export type AwaitableOutcome = "confirm" | "cancel";
+
+export function createAwaitForInput(
+  originalValue?: string
+): [AwaitableInput, Promise<AwaitableOutcome>] {
+  let mode: InputMode = originalValue == null ? "create" : "update";
+  let confirm: () => void;
   let cancel: () => void;
 
-  let confirmPromise: Promise<["confirm", string]> = new Promise(
-    (res) => (confirm = (v) => res(["confirm", v]))
+  let confirmPromise: Promise<"confirm"> = new Promise(
+    (res) => (confirm = () => res("confirm"))
   );
-  let cancelPromise: Promise<["cancel"]> = new Promise(
-    (res) => (cancel = () => res(["cancel"]))
+  let cancelPromise: Promise<"cancel"> = new Promise(
+    (res) => (cancel = () => res("cancel"))
   );
 
-  return [confirm!, cancel!, Promise.race([confirmPromise, cancelPromise])];
+  const obj: AwaitableInput = {
+    mode,
+    value: originalValue ?? "",
+    onInput: (val: string) => {
+      obj.value = val;
+    },
+    confirm: confirm!,
+    cancel: cancel!,
+  };
+
+  return [obj, Promise.race([confirmPromise, cancelPromise])];
 }

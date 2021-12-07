@@ -10,9 +10,9 @@ import { GlobalNavigation } from "./components/GlobalNavigation";
 (async () => {
   fontAwesomeLib();
   const initialState = await window.rpc("state.load");
+  console.log("init state: ", initialState);
 
   function App() {
-    // TODO: Should these three calls be merged?
     const [state, execute, setUI] = useCommands(initialState);
     useShortcuts(state, execute);
     useFocusTracking(state, setUI);

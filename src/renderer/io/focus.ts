@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { State, UISection } from "../../shared/state";
 import { FOCUSABLE_ATTRIBUTE, IsFocused } from "../components/shared/Focusable";
 import { findParent } from "../utils/findParent";
-import { SetUI } from "./commands";
+import { SetUI } from "./commands/types";
 
 export function useFocusTracking(state: State, setUI: SetUI) {
   useEffect(() => {
@@ -24,12 +24,10 @@ export function useFocusTracking(state: State, setUI: SetUI) {
       }
     );
 
-    const { ui } = state;
-    console.log("focus: ", focused);
-    setUI({
+    setUI((ui) => ({
       ...ui,
       focused: focused ?? undefined,
-    });
+    }));
   }
 
   return ((section: UISection) => state.ui.focused === section) as IsFocused;

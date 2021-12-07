@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { getPx, isPx, px } from "../../../shared/dom/units";
 import { useMouse } from "../../io/mouse";
+import { Action } from "../../types";
 
 export interface ResizableProps {
   minWidth?: string;
@@ -25,20 +26,10 @@ export interface ResizableState {
   isResizing?: boolean;
 }
 
-export interface ResizeStart {
-  type: "resizeStart";
-}
-
-export interface ResizeWidth {
-  type: "resizeWidth";
-  width: string;
-}
-
-export interface ResizeEnd {
-  type: "resizeEnd";
-}
-
-export type ResizableAction = ResizeStart | ResizeWidth | ResizeEnd;
+export type ResizableAction =
+  | Action<"resizeStart">
+  | Action<"resizeWidth", { width: string }>
+  | Action<"resizeEnd">;
 
 const reducer: Reducer<ResizableState, ResizableAction> = (state, action) => {
   switch (action.type) {

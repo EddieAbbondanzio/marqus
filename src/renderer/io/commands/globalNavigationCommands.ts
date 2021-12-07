@@ -1,9 +1,60 @@
-import { CommandRegistry } from "./types";
+import {
+  CommandsForNamespace,
+  createAwaitForInput as createAwaitableInput,
+} from "./types";
 
+export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> =
+  {
+    "globalNavigation.resizeWidth": async (ctx, width) => {
+      if (width == null) {
+        return;
+      }
 
+      ctx.setUI((prev) => ({
+        ...prev,
+        globalNavigation: {
+          ...prev.globalNavigation,
+          width,
+        },
+      }));
+    },
+    "globalNavigation.updateScroll": async (ctx, scroll) => {
+      if (scroll == null) {
+        return;
+      }
 
-export const globalNavigationCommands: CommandRegistry = {
-  "globalNavigation.resizeWidth": async (ctx, width) => {
-    new
-  }
-}
+      ctx.setUI((prev) => ({
+        ...prev,
+        globalNavigation: {
+          ...prev.globalNavigation,
+          scroll,
+        },
+      }));
+    },
+    "globalNavigation.createTag": async (ctx) => {
+      let [tagInput, completed] = createAwaitableInput();
+
+      ctx.setUI((prev) => ({
+        ...prev,
+        globalNavigation: {
+          ...prev.globalNavigation,
+          tagInput,
+        },
+      }));
+
+      if ((await completed) === "confirm") {
+        const tag = await window.rpc("tags.create", {
+          name: tagInput.value,
+        });
+        ctx.setTags((tags) => [...tags, tag]);
+      }
+
+      ctx.setUI((prev) => ({
+        ...prev,
+        globalNavigation: {
+          ...prev.globalNavigation,
+          tagInput: undefined,
+        },
+      }));
+    },
+  };

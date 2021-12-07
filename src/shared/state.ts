@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import * as yup from "yup";
+import { AwaitableInput } from "../renderer/io/commands/types";
 import { KeyCode } from "./io/keyCode";
 
 export interface State {
@@ -18,6 +19,7 @@ export type UISection = Exclude<keyof UI, "focused">;
 export interface GlobalNavigation {
   width: string;
   scroll: number;
+  tagInput?: AwaitableInput;
 }
 
 export interface Tag extends UserResource {
@@ -69,6 +71,8 @@ export interface UserResource {
   dateUpdated?: Date;
 }
 
+export type InputMode = "create" | "update";
+
 /**
  * Generate a new entity id.
  */
@@ -112,6 +116,12 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
   globalNavigation: yup.object().shape({
     width: yup.string().required(),
     scroll: yup.number().required().min(0),
+    tagInput: yup
+      .object()
+      .shape({
+        inputMode: yup.string().oneOf(["create", "update"]),
+      })
+      .optional(),
   }),
   focused: yup
     .string()

@@ -31,7 +31,6 @@ export const tagFile = createFileHandler<Tag[]>(
   yup.array(tagSchema).optional(),
   {
     defaultState: [],
-    serialize: (n) => n.values,
     deserialize: (c) => {
       const duplicates = chain(c)
         .groupBy("name")
@@ -80,9 +79,7 @@ export const shortcutFile = createFileHandler<Shortcut[]>(
           keys: keyCodesToString(s.keys),
         })),
     deserialize: (raw: ShortcutOverride[]) => {
-      if (raw == null || raw.length === 0) {
-        return [];
-      }
+      raw ??= [];
 
       // Is there any redundant keys?
       const duplicates = raw.filter(
@@ -177,7 +174,11 @@ function createFileHandler<Content>(
 
   let previous: Content;
 
-  const save: any = debounce(async (content: Content): Promise<Content> => {
+  const save: any = debounce(async (content?: Content): Promise<Content> => {
+    if (content == null) {
+      throw Error(`${name} file content cannot be null.`);
+    }
+
     if (previous != null && isEqual(content, previous)) {
       return content;
     }

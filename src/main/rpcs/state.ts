@@ -21,6 +21,11 @@ export async function load(): Promise<State> {
 }
 
 export async function saveUI(ui: UI): Promise<void> {
+  /*
+   * We only allow saving the UI file because every other file have their
+   * contents saved in context specific rpcs. For example, the tag file
+   * will be saved after every CRUD action like tag.create, tag.delete, etc...
+   */
   await uiFile.save(ui);
 }
 

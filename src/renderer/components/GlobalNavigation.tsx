@@ -6,10 +6,11 @@ import {
   faTrash,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
-import React from "react";
+import React, { useState } from "react";
 import { px } from "../../shared/dom/units";
 import { State } from "../../shared/state";
-import { Execute, SetUI } from "../io/commands";
+import { Execute } from "../io/commands";
+import { SetUI } from "../io/commands/types";
 import { ContextMenu } from "./shared/ContextMenu";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -57,34 +58,24 @@ export function GlobalNavigation({
     );
   }
 
-  // const tagsInput = state.tags.input;
-  // if (tagsInput?.mode === "create") {
-  //   const onInput = (val: string) => {
-  //     // const s: State = {
-  //     //   ...state,
-  //     //   tags: {
-  //     //     ...state.tags,
-  //     //   },
-  //     // };
-  //     // setState(s);
-  //   };
-
-  //   tagsChildren.push(
-  //     <NavigationMenu
-  //       collapsed={false}
-  //       trigger={
-  //         <NavigationMenuInput
-  //           value={tagsInput.value}
-  //           onInput={onInput}
-  //           onConfirm={tagsInput.confirm}
-  //           onCancel={tagsInput.cancel}
-  //         />
-  //       }
-  //       depth={1}
-  //       key="tags/input"
-  //     />
-  //   );
-  // }
+  const tagsInput = state.ui.globalNavigation.tagInput;
+  if (tagsInput?.mode === "create") {
+    tagsChildren.push(
+      <NavigationMenu
+        collapsed={false}
+        trigger={
+          <NavigationMenuInput
+            value={tagsInput.value}
+            onInput={tagsInput.onInput}
+            onConfirm={tagsInput.confirm}
+            onCancel={tagsInput.cancel}
+          />
+        }
+        depth={1}
+        key="tags/input"
+      />
+    );
+  }
 
   const tags = (
     <NavigationMenu
@@ -129,11 +120,12 @@ export function GlobalNavigation({
     },
   ];
 
+  const onResize = (newWidth: string) => {
+    execute("globalNavigation.resizeWidth", newWidth);
+  };
+
   return (
-    <Resizable
-      width={width}
-      onResize={(newWidth) => execute("globalNavigation.resizeWidth", newWidth)}
-    >
+    <Resizable width={width} onResize={onResize}>
       <Scrollable
         scroll={scroll}
         onScroll={(newScroll) =>
@@ -147,7 +139,7 @@ export function GlobalNavigation({
             state={state}
             execute={execute}
           >
-            {}
+            {menus}
           </ContextMenu>
         </Focusable>
       </Scrollable>

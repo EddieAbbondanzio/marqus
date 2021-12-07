@@ -106,6 +106,25 @@ export async function writeFile(
   content: string | unknown,
   contentType: FileContentType
 ): Promise<void> {
+  switch (contentType) {
+    case "json":
+      if (typeof content !== "object" && typeof content !== "string") {
+        console.warn(
+          `${contentType} file content must be a string or object. Content passed: ${content}`
+        );
+        throw Error(`${contentType} file content must be a string or object.`);
+      }
+      break;
+    case "text":
+      if (typeof contentType !== "string") {
+        console.error(
+          `${contentType} file content must be a string. Content passed: ${content}`
+        );
+        throw Error(`${contentType} file content must be a string.`);
+      }
+      break;
+  }
+
   return new Promise((res, rej) => {
     const fullPath = generateFullPath(path);
     let data: string;
