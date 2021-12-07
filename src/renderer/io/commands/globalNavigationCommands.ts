@@ -43,6 +43,7 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
       }));
 
       if ((await completed) === "confirm") {
+        console.log("confirm tag: ", tagInput.value);
         const tag = await window.rpc("tags.create", {
           name: tagInput.value,
         });
