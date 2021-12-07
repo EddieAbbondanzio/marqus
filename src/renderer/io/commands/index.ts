@@ -9,7 +9,6 @@ import {
   SetShortcuts,
   SetTags,
   SetUI,
-  Transformer,
 } from "./types";
 
 /*
@@ -63,7 +62,7 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
   };
 
   /*
-   * The following settters are merely to update local cache. They do not
+   * The following setters are to update local cache. They do not
    * perform any saving to file because all of that is handled by the rpcs.
    */
   const setTags: SetTags = (transformer) => {

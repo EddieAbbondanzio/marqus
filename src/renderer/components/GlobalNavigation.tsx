@@ -151,7 +151,7 @@ export function buildTrigger(text: string, icon?: IconDefinition): JSX.Element {
   return (
     <div className="m-1 is-flex is-flex-row is-align-items-center has-text-grey is-size-7">
       {icon != null && <Icon icon={icon} className="mr-1" />}
-      <span style={icon == null ? { paddingLeft: px(16) } : {}}>{text}</span>
+      <span>{text}</span>
     </div>
   );
 }
