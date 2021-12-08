@@ -1,3 +1,4 @@
+import { promptError } from "../../utils/prompt";
 import {
   CommandsForNamespace,
   createAwaitForInput as createAwaitableInput,
@@ -43,11 +44,14 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
       }));
 
       if ((await completed) === "confirm") {
-        console.log("confirm tag: ", tagInput.value);
-        const tag = await window.rpc("tags.create", {
-          name: tagInput.value,
-        });
-        ctx.setTags((tags) => [...tags, tag]);
+        try {
+          const tag = await window.rpc("tags.create", {
+            name: tagInput.value,
+          });
+          ctx.setTags((tags) => [...tags, tag]);
+        } catch (e) {
+          promptError(e.message);
+        }
       }
 
       ctx.setUI((prev) => ({

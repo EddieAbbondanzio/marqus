@@ -10,7 +10,6 @@ import { GlobalNavigation } from "./components/GlobalNavigation";
 (async () => {
   fontAwesomeLib();
   const initialState = await window.rpc("state.load");
-  console.log("init state: ", initialState);
 
   function App() {
     const [state, execute, setUI] = useCommands(initialState);
@@ -19,7 +18,7 @@ import { GlobalNavigation } from "./components/GlobalNavigation";
 
     return (
       <Layout>
-        <GlobalNavigation state={state} execute={execute} setUI={setUI} />
+        <GlobalNavigation state={state} execute={execute} />
       </Layout>
     );
   }

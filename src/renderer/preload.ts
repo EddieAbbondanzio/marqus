@@ -18,22 +18,24 @@ if (getProcessType() === "main") {
 /*
  * Listen on render for main responses.
  */
-ipcRenderer.on("send", async (ev, arg) => {
-  if (isError(arg)) {
-    throw Error(arg.error);
-  }
-
+ipcRenderer.on("send", async (_, arg) => {
   const { id, value } = arg;
-
   const p = promises[id];
+
   if (p == null) {
-    return;
+    console.warn("No promise found.", { arg, promises });
+
+    // The main thread may need to throw a random error.
+    if (isError(arg)) {
+      throw Error(arg.error);
+    } else {
+      return;
+    }
   }
 
+  delete promises[id];
+
   if (isError(arg)) {
-    /*
-     * This will let us "throw" errors from the main thread.
-     */
     p.reject(arg.error);
   } else {
     p.resolve(value);

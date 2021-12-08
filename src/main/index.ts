@@ -28,8 +28,9 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
       value,
     });
 
-  const respondError = (error: Error) => {
+  const respondError = ({ id }: RpcArgument, error: Error) => {
     ev.sender.send("send", {
+      id,
       error,
     });
   };
@@ -37,7 +38,7 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
   const handler = handlers[arg.type as RpcType];
 
   if (handler == null) {
-    respondError(Error("An error has occured."));
+    respondError(arg, Error("An error has occured."));
 
     if (getNodeEnv() === "development") {
       console.warn(
@@ -55,7 +56,7 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
 
     respond(res);
   } catch (e) {
-    respondError(e);
+    respondError(arg, e);
 
     console.error(`Caught error from rpc handler for type "${arg.type}"`, e);
     console.error("Rpc argument: ", arg);

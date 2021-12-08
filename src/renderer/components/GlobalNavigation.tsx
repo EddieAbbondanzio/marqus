@@ -6,8 +6,7 @@ import {
   faTrash,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useState } from "react";
-import { px } from "../../shared/dom/units";
+import React from "react";
 import { State } from "../../shared/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
@@ -22,13 +21,11 @@ import { Scrollable } from "./shared/Scrollable";
 export interface GlobalNavigationProps {
   state: State;
   execute: Execute;
-  setUI: SetUI;
 }
 
 export function GlobalNavigation({
   state,
   execute,
-  setUI,
 }: GlobalNavigationProps): JSX.Element {
   const all = (
     <NavigationMenu
@@ -47,7 +44,7 @@ export function GlobalNavigation({
   );
 
   const tagsChildren = [];
-  for (const tag of state.tags) {
+  for (const tag of state.tags.sort()) {
     tagsChildren.push(
       <NavigationMenu
         collapsed={false}

@@ -11,7 +11,7 @@ import {
   UISection,
 } from "../shared/state";
 import * as yup from "yup";
-import { chain, cloneDeep, debounce, isEqual } from "lodash";
+import { chain, cloneDeep, debounce, isEqual, sortBy } from "lodash";
 import { keyCodesToString, parseKeyCodes } from "../shared/io/keyCode";
 import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
 import { readFile, writeFile } from "./fileSystem";
@@ -31,7 +31,9 @@ export const tagFile = createFileHandler<Tag[]>(
   yup.array(tagSchema).optional(),
   {
     defaultState: [],
-    deserialize: (c) => {
+    deserialize: (c?: any) => {
+      c ??= [];
+
       const duplicates = chain(c)
         .groupBy("name")
         .pickBy((tags) => tags.length > 1)
@@ -51,7 +53,7 @@ export const tagFile = createFileHandler<Tag[]>(
         );
       }
 
-      return c ?? [];
+      return c;
     },
   }
 );
@@ -165,7 +167,7 @@ function createFileHandler<Content>(
   opts?: {
     defaultState?: Content;
     serialize?: (c: Content) => any;
-    deserialize?: (c: any) => Content | undefined;
+    deserialize?: (c?: any) => Content | undefined;
   }
 ): FileHandler<Content> {
   if (!isValidFileName(name)) {
