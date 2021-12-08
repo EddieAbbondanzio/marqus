@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { getPx, isPx, px } from "../../../shared/dom/units";
+import { getPx, isPx, px } from "../../../shared/dom";
 import { useMouse } from "../../io/mouse";
 import { Action } from "../../types";
 

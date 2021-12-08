@@ -1,13 +1,15 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { Layout } from "./components/Layout";
 import { render } from "react-dom";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
 import { useFocusTracking } from "./io/focus";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { State } from "../shared/state";
 import { promptFatal } from "./utils/prompt";
+import { Input } from "./components/shared/Input";
+import * as yup from "yup";
 
 const { rpc } = window;
 (async () => {
@@ -29,9 +31,18 @@ const { rpc } = window;
     useShortcuts(state, execute);
     useFocusTracking(state, setUI);
 
+    const [val, setVal] = useState("cat");
+    const schema = yup.string().oneOf(["cat", "catdog"]);
+
+    const onInput = (ev: any) => {
+      console.log("app: ", ev.target.value);
+      setVal(ev.target.value);
+    };
+
     return (
       <Layout>
         <GlobalNavigation state={state} execute={execute} />
+        <Input schema={schema} value={val} onInput={onInput} />
       </Layout>
     );
   }

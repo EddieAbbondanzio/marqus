@@ -29,3 +29,7 @@ export function getPercentage(raw: string): number {
 
   return Number.parseInt(raw.split("px")[0], 10);
 }
+
+export const classList = (
+  ...classes: Array<string | undefined>
+): Readonly<string> => classes.filter((c) => c != null).join(" ");

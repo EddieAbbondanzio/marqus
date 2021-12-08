@@ -15,7 +15,7 @@ import { chain, cloneDeep, debounce, isEqual, sortBy } from "lodash";
 import { keyCodesToString, parseKeyCodes } from "../shared/io/keyCode";
 import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
 import { readFile, writeFile } from "./fileSystem";
-import { px } from "../shared/dom/units";
+import { px } from "../shared/dom";
 
 export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
   defaultState: {

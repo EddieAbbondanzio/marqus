@@ -1,5 +1,5 @@
 import { State, Tag, UI } from "./state";
-import { PromptButton, PromptOptions } from "./ui/promptUser";
+import { PromptButton, PromptOptions } from "./prompt";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.

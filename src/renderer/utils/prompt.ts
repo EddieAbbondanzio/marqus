@@ -1,4 +1,4 @@
-import { PromptOptions, PromptUser } from "../../shared/ui/promptUser";
+import { PromptOptions, PromptUser } from "../../shared/prompt";
 
 export const prompt: PromptUser = async (opts: PromptOptions) =>
   window.rpc("app.promptUser", opts);

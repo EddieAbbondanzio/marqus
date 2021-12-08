@@ -1,6 +1,5 @@
 import { BrowserWindow, dialog } from "electron";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
-import { PromptOptions } from "../../shared/ui/promptUser";
 
 const promptUser: RpcHandler<"app.promptUser"> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;

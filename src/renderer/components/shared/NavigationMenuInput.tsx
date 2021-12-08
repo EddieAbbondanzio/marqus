@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { InvalidOpError } from "../../../shared/errors";
 import { KeyCode } from "../../../shared/io/keyCode";
-import { isBlank } from "../../../shared/utils/string";
+import { isBlank } from "../../../shared/string";
 import { useKeyboard } from "../../io/keyboard";
 
 export interface NavigationMenuInputProps {

@@ -1,4 +1,4 @@
-import { px } from "../../shared/dom/units";
+import { px } from "../../shared/dom";
 import { State, UI } from "../../shared/state";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { RpcRegistry } from "../../shared/rpc";

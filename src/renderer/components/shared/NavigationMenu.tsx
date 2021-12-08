@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { PropsWithChildren } from "react";
-import { px } from "../../../shared/dom/units";
+import { px } from "../../../shared/dom";
 
 const INDENT_PIXELS = 20;
 
