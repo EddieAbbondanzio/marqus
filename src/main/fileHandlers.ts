@@ -205,7 +205,6 @@ function createFileHandler<Content>(
     if (previous != null) {
       return previous;
     }
-
     const content = await readFile(name, "json");
 
     let c;

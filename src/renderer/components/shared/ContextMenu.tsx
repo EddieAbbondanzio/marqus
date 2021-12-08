@@ -47,6 +47,10 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       // Add dev mode helpers
       if (getNodeEnv() === "development") {
         items.push({
+          text: "Reload",
+          command: "app.reload",
+        });
+        items.push({
           text: "Open Dev Tools",
           command: "app.openDevTools",
         });

@@ -6,6 +6,7 @@ import {
   faTrash,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
+import { sortBy } from "lodash";
 import React from "react";
 import { State } from "../../shared/state";
 import { Execute } from "../io/commands";
@@ -43,8 +44,9 @@ export function GlobalNavigation({
     ></NavigationMenu>
   );
 
+  const sortedTags = sortBy(state.tags, "name");
   const tagsChildren = [];
-  for (const tag of state.tags.sort()) {
+  for (const tag of sortedTags) {
     tagsChildren.push(
       <NavigationMenu
         collapsed={false}

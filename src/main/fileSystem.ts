@@ -82,7 +82,14 @@ export async function readFile<
         if (data == null || data.length === 0) {
           res(null as any);
         } else {
-          res(JSON.parse(data));
+          try {
+            const json = JSON.parse(data);
+            res(json);
+          } catch (e) {
+            const { message } = e;
+            (e as Error).message = `Cannot load file ${path}:\n${message}`;
+            rej(e);
+          }
         }
       } else {
         res(data);

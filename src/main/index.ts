@@ -52,8 +52,9 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
 
   try {
     // Cast is gross
+    console.log("Start handler.", arg.type);
     const res = await handler(arg.value as any);
-
+    console.log("Finish handler");
     respond(res);
   } catch (e) {
     respondError(arg, e);
