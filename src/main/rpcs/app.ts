@@ -43,9 +43,14 @@ const toggleFullScreen: RpcHandler<"app.toggleFullScreen"> = async () => {
   bw.setFullScreen(!bw.isFullScreen());
 };
 
-export const promptUserRpcs: RpcRegistry = {
+const quit: RpcHandler<"app.quit"> = async () => {
+  BrowserWindow.getAllWindows().forEach((w) => w.close());
+};
+
+export const appRpcs: RpcRegistry = {
   "app.promptUser": promptUser,
   "app.openDevTools": openDevTools,
   "app.reload": reload,
   "app.toggleFullScreen": toggleFullScreen,
+  "app.quit": quit,
 };

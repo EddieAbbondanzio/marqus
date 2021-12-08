@@ -30,6 +30,7 @@ export interface RpcSchema {
   "app.openDevTools": RpcVoid;
   "app.reload": RpcVoid;
   "app.toggleFullScreen": RpcVoid;
+  "app.quit": RpcVoid;
 }
 
 export type RpcType = keyof RpcSchema;

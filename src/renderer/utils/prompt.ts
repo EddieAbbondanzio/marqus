@@ -10,3 +10,11 @@ export const promptError = async (errorMessage: string) =>
     type: "error",
     title: "Error",
   });
+
+export const promptFatal = async (errorMessage: string) =>
+  prompt({
+    text: errorMessage,
+    buttons: [{ text: "Quit", role: "default" }],
+    type: "error",
+    title: "Fatal Error",
+  });

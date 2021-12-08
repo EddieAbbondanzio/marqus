@@ -7,16 +7,21 @@ import { useShortcuts } from "./io/shortcuts";
 import { useFocusTracking } from "./io/focus";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { State } from "../shared/state";
-import { promptError } from "./utils/prompt";
+import { promptFatal } from "./utils/prompt";
 
+const { rpc } = window;
 (async () => {
   fontAwesomeLib();
 
   let initialState: State;
   try {
-    initialState = await window.rpc("state.load");
+    initialState = await rpc("state.load");
   } catch (e) {
-    promptError((e as Error).message);
+    const button = await promptFatal((e as Error).message);
+
+    if (button.text === "Quit") {
+      await rpc("app.quit");
+    }
   }
 
   function App() {

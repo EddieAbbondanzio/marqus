@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcArgument, RpcRegistry } from "../shared/rpc";
-import { promptUserRpcs as uiRpcs } from "./rpcs/app";
+import { appRpcs } from "./rpcs/app";
 import { stateRpcs } from "./rpcs/state";
 import { tagRpcs } from "./rpcs/tags";
 
@@ -9,7 +9,7 @@ import { tagRpcs } from "./rpcs/tags";
  * Register new handlers here. You'll need to update IpcType too
  */
 export const handlers: RpcRegistry = {
-  ...uiRpcs,
+  ...appRpcs,
   ...stateRpcs,
   ...tagRpcs,
 };
@@ -52,9 +52,7 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
 
   try {
     // Cast is gross
-    console.log("Start handler.", arg.type);
     const res = await handler(arg.value as any);
-    console.log("Finish handler");
     respond(res);
   } catch (e) {
     respondError(arg, e);
