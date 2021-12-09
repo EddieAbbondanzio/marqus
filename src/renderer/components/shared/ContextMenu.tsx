@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { PropsWithChildren } from "react";
-import { generateId, State } from "../../../shared/state";
+import { State } from "../../../shared/state";
 import { getNodeEnv } from "../../../shared/env";
 import { keyCodesToString } from "../../../shared/io/keyCode";
 import { Execute } from "../../io/commands";
 import { findParent } from "../../utils/findParent";
 import { CommandType } from "../../io/commands/types";
+import { generateId } from "../../../shared/id";
 
 export interface ContextMenuItem {
   text: string;

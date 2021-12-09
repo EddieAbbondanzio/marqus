@@ -1,21 +1,24 @@
 import {
   Notebook,
-  notebookSchema,
   Shortcut,
   ShortcutOverride,
-  shortcutSchema,
   Tag,
-  tagSchema,
   UI,
-  uiSchema,
   UISection,
 } from "../shared/state";
 import * as yup from "yup";
-import { chain, cloneDeep, debounce, isEqual, sortBy } from "lodash";
+import { chain, cloneDeep, debounce, groupBy, isEqual, sortBy } from "lodash";
 import { keyCodesToString, parseKeyCodes } from "../shared/io/keyCode";
 import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
 import { readFile, writeFile } from "./fileSystem";
 import { px } from "../shared/dom";
+import {
+  uiSchema,
+  getTagSchema,
+  notebookSchema,
+  shortcutSchema,
+} from "../shared/schemas";
+import { tagRpcs } from "./rpcs/tags";
 
 export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
   defaultState: {
@@ -28,33 +31,32 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
 
 export const tagFile = createFileHandler<Tag[]>(
   "tags.json",
-  yup.array(tagSchema).optional(),
-  {
-    defaultState: [],
-    deserialize: (c?: any) => {
-      c ??= [];
-
-      const duplicates = chain(c)
-        .groupBy("name")
-        .pickBy((tags) => tags.length > 1)
-        .values()
-        .flatMap()
-        .value();
-
-      if (duplicates.length > 0) {
-        const duplicateNames = chain(duplicates)
-          .map((t) => t.name)
-          .uniq()
-          .value();
-        throw Error(
-          `Tag names must be unique. The following names are defined more than once: ${duplicateNames.join(
-            ", "
-          )}`
-        );
+  yup
+    .array(getTagSchema())
+    .optional()
+    .test("unique", "Duplicate tag detected", function (values) {
+      if (values == null) {
+        return true;
       }
 
-      return c;
-    },
+      const duplicate = chain(values)
+        .groupBy("name")
+        .entries()
+        .filter(([_, tags]) => tags.length > 1)
+        .head()
+        .value();
+
+      if (duplicate != null) {
+        throw this.createError({
+          message: `Multiple tags with name "${duplicate[0]}" exist in file tags.json`,
+        });
+      }
+
+      return true;
+    }),
+  {
+    defaultState: [],
+    deserialize: (c?: any) => c ?? [],
   }
 );
 

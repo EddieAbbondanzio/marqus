@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
-import * as yup from "yup";
 import { AwaitableInput } from "./awaitableInput";
 import { KeyCode } from "./io/keyCode";
 
@@ -70,71 +68,3 @@ export interface UserResource {
   dateCreated: Date;
   dateUpdated?: Date;
 }
-
-/**
- * Generate a new entity id.
- */
-// Do not rename to id() unless you never want to use const id = id()
-export const generateId = uuidv4 as () => string;
-
-/**
- * Check if a string matches the uuid format being used.
- * @param id The id to test.
- * @returns True if the string is a v4 uuid.
- */
-export function isId(id: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-    id
-  );
-}
-
-export const idSchema = yup.string().optional().default(generateId).test(isId);
-
-export const tagNameSchema = yup
-  .string()
-  .required("Tag is required")
-  .min(1, "Tag must be atleast 1 character")
-  .max(64, "Tag cannot be more than 64 characters");
-
-export const tagSchema: yup.SchemaOf<Tag> = yup
-  .object()
-  .shape({
-    id: idSchema,
-    name: tagNameSchema,
-    dateCreated: yup.date(),
-    dateUpdated: yup.date().optional(),
-  })
-  .defined();
-
-export const notebookSchema: yup.SchemaOf<Notebook> = yup
-  .object()
-  .shape({} as any);
-
-export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
-  globalNavigation: yup.object().shape({
-    width: yup.string().required(),
-    scroll: yup.number().required().min(0),
-    tagInput: yup
-      .object()
-      .shape({
-        inputMode: yup.string().oneOf(["create", "update"]),
-      })
-      .optional(),
-  }),
-  focused: yup
-    .string()
-    .optional()
-    .oneOf(["globalNavigation", "localNavigation", "editor"]) as any,
-});
-
-export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
-  command: yup.string().required(),
-  keys: yup.array(),
-  disabled: yup.boolean().optional(),
-  when: yup
-    .string()
-    .optional()
-    .oneOf(["globalNavigation", "localNavigation", "editor"]) as any,
-  repeat: yup.bool().optional(),
-  userDefined: yup.bool().optional(),
-});

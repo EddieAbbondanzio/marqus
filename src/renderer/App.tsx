@@ -1,30 +1,18 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { Layout } from "./components/Layout";
 import { render } from "react-dom";
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
 import { useFocusTracking } from "./io/focus";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { State } from "../shared/state";
 import { promptFatal } from "./utils/prompt";
-import { Input } from "./components/shared/Input";
-import * as yup from "yup";
 
 const { rpc } = window;
 (async () => {
   fontAwesomeLib();
-
-  let initialState: State;
-  try {
-    initialState = await rpc("state.load");
-  } catch (e) {
-    const button = await promptFatal((e as Error).message);
-
-    if (button.text === "Quit") {
-      await rpc("app.quit");
-    }
-  }
+  let initialState: State = await loadInitialState();
 
   function App() {
     const [state, execute, setUI] = useCommands(initialState);
@@ -40,3 +28,15 @@ const { rpc } = window;
 
   render(<App />, document.getElementById("app"));
 })();
+
+async function loadInitialState(): Promise<State> {
+  try {
+    return (await rpc("state.load")) as State;
+  } catch (e) {
+    await promptFatal((e as Error).message);
+    await rpc("app.quit");
+
+    // App will close so this is irrelevant.
+    return null!;
+  }
+}

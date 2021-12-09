@@ -1,6 +1,7 @@
 import { RpcRegistry } from "../../shared/rpc";
 import { tagFile } from "../fileHandlers";
-import { generateId, Tag } from "../../shared/state";
+import { Tag } from "../../shared/state";
+import { generateId } from "../../shared/id";
 
 const getAllTags = async (): Promise<Tag[]> => tagFile.load();
 

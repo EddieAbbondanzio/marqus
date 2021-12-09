@@ -22,6 +22,7 @@ export function Input(props: InputProps): JSX.Element {
   const [flags, setFlags] = useState({
     wasFocused: false,
     wasFinalized: false,
+    wasTouched: false,
   });
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -34,12 +35,17 @@ export function Input(props: InputProps): JSX.Element {
 
     try {
       await props.schema.validate(props.value);
+      setErrorMessage("");
       return true;
     } catch (error) {
       setErrorMessage((error as yup.ValidationError).errors[0]);
       return false;
     }
   };
+
+  if (flags.wasTouched) {
+    validate();
+  }
 
   const onBlur = async () => {
     if (flags.wasFinalized || errorMessage.length > 0 || !(await validate())) {
@@ -58,11 +64,7 @@ export function Input(props: InputProps): JSX.Element {
   const onInput = async (ev: FormEvent<HTMLInputElement>) => {
     const value = (ev.target as HTMLInputElement).value as string;
     props.onInput(value.trim());
-
-    if (props.schema != null) {
-      setErrorMessage("");
-      validate();
-    }
+    setFlags({ ...flags, wasTouched: true });
   };
 
   useEffect(() => {

@@ -8,7 +8,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { sortBy } from "lodash";
 import React from "react";
-import { State, tagNameSchema } from "../../shared/state";
+import { getTagSchema } from "../../shared/schemas";
+import { State } from "../../shared/state";
 import { Execute } from "../io/commands";
 import { ContextMenu } from "./shared/ContextMenu";
 import { Focusable } from "./shared/Focusable";
@@ -17,6 +18,7 @@ import { Input } from "./shared/Input";
 import { NavigationMenu } from "./shared/NavigationMenu";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
+import * as yup from "yup";
 
 export interface GlobalNavigationProps {
   state: State;
@@ -56,6 +58,8 @@ export function GlobalNavigation({
     );
   }
 
+  const tagSchema = getTagSchema(state.tags);
+
   const tagsInput = state.ui.globalNavigation.tagInput;
   if (tagsInput?.mode === "create") {
     console.log("gnav tag input: ", tagsInput.value);
@@ -67,7 +71,10 @@ export function GlobalNavigation({
           <Input
             className="global-navigation-input"
             {...tagsInput}
-            schema={tagNameSchema}
+            schema={yup.reach(tagSchema, "name").notOneOf(
+              state.tags.map((t) => t.name),
+              "Tag already exists"
+            )}
           />
         }
         depth={1}
