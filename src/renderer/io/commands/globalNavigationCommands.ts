@@ -1,8 +1,5 @@
 import { promptError } from "../../utils/prompt";
-import {
-  CommandsForNamespace,
-  createAwaitForInput as createAwaitableInput,
-} from "./types";
+import { CommandsForNamespace, createAwaitableInput } from "./types";
 
 export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> =
   {

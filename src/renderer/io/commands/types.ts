@@ -54,7 +54,7 @@ export interface AwaitableInput {
 }
 export type AwaitableOutcome = "confirm" | "cancel";
 
-export function createAwaitForInput(
+export function createAwaitableInput(
   originalValue?: string
 ): [AwaitableInput, Promise<AwaitableOutcome>] {
   let mode: InputMode = originalValue == null ? "create" : "update";
@@ -72,7 +72,9 @@ export function createAwaitForInput(
     mode,
     value: originalValue ?? "",
     onInput: (val: string) => {
+      console.log("onInput (awaitable)", { val });
       obj.value = val;
+      console.log("input val", obj);
     },
     confirm: confirm!,
     cancel: cancel!,

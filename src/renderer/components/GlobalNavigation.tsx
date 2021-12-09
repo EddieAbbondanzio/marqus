@@ -10,12 +10,11 @@ import { sortBy } from "lodash";
 import React from "react";
 import { State } from "../../shared/state";
 import { Execute } from "../io/commands";
-import { SetUI } from "../io/commands/types";
 import { ContextMenu } from "./shared/ContextMenu";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
+import { Input } from "./shared/Input";
 import { NavigationMenu } from "./shared/NavigationMenu";
-import { NavigationMenuInput } from "./shared/NavigationMenuInput";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 
@@ -62,14 +61,7 @@ export function GlobalNavigation({
     tagsChildren.push(
       <NavigationMenu
         collapsed={false}
-        trigger={
-          <NavigationMenuInput
-            value={tagsInput.value}
-            onInput={tagsInput.onInput}
-            onConfirm={tagsInput.confirm}
-            onCancel={tagsInput.cancel}
-          />
-        }
+        trigger={<Input {...tagsInput} />}
         depth={1}
         key="tags/input"
       />

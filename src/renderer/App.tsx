@@ -31,18 +31,9 @@ const { rpc } = window;
     useShortcuts(state, execute);
     useFocusTracking(state, setUI);
 
-    const [val, setVal] = useState("cat");
-    const schema = yup.string().oneOf(["cat", "catdog"]);
-
-    const onInput = (ev: any) => {
-      console.log("app: ", ev.target.value);
-      setVal(ev.target.value);
-    };
-
     return (
       <Layout>
         <GlobalNavigation state={state} execute={execute} />
-        <Input schema={schema} value={val} onInput={onInput} />
       </Layout>
     );
   }
