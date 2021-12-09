@@ -1,5 +1,4 @@
 import {
-  InputMode,
   Note,
   Notebook,
   Shortcut,
@@ -44,41 +43,3 @@ export type CommandsForNamespace<Namespace extends string> = Pick<
   CommandSchema,
   StartsWith<keyof CommandSchema, Namespace>
 >;
-
-export interface AwaitableInput {
-  mode: InputMode;
-  value: string;
-  onInput: (value: string) => void;
-  confirm: () => void;
-  cancel: () => void;
-}
-export type AwaitableOutcome = "confirm" | "cancel";
-
-export function createAwaitableInput(
-  originalValue?: string
-): [AwaitableInput, Promise<AwaitableOutcome>] {
-  let mode: InputMode = originalValue == null ? "create" : "update";
-  let confirm: () => void;
-  let cancel: () => void;
-
-  let confirmPromise: Promise<"confirm"> = new Promise(
-    (res) => (confirm = () => res("confirm"))
-  );
-  let cancelPromise: Promise<"cancel"> = new Promise(
-    (res) => (cancel = () => res("cancel"))
-  );
-
-  const obj: AwaitableInput = {
-    mode,
-    value: originalValue ?? "",
-    onInput: (val: string) => {
-      console.log("onInput (awaitable)", { val });
-      obj.value = val;
-      console.log("input val", obj);
-    },
-    confirm: confirm!,
-    cancel: cancel!,
-  };
-
-  return [obj, Promise.race([confirmPromise, cancelPromise])];
-}

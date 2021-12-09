@@ -8,7 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { sortBy } from "lodash";
 import React from "react";
-import { State } from "../../shared/state";
+import { State, tagNameSchema } from "../../shared/state";
 import { Execute } from "../io/commands";
 import { ContextMenu } from "./shared/ContextMenu";
 import { Focusable } from "./shared/Focusable";
@@ -58,10 +58,18 @@ export function GlobalNavigation({
 
   const tagsInput = state.ui.globalNavigation.tagInput;
   if (tagsInput?.mode === "create") {
+    console.log("gnav tag input: ", tagsInput.value);
+
     tagsChildren.push(
       <NavigationMenu
         collapsed={false}
-        trigger={<Input {...tagsInput} />}
+        trigger={
+          <Input
+            className="global-navigation-input"
+            {...tagsInput}
+            schema={tagNameSchema}
+          />
+        }
         depth={1}
         key="tags/input"
       />

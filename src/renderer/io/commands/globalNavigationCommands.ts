@@ -1,5 +1,6 @@
+import { createAwaitableInput } from "../../../shared/awaitableInput";
 import { promptError } from "../../utils/prompt";
-import { CommandsForNamespace, createAwaitableInput } from "./types";
+import { CommandsForNamespace } from "./types";
 
 export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> =
   {
@@ -30,7 +31,18 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
       }));
     },
     "globalNavigation.createTag": async (ctx) => {
-      let [tagInput, completed] = createAwaitableInput();
+      let [tagInput, completed] = createAwaitableInput("", (value) => {
+        ctx.setUI((prev) => ({
+          ...prev,
+          globalNavigation: {
+            ...prev.globalNavigation,
+            tagInput: {
+              ...prev.globalNavigation.tagInput!,
+              value,
+            },
+          },
+        }));
+      });
 
       ctx.setUI((prev) => ({
         ...prev,

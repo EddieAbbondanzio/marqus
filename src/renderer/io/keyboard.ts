@@ -8,7 +8,10 @@ export interface KeyboardListenOpts {
   keys?: KeyCode[];
 }
 
-export type KeyboardCallback = (ev: KeyboardEvent, key: KeyCode) => void;
+export type KeyboardCallback = (
+  ev: KeyboardEvent,
+  key: KeyCode
+) => Promise<void>;
 
 export interface Keyboard {
   listen(opts: KeyboardListenOpts, callback: KeyboardCallback): void;

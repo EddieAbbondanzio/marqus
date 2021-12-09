@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import * as yup from "yup";
-import { AwaitableInput } from "../renderer/io/commands/types";
+import { AwaitableInput } from "./awaitableInput";
 import { KeyCode } from "./io/keyCode";
 
 export interface State {
@@ -70,8 +70,6 @@ export interface UserResource {
   dateCreated: Date;
   dateUpdated?: Date;
 }
-
-export type InputMode = "create" | "update";
 
 /**
  * Generate a new entity id.

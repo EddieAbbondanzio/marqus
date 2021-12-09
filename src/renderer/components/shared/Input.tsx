@@ -17,6 +17,8 @@ export interface InputProps {
 }
 
 export function Input(props: InputProps): JSX.Element {
+  console.log("Input(): ", { value: props.value });
+
   const [flags, setFlags] = useState({
     wasFocused: false,
     wasFinalized: false,
@@ -25,35 +27,47 @@ export function Input(props: InputProps): JSX.Element {
 
   const input = useRef(null! as HTMLInputElement);
 
-  const onBlur = () => {
-    if (flags.wasFinalized) return;
+  const validate = async () => {
+    if (props.schema == null) {
+      return;
+    }
 
-    if (!isBlank(input.current.value)) props.confirm();
-    else props.cancel();
+    try {
+      await props.schema.validate(props.value);
+      return true;
+    } catch (error) {
+      setErrorMessage((error as yup.ValidationError).errors[0]);
+      return false;
+    }
+  };
+
+  const onBlur = async () => {
+    if (flags.wasFinalized || errorMessage.length > 0 || !(await validate())) {
+      return;
+    }
+
+    if (!isBlank(input.current.value)) {
+      props.confirm();
+    } else {
+      props.cancel();
+    }
 
     setFlags({ ...flags, wasFinalized: true });
   };
 
   const onInput = async (ev: FormEvent<HTMLInputElement>) => {
     const value = (ev.target as HTMLInputElement).value as string;
-    props.onInput(value);
+    props.onInput(value.trim());
 
     if (props.schema != null) {
       setErrorMessage("");
-
-      try {
-        await props.schema.validate(value);
-      } catch (error) {
-        setErrorMessage((error as yup.ValidationError).errors[0]);
-      }
+      validate();
     }
   };
 
   useEffect(() => {
     const { current: el } = input;
-
     el.setCustomValidity(errorMessage);
-    el.value = props.value;
 
     if (!flags.wasFocused) {
       el.focus();
@@ -69,18 +83,23 @@ export function Input(props: InputProps): JSX.Element {
   const keyboard = useKeyboard(input);
   keyboard.listen(
     { event: "keydown", keys: [KeyCode.Enter, KeyCode.Escape] },
-    (_, key) => {
+    async (_, key) => {
       if (flags.wasFinalized) {
         return;
       }
 
       switch (key) {
         case KeyCode.Enter:
+          if (!(await validate())) {
+            return;
+          }
           props.confirm();
           break;
+
         case KeyCode.Escape:
           props.cancel();
           break;
+
         default:
           throw new InvalidOpError(`Invalid key of ${key}`);
       }
@@ -92,7 +111,12 @@ export function Input(props: InputProps): JSX.Element {
   const classes = classList("input", props.size, props.className);
   return (
     <div className="field">
-      <input ref={input} className={classes} onInput={onInput}></input>
+      <input
+        ref={input}
+        className={classes}
+        onInput={onInput}
+        value={props.value}
+      ></input>
       {errorMessage.length > 0 && (
         <p className="help is-danger">{errorMessage}</p>
       )}
