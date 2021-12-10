@@ -54,9 +54,11 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
 
       if ((await completed) === "confirm") {
         try {
+          const { value: name } = ctx.getState().ui.globalNavigation.tagInput!;
           const tag = await window.rpc("tags.create", {
-            name: tagInput.value,
+            name,
           });
+
           ctx.setTags((tags) => [...tags, tag]);
         } catch (e) {
           promptError(e.message);

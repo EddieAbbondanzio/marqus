@@ -62,6 +62,10 @@ export function Input(props: InputProps): JSX.Element {
   };
 
   const onInput = async (ev: FormEvent<HTMLInputElement>) => {
+    if (flags.wasFinalized) {
+      return;
+    }
+
     const value = (ev.target as HTMLInputElement).value as string;
     props.onInput(value.trim());
     setFlags({ ...flags, wasTouched: true });

@@ -11,7 +11,11 @@ import React from "react";
 import { getTagSchema } from "../../shared/schemas";
 import { State } from "../../shared/state";
 import { Execute } from "../io/commands";
-import { ContextMenu } from "./shared/ContextMenu";
+import {
+  ContextMenu,
+  ContextMenuDivider,
+  ContextMenuItem,
+} from "./shared/ContextMenu";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import { Input } from "./shared/Input";
@@ -119,8 +123,9 @@ export function GlobalNavigation({
 
   const { width, scroll } = state.ui.globalNavigation;
 
-  let contextMenuItems = (t: HTMLElement) => [
+  let contextMenuItems: ContextMenuItem[] = [
     {
+      type: "option",
       text: "Create tag",
       command: "globalNavigation.createTag",
     },
