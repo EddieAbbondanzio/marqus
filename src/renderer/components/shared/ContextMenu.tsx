@@ -135,6 +135,14 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     async (_, key) => {
       switch (key) {
         case KeyCode.Enter:
+          if (state.selected == null) {
+            return;
+          }
+
+          const selectedItem = itemsToRender[state.selected];
+          if (selectedItem && selectedItem.type === "option") {
+            void props.execute(selectedItem.command);
+          }
           break;
 
         case KeyCode.Escape:
@@ -207,8 +215,14 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     };
 
     const updateSelected = (ev: MouseEvent) => {
-      const target = ev.target as HTMLElement;
-      const itemId = target.getAttribute("data-context-menu-item");
+      const itemId = findParent(
+        ev.target as HTMLElement,
+        (el) => el.hasAttribute("data-context-menu-item"),
+        {
+          matchValue: (el) => el.getAttribute("data-context-menu-item"),
+          stop: (el) => el.hasAttribute("data-context-menu"),
+        }
+      );
 
       if (itemId != null) {
         const selected = itemsToRender.findIndex((i: any) => i.id == itemId);
