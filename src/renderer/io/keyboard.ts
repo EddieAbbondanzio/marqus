@@ -3,18 +3,21 @@ import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 
 export type KeyboardEventType = "keydown" | "keyup" | "press";
 
-export interface KeyboardListenOpts {
+export interface KeyboardListenOpts<Keys extends KeyCode[]> {
   event: KeyboardEventType;
-  keys?: KeyCode[];
+  keys?: Keys;
 }
 
-export type KeyboardCallback = (
+export type KeyboardCallback<Keys extends KeyCode[]> = (
   ev: KeyboardEvent,
-  key: KeyCode
+  key: Keys[number]
 ) => Promise<void>;
 
 export interface Keyboard {
-  listen(opts: KeyboardListenOpts, callback: KeyboardCallback): void;
+  listen<Keys extends KeyCode[]>(
+    opts: KeyboardListenOpts<Keys>,
+    callback: KeyboardCallback<Keys>
+  ): void;
 }
 
 export class KeyboardController implements Keyboard {
@@ -22,12 +25,15 @@ export class KeyboardController implements Keyboard {
 
   listeners: {
     [ev in KeyboardEventType]+?: {
-      callback: KeyboardCallback;
+      callback: KeyboardCallback<KeyCode[]>;
       keys?: KeyCode[];
     };
   } = {};
 
-  listen(opts: KeyboardListenOpts, callback: KeyboardCallback): void {
+  listen<Keys extends KeyCode[]>(
+    opts: KeyboardListenOpts<Keys>,
+    callback: KeyboardCallback<Keys>
+  ): void {
     this.listeners[opts.event] = {
       ...opts,
       callback,

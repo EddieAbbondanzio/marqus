@@ -45,6 +45,9 @@ export type Cursor =
 
 export type MouseButton = "left" | "right" | "either";
 export type MouseEventType =
+  | "mouseOver"
+  | "mouseEnter"
+  | "mouseLeave"
   | "dragStart"
   | "dragEnd"
   | "dragMove"
@@ -135,6 +138,8 @@ const reducer: Reducer<MouseDragging, MouseAction> = (dragging, action) => {
     case "dragEnd":
       return { element: undefined, hasMoved: undefined };
 
+    // MouseOver, mouseEnter, and mouseLeave are not tracked in state
+
     default:
       throw new InvalidOpError(`Invalid mouse action ${type}`);
   }
@@ -207,6 +212,10 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
     }
   };
 
+  const onMouseEnter = (event: MouseEvent) => mouse.notify(event, "mouseEnter");
+  const onMouseLeave = (event: MouseEvent) => mouse.notify(event, "mouseLeave");
+  const onMouseOver = (event: MouseEvent) => mouse.notify(event, "mouseOver");
+
   // Subscribe to it after render
   useEffect(() => {
     const el = element.current;
@@ -218,11 +227,17 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("mouseenter", onMouseEnter);
+    window.addEventListener("mouseleave", onMouseLeave);
+    window.addEventListener("mouseover", onMouseOver);
     return () => {
       el.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("mouseenter", onMouseEnter);
+      window.removeEventListener("mouseleave", onMouseLeave);
+      window.removeEventListener("mouseover", onMouseOver);
     };
   }, [dragging, element]);
 
