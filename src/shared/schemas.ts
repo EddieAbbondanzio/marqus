@@ -1,8 +1,8 @@
 import * as yup from "yup";
-import { generateId, isId } from "./id";
+import { uuid, isId } from "./id";
 import { Notebook, Shortcut, Tag, UI } from "./state";
 
-const idSchema = yup.string().optional().default(generateId).test(isId);
+const idSchema = yup.string().optional().default(uuid).test(isId);
 
 export function getTagSchema(tags: Tag[] = []): yup.SchemaOf<Tag> {
   return yup

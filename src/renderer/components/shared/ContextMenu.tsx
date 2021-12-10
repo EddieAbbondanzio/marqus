@@ -1,13 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { PropsWithChildren } from "react";
 import { classList } from "../../../shared/dom";
 import { getNodeEnv } from "../../../shared/env";
-import { generateId } from "../../../shared/id";
+import { uuid } from "../../../shared/id";
 import { KeyCode, keyCodesToString } from "../../../shared/io/keyCode";
 import { State } from "../../../shared/state";
 import { Execute } from "../../io/commands";
 import { CommandType } from "../../io/commands/types";
 import { useKeyboard } from "../../io/keyboard";
+import { Mouse, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 
 export interface ContextMenuProps {
@@ -25,6 +26,7 @@ export function ContextMenuDivider() {
 }
 
 export interface ContextMenuItemProps {
+  id: string;
   text: string;
   selected: boolean;
   click: () => void;
@@ -42,7 +44,12 @@ export function ContextMenuItem(props: ContextMenuItemProps) {
   );
 
   return (
-    <div onClick={props.click} className={classes} key={props.text}>
+    <div
+      onClick={props.click}
+      className={classes}
+      key={props.text}
+      data-context-menu-item={props.id}
+    >
       <span>{props.text}</span>
       <span className="is-size-7 is-uppercase has-text-grey pl-2">
         {props.shortcut}
@@ -67,24 +74,33 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     active: false,
   });
 
-  console.log(state.selected);
+  const itemsToRender = useMemo(() => {
+    const items = [
+      ...props.items.map((item) =>
+        item.type === "divider" ? item : { ...item, id: uuid() }
+      ),
+    ];
 
-  const itemsToRender = [...props.items];
-  if (getNodeEnv() === "development") {
-    itemsToRender.push(
-      { type: "divider" },
-      {
-        type: "option",
-        text: "Reload",
-        command: "app.reload",
-      },
-      {
-        type: "option",
-        text: "Open Dev Tools",
-        command: "app.openDevTools",
-      }
-    );
-  }
+    if (getNodeEnv() === "development") {
+      items.push(
+        { type: "divider" },
+        {
+          id: uuid(),
+          type: "option",
+          text: "Reload",
+          command: "app.reload",
+        },
+        {
+          id: uuid(),
+          type: "option",
+          text: "Open Dev Tools",
+          command: "app.openDevTools",
+        }
+      );
+    }
+
+    return items;
+  }, [props.items]);
 
   const renderedItems = itemsToRender.map((item, i) => {
     if (item.type === "divider") {
@@ -99,6 +115,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
         : undefined;
       return (
         <ContextMenuItem
+          id={item.id}
           text={item.text}
           selected={i === state.selected}
           click={() => props.execute(item.command)}
@@ -177,7 +194,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     }
 
     const onContextMenu = (ev: MouseEvent) => {
-      const id = generateId();
+      const id = uuid();
       const { clientX: left, clientY: top } = ev;
 
       setState({
@@ -187,6 +204,21 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
         left,
         active: true,
       });
+    };
+
+    const updateSelected = (ev: MouseEvent) => {
+      const target = ev.target as HTMLElement;
+      const itemId = target.getAttribute("data-context-menu-item");
+
+      if (itemId != null) {
+        const selected = itemsToRender.findIndex((i: any) => i.id == itemId);
+        if (selected !== -1) {
+          setState({
+            ...state,
+            selected,
+          });
+        }
+      }
     };
 
     const listenForClose = (ev: MouseEvent) => {
@@ -202,14 +234,17 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       }
     };
 
+    const menu = menuRef.current;
+
     wrapper.addEventListener("contextmenu", onContextMenu);
     window.addEventListener("click", listenForClose);
-
+    menu?.addEventListener("mouseover", updateSelected);
     return () => {
       wrapper.removeEventListener("contextmenu", onContextMenu);
       window.removeEventListener("clicK", listenForClose);
+      menu?.removeEventListener("mouseover", updateSelected);
     };
-  }, [state.active]);
+  }, [state.active, itemsToRender]);
 
   return (
     <div

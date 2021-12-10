@@ -1,7 +1,7 @@
 import { RpcRegistry } from "../../shared/rpc";
 import { tagFile } from "../fileHandlers";
 import { Tag } from "../../shared/state";
-import { generateId } from "../../shared/id";
+import { uuid as uuid } from "../../shared/id";
 
 const getAllTags = async (): Promise<Tag[]> => tagFile.load();
 
@@ -13,7 +13,7 @@ const createTag = async ({ name }: { name: string }): Promise<Tag> => {
   }
 
   const tag: Tag = {
-    id: generateId(),
+    id: uuid(),
     name,
     dateCreated: new Date(),
   };

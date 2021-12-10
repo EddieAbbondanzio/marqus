@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
-import { generateId } from "../shared/id";
+import { uuid } from "../shared/id";
 import { RpcType, Rpc } from "../shared/rpc";
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
@@ -50,7 +50,7 @@ ipcRenderer.on("send", async (_, arg) => {
  */
 const rpc: Rpc = async (type: string, input?: any): Promise<any> => {
   return new Promise((resolve, reject) => {
-    const id = generateId();
+    const id = uuid();
     promises[id] = { resolve, reject };
 
     let value;
