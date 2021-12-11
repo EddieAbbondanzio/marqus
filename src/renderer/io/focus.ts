@@ -8,18 +8,22 @@ import { SetUI } from "./commands/types";
  * Focus an element once.
  * @param ref The element to focus on render.
  */
-export function useFocus(ref: RefObject<HTMLElement>) {
+// Auto focus wasn't working...
+export function useFocus(ref: RefObject<HTMLElement>, onUse: boolean = true) {
   const [wasFocused, setWasFocused] = useState(false);
 
   useEffect(() => {
     const { current: el } = ref;
 
-    if (el != null && !wasFocused) {
+    if (el != null && (!onUse || !wasFocused)) {
       el.focus();
-      console.log("FOCUS");
       setWasFocused(true);
     }
   });
+
+  return {
+    focus: () => ref.current?.focus,
+  };
 }
 
 export function useFocusTracking(state: State, setUI: SetUI) {

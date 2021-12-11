@@ -1,7 +1,7 @@
 import { Reducer, RefObject, useCallback, useEffect, useReducer } from "react";
 import { InvalidOpError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
-import { Action } from "../types";
+import { Action, ElementOrWindow, isRef } from "../types";
 
 export const DEFAULT_CURSOR = "auto";
 
@@ -144,9 +144,7 @@ const reducer: Reducer<MouseDragging, MouseAction> = (dragging, action) => {
       throw new InvalidOpError(`Invalid mouse action ${type}`);
   }
 };
-export function useMouse<El extends HTMLElement = HTMLElement>(
-  element: RefObject<El>
-): Mouse {
+export function useMouse(elOrWindow: ElementOrWindow): Mouse {
   const [dragging, dispatch] = useReducer(reducer, {});
   const mouse = new MouseController();
 
@@ -218,12 +216,12 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
 
   // Subscribe to it after render
   useEffect(() => {
-    const el = element.current;
-    if (el == null) {
-      throw Error("No DOM element passed");
+    const target = isRef(elOrWindow) ? elOrWindow.current : elOrWindow;
+    if (target == null) {
+      return;
     }
 
-    el.addEventListener("mousedown", onMouseDown);
+    target.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("keyup", onKeyUp);
@@ -231,7 +229,7 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
     window.addEventListener("mouseleave", onMouseLeave);
     window.addEventListener("mouseover", onMouseOver);
     return () => {
-      el.removeEventListener("mousedown", onMouseDown);
+      target.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("keyup", onKeyUp);
@@ -239,7 +237,7 @@ export function useMouse<El extends HTMLElement = HTMLElement>(
       window.removeEventListener("mouseleave", onMouseLeave);
       window.removeEventListener("mouseover", onMouseOver);
     };
-  }, [dragging, element]);
+  }, [dragging, elOrWindow]);
 
   // Downcast to hide .notify()
   return mouse as Mouse;

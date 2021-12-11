@@ -1,5 +1,6 @@
 import { RefObject, useEffect, useState } from "react";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
+import { ElementOrWindow, isRef } from "../types";
 
 export type KeyboardEventType = "keydown" | "keyup" | "press";
 
@@ -21,7 +22,7 @@ export interface Keyboard {
 }
 
 export class KeyboardController implements Keyboard {
-  constructor(public element?: RefObject<HTMLElement>) {}
+  constructor(public target?: ElementOrWindow) {}
 
   listeners: {
     [ev in KeyboardEventType]+?: {
@@ -47,11 +48,10 @@ export class KeyboardController implements Keyboard {
     if (listener == null) {
       return;
     }
-
-    if (
-      this.element?.current != null &&
-      event.target !== this.element.current
-    ) {
+    const target = isRef<HTMLElement>(this.target)
+      ? this.target.current
+      : window;
+    if (event.target !== target) {
       return;
     }
 
@@ -63,15 +63,18 @@ export class KeyboardController implements Keyboard {
   }
 }
 
-export function useKeyboard(element?: RefObject<HTMLElement>): Keyboard {
-  const keyboard = new KeyboardController(element);
+export function useKeyboard(elOrWindow: ElementOrWindow): Keyboard {
+  const keyboard = new KeyboardController(elOrWindow);
 
   const onKeyDown = (ev: KeyboardEvent) => keyboard.notify(ev, "keydown");
   const onKeyPress = (ev: KeyboardEvent) => keyboard.notify(ev, "press");
   const onKeyUp = (ev: KeyboardEvent) => keyboard.notify(ev, "keyup");
 
   useEffect(() => {
-    const target = element?.current ?? window;
+    const target = isRef(elOrWindow) ? elOrWindow.current : elOrWindow;
+    if (target == null) {
+      return;
+    }
 
     target.addEventListener("keydown", onKeyDown);
     target.addEventListener("keypress", onKeyPress);

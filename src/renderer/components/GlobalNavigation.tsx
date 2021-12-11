@@ -126,17 +126,17 @@ export function GlobalNavigation({
 
   const { width, scroll } = state.ui.globalNavigation;
 
-  let contextMenuItems: ContextMenuItem[] = [
-    {
-      type: "option",
-      text: "Create tag",
-      command: "globalNavigation.createTag",
-    },
-  ];
-
   const onResize = (newWidth: string) => {
     execute("globalNavigation.resizeWidth", newWidth);
   };
+
+  let contextMenuItems = [
+    <ContextMenuItem
+      text="Create tag"
+      command="globalNavigation.createTag"
+      key="0"
+    />,
+  ];
 
   return (
     <Resizable width={width} onResize={onResize}>
