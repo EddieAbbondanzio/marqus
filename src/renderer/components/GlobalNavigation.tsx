@@ -7,7 +7,7 @@ import {
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import { sortBy } from "lodash";
-import React from "react";
+import React, { useMemo } from "react";
 import { getTagSchema } from "../../shared/schemas";
 import { State } from "../../shared/state";
 import { Execute } from "../io/commands";
@@ -50,42 +50,45 @@ export function GlobalNavigation({
   );
 
   const sortedTags = sortBy(state.tags, "name");
-  const tagsChildren = [];
-  for (const tag of sortedTags) {
-    tagsChildren.push(
-      <NavigationMenu
-        collapsed={false}
-        trigger={buildTrigger(tag.name)}
-        depth={1}
-        key={`tags/${tag.name}`}
-      ></NavigationMenu>
-    );
-  }
+  const tagsChildren = useMemo(() => {
+    const tags = [];
 
-  const tagSchema = getTagSchema(state.tags);
+    for (const tag of sortedTags) {
+      tags.push(
+        <NavigationMenu
+          collapsed={false}
+          trigger={buildTrigger(tag.name)}
+          depth={1}
+          key={`tags/${tag.name}`}
+        ></NavigationMenu>
+      );
+    }
 
-  const tagsInput = state.ui.globalNavigation.tagInput;
-  if (tagsInput?.mode === "create") {
-    console.log("gnav tag input: ", tagsInput.value);
+    const tagSchema = getTagSchema(state.tags);
 
-    tagsChildren.push(
-      <NavigationMenu
-        collapsed={false}
-        trigger={
-          <Input
-            className="global-navigation-input"
-            {...tagsInput}
-            schema={yup.reach(tagSchema, "name").notOneOf(
-              state.tags.map((t) => t.name),
-              "Tag already exists"
-            )}
-          />
-        }
-        depth={1}
-        key="tags/input"
-      />
-    );
-  }
+    const tagsInput = state.ui.globalNavigation.tagInput;
+    if (tagsInput?.mode === "create") {
+      tags.push(
+        <NavigationMenu
+          collapsed={false}
+          trigger={
+            <Input
+              className="global-navigation-input"
+              {...tagsInput}
+              schema={yup.reach(tagSchema, "name").notOneOf(
+                state.tags.map((t) => t.name),
+                "Tag already exists"
+              )}
+            />
+          }
+          depth={1}
+          key="tags/input"
+        />
+      );
+    }
+
+    return tags;
+  }, [sortedTags, state.ui.globalNavigation.tagInput]);
 
   const tags = (
     <NavigationMenu

@@ -1,8 +1,26 @@
-import { useEffect } from "react";
+import { RefObject, useEffect, useState } from "react";
 import { State, UISection } from "../../shared/state";
 import { FOCUSABLE_ATTRIBUTE, IsFocused } from "../components/shared/Focusable";
 import { findParent } from "../utils/findParent";
 import { SetUI } from "./commands/types";
+
+/**
+ * Focus an element once.
+ * @param ref The element to focus on render.
+ */
+export function useFocus(ref: RefObject<HTMLElement>) {
+  const [wasFocused, setWasFocused] = useState(false);
+
+  useEffect(() => {
+    const { current: el } = ref;
+
+    if (el != null && !wasFocused) {
+      el.focus();
+      console.log("FOCUS");
+      setWasFocused(true);
+    }
+  });
+}
 
 export function useFocusTracking(state: State, setUI: SetUI) {
   useEffect(() => {

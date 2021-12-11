@@ -1,4 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  RefObject,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { PropsWithChildren } from "react";
 import { classList } from "../../../shared/dom";
 import { getNodeEnv } from "../../../shared/env";
@@ -7,6 +14,7 @@ import { KeyCode, keyCodesToString } from "../../../shared/io/keyCode";
 import { State } from "../../../shared/state";
 import { Execute } from "../../io/commands";
 import { CommandType } from "../../io/commands/types";
+import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 import { Mouse, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
@@ -67,6 +75,7 @@ export interface ContextMenuState {
 }
 
 export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
+  console.log("context menu render");
   const wrapperRef = useRef(null! as HTMLDivElement);
   const menuRef = useRef(null! as HTMLDivElement);
 
@@ -194,12 +203,10 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     }
   );
 
+  useFocus(menuRef);
+
   useEffect(() => {
     const wrapper = wrapperRef.current;
-
-    if (menuRef.current != null) {
-      menuRef.current.focus();
-    }
 
     const onContextMenu = (ev: MouseEvent) => {
       const id = uuid();
@@ -226,7 +233,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
 
       if (itemId != null) {
         const selected = itemsToRender.findIndex((i: any) => i.id == itemId);
-        if (selected !== -1) {
+        if (selected !== -1 && state.selected != selected) {
           setState({
             ...state,
             selected,

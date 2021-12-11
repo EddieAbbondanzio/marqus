@@ -2,8 +2,10 @@ import React, { FormEvent, useEffect, useRef, useState } from "react";
 import * as yup from "yup";
 import { classList } from "../../../shared/dom";
 import { InvalidOpError } from "../../../shared/errors";
+import { uuid } from "../../../shared/id";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { isBlank } from "../../../shared/string";
+import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 
 export interface InputProps {
@@ -17,10 +19,8 @@ export interface InputProps {
 }
 
 export function Input(props: InputProps): JSX.Element {
-  console.log("Input(): ", { value: props.value });
-
+  console.log("inptu");
   const [flags, setFlags] = useState({
-    wasFocused: false,
     wasFinalized: false,
     wasTouched: false,
   });
@@ -48,6 +48,7 @@ export function Input(props: InputProps): JSX.Element {
   }
 
   const onBlur = async () => {
+    console.log("blur!");
     if (flags.wasFinalized || errorMessage.length > 0 || !(await validate())) {
       return;
     }
@@ -71,14 +72,11 @@ export function Input(props: InputProps): JSX.Element {
     setFlags({ ...flags, wasTouched: true });
   };
 
+  useFocus(input);
+
   useEffect(() => {
     const { current: el } = input;
     el.setCustomValidity(errorMessage);
-
-    if (!flags.wasFocused) {
-      el.focus();
-      setFlags({ ...flags, wasFocused: true });
-    }
 
     el.addEventListener("blur", onBlur);
     return () => {
