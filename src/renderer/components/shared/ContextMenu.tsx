@@ -59,11 +59,11 @@ export function ContextMenuItem(props: ContextMenuItemProps) {
   );
 
   const ref = useRef(null! as HTMLDivElement);
-  // useMouse(ref).listen({ event: "mouseOver" }, () => {
-  //   if (!props.selected) {
-  //     ctx.setSelected(props.command);
-  //   }
-  // });
+  useMouse(ref).listen({ event: "mouseOver" }, () => {
+    if (!props.selected) {
+      ctx.setSelected(props.command);
+    }
+  });
 
   return (
     <div

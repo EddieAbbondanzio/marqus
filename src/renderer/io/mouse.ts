@@ -225,17 +225,17 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("keyup", onKeyUp);
-    window.addEventListener("mouseenter", onMouseEnter);
-    window.addEventListener("mouseleave", onMouseLeave);
-    window.addEventListener("mouseover", onMouseOver);
+    target.addEventListener("mouseenter", onMouseEnter);
+    target.addEventListener("mouseleave", onMouseLeave);
+    target.addEventListener("mouseover", onMouseOver);
     return () => {
       target.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("keyup", onKeyUp);
-      window.removeEventListener("mouseenter", onMouseEnter);
-      window.removeEventListener("mouseleave", onMouseLeave);
-      window.removeEventListener("mouseover", onMouseOver);
+      target.removeEventListener("mouseenter", onMouseEnter);
+      target.removeEventListener("mouseleave", onMouseLeave);
+      target.removeEventListener("mouseover", onMouseOver);
     };
   }, [dragging, elOrWindow]);
 
