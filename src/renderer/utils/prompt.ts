@@ -18,3 +18,14 @@ export const promptFatal = async (errorMessage: string) =>
     type: "error",
     title: "Fatal Error",
   });
+
+export const promptConfirmAction = async (verb: string, name: string) =>
+  prompt({
+    text: `Are you sure you want to ${verb} ${name}?`,
+    buttons: [
+      { text: "Yes", role: "default" },
+      { text: "No", role: "cancel" },
+    ],
+    type: "info",
+    title: `Confirm ${verb}`,
+  });

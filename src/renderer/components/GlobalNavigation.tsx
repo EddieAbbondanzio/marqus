@@ -67,7 +67,6 @@ export function GlobalNavigation({
     const tagsInput = state.ui.globalNavigation.tagInput;
     const tagSchema = getTagSchema(state.tags);
 
-    console.log("new tags: ", sortedTags);
     for (const tag of sortedTags) {
       const lookup = `tags/${tag.id}`;
 

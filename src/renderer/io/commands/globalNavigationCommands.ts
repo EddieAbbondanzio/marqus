@@ -1,6 +1,6 @@
 import { over, overEvery } from "lodash";
 import { createAwaitableInput } from "../../../shared/awaitableInput";
-import { promptError } from "../../utils/prompt";
+import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace } from "./types";
 
 export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> =
@@ -131,7 +131,17 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
       }));
     },
     "globalNavigation.deleteTag": async (ctx, id) => {
-      console.log("delete tag: ", id);
+      const tag = ctx.getState().tags.find((t) => t.id === id);
+
+      if (tag == null) {
+        throw Error(`No tag found with id ${id}`);
+      }
+
+      const res = await promptConfirmAction("delete", `tag ${tag.name}`);
+      if (res.text === "Yes") {
+        await window.rpc("tags.delete", { id: tag.id });
+        ctx.setTags((tags) => [...tags.filter((t) => t.id !== tag.id)]);
+      }
     },
     "globalNavigation.setSelected": async (ctx, selected) => {
       ctx.setUI((prev) => ({
