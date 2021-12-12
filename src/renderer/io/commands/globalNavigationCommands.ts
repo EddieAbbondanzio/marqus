@@ -32,18 +32,21 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
       }));
     },
     "globalNavigation.createTag": async (ctx) => {
-      let [tagInput, completed] = createAwaitableInput("", (value) => {
-        ctx.setUI((prev) => ({
-          ...prev,
-          globalNavigation: {
-            ...prev.globalNavigation,
-            tagInput: {
-              ...prev.globalNavigation.tagInput!,
-              value,
+      let [tagInput, completed] = createAwaitableInput(
+        { value: "" },
+        (value) => {
+          ctx.setUI((prev) => ({
+            ...prev,
+            globalNavigation: {
+              ...prev.globalNavigation,
+              tagInput: {
+                ...prev.globalNavigation.tagInput!,
+                value,
+              },
             },
-          },
-        }));
-      });
+          }));
+        }
+      );
 
       ctx.setUI((prev) => ({
         ...prev,
@@ -75,7 +78,57 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
       }));
     },
     "globalNavigation.updateTag": async (ctx, id) => {
-      console.log("update tag: ", id);
+      if (id == null) {
+        throw Error(`No id passed.`);
+      }
+
+      const tag = ctx.getState().tags.find((t) => t.id === id)!;
+
+      let [tagInput, completed] = createAwaitableInput(
+        { value: tag.name, id },
+        (value) => {
+          ctx.setUI((prev) => ({
+            ...prev,
+            globalNavigation: {
+              ...prev.globalNavigation,
+              tagInput: {
+                ...prev.globalNavigation.tagInput!,
+                value,
+              },
+            },
+          }));
+        }
+      );
+
+      ctx.setUI((prev) => ({
+        ...prev,
+        globalNavigation: {
+          ...prev.globalNavigation,
+          tagInput,
+        },
+      }));
+
+      if ((await completed) === "confirm") {
+        try {
+          const { value: name } = ctx.getState().ui.globalNavigation.tagInput!;
+          const tag = await window.rpc("tags.update", {
+            id,
+            newName: name,
+          });
+
+          ctx.setTags((tags) => [...tags.filter((t) => t.id !== tag.id), tag]);
+        } catch (e) {
+          promptError(e.message);
+        }
+      }
+
+      ctx.setUI((prev) => ({
+        ...prev,
+        globalNavigation: {
+          ...prev.globalNavigation,
+          tagInput: undefined,
+        },
+      }));
     },
     "globalNavigation.deleteTag": async (ctx, id) => {
       console.log("delete tag: ", id);

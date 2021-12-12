@@ -6,7 +6,6 @@ export interface NavigationMenuProps {
   name: string;
   trigger: JSX.Element;
   collapsed: boolean;
-  depth?: number;
   selected?: boolean;
 }
 

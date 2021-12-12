@@ -64,26 +64,47 @@ export function GlobalNavigation({
   const sortedTags = sortBy(state.tags, "name");
   const tagsChildren = useMemo(() => {
     const tags = [];
+    const tagsInput = state.ui.globalNavigation.tagInput;
+    const tagSchema = getTagSchema(state.tags);
 
+    console.log("new tags: ", sortedTags);
     for (const tag of sortedTags) {
       const lookup = `tags/${tag.id}`;
 
-      tags.push(
-        <NavigationMenu
-          key={lookup}
-          name={lookup}
-          trigger={buildTrigger(tag.name, {
-            onClick: select(lookup),
-          })}
-          depth={1}
-          collapsed={false}
-          selected={isSelected(lookup)}
-        ></NavigationMenu>
-      );
+      if (
+        tagsInput != null &&
+        tagsInput.mode === "update" &&
+        tagsInput.id === tag.id
+      ) {
+        tags.push(
+          <NavigationMenu
+            key={lookup}
+            name={lookup}
+            trigger={
+              <Input
+                className="my-1 global-navigation-input"
+                {...tagsInput}
+                schema={yup.reach(tagSchema, "name")}
+              />
+            }
+            collapsed={false}
+          />
+        );
+      } else {
+        tags.push(
+          <NavigationMenu
+            key={lookup}
+            name={lookup}
+            trigger={buildTrigger(tag.name, {
+              onClick: select(lookup),
+            })}
+            collapsed={false}
+            selected={isSelected(lookup)}
+          ></NavigationMenu>
+        );
+      }
     }
 
-    const tagSchema = getTagSchema(state.tags);
-    const tagsInput = state.ui.globalNavigation.tagInput;
     if (tagsInput?.mode === "create") {
       tags.push(
         <NavigationMenu
@@ -96,7 +117,6 @@ export function GlobalNavigation({
               schema={yup.reach(tagSchema, "name")}
             />
           }
-          depth={1}
           collapsed={false}
         />
       );

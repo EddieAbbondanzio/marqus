@@ -1,6 +1,7 @@
 export type InputMode = "create" | "update";
 
 export interface AwaitableInput {
+  id?: string;
   mode: InputMode;
   value: string;
   onInput: (value: string) => void;
@@ -10,10 +11,10 @@ export interface AwaitableInput {
 export type AwaitableOutcome = "confirm" | "cancel";
 
 export function createAwaitableInput(
-  value: string,
+  params: { value: string; id?: string },
   setValue: (value: string) => void
 ): [AwaitableInput, Promise<AwaitableOutcome>] {
-  let mode: InputMode = value == "" ? "create" : "update";
+  let mode: InputMode = params.id == null ? "create" : "update";
   let confirm: () => void;
   let cancel: () => void;
 
@@ -25,8 +26,9 @@ export function createAwaitableInput(
   );
 
   const obj: AwaitableInput = {
+    id: params.id,
     mode,
-    value: value ?? "",
+    value: params.value,
     onInput: setValue,
     confirm: confirm!,
     cancel: cancel!,

@@ -149,7 +149,6 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     let generatedItems = state.generatedItems ?? false;
     if (active) {
       if (!generatedItems) {
-        const target = ev.target as HTMLElement;
         setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
       }
     } else {
