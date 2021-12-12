@@ -50,6 +50,7 @@ export function useFocusTracking(state: State, setUI: SetUI) {
       ...ui,
       focused: focused ?? undefined,
     }));
+    console.log("set focus: ", focused);
   }
 
   return ((section: UISection) => state.ui.focused === section) as IsFocused;

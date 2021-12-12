@@ -3,6 +3,7 @@ import { UISection } from "../../../shared/state";
 
 export interface FocusableProps {
   name: string;
+  className?: string;
 }
 
 export type IsFocused = (section: UISection) => boolean;
@@ -16,10 +17,7 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
   };
 
   return (
-    <div
-      className="is-flex is-flex-grow-1 is-flex-direction-column"
-      {...divProps}
-    >
+    <div className={props.className} {...divProps}>
       {props.children}
     </div>
   );

@@ -41,7 +41,6 @@ export function useShortcuts(state: State, execute: Execute) {
         );
 
         if (shortcut != null) {
-          console.log("execute: ", shortcut);
           void execute(shortcut.command as CommandType, undefined!);
 
           if (shortcut.repeat) {

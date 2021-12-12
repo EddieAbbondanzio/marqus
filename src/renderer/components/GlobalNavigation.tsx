@@ -83,7 +83,6 @@ export function GlobalNavigation({
     }
 
     const tagSchema = getTagSchema(state.tags);
-
     const tagsInput = state.ui.globalNavigation.tagInput;
     if (tagsInput?.mode === "create") {
       tags.push(
@@ -92,7 +91,7 @@ export function GlobalNavigation({
           name="tags/input"
           trigger={
             <Input
-              className="global-navigation-input"
+              className="my-1 global-navigation-input"
               {...tagsInput}
               schema={yup.reach(tagSchema, "name")}
             />
@@ -219,7 +218,10 @@ export function GlobalNavigation({
           execute("globalNavigation.updateScroll", newScroll)
         }
       >
-        <Focusable name="globalNavigation">
+        <Focusable
+          name="globalNavigation"
+          className="is-flex is-flex-grow-1 is-flex-direction-column"
+        >
           <ContextMenu
             name="globalNavigation"
             items={contextMenuItems}
@@ -239,12 +241,12 @@ export function buildTrigger(
   opts?: { icon?: IconDefinition; onClick?: () => void }
 ): JSX.Element {
   return (
-    <div
+    <a
       className="p-1 is-flex is-flex-row is-align-items-center has-text-grey is-size-7"
       onClick={() => opts?.onClick?.()}
     >
       {opts?.icon != null && <Icon icon={opts.icon} className="mr-1" />}
       <span>{text}</span>
-    </div>
+    </a>
   );
 }

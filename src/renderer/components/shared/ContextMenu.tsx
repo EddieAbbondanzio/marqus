@@ -17,6 +17,7 @@ import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 import { useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
+import { Focusable } from "./Focusable";
 
 export const GLOBAL_CONTEXT_ITEMS: JSX.Element[] = [];
 if (getNodeEnv() === "development") {
@@ -119,9 +120,6 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
   const [items, setItems] = useState([...GLOBAL_CONTEXT_ITEMS]);
 
   const { focus } = useFocus(menuRef, false);
-  if (state.active) {
-    focus();
-  }
 
   useMouse(wrapperRef).listen({ event: "click", button: "right" }, (ev) => {
     ev.stopPropagation();
@@ -149,6 +147,10 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       selected: active ? undefined : state.selected,
       generatedItems,
     });
+
+    if (active) {
+      focus();
+    }
   });
   useMouse(window).listen({ event: "click" }, (ev) => {
     if (state.active) {
@@ -213,6 +215,10 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
         case KeyCode.Enter:
           if (state.selected != null) {
             props.execute(state.selected.command, state.selected.commandInput);
+
+            setState({
+              active: false,
+            });
           }
           break;
 
@@ -257,6 +263,14 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     });
   };
 
+  const execute: Execute = async (command, input) => {
+    props.execute(command, input);
+    setState({
+      ...state,
+      active: false,
+    });
+  };
+
   return (
     <div
       ref={wrapperRef}
@@ -264,29 +278,31 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       data-context-menu={props.name}
     >
       {state.active && (
-        <div
-          ref={menuRef}
-          className="context-menu box m-0 p-0"
-          style={{
-            position: "absolute",
-            zIndex: 1,
-            top: state.top,
-            left: state.left,
-          }}
-          tabIndex={-1}
-        >
-          <div>
-            <ContextMenuContext.Provider
-              value={{
-                selected: state.selected,
-                execute: props.execute,
-                setSelected,
-              }}
-            >
-              {items}
-            </ContextMenuContext.Provider>
+        <Focusable name="globalNavigationContextMenu">
+          <div
+            ref={menuRef}
+            className="context-menu box m-0 p-0"
+            style={{
+              position: "absolute",
+              zIndex: 1,
+              top: state.top,
+              left: state.left,
+            }}
+            tabIndex={-1}
+          >
+            <div>
+              <ContextMenuContext.Provider
+                value={{
+                  selected: state.selected,
+                  execute,
+                  setSelected,
+                }}
+              >
+                {items}
+              </ContextMenuContext.Provider>
+            </div>
           </div>
-        </div>
+        </Focusable>
       )}
       {props.children}
     </div>

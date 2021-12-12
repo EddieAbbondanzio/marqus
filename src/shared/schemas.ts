@@ -43,7 +43,12 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
   focused: yup
     .string()
     .optional()
-    .oneOf(["globalNavigation", "localNavigation", "editor"]) as any,
+    .oneOf([
+      "globalNavigation",
+      "globalNavigationContextMenu",
+      "localNavigation",
+      "editor",
+    ]) as any,
 });
 
 export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({

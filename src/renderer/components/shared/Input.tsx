@@ -1,6 +1,6 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import * as yup from "yup";
-import { classList } from "../../../shared/dom";
+import { classList, percentage, px } from "../../../shared/dom";
 import { InvalidOpError } from "../../../shared/errors";
 import { uuid } from "../../../shared/id";
 import { KeyCode } from "../../../shared/io/keyCode";
@@ -19,7 +19,6 @@ export interface InputProps {
 }
 
 export function Input(props: InputProps): JSX.Element {
-  console.log("inptu");
   const [flags, setFlags] = useState({
     wasFinalized: false,
     wasTouched: false,
@@ -114,7 +113,7 @@ export function Input(props: InputProps): JSX.Element {
 
   const classes = classList("input", props.size, props.className);
   return (
-    <div className="field">
+    <div className="field" style={{ position: "relative" }}>
       <input
         ref={input}
         className={classes}
@@ -122,7 +121,12 @@ export function Input(props: InputProps): JSX.Element {
         value={props.value}
       ></input>
       {errorMessage.length > 0 && (
-        <p className="help is-danger">{errorMessage}</p>
+        <p
+          className="help is-danger box m-0 p-2"
+          style={{ position: "absolute", width: percentage(100) }}
+        >
+          {errorMessage}
+        </p>
       )}
     </div>
   );
