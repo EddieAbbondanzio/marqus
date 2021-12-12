@@ -150,6 +150,8 @@ export function GlobalNavigation({
           matchValue: (el) => el.getAttribute("data-navigation-menu"),
         }
       );
+
+      console.log(menu);
     }
 
     let items: JSX.Element[] = [];
@@ -213,7 +215,7 @@ export function GlobalNavigation({
 
 export function buildTrigger(text: string, icon?: IconDefinition): JSX.Element {
   return (
-    <div className="m-1 is-flex is-flex-row is-align-items-center has-text-grey is-size-7">
+    <div className="p-1 is-flex is-flex-row is-align-items-center has-text-grey is-size-7">
       {icon != null && <Icon icon={icon} className="mr-1" />}
       <span>{text}</span>
     </div>

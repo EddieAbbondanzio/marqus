@@ -9,13 +9,24 @@ export interface NavigationMenuProps {
   trigger: JSX.Element;
   collapsed: boolean;
   depth?: number;
+  onClick?: () => void;
 }
 
 export function NavigationMenu(props: PropsWithChildren<NavigationMenuProps>) {
   const indent = px((props.depth ?? 0) * INDENT_PIXELS);
 
+  const onClick = () => {
+    if (props.onClick != null) {
+      props.onClick();
+    }
+  };
+
   return (
-    <div style={{ paddingLeft: indent }} data-navigation-menu={props.name}>
+    <div
+      onClick={onClick}
+      style={{ paddingLeft: indent }}
+      data-navigation-menu={props.name}
+    >
       {props.trigger}
       {props.children}
     </div>
