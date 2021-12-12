@@ -57,7 +57,7 @@ export function GlobalNavigation({
     const tags = [];
 
     for (const tag of sortedTags) {
-      const lookup = `tags/${tag.name}`;
+      const lookup = `tags/${tag.id}`;
 
       tags.push(
         <NavigationMenu

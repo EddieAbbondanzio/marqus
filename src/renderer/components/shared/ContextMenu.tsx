@@ -16,6 +16,7 @@ import { CommandInput, CommandType } from "../../io/commands/types";
 import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 import { useMouse } from "../../io/mouse";
+import { findParent } from "../../utils/findParent";
 
 export const GLOBAL_CONTEXT_ITEMS: JSX.Element[] = [];
 if (getNodeEnv() === "development") {
@@ -71,7 +72,7 @@ export function ContextMenuItem<C extends CommandType>(
   return (
     <div
       ref={ref}
-      onClick={() => ctx.execute(props.command, props.commandInput)}
+      onClick={(ev) => ctx.execute(props.command, props.commandInput)}
       className={classes}
       key={props.text}
     >
@@ -89,7 +90,7 @@ export function ContextMenuDivider() {
 
 export interface ContextMenuSelected {
   command: CommandType;
-  commandParam?: any;
+  commandInput?: CommandInput<CommandType>;
   index: number;
 }
 
@@ -149,12 +150,18 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       generatedItems,
     });
   });
-  useMouse(window).listen({ event: "click" }, () => {
+  useMouse(window).listen({ event: "click" }, (ev) => {
     if (state.active) {
-      setState({
-        ...state,
-        active: false,
-      });
+      const menu = findParent(ev.target as HTMLElement, (el) =>
+        el.classList.contains("context-menu")
+      );
+
+      if (!menu) {
+        setState({
+          ...state,
+          active: false,
+        });
+      }
     }
   });
 
@@ -205,7 +212,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       switch (key) {
         case KeyCode.Enter:
           if (state.selected != null) {
-            props.execute(state.selected.command, state.selected.commandParam);
+            props.execute(state.selected.command, state.selected.commandInput);
           }
           break;
 
@@ -239,9 +246,14 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       throw Error(`Could not find item for command ${command}`);
     }
 
+    const { commandInput } = items[index].props;
     setState({
       ...state,
-      selected: { command, index },
+      selected: {
+        command,
+        index,
+        commandInput,
+      },
     });
   };
 
@@ -254,7 +266,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       {state.active && (
         <div
           ref={menuRef}
-          className="box m-0 p-0"
+          className="context-menu box m-0 p-0"
           style={{
             position: "absolute",
             zIndex: 1,
