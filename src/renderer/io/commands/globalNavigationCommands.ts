@@ -74,4 +74,10 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
         },
       }));
     },
+    "globalNavigation.updateTag": async (ctx, id) => {
+      console.log("update tag: ", id);
+    },
+    "globalNavigation.deleteTag": async (ctx, id) => {
+      console.log("delete tag: ", id);
+    },
   };

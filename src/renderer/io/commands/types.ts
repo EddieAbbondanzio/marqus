@@ -36,8 +36,13 @@ export interface CommandSchema {
   "globalNavigation.updateScroll": Command<number>;
   "globalNavigation.resizeWidth": Command<string>;
   "globalNavigation.createTag": Command;
+  "globalNavigation.updateTag": Command<string>;
+  "globalNavigation.deleteTag": Command<string>;
 }
 export type CommandType = keyof CommandSchema;
+export type CommandInput<Command extends CommandType> = Parameters<
+  CommandSchema[Command]
+>[1];
 
 export type CommandsForNamespace<Namespace extends string> = Pick<
   CommandSchema,

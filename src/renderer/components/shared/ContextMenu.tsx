@@ -12,7 +12,7 @@ import { getNodeEnv } from "../../../shared/env";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { State } from "../../../shared/state";
 import { Execute } from "../../io/commands";
-import { CommandType } from "../../io/commands/types";
+import { CommandInput, CommandType } from "../../io/commands/types";
 import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 import { useMouse } from "../../io/mouse";
@@ -34,17 +34,20 @@ export interface ContextMenuProps {
   name: string;
   state: State;
   execute: Execute;
-  items: JSX.Element[];
+  items: (target?: HTMLElement) => JSX.Element[];
 }
 
-export interface ContextMenuItemProps {
+export interface ContextMenuItemProps<C extends CommandType> {
   text: string;
-  command: CommandType;
+  command: C;
+  commandInput?: CommandInput<C>;
   selected?: boolean;
   shortcut?: string;
 }
 
-export function ContextMenuItem(props: ContextMenuItemProps) {
+export function ContextMenuItem<C extends CommandType>(
+  props: ContextMenuItemProps<C>
+) {
   const ctx = useContext(ContextMenuContext);
 
   const classes = classList(
@@ -68,7 +71,7 @@ export function ContextMenuItem(props: ContextMenuItemProps) {
   return (
     <div
       ref={ref}
-      onClick={() => ctx.execute(props.command)}
+      onClick={() => ctx.execute(props.command, props.commandInput)}
       className={classes}
       key={props.text}
     >
@@ -86,6 +89,7 @@ export function ContextMenuDivider() {
 
 export interface ContextMenuSelected {
   command: CommandType;
+  commandParam?: any;
   index: number;
 }
 
@@ -94,6 +98,7 @@ export interface ContextMenuState {
   selected?: ContextMenuSelected;
   top?: number;
   left?: number;
+  generatedItems?: boolean;
 }
 
 const ContextMenuContext = React.createContext<{
@@ -110,18 +115,29 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     active: false,
   });
 
+  const [items, setItems] = useState([...GLOBAL_CONTEXT_ITEMS]);
+
   const { focus } = useFocus(menuRef, false);
   if (state.active) {
     focus();
   }
-
-  const items = [...props.items, ...GLOBAL_CONTEXT_ITEMS];
 
   useMouse(wrapperRef).listen({ event: "click", button: "right" }, (ev) => {
     ev.stopPropagation();
     const { clientX: left, clientY: top } = ev;
 
     let active = !state.active;
+
+    let generatedItems = state.generatedItems ?? false;
+    if (active) {
+      if (!generatedItems) {
+        const target = ev.target as HTMLElement;
+        setItems([...props.items(target), ...GLOBAL_CONTEXT_ITEMS]);
+      }
+    } else {
+      setItems([...GLOBAL_CONTEXT_ITEMS]);
+      generatedItems = false;
+    }
 
     setState({
       ...state,
@@ -130,6 +146,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       // Toggle allows closing menu with the same button that opened it.
       active,
       selected: active ? undefined : state.selected,
+      generatedItems,
     });
   });
   useMouse(window).listen({ event: "click" }, () => {
@@ -162,9 +179,11 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     }
 
     index = clamp(index, 0, items.length - 1);
+    const { command, commandParam } = items[index].props;
     const selected = {
       index,
-      command: items[index].props.command,
+      command,
+      commandParam,
     };
 
     return {
@@ -186,7 +205,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       switch (key) {
         case KeyCode.Enter:
           if (state.selected != null) {
-            props.execute(state.selected.command);
+            props.execute(state.selected.command, state.selected.commandParam);
           }
           break;
 

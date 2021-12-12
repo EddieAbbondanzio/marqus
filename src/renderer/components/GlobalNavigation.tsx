@@ -23,6 +23,7 @@ import { NavigationMenu } from "./shared/NavigationMenu";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
+import { findParent } from "../utils/findParent";
 
 export interface GlobalNavigationProps {
   state: State;
@@ -35,6 +36,7 @@ export function GlobalNavigation({
 }: GlobalNavigationProps): JSX.Element {
   const all = (
     <NavigationMenu
+      name="all"
       collapsed={false}
       trigger={buildTrigger("ALL", faFile)}
       key="all"
@@ -43,6 +45,7 @@ export function GlobalNavigation({
 
   const notebooks = (
     <NavigationMenu
+      name="notebooks"
       collapsed={false}
       trigger={buildTrigger("NOTEBOOKS", faBook)}
       key="notebooks"
@@ -54,12 +57,15 @@ export function GlobalNavigation({
     const tags = [];
 
     for (const tag of sortedTags) {
+      const lookup = `tags/${tag.name}`;
+
       tags.push(
         <NavigationMenu
           collapsed={false}
           trigger={buildTrigger(tag.name)}
           depth={1}
-          key={`tags/${tag.name}`}
+          name={lookup}
+          key={lookup}
         ></NavigationMenu>
       );
     }
@@ -70,6 +76,7 @@ export function GlobalNavigation({
     if (tagsInput?.mode === "create") {
       tags.push(
         <NavigationMenu
+          name="tags/input"
           collapsed={false}
           trigger={
             <Input
@@ -92,6 +99,7 @@ export function GlobalNavigation({
 
   const tags = (
     <NavigationMenu
+      name="tags"
       collapsed={false}
       trigger={buildTrigger("TAGS", faTag)}
       key="tags"
@@ -102,6 +110,7 @@ export function GlobalNavigation({
 
   const favorites = (
     <NavigationMenu
+      name="favorites"
       collapsed={false}
       trigger={buildTrigger("FAVORITES", faStar)}
       key="favorites"
@@ -110,6 +119,7 @@ export function GlobalNavigation({
 
   const trash = (
     <NavigationMenu
+      name="trash"
       collapsed={false}
       trigger={buildTrigger("TRASH", faTrash)}
       key="trash"
@@ -130,13 +140,53 @@ export function GlobalNavigation({
     execute("globalNavigation.resizeWidth", newWidth);
   };
 
-  let contextMenuItems = [
-    <ContextMenuItem
-      text="Create tag"
-      command="globalNavigation.createTag"
-      key="0"
-    />,
-  ];
+  let contextMenuItems = (target?: HTMLElement) => {
+    let menu: string | null = null;
+    if (target != null) {
+      menu = findParent(
+        target,
+        (el) => el.hasAttribute("data-navigation-menu"),
+        {
+          matchValue: (el) => el.getAttribute("data-navigation-menu"),
+        }
+      );
+    }
+
+    let items: JSX.Element[] = [];
+
+    if (menu?.startsWith("tags")) {
+      items.push(
+        <ContextMenuItem
+          text="Create tag"
+          command="globalNavigation.createTag"
+          key="0"
+        />
+      );
+
+      if (menu?.startsWith("tags/")) {
+        const id = menu.split("/")[1];
+
+        items.push(
+          <ContextMenuItem
+            text="Update tag"
+            command="globalNavigation.updateTag"
+            commandInput={id}
+            key="1"
+          />
+        );
+        items.push(
+          <ContextMenuItem
+            text="Delete tag"
+            command="globalNavigation.deleteTag"
+            commandInput={id}
+            key="2"
+          />
+        );
+      }
+    }
+
+    return items;
+  };
 
   return (
     <Resizable width={width} onResize={onResize}>

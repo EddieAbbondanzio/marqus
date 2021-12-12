@@ -4,7 +4,9 @@ import { State, Tag, UI } from "../../../shared/state";
 import { appCommands } from "./appCommands";
 import { globalNavigationCommands } from "./globalNavigationCommands";
 import {
+  CommandInput,
   CommandSchema,
+  CommandType,
   SetNotebooks,
   SetShortcuts,
   SetTags,
@@ -22,12 +24,9 @@ export const commands: CommandSchema = {
   ...globalNavigationCommands,
 };
 
-export type Execute = <
-  Command extends keyof typeof commands,
-  Payload extends Parameters<CommandSchema[Command]>[1]
->(
-  command: Command,
-  payload?: Payload
+export type Execute = <C extends CommandType>(
+  command: C,
+  input?: CommandInput<C>
 ) => Promise<void>;
 
 export function useCommands(initialState: State): [State, Execute, SetUI] {
