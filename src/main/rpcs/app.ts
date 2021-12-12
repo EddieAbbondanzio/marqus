@@ -46,10 +46,18 @@ const quit: RpcHandler<"app.quit"> = async () => {
   BrowserWindow.getAllWindows().forEach((w) => w.close());
 };
 
+const inspectElement: RpcHandler<"app.inspectElement"> = async (coord) => {
+  BrowserWindow.getFocusedWindow()?.webContents.inspectElement(
+    coord.x,
+    coord.y
+  );
+};
+
 export const appRpcs: RpcRegistry = {
   "app.promptUser": promptUser,
   "app.openDevTools": openDevTools,
   "app.reload": reload,
   "app.toggleFullScreen": toggleFullScreen,
   "app.quit": quit,
+  "app.inspectElement": inspectElement,
 };

@@ -1,5 +1,6 @@
 import { State, Tag, UI } from "./state";
 import { PromptButton, PromptOptions } from "./prompt";
+import { Coord } from "./dom";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.
@@ -28,6 +29,7 @@ export interface RpcSchema {
   // App
   "app.promptUser": RpcInOut<PromptOptions, PromptButton>;
   "app.openDevTools": RpcVoid;
+  "app.inspectElement": RpcIn<Coord>;
   "app.reload": RpcVoid;
   "app.toggleFullScreen": RpcVoid;
   "app.quit": RpcVoid;

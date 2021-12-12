@@ -1,3 +1,4 @@
+import { Coord } from "../../../shared/dom";
 import {
   Note,
   Notebook,
@@ -33,6 +34,7 @@ export interface CommandSchema {
   "app.openDevTools": Command;
   "app.reload": Command;
   "app.toggleFullScreen": Command;
+  "app.inspectElement": Command<Coord>;
   "globalNavigation.updateScroll": Command<number>;
   "globalNavigation.resizeWidth": Command<string>;
   "globalNavigation.createTag": Command;

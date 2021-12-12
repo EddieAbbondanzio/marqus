@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { PropsWithChildren } from "react";
-import { classList } from "../../../shared/dom";
+import { classList, Coord } from "../../../shared/dom";
 import { getNodeEnv } from "../../../shared/env";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { State } from "../../../shared/state";
@@ -19,24 +19,43 @@ import { useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "./Focusable";
 
-export const GLOBAL_CONTEXT_ITEMS: JSX.Element[] = [];
-if (getNodeEnv() === "development") {
-  GLOBAL_CONTEXT_ITEMS.push(
-    <ContextMenuDivider key="devDivider" />,
-    <ContextMenuItem text="Reload" command="app.reload" key="reload" />,
-    <ContextMenuItem
-      text="Open Dev Tools"
-      command="app.openDevTools"
-      key="openDevTools"
-    />
-  );
-}
+export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
+  const items = [];
+
+  if (getNodeEnv() === "development") {
+    items.push(
+      <ContextMenuDivider key="devDivider" />,
+      <ContextMenuItem text="Reload" command="app.reload" key="reload" />,
+      <ContextMenuItem
+        text="Open Dev Tools"
+        command="app.openDevTools"
+        key="openDevTools"
+      />
+    );
+
+    if (ev != null) {
+      console.log("Coor");
+
+      const { clientX: x, clientY: y } = ev;
+      items.push(
+        <ContextMenuItem
+          text="Inspect Element"
+          command="app.inspectElement"
+          commandInput={{ x, y }}
+          key="inspectElement"
+        />
+      );
+    }
+  }
+
+  return items;
+};
 
 export interface ContextMenuProps {
   name: string;
   state: State;
   execute: Execute;
-  items: (target?: HTMLElement) => JSX.Element[];
+  items: (ev?: MouseEvent) => JSX.Element[];
 }
 
 export interface ContextMenuItemProps<C extends CommandType> {
@@ -117,7 +136,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     active: false,
   });
 
-  const [items, setItems] = useState([...GLOBAL_CONTEXT_ITEMS]);
+  const [items, setItems] = useState([] as JSX.Element[]);
 
   const { focus } = useFocus(menuRef, false);
 
@@ -131,10 +150,10 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     if (active) {
       if (!generatedItems) {
         const target = ev.target as HTMLElement;
-        setItems([...props.items(target), ...GLOBAL_CONTEXT_ITEMS]);
+        setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
       }
     } else {
-      setItems([...GLOBAL_CONTEXT_ITEMS]);
+      setItems([...GLOBAL_CONTEXT_ITEMS()]);
       generatedItems = false;
     }
 

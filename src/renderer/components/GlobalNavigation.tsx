@@ -160,7 +160,8 @@ export function GlobalNavigation({
     execute("globalNavigation.resizeWidth", newWidth);
   };
 
-  let contextMenuItems = (target?: HTMLElement) => {
+  let contextMenuItems = (ev: MouseEvent) => {
+    const target = ev.target as HTMLElement;
     let menu: string | null = null;
     if (target != null) {
       menu = findParent(

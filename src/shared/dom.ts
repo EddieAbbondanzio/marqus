@@ -1,3 +1,8 @@
+export interface Coord {
+  x: number;
+  y: number;
+}
+
 export function px(num: number): string {
   return `${num}px`;
 }
