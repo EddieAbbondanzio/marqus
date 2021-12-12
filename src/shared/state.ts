@@ -18,6 +18,7 @@ export interface GlobalNavigation {
   width: string;
   scroll: number;
   tagInput?: AwaitableInput;
+  selected?: string;
 }
 
 export interface Tag extends UserResource {

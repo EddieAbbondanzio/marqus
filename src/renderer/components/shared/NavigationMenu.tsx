@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { PropsWithChildren } from "react";
-import { px } from "../../../shared/dom";
+import { classList, px } from "../../../shared/dom";
 
 const INDENT_PIXELS = 20;
 
@@ -9,25 +9,18 @@ export interface NavigationMenuProps {
   trigger: JSX.Element;
   collapsed: boolean;
   depth?: number;
-  onClick?: () => void;
+  selected?: boolean;
 }
 
 export function NavigationMenu(props: PropsWithChildren<NavigationMenuProps>) {
+  const classes = classList(props.selected ? "has-background-primary" : "");
   const indent = px((props.depth ?? 0) * INDENT_PIXELS);
 
-  const onClick = () => {
-    if (props.onClick != null) {
-      props.onClick();
-    }
-  };
-
   return (
-    <div
-      onClick={onClick}
-      style={{ paddingLeft: indent }}
-      data-navigation-menu={props.name}
-    >
-      {props.trigger}
+    <div data-navigation-menu={props.name}>
+      <div className={classes} style={{ paddingLeft: indent }}>
+        {props.trigger}
+      </div>
       {props.children}
     </div>
   );

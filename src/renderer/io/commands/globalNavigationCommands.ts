@@ -80,4 +80,13 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
     "globalNavigation.deleteTag": async (ctx, id) => {
       console.log("delete tag: ", id);
     },
+    "globalNavigation.setSelected": async (ctx, selected) => {
+      ctx.setUI((prev) => ({
+        ...prev,
+        globalNavigation: {
+          ...prev.globalNavigation,
+          selected,
+        },
+      }));
+    },
   };

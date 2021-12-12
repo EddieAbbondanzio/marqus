@@ -38,6 +38,7 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
         inputMode: yup.string().oneOf(["create", "update"]),
       })
       .optional(),
+    selected: yup.string().optional(),
   }),
   focused: yup
     .string()

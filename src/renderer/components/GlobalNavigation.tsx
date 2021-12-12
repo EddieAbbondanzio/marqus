@@ -11,11 +11,7 @@ import React, { useMemo } from "react";
 import { getTagSchema } from "../../shared/schemas";
 import { State } from "../../shared/state";
 import { Execute } from "../io/commands";
-import {
-  ContextMenu,
-  ContextMenuDivider,
-  ContextMenuItem,
-} from "./shared/ContextMenu";
+import { ContextMenu, ContextMenuItem } from "./shared/ContextMenu";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import { Input } from "./shared/Input";
@@ -34,21 +30,34 @@ export function GlobalNavigation({
   state,
   execute,
 }: GlobalNavigationProps): JSX.Element {
+  const select = (name: string) => () =>
+    execute("globalNavigation.setSelected", name);
+  const isSelected = (name: string) =>
+    name === state.ui.globalNavigation.selected;
+
   const all = (
     <NavigationMenu
-      name="all"
-      collapsed={false}
-      trigger={buildTrigger("ALL", faFile)}
       key="all"
+      name="all"
+      trigger={buildTrigger("ALL", {
+        icon: faFile,
+        onClick: select("all"),
+      })}
+      collapsed={false}
+      selected={isSelected("all")}
     ></NavigationMenu>
   );
 
   const notebooks = (
     <NavigationMenu
-      name="notebooks"
-      collapsed={false}
-      trigger={buildTrigger("NOTEBOOKS", faBook)}
       key="notebooks"
+      name="notebooks"
+      trigger={buildTrigger("NOTEBOOKS", {
+        icon: faBook,
+        onClick: select("notebooks"),
+      })}
+      collapsed={false}
+      selected={isSelected("notebooks")}
     ></NavigationMenu>
   );
 
@@ -61,11 +70,14 @@ export function GlobalNavigation({
 
       tags.push(
         <NavigationMenu
-          collapsed={false}
-          trigger={buildTrigger(tag.name)}
-          depth={1}
-          name={lookup}
           key={lookup}
+          name={lookup}
+          trigger={buildTrigger(tag.name, {
+            onClick: select(lookup),
+          })}
+          depth={1}
+          collapsed={false}
+          selected={isSelected(lookup)}
         ></NavigationMenu>
       );
     }
@@ -76,20 +88,17 @@ export function GlobalNavigation({
     if (tagsInput?.mode === "create") {
       tags.push(
         <NavigationMenu
+          key="tags/input"
           name="tags/input"
-          collapsed={false}
           trigger={
             <Input
               className="global-navigation-input"
               {...tagsInput}
-              schema={yup.reach(tagSchema, "name").notOneOf(
-                state.tags.map((t) => t.name),
-                "Tag already exists"
-              )}
+              schema={yup.reach(tagSchema, "name")}
             />
           }
           depth={1}
-          key="tags/input"
+          collapsed={false}
         />
       );
     }
@@ -99,10 +108,14 @@ export function GlobalNavigation({
 
   const tags = (
     <NavigationMenu
-      name="tags"
-      collapsed={false}
-      trigger={buildTrigger("TAGS", faTag)}
       key="tags"
+      name="tags"
+      trigger={buildTrigger("TAGS", {
+        icon: faTag,
+        onClick: select("tags"),
+      })}
+      collapsed={false}
+      selected={isSelected("tags")}
     >
       {tagsChildren}
     </NavigationMenu>
@@ -110,19 +123,27 @@ export function GlobalNavigation({
 
   const favorites = (
     <NavigationMenu
-      name="favorites"
-      collapsed={false}
-      trigger={buildTrigger("FAVORITES", faStar)}
       key="favorites"
+      name="favorites"
+      trigger={buildTrigger("FAVORITES", {
+        icon: faStar,
+        onClick: select("favorites"),
+      })}
+      collapsed={false}
+      selected={isSelected("favorites")}
     ></NavigationMenu>
   );
 
   const trash = (
     <NavigationMenu
-      name="trash"
-      collapsed={false}
-      trigger={buildTrigger("TRASH", faTrash)}
       key="trash"
+      name="trash"
+      trigger={buildTrigger("TRASH", {
+        icon: faTrash,
+        onClick: select("trash"),
+      })}
+      collapsed={false}
+      selected={isSelected("trash")}
     ></NavigationMenu>
   );
 
@@ -213,10 +234,16 @@ export function GlobalNavigation({
   );
 }
 
-export function buildTrigger(text: string, icon?: IconDefinition): JSX.Element {
+export function buildTrigger(
+  text: string,
+  opts?: { icon?: IconDefinition; onClick?: () => void }
+): JSX.Element {
   return (
-    <div className="p-1 is-flex is-flex-row is-align-items-center has-text-grey is-size-7">
-      {icon != null && <Icon icon={icon} className="mr-1" />}
+    <div
+      className="p-1 is-flex is-flex-row is-align-items-center has-text-grey is-size-7"
+      onClick={() => opts?.onClick?.()}
+    >
+      {opts?.icon != null && <Icon icon={opts.icon} className="mr-1" />}
       <span>{text}</span>
     </div>
   );

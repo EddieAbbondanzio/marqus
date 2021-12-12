@@ -38,6 +38,7 @@ export interface CommandSchema {
   "globalNavigation.createTag": Command;
   "globalNavigation.updateTag": Command<string>;
   "globalNavigation.deleteTag": Command<string>;
+  "globalNavigation.setSelected": Command<string>;
 }
 export type CommandType = keyof CommandSchema;
 export type CommandInput<Command extends CommandType> = Parameters<
