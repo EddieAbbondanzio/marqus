@@ -171,26 +171,28 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       focus();
     }
   });
+
+  // Listen for external click to blur menu
   useMouse(window).listen({ event: "click" }, (ev) => {
-    console.log("FIX THIS");
-    // if (state.active) {
-    //   const menu = findParent(ev.target as HTMLElement, (el) =>
-    //     el.classList.contains("context-menu")
-    //   );
-    //   if (!menu) {
-    //     setState({
-    //       ...state,
-    //       active: false,
-    //     });
-    //     props.setUI((s) => ({
-    //       ...s,
-    //       focused: {
-    //         ...s.focused!,
-    //         current: [s.focused?.current?.[1]!],
-    //       },
-    //     }));
-    //   }
-    // }
+    if (state.active) {
+      const menu = findParent(ev.target as HTMLElement, (el) =>
+        el.classList.contains("context-menu")
+      );
+
+      if (!menu) {
+        setState({
+          ...state,
+          active: false,
+        });
+        props.setUI((s) => ({
+          ...s,
+          focused: {
+            ...s.focused!,
+            current: [s.focused?.[1]!],
+          },
+        }));
+      }
+    }
   });
 
   const calculateNextSelected = (

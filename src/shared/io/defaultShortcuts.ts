@@ -24,6 +24,18 @@ const shortcuts: Shortcut[] = [
     repeat: true,
   },
   {
+    command: "globalNavigation.moveSelectionUp",
+    keys: [KeyCode.ArrowUp],
+    when: "globalNavigation",
+    repeat: true,
+  },
+  {
+    command: "globalNavigation.moveSelectionDown",
+    keys: [KeyCode.ArrowDown],
+    when: "globalNavigation",
+    repeat: true,
+  },
+  {
     command: "globalNavigation.createTag",
     keys: [KeyCode.Control, KeyCode.LetterT],
     when: "globalNavigation",

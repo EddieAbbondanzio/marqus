@@ -42,6 +42,8 @@ export interface CommandSchema {
   "globalNavigation.updateTag": Command<string>;
   "globalNavigation.deleteTag": Command<string>;
   "globalNavigation.setSelected": Command<string>;
+  "globalNavigation.moveSelectionUp": Command;
+  "globalNavigation.moveSelectionDown": Command;
 }
 export type CommandType = keyof CommandSchema;
 export type CommandInput<Command extends CommandType> = Parameters<

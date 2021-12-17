@@ -73,6 +73,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         focused.push(s.focused[0]);
       }
 
+      console.log("setUI", focused);
       return {
         ...s,
         focused,
@@ -112,7 +113,6 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
     }
   });
 
-  console.log(props.state.ui.focused);
   return (
     <FocusContext.Provider value={{ push, pop, subscribe, unsubscribe }}>
       <div className={props.className}>{props.children}</div>

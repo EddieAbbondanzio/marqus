@@ -158,4 +158,10 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
         },
       }));
     },
+    "globalNavigation.moveSelectionUp": async (ctx) => {
+      console.log("move selection up");
+    },
+    "globalNavigation.moveSelectionDown": async (ctx) => {
+      console.log("move selection down");
+    },
   };

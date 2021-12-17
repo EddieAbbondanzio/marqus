@@ -39,6 +39,7 @@ export function useShortcuts(state: State, execute: Execute) {
             !s.disabled &&
             isFocused(state, s.when)
         );
+        console.log("active: ", state.ui.focused?.[0]);
 
         if (shortcut != null) {
           void execute(shortcut.command as CommandType, undefined!);
@@ -80,18 +81,17 @@ export function useShortcuts(state: State, execute: Execute) {
       window.removeEventListener("keydown", keyDown);
       window.removeEventListener("keyup", keyUp);
     };
-  }, [shortcuts, execute]);
+  }, [shortcuts, execute, state]);
 }
 
 export function isFocused(state: State, when?: UISection): boolean {
-  if (state.ui.focused == null) {
+  if (state.ui.focused == null || state.ui.focused[0] == null) {
     return when == null;
   } else if (when == null) {
     return true;
   } else {
-    console.log("FIX THIS");
-    return true;
-    // return when === state.ui.focused.current?.[0] ?? "";
+    const [curr] = state.ui.focused;
+    return when === curr;
   }
 }
 
