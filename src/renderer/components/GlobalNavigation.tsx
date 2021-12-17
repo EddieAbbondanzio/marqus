@@ -20,15 +20,18 @@ import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
 import { findParent } from "../utils/findParent";
+import { SetUI } from "../io/commands/types";
 
 export interface GlobalNavigationProps {
   state: State;
   execute: Execute;
+  setUI: SetUI;
 }
 
 export function GlobalNavigation({
   state,
   execute,
+  setUI,
 }: GlobalNavigationProps): JSX.Element {
   const select = (name: string) => () =>
     execute("globalNavigation.setSelected", name);
@@ -247,6 +250,7 @@ export function GlobalNavigation({
             items={contextMenuItems}
             state={state}
             execute={execute}
+            setUI={setUI}
           >
             {menus}
           </ContextMenu>

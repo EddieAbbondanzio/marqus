@@ -104,7 +104,7 @@ export function Resizable(
   });
 
   return (
-    <div className="resizable-wrapper" ref={wrapper} style={state}>
+    <div className="resizable-wrapper h-100" ref={wrapper} style={state}>
       {props.children}
       <div className="resizable-handle" ref={handle}>
         &nbsp;

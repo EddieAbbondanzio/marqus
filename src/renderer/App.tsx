@@ -1,42 +1,53 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
-import { Layout } from "./components/Layout";
 import { render } from "react-dom";
-import React from "react";
+import React, { useState } from "react";
 import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
-import { useFocusTracking } from "./io/focus";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 import { State } from "../shared/state";
 import { promptFatal } from "./utils/prompt";
+import { FocusTracker } from "./components/shared/FocusTracker";
+import { Focusable } from "./components/shared/Focusable";
+import { px } from "../shared/dom";
 
 const { rpc } = window;
 (async () => {
   fontAwesomeLib();
-  let initialState: State = await loadInitialState();
+
+  let initialState: State;
+  try {
+    initialState = (await rpc("state.load")) as State;
+  } catch (e) {
+    await promptFatal((e as Error).message);
+    await rpc("app.quit");
+    return;
+  }
 
   function App() {
     const [state, execute, setUI] = useCommands(initialState);
     useShortcuts(state, execute);
-    useFocusTracking(state, setUI);
 
     return (
-      <Layout>
-        <GlobalNavigation state={state} execute={execute} />
-      </Layout>
+      <FocusTracker
+        className="h-100 w-100 is-flex is-flex-row"
+        state={state}
+        setUI={setUI}
+      >
+        <GlobalNavigation state={state} execute={execute} setUI={setUI} />
+        <Focusable name="localNavigation">
+          <div
+            style={{
+              height: px(300),
+              width: px(300),
+              backgroundColor: "red",
+            }}
+          >
+            &nbsp; LOCAL
+          </div>
+        </Focusable>
+      </FocusTracker>
     );
   }
 
   render(<App />, document.getElementById("app"));
 })();
-
-async function loadInitialState(): Promise<State> {
-  try {
-    return (await rpc("state.load")) as State;
-  } catch (e) {
-    await promptFatal((e as Error).message);
-    await rpc("app.quit");
-
-    // App will close so this is irrelevant.
-    return null!;
-  }
-}

@@ -1,15 +1,14 @@
 import { RefObject, useEffect, useState } from "react";
-import { State, UISection } from "../../shared/state";
-import { FOCUSABLE_ATTRIBUTE, IsFocused } from "../components/shared/Focusable";
-import { findParent } from "../utils/findParent";
-import { SetUI } from "./commands/types";
 
 /**
  * Focus an element once.
  * @param ref The element to focus on render.
  */
-// Auto focus wasn't working...
 export function useFocus(ref: RefObject<HTMLElement>, onUse: boolean = true) {
+  /*
+   * This hook is not related to focus tracking.
+   * Auto focus wasn't working...
+   */
   const [wasFocused, setWasFocused] = useState(false);
 
   useEffect(() => {
@@ -24,34 +23,4 @@ export function useFocus(ref: RefObject<HTMLElement>, onUse: boolean = true) {
   return {
     focus: () => ref.current?.focus,
   };
-}
-
-export function useFocusTracking(state: State, setUI: SetUI) {
-  useEffect(() => {
-    window.addEventListener("focusin", onFocusIn);
-
-    return () => {
-      window.removeEventListener("focusin", onFocusIn);
-    };
-  });
-
-  function onFocusIn(event: FocusEvent) {
-    // We might need to climb up the dom tree to handle nested children of a scope.
-    const focused = findParent(
-      event.target as HTMLElement,
-      (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
-      {
-        matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE),
-        defaultValue: undefined,
-      }
-    );
-
-    setUI((ui) => ({
-      ...ui,
-      focused: focused ?? undefined,
-    }));
-    console.log("set focus: ", focused);
-  }
-
-  return ((section: UISection) => state.ui.focused === section) as IsFocused;
 }

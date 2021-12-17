@@ -35,6 +35,7 @@ export interface CommandSchema {
   "app.reload": Command;
   "app.toggleFullScreen": Command;
   "app.inspectElement": Command<Coord>;
+  "globalNavigation.focus": Command;
   "globalNavigation.updateScroll": Command<number>;
   "globalNavigation.resizeWidth": Command<string>;
   "globalNavigation.createTag": Command;

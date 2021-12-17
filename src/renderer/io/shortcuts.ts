@@ -1,6 +1,6 @@
 import { isEqual, chain } from "lodash";
 import { RefObject, useEffect, useState } from "react";
-import { Shortcut, State } from "../../shared/state";
+import { UISection, Shortcut, State } from "../../shared/state";
 import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
 import { sleep } from "../../shared/sleep";
 import { CommandType } from "./commands/types";
@@ -83,13 +83,15 @@ export function useShortcuts(state: State, execute: Execute) {
   }, [shortcuts, execute]);
 }
 
-export function isFocused(state: State, when?: string): boolean {
+export function isFocused(state: State, when?: UISection): boolean {
   if (state.ui.focused == null) {
     return when == null;
   } else if (when == null) {
     return true;
   } else {
-    return when === state.ui.focused;
+    console.log("FIX THIS");
+    return true;
+    // return when === state.ui.focused.current?.[0] ?? "";
   }
 }
 

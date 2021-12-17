@@ -1,26 +1,44 @@
-import React, { PropsWithChildren } from "react";
+import React, {
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import { UISection } from "../../../shared/state";
+import { FocusContext } from "./FocusTracker";
 
 export interface FocusableProps {
-  name: string;
+  name: UISection;
   className?: string;
+  overwrite?: boolean;
 }
 
-export type IsFocused = (section: UISection) => boolean;
-
-// This component is used to support our shortcuts to move focus between
-// different app sections.
 export function Focusable(props: PropsWithChildren<FocusableProps>) {
-  const divProps = {
-    [FOCUSABLE_ATTRIBUTE]: props.name,
-    tabIndex: -1,
+  const ctx = useContext(FocusContext);
+  const ref = useRef(null! as HTMLDivElement);
+
+  const publish = () => {
+    ctx.push(props.name, ref, props.overwrite);
   };
 
+  // We need to register focusables before focus tracker executes
+  useLayoutEffect(() => {
+    const name = props.name;
+    const div = ref.current;
+
+    div.addEventListener("focusin", publish);
+    ctx.subscribe(name, () => div.focus());
+
+    return () => {
+      div.removeEventListener("focusin", publish);
+      ctx.unsubscribe(name);
+    };
+  }, []);
+
   return (
-    <div className={props.className} {...divProps}>
+    <div ref={ref} className={props.className} tabIndex={-1}>
       {props.children}
     </div>
   );
 }
-
-export const FOCUSABLE_ATTRIBUTE = "data-focusable";

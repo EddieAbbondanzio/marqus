@@ -5,6 +5,12 @@ import { CommandsForNamespace } from "./types";
 
 export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> =
   {
+    "globalNavigation.focus": async (ctx) => {
+      ctx.setUI((ui) => ({
+        ...ui,
+        focused: ["globalNavigation"],
+      }));
+    },
     "globalNavigation.resizeWidth": async (ctx, width) => {
       if (width == null) {
         return;

@@ -12,7 +12,7 @@ import { getNodeEnv } from "../../../shared/env";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { State } from "../../../shared/state";
 import { Execute } from "../../io/commands";
-import { CommandInput, CommandType } from "../../io/commands/types";
+import { CommandInput, CommandType, SetUI } from "../../io/commands/types";
 import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 import { useMouse } from "../../io/mouse";
@@ -55,6 +55,7 @@ export interface ContextMenuProps {
   name: string;
   state: State;
   execute: Execute;
+  setUI: SetUI;
   items: (ev?: MouseEvent) => JSX.Element[];
 }
 
@@ -171,18 +172,25 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     }
   });
   useMouse(window).listen({ event: "click" }, (ev) => {
-    if (state.active) {
-      const menu = findParent(ev.target as HTMLElement, (el) =>
-        el.classList.contains("context-menu")
-      );
-
-      if (!menu) {
-        setState({
-          ...state,
-          active: false,
-        });
-      }
-    }
+    console.log("FIX THIS");
+    // if (state.active) {
+    //   const menu = findParent(ev.target as HTMLElement, (el) =>
+    //     el.classList.contains("context-menu")
+    //   );
+    //   if (!menu) {
+    //     setState({
+    //       ...state,
+    //       active: false,
+    //     });
+    //     props.setUI((s) => ({
+    //       ...s,
+    //       focused: {
+    //         ...s.focused!,
+    //         current: [s.focused?.current?.[1]!],
+    //       },
+    //     }));
+    //   }
+    // }
   });
 
   const calculateNextSelected = (

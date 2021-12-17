@@ -10,9 +10,14 @@ export interface State {
 
 export interface UI {
   globalNavigation: GlobalNavigation;
-  focused?: string;
+  focused?: UISection[];
 }
-export type UISection = Exclude<keyof UI, "focused">;
+
+export type UISection =
+  | "globalNavigation"
+  | "globalNavigationContextMenu"
+  | "localNavigation"
+  | "editor";
 
 export interface GlobalNavigation {
   width: string;
