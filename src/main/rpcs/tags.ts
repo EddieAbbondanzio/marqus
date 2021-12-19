@@ -14,6 +14,7 @@ const createTag = async ({ name }: { name: string }): Promise<Tag> => {
 
   const tag: Tag = {
     id: uuid(),
+    type: "tag",
     name,
     dateCreated: new Date(),
   };

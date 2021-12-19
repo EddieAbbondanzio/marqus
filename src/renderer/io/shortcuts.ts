@@ -39,7 +39,6 @@ export function useShortcuts(state: State, execute: Execute) {
             !s.disabled &&
             isFocused(state, s.when)
         );
-        console.log("active: ", state.ui.focused?.[0]);
 
         if (shortcut != null) {
           void execute(shortcut.command as CommandType, undefined!);

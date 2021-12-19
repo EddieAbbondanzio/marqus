@@ -23,14 +23,20 @@ export interface GlobalNavigation {
   width: string;
   scroll: number;
   tagInput?: AwaitableInput;
-  selected?: string;
+  selection?: GlobalNavigationSelection[];
+}
+export interface GlobalNavigationSelection {
+  id: string;
+  type: UserResouceType;
 }
 
 export interface Tag extends UserResource {
+  type: "tag";
   name: string;
 }
 
 export interface Notebook extends UserResource {
+  type: "notebook";
   name: string;
   expanded?: boolean;
   parent?: Notebook;
@@ -71,6 +77,20 @@ export interface Note extends UserResource {
 
 export interface UserResource {
   id: string;
+  type: UserResouceType;
   dateCreated: Date;
   dateUpdated?: Date;
+}
+export type UserResouceType = "tag" | "notebook" | "note";
+
+export function isTag(t: any): t is Tag {
+  return t.type === "tag";
+}
+
+export function isNotebook(n: any): n is Notebook {
+  return n.type === "notebook";
+}
+
+export function isNote(n: any): n is Note {
+  return n.type === "note";
 }

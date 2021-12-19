@@ -20,7 +20,6 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
 
   const publish = () => {
     ctx.push(props.name, ref, props.overwrite);
-    console.log("focused: ", props.name);
   };
 
   // We need to register focusables before focus tracker executes

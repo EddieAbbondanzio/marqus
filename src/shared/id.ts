@@ -1,10 +1,10 @@
-import { v4 as uuidv4 } from "uuid";
+import { customAlphabet, nanoid } from "nanoid";
 
-/**
- * Generate a new entity id.
- */
+export const ID_ALPHABET =
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
 // Do not rename to id() unless you never want to use const id = id()
-export const uuid = uuidv4 as () => string;
+export const uuid = customAlphabet(ID_ALPHABET, 10);
 
 /**
  * Check if a string matches the uuid format being used.
@@ -12,7 +12,5 @@ export const uuid = uuidv4 as () => string;
  * @returns True if the string is a v4 uuid.
  */
 export function isId(id: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-    id
-  );
+  return /^[a-zA-Z\d]{10}$/.test(id);
 }

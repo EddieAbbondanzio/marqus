@@ -73,7 +73,6 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         focused.push(s.focused[0]);
       }
 
-      console.log("setUI", focused);
       return {
         ...s,
         focused,

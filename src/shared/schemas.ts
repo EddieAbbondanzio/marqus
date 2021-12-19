@@ -9,6 +9,7 @@ export function getTagSchema(tags: Tag[] = []): yup.SchemaOf<Tag> {
     .object()
     .shape({
       id: idSchema,
+      type: yup.string().required().equals(["tag"]),
       name: yup
         .string()
         .required("Tag is required")
@@ -38,16 +39,22 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
         inputMode: yup.string().oneOf(["create", "update"]),
       })
       .optional(),
-    selected: yup.string().optional(),
+    selection: yup.array().optional(), // TODO: Fix this
   }),
-  focused: yup.object().optional().nullable() as any,
-  // .optional()
-  // .oneOf([
-  // "globalNavigation",
-  // "globalNavigationContextMenu",
-  // "localNavigation",
-  // "editor",
-  // ]) as any,
+  focused: yup
+    .array()
+    .of(
+      yup
+        .string()
+        .oneOf([
+          "globalNavigation",
+          "globalNavigationContextMenu",
+          "localNavigation",
+          "editor",
+        ])
+    )
+    .nullable()
+    .optional(),
 });
 
 export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({

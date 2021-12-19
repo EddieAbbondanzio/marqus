@@ -149,7 +149,7 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
         ctx.setTags((tags) => [...tags.filter((t) => t.id !== tag.id)]);
       }
     },
-    "globalNavigation.setSelected": async (ctx, selected) => {
+    "globalNavigation.setSelection": async (ctx, selected) => {
       ctx.setUI((prev) => ({
         ...prev,
         globalNavigation: {
@@ -159,7 +159,14 @@ export const globalNavigationCommands: CommandsForNamespace<"globalNavigation"> 
       }));
     },
     "globalNavigation.moveSelectionUp": async (ctx) => {
-      console.log("move selection up");
+      // TODO: Support nested logic later on
+      ctx.setUI((s) => {
+        console.log("IMPLEMENT THIS!");
+
+        return {
+          ...s,
+        };
+      });
     },
     "globalNavigation.moveSelectionDown": async (ctx) => {
       console.log("move selection down");

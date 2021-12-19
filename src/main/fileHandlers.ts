@@ -18,10 +18,9 @@ import {
   notebookSchema,
   shortcutSchema,
 } from "../shared/schemas";
-import { tagRpcs } from "./rpcs/tags";
 
 export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
-  defaultState: {
+  defaultValue: {
     globalNavigation: {
       width: px(300),
       scroll: 0,
@@ -31,32 +30,12 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
 
 export const tagFile = createFileHandler<Tag[]>(
   "tags.json",
-  yup
-    .array(getTagSchema())
-    .optional()
-    .test("unique", "Duplicate tag detected", function (values) {
-      if (values == null) {
-        return true;
-      }
-
-      const duplicate = chain(values)
-        .groupBy("name")
-        .entries()
-        .filter(([_, tags]) => tags.length > 1)
-        .head()
-        .value();
-
-      if (duplicate != null) {
-        throw this.createError({
-          message: `Multiple tags with name "${duplicate[0]}" exist in file tags.json`,
-        });
-      }
-
-      return true;
-    }),
+  yup.array(getTagSchema()).optional(),
   {
-    defaultState: [],
-    deserialize: (c?: any) => c ?? [],
+    defaultValue: [],
+    serialize: (c: Tag[]) => c.map(({ type, ...t }) => t),
+    deserialize: (c?: Omit<Tag, "type">[]) =>
+      (c ?? []).map((t) => ({ ...t, type: "tag" })),
   }
 );
 
@@ -64,9 +43,10 @@ export const notebookFile = createFileHandler<Notebook[]>(
   "notebooks.json",
   yup.array(notebookSchema).optional(),
   {
-    defaultState: [],
-    serialize: (n) => n.values,
-    deserialize: (c) => c ?? [],
+    defaultValue: [],
+    serialize: (n: Notebook[]) => n.map(({ type, ...n }) => n),
+    deserialize: (c?: Omit<Notebook, "type">[]) =>
+      (c ?? []).map((n) => ({ ...n, type: "notebook" })),
   }
 );
 
@@ -74,7 +54,7 @@ export const shortcutFile = createFileHandler<Shortcut[]>(
   "shortcuts.json",
   yup.array(shortcutSchema).optional(),
   {
-    defaultState: DEFAULT_SHORTCUTS,
+    defaultValue: DEFAULT_SHORTCUTS,
     serialize: (shortcuts) =>
       shortcuts
         .filter((s) => s.userDefined)
@@ -161,14 +141,30 @@ interface FileHandler<Content> {
   load(): Promise<Content>;
 }
 
-const DEBOUNCE_INTERVAL = 250;
+const DEBOUNCE_INTERVAL_MS = 250;
 
 function createFileHandler<Content>(
+  /**
+   * The name of the file. Should include extension (.json)
+   */
   name: FileName,
+  /**
+   * Validation occurs before saving file contents, and after deserializing
+   * when loading file contents
+   */
   schema: yup.SchemaOf<Content>,
   opts?: {
-    defaultState?: Content;
+    /**
+     * Return value in the event the file was empty or not found.
+     */
+    defaultValue?: Content;
+    /**
+     * Convert the content of the file before saving it.
+     */
     serialize?: (c: Content) => any;
+    /**
+     * Parse the content of the file after loading it.
+     */
     deserialize?: (c?: any) => Content | undefined;
   }
 ): FileHandler<Content> {
@@ -200,7 +196,7 @@ function createFileHandler<Content>(
     previous = cloneDeep(content);
 
     return content;
-  }, DEBOUNCE_INTERVAL);
+  }, DEBOUNCE_INTERVAL_MS);
 
   const load = async () => {
     // File will never change unless we save it, so we can return cached state.
@@ -219,7 +215,13 @@ function createFileHandler<Content>(
     if (c != null) {
       await schema.validate(c);
     } else {
-      c = opts?.defaultState;
+      c = opts?.defaultValue;
+    }
+
+    if (c == null) {
+      throw Error(
+        `Content for ${name} was null and no default value was provided.`
+      );
     }
 
     return c;

@@ -41,7 +41,7 @@ export interface CommandSchema {
   "globalNavigation.createTag": Command;
   "globalNavigation.updateTag": Command<string>;
   "globalNavigation.deleteTag": Command<string>;
-  "globalNavigation.setSelected": Command<string>;
+  "globalNavigation.setSelection": Command<string>;
   "globalNavigation.moveSelectionUp": Command;
   "globalNavigation.moveSelectionDown": Command;
 }

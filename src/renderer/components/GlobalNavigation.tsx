@@ -34,7 +34,7 @@ export function GlobalNavigation({
   setUI,
 }: GlobalNavigationProps): JSX.Element {
   const select = (name: string) => () =>
-    execute("globalNavigation.setSelected", name);
+    execute("globalNavigation.setSelection", name);
   const isSelected = (name: string) =>
     name === state.ui.globalNavigation.selected;
 
