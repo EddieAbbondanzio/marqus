@@ -38,6 +38,7 @@ export interface CommandSchema {
   "sidebar.focus": Command;
   "sidebar.updateScroll": Command<number>;
   "sidebar.resizeWidth": Command<string>;
+  "sidebar.toggleFilterExpanded": Command;
   "sidebar.createTag": Command;
   "sidebar.updateTag": Command<string>;
   "sidebar.deleteTag": Command<string>;

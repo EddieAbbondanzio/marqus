@@ -24,24 +24,20 @@ export interface SidebarProps {
   execute: Execute;
 }
 
-export function Sidebar({
-  state,
-  setUI,
-  execute,
-  children,
-}: PropsWithChildren<SidebarProps>) {
+export function Sidebar({ state, setUI, execute }: SidebarProps) {
   let contextMenuItems = () => [];
-  const width = px(300);
-  const scroll = 0;
-
-  const onResize = () => {};
-  const onScroll = () => {};
-
   let menus: JSX.Element[] = [];
 
   return (
-    <Resizable width={width} onResize={onResize}>
-      <Scrollable scroll={scroll} onScroll={onScroll}>
+    <Resizable
+      minWidth={px(300)}
+      width={state.ui.sidebar.width}
+      onResize={(w) => execute("sidebar.resizeWidth", w)}
+    >
+      <Scrollable
+        scroll={state.ui.sidebar.scroll}
+        onScroll={(s) => execute("sidebar.updateScroll", s)}
+      >
         <Focusable
           name="sidebar"
           className="is-flex is-flex-grow-1 is-flex-direction-column"
@@ -53,7 +49,7 @@ export function Sidebar({
             execute={execute}
             setUI={setUI}
           >
-            <Filter />
+            <Filter state={state} setUI={setUI} execute={execute} />
             <div className="is-flex is-align-items-center is-justify-content-space-around">
               <InlineIconButton icon={faFile} title="All" />
               <InlineIconButton icon={faBook} title="By notebook" />

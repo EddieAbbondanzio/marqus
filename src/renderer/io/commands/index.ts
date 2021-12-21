@@ -53,7 +53,7 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
 
       // Not the best place for this...
       const ui = cloneDeep(newState.ui);
-      delete ui.sidebar.tagInput;
+      // delete ui.sidebar.tagInput;
       void window.rpc("state.saveUI", ui);
 
       return newState;

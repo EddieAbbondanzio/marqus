@@ -1,10 +1,21 @@
 import { faEllipsisV } from "@fortawesome/free-solid-svg-icons";
-import React from "react";
+import React, { useState } from "react";
 import { px } from "../../shared/dom";
+import { State } from "../../shared/state";
+import { Execute } from "../io/commands";
+import { SetUI } from "../io/commands/types";
+import { Button } from "./shared/Button";
+import { Collapse } from "./shared/Collapse";
 import { Checkbox, Field, Form, Input } from "./shared/Form";
 import { IconButton } from "./shared/Icon";
 
-export function Filter() {
+export interface FilterProps {
+  state: State;
+  setUI: SetUI;
+  execute: Execute;
+}
+
+export function Filter({ state, execute }: FilterProps) {
   return (
     <div className="has-border-bottom-1-light p-2">
       <Form>
@@ -15,27 +26,36 @@ export function Filter() {
             placeholder="Type to search..."
           />
           <IconButton
-            title="Filter"
+            title="Toggle advanced filter options"
             icon={faEllipsisV}
             className="is-small is-light"
+            onClick={() => execute("sidebar.toggleFilterExpanded")}
           />
         </Field>
 
-        <Field label={buildLabel("Tag")} size="is-small" isHorizontal>
-          <Input size="is-small" />
-        </Field>
-
-        <Field label={buildLabel("Notebook")} size="is-small" isHorizontal>
-          <Input size="is-small" />
-        </Field>
-
-        <Field label={buildLabel("Status")} isHorizontal>
-          <Field>
-            <Checkbox label="Trashed" size="is-small" className="mr-1" />
-            <Checkbox label="Favorited" size="is-small" className="mr-1" />
-            <Checkbox label="Temp" size="is-small" />
+        <Collapse collapsed={state.ui.sidebar.filterExpanded ?? true}>
+          <Field label={buildLabel("Tag")} size="is-small" isHorizontal>
+            <Input size="is-small" />
           </Field>
-        </Field>
+
+          <Field label={buildLabel("Notebook")} size="is-small" isHorizontal>
+            <Input size="is-small" />
+          </Field>
+
+          <Field label={buildLabel("Status")} isHorizontal>
+            <Field>
+              <Checkbox label="Trashed" size="is-small" className="mr-1" />
+              <Checkbox label="Favorited" size="is-small" className="mr-1" />
+              <Checkbox label="Temp" size="is-small" />
+            </Field>
+          </Field>
+
+          <div className="is-flex is-flex-column is-justify-content-center">
+            <Button color="is-text" type="reset" size="is-small">
+              Reset filters
+            </Button>
+          </div>
+        </Collapse>
       </Form>
     </div>
   );

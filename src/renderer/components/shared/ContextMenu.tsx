@@ -142,7 +142,6 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
   const { focus } = useFocus(menuRef, false);
 
   useMouse(wrapperRef).listen({ event: "click", button: "right" }, (ev) => {
-    console.log("RIGHT CLICK!");
     ev.stopPropagation();
     const { clientX: left, clientY: top } = ev;
 

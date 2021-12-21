@@ -36,101 +36,114 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     }));
   },
-  "sidebar.createTag": async (ctx) => {
-    let [tagInput, completed] = createAwaitableInput({ value: "" }, (value) => {
-      ctx.setUI((prev) => ({
-        ...prev,
-        sidebar: {
-          ...prev.sidebar,
-          tagInput: {
-            ...prev.sidebar.tagInput!,
-            value,
-          },
-        },
-      }));
-    });
+  "sidebar.toggleFilterExpanded": async (ctx) => {
+    ctx.setUI((prev) => {
+      const { sidebar } = prev;
 
-    ctx.setUI((prev) => ({
-      ...prev,
-      sidebar: {
-        ...prev.sidebar,
-        tagInput,
-      },
-    }));
-
-    if ((await completed) === "confirm") {
-      try {
-        const { value: name } = ctx.getState().ui.sidebar.tagInput!;
-        const tag = await window.rpc("tags.create", {
-          name,
-        });
-
-        ctx.setTags((tags) => [...tags, tag]);
-      } catch (e) {
-        promptError(e.message);
-      }
-    }
-
-    ctx.setUI((prev) => ({
-      ...prev,
-      sidebar: {
-        ...prev.sidebar,
-        tagInput: undefined,
-      },
-    }));
-  },
-  "sidebar.updateTag": async (ctx, id) => {
-    if (id == null) {
-      throw Error(`No id passed.`);
-    }
-
-    const tag = ctx.getState().tags.find((t) => t.id === id)!;
-
-    let [tagInput, completed] = createAwaitableInput(
-      { value: tag.name, id },
-      (value) => {
-        ctx.setUI((prev) => ({
+      if (sidebar.filterExpanded) {
+        return {
           ...prev,
           sidebar: {
-            ...prev.sidebar,
-            tagInput: {
-              ...prev.sidebar.tagInput!,
-              value,
-            },
+            ...sidebar,
+            filterExpanded: false,
           },
-        }));
+        };
+      } else {
+        return {
+          ...prev,
+          sidebar: {
+            ...sidebar,
+            filterExpanded: true,
+          },
+        };
       }
-    );
-
-    ctx.setUI((prev) => ({
-      ...prev,
-      sidebar: {
-        ...prev.sidebar,
-        tagInput,
-      },
-    }));
-
-    if ((await completed) === "confirm") {
-      try {
-        const { value: name } = ctx.getState().ui.sidebar.tagInput!;
-        const tag = await window.rpc("tags.update", {
-          id,
-          newName: name,
-        });
-
-        ctx.setTags((tags) => [...tags.filter((t) => t.id !== tag.id), tag]);
-      } catch (e) {
-        promptError(e.message);
-      }
-    }
-
-    ctx.setUI((prev) => ({
-      ...prev,
-      sidebar: {
-        ...prev.sidebar,
-        tagInput: undefined,
-      },
-    }));
+    });
+  },
+  "sidebar.createTag": async (ctx) => {
+    // let [tagInput, completed] = createAwaitableInput({ value: "" }, (value) => {
+    //   ctx.setUI((prev) => ({
+    //     ...prev,
+    //     sidebar: {
+    //       ...prev.sidebar,
+    //       tagInput: {
+    //         ...prev.sidebar.tagInput!,
+    //         value,
+    //       },
+    //     },
+    //   }));
+    // });
+    // ctx.setUI((prev) => ({
+    //   ...prev,
+    //   sidebar: {
+    //     ...prev.sidebar,
+    //     tagInput,
+    //   },
+    // }));
+    // if ((await completed) === "confirm") {
+    //   try {
+    //     const { value: name } = ctx.getState().ui.sidebar.tagInput!;
+    //     const tag = await window.rpc("tags.create", {
+    //       name,
+    //     });
+    //     ctx.setTags((tags) => [...tags, tag]);
+    //   } catch (e) {
+    //     promptError(e.message);
+    //   }
+    // }
+    // ctx.setUI((prev) => ({
+    //   ...prev,
+    //   sidebar: {
+    //     ...prev.sidebar,
+    //     tagInput: undefined,
+    //   },
+    // }));
+  },
+  "sidebar.updateTag": async (ctx, id) => {
+    // if (id == null) {
+    //   throw Error(`No id passed.`);
+    // }
+    // const tag = ctx.getState().tags.find((t) => t.id === id)!;
+    // let [tagInput, completed] = createAwaitableInput(
+    //   { value: tag.name, id },
+    //   (value) => {
+    //     ctx.setUI((prev) => ({
+    //       ...prev,
+    //       sidebar: {
+    //         ...prev.sidebar,
+    //         tagInput: {
+    //           ...prev.sidebar.tagInput!,
+    //           value,
+    //         },
+    //       },
+    //     }));
+    //   }
+    // );
+    // ctx.setUI((prev) => ({
+    //   ...prev,
+    //   sidebar: {
+    //     ...prev.sidebar,
+    //     tagInput,
+    //   },
+    // }));
+    // if ((await completed) === "confirm") {
+    //   try {
+    //     const { value: name } = ctx.getState().ui.sidebar.tagInput!;
+    //     const tag = await window.rpc("tags.update", {
+    //       id,
+    //       newName: name,
+    //     });
+    //     ctx.setTags((tags) => [...tags.filter((t) => t.id !== tag.id), tag]);
+    //   } catch (e) {
+    //     promptError(e.message);
+    //   }
+    // }
+    // ctx.setUI((prev) => ({
+    //   ...prev,
+    //   sidebar: {
+    //     ...prev.sidebar,
+    //     tagInput: undefined,
+    //   },
+    // }));
   },
   "sidebar.deleteTag": async (ctx, id) => {
     const tag = ctx.getState().tags.find((t) => t.id === id);

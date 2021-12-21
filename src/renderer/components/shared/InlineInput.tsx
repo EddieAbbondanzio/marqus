@@ -47,7 +47,6 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
   }
 
   const onBlur = async () => {
-    console.log("blur!");
     if (flags.wasFinalized || errorMessage.length > 0 || !(await validate())) {
       return;
     }

@@ -18,7 +18,7 @@ export type UISection = "sidebar" | "sidebarContextMenu" | "editor";
 export interface Sidebar {
   width: string;
   scroll: number;
-  tagInput?: AwaitableInput;
+  filterExpanded?: boolean;
   selection?: SidebarSelection[];
 }
 export interface SidebarSelection {

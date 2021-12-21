@@ -33,6 +33,7 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
   sidebar: yup.object().shape({
     width: yup.string().required(),
     scroll: yup.number().required().min(0),
+    filterExpanded: yup.boolean().optional(),
     tagInput: yup
       .object()
       .shape({
