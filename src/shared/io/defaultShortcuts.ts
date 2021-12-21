@@ -8,37 +8,37 @@ export const COMMON_KEY_COMBOS: Record<string, KeyCode[]> = {
 
 const shortcuts: Shortcut[] = [
   {
-    command: "globalNavigation.focus",
+    command: "sidebar.focus",
     keys: [KeyCode.Control, KeyCode.Digit1],
   },
   {
-    command: "globalNavigation.scrollDown",
+    command: "sidebar.scrollDown",
     keys: COMMON_KEY_COMBOS.scrollDown,
-    when: "globalNavigation",
+    when: "sidebar",
     repeat: true,
   },
   {
-    command: "globalNavigation.scrollUp",
+    command: "sidebar.scrollUp",
     keys: COMMON_KEY_COMBOS.scrollUp,
-    when: "globalNavigation",
+    when: "sidebar",
     repeat: true,
   },
   {
-    command: "globalNavigation.moveSelectionUp",
+    command: "sidebar.moveSelectionUp",
     keys: [KeyCode.ArrowUp],
-    when: "globalNavigation",
+    when: "sidebar",
     repeat: true,
   },
   {
-    command: "globalNavigation.moveSelectionDown",
+    command: "sidebar.moveSelectionDown",
     keys: [KeyCode.ArrowDown],
-    when: "globalNavigation",
+    when: "sidebar",
     repeat: true,
   },
   {
-    command: "globalNavigation.createTag",
+    command: "sidebar.createTag",
     keys: [KeyCode.Control, KeyCode.LetterT],
-    when: "globalNavigation",
+    when: "sidebar",
   },
   {
     command: "app.openDevTools",

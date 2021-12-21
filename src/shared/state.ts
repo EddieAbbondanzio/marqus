@@ -9,22 +9,19 @@ export interface State {
 }
 
 export interface UI {
-  globalNavigation: GlobalNavigation;
+  sidebar: Sidebar;
   focused?: UISection[];
 }
 
-export type UISection =
-  | "globalNavigation"
-  | "globalNavigationContextMenu"
-  | "editor";
+export type UISection = "sidebar" | "sidebarContextMenu" | "editor";
 
-export interface GlobalNavigation {
+export interface Sidebar {
   width: string;
   scroll: number;
   tagInput?: AwaitableInput;
-  selection?: GlobalNavigationSelection[];
+  selection?: SidebarSelection[];
 }
-export interface GlobalNavigationSelection {
+export interface SidebarSelection {
   id: string;
   type: ResouceType;
 }

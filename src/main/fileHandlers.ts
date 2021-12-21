@@ -14,7 +14,7 @@ import {
 
 export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
   defaultValue: {
-    globalNavigation: {
+    sidebar: {
       width: px(300),
       scroll: 0,
     },

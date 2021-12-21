@@ -307,7 +307,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       data-context-menu={props.name}
     >
       {state.active && (
-        <Focusable name="globalNavigationContextMenu">
+        <Focusable name="sidebarContextMenu">
           <div
             ref={menuRef}
             className="context-menu box m-0 p-0"

@@ -30,7 +30,7 @@ export const notebookSchema: yup.SchemaOf<Notebook> = yup
   .shape({} as any);
 
 export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
-  globalNavigation: yup.object().shape({
+  sidebar: yup.object().shape({
     width: yup.string().required(),
     scroll: yup.number().required().min(0),
     tagInput: yup
@@ -43,11 +43,7 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
   }),
   focused: yup
     .array()
-    .of(
-      yup
-        .string()
-        .oneOf(["globalNavigation", "globalNavigationContextMenu", "editor"])
-    )
+    .of(yup.string().oneOf(["sidebar", "sidebarContextMenu", "editor"]))
     .nullable()
     .optional(),
 });
@@ -56,7 +52,7 @@ export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
   command: yup.string().required(),
   keys: yup.array(),
   disabled: yup.boolean().optional(),
-  when: yup.string().optional().oneOf(["globalNavigation", "editor"]) as any,
+  when: yup.string().optional().oneOf(["sidebar", "editor"]) as any,
   repeat: yup.bool().optional(),
   userDefined: yup.bool().optional(),
 });

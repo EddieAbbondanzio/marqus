@@ -5,15 +5,6 @@ import { Checkbox, Field, Form, Input } from "./shared/Form";
 import { IconButton } from "./shared/Icon";
 
 export function Filter() {
-  const buildLabel = (text: string) => (
-    <label
-      className="field-label is-small mr-2 has-text-weight-bold"
-      style={{ minWidth: px(60) }}
-    >
-      {text}
-    </label>
-  );
-
   return (
     <div className="has-border-bottom-1-light p-2">
       <Form>
@@ -49,3 +40,12 @@ export function Filter() {
     </div>
   );
 }
+
+const buildLabel = (text: string) => (
+  <label
+    className="field-label is-small mr-2 has-text-weight-bold"
+    style={{ minWidth: px(60) }}
+  >
+    {text}
+  </label>
+);

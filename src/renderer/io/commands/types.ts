@@ -35,15 +35,15 @@ export interface CommandSchema {
   "app.reload": Command;
   "app.toggleFullScreen": Command;
   "app.inspectElement": Command<Coord>;
-  "globalNavigation.focus": Command;
-  "globalNavigation.updateScroll": Command<number>;
-  "globalNavigation.resizeWidth": Command<string>;
-  "globalNavigation.createTag": Command;
-  "globalNavigation.updateTag": Command<string>;
-  "globalNavigation.deleteTag": Command<string>;
-  "globalNavigation.setSelection": Command<string>;
-  "globalNavigation.moveSelectionUp": Command;
-  "globalNavigation.moveSelectionDown": Command;
+  "sidebar.focus": Command;
+  "sidebar.updateScroll": Command<number>;
+  "sidebar.resizeWidth": Command<string>;
+  "sidebar.createTag": Command;
+  "sidebar.updateTag": Command<string>;
+  "sidebar.deleteTag": Command<string>;
+  "sidebar.setSelection": Command<string>;
+  "sidebar.moveSelectionUp": Command;
+  "sidebar.moveSelectionDown": Command;
 }
 export type CommandType = keyof CommandSchema;
 export type CommandInput<Command extends CommandType> = Parameters<

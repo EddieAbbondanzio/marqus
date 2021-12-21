@@ -2,7 +2,7 @@ import { cloneDeep } from "lodash";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { State, Tag, UI } from "../../../shared/state";
 import { appCommands } from "./appCommands";
-import { globalNavigationCommands } from "./globalNavigationCommands";
+import { sidebarCommands } from "./sidebarCommands";
 import {
   CommandInput,
   CommandSchema,
@@ -21,7 +21,7 @@ import {
 
 export const commands: CommandSchema = {
   ...appCommands,
-  ...globalNavigationCommands,
+  ...sidebarCommands,
 };
 
 export type Execute = <C extends CommandType>(
@@ -53,7 +53,7 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
 
       // Not the best place for this...
       const ui = cloneDeep(newState.ui);
-      delete ui.globalNavigation.tagInput;
+      delete ui.sidebar.tagInput;
       void window.rpc("state.saveUI", ui);
 
       return newState;
