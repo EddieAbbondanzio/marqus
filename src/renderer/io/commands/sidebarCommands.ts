@@ -10,6 +10,15 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       focused: ["sidebar"],
     }));
   },
+  "sidebar.toggle": async (ctx) => {
+    ctx.setUI((prev) => ({
+      ...prev,
+      sidebar: {
+        ...prev.sidebar,
+        hidden: !(prev.sidebar.hidden ?? false),
+      },
+    }));
+  },
   "sidebar.resizeWidth": async (ctx, width) => {
     if (width == null) {
       return;
@@ -36,10 +45,9 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     }));
   },
-  "sidebar.toggleFilterExpanded": async (ctx) => {
+  "sidebar.toggleFilter": async (ctx) => {
     ctx.setUI((prev) => {
       const { sidebar } = prev;
-
       if (sidebar.filterExpanded) {
         return {
           ...prev,

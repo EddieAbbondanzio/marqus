@@ -29,7 +29,7 @@ export function Filter({ state, execute }: FilterProps) {
             title="Toggle advanced filter options"
             icon={faEllipsisV}
             className="is-small is-light"
-            onClick={() => execute("sidebar.toggleFilterExpanded")}
+            onClick={() => execute("sidebar.toggleFilter")}
           />
         </Field>
 

@@ -36,9 +36,10 @@ export interface CommandSchema {
   "app.toggleFullScreen": Command;
   "app.inspectElement": Command<Coord>;
   "sidebar.focus": Command;
+  "sidebar.toggle": Command;
   "sidebar.updateScroll": Command<number>;
   "sidebar.resizeWidth": Command<string>;
-  "sidebar.toggleFilterExpanded": Command;
+  "sidebar.toggleFilter": Command;
   "sidebar.createTag": Command;
   "sidebar.updateTag": Command<string>;
   "sidebar.deleteTag": Command<string>;

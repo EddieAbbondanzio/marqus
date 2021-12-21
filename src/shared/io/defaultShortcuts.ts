@@ -12,6 +12,10 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.Digit1],
   },
   {
+    command: "sidebar.toggle",
+    keys: [KeyCode.Control, KeyCode.LetterB],
+  },
+  {
     command: "sidebar.scrollDown",
     keys: COMMON_KEY_COMBOS.scrollDown,
     when: "sidebar",

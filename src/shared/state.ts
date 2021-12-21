@@ -20,6 +20,7 @@ export interface Sidebar {
   scroll: number;
   filterExpanded?: boolean;
   selection?: SidebarSelection[];
+  hidden?: boolean;
 }
 export interface SidebarSelection {
   id: string;

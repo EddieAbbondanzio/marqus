@@ -41,6 +41,7 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
       })
       .optional(),
     selection: yup.array().optional(), // TODO: Fix this
+    hidden: yup.boolean().optional(),
   }),
   focused: yup
     .array()

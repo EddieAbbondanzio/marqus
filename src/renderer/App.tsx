@@ -33,7 +33,9 @@ const { rpc } = window;
         state={state}
         setUI={setUI}
       >
-        <Sidebar state={state} execute={execute} setUI={setUI} />
+        {!(state.ui.sidebar.hidden ?? false) && (
+          <Sidebar state={state} execute={execute} setUI={setUI} />
+        )}
       </FocusTracker>
     );
   }
