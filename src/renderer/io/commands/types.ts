@@ -38,6 +38,8 @@ export interface CommandSchema {
   "sidebar.focus": Command;
   "sidebar.toggle": Command;
   "sidebar.updateScroll": Command<number>;
+  "sidebar.scrollDown": Command;
+  "sidebar.scrollUp": Command;
   "sidebar.resizeWidth": Command<string>;
   "sidebar.toggleFilter": Command;
   "sidebar.createTag": Command;

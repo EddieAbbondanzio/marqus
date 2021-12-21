@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { clamp, debounce } from "lodash";
 import React, { useCallback, useEffect, useRef } from "react";
 
 export interface ScrollableProps {
@@ -29,8 +29,15 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
   const wrapper = useRef(null as unknown as HTMLDivElement);
 
   useEffect(() => {
-    if (props.scroll != null && wrapper.current != null) {
-      wrapper.current.scrollTop = props.scroll;
+    const el = wrapper.current;
+
+    if (props.scroll != null && el != null) {
+      const clamped = clamp(props.scroll, 0, el.scrollHeight - el.clientHeight);
+      wrapper.current.scrollTop = clamped;
+
+      if (props.scroll != clamped) {
+        props.onScroll?.(clamped);
+      }
     }
   });
 

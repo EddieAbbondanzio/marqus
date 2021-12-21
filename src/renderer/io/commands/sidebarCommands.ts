@@ -1,5 +1,4 @@
-import { over, overEvery } from "lodash";
-import { createAwaitableInput } from "../../../shared/awaitableInput";
+import { clamp } from "lodash";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace } from "./types";
 
@@ -44,6 +43,36 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         scroll,
       },
     }));
+  },
+  "sidebar.scrollDown": async (ctx) => {
+    ctx.setUI((prev) => {
+      // Max scroll clamp is performed in scrollable.
+      const scroll = prev.sidebar.scroll + 30;
+
+      console.log("dw: ", scroll);
+
+      return {
+        ...prev,
+        sidebar: {
+          ...prev.sidebar,
+          scroll,
+        },
+      };
+    });
+  },
+  "sidebar.scrollUp": async (ctx) => {
+    ctx.setUI((prev) => {
+      const scroll = Math.max(prev.sidebar.scroll - 30, 0);
+
+      console.log("up: ", scroll);
+      return {
+        ...prev,
+        sidebar: {
+          ...prev.sidebar,
+          scroll,
+        },
+      };
+    });
   },
   "sidebar.toggleFilter": async (ctx) => {
     ctx.setUI((prev) => {

@@ -8,15 +8,54 @@ import { sleep } from "../../shared/utils";
 
 export function useShortcuts(state: State, execute: Execute) {
   const { shortcuts } = state;
+  const [activeKeys, setActiveKeys] = useState<
+    Record<string, boolean | undefined>
+  >({});
+  const [interval, setIntervalState] = useState<NodeJS.Timer>();
+  const [didKeysChange, setDidKeysChange] = useState(false);
 
   if (shortcuts.length === 0) {
     console.warn("No shortcuts passed to useShortcuts() hook.");
   }
 
-  useEffect(() => {
-    const keyTracker: Record<string, boolean | undefined> = {};
-    let interval: NodeJS.Timer;
+  if (didKeysChange) {
+    const activeKeysArray = toKeyArray(activeKeys);
+    // const activeKeys = toKeyArray(keyTracker);
+    const shortcut = shortcuts.find(
+      (s) =>
+        isEqual(s.keys, activeKeysArray) &&
+        !s.disabled &&
+        isFocused(state, s.when)
+    );
 
+    if (shortcut != null) {
+      void execute(shortcut.command as CommandType, undefined!);
+
+      if (shortcut.repeat) {
+        (async () => {
+          /*
+           * First pause is twice as long to ensure a user really
+           * wants it to repeat (IE hold to continue scrolling down)
+           * vs just being a false negative.
+           */
+          await sleep(250);
+          const currKeys = toKeyArray(activeKeys);
+
+          if (isEqual(currKeys, activeKeysArray)) {
+            let int = setInterval(() => {
+              void execute(shortcut.command as CommandType, undefined!);
+            }, 125);
+
+            setIntervalState(int);
+          }
+        })();
+      }
+    }
+
+    setDidKeysChange(false);
+  }
+
+  useEffect(() => {
     const keyDown = (ev: KeyboardEvent) => {
       /*
        * Disable all default shortcuts. This does require us to re-implement
@@ -30,46 +69,21 @@ export function useShortcuts(state: State, execute: Execute) {
       // Prevent redundant calls
       if (!ev.repeat) {
         const key = parseKeyCode(ev.code);
-        keyTracker[key] = true;
-
-        const activeKeys = toKeyArray(keyTracker);
-        const shortcut = shortcuts.find(
-          (s) =>
-            isEqual(s.keys, activeKeys) &&
-            !s.disabled &&
-            isFocused(state, s.when)
-        );
-
-        if (shortcut != null) {
-          void execute(shortcut.command as CommandType, undefined!);
-
-          if (shortcut.repeat) {
-            (async () => {
-              /*
-               * First pause is twice as long to ensure a user really
-               * wants it to repeat (IE hold to continue scrolling down)
-               * vs just being a false negative.
-               */
-              await sleep(250);
-              const currKeys = toKeyArray(keyTracker);
-
-              if (isEqual(currKeys, activeKeys)) {
-                interval = setInterval(() => {
-                  void execute(shortcut.command as CommandType, undefined!);
-                }, 125);
-              }
-            })();
-          }
-        }
+        setActiveKeys((prev) => ({ ...prev, [key]: true }));
+        setDidKeysChange(true);
       }
     };
 
     const keyUp = ({ code }: KeyboardEvent) => {
       const key = parseKeyCode(code);
-      delete keyTracker[key];
+      setActiveKeys((prev) => {
+        delete prev[key];
+        return prev;
+      });
 
       if (interval != null) {
         clearInterval(interval);
+        setIntervalState(undefined);
       }
     };
 
