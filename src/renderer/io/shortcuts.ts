@@ -2,9 +2,9 @@ import { isEqual, chain } from "lodash";
 import { RefObject, useEffect, useState } from "react";
 import { UISection, Shortcut, State } from "../../shared/state";
 import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
-import { sleep } from "../../shared/sleep";
 import { CommandType } from "./commands/types";
 import { Execute } from "./commands";
+import { sleep } from "../../shared/utils";
 
 export function useShortcuts(state: State, execute: Execute) {
   const { shortcuts } = state;

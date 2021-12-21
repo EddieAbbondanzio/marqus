@@ -1,24 +1,24 @@
+import { Size } from "electron";
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import * as yup from "yup";
 import { classList, percentage, px } from "../../../shared/dom";
 import { InvalidOpError } from "../../../shared/errors";
-import { uuid } from "../../../shared/id";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { isBlank } from "../../../shared/string";
 import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 
-export interface InputProps {
+export interface InlineInputProps {
   className?: string;
   value: string;
   onInput: (value: string) => void;
   confirm: () => void;
   cancel: () => void;
   schema?: yup.StringSchema;
-  size?: "is-small" | "is-medium" | "is-large";
+  size?: Size;
 }
 
-export function Input(props: InputProps): JSX.Element {
+export function InlineInput(props: InlineInputProps): JSX.Element {
   const [flags, setFlags] = useState({
     wasFinalized: false,
     wasTouched: false,
@@ -111,7 +111,11 @@ export function Input(props: InputProps): JSX.Element {
     }
   );
 
-  const classes = classList("input", props.size, props.className);
+  const classes = classList(
+    "input",
+    props.size as string | undefined,
+    props.className
+  );
   return (
     <div className="field" style={{ position: "relative" }}>
       <input

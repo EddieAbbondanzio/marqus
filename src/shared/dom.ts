@@ -1,3 +1,5 @@
+import { chain } from "lodash";
+
 export interface Coord {
   x: number;
   y: number;
@@ -35,6 +37,30 @@ export function getPercentage(raw: string): number {
   return Number.parseInt(raw.split("px")[0], 10);
 }
 
+export type ClassName = string | Record<string, boolean | undefined>;
+
 export const classList = (
-  ...classes: Array<string | undefined>
-): Readonly<string> => classes.filter((c) => c != null).join(" ");
+  ...classes: Array<ClassName | undefined>
+): Readonly<string> => {
+  const arr = [];
+
+  for (const c of classes) {
+    if (c == null) {
+      continue;
+    }
+
+    if (typeof c === "string") {
+      arr.push(c);
+    } else {
+      const conditionalClasses = chain(c)
+        .entries()
+        .pickBy(([, val]) => val)
+        .map(([className]) => className)
+        .value();
+
+      arr.push(...conditionalClasses);
+    }
+  }
+
+  return arr.join(" ");
+};

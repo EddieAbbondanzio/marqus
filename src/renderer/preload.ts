@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
-import { uuid } from "../shared/id";
 import { RpcType, Rpc } from "../shared/rpc";
+import { uuid } from "../shared/utils";
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
   reject: (err: any) => unknown;

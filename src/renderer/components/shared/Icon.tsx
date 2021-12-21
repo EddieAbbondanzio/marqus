@@ -23,8 +23,17 @@ export function Icon(props: IconProps) {
   return <FontAwesomeIcon className={classes} {...props} />;
 }
 
+export function InlineIconButton(props: IconButtonProps) {
+  const classes = classList(props.className, "inline-button-icon");
+  return (
+    <button className={classes}>
+      <FontAwesomeIcon {...props} />
+    </button>
+  );
+}
+
 export function IconButton(props: IconButtonProps) {
-  const classes = classList(props.className, "button-icon");
+  const classes = classList(props.className, "block-button-icon", "button");
   return (
     <button className={classes}>
       <FontAwesomeIcon {...props} />

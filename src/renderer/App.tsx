@@ -3,12 +3,12 @@ import { render } from "react-dom";
 import React, { useState } from "react";
 import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
-import { GlobalNavigation } from "./components/GlobalNavigation";
 import { State } from "../shared/state";
 import { promptFatal } from "./utils/prompt";
 import { FocusTracker } from "./components/shared/FocusTracker";
 import { Focusable } from "./components/shared/Focusable";
 import { px } from "../shared/dom";
+import { Sidebar } from "./components/Sidebar";
 
 const { rpc } = window;
 (async () => {
@@ -33,18 +33,7 @@ const { rpc } = window;
         state={state}
         setUI={setUI}
       >
-        <GlobalNavigation state={state} execute={execute} setUI={setUI} />
-        <Focusable name="localNavigation">
-          <div
-            style={{
-              height: px(300),
-              width: px(300),
-              backgroundColor: "red",
-            }}
-          >
-            &nbsp; LOCAL
-          </div>
-        </Focusable>
+        <Sidebar state={state} execute={execute} setUI={setUI} />
       </FocusTracker>
     );
   }

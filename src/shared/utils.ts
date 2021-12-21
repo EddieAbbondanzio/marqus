@@ -14,3 +14,9 @@ export const uuid = customAlphabet(ID_ALPHABET, 10);
 export function isId(id: string): boolean {
   return /^[a-zA-Z\d]{10}$/.test(id);
 }
+
+export function sleep(milliseconds: number): Promise<void> {
+  return new Promise((res) => {
+    setTimeout(res, milliseconds);
+  });
+}

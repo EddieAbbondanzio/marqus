@@ -1,11 +1,4 @@
-import {
-  Notebook,
-  Shortcut,
-  ShortcutOverride,
-  Tag,
-  UI,
-  UISection,
-} from "../shared/state";
+import { Notebook, Shortcut, Tag, UI, UISection } from "../shared/state";
 import * as yup from "yup";
 import { chain, cloneDeep, debounce, groupBy, isEqual, sortBy } from "lodash";
 import { keyCodesToString, parseKeyCodes } from "../shared/io/keyCode";
@@ -49,6 +42,14 @@ export const notebookFile = createFileHandler<Notebook[]>(
       (c ?? []).map((n) => ({ ...n, type: "notebook" })),
   }
 );
+
+export interface ShortcutOverride {
+  command: string;
+  keys?: string;
+  disabled?: boolean;
+  when?: string;
+  repeat?: boolean;
+}
 
 export const shortcutFile = createFileHandler<Shortcut[]>(
   "shortcuts.json",
@@ -95,7 +96,7 @@ export const shortcutFile = createFileHandler<Shortcut[]>(
         let shortcut: Shortcut;
 
         if (userOverride == null) {
-          shortcut = Object.assign({}, defaultShortcut, userOverride);
+          shortcut = Object.assign({}, defaultShortcut);
         } else {
           // Validate it has keys if it's new.
           if (userOverride.keys == null) {
@@ -108,6 +109,7 @@ export const shortcutFile = createFileHandler<Shortcut[]>(
             {},
             {
               ...userOverride,
+              type: "shortcut",
               keys: parseKeyCodes(userOverride.keys),
               when: userOverride.when as UISection,
             }

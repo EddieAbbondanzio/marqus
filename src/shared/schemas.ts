@@ -1,6 +1,6 @@
 import * as yup from "yup";
-import { uuid, isId } from "./id";
 import { Notebook, Shortcut, Tag, UI } from "./state";
+import { uuid, isId } from "./utils";
 
 const idSchema = yup.string().optional().default(uuid).test(isId);
 
@@ -46,12 +46,7 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
     .of(
       yup
         .string()
-        .oneOf([
-          "globalNavigation",
-          "globalNavigationContextMenu",
-          "localNavigation",
-          "editor",
-        ])
+        .oneOf(["globalNavigation", "globalNavigationContextMenu", "editor"])
     )
     .nullable()
     .optional(),
@@ -61,10 +56,7 @@ export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
   command: yup.string().required(),
   keys: yup.array(),
   disabled: yup.boolean().optional(),
-  when: yup
-    .string()
-    .optional()
-    .oneOf(["globalNavigation", "localNavigation", "editor"]) as any,
+  when: yup.string().optional().oneOf(["globalNavigation", "editor"]) as any,
   repeat: yup.bool().optional(),
   userDefined: yup.bool().optional(),
 });
