@@ -1,13 +1,13 @@
 import { faEllipsisV } from "@fortawesome/free-solid-svg-icons";
 import React, { useState } from "react";
-import { px } from "../../shared/dom";
+import { classList, px } from "../../shared/dom";
 import { State } from "../../shared/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { Button } from "./shared/Button";
 import { Collapse } from "./shared/Collapse";
 import { Checkbox, Field, Form, Input } from "./shared/Form";
-import { IconButton } from "./shared/Icon";
+import { Icon } from "./shared/Icon";
 
 export interface FilterProps {
   state: State;
@@ -16,24 +16,33 @@ export interface FilterProps {
 }
 
 export function Filter({ state, execute }: FilterProps) {
+  const expanded = state.ui.sidebar.filter.expanded ?? true;
+
+  const searchClasses = classList("mt-1", {
+    "mb-1": !expanded,
+  });
+
   return (
     <div className="has-border-bottom-1-light p-2">
       <Form>
-        <Field size="is-small" isHorizontal isGrouped>
+        <Field className={searchClasses} size="is-small" isHorizontal isGrouped>
           <Input
             className="mr-2"
             size="is-small"
             placeholder="Type to search..."
           />
-          <IconButton
+          <Button
+            className="p-1"
+            size="is-small"
+            color="is-light"
             title="Toggle advanced filter options"
-            icon={faEllipsisV}
-            className="is-small is-light"
             onClick={() => execute("sidebar.toggleFilter")}
-          />
+          >
+            <Icon icon={faEllipsisV}></Icon>
+          </Button>
         </Field>
 
-        <Collapse collapsed={state.ui.sidebar.filterExpanded ?? true}>
+        <Collapse collapsed={expanded}>
           <Field label={buildLabel("Tag")} size="is-small" isHorizontal>
             <Input size="is-small" />
           </Field>

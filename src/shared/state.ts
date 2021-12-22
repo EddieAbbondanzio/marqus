@@ -18,14 +18,25 @@ export type UISection = "sidebar" | "sidebarContextMenu" | "editor";
 export interface Sidebar {
   width: string;
   scroll: number;
-  filterExpanded?: boolean;
-  selection?: SidebarSelection[];
+  filter: Filter;
+  explorer: Explorer;
   hidden?: boolean;
 }
-export interface SidebarSelection {
-  id: string;
-  type: ResouceType;
+
+export interface Filter {
+  expanded?: boolean;
 }
+
+export interface Explorer {
+  view: ExplorerView;
+}
+export type ExplorerView =
+  | "all"
+  | "notebooks"
+  | "tags"
+  | "favorites"
+  | "temp"
+  | "trash";
 
 export interface Tag extends Resource<"tag"> {
   name: string;

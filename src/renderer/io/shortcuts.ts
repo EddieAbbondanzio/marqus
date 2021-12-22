@@ -20,7 +20,6 @@ export function useShortcuts(state: State, execute: Execute) {
 
   if (didKeysChange) {
     const activeKeysArray = toKeyArray(activeKeys);
-    // const activeKeys = toKeyArray(keyTracker);
     const shortcut = shortcuts.find(
       (s) =>
         isEqual(s.keys, activeKeysArray) &&

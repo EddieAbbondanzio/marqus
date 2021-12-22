@@ -51,11 +51,12 @@ export interface FieldProps {
   isHorizontal?: boolean;
   isGrouped?: boolean;
   size?: BulmaSize;
+  className?: string;
   // TODO: Add help text (error + success)
 }
 
 export function Field(props: PropsWithChildren<FieldProps>) {
-  const divClasses = classList("field", {
+  const divClasses = classList("field", props.className, {
     "is-grouped": props.isGrouped,
     "is-horizontal": props.isHorizontal,
   });

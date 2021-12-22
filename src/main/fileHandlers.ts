@@ -17,6 +17,10 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
     sidebar: {
       width: px(300),
       scroll: 0,
+      filter: {},
+      explorer: {
+        view: "notebooks",
+      },
     },
   },
 });

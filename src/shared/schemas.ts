@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import { Notebook, Shortcut, Tag, UI } from "./state";
+import { Explorer, Filter, Notebook, Shortcut, Tag, UI } from "./state";
 import { uuid, isId } from "./utils";
 
 const idSchema = yup.string().optional().default(uuid).test(isId);
@@ -33,11 +33,19 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
   sidebar: yup.object().shape({
     width: yup.string().required(),
     scroll: yup.number().required().min(0),
-    filterExpanded: yup.boolean().optional(),
+    filter: yup.object().shape({
+      expanded: yup.boolean().optional(),
+    }),
+    explorer: yup.object().shape({
+      view: yup
+        .mixed()
+        .oneOf(["all", "notebooks", "tags", "favorites", "temp", "trash"])
+        .required(),
+    }),
     tagInput: yup
       .object()
       .shape({
-        inputMode: yup.string().oneOf(["create", "update"]),
+        inputMode: yup.mixed().oneOf(["create", "update"]),
       })
       .optional(),
     selection: yup.array().optional(), // TODO: Fix this
@@ -54,7 +62,7 @@ export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
   command: yup.string().required(),
   keys: yup.array(),
   disabled: yup.boolean().optional(),
-  when: yup.string().optional().oneOf(["sidebar", "editor"]) as any,
+  when: yup.mixed().optional().oneOf(["sidebar", "editor"]),
   repeat: yup.bool().optional(),
   userDefined: yup.bool().optional(),
 });

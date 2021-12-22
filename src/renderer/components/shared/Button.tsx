@@ -1,6 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import { classList } from "../../../shared/dom";
 import { BulmaColor, BulmaSize, ButtonType } from "../../shared";
+import { IconProps } from "./Icon";
 
 export interface ButtonProps {
   onClick?: () => any;
@@ -11,19 +12,28 @@ export interface ButtonProps {
   isOutlined?: boolean;
   isRounded?: boolean;
   isLoading?: boolean;
+  className?: string;
+  title?: string;
 }
 
 export function Button(props: PropsWithChildren<ButtonProps>) {
-  const classes = classList("button", props.color, props.size, {
-    "is-inverted": props.isInverted,
-    "is-outlined": props.isOutlined,
-    "is-rounded": props.isRounded,
-    "is-loading": props.isLoading,
-  });
+  const classes = classList(
+    "button",
+    props.className,
+    props.color,
+    props.size,
+    {
+      "is-inverted": props.isInverted,
+      "is-outlined": props.isOutlined,
+      "is-rounded": props.isRounded,
+      "is-loading": props.isLoading,
+    }
+  );
 
   return (
     <button
       className={classes}
+      title={props.title}
       type={props.type ?? "button"}
       onClick={props.onClick}
     >

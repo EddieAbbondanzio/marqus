@@ -18,6 +18,8 @@ export interface InlineInputProps {
   size?: Size;
 }
 
+// DEADWEIGHT
+
 export function InlineInput(props: InlineInputProps): JSX.Element {
   const [flags, setFlags] = useState({
     wasFinalized: false,

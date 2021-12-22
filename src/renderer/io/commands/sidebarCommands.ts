@@ -77,12 +77,15 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.toggleFilter": async (ctx) => {
     ctx.setUI((prev) => {
       const { sidebar } = prev;
-      if (sidebar.filterExpanded) {
+      if (sidebar.filter.expanded) {
         return {
           ...prev,
           sidebar: {
             ...sidebar,
-            filterExpanded: false,
+            filter: {
+              ...sidebar.filter,
+              expanded: false,
+            },
           },
         };
       } else {
@@ -90,7 +93,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
           ...prev,
           sidebar: {
             ...sidebar,
-            filterExpanded: true,
+            filter: {
+              ...sidebar.filter,
+              expanded: true,
+            },
           },
         };
       }

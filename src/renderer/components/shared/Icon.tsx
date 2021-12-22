@@ -1,52 +1,41 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCoffee, IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import {
+  FontAwesomeIcon,
+  FontAwesomeIconProps,
+} from "@fortawesome/react-fontawesome";
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { classList } from "../../../shared/dom";
-import { ButtonType } from "../../shared";
-
-/*
- * Icon component is only added to ensure both icons and button icons
- * default to the same initial color, size, and spacing.
- */
+import { BulmaColor, BulmaSize, ButtonType } from "../../shared";
 
 export interface IconProps {
   icon: IconDefinition;
-  title?: string;
   className?: string;
+  title?: string;
+  size?: BulmaSize;
+  color?: BulmaColor;
 }
 
-export interface IconButtonProps extends IconProps {
-  onClick?: () => any;
-  buttonType?: ButtonType;
-}
+const FONT_AWESOME_SIZE_MAP: Record<BulmaSize, FontAwesomeIconProps["size"]> = {
+  "is-small": "xs",
+  "is-normal": "1x",
+  "is-medium": "lg",
+  "is-large": "2x",
+};
 
 export function Icon(props: IconProps) {
-  const classes = classList(props.className, "normal-icon");
-  return <FontAwesomeIcon className={classes} {...props} />;
-}
+  let size = props.size ?? "is-normal";
 
-export function InlineIconButton(props: IconButtonProps) {
-  const classes = classList(props.className, "inline-button-icon");
-  return (
-    <button
-      className={classes}
-      type={props.buttonType ?? "button"}
-      onClick={props.onClick}
-    >
-      <FontAwesomeIcon {...props} />
-    </button>
-  );
-}
+  const containerClasses = classList("icon", "m-0", size, props.className);
 
-export function IconButton(props: IconButtonProps) {
-  const classes = classList(props.className, "block-button-icon", "button");
+  let fontAwesomeSize = FONT_AWESOME_SIZE_MAP[size];
+
   return (
-    <button
-      className={classes}
-      type={props.buttonType ?? "button"}
-      onClick={props.onClick}
-    >
-      <FontAwesomeIcon {...props} />
-    </button>
+    <i className={containerClasses}>
+      <FontAwesomeIcon
+        icon={props.icon}
+        title={props.title}
+        size={fontAwesomeSize}
+      />
+    </i>
   );
 }
