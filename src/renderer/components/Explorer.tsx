@@ -7,13 +7,13 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import { NotImplementedError } from "../../shared/errors";
 import { ExplorerView, State } from "../../shared/domain/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { Icon } from "./shared/Icon";
+import { NavigationMenu } from "./shared/NavigationMenu";
+import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
-import { Note } from "../../shared/domain/entities";
 
 export interface ExplorerProps {
   state: State;
@@ -27,7 +27,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     execute("sidebar.setExplorerView", view);
 
   const tabs = (
-    <Tabs alignment="is-centered">
+    <Tabs alignment="is-centered" className="mb-0">
       <Tab title="All" isActive={active === "all"} onClick={setActive("all")}>
         <Icon icon={faFile} />
       </Tab>
@@ -69,21 +69,39 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     </Tabs>
   );
 
-  /*
-   * Here we load the relevant notes.
-   * When view == "notebooks" we'll query
-   * every notebook and then load teh notes for each one.
-   *
-   * Same for tags
-   *
-   * All will just get every note
-   *
-   * Temp / Trash will get all notes with relevant flags
-   */
+  // const menus = state.ui.sidebar.explorer.menus;
+  // let menuComps = [];
 
-  return <div>{tabs}</div>;
-}
+  // for (const menu of menus) {
+  //   menuComps.push(
+  //     <NavigationMenu name={menu.name} trigger={undefined} collapsed={false} />
+  //   );
+  // }
 
-export function getAllNotes(): Note[] {
-  throw new NotImplementedError();
+  // console.log("render these: ", menus);
+
+  let menus = [];
+  menus.push(
+    <NavigationMenu
+      name="foo"
+      text="Foo"
+      key="1"
+      children={<NavigationMenu name="foo/bar" text="Nested" />}
+    />
+  );
+  menus.push(<NavigationMenu name="foo" text="Bar" key="2" />);
+  menus.push(<NavigationMenu name="foo" text="Baz" key="3" />);
+
+  return (
+    <div className="is-flex is-flex-grow-1 is-flex-direction-column">
+      {tabs}
+
+      <Scrollable
+        scroll={state.ui.sidebar.scroll}
+        onScroll={(s) => execute("sidebar.updateScroll", s)}
+      >
+        {menus}
+      </Scrollable>
+    </div>
+  );
 }

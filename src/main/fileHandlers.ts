@@ -22,6 +22,7 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
       filter: {},
       explorer: {
         view: "notebooks",
+        menus: [],
       },
     },
   },

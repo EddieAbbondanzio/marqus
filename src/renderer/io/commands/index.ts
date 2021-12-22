@@ -64,6 +64,7 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
    * The following setters are to update local cache. They do not
    * perform any saving to file because all of that is handled by the rpcs.
    */
+
   const setTags: SetTags = (transformer) => {
     setState((prevState) => ({
       ...prevState,

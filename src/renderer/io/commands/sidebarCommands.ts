@@ -1,4 +1,6 @@
 import { clamp } from "lodash";
+import { Menu } from "../../../shared/domain/valueObjects";
+import { InvalidOpError, NotImplementedError } from "../../../shared/errors";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace } from "./types";
 
@@ -238,5 +240,72 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         },
       },
     }));
+
+    let menus: Menu[];
+    switch (view) {
+      case "all":
+        menus = await getAll();
+        break;
+      case "notebooks":
+        menus = await getByNotebooks();
+        break;
+      case "tags":
+        menus = await getByTags();
+        break;
+      case "favorites":
+        menus = await getFavorited();
+        break;
+      case "temp":
+        menus = await getTemporary();
+        break;
+      case "trash":
+        menus = await getTrashed();
+        break;
+      default:
+        throw new InvalidOpError(`Invalid sidebar view ${view}`);
+    }
+
+    ctx.setUI((s) => ({
+      ...s,
+      sidebar: {
+        ...s.sidebar,
+        explorer: {
+          ...s.sidebar.explorer,
+          menus,
+        },
+      },
+    }));
   },
 };
+
+export async function getAll(): Promise<Menu[]> {
+  // Just query for every single note.
+  throw new NotImplementedError();
+}
+
+export async function getByNotebooks(): Promise<Menu[]> {
+  // Load every notebook via notebooks.getAll()
+  // Load notes for each notebook
+  throw new NotImplementedError();
+}
+
+export async function getByTags(): Promise<Menu[]> {
+  // Load ever tag via tags.getAll()
+  // Load notes for each tag
+  throw new NotImplementedError();
+}
+
+export async function getFavorited(): Promise<Menu[]> {
+  // Load all notes with favorited flag set
+  throw new NotImplementedError();
+}
+
+export async function getTemporary(): Promise<Menu[]> {
+  // Load all temporary notes
+  throw new NotImplementedError();
+}
+
+export async function getTrashed(): Promise<Menu[]> {
+  // Load all trashed notes
+  throw new NotImplementedError();
+}

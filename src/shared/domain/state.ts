@@ -1,5 +1,5 @@
 import { Tag, Notebook } from "./entities";
-import { Shortcut } from "./valueObjects";
+import { Menu, Shortcut } from "./valueObjects";
 
 export interface State {
   ui: UI;
@@ -29,6 +29,7 @@ export interface Filter {
 
 export interface Explorer {
   view: ExplorerView;
+  menus: Menu[];
 }
 export type ExplorerView =
   | "all"

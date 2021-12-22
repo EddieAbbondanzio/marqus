@@ -25,26 +25,21 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
       width={state.ui.sidebar.width}
       onResize={(w) => execute("sidebar.resizeWidth", w)}
     >
-      <Scrollable
-        scroll={state.ui.sidebar.scroll}
-        onScroll={(s) => execute("sidebar.updateScroll", s)}
+      <Focusable
+        name="sidebar"
+        className="is-flex is-flex-grow-1 is-flex-direction-column"
       >
-        <Focusable
+        <ContextMenu
           name="sidebar"
-          className="is-flex is-flex-grow-1 is-flex-direction-column"
+          items={contextMenuItems}
+          state={state}
+          execute={execute}
+          setUI={setUI}
         >
-          <ContextMenu
-            name="sidebar"
-            items={contextMenuItems}
-            state={state}
-            execute={execute}
-            setUI={setUI}
-          >
-            <Filter state={state} setUI={setUI} execute={execute} />
-            <Explorer state={state} setUI={setUI} execute={execute} />
-          </ContextMenu>
-        </Focusable>
-      </Scrollable>
+          <Filter state={state} setUI={setUI} execute={execute} />
+          <Explorer state={state} setUI={setUI} execute={execute} />
+        </ContextMenu>
+      </Focusable>
     </Resizable>
   );
 }

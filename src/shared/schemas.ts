@@ -43,6 +43,7 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
         .mixed()
         .oneOf(["all", "notebooks", "tags", "favorites", "temp", "trash"])
         .required(),
+      menus: yup.array(),
     }),
     tagInput: yup
       .object()
@@ -50,7 +51,6 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
         inputMode: yup.mixed().oneOf(["create", "update"]),
       })
       .optional(),
-    selection: yup.array().optional(), // TODO: Fix this
     hidden: yup.boolean().optional(),
   }),
   focused: yup

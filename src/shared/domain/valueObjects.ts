@@ -1,12 +1,12 @@
 import { AwaitableInput } from "../awaitableInput";
 import { KeyCode } from "../io/keyCode";
+import { Note } from "./entities";
 import { UISection } from "./state";
 
 export interface Menu {
   name: string;
-  menuResource: "tag" | "notebook" | "note";
   children?: Menu[];
-  input?: AwaitableInput;
+  notes?: Note[];
 }
 
 // Shortcut is not a resource because they are just values
