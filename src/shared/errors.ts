@@ -3,3 +3,9 @@ export class InvalidOpError extends Error {
     super(message);
   }
 }
+
+export class NotImplementedError extends Error {
+  constructor(public message = "Not implemented") {
+    super(message);
+  }
+}

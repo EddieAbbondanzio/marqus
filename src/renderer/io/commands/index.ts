@@ -1,6 +1,6 @@
 import { cloneDeep } from "lodash";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { State, Tag, UI } from "../../../shared/state";
+import { State, UI } from "../../../shared/domain/state";
 import { appCommands } from "./appCommands";
 import { sidebarCommands } from "./sidebarCommands";
 import {

@@ -1,7 +1,7 @@
 import { faEllipsisV } from "@fortawesome/free-solid-svg-icons";
 import React, { useState } from "react";
 import { classList, px } from "../../shared/dom";
-import { State } from "../../shared/state";
+import { State } from "../../shared/domain/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { Button } from "./shared/Button";

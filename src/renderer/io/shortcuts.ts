@@ -1,6 +1,6 @@
 import { isEqual, chain } from "lodash";
 import { RefObject, useEffect, useState } from "react";
-import { UISection, Shortcut, State } from "../../shared/state";
+import { UISection, State } from "../../shared/domain/state";
 import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
 import { CommandType } from "./commands/types";
 import { Execute } from "./commands";

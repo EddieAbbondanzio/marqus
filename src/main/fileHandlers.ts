@@ -1,4 +1,4 @@
-import { Notebook, Shortcut, Tag, UI, UISection } from "../shared/state";
+import { UI, UISection } from "../shared/domain/state";
 import * as yup from "yup";
 import { chain, cloneDeep, debounce, groupBy, isEqual, sortBy } from "lodash";
 import { keyCodesToString, parseKeyCodes } from "../shared/io/keyCode";
@@ -11,6 +11,8 @@ import {
   notebookSchema,
   shortcutSchema,
 } from "../shared/schemas";
+import { Tag, Notebook } from "../shared/domain/entities";
+import { Shortcut } from "../shared/domain/valueObjects";
 
 export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
   defaultValue: {

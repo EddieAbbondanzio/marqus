@@ -7,8 +7,8 @@ import React, {
   useLayoutEffect,
   useState,
 } from "react";
-import { State, UISection } from "../../../shared/state";
-import { SetUI } from "../../io/commands/types";
+import { UISection, State } from "../../shared/domain/state";
+import { SetUI } from "../io/commands/types";
 
 export const FocusContext = createContext<{
   push(name: UISection, ref: RefObject<HTMLElement>, overwrite?: boolean): void;

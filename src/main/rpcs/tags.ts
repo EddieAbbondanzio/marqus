@@ -1,11 +1,15 @@
-import { RpcRegistry } from "../../shared/rpc";
+import { RpcHandler, RpcRegistry, RpcSchema } from "../../shared/rpc";
 import { tagFile } from "../fileHandlers";
-import { Tag } from "../../shared/state";
 import { uuid } from "../../shared/utils";
+import { Tag } from "../../shared/domain/entities";
 
 const getAllTags = async (): Promise<Tag[]> => tagFile.load();
 
-const createTag = async ({ name }: { name: string }): Promise<Tag> => {
+const createTag: RpcHandler<"tags.create"> = async ({
+  name,
+}: {
+  name: string;
+}): Promise<Tag> => {
   const tags = await tagFile.load();
 
   if (tags.some((t) => t.name === name)) {

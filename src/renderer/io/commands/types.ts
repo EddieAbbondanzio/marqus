@@ -1,13 +1,10 @@
 import { Coord } from "../../../shared/dom";
-import {
-  Note,
-  Notebook,
-  Shortcut,
-  State,
-  Tag,
-  UI,
-} from "../../../shared/state";
+import { Tag, Notebook } from "../../../shared/domain/entities";
+import { ExplorerView, State, UI } from "../../../shared/domain/state";
+import { Shortcut } from "../../../shared/domain/valueObjects";
 import { StartsWith } from "../../types";
+
+// NB: Don't pull this into index.ts unless you want circular dependencies
 
 export type Transformer<S> = (previous: S) => S;
 
@@ -48,6 +45,7 @@ export interface CommandSchema {
   "sidebar.setSelection": Command<string>;
   "sidebar.moveSelectionUp": Command;
   "sidebar.moveSelectionDown": Command;
+  "sidebar.setExplorerView": Command<ExplorerView>;
 }
 export type CommandType = keyof CommandSchema;
 export type CommandInput<Command extends CommandType> = Parameters<

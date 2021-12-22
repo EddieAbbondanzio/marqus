@@ -1,6 +1,7 @@
-import { State, Tag, UI } from "./state";
 import { PromptButton, PromptOptions } from "./prompt";
 import { Coord } from "./dom";
+import { Tag } from "./domain/entities";
+import { State, UI } from "./domain/state";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.

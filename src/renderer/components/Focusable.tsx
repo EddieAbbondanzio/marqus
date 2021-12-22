@@ -5,7 +5,7 @@ import React, {
   useLayoutEffect,
   useRef,
 } from "react";
-import { UISection } from "../../../shared/state";
+import { UISection } from "../../shared/domain/state";
 import { FocusContext } from "./FocusTracker";
 
 export interface FocusableProps {

@@ -1,5 +1,7 @@
 import * as yup from "yup";
-import { Explorer, Filter, Notebook, Shortcut, Tag, UI } from "./state";
+import { Tag, Notebook } from "./domain/entities";
+import { UI } from "./domain/state";
+import { Shortcut } from "./domain/valueObjects";
 import { uuid, isId } from "./utils";
 
 const idSchema = yup.string().optional().default(uuid).test(isId);

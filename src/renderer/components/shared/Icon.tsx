@@ -23,9 +23,19 @@ const FONT_AWESOME_SIZE_MAP: Record<BulmaSize, FontAwesomeIconProps["size"]> = {
 };
 
 export function Icon(props: IconProps) {
-  let size = props.size ?? "is-normal";
+  const size = props.size ?? "is-normal";
+  let color;
+  if (props.color) {
+    color = `has-text-${props.color.split("-")[1]}`;
+  }
 
-  const containerClasses = classList("icon", "m-0", size, props.className);
+  const containerClasses = classList(
+    "icon",
+    "m-0",
+    size,
+    props.className,
+    color
+  );
 
   let fontAwesomeSize = FONT_AWESOME_SIZE_MAP[size];
 

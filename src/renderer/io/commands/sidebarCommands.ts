@@ -223,4 +223,20 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.moveSelectionDown": async (ctx) => {
     console.log("move selection down");
   },
+  "sidebar.setExplorerView": async (ctx, view) => {
+    if (view == null) {
+      return;
+    }
+
+    ctx.setUI((s) => ({
+      ...s,
+      sidebar: {
+        ...s.sidebar,
+        explorer: {
+          ...s.sidebar.explorer,
+          view,
+        },
+      },
+    }));
+  },
 };

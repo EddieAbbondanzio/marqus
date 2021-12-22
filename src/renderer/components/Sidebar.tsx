@@ -1,14 +1,14 @@
 import React from "react";
 import { px } from "../../shared/dom";
-import { State } from "../../shared/state";
+import { State } from "../../shared/domain/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { Filter } from "./Filter";
 import { ContextMenu } from "./shared/ContextMenu";
-import { Explorer } from "./shared/Explorer";
-import { Focusable } from "./shared/Focusable";
+import { Explorer } from "./Explorer";
 import { Resizable } from "./shared/Resizable";
 import { Scrollable } from "./shared/Scrollable";
+import { Focusable } from "./Focusable";
 
 export interface SidebarProps {
   state: State;

@@ -3,12 +3,10 @@ import { render } from "react-dom";
 import React, { useState } from "react";
 import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
-import { State } from "../shared/state";
+import { State } from "../shared/domain/state";
 import { promptFatal } from "./utils/prompt";
-import { FocusTracker } from "./components/shared/FocusTracker";
-import { Focusable } from "./components/shared/Focusable";
-import { px } from "../shared/dom";
 import { Sidebar } from "./components/Sidebar";
+import { FocusTracker } from "./components/FocusTracker";
 
 const { rpc } = window;
 (async () => {

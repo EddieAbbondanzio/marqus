@@ -10,14 +10,14 @@ import { PropsWithChildren } from "react";
 import { classList, Coord } from "../../../shared/dom";
 import { getNodeEnv } from "../../../shared/env";
 import { KeyCode } from "../../../shared/io/keyCode";
-import { State } from "../../../shared/state";
+import { State } from "../../../shared/domain/state";
 import { Execute } from "../../io/commands";
 import { CommandInput, CommandType, SetUI } from "../../io/commands/types";
 import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 import { useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
-import { Focusable } from "./Focusable";
+import { Focusable } from "../Focusable";
 
 export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   const items = [];
