@@ -6,6 +6,7 @@ import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { Button } from "./shared/Button";
 import { Collapse } from "./shared/Collapse";
+import { Dropdown } from "./shared/Dropdown";
 import { Checkbox, Field, Form, Input } from "./shared/Form";
 import { Icon } from "./shared/Icon";
 

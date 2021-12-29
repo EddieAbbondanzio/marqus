@@ -35,6 +35,7 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
   const [state, setState] = useState(initialState);
   const lastState = useRef(state);
 
+  // We need to run these first
   useLayoutEffect(() => {
     lastState.current = state;
   }, [state]);
@@ -51,11 +52,9 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
         ui: transformer(prevState.ui),
       };
 
-      // Not the best place for this...
       const ui = cloneDeep(newState.ui);
-      // delete ui.sidebar.tagInput;
+      // Don't listen for response.
       void window.rpc("state.saveUI", ui);
-
       return newState;
     });
   };

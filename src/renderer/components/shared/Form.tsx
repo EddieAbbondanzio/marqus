@@ -56,6 +56,11 @@ export interface FieldProps {
 }
 
 export function Field(props: PropsWithChildren<FieldProps>) {
+  /*
+   * Horizontal fields only works when viewport is larger than mobile.
+   * This is a limitation of Bulma and not our code.
+   */
+
   const divClasses = classList("field", props.className, {
     "is-grouped": props.isGrouped,
     "is-horizontal": props.isHorizontal,

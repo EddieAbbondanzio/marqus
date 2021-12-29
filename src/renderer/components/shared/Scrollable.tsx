@@ -9,6 +9,7 @@ export interface ScrollableProps {
 export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
   const styles: React.CSSProperties = {
     overflowY: "auto",
+    overflowX: "visible",
   };
 
   // Debounce it so we don't spam the event handler.
