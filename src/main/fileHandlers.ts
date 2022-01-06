@@ -1,6 +1,13 @@
 import { UI, UISection } from "../shared/domain/state";
 import * as yup from "yup";
-import { chain, cloneDeep, debounce, groupBy, isEqual, sortBy } from "lodash";
+import _, {
+  chain,
+  cloneDeep,
+  debounce,
+  groupBy,
+  isEqual,
+  sortBy,
+} from "lodash";
 import { keyCodesToString, parseKeyCodes } from "../shared/io/keyCode";
 import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
 import { readFile, writeFile } from "./fileSystem";
@@ -13,6 +20,7 @@ import {
 } from "../shared/schemas";
 import { Tag, Notebook } from "../shared/domain/entities";
 import { Shortcut } from "../shared/domain/valueObjects";
+import { getNodeEnv } from "../shared/env";
 
 export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
   defaultValue: {
@@ -22,7 +30,6 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
       filter: {},
       explorer: {
         view: "notebooks",
-        menus: [],
       },
     },
   },
@@ -222,7 +229,15 @@ function createFileHandler<Content>(
     }
 
     if (c != null) {
-      await schema.validate(c);
+      try {
+        await schema.validate(c);
+      } catch (e) {
+        if (getNodeEnv() === "development") {
+          console.log("Failed validation: ", JSON.stringify(c));
+        }
+
+        throw e;
+      }
     } else {
       c = opts?.defaultValue;
     }

@@ -34,8 +34,6 @@ export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
     );
 
     if (ev != null) {
-      console.log("Coor");
-
       const { clientX: x, clientY: y } = ev;
       items.push(
         <ContextMenuItem
@@ -185,11 +183,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
           active: false,
         });
         props.setUI((s) => ({
-          ...s,
-          focused: {
-            ...s.focused!,
-            current: [s.focused?.[1]!],
-          },
+          focused: [s.focused?.[1]!],
         }));
       }
     }

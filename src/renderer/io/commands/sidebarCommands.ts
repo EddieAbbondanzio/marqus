@@ -1,4 +1,6 @@
 import { clamp } from "lodash";
+import { createAwaitableInput } from "../../../shared/awaitableInput";
+import { UI } from "../../../shared/domain/state";
 import { Menu } from "../../../shared/domain/valueObjects";
 import { InvalidOpError, NotImplementedError } from "../../../shared/errors";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
@@ -13,9 +15,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.toggle": async (ctx) => {
     ctx.setUI((prev) => ({
-      ...prev,
       sidebar: {
-        ...prev.sidebar,
         hidden: !(prev.sidebar.hidden ?? false),
       },
     }));
@@ -26,9 +26,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     }
 
     ctx.setUI((prev) => ({
-      ...prev,
       sidebar: {
-        ...prev.sidebar,
         width,
       },
     }));
@@ -39,9 +37,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     }
 
     ctx.setUI((prev) => ({
-      ...prev,
       sidebar: {
-        ...prev.sidebar,
         scroll,
       },
     }));
@@ -54,9 +50,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       console.log("dw: ", scroll);
 
       return {
-        ...prev,
         sidebar: {
-          ...prev.sidebar,
           scroll,
         },
       };
@@ -68,9 +62,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
 
       console.log("up: ", scroll);
       return {
-        ...prev,
         sidebar: {
-          ...prev.sidebar,
           scroll,
         },
       };
@@ -78,52 +70,53 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.toggleFilter": async (ctx) => {
     ctx.setUI((prev) => {
-      const { sidebar } = prev;
-      if (sidebar.filter.expanded) {
-        return {
-          ...prev,
-          sidebar: {
-            ...sidebar,
-            filter: {
-              ...sidebar.filter,
-              expanded: false,
-            },
+      const expanded = !prev.sidebar.filter.expanded;
+
+      console.log("new state: ", expanded);
+      return {
+        sidebar: {
+          filter: {
+            expanded,
           },
-        };
-      } else {
-        return {
-          ...prev,
-          sidebar: {
-            ...sidebar,
-            filter: {
-              ...sidebar.filter,
-              expanded: true,
-            },
-          },
-        };
-      }
+        },
+      };
     });
   },
   "sidebar.createTag": async (ctx) => {
-    // let [tagInput, completed] = createAwaitableInput({ value: "" }, (value) => {
-    //   ctx.setUI((prev) => ({
-    //     ...prev,
-    //     sidebar: {
-    //       ...prev.sidebar,
-    //       tagInput: {
-    //         ...prev.sidebar.tagInput!,
-    //         value,
-    //       },
-    //     },
-    //   }));
-    // });
-    // ctx.setUI((prev) => ({
-    //   ...prev,
-    //   sidebar: {
-    //     ...prev.sidebar,
-    //     tagInput,
-    //   },
-    // }));
+    let [tagInput, completed] = createAwaitableInput({ value: "" }, (value) => {
+      ctx.setUI(
+        (prev) =>
+          ({
+            sidebar: {
+              explorer: {
+                input: {
+                  value,
+                },
+              },
+            },
+          } as UI)
+      );
+    });
+
+    ctx.setUI((prev) => ({
+      sidebar: {
+        explorer: {
+          input: tagInput,
+        },
+      },
+    }));
+
+    ctx.setUI((prev) => ({
+      sidebar: {
+        explorer: {
+          input: {
+            ...tagInput,
+          },
+        },
+      },
+    }));
+    console.log("set the ui!");
+
     // if ((await completed) === "confirm") {
     //   try {
     //     const { value: name } = ctx.getState().ui.sidebar.tagInput!;
@@ -205,10 +198,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.setSelection": async (ctx, selected) => {
     ctx.setUI((prev) => ({
-      ...prev,
       sidebar: {
-        ...prev.sidebar,
-        selected,
+        // selected,
       },
     }));
   },
@@ -240,72 +231,5 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         },
       },
     }));
-
-    let menus: Menu[];
-    switch (view) {
-      case "all":
-        menus = await getAll();
-        break;
-      case "notebooks":
-        menus = await getByNotebooks();
-        break;
-      case "tags":
-        menus = await getByTags();
-        break;
-      case "favorites":
-        menus = await getFavorited();
-        break;
-      case "temp":
-        menus = await getTemporary();
-        break;
-      case "trash":
-        menus = await getTrashed();
-        break;
-      default:
-        throw new InvalidOpError(`Invalid sidebar view ${view}`);
-    }
-
-    ctx.setUI((s) => ({
-      ...s,
-      sidebar: {
-        ...s.sidebar,
-        explorer: {
-          ...s.sidebar.explorer,
-          menus,
-        },
-      },
-    }));
   },
 };
-
-export async function getAll(): Promise<Menu[]> {
-  // Just query for every single note.
-  throw new NotImplementedError();
-}
-
-export async function getByNotebooks(): Promise<Menu[]> {
-  // Load every notebook via notebooks.getAll()
-  // Load notes for each notebook
-  throw new NotImplementedError();
-}
-
-export async function getByTags(): Promise<Menu[]> {
-  // Load ever tag via tags.getAll()
-  // Load notes for each tag
-  throw new NotImplementedError();
-}
-
-export async function getFavorited(): Promise<Menu[]> {
-  // Load all notes with favorited flag set
-  throw new NotImplementedError();
-}
-
-export async function getTemporary(): Promise<Menu[]> {
-  // Load all temporary notes
-  throw new NotImplementedError();
-}
-
-export async function getTrashed(): Promise<Menu[]> {
-  // Load all trashed notes
-  throw new NotImplementedError();
-}

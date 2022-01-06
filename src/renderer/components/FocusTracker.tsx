@@ -74,7 +74,6 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
       }
 
       return {
-        ...s,
         focused,
       };
     });
@@ -88,7 +87,6 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
 
       const [, ...focused] = s.focused;
       return {
-        ...s,
         focused,
       };
     });

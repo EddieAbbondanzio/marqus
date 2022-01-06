@@ -2,17 +2,24 @@ import { Coord } from "../../../shared/dom";
 import { Tag, Notebook } from "../../../shared/domain/entities";
 import { ExplorerView, State, UI } from "../../../shared/domain/state";
 import { Shortcut } from "../../../shared/domain/valueObjects";
+import { RecursivePartial } from "../../../shared/types";
 import { StartsWith } from "../../types";
 
 // NB: Don't pull this into index.ts unless you want circular dependencies
 
 export type Transformer<S> = (previous: S) => S;
+export type PartialTransformer<S> = (previous: S) => RecursivePartial<S>;
 
-export type SetUI = (t: Transformer<UI>) => void;
+/**
+ * SetUI supportes partial updates since it's unlikely we'll want to update
+ * every single property at once. This also works for nested props.
+ */
+export type SetUI = (t: PartialTransformer<UI>) => void;
 export type SetTags = (t: Transformer<Tag[]>) => void;
 export type SetNotebooks = (t: Transformer<Notebook[]>) => void;
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
 
+// Context implementation lives in src/renderer/commands/index.ts
 export interface ExecutionContext {
   getState: () => State;
   setUI: SetUI;

@@ -1,4 +1,5 @@
-import { Tag, Notebook } from "./entities";
+import { AwaitableInput } from "../awaitableInput";
+import { Tag, Notebook, EntityType } from "./entities";
 import { Menu, Shortcut } from "./valueObjects";
 
 export interface State {
@@ -29,8 +30,16 @@ export interface Filter {
 
 export interface Explorer {
   view: ExplorerView;
-  menus: Menu[];
+  input?: ExplorerInput;
+  // Menus are generated on the fly in the explorer component
 }
+export interface ExplorerInput extends AwaitableInput {
+  parent?: {
+    id: string;
+    type: EntityType;
+  };
+}
+
 export type ExplorerView =
   | "all"
   | "notebooks"

@@ -44,6 +44,25 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
         .oneOf(["all", "notebooks", "tags", "favorites", "temp", "trash"])
         .required(),
       menus: yup.array(),
+      input: yup
+        .object()
+        .shape({
+          id: idSchema,
+          mode: yup.mixed().oneOf(["create", "update"]),
+          value: yup.string() as yup.StringSchema<string>,
+          onInput: yup.mixed(),
+          confirm: yup.mixed(),
+          cancel: yup.mixed(),
+          parent: yup
+            .object()
+            .shape({
+              id: idSchema,
+              type: yup.mixed().oneOf(["note", "notebook", "tag"]),
+            })
+            .optional(),
+        })
+        .default(undefined)
+        .optional(),
     }),
     tagInput: yup
       .object()

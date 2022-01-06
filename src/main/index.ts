@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from "electron";
+import { ValidationError } from "yup";
 import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { appRpcs } from "./rpcs/app";

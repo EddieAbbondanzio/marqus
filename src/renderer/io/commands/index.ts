@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep, merge } from "lodash";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { State, UI } from "../../../shared/domain/state";
 import { appCommands } from "./appCommands";
@@ -47,14 +47,15 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
 
   const setUI: SetUI = (transformer) => {
     setState((prevState) => {
+      const updates = transformer(prevState.ui);
+      const ui = merge(prevState.ui, updates);
+
       const newState = {
         ...prevState,
-        ui: transformer(prevState.ui),
+        ui,
       };
 
-      const ui = cloneDeep(newState.ui);
-      // Don't listen for response.
-      void window.rpc("state.saveUI", ui);
+      void window.rpc("state.saveUI", cloneDeep(newState.ui));
       return newState;
     });
   };

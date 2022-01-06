@@ -1,25 +1,41 @@
 import { faPlus, faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import React from "react";
+import React, { useState } from "react";
 import { px } from "../../shared/dom";
-import { State } from "../../shared/domain/state";
-import { Execute } from "../io/commands";
-import { SetUI } from "../io/commands/types";
 import { Dropdown } from "./shared/Dropdown";
 import { Icon } from "./shared/Icon";
 
+export type NewButtonOption = "note" | "temporaryNote" | "tag" | "notebook";
+
 export interface NewButtonProps {
-  state: State;
-  setUI: SetUI;
-  execute: Execute;
+  onClick?: (option: NewButtonOption) => any;
 }
 
+// Dumb component
 export function NewButton(props: NewButtonProps) {
+  let [dropdownActive, setDropdownActive] = useState(false);
+  let onClick = (ev: React.MouseEvent<HTMLElement>) => {
+    ev.stopPropagation();
+
+    const target = ev.target as HTMLElement;
+    if (!target.classList.contains("dropdown-item")) {
+      props.onClick?.("note");
+    } else {
+      const optType = target.getAttribute(
+        "data-new-option"
+      ) as NewButtonOption | null;
+
+      if (optType != null) {
+        props.onClick?.(optType);
+      }
+    }
+  };
+
   let trigger = (
     <div className="buttons has-addons my-0 mr-1 is-inline-block">
       <button
         className="button is-small py-2 px-1 mb-0"
         style={{ height: px(30) }}
-        onClick={(ev) => ev.stopPropagation()}
+        onClick={onClick}
       >
         <Icon icon={faPlus} size="is-small" />
         New note
@@ -35,10 +51,16 @@ export function NewButton(props: NewButtonProps) {
 
   return (
     <div>
-      <Dropdown trigger={trigger}>
-        <div className="dropdown-item">New temporary note</div>
-        <div className="dropdown-item">New tag</div>
-        <div className="dropdown-item">New notebook</div>
+      <Dropdown trigger={trigger} active={dropdownActive} onSelect={onClick}>
+        {/* <a className="dropdown-item" data-new-option="temporaryNote">
+          New temporary note
+        </a> */}
+        <a className="dropdown-item" data-new-option="tag">
+          New tag
+        </a>
+        <a className="dropdown-item" data-new-option="notebook">
+          New notebook
+        </a>
       </Dropdown>
     </div>
   );

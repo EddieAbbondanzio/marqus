@@ -16,6 +16,7 @@ const { rpc } = window;
   try {
     initialState = (await rpc("state.load")) as State;
   } catch (e) {
+    console.log("Fatal Error", e);
     await promptFatal((e as Error).message);
     await rpc("app.quit");
     return;

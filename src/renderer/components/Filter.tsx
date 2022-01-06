@@ -6,7 +6,6 @@ import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { Button } from "./shared/Button";
 import { Collapse } from "./shared/Collapse";
-import { Dropdown } from "./shared/Dropdown";
 import { Checkbox, Field, Form, Input } from "./shared/Form";
 import { Icon } from "./shared/Icon";
 
@@ -22,6 +21,8 @@ export function Filter({ state, execute }: FilterProps) {
   const searchClasses = classList("mt-1", {
     "mb-1": !expanded,
   });
+
+  console.log("Filter()", expanded);
 
   return (
     <div className="has-border-bottom-1-light p-2">

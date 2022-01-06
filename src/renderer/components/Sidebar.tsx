@@ -7,9 +7,7 @@ import { Filter } from "./Filter";
 import { ContextMenu } from "./shared/ContextMenu";
 import { Explorer } from "./Explorer";
 import { Resizable } from "./shared/Resizable";
-import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./Focusable";
-import { Dropdown } from "./shared/Dropdown";
 
 export interface SidebarProps {
   state: State;
@@ -22,7 +20,7 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
 
   return (
     <Resizable
-      minWidth={px(320)}
+      minWidth={px(300)}
       width={state.ui.sidebar.width}
       onResize={(w) => execute("sidebar.resizeWidth", w)}
     >

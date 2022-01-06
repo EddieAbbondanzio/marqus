@@ -9,6 +9,7 @@ import { classList } from "../../../shared/dom";
 export interface DropdownProps {
   active?: boolean;
   trigger: JSX.Element;
+  onSelect?: (ev: React.MouseEvent<HTMLElement>) => any;
 }
 
 export function Dropdown(props: PropsWithChildren<DropdownProps>) {
@@ -34,13 +35,22 @@ export function Dropdown(props: PropsWithChildren<DropdownProps>) {
     };
   }, [props.active]);
 
+  const onItemClick = (ev: React.MouseEvent<HTMLElement>) => {
+    ev.stopPropagation();
+    setActive(false);
+
+    props.onSelect?.(ev);
+  };
+
   return (
     <div className={classes}>
       <div className="dropdown-trigger" onClick={toggle}>
         {props.trigger}
       </div>
       <div className="dropdown-menu">
-        <div className="dropdown-content">{props.children}</div>
+        <div className="dropdown-content" onClick={onItemClick}>
+          {props.children}
+        </div>
       </div>
     </div>
   );

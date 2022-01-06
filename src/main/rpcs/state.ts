@@ -1,6 +1,4 @@
-import { px } from "../../shared/dom";
 import { State, UI } from "../../shared/domain/state";
-import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { RpcRegistry } from "../../shared/rpc";
 import { uiFile, tagFile, notebookFile, shortcutFile } from "../fileHandlers";
 
