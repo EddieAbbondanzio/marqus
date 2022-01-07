@@ -14,6 +14,7 @@ import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { NewButton, NewButtonOption } from "./NewButton";
 import { Icon } from "./shared/Icon";
+import { InlineInput } from "./shared/InlineInput";
 import { NavigationMenu } from "./shared/NavigationMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
@@ -70,6 +71,12 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
             text={tag.name}
           ></NavigationMenu>
         );
+      }
+
+      if (input != null && input.mode === "create") {
+        console.log("input", input);
+        menus.push(<InlineInput key="create" {...input} size="is-small" />);
+        console.log("Added tag input");
       }
       break;
 

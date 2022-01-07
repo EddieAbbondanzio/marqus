@@ -22,8 +22,6 @@ export function Filter({ state, execute }: FilterProps) {
     "mb-1": !expanded,
   });
 
-  console.log("Filter()", expanded);
-
   return (
     <div className="has-border-bottom-1-light p-2">
       <Form>

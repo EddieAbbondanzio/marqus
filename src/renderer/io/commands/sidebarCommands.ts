@@ -1,8 +1,5 @@
-import { clamp } from "lodash";
 import { createAwaitableInput } from "../../../shared/awaitableInput";
 import { UI } from "../../../shared/domain/state";
-import { Menu } from "../../../shared/domain/valueObjects";
-import { InvalidOpError, NotImplementedError } from "../../../shared/errors";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace } from "./types";
 
@@ -25,29 +22,27 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       return;
     }
 
-    ctx.setUI((prev) => ({
+    ctx.setUI({
       sidebar: {
         width,
       },
-    }));
+    });
   },
   "sidebar.updateScroll": async (ctx, scroll) => {
     if (scroll == null) {
       return;
     }
 
-    ctx.setUI((prev) => ({
+    ctx.setUI({
       sidebar: {
         scroll,
       },
-    }));
+    });
   },
   "sidebar.scrollDown": async (ctx) => {
     ctx.setUI((prev) => {
       // Max scroll clamp is performed in scrollable.
       const scroll = prev.sidebar.scroll + 30;
-
-      console.log("dw: ", scroll);
 
       return {
         sidebar: {
@@ -83,58 +78,48 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.createTag": async (ctx) => {
-    let [tagInput, completed] = createAwaitableInput({ value: "" }, (value) => {
-      ctx.setUI(
-        (prev) =>
-          ({
-            sidebar: {
-              explorer: {
-                input: {
-                  value,
-                },
-              },
+    let [input, completed] = createAwaitableInput({ value: "" }, (value) => {
+      ctx.setUI({
+        sidebar: {
+          explorer: {
+            input: {
+              value,
             },
-          } as UI)
-      );
-    });
-
-    ctx.setUI((prev) => ({
-      sidebar: {
-        explorer: {
-          input: tagInput,
-        },
-      },
-    }));
-
-    ctx.setUI((prev) => ({
-      sidebar: {
-        explorer: {
-          input: {
-            ...tagInput,
           },
         },
-      },
-    }));
-    console.log("set the ui!");
+      });
+    });
 
-    // if ((await completed) === "confirm") {
-    //   try {
-    //     const { value: name } = ctx.getState().ui.sidebar.tagInput!;
-    //     const tag = await window.rpc("tags.create", {
-    //       name,
-    //     });
-    //     ctx.setTags((tags) => [...tags, tag]);
-    //   } catch (e) {
-    //     promptError(e.message);
-    //   }
-    // }
-    // ctx.setUI((prev) => ({
-    //   ...prev,
-    //   sidebar: {
-    //     ...prev.sidebar,
-    //     tagInput: undefined,
-    //   },
-    // }));
+    ctx.setUI({
+      sidebar: {
+        explorer: {
+          input,
+        },
+      },
+    });
+
+    if ((await completed) === "confirm") {
+      console.log("CONFIRM!");
+      try {
+        const { value: name } = ctx.getState().ui.sidebar.explorer.input!;
+        const tag = await window.rpc("tags.create", {
+          name,
+        });
+        ctx.setTags((tags) => [...tags, tag]);
+      } catch (e) {
+        promptError(e.message);
+      }
+    } else {
+      console.log("CANCEL!");
+    }
+
+    ctx.setUI({
+      sidebar: {
+        explorer: {
+          input: undefined,
+        },
+      },
+    });
   },
   "sidebar.updateTag": async (ctx, id) => {
     // if (id == null) {
@@ -197,11 +182,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     }
   },
   "sidebar.setSelection": async (ctx, selected) => {
-    ctx.setUI((prev) => ({
-      sidebar: {
-        // selected,
-      },
-    }));
+    console.log("implement this!");
   },
   "sidebar.moveSelectionUp": async (ctx) => {
     // TODO: Support nested logic later on
@@ -221,15 +202,12 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       return;
     }
 
-    ctx.setUI((s) => ({
-      ...s,
+    ctx.setUI({
       sidebar: {
-        ...s.sidebar,
         explorer: {
-          ...s.sidebar.explorer,
           view,
         },
       },
-    }));
+    });
   },
 };

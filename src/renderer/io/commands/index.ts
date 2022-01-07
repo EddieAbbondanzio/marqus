@@ -1,6 +1,7 @@
-import { cloneDeep, merge } from "lodash";
+import { cloneDeep, merge, mergeWith } from "lodash";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { State, UI } from "../../../shared/domain/state";
+import { deepUpdate } from "../../utils/deepUpdate";
 import { appCommands } from "./appCommands";
 import { sidebarCommands } from "./sidebarCommands";
 import {
@@ -47,9 +48,15 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
 
   const setUI: SetUI = (transformer) => {
     setState((prevState) => {
-      const updates = transformer(prevState.ui);
-      const ui = merge(prevState.ui, updates);
+      const updates =
+        typeof transformer === "function"
+          ? transformer(prevState.ui)
+          : transformer;
 
+      console.log("prev state: ", prevState.ui);
+      console.log("updates: ", updates);
+      const ui = deepUpdate(prevState.ui, updates);
+      console.log("new state: ", ui);
       const newState = {
         ...prevState,
         ui,

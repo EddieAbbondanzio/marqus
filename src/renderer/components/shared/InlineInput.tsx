@@ -7,6 +7,7 @@ import { KeyCode } from "../../../shared/io/keyCode";
 import { isBlank } from "../../../shared/string";
 import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
+import { BulmaSize } from "../../shared";
 
 export interface InlineInputProps {
   className?: string;
@@ -15,7 +16,7 @@ export interface InlineInputProps {
   confirm: () => void;
   cancel: () => void;
   schema?: yup.StringSchema;
-  size?: Size;
+  size?: BulmaSize;
 }
 
 // DEADWEIGHT
@@ -49,6 +50,8 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
   }
 
   const onBlur = async () => {
+    console.log("blur");
+
     if (flags.wasFinalized || errorMessage.length > 0 || !(await validate())) {
       return;
     }

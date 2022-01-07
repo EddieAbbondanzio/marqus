@@ -23,8 +23,23 @@ import { Shortcut } from "../shared/domain/valueObjects";
 import { getNodeEnv } from "../shared/env";
 
 export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
+  serialize: (ui) => {
+    // Nuke out stuff we don't want to persist.
+    ui.sidebar.explorer.input = undefined;
+
+    return ui;
+  },
+  deserialize: (ui) => {
+    if (ui == null) {
+      return;
+    }
+
+    ui.sidebar.explorer.input = undefined;
+    return ui;
+  },
   defaultValue: {
     sidebar: {
+      hidden: false,
       width: px(300),
       scroll: 0,
       filter: {},
