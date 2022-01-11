@@ -13,7 +13,11 @@ export function deepUpdate<T extends {}>(obj: T, updates: DeepPartial<T>): T {
 
   breadthFirst(updates, (update, property, path) => {
     const existing = get(newObj, path);
-    if (typeof existing === "object") {
+    /**
+     * To prevent from updating children properties from their parents we don't
+     * perform updates on objects unless their value has been deleted.
+     */
+    if (typeof existing === "object" && update[property] != null) {
       return;
     }
 
@@ -22,6 +26,7 @@ export function deepUpdate<T extends {}>(obj: T, updates: DeepPartial<T>): T {
 
       // Delete
       if (newValue == null) {
+        // We need to get the parent in order to delete a prop
         const parentPath = path.split(".").slice(0, -1).join(".");
         let parent = isBlank(parentPath) ? newObj : get(newObj, parentPath);
 

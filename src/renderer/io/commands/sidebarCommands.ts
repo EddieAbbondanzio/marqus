@@ -5,10 +5,9 @@ import { CommandsForNamespace } from "./types";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
-    ctx.setUI((ui) => ({
-      ...ui,
+    ctx.setUI({
       focused: ["sidebar"],
-    }));
+    });
   },
   "sidebar.toggle": async (ctx) => {
     ctx.setUI((prev) => ({
@@ -79,6 +78,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.createTag": async (ctx) => {
     let [input, completed] = createAwaitableInput({ value: "" }, (value) => {
+      console.log("awaitableInput set input");
       ctx.setUI({
         sidebar: {
           explorer: {
@@ -93,13 +93,14 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     ctx.setUI({
       sidebar: {
         explorer: {
+          view: "tags",
           input,
         },
       },
     });
 
-    if ((await completed) === "confirm") {
-      console.log("CONFIRM!");
+    const result = await completed;
+    if (result === "confirm") {
       try {
         const { value: name } = ctx.getState().ui.sidebar.explorer.input!;
         const tag = await window.rpc("tags.create", {
@@ -109,8 +110,6 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       } catch (e) {
         promptError(e.message);
       }
-    } else {
-      console.log("CANCEL!");
     }
 
     ctx.setUI({

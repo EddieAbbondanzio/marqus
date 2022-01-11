@@ -1,6 +1,20 @@
 import { deepUpdate } from "./deepUpdate";
 
 describe("deepUpdate()", () => {
+  test("adds new props", () => {
+    const obj = {
+      a: 1,
+      b: 2,
+    };
+
+    const upd = {
+      c: 3,
+    };
+
+    const updated = deepUpdate(obj, upd as any);
+    expect(updated).toHaveProperty("c", 3);
+  });
+
   test("updates props", () => {
     const obj = {
       a: 1,
@@ -150,5 +164,30 @@ describe("deepUpdate()", () => {
         },
       },
     });
+  });
+
+  test("works on a drilled down object", () => {
+    const obj = {
+      foo: {
+        bar: {
+          baz: {
+            a: 1,
+          },
+        },
+      },
+    };
+
+    const upd = {
+      foo: {
+        bar: {
+          baz: {
+            a: undefined,
+          },
+        },
+      },
+    };
+
+    const updated = deepUpdate(obj, upd);
+    expect(updated.foo.bar.baz.a).toBe(undefined);
   });
 });

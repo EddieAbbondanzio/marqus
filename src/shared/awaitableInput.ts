@@ -1,3 +1,5 @@
+import { Nullable } from "tsdef";
+
 export type InputMode = "create" | "update";
 
 export interface AwaitableInput {
@@ -17,19 +19,36 @@ export function createAwaitableInput(
   let mode: InputMode = params.id == null ? "create" : "update";
   let confirm: () => void;
   let cancel: () => void;
+  let outcome: Nullable<string>;
 
   let confirmPromise: Promise<"confirm"> = new Promise(
-    (res) => (confirm = () => res("confirm"))
+    (res) =>
+      (confirm = () => {
+        outcome = "confirm";
+        res("confirm");
+      })
   );
   let cancelPromise: Promise<"cancel"> = new Promise(
-    (res) => (cancel = () => res("cancel"))
+    (res) =>
+      (cancel = () => {
+        outcome = "cancel";
+        res("cancel");
+      })
   );
+
+  const wrappedSetValue = (value: string) => {
+    if (outcome != null) {
+      return;
+    }
+
+    setValue(value);
+  };
 
   const obj: AwaitableInput = {
     id: params.id,
     mode,
     value: params.value,
-    onInput: setValue,
+    onInput: wrappedSetValue,
     confirm: confirm!,
     cancel: cancel!,
   };

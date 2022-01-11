@@ -53,10 +53,8 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
           ? transformer(prevState.ui)
           : transformer;
 
-      console.log("prev state: ", prevState.ui);
-      console.log("updates: ", updates);
       const ui = deepUpdate(prevState.ui, updates);
-      console.log("new state: ", ui);
+      console.log("ui: ", ui);
       const newState = {
         ...prevState,
         ui,

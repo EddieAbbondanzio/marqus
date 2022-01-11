@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { ExplorerView, State } from "../../shared/domain/state";
+import { getTagSchema } from "../../shared/schemas";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { NewButton, NewButtonOption } from "./NewButton";
@@ -18,6 +19,7 @@ import { InlineInput } from "./shared/InlineInput";
 import { NavigationMenu } from "./shared/NavigationMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
+import * as yup from "yup";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -40,8 +42,6 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     execute("sidebar.setExplorerView", view);
 
   const input = state.ui.sidebar.explorer.input;
-  console.log("input!: ", input);
-
   let menus = [];
 
   switch (view) {
@@ -63,7 +63,10 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       break;
 
     case "tags":
-      for (const tag of state.tags) {
+      const { tags } = state;
+      const tagNameSchema = yup.reach(getTagSchema(tags), "name");
+
+      for (const tag of tags) {
         menus.push(
           <NavigationMenu
             key={tag.id}
@@ -74,9 +77,14 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       }
 
       if (input != null && input.mode === "create") {
-        console.log("input", input);
-        menus.push(<InlineInput key="create" {...input} size="is-small" />);
-        console.log("Added tag input");
+        menus.push(
+          <InlineInput
+            key="create"
+            {...input}
+            size="is-small"
+            schema={tagNameSchema}
+          />
+        );
       }
       break;
 

@@ -32,7 +32,7 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
 
   const validate = async () => {
     if (props.schema == null) {
-      return;
+      return true;
     }
 
     try {
@@ -50,8 +50,6 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
   }
 
   const onBlur = async () => {
-    console.log("blur");
-
     if (flags.wasFinalized || errorMessage.length > 0 || !(await validate())) {
       return;
     }
@@ -97,7 +95,9 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
 
       switch (key) {
         case KeyCode.Enter:
-          if (!(await validate())) {
+          const isValid = await validate();
+
+          if (!isValid) {
             return;
           }
           props.confirm();
