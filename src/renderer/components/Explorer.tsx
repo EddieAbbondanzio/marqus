@@ -54,6 +54,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       for (const notebook of state.notebooks) {
         menus.push(
           <NavigationMenu
+            id={`notebook.${notebook.id}`}
             key={notebook.id}
             name={notebook.name}
             text={notebook.name}
@@ -69,6 +70,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       for (const tag of tags) {
         menus.push(
           <NavigationMenu
+            id={`tag.${tag.id}`}
             key={tag.id}
             name={tag.name}
             text={tag.name}

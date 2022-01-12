@@ -77,8 +77,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.createTag": async (ctx) => {
-    let [input, completed] = createAwaitableInput({ value: "" }, (value) => {
-      console.log("awaitableInput set input");
+    let [input, completed] = createAwaitableInput({ value: "" }, (value) =>
       ctx.setUI({
         sidebar: {
           explorer: {
@@ -87,8 +86,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
             },
           },
         },
-      });
-    });
+      })
+    );
 
     ctx.setUI({
       sidebar: {

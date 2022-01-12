@@ -4,10 +4,13 @@ import { State } from "../../shared/domain/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { Filter } from "./Filter";
-import { ContextMenu } from "./shared/ContextMenu";
+import { ContextMenu, ContextMenuItem } from "./shared/ContextMenu";
 import { Explorer } from "./Explorer";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./Focusable";
+import { NAVIGATION_MENU_ATTRIBUTE } from "./shared/NavigationMenu";
+import { findParent } from "../utils/findParent";
+import { NotImplementedError } from "../../shared/errors";
 
 export interface SidebarProps {
   state: State;
@@ -16,7 +19,47 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ state, setUI, execute }: SidebarProps) {
-  let contextMenuItems = () => [];
+  let contextMenuItems = (a: MouseEvent) => {
+    const contextMenuAttr = findParent(
+      a.target as HTMLElement,
+      (el) => el.hasAttribute(NAVIGATION_MENU_ATTRIBUTE),
+      {
+        matchValue: (el) => el.getAttribute(NAVIGATION_MENU_ATTRIBUTE),
+      }
+    );
+
+    if (contextMenuAttr == null) {
+      return [];
+    }
+
+    const [type, id] = contextMenuAttr.split(".");
+    const items = [];
+    switch (type) {
+      case "tag":
+        items.push(
+          <ContextMenuItem
+            text="Rename"
+            command="sidebar.updateTag"
+            commandInput={id}
+            key="update"
+          />,
+          <ContextMenuItem
+            text="Delete"
+            command="sidebar.deleteTag"
+            commandInput={id}
+            key="delete"
+          />
+        );
+        break;
+
+      case "notebook":
+        throw new NotImplementedError();
+      case "note":
+        throw new NotImplementedError();
+    }
+
+    return items;
+  };
 
   return (
     <Resizable
