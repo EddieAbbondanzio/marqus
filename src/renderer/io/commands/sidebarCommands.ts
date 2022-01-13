@@ -136,7 +136,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
 
         ctx.setTags((tags) => {
           const index = tags.findIndex((t) => t.id === updatedTag.id);
-          tags.splice(index, 1, updatedTag);
+          tags[index] = updatedTag;
           return tags;
         });
       } catch (e) {

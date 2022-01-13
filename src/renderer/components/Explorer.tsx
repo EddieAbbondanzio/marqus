@@ -65,7 +65,13 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
 
     case "tags":
       const { tags } = state;
-      const tagNameSchema = yup.reach(getTagSchema(tags), "name");
+      let tagNameSchema;
+      if (input?.mode === "create") {
+        tagNameSchema = yup.reach(getTagSchema(tags), "name");
+      } else if (input?.mode === "update") {
+        const otherTags = tags.filter((t) => t.id !== input.id);
+        tagNameSchema = yup.reach(getTagSchema(otherTags), "name");
+      }
 
       for (const tag of tags) {
         if (input?.mode === "update" && input?.id === tag.id) {

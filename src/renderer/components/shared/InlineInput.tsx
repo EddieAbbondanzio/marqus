@@ -121,7 +121,7 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
     props.className
   );
   return (
-    <div className="field" style={{ position: "relative" }}>
+    <div className="field mb-0" style={{ position: "relative" }}>
       <input
         ref={input}
         className={classes}
