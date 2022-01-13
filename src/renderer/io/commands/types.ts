@@ -47,7 +47,7 @@ export interface CommandSchema {
   "sidebar.resizeWidth": Command<string>;
   "sidebar.toggleFilter": Command;
   "sidebar.createTag": Command;
-  "sidebar.updateTag": Command<string>;
+  "sidebar.renameTag": Command<string>;
   "sidebar.deleteTag": Command<string>;
   "sidebar.setSelection": Command<string>;
   "sidebar.moveSelectionUp": Command;

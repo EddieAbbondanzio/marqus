@@ -5,6 +5,7 @@ export type InputMode = "create" | "update";
 export interface AwaitableInput {
   id?: string;
   mode: InputMode;
+  // Render use only
   value: string;
   onInput: (value: string) => void;
   confirm: () => void;
@@ -15,39 +16,41 @@ export type AwaitableOutcome = "confirm" | "cancel";
 export function createAwaitableInput(
   params: { value: string; id?: string },
   setValue: (value: string) => void
-): [AwaitableInput, Promise<AwaitableOutcome>] {
+): [AwaitableInput, Promise<[value: string, action: AwaitableOutcome]>] {
   let mode: InputMode = params.id == null ? "create" : "update";
   let confirm: () => void;
   let cancel: () => void;
   let outcome: Nullable<string>;
+  let value = params.value;
 
-  let confirmPromise: Promise<"confirm"> = new Promise(
+  let confirmPromise: Promise<[value: string, action: "confirm"]> = new Promise(
     (res) =>
       (confirm = () => {
         outcome = "confirm";
-        res("confirm");
+        res([value, "confirm"]);
       })
   );
-  let cancelPromise: Promise<"cancel"> = new Promise(
+  let cancelPromise: Promise<[value: string, action: "cancel"]> = new Promise(
     (res) =>
       (cancel = () => {
         outcome = "cancel";
-        res("cancel");
+        res([value, "cancel"]);
       })
   );
 
-  const wrappedSetValue = (value: string) => {
+  const wrappedSetValue = (val: string) => {
     if (outcome != null) {
       return;
     }
 
-    setValue(value);
+    value = val;
+    setValue(val);
   };
 
   const obj: AwaitableInput = {
     id: params.id,
     mode,
-    value: params.value,
+    value,
     onInput: wrappedSetValue,
     confirm: confirm!,
     cancel: cancel!,

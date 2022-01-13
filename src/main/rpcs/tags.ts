@@ -31,14 +31,14 @@ const createTag: RpcHandler<"tags.create"> = async ({
 
 const updateTag = async ({
   id,
-  newName,
+  name,
 }: {
   id: string;
-  newName: string;
+  name: string;
 }): Promise<Tag> => {
   const tags = await tagFile.load();
 
-  if (tags.some((t) => t.name === newName && t.id !== id)) {
+  if (tags.some((t) => t.name === name && t.id !== id)) {
     throw Error(`Tag name ${name} already in use`);
   }
 
@@ -48,7 +48,7 @@ const updateTag = async ({
     throw Error(`No tag with id ${id} found`);
   }
 
-  tag.name = newName;
+  tag.name = name;
   tag.dateUpdated = new Date();
 
   await tagFile.save(tags);

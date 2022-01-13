@@ -1,7 +1,10 @@
-import { createAwaitableInput } from "../../../shared/awaitableInput";
-import { UI } from "../../../shared/domain/state";
+import {
+  AwaitableInput,
+  createAwaitableInput,
+} from "../../../shared/awaitableInput";
+import { ExplorerInput, ExplorerView, UI } from "../../../shared/domain/state";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
-import { CommandsForNamespace } from "./types";
+import { CommandsForNamespace, ExecutionContext } from "./types";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -89,21 +92,13 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       })
     );
 
-    ctx.setUI({
-      sidebar: {
-        explorer: {
-          view: "tags",
-          input,
-        },
-      },
-    });
+    setExplorerInput(ctx, input, "tags");
+    const [value, action] = await completed;
 
-    const result = await completed;
-    if (result === "confirm") {
+    if (action === "confirm") {
       try {
-        const { value: name } = ctx.getState().ui.sidebar.explorer.input!;
         const tag = await window.rpc("tags.create", {
-          name,
+          name: value,
         });
         ctx.setTags((tags) => [...tags, tag]);
       } catch (e) {
@@ -111,69 +106,50 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       }
     }
 
-    ctx.setUI({
-      sidebar: {
-        explorer: {
-          input: undefined,
-        },
-      },
-    });
+    clearExplorerInput(ctx);
   },
-  "sidebar.updateTag": async (ctx, id) => {
-    // if (id == null) {
-    //   throw Error(`No id passed.`);
-    // }
-    // const tag = ctx.getState().tags.find((t) => t.id === id)!;
-    // let [tagInput, completed] = createAwaitableInput(
-    //   { value: tag.name, id },
-    //   (value) => {
-    //     ctx.setUI((prev) => ({
-    //       ...prev,
-    //       sidebar: {
-    //         ...prev.sidebar,
-    //         tagInput: {
-    //           ...prev.sidebar.tagInput!,
-    //           value,
-    //         },
-    //       },
-    //     }));
-    //   }
-    // );
-    // ctx.setUI((prev) => ({
-    //   ...prev,
-    //   sidebar: {
-    //     ...prev.sidebar,
-    //     tagInput,
-    //   },
-    // }));
-    // if ((await completed) === "confirm") {
-    //   try {
-    //     const { value: name } = ctx.getState().ui.sidebar.tagInput!;
-    //     const tag = await window.rpc("tags.update", {
-    //       id,
-    //       newName: name,
-    //     });
-    //     ctx.setTags((tags) => [...tags.filter((t) => t.id !== tag.id), tag]);
-    //   } catch (e) {
-    //     promptError(e.message);
-    //   }
-    // }
-    // ctx.setUI((prev) => ({
-    //   ...prev,
-    //   sidebar: {
-    //     ...prev.sidebar,
-    //     tagInput: undefined,
-    //   },
-    // }));
-  },
-  "sidebar.deleteTag": async (ctx, id) => {
-    const tag = ctx.getState().tags.find((t) => t.id === id);
+  "sidebar.renameTag": async (ctx, id) => {
+    const tag = getTag(ctx, id);
+    let [input, completed] = createAwaitableInput(
+      { value: tag.name, id: tag.id },
+      (value) =>
+        ctx.setUI({
+          sidebar: {
+            explorer: {
+              input: {
+                value,
+              },
+            },
+          },
+        })
+    );
 
-    if (tag == null) {
-      throw Error(`No tag found with id ${id}`);
+    setExplorerInput(ctx, input, "tags");
+    const [name, action] = await completed;
+
+    if (action === "confirm") {
+      try {
+        const updatedTag = await window.rpc("tags.update", {
+          id: tag.id,
+          name,
+        });
+
+        ctx.setTags((tags) => {
+          const index = tags.findIndex((t) => t.id === updatedTag.id);
+          tags.splice(index, 1, updatedTag);
+          return tags;
+        });
+      } catch (e) {
+        promptError(e.message);
+      }
     }
 
+    clearExplorerInput(ctx);
+  },
+  "sidebar.deleteTag": async (ctx, id) => {
+    const tag = getTag(ctx, id);
     const res = await promptConfirmAction("delete", `tag ${tag.name}`);
+
     if (res.text === "Yes") {
       await window.rpc("tags.delete", { id: tag.id });
       ctx.setTags((tags) => [...tags.filter((t) => t.id !== tag.id)]);
@@ -184,16 +160,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.moveSelectionUp": async (ctx) => {
     // TODO: Support nested logic later on
-    ctx.setUI((s) => {
-      console.log("IMPLEMENT THIS!");
-
-      return {
-        ...s,
-      };
-    });
+    console.log("IMPLEMENT THIS!");
   },
   "sidebar.moveSelectionDown": async (ctx) => {
-    console.log("move selection down");
+    console.log("IMPLEMENT THIS!");
   },
   "sidebar.setExplorerView": async (ctx, view) => {
     if (view == null) {
@@ -209,3 +179,43 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
 };
+
+export function getTag(ctx: ExecutionContext, id?: string) {
+  if (id == null) {
+    throw Error(`No tag id passed.`);
+  }
+
+  const tags = ctx.getState().tags;
+  const tag = tags.find((t) => t.id === id);
+
+  if (tag == null) {
+    throw Error(`No tag with id ${id} found.`);
+  }
+
+  return tag;
+}
+
+export function setExplorerInput(
+  ctx: ExecutionContext,
+  input: AwaitableInput,
+  view?: ExplorerView
+) {
+  ctx.setUI({
+    sidebar: {
+      explorer: {
+        input,
+        view,
+      },
+    },
+  });
+}
+
+export function clearExplorerInput(ctx: ExecutionContext) {
+  ctx.setUI({
+    sidebar: {
+      explorer: {
+        input: undefined,
+      },
+    },
+  });
+}

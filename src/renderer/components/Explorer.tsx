@@ -68,14 +68,25 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       const tagNameSchema = yup.reach(getTagSchema(tags), "name");
 
       for (const tag of tags) {
-        menus.push(
-          <NavigationMenu
-            id={`tag.${tag.id}`}
-            key={tag.id}
-            name={tag.name}
-            text={tag.name}
-          ></NavigationMenu>
-        );
+        if (input?.mode === "update" && input?.id === tag.id) {
+          menus.push(
+            <InlineInput
+              key="create"
+              {...input}
+              size="is-small"
+              schema={tagNameSchema}
+            />
+          );
+        } else {
+          menus.push(
+            <NavigationMenu
+              id={`tag.${tag.id}`}
+              key={tag.id}
+              name={tag.name}
+              text={tag.name}
+            ></NavigationMenu>
+          );
+        }
       }
 
       if (input != null && input.mode === "create") {

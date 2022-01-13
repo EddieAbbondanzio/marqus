@@ -39,15 +39,15 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         items.push(
           <ContextMenuItem
             text="Rename"
-            command="sidebar.updateTag"
+            command="sidebar.renameTag"
             commandInput={id}
-            key="update"
+            key="renameTag"
           />,
           <ContextMenuItem
             text="Delete"
             command="sidebar.deleteTag"
             commandInput={id}
-            key="delete"
+            key="deleteTag"
           />
         );
         break;
