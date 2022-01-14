@@ -43,7 +43,7 @@ export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
         .mixed()
         .oneOf(["all", "notebooks", "tags", "favorites", "temp", "trash"])
         .required(),
-      menus: yup.array(),
+      selected: yup.array(),
       input: yup
         .object()
         .shape({

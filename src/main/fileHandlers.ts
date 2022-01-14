@@ -26,6 +26,7 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
   serialize: (ui) => {
     // Nuke out stuff we don't want to persist.
     ui.sidebar.explorer.input = undefined;
+    ui.sidebar.explorer.selected = undefined;
 
     return ui;
   },
@@ -35,6 +36,7 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
     }
 
     ui.sidebar.explorer.input = undefined;
+    ui.sidebar.explorer.selected = undefined;
     return ui;
   },
   defaultValue: {

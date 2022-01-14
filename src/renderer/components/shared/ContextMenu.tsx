@@ -15,7 +15,7 @@ import { Execute } from "../../io/commands";
 import { CommandInput, CommandType, SetUI } from "../../io/commands/types";
 import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
-import { useMouse } from "../../io/mouse";
+import { MouseModifier, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "../Focusable";
 
@@ -139,36 +139,39 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
 
   const { focus } = useFocus(menuRef, false);
 
-  useMouse(wrapperRef).listen({ event: "click", button: "right" }, (ev) => {
-    ev.stopPropagation();
-    const { clientX: left, clientY: top } = ev;
+  useMouse(wrapperRef).listen(
+    { event: "click", button: "right", modifier: MouseModifier.Alt },
+    (ev) => {
+      ev.stopPropagation();
+      const { clientX: left, clientY: top } = ev;
 
-    let active = !state.active;
+      let active = !state.active;
 
-    let generatedItems = state.generatedItems ?? false;
-    if (active) {
-      if (!generatedItems) {
-        setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
+      let generatedItems = state.generatedItems ?? false;
+      if (active) {
+        if (!generatedItems) {
+          setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
+        }
+      } else {
+        setItems([...GLOBAL_CONTEXT_ITEMS()]);
+        generatedItems = false;
       }
-    } else {
-      setItems([...GLOBAL_CONTEXT_ITEMS()]);
-      generatedItems = false;
-    }
 
-    setState({
-      ...state,
-      top,
-      left,
-      // Toggle allows closing menu with the same button that opened it.
-      active,
-      selected: active ? undefined : state.selected,
-      generatedItems,
-    });
+      setState({
+        ...state,
+        top,
+        left,
+        // Toggle allows closing menu with the same button that opened it.
+        active,
+        selected: active ? undefined : state.selected,
+        generatedItems,
+      });
 
-    if (active) {
-      focus();
+      if (active) {
+        focus();
+      }
     }
-  });
+  );
 
   // Listen for external click to blur menu
   useMouse(window).listen({ event: "click" }, (ev) => {

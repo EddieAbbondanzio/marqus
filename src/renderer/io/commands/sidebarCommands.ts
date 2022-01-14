@@ -2,7 +2,7 @@ import {
   AwaitableInput,
   createAwaitableInput,
 } from "../../../shared/awaitableInput";
-import { ExplorerInput, ExplorerView, UI } from "../../../shared/domain/state";
+import { ExplorerView } from "../../../shared/domain/state";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 
@@ -45,7 +45,6 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     ctx.setUI((prev) => {
       // Max scroll clamp is performed in scrollable.
       const scroll = prev.sidebar.scroll + 30;
-
       return {
         sidebar: {
           scroll,
@@ -56,8 +55,6 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.scrollUp": async (ctx) => {
     ctx.setUI((prev) => {
       const scroll = Math.max(prev.sidebar.scroll - 30, 0);
-
-      console.log("up: ", scroll);
       return {
         sidebar: {
           scroll,
@@ -67,13 +64,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.toggleFilter": async (ctx) => {
     ctx.setUI((prev) => {
-      const expanded = !prev.sidebar.filter.expanded;
-
-      console.log("new state: ", expanded);
       return {
         sidebar: {
           filter: {
-            expanded,
+            expanded: !prev.sidebar.filter.expanded,
           },
         },
       };
@@ -174,18 +168,21 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       sidebar: {
         explorer: {
           view,
+          input: undefined,
         },
       },
     });
   },
 };
 
+// Helpers should only be created if they are used in 2 or more places
+
 export function getTag(ctx: ExecutionContext, id?: string) {
   if (id == null) {
     throw Error(`No tag id passed.`);
   }
 
-  const tags = ctx.getState().tags;
+  const { tags } = ctx.getState();
   const tag = tags.find((t) => t.id === id);
 
   if (tag == null) {

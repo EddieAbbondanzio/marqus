@@ -31,6 +31,7 @@ export interface Filter {
 export interface Explorer {
   view: ExplorerView;
   input?: ExplorerInput;
+  selected?: string[];
   // Menus are generated on the fly in the explorer component
 }
 export interface ExplorerInput extends AwaitableInput {

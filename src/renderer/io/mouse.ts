@@ -1,4 +1,4 @@
-import { Reducer, RefObject, useCallback, useEffect, useReducer } from "react";
+import { useEffect, useState } from "react";
 import { InvalidOpError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
 import { Action, ElementOrWindow, isRef } from "../types";
@@ -43,7 +43,7 @@ export type Cursor =
   | "zoom-in"
   | "zoom-out";
 
-export type MouseButton = "left" | "right" | "either";
+export type MouseButton = "left" | "right";
 export type MouseEventType =
   | "mouseOver"
   | "mouseEnter"
@@ -54,11 +54,14 @@ export type MouseEventType =
   | "dragCancel"
   | "click";
 
-type MouseAction =
-  | Action<"dragStart", { element: HTMLElement }>
-  | Action<"dragMove">
-  | Action<"dragEnd">
-  | Action<"dragCancel">;
+export enum MouseModifier {
+  None = 0,
+  Shift = 1 << 1,
+  Control = 1 << 2,
+  Alt = 1 << 3,
+  Meta = 1 << 4,
+  Any = ~(~0 << 5),
+}
 
 interface MouseDragging {
   element?: HTMLElement;
@@ -66,7 +69,7 @@ interface MouseDragging {
 }
 
 export type MouseListenOpts =
-  | { event: "click"; button?: MouseButton }
+  | { event: "click"; button?: MouseButton; modifier?: MouseModifier }
   | { event: Exclude<MouseEventType, "click"> };
 
 export type MouseCallback = (ev: MouseEvent) => void;
@@ -78,75 +81,12 @@ export interface Mouse {
   resetCursor(): void;
 }
 
-export class MouseController implements Mouse {
-  listeners: {
-    [ev in MouseEventType]+?: { callback: MouseCallback; button?: MouseButton };
-  } = {};
-
-  listen(opts: MouseListenOpts, callback: MouseCallback): void {
-    this.listeners[opts.event] = {
-      callback,
-      button: opts.event === "click" ? opts.button ?? "left" : undefined,
-    };
-  }
-
-  notify(event: MouseEvent, type: MouseEventType, button?: MouseButton) {
-    const listener = this.listeners[type];
-    if (listener == null) {
-      return;
-    }
-
-    switch (type) {
-      case "click":
-        if (listener.button !== button) {
-          return;
-        }
-      default:
-        listener.callback(event);
-        break;
-    }
-  }
-
-  async cursor(cursorIcon: Cursor, cb: () => Promise<any>) {
-    const original = document.body.style.cursor;
-    document.body.style.cursor = cursorIcon;
-
-    await cb();
-
-    document.body.style.cursor = original;
-  }
-
-  setCursor(cursor: Cursor) {
-    document.body.style.cursor = cursor;
-  }
-
-  resetCursor() {
-    document.body.style.cursor = DEFAULT_CURSOR;
-  }
-}
-
-const reducer: Reducer<MouseDragging, MouseAction> = (dragging, action) => {
-  const { type } = action;
-  switch (type) {
-    case "dragStart":
-      return { element: action.element, hasMoved: undefined };
-
-    case "dragMove":
-      return { ...dragging, hasMoved: true };
-
-    case "dragCancel":
-    case "dragEnd":
-      return { element: undefined, hasMoved: undefined };
-
-    // MouseOver, mouseEnter, and mouseLeave are not tracked in state
-
-    default:
-      throw new InvalidOpError(`Invalid mouse action ${type}`);
-  }
-};
 export function useMouse(elOrWindow: ElementOrWindow): Mouse {
-  const [dragging, dispatch] = useReducer(reducer, {});
-  const mouse = new MouseController();
+  const [dragging, setDragging] = useState<MouseDragging>({
+    element: undefined,
+    hasMoved: false,
+  });
+  const [mouse] = useState(new MouseController());
 
   const onMouseDown = (event: MouseEvent) => {
     if (dragging.element != null) {
@@ -154,8 +94,7 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
     }
 
     // Change state to be holding
-    dispatch({
-      type: "dragStart",
+    setDragging({
       element: event.target as HTMLElement,
     });
   };
@@ -166,7 +105,6 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
       return;
     }
 
-    const button = getButton(event);
     if (dragging.hasMoved) {
       /*
        * We don't notify the listeners until after a first move otherwise it
@@ -175,7 +113,10 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
       mouse.notify(event, "dragStart");
     }
 
-    dispatch({ type: "dragMove" });
+    setDragging((s) => ({
+      ...s,
+      hasMoved: true,
+    }));
     mouse.notify(event, "dragMove");
   };
 
@@ -188,24 +129,24 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
       return;
     }
 
-    const button = getButton(event);
+    const [button, modifier] = getDetails(event);
     /*
      * If a mouse up event fired before we changed the drag phase of the
      * active mouse object the user never tried to move the element so
      * we should consider it a click.
      */
     if (!dragging.hasMoved) {
-      mouse.notify(event, "click", button);
+      mouse.notify(event, "click", button, modifier);
     }
 
-    dispatch({ type: "dragEnd" });
+    setDragging({ element: undefined, hasMoved: undefined });
     mouse.notify(event, "dragEnd", button);
   };
 
   const onKeyUp = (event: KeyboardEvent) => {
     const key = parseKeyCode(event.code);
     if (key === KeyCode.Escape) {
-      dispatch({ type: "dragCancel" });
+      setDragging({ element: undefined, hasMoved: undefined });
       mouse.notify(null!, "dragCancel");
     }
   };
@@ -242,15 +183,98 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
   // Downcast to hide .notify()
   return mouse as Mouse;
 }
+export class MouseController implements Mouse {
+  listeners: {
+    [ev in MouseEventType]+?: {
+      callback: MouseCallback;
+      button?: MouseButton;
+      modifier?: MouseModifier;
+    };
+  } = {};
 
-function getButton({ button, ctrlKey }: MouseEvent): MouseButton {
-  switch (button) {
-    case 0:
-      // Support holding ctrl + click to right click
-      return !ctrlKey ? "left" : "right";
-    case 2:
-      return "right";
-    default:
-      return "either";
+  listen(opts: MouseListenOpts, callback: MouseCallback): void {
+    if (opts.event === "click") {
+      this.listeners[opts.event] = {
+        callback,
+        button: opts.button ?? "left",
+        modifier: opts.modifier,
+      };
+    } else {
+      this.listeners[opts.event] = {
+        callback,
+      };
+    }
   }
+
+  notify(
+    event: MouseEvent,
+    type: MouseEventType,
+    button?: MouseButton,
+    modifier?: MouseModifier
+  ) {
+    const listener = this.listeners[type];
+    if (listener == null) {
+      return;
+    }
+
+    if (type === "click") {
+      if (listener.button !== button) {
+        return;
+      }
+      if (listener.modifier != null && listener.modifier !== modifier) {
+        return;
+      }
+    }
+
+    listener.callback(event);
+  }
+
+  async cursor(cursorIcon: Cursor, cb: () => Promise<any>) {
+    const original = document.body.style.cursor;
+    document.body.style.cursor = cursorIcon;
+
+    await cb();
+
+    document.body.style.cursor = original;
+  }
+
+  setCursor(cursor: Cursor) {
+    document.body.style.cursor = cursor;
+  }
+
+  resetCursor() {
+    document.body.style.cursor = DEFAULT_CURSOR;
+  }
+}
+
+export function getDetails(ev: MouseEvent): [MouseButton, MouseModifier] {
+  let button: MouseButton;
+  switch (ev.button) {
+    case 0:
+      button = "left";
+      break;
+    case 2:
+      button = "right";
+      break;
+    default:
+      throw new InvalidOpError(`Unknown mouse button ${ev.button}`);
+  }
+
+  let modifier: MouseModifier = MouseModifier.None;
+  modifier;
+
+  if (ev.shiftKey) {
+    modifier |= MouseModifier.Shift;
+  }
+  if (ev.ctrlKey) {
+    modifier |= MouseModifier.Control;
+  }
+  if (ev.altKey) {
+    modifier |= MouseModifier.Alt;
+  }
+  if (ev.metaKey) {
+    modifier |= MouseModifier.Meta;
+  }
+
+  return [button, modifier];
 }

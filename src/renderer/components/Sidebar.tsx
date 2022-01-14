@@ -38,6 +38,11 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
       case "tag":
         items.push(
           <ContextMenuItem
+            text="New tag"
+            command="sidebar.createTag"
+            key="createTag"
+          />,
+          <ContextMenuItem
             text="Rename"
             command="sidebar.renameTag"
             commandInput={id}
