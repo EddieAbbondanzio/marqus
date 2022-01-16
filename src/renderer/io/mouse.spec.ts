@@ -32,6 +32,17 @@ describe("MouseController", () => {
     });
   });
 
+  test("it defaults click listener opts", () => {
+    const c = new MouseController();
+    const cb = jest.fn();
+    c.listen({ event: "click" }, cb);
+
+    const listener = c.listeners["click"];
+    expect(listener).not.toBe(null);
+    expect(listener!.button).toBe("left");
+    expect(listener!.modifier).toBe(MouseModifier.None);
+  });
+
   test("it notifies listeners", () => {
     const c = new MouseController();
     const cb = jest.fn();
@@ -40,6 +51,7 @@ describe("MouseController", () => {
     expect(c.listeners["click"]).toEqual({
       callback: cb,
       button: "left",
+      modifier: MouseModifier.None,
     });
     c.notify({} as any, "click", "left");
     expect(cb).toHaveBeenCalled();
@@ -53,6 +65,7 @@ describe("MouseController", () => {
     expect(c.listeners["click"]).toEqual({
       callback: cb,
       button: "right",
+      modifier: MouseModifier.None,
     });
     c.notify({} as any, "click", "left");
     expect(cb).not.toHaveBeenCalled();
@@ -66,6 +79,7 @@ describe("MouseController", () => {
     expect(c.listeners["click"]).toEqual({
       callback: cb,
       button: "left",
+      modifier: MouseModifier.None,
     });
     c.notify({} as any, "click", "left", MouseModifier.Control);
     expect(cb).not.toHaveBeenCalled();

@@ -16,7 +16,7 @@ import { SetUI } from "../io/commands/types";
 import { NewButton, NewButtonOption } from "./NewButton";
 import { Icon } from "./shared/Icon";
 import { InlineInput } from "./shared/InlineInput";
-import { NavigationMenu } from "./shared/NavigationMenu";
+import { NavMenu } from "./shared/NavMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import * as yup from "yup";
@@ -44,6 +44,9 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   const input = state.ui.sidebar.explorer.input;
   let menus = [];
 
+  const isSelected = (id: string) =>
+    state.ui.sidebar.explorer.selected?.some((s) => s === id);
+
   switch (view) {
     case "all":
       // Create a menu for each note
@@ -53,12 +56,12 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       // Add nested support
       for (const notebook of state.notebooks) {
         menus.push(
-          <NavigationMenu
+          <NavMenu
             id={`notebook.${notebook.id}`}
             key={notebook.id}
             name={notebook.name}
             text={notebook.name}
-          ></NavigationMenu>
+          ></NavMenu>
         );
       }
       break;
@@ -85,12 +88,13 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
           );
         } else {
           menus.push(
-            <NavigationMenu
+            <NavMenu
               id={`tag.${tag.id}`}
               key={tag.id}
               name={tag.name}
+              selected={isSelected(tag.id)}
               text={tag.name}
-            ></NavigationMenu>
+            ></NavMenu>
           );
         }
       }

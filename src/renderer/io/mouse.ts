@@ -199,7 +199,7 @@ export class MouseController implements Mouse {
       this.listeners[opts.event] = {
         callback,
         button: opts.button ?? "left",
-        modifier: opts.modifier,
+        modifier: opts.modifier ?? MouseModifier.None,
       };
     } else {
       this.listeners[opts.event] = {
@@ -225,9 +225,17 @@ export class MouseController implements Mouse {
       }
 
       if (listener.button !== button) {
+        // console.log("Button not a match", {
+        //   listener: listener.button,
+        //   button,
+        // });
         return;
       }
-      if (listener.modifier !== modifier) {
+      if (listener.modifier !== (modifier ?? MouseModifier.None)) {
+        // console.log("Modifier not a match", {
+        // listener: listener.modifier,
+        // modifier,
+        // });
         return;
       }
     }

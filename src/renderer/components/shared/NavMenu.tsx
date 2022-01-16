@@ -4,9 +4,9 @@ import { PropsWithChildren } from "react";
 import { classList, px } from "../../../shared/dom";
 import { Icon } from "./Icon";
 
-export const NAVIGATION_MENU_ATTRIBUTE = "data-navigation-menu";
+export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
 
-export interface NavigationMenuProps {
+export interface NavMenuProps {
   id?: string;
   name: string;
   icon?: IconDefinition;
@@ -15,19 +15,23 @@ export interface NavigationMenuProps {
   selected?: boolean;
 }
 
-export function NavigationMenu(props: PropsWithChildren<NavigationMenuProps>) {
-  const classes = classList(
-    "navigation-menu-trigger",
-    props.selected ? "has-background-primary" : ""
+export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
+  const triggerClasses = classList("nav-menu-trigger");
+
+  const menuClasses = classList(
+    "nav-menu",
+    "is-flex",
+    "is-align-items-center",
+    { "has-background-primary": props.selected }
   );
 
   return (
     <div
-      className="navigation-menu is-flex is-align-items-center"
-      data-navigation-menu={props.id}
+      className={menuClasses}
       style={{ height: px(30) }}
+      {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
     >
-      <div className={classes}>
+      <div className={triggerClasses}>
         <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
           {props.icon != null && <Icon icon={props.icon} className="mr-1" />}
           <span>{props.text}</span>

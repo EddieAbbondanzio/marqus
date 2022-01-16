@@ -8,7 +8,7 @@ import { ContextMenu, ContextMenuItem } from "./shared/ContextMenu";
 import { Explorer } from "./Explorer";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./Focusable";
-import { NAVIGATION_MENU_ATTRIBUTE } from "./shared/NavigationMenu";
+import { NAV_MENU_ATTRIBUTE } from "./shared/NavMenu";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
 
@@ -22,9 +22,9 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
   let contextMenuItems = (a: MouseEvent) => {
     const contextMenuAttr = findParent(
       a.target as HTMLElement,
-      (el) => el.hasAttribute(NAVIGATION_MENU_ATTRIBUTE),
+      (el) => el.hasAttribute(NAV_MENU_ATTRIBUTE),
       {
-        matchValue: (el) => el.getAttribute(NAVIGATION_MENU_ATTRIBUTE),
+        matchValue: (el) => el.getAttribute(NAV_MENU_ATTRIBUTE),
       }
     );
 
