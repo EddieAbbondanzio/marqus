@@ -7,6 +7,7 @@ import React, {
   useLayoutEffect,
   useState,
 } from "react";
+import { Nullable } from "tsdef";
 import { UISection, State } from "../../shared/domain/state";
 import { SetUI } from "../io/commands/types";
 
@@ -28,6 +29,12 @@ export interface FocusTrackerState {
   previous?: UISection;
 }
 
+/**
+ * Listens for focusin event and updates state if we detect the user has moved
+ * to a new focusable.
+ * @param props
+ * @returns
+ */
 export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
   const [state, setState] = useState<FocusTrackerState>({
     subscribers: {},
@@ -72,7 +79,6 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
       if (!overwrite && s.focused != null && s.focused[0] !== name) {
         focused.push(s.focused[0]);
       }
-
       return {
         focused,
       };
@@ -93,12 +99,18 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
   };
 
   useEffect(() => {
-    const curr = props.state.ui.focused?.[0];
+    /*
+     * Detect if we need to notify a focusable. This will handle notifying of
+     * externally made changes too (like from setUI).
+     */
+    const [curr] = props.state.ui.focused?.slice(-1) ?? [];
     if (state.previous != curr) {
+      console.log("focus changed: ", curr);
       if (curr != null) {
         const sub = state.subscribers[curr];
 
         if (sub != null) {
+          console.log("notify sub!");
           sub();
         }
       }

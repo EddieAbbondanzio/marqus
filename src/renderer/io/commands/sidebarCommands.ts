@@ -11,6 +11,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     ctx.setUI({
       focused: ["sidebar"],
     });
+    console.log("set focus to sidebar");
   },
   "sidebar.toggle": async (ctx) => {
     ctx.setUI((prev) => ({

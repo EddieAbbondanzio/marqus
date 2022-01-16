@@ -28,7 +28,10 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
     const div = ref.current;
 
     div.addEventListener("focusin", publish);
-    ctx.subscribe(name, () => div.focus());
+    ctx.subscribe(name, () => {
+      div.focus();
+      console.log("Apply focus to ", name);
+    });
 
     return () => {
       div.removeEventListener("focusin", publish);

@@ -27,6 +27,7 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
     // Nuke out stuff we don't want to persist.
     ui.sidebar.explorer.input = undefined;
     ui.sidebar.explorer.selected = undefined;
+    ui.focused = undefined!;
 
     return ui;
   },
@@ -37,6 +38,7 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
 
     ui.sidebar.explorer.input = undefined;
     ui.sidebar.explorer.selected = undefined;
+    ui.focused = [];
     return ui;
   },
   defaultValue: {
@@ -49,6 +51,7 @@ export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
         view: "notebooks",
       },
     },
+    focused: [],
   },
 });
 

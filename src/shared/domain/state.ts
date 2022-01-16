@@ -11,7 +11,7 @@ export interface State {
 
 export interface UI {
   sidebar: Sidebar;
-  focused?: UISection[];
+  focused: UISection[];
 }
 
 export type UISection = "sidebar" | "sidebarContextMenu" | "editor";
