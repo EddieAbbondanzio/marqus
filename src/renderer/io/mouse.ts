@@ -88,6 +88,8 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
   });
   const [mouse] = useState(new MouseController());
 
+  // Be careful modifying anything below.
+
   const onMouseDown = (event: MouseEvent) => {
     if (dragging.element != null) {
       return;
@@ -218,10 +220,14 @@ export class MouseController implements Mouse {
     }
 
     if (type === "click") {
+      if (button == null) {
+        throw Error(`Click event requires button`);
+      }
+
       if (listener.button !== button) {
         return;
       }
-      if (listener.modifier != null && listener.modifier !== modifier) {
+      if (listener.modifier !== modifier) {
         return;
       }
     }
@@ -232,9 +238,7 @@ export class MouseController implements Mouse {
   async cursor(cursorIcon: Cursor, cb: () => Promise<any>) {
     const original = document.body.style.cursor;
     document.body.style.cursor = cursorIcon;
-
     await cb();
-
     document.body.style.cursor = original;
   }
 
@@ -263,6 +267,7 @@ export function getDetails(ev: MouseEvent): [MouseButton, MouseModifier] {
   let modifier: MouseModifier = MouseModifier.None;
   modifier;
 
+  // Don't use if else since 1 or more modifiers can be active
   if (ev.shiftKey) {
     modifier |= MouseModifier.Shift;
   }

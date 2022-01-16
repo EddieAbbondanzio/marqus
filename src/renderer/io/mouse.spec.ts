@@ -1,4 +1,98 @@
-import { getDetails, MouseModifier } from "./mouse";
+import {
+  DEFAULT_CURSOR,
+  getDetails,
+  MouseController,
+  MouseModifier,
+} from "./mouse";
+
+describe("MouseController", () => {
+  beforeEach(() => {
+    document.body.style.cursor = "auto";
+  });
+
+  test("it adds click listeners", () => {
+    const c = new MouseController();
+    const cb = jest.fn();
+
+    c.listen({ event: "click", modifier: MouseModifier.Control }, cb);
+    expect(c.listeners["click"]).toEqual({
+      callback: cb,
+      button: "left",
+      modifier: MouseModifier.Control,
+    });
+  });
+
+  test("it adds other listeners", () => {
+    const c = new MouseController();
+    const cb = jest.fn();
+
+    c.listen({ event: "dragEnd" }, cb);
+    expect(c.listeners["dragEnd"]).toEqual({
+      callback: cb,
+    });
+  });
+
+  test("it notifies listeners", () => {
+    const c = new MouseController();
+    const cb = jest.fn();
+
+    c.listen({ event: "click" }, cb);
+    expect(c.listeners["click"]).toEqual({
+      callback: cb,
+      button: "left",
+    });
+    c.notify({} as any, "click", "left");
+    expect(cb).toHaveBeenCalled();
+  });
+
+  test("it skips listeners with the wrong button", () => {
+    const c = new MouseController();
+    const cb = jest.fn();
+
+    c.listen({ event: "click", button: "right" }, cb);
+    expect(c.listeners["click"]).toEqual({
+      callback: cb,
+      button: "right",
+    });
+    c.notify({} as any, "click", "left");
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  test("it skips if wrong modifier", () => {
+    const c = new MouseController();
+    const cb = jest.fn();
+
+    c.listen({ event: "click" }, cb);
+    expect(c.listeners["click"]).toEqual({
+      callback: cb,
+      button: "left",
+    });
+    c.notify({} as any, "click", "left", MouseModifier.Control);
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  test("it temporary overrides cursor", async () => {
+    const cont = new MouseController();
+    document.body.style.cursor = "copy";
+    await cont.cursor("move", async () => {
+      expect(document.body.style.cursor).toBe("move");
+    });
+    expect(document.body.style.cursor).toBe("copy");
+  });
+
+  test("it sets cursor", () => {
+    const cont = new MouseController();
+    cont.setCursor("ew-resize");
+    expect(document.body.style.cursor).toBe("ew-resize");
+  });
+
+  test("it resets cursor", () => {
+    const cont = new MouseController();
+    document.body.style.cursor = "ew-resize";
+    cont.resetCursor();
+    expect(document.body.style.cursor).toBe(DEFAULT_CURSOR);
+  });
+});
 
 describe("getDetails()", () => {
   test("returns left click", () => {
