@@ -67,8 +67,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
     ref: RefObject<HTMLElement>,
     overwrite: boolean
   ) => {
-    console.log("push()", { name });
-
+    console.log("push", name);
     if (ref.current == null) {
       throw Error(`Cannot focus null ref`);
     }
@@ -79,6 +78,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         focused.push(s.focused[0]);
       }
 
+      console.log("setUI focused: ", focused);
       return {
         focused,
       };
@@ -95,11 +95,16 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         focused: [],
       };
     });
+    console.log("pop ");
   };
 
   useEffect(() => {
     const focused = props.state.ui.focused;
     if (focused == null || focused.length === 0) {
+      setState((s) => ({
+        ...s,
+        previous: undefined,
+      }));
       return;
     }
 
@@ -113,6 +118,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         const sub = state.subscribers[curr];
 
         if (sub != null) {
+          console.log("FocusTracker.notify()", curr);
           sub();
         }
       }
@@ -122,7 +128,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         previous: curr,
       }));
     }
-  });
+  }, [props.state.ui]);
 
   return (
     <FocusContext.Provider value={{ push, pop, subscribe, unsubscribe }}>

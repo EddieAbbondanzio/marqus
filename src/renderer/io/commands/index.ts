@@ -61,7 +61,7 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
         ui,
       };
 
-      console.log("setUI: new state ui updates: ", updates, " new ui: ", ui);
+      // console.log("setUI: new state ui updates: ", updates, " new ui: ", ui);
       void window.rpc("state.saveUI", cloneDeep(newState.ui));
       return newState;
     });

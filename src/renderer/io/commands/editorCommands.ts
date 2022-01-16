@@ -6,5 +6,7 @@ export const editorCommands: CommandsForNamespace<"editor"> = {
       focused: ["editor"],
     });
     console.log("Focus editor");
+
+    // Temp hack to de blur anything
   },
 };

@@ -27,8 +27,6 @@ export function deepUpdate<T extends {}>(obj: T, updates: DeepPartial<T>): T {
 
     if (update.hasOwnProperty(property)) {
       const newValue = update[property];
-      console.log("update: ", { property, newValue });
-
       const parentPath = path.split(".").slice(0, -1).join(".");
       let parent = isBlank(parentPath) ? newObj : get(newObj, parentPath);
 

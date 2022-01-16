@@ -22,7 +22,6 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
   const kb = useKeyboard(ref);
 
   const publish = () => {
-    console.log("set focused: ", props.name);
     ctx.push(props.name, ref, props.overwrite);
   };
 
@@ -32,7 +31,6 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
 
     if (div != null) {
       div.blur();
-      console.log("blurred: ", props.name);
       ctx.pop();
     }
   });
@@ -48,7 +46,7 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
 
     div.addEventListener("focusin", publish);
     ctx.subscribe(name, () => {
-      console.log("Focus! ", name);
+      console.log("div.focus() ", name);
       div.focus();
     });
 

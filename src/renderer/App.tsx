@@ -7,6 +7,7 @@ import { State } from "../shared/domain/state";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { FocusTracker } from "./components/FocusTracker";
+import { Focusable } from "./components/Focusable";
 
 const { rpc } = window;
 (async () => {
@@ -35,6 +36,8 @@ const { rpc } = window;
         {!(state.ui.sidebar.hidden ?? false) && (
           <Sidebar state={state} execute={execute} setUI={setUI} />
         )}
+
+        <Focusable name="editor">Editor!</Focusable>
       </FocusTracker>
     );
   }
