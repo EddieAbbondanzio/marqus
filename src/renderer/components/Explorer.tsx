@@ -37,15 +37,14 @@ export interface ExplorerProps {
 }
 
 export function Explorer({ state, setUI, execute }: ExplorerProps) {
-  const view = state.ui.sidebar.explorer.view;
+  const { explorer } = state.ui.sidebar;
+
   const setView = (view: ExplorerView) => () =>
     execute("sidebar.setExplorerView", view);
+  const isSelected = (id: string) => explorer.selected?.some((s) => s === id);
 
-  const input = state.ui.sidebar.explorer.input;
   let menus = [];
-
-  const isSelected = (id: string) =>
-    state.ui.sidebar.explorer.selected?.some((s) => s === id);
+  const { input, view } = explorer;
 
   switch (view) {
     case "all":
@@ -87,13 +86,16 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
             />
           );
         } else {
+          const navMenuId = `tag.${tag.id}`;
+
           menus.push(
             <NavMenu
-              id={`tag.${tag.id}`}
+              id={navMenuId}
               key={tag.id}
               name={tag.name}
-              selected={isSelected(tag.id)}
+              selected={isSelected(navMenuId)}
               text={tag.name}
+              onClick={() => execute("sidebar.setSelection", [navMenuId])}
             ></NavMenu>
           );
         }
@@ -160,13 +162,6 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         >
           <Icon icon={faStar} />
         </Tab>
-        {/* <Tab
-          title="Temporary"
-          isActive={view === "temp"}
-          onClick={setView("temp")}
-        >
-          <Icon icon={faClock} />
-        </Tab> */}
         <Tab
           title="Trash"
           isActive={view === "trash"}

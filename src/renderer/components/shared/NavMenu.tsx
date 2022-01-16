@@ -2,6 +2,7 @@ import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import React, { useMemo } from "react";
 import { PropsWithChildren } from "react";
 import { classList, px } from "../../../shared/dom";
+import { EntityType } from "../../../shared/domain/entities";
 import { Icon } from "./Icon";
 
 export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
@@ -13,6 +14,7 @@ export interface NavMenuProps {
   text: string;
   collapsed?: boolean;
   selected?: boolean;
+  onClick?: () => any;
 }
 
 export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
@@ -30,6 +32,7 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
       className={menuClasses}
       style={{ height: px(30) }}
       {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
+      onClick={() => props.onClick?.()}
     >
       <div className={triggerClasses}>
         <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
@@ -40,4 +43,12 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
       {props.children}
     </div>
   );
+}
+
+export function parseNavMenuAttr(value: string) {
+  if (!/^(tag|notebook|note).\S+$/.test(value)) {
+    throw Error(`Invalid nav menu attribute ${value}`);
+  }
+
+  return value.split(".") as [EntityType, string];
 }

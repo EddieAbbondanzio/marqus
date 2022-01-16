@@ -107,6 +107,10 @@ export enum KeyCode {
  * @returns Our typesafe KeyCode.
  */
 export function parseKeyCode(code: string): KeyCode {
+  /**
+   * When using .code we treat a key the same regardless if shift was pressed.
+   * This means + and = are the same key.
+   */
   switch (code) {
     case "Space":
       return KeyCode.Space;
@@ -317,6 +321,7 @@ export function sortKeyCodes(keyCodes: KeyCode[]): KeyCode[] {
   const letters = [];
   const numbers = [];
   const numpads = [];
+  const punctuation = [];
 
   // Group each key to it's respective group
   for (const key of keyCodes) {
@@ -327,6 +332,7 @@ export function sortKeyCodes(keyCodes: KeyCode[]): KeyCode[] {
     else if (isLetter(key)) letters.push(key);
     else if (isNumber(key)) numbers.push(key);
     else if (isNumpad(key)) numpads.push(key);
+    else if (isMisc(key)) punctuation.push(key);
     else throw Error(`Unsupported key ${key} cannot sort.`);
   }
 
@@ -363,6 +369,7 @@ export function sortKeyCodes(keyCodes: KeyCode[]): KeyCode[] {
     ...letters,
     ...numbers,
     ...numpads,
+    ...punctuation,
   ];
 }
 
@@ -421,6 +428,25 @@ export function isAction(key: KeyCode) {
     case KeyCode.Space:
     case KeyCode.PageDown:
     case KeyCode.PageUp:
+      return true;
+    default:
+      return false;
+  }
+}
+
+export function isMisc(key: KeyCode) {
+  switch (key) {
+    case KeyCode.Backquote:
+    case KeyCode.Comma:
+    case KeyCode.Period:
+    case KeyCode.Minus:
+    case KeyCode.Equal:
+    case KeyCode.BracketLeft:
+    case KeyCode.BracketRight:
+    case KeyCode.Backslash:
+    case KeyCode.Slash:
+    case KeyCode.Semicolon:
+    case KeyCode.Quote:
       return true;
     default:
       return false;

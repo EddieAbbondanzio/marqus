@@ -8,7 +8,7 @@ import { ContextMenu, ContextMenuItem } from "./shared/ContextMenu";
 import { Explorer } from "./Explorer";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./Focusable";
-import { NAV_MENU_ATTRIBUTE } from "./shared/NavMenu";
+import { NAV_MENU_ATTRIBUTE, parseNavMenuAttr } from "./shared/NavMenu";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
 
@@ -20,7 +20,7 @@ export interface SidebarProps {
 
 export function Sidebar({ state, setUI, execute }: SidebarProps) {
   let contextMenuItems = (a: MouseEvent) => {
-    const contextMenuAttr = findParent(
+    const navMenuAttr = findParent(
       a.target as HTMLElement,
       (el) => el.hasAttribute(NAV_MENU_ATTRIBUTE),
       {
@@ -28,11 +28,11 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
       }
     );
 
-    if (contextMenuAttr == null) {
+    if (navMenuAttr == null) {
       return [];
     }
 
-    const [type, id] = contextMenuAttr.split(".");
+    const [type, id] = parseNavMenuAttr(navMenuAttr);
     const items = [];
     switch (type) {
       case "tag":

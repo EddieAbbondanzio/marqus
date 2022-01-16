@@ -10,6 +10,7 @@ import {
   isArrow,
   isAction,
   keyCodesToString,
+  sortKeyCodes,
 } from "./keyCode";
 
 describe("parseKey()", () => {
@@ -263,6 +264,15 @@ describe("isAction()", () => {
       expect(isAction(key)).toBe(false);
     }
   );
+});
+
+describe("sortKeyCodes()", () => {
+  test("handles every expected key", () => {
+    const everyKey = Object.values(KeyCode);
+    expect(() => {
+      sortKeyCodes(everyKey);
+    }).not.toThrow();
+  });
 });
 
 describe("parseKeyCodes()", () => {

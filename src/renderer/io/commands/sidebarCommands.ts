@@ -150,7 +150,13 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     }
   },
   "sidebar.setSelection": async (ctx, selected) => {
-    console.log("implement this!");
+    ctx.setUI({
+      sidebar: {
+        explorer: {
+          selected,
+        },
+      },
+    });
   },
   "sidebar.moveSelectionUp": async (ctx) => {
     // TODO: Support nested logic later on

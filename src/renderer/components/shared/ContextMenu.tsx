@@ -91,7 +91,7 @@ export function ContextMenuItem<C extends CommandType>(
   return (
     <div
       ref={ref}
-      onClick={(ev) => ctx.execute(props.command, props.commandInput)}
+      onClick={() => ctx.execute(props.command, props.commandInput)}
       className={classes}
       key={props.text}
     >
