@@ -190,4 +190,18 @@ describe("deepUpdate()", () => {
     const updated = deepUpdate(obj, upd);
     expect(updated.foo.bar.baz.a).toBe(undefined);
   });
+
+  test("handles arrays", () => {
+    const obj = {
+      a: [1, 2, 3],
+      d: "1",
+    };
+    const upd = {
+      a: [],
+      d: "1",
+    };
+
+    const updated = deepUpdate(obj, upd);
+    expect(updated.a).toEqual([]);
+  });
 });

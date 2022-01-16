@@ -56,6 +56,10 @@ const shortcuts: Shortcut[] = [
     command: "app.toggleFullScreen",
     keys: [KeyCode.F11],
   },
+  {
+    command: "editor.focus",
+    keys: [KeyCode.Control, KeyCode.Digit2],
+  },
 ];
 
 export const DEFAULT_SHORTCUTS = shortcuts.map((s) => ({

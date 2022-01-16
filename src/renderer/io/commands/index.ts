@@ -3,6 +3,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { State, UI } from "../../../shared/domain/state";
 import { deepUpdate } from "../../utils/deepUpdate";
 import { appCommands } from "./appCommands";
+import { editorCommands } from "./editorCommands";
 import { sidebarCommands } from "./sidebarCommands";
 import {
   CommandInput,
@@ -15,7 +16,7 @@ import {
 } from "./types";
 
 /*
- * Please don't refactor this unless you fully consider all the repurcussions.
+ * Please don't refactor this unless you fully consider all the requirements.
  * - Intellisense completion is very important.
  * - Commands need to be able to get the most recent state at any time.
  */
@@ -23,6 +24,7 @@ import {
 export const commands: CommandSchema = {
   ...appCommands,
   ...sidebarCommands,
+  ...editorCommands,
 };
 
 export type Execute = <C extends CommandType>(
@@ -59,6 +61,7 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
         ui,
       };
 
+      console.log("setUI: new state ui updates: ", updates, " new ui: ", ui);
       void window.rpc("state.saveUI", cloneDeep(newState.ui));
       return newState;
     });
@@ -70,18 +73,21 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
    */
 
   const setTags: SetTags = (transformer) => {
+    console.log("setTags()");
     setState((prevState) => ({
       ...prevState,
       tags: transformer(prevState.tags),
     }));
   };
   const setNotebooks: SetNotebooks = (transformer) => {
+    console.log("setNotebooks()");
     setState((prevState) => ({
       ...prevState,
       notebooks: transformer(prevState.notebooks),
     }));
   };
   const setShortcuts: SetShortcuts = (transformer) => {
+    console.log("setShortcuts()");
     setState((prevState) => ({
       ...prevState,
       shortcuts: transformer(prevState.shortcuts),

@@ -17,24 +17,28 @@ export function deepUpdate<T extends {}>(obj: T, updates: DeepPartial<T>): T {
      * To prevent from updating children properties from their parents we don't
      * perform updates on objects unless their value has been deleted.
      */
-    if (typeof existing === "object" && update[property] != null) {
+    if (
+      typeof existing === "object" &&
+      !Array.isArray(existing) &&
+      update[property] != null
+    ) {
       return;
     }
 
     if (update.hasOwnProperty(property)) {
       const newValue = update[property];
+      console.log("update: ", { property, newValue });
+
+      const parentPath = path.split(".").slice(0, -1).join(".");
+      let parent = isBlank(parentPath) ? newObj : get(newObj, parentPath);
 
       // Delete
       if (newValue == null) {
-        // We need to get the parent in order to delete a prop
-        const parentPath = path.split(".").slice(0, -1).join(".");
-        let parent = isBlank(parentPath) ? newObj : get(newObj, parentPath);
-
         delete parent[property];
       }
       // Update
       else {
-        set(newObj, path, newValue);
+        parent[property] = newValue;
       }
     }
   });
@@ -58,8 +62,11 @@ function breadthFirst(
 
   // Iterate root properties
   for (const k in target) {
-    if (typeof target[k] === "object") {
-      toVisit.push([target[k], k]);
+    const child = target[k];
+
+    // We don't visit children in an array
+    if (typeof child === "object" && !Array.isArray(child)) {
+      toVisit.push([child, k]);
     }
 
     let p = path == null ? k : `${path}.${k}`;

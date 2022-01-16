@@ -53,6 +53,7 @@ export interface CommandSchema {
   "sidebar.moveSelectionUp": Command;
   "sidebar.moveSelectionDown": Command;
   "sidebar.setExplorerView": Command<ExplorerView>;
+  "editor.focus": Command;
 }
 export type CommandType = keyof CommandSchema;
 export type CommandInput<Command extends CommandType> = Parameters<
