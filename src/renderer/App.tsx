@@ -15,7 +15,7 @@ const { rpc } = window;
 
   let initialState: State;
   try {
-    initialState = (await rpc("state.load")) as State;
+    initialState = await rpc("state.load");
   } catch (e) {
     console.log("Fatal Error", e);
     await promptFatal((e as Error).message);

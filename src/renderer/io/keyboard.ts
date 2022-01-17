@@ -63,6 +63,12 @@ export class KeyboardController implements Keyboard {
   }
 }
 
+/**
+ * Keyboard controller for listening for specific keys. Should only be used in
+ * instances where we don't want to support remapping.
+ * @param elOrWindow Target
+ * @returns Keyboard controlller
+ */
 export function useKeyboard(elOrWindow: ElementOrWindow): Keyboard {
   const keyboard = new KeyboardController(elOrWindow);
 

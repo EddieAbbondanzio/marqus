@@ -1,12 +1,12 @@
 import { AwaitableInput } from "../awaitableInput";
 import { Tag, Notebook, EntityType } from "./entities";
-import { Menu, Shortcut } from "./valueObjects";
+import { Shortcut } from "./valueObjects";
 
 export interface State {
   ui: UI;
-  tags: Tag[];
-  notebooks: Notebook[];
-  shortcuts: Shortcut[];
+  // tags: Tag[];
+  // notebooks: Notebook[];
+  // shortcuts: Shortcut[];
 }
 
 export interface UI {
@@ -32,8 +32,8 @@ export interface Explorer {
   view: ExplorerView;
   input?: ExplorerInput;
   selected?: string[];
-  // Menus are generated on the fly in the explorer component
 }
+
 export interface ExplorerInput extends AwaitableInput {
   parent?: {
     id: string;

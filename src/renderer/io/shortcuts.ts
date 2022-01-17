@@ -1,13 +1,13 @@
 import { isEqual, chain } from "lodash";
 import { RefObject, useEffect, useState } from "react";
-import { UISection, State } from "../../shared/domain/state";
+import { UISection, State, UI } from "../../shared/domain/state";
 import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
 import { CommandType } from "./commands/types";
 import { Execute } from "./commands";
 import { sleep } from "../../shared/utils";
+import { Shortcut } from "../../shared/domain/valueObjects";
 
-export function useShortcuts(state: State, execute: Execute) {
-  const { shortcuts } = state;
+export function useShortcuts(shortcuts: Shortcut[], ui: UI, execute: Execute) {
   const [activeKeys, setActiveKeys] = useState<
     Record<string, boolean | undefined>
   >({});
@@ -22,9 +22,7 @@ export function useShortcuts(state: State, execute: Execute) {
     const activeKeysArray = toKeyArray(activeKeys);
     const shortcut = shortcuts.find(
       (s) =>
-        isEqual(s.keys, activeKeysArray) &&
-        !s.disabled &&
-        isFocused(state, s.when)
+        isEqual(s.keys, activeKeysArray) && !s.disabled && isFocused(ui, s.when)
     );
 
     if (shortcut != null) {
@@ -93,16 +91,16 @@ export function useShortcuts(state: State, execute: Execute) {
       window.removeEventListener("keydown", keyDown);
       window.removeEventListener("keyup", keyUp);
     };
-  }, [shortcuts, execute, state]);
+  }, [shortcuts, execute]);
 }
 
-export function isFocused(state: State, when?: UISection): boolean {
-  if (state.ui.focused == null || state.ui.focused[0] == null) {
+export function isFocused(ui: UI, when?: UISection): boolean {
+  if (ui.focused == null || ui.focused[0] == null) {
     return when == null;
   } else if (when == null) {
     return true;
   } else {
-    const [curr] = state.ui.focused;
+    const [curr] = ui.focused;
     return when === curr;
   }
 }

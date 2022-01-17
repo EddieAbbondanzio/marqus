@@ -1,7 +1,8 @@
 import { PromptButton, PromptOptions } from "./prompt";
 import { Coord } from "./dom";
-import { Tag } from "./domain/entities";
+import { Note, NoteFlag, Tag } from "./domain/entities";
 import { State, UI } from "./domain/state";
+import { NoteGroup, NoteMetadata } from "./domain/valueObjects";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.
@@ -27,6 +28,13 @@ export interface RpcSchema {
   "tags.create": RpcInOut<{ name: string }, Tag>;
   "tags.update": RpcInOut<{ id: string; name: string }, Tag>;
   "tags.delete": RpcIn<{ id: string }>;
+
+  // Notes
+  "notes.getAll": RpcInOut<
+    { groupBy?: "tag" | "notebook"; where?: { flags: NoteFlag } },
+    Array<NoteMetadata | NoteGroup>
+  >;
+
   // App
   "app.promptUser": RpcInOut<PromptOptions, PromptButton>;
   "app.openDevTools": RpcVoid;
@@ -44,7 +52,7 @@ export type RpcOutput<Type extends RpcType> = RpcSchema[Type][1];
 export type Rpc = <Type extends RpcType>(
   // Allows for passing just the type ex: "tags.getAll" if no input expected
   ...params: RpcInput<Type> extends void ? [Type] : [Type, RpcInput<Type>]
-) => Promise<RpcOutput<Type>>;
+) => RpcOutput<Type>;
 
 /**
  * Used internally by rpc by both the main and renderer side.

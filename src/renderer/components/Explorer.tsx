@@ -8,7 +8,7 @@ import {
   faAngleDoubleDown,
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
-import React from "react";
+import React, { useRef } from "react";
 import { ExplorerView, State } from "../../shared/domain/state";
 import { getTagSchema } from "../../shared/schemas";
 import { Execute } from "../io/commands";
@@ -113,9 +113,6 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       }
       break;
 
-    case "temp":
-      // Create a menu for each temporary note
-      break;
     case "trash":
       // Create a menu for each trashed note
       break;

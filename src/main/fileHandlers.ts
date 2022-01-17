@@ -72,8 +72,10 @@ export const notebookFile = createFileHandler<Notebook[]>(
   {
     defaultValue: [],
     serialize: (n: Notebook[]) => n.map(({ type, ...n }) => n),
-    deserialize: (c?: Omit<Notebook, "type">[]) =>
-      (c ?? []).map((n) => ({ ...n, type: "notebook" })),
+    deserialize: (c?: Omit<Notebook, "type">[]) => {
+      console.log("Need to handle nested notebooks here. Validation too");
+      return (c ?? []).map((n) => ({ ...n, type: "notebook" }));
+    },
   }
 );
 
