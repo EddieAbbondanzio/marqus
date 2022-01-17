@@ -1,8 +1,8 @@
 import { PromptButton, PromptOptions } from "./prompt";
 import { Coord } from "./dom";
-import { Note, NoteFlag, Tag } from "./domain/entities";
-import { State, UI } from "./domain/state";
-import { NoteGroup, NoteMetadata } from "./domain/valueObjects";
+import { NoteFlag, Tag } from "./domain/entities";
+import { App } from "./domain/app";
+import { NoteGroup, NoteMetadata, Shortcut } from "./domain/valueObjects";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.
@@ -19,10 +19,19 @@ export type RpcVoid = [void, void];
  * want to lose intellisense.
  */
 export interface RpcSchema {
-  // AppState
-  "state.load": RpcOut<State>;
-  // All non ui state changes is performed via specific rpcs ex: tag.create...
-  "state.saveUI": RpcIn<UI>;
+  // App
+  "app.promptUser": RpcInOut<PromptOptions, PromptButton>;
+  "app.openDevTools": RpcVoid;
+  "app.inspectElement": RpcIn<Coord>;
+  "app.reload": RpcVoid;
+  "app.toggleFullScreen": RpcVoid;
+  "app.quit": RpcVoid;
+  "app.loadPreviousState": RpcOut<App>;
+  "app.saveState": RpcIn<App>;
+
+  // Shortcuts
+  "shortcuts.getAll": RpcOut<Shortcut[]>;
+
   // Tags
   "tags.getAll": RpcOut<Tag[]>;
   "tags.create": RpcInOut<{ name: string }, Tag>;
@@ -34,14 +43,6 @@ export interface RpcSchema {
     { groupBy?: "tag" | "notebook"; where?: { flags: NoteFlag } },
     Array<NoteMetadata | NoteGroup>
   >;
-
-  // App
-  "app.promptUser": RpcInOut<PromptOptions, PromptButton>;
-  "app.openDevTools": RpcVoid;
-  "app.inspectElement": RpcIn<Coord>;
-  "app.reload": RpcVoid;
-  "app.toggleFullScreen": RpcVoid;
-  "app.quit": RpcVoid;
 }
 
 export type RpcType = keyof RpcSchema;

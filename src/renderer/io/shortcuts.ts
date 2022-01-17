@@ -1,13 +1,13 @@
 import { isEqual, chain } from "lodash";
 import { RefObject, useEffect, useState } from "react";
-import { UISection, State, UI } from "../../shared/domain/state";
+import { Section, App } from "../../shared/domain/app";
 import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
 import { CommandType } from "./commands/types";
 import { Execute } from "./commands";
 import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/valueObjects";
 
-export function useShortcuts(shortcuts: Shortcut[], ui: UI, execute: Execute) {
+export function useShortcuts(shortcuts: Shortcut[], ui: App, execute: Execute) {
   const [activeKeys, setActiveKeys] = useState<
     Record<string, boolean | undefined>
   >({});
@@ -94,7 +94,7 @@ export function useShortcuts(shortcuts: Shortcut[], ui: UI, execute: Execute) {
   }, [shortcuts, execute]);
 }
 
-export function isFocused(ui: UI, when?: UISection): boolean {
+export function isFocused(ui: App, when?: Section): boolean {
   if (ui.focused == null || ui.focused[0] == null) {
     return when == null;
   } else if (when == null) {

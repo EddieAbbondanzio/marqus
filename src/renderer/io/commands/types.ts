@@ -1,6 +1,6 @@
 import { Coord } from "../../../shared/dom";
 import { Tag, Notebook } from "../../../shared/domain/entities";
-import { ExplorerView, State, UI } from "../../../shared/domain/state";
+import { ExplorerView, App } from "../../../shared/domain/app";
 import { Shortcut } from "../../../shared/domain/valueObjects";
 import { StartsWith } from "../../types";
 import { DeepPartial } from "tsdef";
@@ -14,14 +14,13 @@ export type PartialTransformer<S> = (previous: S) => DeepPartial<S>;
  * SetUI supportes partial updates since it's unlikely we'll want to update
  * every single property at once. This also works for nested props.
  */
-export type SetUI = (t: PartialTransformer<UI> | DeepPartial<UI>) => void;
+export type SetUI = (t: PartialTransformer<App> | DeepPartial<App>) => void;
 export type SetTags = (t: Transformer<Tag[]>) => void;
 export type SetNotebooks = (t: Transformer<Notebook[]>) => void;
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
 
 // Context implementation lives in src/renderer/commands/index.ts
 export interface ExecutionContext {
-  getState: () => State;
   setUI: SetUI;
   setTags: SetTags;
   setNotebooks: SetNotebooks;
@@ -29,7 +28,7 @@ export interface ExecutionContext {
 }
 
 export type Command<Input = void> = (
-  context: ExecutionContext,
+  setUI: SetUI,
   // Payload is optional to support running as a shortcut
   payload?: Input
 ) => Promise<void>;

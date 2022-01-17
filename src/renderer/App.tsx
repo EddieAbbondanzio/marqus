@@ -1,21 +1,30 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { render } from "react-dom";
-import React, { useState } from "react";
+import React from "react";
 import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
-import { State } from "../shared/domain/state";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { FocusTracker } from "./components/FocusTracker";
 import { Focusable } from "./components/Focusable";
+import { App } from "../shared/domain/app";
+import { Shortcut } from "../shared/domain/valueObjects";
+import { tags } from "./services/tags";
 
 const { rpc } = window;
 (async () => {
   fontAwesomeLib();
 
-  let initialState: State;
+  let previousState: App;
+  let shortcuts: Shortcut[] = [];
+
   try {
-    initialState = await rpc("state.load");
+    [previousState, shortcuts] = await Promise.all([
+      rpc("app.loadPreviousState"),
+      rpc("shortcuts.getAll"),
+      // We don't listen for returns from the following:
+      tags.initialize(),
+    ]);
   } catch (e) {
     console.log("Fatal Error", e);
     await promptFatal((e as Error).message);
@@ -24,17 +33,17 @@ const { rpc } = window;
   }
 
   function App() {
-    const [state, execute, setUI] = useCommands(initialState);
-    useShortcuts(state, execute);
+    const [app, execute, setUI] = useCommands(previousState);
+    useShortcuts(shortcuts, app, execute);
 
     return (
       <FocusTracker
         className="h-100 w-100 is-flex is-flex-row"
-        state={state}
+        state={app}
         setUI={setUI}
       >
-        {!(state.ui.sidebar.hidden ?? false) && (
-          <Sidebar state={state} execute={execute} setUI={setUI} />
+        {!(app.sidebar.hidden ?? false) && (
+          <Sidebar state={app} execute={execute} setUI={setUI} />
         )}
 
         <Focusable name="editor">Editor!</Focusable>

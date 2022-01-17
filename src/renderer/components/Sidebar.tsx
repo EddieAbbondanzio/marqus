@@ -1,6 +1,5 @@
 import React from "react";
 import { px } from "../../shared/dom";
-import { State } from "../../shared/domain/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { Filter } from "./Filter";
@@ -11,9 +10,10 @@ import { Focusable } from "./Focusable";
 import { NAV_MENU_ATTRIBUTE, parseNavMenuAttr } from "./shared/NavMenu";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
+import { App } from "../../shared/domain/app";
 
 export interface SidebarProps {
-  state: State;
+  state: App;
   setUI: SetUI;
   execute: Execute;
 }
@@ -69,7 +69,7 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
   return (
     <Resizable
       minWidth={px(300)}
-      width={state.ui.sidebar.width}
+      width={state.sidebar.width}
       onResize={(w) => execute("sidebar.resizeWidth", w)}
     >
       <Focusable

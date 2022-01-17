@@ -1,5 +1,7 @@
 import { BrowserWindow, dialog } from "electron";
+import { App } from "../../shared/domain/app";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
+import { appFile as appFile } from "../fileHandlers";
 
 const promptUser: RpcHandler<"app.promptUser"> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
@@ -34,7 +36,6 @@ const reload: RpcHandler<"app.reload"> = async () => {
 
 const toggleFullScreen: RpcHandler<"app.toggleFullScreen"> = async () => {
   const bw = BrowserWindow.getFocusedWindow();
-
   if (bw == null) {
     return;
   }
@@ -53,6 +54,14 @@ const inspectElement: RpcHandler<"app.inspectElement"> = async (coord) => {
   );
 };
 
+export async function load(): Promise<App> {
+  return appFile.load();
+}
+
+export async function save(app: App): Promise<void> {
+  await appFile.save(app);
+}
+
 export const appRpcs: RpcRegistry = {
   "app.promptUser": promptUser,
   "app.openDevTools": openDevTools,
@@ -60,4 +69,6 @@ export const appRpcs: RpcRegistry = {
   "app.toggleFullScreen": toggleFullScreen,
   "app.quit": quit,
   "app.inspectElement": inspectElement,
+  "app.loadPreviousState": load,
+  "app.saveState": save,
 };

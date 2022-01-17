@@ -1,6 +1,6 @@
 import { cloneDeep, merge, mergeWith } from "lodash";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { State, UI } from "../../../shared/domain/state";
+import { App } from "../../../shared/domain/app";
 import { deepUpdate } from "../../utils/deepUpdate";
 import { appCommands } from "./appCommands";
 import { editorCommands } from "./editorCommands";
@@ -32,7 +32,8 @@ export type Execute = <C extends CommandType>(
   input?: CommandInput<C>
 ) => Promise<void>;
 
-export function useCommands(initialState: State): [State, Execute, SetUI] {
+// Commands really only oeprate on UI
+export function useCommands(initialState: App): [App, Execute, SetUI] {
   // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
 
   const [state, setState] = useState(initialState);
@@ -52,17 +53,17 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
     setState((prevState) => {
       const updates =
         typeof transformer === "function"
-          ? transformer(prevState.ui)
+          ? transformer(prevState)
           : transformer;
 
-      const ui = deepUpdate(prevState.ui, updates);
+      const ui = deepUpdate(prevState, updates);
       const newState = {
         ...prevState,
         ui,
       };
 
-      // console.log("setUI: new state ui updates: ", updates, " new ui: ", ui);
-      void window.rpc("state.saveUI", cloneDeep(newState.ui));
+      console.log("setUI: new state ui updates: ", updates, " new ui: ", ui);
+      void window.rpc("app.saveState", cloneDeep(newState.ui));
       return newState;
     });
   };
@@ -72,28 +73,6 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
    * perform any saving to file because all of that is handled by the rpcs.
    */
 
-  const setTags: SetTags = (transformer) => {
-    console.log("setTags()");
-    setState((prevState) => ({
-      ...prevState,
-      tags: transformer(prevState.tags),
-    }));
-  };
-  const setNotebooks: SetNotebooks = (transformer) => {
-    console.log("setNotebooks()");
-    setState((prevState) => ({
-      ...prevState,
-      notebooks: transformer(prevState.notebooks),
-    }));
-  };
-  const setShortcuts: SetShortcuts = (transformer) => {
-    console.log("setShortcuts()");
-    setState((prevState) => ({
-      ...prevState,
-      shortcuts: transformer(prevState.shortcuts),
-    }));
-  };
-
   const execute: Execute = useCallback(
     async (command, input) => {
       const handler = commands[command];
@@ -101,10 +80,7 @@ export function useCommands(initialState: State): [State, Execute, SetUI] {
         throw Error(`No command ${command} found.`);
       }
 
-      await handler(
-        { setTags, setNotebooks, setShortcuts, getState, setUI },
-        input as any
-      );
+      await handler(setUI, input as any);
     },
     [commands, getState]
   );

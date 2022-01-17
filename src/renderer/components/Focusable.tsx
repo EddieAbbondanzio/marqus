@@ -1,17 +1,16 @@
 import React, {
   PropsWithChildren,
   useContext,
-  useEffect,
   useLayoutEffect,
   useRef,
 } from "react";
-import { UISection } from "../../shared/domain/state";
+import { Section } from "../../shared/domain/app";
 import { KeyCode } from "../../shared/io/keyCode";
 import { useKeyboard } from "../io/keyboard";
 import { FocusContext } from "./FocusTracker";
 
 export interface FocusableProps {
-  name: UISection;
+  name: Section;
   className?: string;
   overwrite?: boolean;
 }

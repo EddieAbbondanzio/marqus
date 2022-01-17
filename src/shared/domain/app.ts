@@ -2,19 +2,15 @@ import { AwaitableInput } from "../awaitableInput";
 import { Tag, Notebook, EntityType } from "./entities";
 import { Shortcut } from "./valueObjects";
 
-export interface State {
-  ui: UI;
-  // tags: Tag[];
-  // notebooks: Notebook[];
-  // shortcuts: Shortcut[];
-}
-
-export interface UI {
+/**
+ * AppState is all things related to the user interface.
+ */
+export interface App {
   sidebar: Sidebar;
-  focused: UISection[];
+  focused: Section[];
 }
 
-export type UISection = "sidebar" | "sidebarContextMenu" | "editor";
+export type Section = "sidebar" | "sidebarContextMenu" | "editor";
 
 export interface Sidebar {
   width: string;

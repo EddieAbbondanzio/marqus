@@ -1,7 +1,7 @@
 import { AwaitableInput } from "../awaitableInput";
 import { KeyCode } from "../io/keyCode";
 import { Note, NoteFlag } from "./entities";
-import { UISection } from "./state";
+import { Section } from "./app";
 
 // Shortcut is not a resource because they are just values
 export interface Shortcut {
@@ -9,7 +9,7 @@ export interface Shortcut {
   command: string;
   keys: KeyCode[];
   disabled?: boolean;
-  when?: UISection;
+  when?: Section;
   repeat?: boolean;
   userDefined?: boolean;
 }

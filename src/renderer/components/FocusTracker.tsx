@@ -9,27 +9,27 @@ import React, {
   useState,
 } from "react";
 import { Nullable } from "tsdef";
-import { UISection, State } from "../../shared/domain/state";
+import { App, Section } from "../../shared/domain/app";
 import { KeyCode } from "../../shared/io/keyCode";
 import { SetUI } from "../io/commands/types";
 import { useKeyboard } from "../io/keyboard";
 
 export const FocusContext = createContext<{
-  push(name: UISection, ref: RefObject<HTMLElement>, overwrite?: boolean): void;
+  push(name: Section, ref: RefObject<HTMLElement>, overwrite?: boolean): void;
   pop(): void;
-  subscribe(name: UISection, subscriber: () => void): void;
-  unsubscribe(name: UISection): void;
+  subscribe(name: Section, subscriber: () => void): void;
+  unsubscribe(name: Section): void;
 }>({} as any);
 
 export interface FocusTrackerProps {
   className?: string;
-  state: State;
+  state: App;
   setUI: SetUI;
 }
 
 export interface FocusTrackerState {
-  subscribers: Partial<Record<UISection, () => void>>;
-  previous?: UISection;
+  subscribers: Partial<Record<Section, () => void>>;
+  previous?: Section;
 }
 
 export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
@@ -37,7 +37,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
     subscribers: {},
   });
 
-  const subscribe = (name: UISection, subscriber: () => void) => {
+  const subscribe = (name: Section, subscriber: () => void) => {
     if (state.subscribers[name] != null) {
       console.warn(`Subscriber for ${name} already exists`, state.subscribers);
       throw Error(`Subscriber for ${name} already exists.`);
@@ -52,7 +52,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
     }));
   };
 
-  const unsubscribe = (name: UISection) => {
+  const unsubscribe = (name: Section) => {
     setState((s) => ({
       ...s,
       subscribers: {
@@ -63,7 +63,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
   };
 
   const push = (
-    name: UISection,
+    name: Section,
     ref: RefObject<HTMLElement>,
     overwrite: boolean
   ) => {
@@ -99,7 +99,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
   };
 
   useEffect(() => {
-    const focused = props.state.ui.focused;
+    const focused = props.state.focused;
     if (focused == null || focused.length === 0) {
       setState((s) => ({
         ...s,
@@ -128,7 +128,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         previous: curr,
       }));
     }
-  }, [props.state.ui]);
+  }, [props.state]);
 
   return (
     <FocusContext.Provider value={{ push, pop, subscribe, unsubscribe }}>

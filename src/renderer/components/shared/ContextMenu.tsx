@@ -8,9 +8,9 @@ import React, {
 } from "react";
 import { PropsWithChildren } from "react";
 import { classList, Coord } from "../../../shared/dom";
+import { App } from "../../../shared/domain/app";
 import { getNodeEnv } from "../../../shared/env";
 import { KeyCode } from "../../../shared/io/keyCode";
-import { State } from "../../../shared/domain/state";
 import { Execute } from "../../io/commands";
 import { CommandInput, CommandType, SetUI } from "../../io/commands/types";
 import { useFocus } from "../../io/focus";
@@ -51,7 +51,7 @@ export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
 
 export interface ContextMenuProps {
   name: string;
-  state: State;
+  state: App;
   execute: Execute;
   setUI: SetUI;
   items: (ev?: MouseEvent) => JSX.Element[];

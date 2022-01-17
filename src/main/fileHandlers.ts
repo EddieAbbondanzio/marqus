@@ -1,4 +1,4 @@
-import { UI, UISection } from "../shared/domain/state";
+import { App, Section } from "../shared/domain/app";
 import * as yup from "yup";
 import _, {
   chain,
@@ -22,7 +22,7 @@ import { Tag, Notebook } from "../shared/domain/entities";
 import { Shortcut } from "../shared/domain/valueObjects";
 import { getNodeEnv } from "../shared/env";
 
-export const uiFile = createFileHandler<UI>("ui.json", uiSchema, {
+export const appFile = createFileHandler<App>("app.json", uiSchema, {
   serialize: (ui) => {
     // Nuke out stuff we don't want to persist.
     ui.sidebar.explorer.input = undefined;
@@ -147,7 +147,7 @@ export const shortcutFile = createFileHandler<Shortcut[]>(
               ...userOverride,
               type: "shortcut",
               keys: parseKeyCodes(userOverride.keys),
-              when: userOverride.when as UISection,
+              when: userOverride.when as Section,
             }
           );
         }
@@ -163,13 +163,13 @@ export type FileName =
   | "tags.json"
   | "notebooks.json"
   | "shortcuts.json"
-  | "ui.json";
+  | "app.json";
 
 function isValidFileName(fileName: FileName) {
   return (
     fileName === "tags.json" ||
     fileName === "notebooks.json" ||
-    fileName === "ui.json" ||
+    fileName === "app.json" ||
     fileName === "shortcuts.json"
   );
 }

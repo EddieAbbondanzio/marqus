@@ -1,9 +1,8 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import { ValidationError } from "yup";
 import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { appRpcs } from "./rpcs/app";
-import { stateRpcs } from "./rpcs/state";
+import { shortcutRpcs } from "./rpcs/shortcuts";
 import { tagRpcs } from "./rpcs/tags";
 
 /*
@@ -11,7 +10,7 @@ import { tagRpcs } from "./rpcs/tags";
  */
 export const handlers: RpcRegistry = {
   ...appRpcs,
-  ...stateRpcs,
+  ...shortcutRpcs,
   ...tagRpcs,
 };
 

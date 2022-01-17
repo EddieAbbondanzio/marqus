@@ -1,6 +1,6 @@
 import * as yup from "yup";
 import { Tag, Notebook } from "./domain/entities";
-import { UI } from "./domain/state";
+import { App } from "./domain/app";
 import { Shortcut } from "./domain/valueObjects";
 import { uuid, isId } from "./utils";
 
@@ -31,7 +31,7 @@ export const notebookSchema: yup.SchemaOf<Notebook> = yup
   .object()
   .shape({} as any);
 
-export const uiSchema: yup.SchemaOf<UI> = yup.object().shape({
+export const uiSchema: yup.SchemaOf<App> = yup.object().shape({
   sidebar: yup.object().shape({
     width: yup.string().required(),
     scroll: yup.number().required().min(0),
