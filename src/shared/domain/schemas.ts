@@ -1,16 +1,16 @@
 import * as yup from "yup";
-import { Tag, Notebook } from "./domain/entities";
-import { App } from "./domain/app";
-import { Shortcut } from "./domain/valueObjects";
-import { uuid, isId } from "./utils";
+import { Tag, Notebook } from "./entities";
+import { App } from "./app";
+import { Shortcut } from "./valueObjects";
+import { uuid, isId } from "../utils";
 
-const idSchema = yup.string().optional().default(uuid).test(isId);
+const id = yup.string().optional().default(uuid).test(isId);
 
 export function getTagSchema(tags: Tag[] = []): yup.SchemaOf<Tag> {
   return yup
     .object()
     .shape({
-      id: idSchema,
+      id: id,
       type: yup.string().required().equals(["tag"]),
       name: yup
         .string()
@@ -31,24 +31,25 @@ export const notebookSchema: yup.SchemaOf<Notebook> = yup
   .object()
   .shape({} as any);
 
-export const uiSchema: yup.SchemaOf<App> = yup.object().shape({
+export const appSchema: yup.SchemaOf<App> = yup.object().shape({
   sidebar: yup.object().shape({
     width: yup.string().required(),
     scroll: yup.number().required().min(0),
+    hidden: yup.boolean().optional(),
     filter: yup.object().shape({
       expanded: yup.boolean().optional(),
     }),
     explorer: yup.object().shape({
-      items: yup.mixed().optional(),
+      items: yup.mixed().optional(), // Not
       view: yup
         .mixed()
         .oneOf(["all", "notebooks", "tags", "favorites", "temp", "trash"])
         .required(),
-      selected: yup.array(),
+      selected: yup.array(), // Not persisted
       input: yup
         .object()
         .shape({
-          id: idSchema,
+          id: id,
           mode: yup.mixed().oneOf(["create", "update"]),
           value: yup.string() as yup.StringSchema<string>,
           onInput: yup.mixed(),
@@ -57,7 +58,7 @@ export const uiSchema: yup.SchemaOf<App> = yup.object().shape({
           parent: yup
             .object()
             .shape({
-              id: idSchema,
+              id: id,
               type: yup.mixed().oneOf(["note", "notebook", "tag"]),
             })
             .optional(),
@@ -65,7 +66,6 @@ export const uiSchema: yup.SchemaOf<App> = yup.object().shape({
         .default(undefined)
         .optional(),
     }),
-    hidden: yup.boolean().optional(),
   }),
   focused: yup
     .array()

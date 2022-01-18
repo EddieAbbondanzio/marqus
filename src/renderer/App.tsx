@@ -22,7 +22,7 @@ const { rpc } = window;
     [previousState, shortcuts] = await Promise.all([
       rpc("app.loadPreviousState"),
       rpc("shortcuts.getAll"),
-      // We don't listen for returns from the following:
+      // We're initing cache with these. Don't need return values
       tags.initialize(),
     ]);
   } catch (e) {

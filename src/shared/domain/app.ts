@@ -5,6 +5,7 @@ import { Shortcut } from "./valueObjects";
 /**
  * AppState is all things related to the user interface.
  */
+// Entities do not belong here.
 export interface App {
   sidebar: Sidebar;
   focused: Section[];

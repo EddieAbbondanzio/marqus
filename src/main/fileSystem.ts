@@ -1,8 +1,131 @@
 import * as p from "path";
 import * as fs from "fs";
+import { debounce, isEqual, cloneDeep } from "lodash";
+import { getNodeEnv } from "../shared/env";
+import * as yup from "yup";
 
 export const DATA_DIRECTORY = "data";
 export type FileContentType = "text" | "json";
+
+export type FileName =
+  | "tags.json"
+  | "notebooks.json"
+  | "shortcuts.json"
+  | "app.json";
+
+function isValidFileName(fileName: FileName) {
+  return (
+    fileName === "tags.json" ||
+    fileName === "notebooks.json" ||
+    fileName === "app.json" ||
+    fileName === "shortcuts.json"
+  );
+}
+
+interface FileHandler<Content> {
+  save(content: Content): Promise<Content>;
+  load(): Promise<Content>;
+}
+
+const DEBOUNCE_INTERVAL_MS = 250;
+
+export function createFileHandler<Content>(
+  /**
+   * The name of the file. Should include extension (.json)
+   */
+  name: FileName,
+  /**
+   * Validation occurs before saving file contents, and after deserializing
+   * when loading file contents
+   */
+  schema: yup.AnySchema,
+  opts?: {
+    /**
+     * Return value in the event the file was empty or not found.
+     */
+    defaultValue?: Content;
+    /**
+     * Convert the content of the file before saving it.
+     */
+    serialize?: (c: Content) => any;
+    /**
+     * Parse the content of the file after loading it.
+     */
+    deserialize?: (c?: any) => Content | undefined;
+  }
+): FileHandler<Content> {
+  if (!isValidFileName(name)) {
+    throw Error(`Invalid file name ${name}`);
+  }
+
+  let previous: Content;
+
+  const save: any = debounce(async (content?: Content): Promise<Content> => {
+    if (content == null) {
+      throw Error(`${name} file content cannot be null.`);
+    }
+
+    if (previous != null && isEqual(content, previous)) {
+      return content;
+    }
+
+    await schema.validate(content);
+
+    let c;
+    if (opts?.serialize != null) {
+      c = opts.serialize(content);
+    } else {
+      c = content;
+    }
+
+    await writeFile(name, c, "json");
+    previous = cloneDeep(content);
+
+    return content;
+  }, DEBOUNCE_INTERVAL_MS);
+
+  const load = async () => {
+    // File will never change unless we save it, so we can return cached state.
+    if (previous != null) {
+      return previous;
+    }
+    const content = await readFile(name, "json");
+
+    let c;
+    if (opts?.deserialize != null) {
+      c = opts.deserialize(content);
+    } else {
+      c = content;
+    }
+
+    if (c != null) {
+      try {
+        await schema.validate(c);
+      } catch (e) {
+        if (getNodeEnv() === "development") {
+          console.log("Failed validation: ", JSON.stringify(c));
+        }
+
+        throw e;
+      }
+    } else {
+      c = opts?.defaultValue;
+    }
+
+    if (c == null) {
+      throw Error(
+        `Content for ${name} was null and no default value was provided.`
+      );
+    }
+
+    return c;
+  };
+
+  return {
+    save,
+    load,
+  };
+}
 
 export function fileExists(path: string): boolean {
   const fullPath = generateFullPath(path);

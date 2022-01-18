@@ -10,7 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useRef } from "react";
 import { App, ExplorerView } from "../../shared/domain/app";
-import { getTagSchema } from "../../shared/schemas";
+import { getTagSchema } from "../../shared/domain/schemas";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { NewButton, NewButtonOption } from "./NewButton";
