@@ -1,7 +1,7 @@
 import { BrowserWindow, dialog } from "electron";
-import { App } from "../../shared/domain/app";
+import { UI } from "../../shared/domain/state";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
-import { appFile as appFile } from "../fileHandlers";
+import { uiFile as uiFile } from "../fileHandlers";
 
 const promptUser: RpcHandler<"app.promptUser"> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
@@ -54,12 +54,12 @@ const inspectElement: RpcHandler<"app.inspectElement"> = async (coord) => {
   );
 };
 
-export async function load(): Promise<App> {
-  return appFile.load();
+export async function load(): Promise<UI> {
+  return uiFile.load();
 }
 
-export async function save(app: App): Promise<void> {
-  await appFile.save(app);
+export async function save(app: UI): Promise<void> {
+  await uiFile.save(app);
 }
 
 export const appRpcs: RpcRegistry = {
@@ -69,6 +69,6 @@ export const appRpcs: RpcRegistry = {
   "app.toggleFullScreen": toggleFullScreen,
   "app.quit": quit,
   "app.inspectElement": inspectElement,
-  "app.loadPreviousState": load,
-  "app.saveState": save,
+  "app.loadPreviousUIState": load,
+  "app.saveUIState": save,
 };

@@ -11,13 +11,13 @@ export type FileName =
   | "tags.json"
   | "notebooks.json"
   | "shortcuts.json"
-  | "app.json";
+  | "ui.json";
 
 function isValidFileName(fileName: FileName) {
   return (
     fileName === "tags.json" ||
     fileName === "notebooks.json" ||
-    fileName === "app.json" ||
+    fileName === "ui.json" ||
     fileName === "shortcuts.json"
   );
 }

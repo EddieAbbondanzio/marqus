@@ -4,7 +4,7 @@ import React, {
   useLayoutEffect,
   useRef,
 } from "react";
-import { Section } from "../../shared/domain/app";
+import { Section } from "../../shared/domain/state";
 import { KeyCode } from "../../shared/io/keyCode";
 import { useKeyboard } from "../io/keyboard";
 import { FocusContext } from "./FocusTracker";
@@ -45,7 +45,6 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
 
     div.addEventListener("focusin", publish);
     ctx.subscribe(name, () => {
-      console.log("div.focus() ", name);
       div.focus();
     });
 

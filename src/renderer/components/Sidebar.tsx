@@ -10,10 +10,10 @@ import { Focusable } from "./Focusable";
 import { NAV_MENU_ATTRIBUTE, parseNavMenuAttr } from "./shared/NavMenu";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
-import { App } from "../../shared/domain/app";
+import { State } from "../../shared/domain/state";
 
 export interface SidebarProps {
-  state: App;
+  state: State;
   setUI: SetUI;
   execute: Execute;
 }
@@ -69,7 +69,7 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
   return (
     <Resizable
       minWidth={px(300)}
-      width={state.sidebar.width}
+      width={state.ui.sidebar.width}
       onResize={(w) => execute("sidebar.resizeWidth", w)}
     >
       <Focusable

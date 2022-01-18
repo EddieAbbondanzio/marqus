@@ -1,12 +1,16 @@
 import { AwaitableInput } from "../awaitableInput";
-import { Tag, Notebook, EntityType } from "./entities";
+import { Tag, Notebook, EntityType, Note } from "./entities";
 import { Shortcut } from "./valueObjects";
 
-/**
- * AppState is all things related to the user interface.
- */
-// Entities do not belong here.
-export interface App {
+export interface State {
+  ui: UI;
+  tags: Tag[];
+  notes: Note[];
+  notebooks: Notebook[];
+  shortcuts: Shortcut[];
+}
+
+export interface UI {
   sidebar: Sidebar;
   focused: Section[];
 }

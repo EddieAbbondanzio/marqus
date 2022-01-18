@@ -9,7 +9,7 @@ import React, {
   useState,
 } from "react";
 import { Nullable } from "tsdef";
-import { App, Section } from "../../shared/domain/app";
+import { UI, Section, State } from "../../shared/domain/state";
 import { KeyCode } from "../../shared/io/keyCode";
 import { SetUI } from "../io/commands/types";
 import { useKeyboard } from "../io/keyboard";
@@ -23,7 +23,7 @@ export const FocusContext = createContext<{
 
 export interface FocusTrackerProps {
   className?: string;
-  state: App;
+  state: State;
   setUI: SetUI;
 }
 
@@ -67,7 +67,6 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
     ref: RefObject<HTMLElement>,
     overwrite: boolean
   ) => {
-    console.log("push", name);
     if (ref.current == null) {
       throw Error(`Cannot focus null ref`);
     }
@@ -94,11 +93,10 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         focused: [],
       };
     });
-    console.log("pop ");
   };
 
   useEffect(() => {
-    const focused = props.state.focused;
+    const focused = props.state.ui.focused;
     if (focused == null || focused.length === 0) {
       setState((s) => ({
         ...s,

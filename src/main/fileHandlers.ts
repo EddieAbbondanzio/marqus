@@ -1,4 +1,4 @@
-import { App, Section } from "../shared/domain/app";
+import { UI, Section } from "../shared/domain/state";
 import * as yup from "yup";
 import _, {
   chain,
@@ -37,7 +37,7 @@ const appSchema = yup.object().shape({
   }),
 });
 
-export const appFile = createFileHandler<App>("app.json", appSchema, {
+export const uiFile = createFileHandler<UI>("ui.json", appSchema, {
   serialize: (ui) => {
     // Nuke out stuff we don't want to persist.
     ui.sidebar.explorer.input = undefined;

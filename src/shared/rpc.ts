@@ -1,7 +1,7 @@
 import { PromptButton, PromptOptions } from "./prompt";
 import { Coord } from "./dom";
 import { NoteFlag, Tag } from "./domain/entities";
-import { App } from "./domain/app";
+import { UI } from "./domain/state";
 import { NoteGroup, NoteMetadata, Shortcut } from "./domain/valueObjects";
 
 /*
@@ -26,8 +26,8 @@ export interface RpcSchema {
   "app.reload": RpcVoid;
   "app.toggleFullScreen": RpcVoid;
   "app.quit": RpcVoid;
-  "app.loadPreviousState": RpcOut<App>;
-  "app.saveState": RpcIn<App>;
+  "app.loadPreviousUIState": RpcOut<UI>;
+  "app.saveUIState": RpcIn<UI>;
 
   // Shortcuts
   "shortcuts.getAll": RpcOut<Shortcut[]>;

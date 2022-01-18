@@ -2,49 +2,49 @@ import {
   AwaitableInput,
   createAwaitableInput,
 } from "../../../shared/awaitableInput";
-import { ExplorerItem, ExplorerView } from "../../../shared/domain/app";
+import { ExplorerItem, ExplorerView } from "../../../shared/domain/state";
 import { tags } from "../../services/tags";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
-  "sidebar.focus": async (setUI) => {
-    setUI({
+  "sidebar.focus": async (ctx) => {
+    ctx.setUI({
       focused: ["sidebar"],
     });
     console.log("set focus to sidebar");
   },
-  "sidebar.toggle": async (setUI) => {
-    setUI((prev) => ({
+  "sidebar.toggle": async (ctx) => {
+    ctx.setUI((prev) => ({
       sidebar: {
         hidden: !(prev.sidebar.hidden ?? false),
       },
     }));
   },
-  "sidebar.resizeWidth": async (setUI, width) => {
+  "sidebar.resizeWidth": async (ctx, width) => {
     if (width == null) {
       return;
     }
 
-    setUI({
+    ctx.setUI({
       sidebar: {
         width,
       },
     });
   },
-  "sidebar.updateScroll": async (setUI, scroll) => {
+  "sidebar.updateScroll": async (ctx, scroll) => {
     if (scroll == null) {
       return;
     }
 
-    setUI({
+    ctx.setUI({
       sidebar: {
         scroll,
       },
     });
   },
-  "sidebar.scrollDown": async (setUI) => {
-    setUI((prev) => {
+  "sidebar.scrollDown": async (ctx) => {
+    ctx.setUI((prev) => {
       // Max scroll clamp is performed in scrollable.
       const scroll = prev.sidebar.scroll + 30;
       return {
@@ -54,8 +54,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       };
     });
   },
-  "sidebar.scrollUp": async (setUI) => {
-    setUI((prev) => {
+  "sidebar.scrollUp": async (ctx) => {
+    ctx.setUI((prev) => {
       const scroll = Math.max(prev.sidebar.scroll - 30, 0);
       return {
         sidebar: {
@@ -64,8 +64,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       };
     });
   },
-  "sidebar.toggleFilter": async (setUI) => {
-    setUI((prev) => {
+  "sidebar.toggleFilter": async (ctx) => {
+    ctx.setUI((prev) => {
       console.log("toggle filter: ", !prev.sidebar.filter.expanded);
       return {
         sidebar: {
@@ -76,9 +76,9 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       };
     });
   },
-  "sidebar.createTag": async (setUI) => {
+  "sidebar.createTag": async (ctx) => {
     let [input, completed] = createAwaitableInput({ value: "" }, (value) =>
-      setUI({
+      ctx.setUI({
         sidebar: {
           explorer: {
             input: {
@@ -89,7 +89,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       })
     );
 
-    setUI({
+    ctx.setUI({
       sidebar: {
         explorer: {
           input,
@@ -107,7 +107,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       }
     }
 
-    setUI({
+    ctx.setUI({
       sidebar: {
         explorer: {
           input: undefined,
@@ -115,12 +115,12 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
   },
-  "sidebar.renameTag": async (setUI, id) => {
+  "sidebar.renameTag": async (ctx, id) => {
     const tag = await tags.getById(id!);
     let [input, completed] = createAwaitableInput(
       { value: tag.name, id: tag.id },
       (value) =>
-        setUI({
+        ctx.setUI({
           sidebar: {
             explorer: {
               input: {
@@ -131,7 +131,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         })
     );
 
-    setUI({
+    ctx.setUI({
       sidebar: {
         explorer: {
           input,
@@ -149,7 +149,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       }
     }
 
-    setUI({
+    ctx.setUI({
       sidebar: {
         explorer: {
           input: undefined,
@@ -157,7 +157,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
   },
-  "sidebar.deleteTag": async (setUI, id) => {
+  "sidebar.deleteTag": async (ctx, id) => {
     const tag = await tags.getById(id!);
     const res = await promptConfirmAction("delete", `tag ${tag.name}`);
 
@@ -165,8 +165,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       await tags.delete(tag);
     }
   },
-  "sidebar.setSelection": async (setUI, selected) => {
-    setUI({
+  "sidebar.setSelection": async (ctx, selected) => {
+    ctx.setUI({
       sidebar: {
         explorer: {
           selected,
@@ -181,7 +181,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.moveSelectionDown": async () => {
     console.log("IMPLEMENT THIS!");
   },
-  "sidebar.setExplorerView": async (setUI, view) => {
+  "sidebar.setExplorerView": async (ctx, view) => {
     if (view == null) {
       return;
     }
@@ -199,7 +199,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         break;
     }
 
-    setUI({
+    ctx.setUI({
       sidebar: {
         explorer: {
           view,

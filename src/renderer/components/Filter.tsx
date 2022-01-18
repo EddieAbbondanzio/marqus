@@ -1,7 +1,7 @@
 import { faEllipsisV } from "@fortawesome/free-solid-svg-icons";
 import React, { useState } from "react";
 import { classList, px } from "../../shared/dom";
-import { App } from "../../shared/domain/app";
+import { State, UI } from "../../shared/domain/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { Button } from "./shared/Button";
@@ -10,13 +10,13 @@ import { Checkbox, Field, Form, Input } from "./shared/Form";
 import { Icon } from "./shared/Icon";
 
 export interface FilterProps {
-  state: App;
+  state: State;
   setUI: SetUI;
   execute: Execute;
 }
 
 export function Filter({ state, execute }: FilterProps) {
-  const expanded = state.sidebar.filter.expanded ?? true;
+  const expanded = state.ui.sidebar.filter.expanded ?? true;
   const searchClasses = classList("mt-1", {
     "mb-1": !expanded,
   });

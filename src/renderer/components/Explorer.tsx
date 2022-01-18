@@ -9,7 +9,7 @@ import {
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useRef } from "react";
-import { App, ExplorerView } from "../../shared/domain/app";
+import { UI, ExplorerView, State } from "../../shared/domain/state";
 import { getTagSchema } from "../../shared/domain/schemas";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
@@ -19,7 +19,6 @@ import { InlineInput } from "./shared/InlineInput";
 import { NavMenu } from "./shared/NavMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
-import * as yup from "yup";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -31,14 +30,13 @@ export const EXPLORER_DESC: Record<ExplorerView, string> = {
 };
 
 export interface ExplorerProps {
-  state: App;
+  state: State;
   setUI: SetUI;
   execute: Execute;
 }
 
 export function Explorer({ state, setUI, execute }: ExplorerProps) {
-  // console.log("Explorer");
-  const { explorer } = state.sidebar;
+  const { explorer } = state.ui.sidebar;
 
   const setView = (view: ExplorerView) => () =>
     execute("sidebar.setExplorerView", view);
@@ -48,92 +46,50 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   let menus: JSX.Element[] = [];
 
   if (items != null && view === "tags") {
+    // let tagNameSchema;
+    // if (input?.mode === "create") {
+    //   tagNameSchema = yup.reach(getTagSchema(tags), "name");
+    // } else if (input?.mode === "update") {
+    //   const otherTags = tags.filter((t) => t.id !== input.id);
+    //   tagNameSchema = yup.reach(getTagSchema(otherTags), "name");
+    // }
+
     for (const item of items) {
       const navMenuId = `tag.${item.resourceId}`;
 
+      if (input?.mode === "update" && input.id === item.resourceId) {
+        menus.push(
+          <InlineInput
+            key="create"
+            {...input}
+            size="is-small"
+            // schema={tagNameSchema}
+          />
+        );
+      } else {
+        menus.push(
+          <NavMenu
+            id={navMenuId}
+            key={navMenuId}
+            name={item.text}
+            selected={isSelected(navMenuId)}
+            text={item.text}
+            onClick={() => execute("sidebar.setSelection", [navMenuId])}
+          ></NavMenu>
+        );
+      }
+    }
+
+    if (input != null && input.mode === "create") {
       menus.push(
-        <NavMenu
-          id={navMenuId}
-          key={navMenuId}
-          name={item.text}
-          selected={isSelected(navMenuId)}
-          text={item.text}
-          onClick={() => execute("sidebar.setSelection", [navMenuId])}
-        ></NavMenu>
+        <InlineInput
+          key="create"
+          {...input}
+          size="is-small"
+          // schema={tagNameSchema}
+        />
       );
     }
-  }
-
-  switch (view) {
-    case "all":
-      // Create a menu for each note
-      break;
-
-    case "notebooks":
-      // Add nested support
-      // for (const notebook of state.notebooks) {
-      //   menus.push(
-      //     <NavMenu
-      //       id={`notebook.${notebook.id}`}
-      //       key={notebook.id}
-      //       name={notebook.name}
-      //       text={notebook.name}
-      //     ></NavMenu>
-      //   );
-      // }
-      break;
-
-    case "tags":
-      // const { tags } = state;
-      // let tagNameSchema;
-      // if (input?.mode === "create") {
-      //   tagNameSchema = yup.reach(getTagSchema(tags), "name");
-      // } else if (input?.mode === "update") {
-      //   const otherTags = tags.filter((t) => t.id !== input.id);
-      //   tagNameSchema = yup.reach(getTagSchema(otherTags), "name");
-      // }
-
-      // for (const tag of tags) {
-      //   if (input?.mode === "update" && input?.id === tag.id) {
-      //     menus.push(
-      //       <InlineInput
-      //         key="create"
-      //         {...input}
-      //         size="is-small"
-      //         schema={tagNameSchema}
-      //       />
-      //     );
-      //   } else {
-      //     const navMenuId = `tag.${tag.id}`;
-
-      //     menus.push(
-      //       <NavMenu
-      //         id={navMenuId}
-      //         key={tag.id}
-      //         name={tag.name}
-      //         selected={isSelected(navMenuId)}
-      //         text={tag.name}
-      //         onClick={() => execute("sidebar.setSelection", [navMenuId])}
-      //       ></NavMenu>
-      //     );
-      //   }
-      // }
-
-      // if (input != null && input.mode === "create") {
-      //   menus.push(
-      //     <InlineInput
-      //       key="create"
-      //       {...input}
-      //       size="is-small"
-      //       schema={tagNameSchema}
-      //     />
-      //   );
-      // }
-      break;
-
-    case "trash":
-      // Create a menu for each trashed note
-      break;
   }
 
   // Save for reference. For now...
@@ -220,7 +176,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       </div>
 
       <Scrollable
-        scroll={state.sidebar.scroll}
+        scroll={state.ui.sidebar.scroll}
         onScroll={(s) => execute("sidebar.updateScroll", s)}
       >
         {menus}

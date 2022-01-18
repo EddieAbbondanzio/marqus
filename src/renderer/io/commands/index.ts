@@ -1,11 +1,19 @@
 import { cloneDeep, merge, mergeWith } from "lodash";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { App } from "../../../shared/domain/app";
+import { State, UI } from "../../../shared/domain/state";
 import { deepUpdate } from "../../utils/deepUpdate";
 import { appCommands } from "./appCommands";
 import { editorCommands } from "./editorCommands";
 import { sidebarCommands } from "./sidebarCommands";
-import { CommandInput, CommandSchema, CommandType, SetUI } from "./types";
+import {
+  CommandInput,
+  CommandSchema,
+  CommandType,
+  SetNotebooks,
+  SetShortcuts,
+  SetTags,
+  SetUI,
+} from "./types";
 
 /*
  * Please don't refactor this unless you fully consider all the requirements.
@@ -25,10 +33,10 @@ export type Execute = <C extends CommandType>(
 ) => Promise<void>;
 
 // Commands really only oeprate on UI
-export function useCommands(initialState: App): [App, Execute, SetUI] {
+export function useCommands(previousState: State): [State, Execute, SetUI] {
   // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
 
-  const [state, setState] = useState(initialState);
+  const [state, setState] = useState(previousState);
   const lastState = useRef(state);
 
   // We need to run these first
@@ -36,21 +44,26 @@ export function useCommands(initialState: App): [App, Execute, SetUI] {
     lastState.current = state;
   }, [state]);
 
-  const getState = useCallback(() => {
+  const getState = () => {
     const cloned = cloneDeep(lastState.current);
     return cloned;
-  }, []);
+  };
 
   const setUI: SetUI = (transformer) => {
     setState((prevState) => {
       const updates =
         typeof transformer === "function"
-          ? transformer(prevState)
+          ? transformer(prevState.ui)
           : transformer;
 
-      const ui = deepUpdate(prevState, updates);
-      void window.rpc("app.saveState", cloneDeep(ui));
-      return ui;
+      const ui = deepUpdate(prevState.ui, updates);
+      const newState = {
+        ...prevState,
+        ui,
+      };
+
+      void window.rpc("app.saveUIState", cloneDeep(newState.ui));
+      return newState;
     });
   };
 
@@ -59,6 +72,28 @@ export function useCommands(initialState: App): [App, Execute, SetUI] {
    * perform any saving to file because all of that is handled by the rpcs.
    */
 
+  const setTags: SetTags = (transformer) => {
+    console.log("setTags()");
+    setState((prevState) => ({
+      ...prevState,
+      tags: transformer(prevState.tags),
+    }));
+  };
+  const setNotebooks: SetNotebooks = (transformer) => {
+    console.log("setNotebooks()");
+    setState((prevState) => ({
+      ...prevState,
+      notebooks: transformer(prevState.notebooks),
+    }));
+  };
+  const setShortcuts: SetShortcuts = (transformer) => {
+    console.log("setShortcuts()");
+    setState((prevState) => ({
+      ...prevState,
+      shortcuts: transformer(prevState.shortcuts),
+    }));
+  };
+
   const execute: Execute = useCallback(
     async (name, input) => {
       const command = commands[name];
@@ -66,7 +101,10 @@ export function useCommands(initialState: App): [App, Execute, SetUI] {
         throw Error(`No command ${name} found.`);
       }
 
-      await command(setUI, input as any);
+      await command(
+        { setUI, setTags, setNotebooks, setShortcuts },
+        input as any
+      );
     },
     [commands, getState]
   );

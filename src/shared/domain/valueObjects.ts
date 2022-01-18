@@ -1,7 +1,7 @@
 import { AwaitableInput } from "../awaitableInput";
 import { KeyCode } from "../io/keyCode";
 import { Note, NoteFlag } from "./entities";
-import { Section } from "./app";
+import { Section } from "./state";
 
 // Shortcut is not a resource because they are just values
 export interface Shortcut {

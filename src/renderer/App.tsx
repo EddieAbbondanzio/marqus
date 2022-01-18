@@ -7,23 +7,24 @@ import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { FocusTracker } from "./components/FocusTracker";
 import { Focusable } from "./components/Focusable";
-import { App } from "../shared/domain/app";
+import { UI } from "../shared/domain/state";
 import { Shortcut } from "../shared/domain/valueObjects";
 import { tags } from "./services/tags";
+import { Tag } from "../shared/domain/entities";
 
 const { rpc } = window;
 (async () => {
   fontAwesomeLib();
 
-  let previousState: App;
+  let ui: UI;
   let shortcuts: Shortcut[] = [];
+  let tags: Tag[] = [];
 
   try {
-    [previousState, shortcuts] = await Promise.all([
-      rpc("app.loadPreviousState"),
+    [ui, shortcuts, tags] = await Promise.all([
+      rpc("app.loadPreviousUIState"),
       rpc("shortcuts.getAll"),
-      // We're initing cache with these. Don't need return values
-      tags.initialize(),
+      rpc("tags.getAll"),
     ]);
   } catch (e) {
     console.log("Fatal Error", e);
@@ -34,17 +35,23 @@ const { rpc } = window;
 
   function App() {
     // console.log("App");
-    const [app, execute, setUI] = useCommands(previousState);
-    useShortcuts(shortcuts, app, execute);
+    const [state, execute, setUI] = useCommands({
+      ui,
+      shortcuts,
+      tags,
+      notebooks: [],
+      notes: [],
+    });
+    useShortcuts(shortcuts, state, execute);
 
     return (
       <FocusTracker
         className="h-100 w-100 is-flex is-flex-row"
-        state={app}
+        state={state}
         setUI={setUI}
       >
-        {!(app.sidebar.hidden ?? false) && (
-          <Sidebar state={app} execute={execute} setUI={setUI} />
+        {!(state.ui.sidebar.hidden ?? false) && (
+          <Sidebar state={state} execute={execute} setUI={setUI} />
         )}
 
         <Focusable name="editor">Editor!</Focusable>
