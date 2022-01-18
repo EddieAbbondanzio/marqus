@@ -2,7 +2,7 @@ import {
   AwaitableInput,
   createAwaitableInput,
 } from "../../../shared/awaitableInput";
-import { ExplorerView } from "../../../shared/domain/app";
+import { ExplorerItem, ExplorerView } from "../../../shared/domain/app";
 import { tags } from "../../services/tags";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
@@ -66,6 +66,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.toggleFilter": async (setUI) => {
     setUI((prev) => {
+      console.log("toggle filter: ", !prev.sidebar.filter.expanded);
       return {
         sidebar: {
           filter: {
@@ -185,11 +186,25 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       return;
     }
 
+    let items: ExplorerItem[] = [];
+
+    switch (view) {
+      case "tags":
+        const allTags = await tags.getAll();
+        items = allTags.map((t) => ({
+          text: t.name,
+          resourceId: t.id,
+          resourceType: "tag",
+        }));
+        break;
+    }
+
     setUI({
       sidebar: {
         explorer: {
           view,
           input: undefined,
+          items,
         },
       },
     });

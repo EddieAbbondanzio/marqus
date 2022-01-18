@@ -5,15 +5,7 @@ import { deepUpdate } from "../../utils/deepUpdate";
 import { appCommands } from "./appCommands";
 import { editorCommands } from "./editorCommands";
 import { sidebarCommands } from "./sidebarCommands";
-import {
-  CommandInput,
-  CommandSchema,
-  CommandType,
-  SetNotebooks,
-  SetShortcuts,
-  SetTags,
-  SetUI,
-} from "./types";
+import { CommandInput, CommandSchema, CommandType, SetUI } from "./types";
 
 /*
  * Please don't refactor this unless you fully consider all the requirements.
@@ -57,14 +49,8 @@ export function useCommands(initialState: App): [App, Execute, SetUI] {
           : transformer;
 
       const ui = deepUpdate(prevState, updates);
-      const newState = {
-        ...prevState,
-        ui,
-      };
-
-      console.log("setUI: new state ui updates: ", updates, " new ui: ", ui);
-      void window.rpc("app.saveState", cloneDeep(newState.ui));
-      return newState;
+      void window.rpc("app.saveState", cloneDeep(ui));
+      return ui;
     });
   };
 
@@ -74,13 +60,13 @@ export function useCommands(initialState: App): [App, Execute, SetUI] {
    */
 
   const execute: Execute = useCallback(
-    async (command, input) => {
-      const handler = commands[command];
-      if (handler == null) {
-        throw Error(`No command ${command} found.`);
+    async (name, input) => {
+      const command = commands[name];
+      if (command == null) {
+        throw Error(`No command ${name} found.`);
       }
 
-      await handler(setUI, input as any);
+      await command(setUI, input as any);
     },
     [commands, getState]
   );

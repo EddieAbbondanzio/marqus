@@ -33,6 +33,7 @@ const { rpc } = window;
   }
 
   function App() {
+    // console.log("App");
     const [app, execute, setUI] = useCommands(previousState);
     useShortcuts(shortcuts, app, execute);
 

@@ -39,6 +39,7 @@ export const uiSchema: yup.SchemaOf<App> = yup.object().shape({
       expanded: yup.boolean().optional(),
     }),
     explorer: yup.object().shape({
+      items: yup.mixed().optional(),
       view: yup
         .mixed()
         .oneOf(["all", "notebooks", "tags", "favorites", "temp", "trash"])
@@ -64,12 +65,6 @@ export const uiSchema: yup.SchemaOf<App> = yup.object().shape({
         .default(undefined)
         .optional(),
     }),
-    tagInput: yup
-      .object()
-      .shape({
-        inputMode: yup.mixed().oneOf(["create", "update"]),
-      })
-      .optional(),
     hidden: yup.boolean().optional(),
   }),
   focused: yup

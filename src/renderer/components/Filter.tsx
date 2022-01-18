@@ -17,7 +17,6 @@ export interface FilterProps {
 
 export function Filter({ state, execute }: FilterProps) {
   const expanded = state.sidebar.filter.expanded ?? true;
-
   const searchClasses = classList("mt-1", {
     "mb-1": !expanded,
   });

@@ -37,14 +37,32 @@ export interface ExplorerProps {
 }
 
 export function Explorer({ state, setUI, execute }: ExplorerProps) {
+  // console.log("Explorer");
   const { explorer } = state.sidebar;
 
   const setView = (view: ExplorerView) => () =>
     execute("sidebar.setExplorerView", view);
   const isSelected = (id: string) => explorer.selected?.some((s) => s === id);
 
+  const { input, view, items } = explorer;
   let menus: JSX.Element[] = [];
-  const { input, view } = explorer;
+
+  if (items != null && view === "tags") {
+    for (const item of items) {
+      const navMenuId = `tag.${item.resourceId}`;
+
+      menus.push(
+        <NavMenu
+          id={navMenuId}
+          key={navMenuId}
+          name={item.text}
+          selected={isSelected(navMenuId)}
+          text={item.text}
+          onClick={() => execute("sidebar.setSelection", [navMenuId])}
+        ></NavMenu>
+      );
+    }
+  }
 
   switch (view) {
     case "all":
