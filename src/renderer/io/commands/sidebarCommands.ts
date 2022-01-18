@@ -2,8 +2,8 @@ import {
   AwaitableInput,
   createAwaitableInput,
 } from "../../../shared/awaitableInput";
+import { Tag } from "../../../shared/domain/entities";
 import { ExplorerItem, ExplorerView } from "../../../shared/domain/state";
-import { tags } from "../../services/tags";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 
@@ -101,7 +101,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     const [value, action] = await completed;
     if (action === "confirm") {
       try {
-        const tag = await tags.create(value);
+        const tag = await window.rpc("tags.create", { name: value });
+        ctx.setTags((tags) => [...tags, tag]);
       } catch (e) {
         promptError(e.message);
       }
@@ -116,7 +117,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.renameTag": async (ctx, id) => {
-    const tag = await tags.getById(id!);
+    const tag = getTag(ctx, id!);
     let [input, completed] = createAwaitableInput(
       { value: tag.name, id: tag.id },
       (value) =>
@@ -143,7 +144,12 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     const [name, action] = await completed;
     if (action === "confirm") {
       try {
-        await tags.rename(tag, name);
+        const updated = await window.rpc("tags.update", { id: tag.id, name });
+        ctx.setTags((tags) => {
+          const index = tags.findIndex((t) => t.id === id);
+          tags[index] = updated;
+          return tags;
+        });
       } catch (e) {
         promptError(e.message);
       }
@@ -158,11 +164,11 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.deleteTag": async (ctx, id) => {
-    const tag = await tags.getById(id!);
+    const tag = getTag(ctx, id!);
     const res = await promptConfirmAction("delete", `tag ${tag.name}`);
 
     if (res.text === "Yes") {
-      await tags.delete(tag);
+      await window.rpc("tags.delete", { id: tag.id });
     }
   },
   "sidebar.setSelection": async (ctx, selected) => {
@@ -187,10 +193,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     }
 
     let items: ExplorerItem[] = [];
+    const { tags: allTags } = ctx.getState();
 
     switch (view) {
       case "tags":
-        const allTags = await tags.getAll();
         items = allTags.map((t) => ({
           text: t.name,
           resourceId: t.id,
@@ -210,3 +216,12 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
 };
+
+function getTag(ctx: ExecutionContext, id: string): Tag {
+  const tag = ctx.getState().tags.find((t) => t.id === id);
+  if (tag == null) {
+    throw new Error(`No tag with id ${id} found.`);
+  }
+
+  return tag;
+}

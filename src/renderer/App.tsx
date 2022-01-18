@@ -9,7 +9,6 @@ import { FocusTracker } from "./components/FocusTracker";
 import { Focusable } from "./components/Focusable";
 import { UI } from "../shared/domain/state";
 import { Shortcut } from "../shared/domain/valueObjects";
-import { tags } from "./services/tags";
 import { Tag } from "../shared/domain/entities";
 
 const { rpc } = window;

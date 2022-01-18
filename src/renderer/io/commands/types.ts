@@ -1,6 +1,6 @@
 import { Coord } from "../../../shared/dom";
 import { Tag, Notebook } from "../../../shared/domain/entities";
-import { ExplorerView, UI } from "../../../shared/domain/state";
+import { ExplorerView, State, UI } from "../../../shared/domain/state";
 import { Shortcut } from "../../../shared/domain/valueObjects";
 import { StartsWith } from "../../types";
 import { DeepPartial } from "tsdef";
@@ -25,6 +25,7 @@ export interface ExecutionContext {
   setTags: SetTags;
   setNotebooks: SetNotebooks;
   setShortcuts: SetShortcuts;
+  getState: () => State;
 }
 
 export type Command<Input = void> = (

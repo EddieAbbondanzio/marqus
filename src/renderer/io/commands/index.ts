@@ -102,7 +102,7 @@ export function useCommands(previousState: State): [State, Execute, SetUI] {
       }
 
       await command(
-        { setUI, setTags, setNotebooks, setShortcuts },
+        { setUI, setTags, setNotebooks, setShortcuts, getState },
         input as any
       );
     },
