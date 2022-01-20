@@ -180,9 +180,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
   },
-  "sidebar.moveSelectionUp": async () => {
+  "sidebar.moveSelectionUp": async (ctx) => {
     // TODO: Support nested logic later on
     console.log("IMPLEMENT THIS!");
+    ctx.publish("sidebar.moveSelectionUp");
   },
   "sidebar.moveSelectionDown": async () => {
     console.log("IMPLEMENT THIS!");
@@ -193,11 +194,11 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     }
 
     let items: ExplorerItem[] = [];
-    const { tags: allTags } = ctx.getState();
 
     switch (view) {
       case "tags":
-        items = allTags.map((t) => ({
+        const { tags } = ctx.getState();
+        items = tags.map((t) => ({
           text: t.name,
           resourceId: t.id,
           resourceType: "tag",

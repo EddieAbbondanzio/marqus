@@ -1,6 +1,6 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { render } from "react-dom";
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
@@ -10,6 +10,7 @@ import { Focusable } from "./components/Focusable";
 import { UI } from "../shared/domain/state";
 import { Shortcut } from "../shared/domain/valueObjects";
 import { Tag } from "../shared/domain/entities";
+import { PubSub, PubSubContext } from "./components/PubSub";
 
 const { rpc } = window;
 (async () => {
@@ -33,14 +34,17 @@ const { rpc } = window;
   }
 
   function App() {
-    // console.log("App");
-    const [state, execute, setUI] = useCommands({
-      ui,
-      shortcuts,
-      tags,
-      notebooks: [],
-      notes: [],
-    });
+    const { publish } = useContext(PubSubContext);
+    const [state, execute, setUI] = useCommands(
+      {
+        ui,
+        shortcuts,
+        tags,
+        notebooks: [],
+        notes: [],
+      },
+      publish
+    );
     useShortcuts(shortcuts, state, execute);
 
     return (
@@ -58,5 +62,10 @@ const { rpc } = window;
     );
   }
 
-  render(<App />, document.getElementById("app"));
+  render(
+    <PubSub>
+      <App />
+    </PubSub>,
+    document.getElementById("app")
+  );
 })();

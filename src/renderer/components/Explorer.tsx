@@ -8,7 +8,7 @@ import {
   faAngleDoubleDown,
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { UI, ExplorerView, State } from "../../shared/domain/state";
 import { getTagSchema } from "../../shared/domain/schemas";
 import { Execute } from "../io/commands";
@@ -19,6 +19,7 @@ import { InlineInput } from "./shared/InlineInput";
 import { NavMenu } from "./shared/NavMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
+import { PubSubContext } from "./PubSub";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -109,6 +110,19 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         break;
     }
   };
+
+  const pubsub = useContext(PubSubContext);
+  const sub = (msg: string) => {
+    console.log("move explorer down!");
+  };
+
+  useEffect(() => {
+    pubsub.subscribe("sidebar.moveSelectionUp", sub);
+
+    return () => {
+      pubsub.unsubscribe("sidebar.moveSelectionUp", sub);
+    };
+  }, []);
 
   return (
     <div className="is-flex is-flex-grow-1 is-flex-direction-column">

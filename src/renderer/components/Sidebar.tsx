@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { px } from "../../shared/dom";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
@@ -11,6 +11,7 @@ import { NAV_MENU_ATTRIBUTE, parseNavMenuAttr } from "./shared/NavMenu";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
 import { State } from "../../shared/domain/state";
+import { PubSubContext } from "./PubSub";
 
 export interface SidebarProps {
   state: State;

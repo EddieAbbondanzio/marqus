@@ -25,7 +25,8 @@ export interface ExecutionContext {
   setTags: SetTags;
   setNotebooks: SetNotebooks;
   setShortcuts: SetShortcuts;
-  getState: () => State;
+  getState(): State;
+  publish(message: string): void;
 }
 
 export type Command<Input = void> = (
