@@ -51,6 +51,7 @@ export interface CommandSchema {
   "sidebar.renameTag": Command<string>;
   "sidebar.deleteTag": Command<string>;
   "sidebar.setSelection": Command<string[]>;
+  "sidebar.clearSelection": Command;
   "sidebar.moveSelectionUp": Command;
   "sidebar.moveSelectionDown": Command;
   "sidebar.setExplorerView": Command<ExplorerView>;

@@ -96,7 +96,6 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
   };
 
   useEffect(() => {
-    console.log("useEffect()");
     const { focused } = props.state.ui;
     if (focused == null || focused.length === 0) {
       setState((s) => ({

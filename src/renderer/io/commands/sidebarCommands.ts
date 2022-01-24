@@ -180,6 +180,15 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
   },
+  "sidebar.clearSelection": async (ctx) => {
+    ctx.setUI({
+      sidebar: {
+        explorer: {
+          selected: [],
+        },
+      },
+    });
+  },
   "sidebar.moveSelectionUp": async (ctx) => {
     ctx.publish("sidebar.moveSelectionUp");
   },

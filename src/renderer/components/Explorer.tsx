@@ -80,7 +80,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
             selected={isSelected(navMenuId)}
             text={item.text}
             onClick={() => execute("sidebar.setSelection", [navMenuId])}
-            onBlur={() => execute("sidebar.setSelection", [])}
+            onBlur={() => execute("sidebar.clearSelection")}
           ></NavMenu>
         );
         selectables.push(navMenuId);
