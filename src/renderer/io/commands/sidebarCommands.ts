@@ -181,12 +181,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.moveSelectionUp": async (ctx) => {
-    // TODO: Support nested logic later on
-    console.log("IMPLEMENT THIS!");
     ctx.publish("sidebar.moveSelectionUp");
   },
-  "sidebar.moveSelectionDown": async () => {
-    console.log("IMPLEMENT THIS!");
+  "sidebar.moveSelectionDown": async (ctx) => {
+    ctx.publish("sidebar.moveSelectionDown");
   },
   "sidebar.setExplorerView": async (ctx, view) => {
     if (view == null) {

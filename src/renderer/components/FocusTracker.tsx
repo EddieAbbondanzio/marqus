@@ -15,10 +15,10 @@ import { SetUI } from "../io/commands/types";
 import { useKeyboard } from "../io/keyboard";
 
 export const FocusContext = createContext<{
-  push(name: Section, ref: RefObject<HTMLElement>, overwrite?: boolean): void;
+  push(name: string, ref: RefObject<HTMLElement>, overwrite?: boolean): void;
   pop(): void;
-  subscribe(name: Section, subscriber: () => void): void;
-  unsubscribe(name: Section): void;
+  subscribe(name: string, subscriber: () => void): void;
+  unsubscribe(name: string): void;
 }>({} as any);
 
 export interface FocusTrackerProps {
@@ -96,7 +96,8 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
   };
 
   useEffect(() => {
-    const focused = props.state.ui.focused;
+    console.log("useEffect()");
+    const { focused } = props.state.ui;
     if (focused == null || focused.length === 0) {
       setState((s) => ({
         ...s,
@@ -109,13 +110,12 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
      * Detect if we need to notify a focusable. This will handle notifying of
      * externally made changes too (like from setUI).
      */
-    const [curr] = focused.slice(-1);
+    const [curr] = focused.slice(0);
     if (state.previous != curr) {
       if (curr != null) {
         const sub = state.subscribers[curr];
 
         if (sub != null) {
-          console.log("FocusTracker.notify()", curr);
           sub();
         }
       }
@@ -125,7 +125,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         previous: curr,
       }));
     }
-  }, [props.state]);
+  }, [props.state.ui.focused, state.previous]);
 
   return (
     <FocusContext.Provider value={{ push, pop, subscribe, unsubscribe }}>

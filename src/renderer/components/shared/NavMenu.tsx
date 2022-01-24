@@ -3,18 +3,20 @@ import React, { useMemo } from "react";
 import { PropsWithChildren } from "react";
 import { classList, px } from "../../../shared/dom";
 import { EntityType } from "../../../shared/domain/entities";
+import { Focusable } from "../Focusable";
 import { Icon } from "./Icon";
 
 export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
 
 export interface NavMenuProps {
-  id?: string;
+  id: string;
   name: string;
   icon?: IconDefinition;
   text: string;
   collapsed?: boolean;
   selected?: boolean;
   onClick?: () => any;
+  onBlur?: () => any;
 }
 
 export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
@@ -31,15 +33,21 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
     <div
       className={menuClasses}
       style={{ height: px(30) }}
-      {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
       onClick={() => props.onClick?.()}
+      {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
     >
-      <div className={triggerClasses}>
-        <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
-          {props.icon != null && <Icon icon={props.icon} className="mr-1" />}
-          <span>{props.text}</span>
+      <Focusable
+        name={props.id}
+        className="h-100 is-flex is-align-items-center is-flex-grow-1"
+        onBlur={props.onBlur}
+      >
+        <div className={triggerClasses}>
+          <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
+            {props.icon != null && <Icon icon={props.icon} className="mr-1" />}
+            <span>{props.text}</span>
+          </div>
         </div>
-      </div>
+      </Focusable>
       {props.children}
     </div>
   );

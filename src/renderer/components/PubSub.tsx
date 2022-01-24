@@ -12,24 +12,21 @@ export interface PubSub {
 export const PubSubContext = createContext<PubSub>({} as any);
 
 export function PubSub({ children }: PropsWithChildren<{}>) {
-  const [state, setState] = useState<Record<string, Subscriber[]>>({});
+  const [state, setState] = useState<Record<string, Subscriber>>({});
 
   const subscribe = (msg: string, sub: Subscriber) => {
-    console.log("Add a sub: ");
     if (state[msg] == null) {
       setState((prev) => {
         const next = {
           ...prev,
-          [msg]: [sub],
+          [msg]: sub,
         };
-
-        console.log(next);
         return next;
       });
     } else {
       setState((prev) => ({
         ...prev,
-        [msg]: [...prev[msg], sub],
+        [msg]: sub,
       }));
     }
   };
@@ -39,25 +36,21 @@ export function PubSub({ children }: PropsWithChildren<{}>) {
       return;
     }
 
-    const index = state[msg].findIndex((s) => s === sub);
-    if (index === -1) {
-      return;
-    }
-
-    setState((prev) => ({
-      ...prev,
-      [msg]: [...prev[msg].filter((s) => s !== sub)],
-    }));
+    setState((prev) => {
+      const newState = { ...prev };
+      delete newState[msg];
+      return newState;
+    });
   };
 
   const publish = (msg: string) => {
-    const subs = state[msg];
-    if (subs == null || subs.length == 0) {
-      console.warn(`PubSub: No subs for ${msg}`);
+    const sub = state[msg];
+    if (sub == null) {
+      console.warn(`PubSub: No subs for ${msg}`, state);
       return;
     }
 
-    subs.forEach((s) => s(msg));
+    sub(msg);
   };
 
   return (

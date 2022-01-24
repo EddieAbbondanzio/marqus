@@ -20,6 +20,9 @@ import { NavMenu } from "./shared/NavMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { PubSubContext } from "./PubSub";
+import { clamp } from "lodash";
+import { useKeyboard } from "../io/keyboard";
+import { KeyCode } from "../../shared/io/keyCode";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -45,6 +48,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
 
   const { input, view, items } = explorer;
   let menus: JSX.Element[] = [];
+  let selectables: string[] = [];
 
   if (items != null && view === "tags") {
     // let tagNameSchema;
@@ -76,8 +80,10 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
             selected={isSelected(navMenuId)}
             text={item.text}
             onClick={() => execute("sidebar.setSelection", [navMenuId])}
+            onBlur={() => execute("sidebar.setSelection", [])}
           ></NavMenu>
         );
+        selectables.push(navMenuId);
       }
     }
 
@@ -112,17 +118,65 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   };
 
   const pubsub = useContext(PubSubContext);
-  const sub = (msg: string) => {
-    console.log("move explorer down!");
+  const moveSelectionUp = () => {
+    if (explorer.selected == null || explorer.selected.length === 0) {
+      setUI({
+        sidebar: {
+          explorer: {
+            selected: selectables.slice(-1),
+          },
+        },
+      });
+    } else {
+      const curr = selectables.findIndex((s) => s === explorer.selected![0]);
+      if (curr == -1) {
+        throw Error(`Current selectable not found`);
+      }
+
+      const next = clamp(curr - 1, 0, selectables.length - 1);
+      if (curr !== next) {
+        setUI({
+          sidebar: {
+            explorer: {
+              selected: selectables.slice(next, next + 1),
+            },
+          },
+        });
+      }
+    }
+  };
+  const moveSelectionDown = () => {
+    if (explorer.selected == null || explorer.selected.length === 0) {
+      setUI({
+        sidebar: {
+          explorer: {
+            selected: selectables.slice(0, 1),
+          },
+        },
+      });
+    } else {
+      const curr = selectables.findIndex((s) => s === explorer.selected![0]);
+      if (curr == -1) {
+        throw Error(`Current selectable not found`);
+      }
+
+      const next = clamp(curr + 1, 0, selectables.length - 1);
+      if (curr !== next) {
+        setUI({
+          sidebar: {
+            explorer: {
+              selected: selectables.slice(next, next + 1),
+            },
+          },
+        });
+      }
+    }
   };
 
   useEffect(() => {
-    pubsub.subscribe("sidebar.moveSelectionUp", sub);
-
-    return () => {
-      pubsub.unsubscribe("sidebar.moveSelectionUp", sub);
-    };
-  }, []);
+    pubsub.subscribe("sidebar.moveSelectionUp", moveSelectionUp);
+    pubsub.subscribe("sidebar.moveSelectionDown", moveSelectionDown);
+  }, [explorer]);
 
   return (
     <div className="is-flex is-flex-grow-1 is-flex-direction-column">
