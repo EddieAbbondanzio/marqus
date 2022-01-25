@@ -1,6 +1,5 @@
 import { createAwaitableInput } from "../../../shared/awaitableInput";
 import { Tag } from "../../../shared/domain/entities";
-import { ExplorerItem } from "../../../shared/domain/state";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 
@@ -100,7 +99,6 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     if (action === "confirm") {
       try {
         const tag = await window.rpc("tags.create", { name: value });
-        console.log("new tag: ", tag);
         ctx.setTags((tags) => [...tags, tag]);
       } catch (e) {
         promptError(e.message);
@@ -200,25 +198,11 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       return;
     }
 
-    let items: ExplorerItem[] = [];
-
-    switch (view) {
-      case "tags":
-        const { tags } = ctx.getState();
-        items = tags.map((t) => ({
-          text: t.name,
-          resourceId: t.id,
-          resourceType: "tag",
-        }));
-        break;
-    }
-
     ctx.setUI({
       sidebar: {
         explorer: {
           view,
           input: undefined,
-          items,
         },
       },
     });

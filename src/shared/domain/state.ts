@@ -37,7 +37,6 @@ export interface Explorer {
   view: ExplorerView;
   input?: ExplorerInput;
   selected?: string[];
-  items?: ExplorerItem[];
 }
 
 export interface ExplorerInput extends AwaitableInput {
@@ -45,13 +44,6 @@ export interface ExplorerInput extends AwaitableInput {
     id: string;
     type: EntityType;
   };
-}
-
-export interface ExplorerItem {
-  text: string;
-  resourceId: string;
-  resourceType: "tag" | "notebook" | "note";
-  children?: ExplorerItem[];
 }
 
 export type ExplorerView =

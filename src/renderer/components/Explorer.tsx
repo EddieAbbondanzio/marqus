@@ -46,11 +46,12 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     execute("sidebar.setExplorerView", view);
   const isSelected = (id: string) => explorer.selected?.some((s) => s === id);
 
-  const { input, view, items } = explorer;
+  const { input, view } = explorer;
   let menus: JSX.Element[] = [];
   let selectables: string[] = [];
 
-  if (items != null && view === "tags") {
+  if (view === "tags") {
+    const { tags } = state;
     // let tagNameSchema;
     // if (input?.mode === "create") {
     //   tagNameSchema = yup.reach(getTagSchema(tags), "name");
@@ -59,10 +60,10 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     //   tagNameSchema = yup.reach(getTagSchema(otherTags), "name");
     // }
 
-    for (const item of items) {
-      const navMenuId = `tag.${item.resourceId}`;
+    for (const tag of tags) {
+      const navMenuId = `tag.${tag.id}`;
 
-      if (input?.mode === "update" && input.id === item.resourceId) {
+      if (input?.mode === "update" && input.id === tag.id) {
         menus.push(
           <InlineInput
             name="sidebarInput"
@@ -77,9 +78,9 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
           <NavMenu
             id={navMenuId}
             key={navMenuId}
-            name={item.text}
+            name={tag.name}
             selected={isSelected(navMenuId)}
-            text={item.text}
+            text={tag.name}
             onClick={() => execute("sidebar.setSelection", [navMenuId])}
             onEsc={() => execute("sidebar.clearSelection")}
           ></NavMenu>
