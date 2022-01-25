@@ -1,9 +1,6 @@
-import {
-  AwaitableInput,
-  createAwaitableInput,
-} from "../../../shared/awaitableInput";
+import { createAwaitableInput } from "../../../shared/awaitableInput";
 import { Tag } from "../../../shared/domain/entities";
-import { ExplorerItem, ExplorerView } from "../../../shared/domain/state";
+import { ExplorerItem } from "../../../shared/domain/state";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 
@@ -90,6 +87,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     );
 
     ctx.setUI({
+      focused: ["sidebarInput"],
       sidebar: {
         explorer: {
           input,
@@ -102,6 +100,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     if (action === "confirm") {
       try {
         const tag = await window.rpc("tags.create", { name: value });
+        console.log("new tag: ", tag);
         ctx.setTags((tags) => [...tags, tag]);
       } catch (e) {
         promptError(e.message);
@@ -133,6 +132,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     );
 
     ctx.setUI({
+      focused: ["sidebarInput"],
       sidebar: {
         explorer: {
           input,

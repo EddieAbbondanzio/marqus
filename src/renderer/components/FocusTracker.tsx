@@ -15,7 +15,7 @@ import { SetUI } from "../io/commands/types";
 import { useKeyboard } from "../io/keyboard";
 
 export const FocusContext = createContext<{
-  push(name: string, ref: RefObject<HTMLElement>, overwrite?: boolean): void;
+  push(name: string, overwrite?: boolean): void;
   pop(): void;
   subscribe(name: string, subscriber: () => void): void;
   unsubscribe(name: string): void;
@@ -62,15 +62,7 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
     }));
   };
 
-  const push = (
-    name: Section,
-    ref: RefObject<HTMLElement>,
-    overwrite: boolean
-  ) => {
-    if (ref.current == null) {
-      throw Error(`Cannot focus null ref`);
-    }
-
+  const push = (name: Section, overwrite: boolean) => {
     props.setUI((s) => {
       const focused = [name];
       if (!overwrite && s.focused != null && s.focused[0] !== name) {
@@ -113,18 +105,18 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
     if (state.previous != curr) {
       if (curr != null) {
         const sub = state.subscribers[curr];
-
         if (sub != null) {
           sub();
+
+          // We only set state if sub was notified to prevent an infinite loop.
+          setState((s) => ({
+            ...s,
+            previous: curr,
+          }));
         }
       }
-
-      setState((s) => ({
-        ...s,
-        previous: curr,
-      }));
     }
-  }, [props.state.ui.focused, state.previous]);
+  }, [props.state.ui.focused, state.previous, state.subscribers]);
 
   return (
     <FocusContext.Provider value={{ push, pop, subscribe, unsubscribe }}>

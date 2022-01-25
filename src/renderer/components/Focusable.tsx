@@ -15,6 +15,7 @@ export interface FocusableProps {
   name: string;
   className?: string;
   overwrite?: boolean;
+  onFocus?: () => void;
   onBlur?: () => void;
 }
 
@@ -24,9 +25,10 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
   const kb = useKeyboard(ref);
 
   const publish = (ev: FocusEvent) => {
+    console.log("focusin: ", props.name);
     // We stop propagation to support nested focusables
     ev.stopPropagation();
-    ctx.push(props.name, ref, props.overwrite);
+    ctx.push(props.name, props.overwrite);
   };
 
   // Listen for if we should blur it.
@@ -41,15 +43,18 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
       ctx.pop();
 
       // See if we can find a parent focusable and give it focus.
-      const parent: HTMLElement | null = findParent(
+      const parent = findParent(
         div,
         (el) => {
           const attr = el.getAttribute(FOCUSABLE_ATTRIBUTE);
           return attr != null && attr !== props.name;
         },
-        { matchValue: (el) => el }
+        { matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) }
       );
-      parent?.focus();
+
+      if (parent != null) {
+        ctx.push(parent);
+      }
     }
   });
 
@@ -65,6 +70,7 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
     div.addEventListener("focusin", publish);
     ctx.subscribe(name, () => {
       div.focus();
+      props.onFocus?.();
     });
 
     return () => {

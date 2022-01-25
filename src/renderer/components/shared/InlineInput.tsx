@@ -8,8 +8,10 @@ import { isBlank } from "../../../shared/string";
 import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 import { BulmaSize } from "../../shared";
+import { Focusable } from "../Focusable";
 
 export interface InlineInputProps {
+  name: string;
   className?: string;
   value: string;
   onInput: (value: string) => void;
@@ -18,8 +20,6 @@ export interface InlineInputProps {
   schema?: yup.StringSchema;
   size?: BulmaSize;
 }
-
-// DEADWEIGHT
 
 export function InlineInput(props: InlineInputProps): JSX.Element {
   const [flags, setFlags] = useState({
@@ -55,8 +55,10 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
     }
 
     if (!isBlank(input.current.value)) {
+      console.log("confirm");
       props.confirm();
     } else {
+      console.log("cancel");
       props.cancel();
     }
 
@@ -73,15 +75,17 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
     setFlags({ ...flags, wasTouched: true });
   };
 
-  useFocus(input);
+  // const stopProp = (ev: FocusEvent) => ev.stopPropagation();
 
   useEffect(() => {
     const { current: el } = input;
     el.setCustomValidity(errorMessage);
 
     el.addEventListener("blur", onBlur);
+    // el.addEventListener("focusin", stopProp);
     return () => {
       el.removeEventListener("blur", onBlur);
+      // el.removeEventListener("focusin", stopProp);
     };
   });
 
@@ -120,22 +124,25 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
     props.size as string | undefined,
     props.className
   );
+
   return (
     <div className="field mb-0" style={{ position: "relative" }}>
-      <input
-        ref={input}
-        className={classes}
-        onInput={onInput}
-        value={props.value}
-      ></input>
-      {errorMessage.length > 0 && (
-        <p
-          className="help is-danger box m-0 p-2"
-          style={{ position: "absolute", width: percentage(100) }}
-        >
-          {errorMessage}
-        </p>
-      )}
+      <Focusable name={props.name} onFocus={() => input.current?.focus()}>
+        <input
+          ref={input}
+          className={classes}
+          onInput={onInput}
+          value={props.value}
+        ></input>
+        {errorMessage.length > 0 && (
+          <p
+            className="help is-danger box m-0 p-2"
+            style={{ position: "absolute", width: percentage(100) }}
+          >
+            {errorMessage}
+          </p>
+        )}
+      </Focusable>
     </div>
   );
 }

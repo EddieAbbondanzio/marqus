@@ -23,6 +23,7 @@ const createTag: RpcHandler<"tags.create"> = async ({
     dateCreated: new Date(),
   };
 
+  console.log("Tag was created: ", tag.id);
   tags.push(tag);
   await tagFile.save(tags);
 

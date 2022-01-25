@@ -1,8 +1,10 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { PropsWithChildren } from "react";
 import { classList, px } from "../../../shared/dom";
 import { EntityType } from "../../../shared/domain/entities";
+import { KeyCode } from "../../../shared/io/keyCode";
+import { useKeyboard } from "../../io/keyboard";
 import { Focusable } from "../Focusable";
 import { Icon } from "./Icon";
 
@@ -16,7 +18,7 @@ export interface NavMenuProps {
   collapsed?: boolean;
   selected?: boolean;
   onClick?: () => any;
-  onBlur?: () => any;
+  onEsc?: () => any;
 }
 
 export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
@@ -29,25 +31,33 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
     { "has-background-primary": props.selected }
   );
 
+  const wrapper = useRef(null! as HTMLDivElement);
+  const kb = useKeyboard(wrapper);
+  kb.listen({ keys: [KeyCode.Enter], event: "keydown" }, async (ev) => {
+    ev.stopPropagation();
+    console.log("Key press!");
+  });
+
   return (
     <div
+      ref={wrapper}
       className={menuClasses}
       style={{ height: px(30) }}
       onClick={() => props.onClick?.()}
       {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
     >
-      <Focusable
+      {/* <Focusable
         name={props.id}
         className="h-100 is-flex is-align-items-center is-flex-grow-1"
         onBlur={props.onBlur}
-      >
-        <div className={triggerClasses}>
-          <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
-            {props.icon != null && <Icon icon={props.icon} className="mr-1" />}
-            <span>{props.text}</span>
-          </div>
+      > */}
+      <div className={triggerClasses}>
+        <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
+          {props.icon != null && <Icon icon={props.icon} className="mr-1" />}
+          <span>{props.text}</span>
         </div>
-      </Focusable>
+      </div>
+      {/* </Focusable> */}
       {props.children}
     </div>
   );

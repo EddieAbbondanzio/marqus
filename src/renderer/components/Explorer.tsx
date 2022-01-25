@@ -65,6 +65,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       if (input?.mode === "update" && input.id === item.resourceId) {
         menus.push(
           <InlineInput
+            name="sidebarInput"
             key="create"
             {...input}
             size="is-small"
@@ -80,7 +81,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
             selected={isSelected(navMenuId)}
             text={item.text}
             onClick={() => execute("sidebar.setSelection", [navMenuId])}
-            onBlur={() => execute("sidebar.clearSelection")}
+            onEsc={() => execute("sidebar.clearSelection")}
           ></NavMenu>
         );
         selectables.push(navMenuId);
@@ -90,6 +91,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     if (input != null && input.mode === "create") {
       menus.push(
         <InlineInput
+          name="sidebarInput"
           key="create"
           {...input}
           size="is-small"
@@ -179,7 +181,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   }, [explorer]);
 
   return (
-    <div className="is-flex is-flex-grow-1 is-flex-direction-column">
+    <div className="is-flex is-flex-grow-1 is-flex-direction-column h-100">
       <Tabs alignment="is-centered" className="mb-2">
         <Tab title="All" isActive={view === "all"} onClick={setView("all")}>
           <Icon icon={faFile} />

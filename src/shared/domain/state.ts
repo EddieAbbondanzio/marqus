@@ -15,7 +15,11 @@ export interface UI {
   focused: Section[];
 }
 
-export type Section = "sidebar" | "sidebarContextMenu" | "editor";
+export type Section =
+  | "sidebar"
+  | "sidebarContextMenu"
+  | "sidebarInput"
+  | "editor";
 
 export interface Sidebar {
   width: string;
