@@ -1,4 +1,5 @@
 import { Nullable } from "tsdef";
+import * as yup from "yup";
 
 export type InputMode = "create" | "update";
 
@@ -10,11 +11,12 @@ export interface AwaitableInput {
   onInput: (value: string) => void;
   confirm: () => void;
   cancel: () => void;
+  schema: any;
 }
 export type AwaitableOutcome = "confirm" | "cancel";
 
 export function createAwaitableInput(
-  params: { value: string; id?: string },
+  params: { value: string; id?: string; schema: yup.StringSchema },
   setValue: (value: string) => void
 ): [AwaitableInput, Promise<[value: string, action: AwaitableOutcome]>] {
   let mode: InputMode = params.id == null ? "create" : "update";
@@ -54,6 +56,7 @@ export function createAwaitableInput(
     onInput: wrappedSetValue,
     confirm: confirm!,
     cancel: cancel!,
+    schema: params.schema,
   };
 
   return [obj, Promise.race([confirmPromise, cancelPromise])];

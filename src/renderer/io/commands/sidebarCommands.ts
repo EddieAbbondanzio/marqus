@@ -1,7 +1,9 @@
 import { createAwaitableInput } from "../../../shared/awaitableInput";
 import { Tag } from "../../../shared/domain/entities";
+import { getTagSchema } from "../../../shared/domain/schemas";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
+import * as yup from "yup";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -73,16 +75,21 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.createTag": async (ctx) => {
-    let [input, completed] = createAwaitableInput({ value: "" }, (value) =>
-      ctx.setUI({
-        sidebar: {
-          explorer: {
-            input: {
-              value,
+    let { tags } = ctx.getState();
+    let schema: yup.StringSchema = yup.reach(getTagSchema(tags), "name");
+
+    let [input, completed] = createAwaitableInput(
+      { value: "", schema },
+      (value) =>
+        ctx.setUI({
+          sidebar: {
+            explorer: {
+              input: {
+                value,
+              },
             },
           },
-        },
-      })
+        })
     );
 
     ctx.setUI({
@@ -114,9 +121,13 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.renameTag": async (ctx, id) => {
+    let { tags } = ctx.getState();
+    const otherTags = tags.filter((t) => t.id !== id);
+    let schema: yup.StringSchema = yup.reach(getTagSchema(otherTags), "name");
+
     const tag = getTag(ctx, id!);
     let [input, completed] = createAwaitableInput(
-      { value: tag.name, id: tag.id },
+      { value: tag.name, id: tag.id, schema },
       (value) =>
         ctx.setUI({
           sidebar: {

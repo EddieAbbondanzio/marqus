@@ -46,7 +46,6 @@ const { rpc } = window;
       publish
     );
     useShortcuts(shortcuts, state, execute);
-    console.log("Initial state loaded: ", state.tags);
 
     return (
       <FocusTracker

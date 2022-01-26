@@ -10,7 +10,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useContext, useEffect, useRef } from "react";
 import { UI, ExplorerView, State } from "../../shared/domain/state";
-import { getTagSchema } from "../../shared/domain/schemas";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { NewButton, NewButtonOption } from "./NewButton";
@@ -21,8 +20,6 @@ import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { PubSubContext } from "./PubSub";
 import { clamp } from "lodash";
-import { useKeyboard } from "../io/keyboard";
-import { KeyCode } from "../../shared/io/keyCode";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -52,14 +49,6 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
 
   if (view === "tags") {
     const { tags } = state;
-    // let tagNameSchema;
-    // if (input?.mode === "create") {
-    //   tagNameSchema = yup.reach(getTagSchema(tags), "name");
-    // } else if (input?.mode === "update") {
-    //   const otherTags = tags.filter((t) => t.id !== input.id);
-    //   tagNameSchema = yup.reach(getTagSchema(otherTags), "name");
-    // }
-
     for (const tag of tags) {
       const navMenuId = `tag.${tag.id}`;
 
@@ -68,9 +57,8 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
           <InlineInput
             name="sidebarInput"
             key="create"
-            {...input}
             size="is-small"
-            // schema={tagNameSchema}
+            {...input}
           />
         );
       } else {
@@ -94,9 +82,8 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         <InlineInput
           name="sidebarInput"
           key="create"
-          {...input}
           size="is-small"
-          // schema={tagNameSchema}
+          {...input}
         />
       );
     }
