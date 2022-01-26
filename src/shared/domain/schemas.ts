@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import { Tag, Notebook } from "./entities";
+import { Tag, Notebook, Note } from "./entities";
 import { UI } from "./state";
 import { Shortcut } from "./valueObjects";
 import { uuid, isId } from "../utils";
@@ -38,4 +38,15 @@ export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
   when: yup.mixed().optional().oneOf(["sidebar", "editor"]),
   repeat: yup.bool().optional(),
   userDefined: yup.bool().optional(),
+});
+
+export const noteSchema: yup.SchemaOf<Note> = yup.object().shape({
+  id,
+  type: yup.string().required().equals(["note"]),
+  name: yup.string().required(),
+  tags: yup.array().of(yup.string()).optional(),
+  notebooks: yup.array().of(yup.string()).optional(),
+  flags: yup.number(),
+  dateCreated: yup.date().required(),
+  dateUpdated: yup.date().optional(),
 });

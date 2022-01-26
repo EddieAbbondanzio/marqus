@@ -1,8 +1,8 @@
 import { PromptButton, PromptOptions } from "./prompt";
 import { Coord } from "./dom";
-import { NoteFlag, Tag } from "./domain/entities";
+import { Note, NoteFlag, Tag } from "./domain/entities";
 import { UI } from "./domain/state";
-import { NoteGroup, NoteMetadata, Shortcut } from "./domain/valueObjects";
+import { Shortcut } from "./domain/valueObjects";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.
@@ -39,10 +39,7 @@ export interface RpcSchema {
   "tags.delete": RpcIn<{ id: string }>;
 
   // Notes
-  "notes.getAll": RpcInOut<
-    { groupBy?: "tag" | "notebook"; where?: { flags: NoteFlag } },
-    Array<NoteMetadata | NoteGroup>
-  >;
+  "notes.getAll": RpcOut<Array<Note>>;
 }
 
 export type RpcType = keyof RpcSchema;

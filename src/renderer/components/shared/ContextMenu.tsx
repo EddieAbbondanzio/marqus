@@ -165,7 +165,6 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
 
     if (active) {
       ctx.push(props.name);
-      console.log("Apply focus to", props.name);
     }
   });
 
@@ -299,7 +298,6 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
 
   const onFocus = () => menuRef.current?.focus();
   const onBlur = () => {
-    console.log("ON BLUR CONTEXT MENU");
     if (state.active) {
       setState({
         ...state,

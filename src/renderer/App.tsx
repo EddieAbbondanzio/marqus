@@ -9,7 +9,7 @@ import { FocusTracker } from "./components/FocusTracker";
 import { Focusable } from "./components/Focusable";
 import { UI } from "../shared/domain/state";
 import { Shortcut } from "../shared/domain/valueObjects";
-import { Tag } from "../shared/domain/entities";
+import { Note, Tag } from "../shared/domain/entities";
 import { PubSub, PubSubContext } from "./components/PubSub";
 
 const { rpc } = window;
@@ -19,12 +19,14 @@ const { rpc } = window;
   let ui: UI;
   let shortcuts: Shortcut[] = [];
   let tags: Tag[] = [];
+  let notes: Note[] = [];
 
   try {
-    [ui, shortcuts, tags] = await Promise.all([
+    [ui, shortcuts, tags, notes] = await Promise.all([
       rpc("app.loadPreviousUIState"),
       rpc("shortcuts.getAll"),
       rpc("tags.getAll"),
+      rpc("notes.getAll"),
     ]);
   } catch (e) {
     console.log("Fatal Error", e);

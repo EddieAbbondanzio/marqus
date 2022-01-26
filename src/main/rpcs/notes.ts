@@ -1,43 +1,52 @@
-import { NoteFlag } from "../../shared/domain/entities";
-import { NoteGroup, NoteMetadata } from "../../shared/domain/valueObjects";
-import { NotImplementedError } from "../../shared/errors";
-import { RpcHandler } from "../../shared/rpc";
-import { tagFile } from "../fileHandlers";
+import { Note } from "../../shared/domain/entities";
+import { RpcHandler, RpcRegistry } from "../../shared/rpc";
+import { isId } from "../../shared/utils";
+import {
+  createDirectory,
+  exists as exists,
+  readDirectory,
+  readFile,
+} from "../fileSystem";
+import * as path from "path";
+import { noteSchema } from "../../shared/domain/schemas";
 
-const getNotes: RpcHandler<"notes.getAll"> = async (filter: {
-  groupBy?: "tag" | "notebook";
-  where?: { flags: NoteFlag };
-}): Promise<Array<NoteMetadata | NoteGroup>> => {
-  let items: Array<NoteMetadata | NoteGroup> = [];
+export const NOTES_DIRECTORY = "notes";
+export const METADATA_FILE_NAME = "metadata.json";
+export const CONTENT_FILE_NAME = "content.md";
 
-  console.log(
-    "getNotes() is currently stubbed. Need to implement loading notes..."
-  );
+const getAll: RpcHandler<"notes.getAll"> = async (): Promise<Note[]> => {
+  /*
+   * Since we can't perform async loads within components we'll build a massive
+   * map of every note we can find in the file system and send it over to the
+   * renderer. Then we can do our filtering on the front end.
+   */
 
-  switch (filter.groupBy) {
-    // By tag
-    case "tag":
-      const tags = await tagFile.load();
-      for (const tag of tags) {
-        const group = {
-          name: tag.name,
-          children: [], // Populate list of notes with that tag
-        };
+  if (!exists(NOTES_DIRECTORY)) {
+    createDirectory(NOTES_DIRECTORY);
+    return [];
+  }
 
-        items.push(group);
-      }
-      break;
+  let items: Note[] = [];
+  const entries = await readDirectory(NOTES_DIRECTORY);
+  for (const entry of entries) {
+    // We only care about note directoties
+    if (!entry.isDirectory() || !isId(entry.name)) {
+      continue;
+    }
 
-    // By notebook
-    case "notebook":
-      throw new NotImplementedError();
-      break;
-
-    // Wide open
-    default:
-      throw new NotImplementedError();
-      break;
+    const metadataPath = path.join(
+      NOTES_DIRECTORY,
+      entry.name,
+      METADATA_FILE_NAME
+    );
+    const note: Note = await readFile(metadataPath, "json");
+    await noteSchema.validate(note);
+    items.push(note);
   }
 
   return items;
+};
+
+export const noteRpcs: RpcRegistry = {
+  "notes.getAll": getAll,
 };

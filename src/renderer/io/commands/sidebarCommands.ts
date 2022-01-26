@@ -4,6 +4,7 @@ import { getTagSchema } from "../../../shared/domain/schemas";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
+import { Section } from "../../../shared/domain/state";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -64,7 +65,6 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.toggleFilter": async (ctx) => {
     ctx.setUI((prev) => {
-      console.log("toggle filter: ", !prev.sidebar.filter.expanded);
       return {
         sidebar: {
           filter: {

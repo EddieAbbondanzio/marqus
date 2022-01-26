@@ -127,7 +127,7 @@ export function createFileHandler<Content>(
   };
 }
 
-export function fileExists(path: string): boolean {
+export function exists(path: string): boolean {
   const fullPath = generateFullPath(path);
   return fs.existsSync(fullPath);
 }
@@ -148,11 +148,11 @@ export async function deleteDirectory(path: string): Promise<void> {
   });
 }
 
-export async function readDirectory(path: string): Promise<string[]> {
+export async function readDirectory(path: string): Promise<fs.Dirent[]> {
   const fullPath = generateFullPath(path);
 
   return new Promise((res, rej) => {
-    fs.readdir(fullPath, (err, files) => {
+    fs.readdir(fullPath, { withFileTypes: true }, (err, files) => {
       if (err != null) {
         return rej(err);
       }
@@ -188,7 +188,7 @@ export async function readFile<
   return new Promise((res, rej) => {
     const fullPath = generateFullPath(path);
 
-    if (!fileExists(fullPath)) {
+    if (!exists(fullPath)) {
       if (!(opts?.required ?? false)) {
         return res(null as any);
       }
