@@ -78,7 +78,7 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         className="is-flex is-flex-grow-1 is-flex-direction-column"
       >
         <ContextMenu
-          name="sidebar"
+          name="sidebarContextMenu"
           items={contextMenuItems}
           state={state}
           execute={execute}

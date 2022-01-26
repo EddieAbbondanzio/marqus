@@ -5,7 +5,6 @@ import { classList, percentage, px } from "../../../shared/dom";
 import { InvalidOpError } from "../../../shared/errors";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { isBlank } from "../../../shared/string";
-import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 import { BulmaSize } from "../../shared";
 import { Focusable } from "../Focusable";

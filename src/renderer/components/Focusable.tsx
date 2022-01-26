@@ -25,7 +25,6 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
   const kb = useKeyboard(ref);
 
   const publish = (ev: FocusEvent) => {
-    console.log("focusin: ", props.name);
     // We stop propagation to support nested focusables
     ev.stopPropagation();
     ctx.push(props.name, props.overwrite);
@@ -38,7 +37,6 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
 
     const div = ref.current;
     if (div != null) {
-      props.onBlur?.();
       div.blur();
       ctx.pop();
 
@@ -68,9 +66,16 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
     const div = ref.current;
 
     div.addEventListener("focusin", publish);
-    ctx.subscribe(name, () => {
-      div.focus();
-      props.onFocus?.();
+    ctx.subscribe(name, (ev) => {
+      switch (ev) {
+        case "focus":
+          div.focus();
+          props.onFocus?.();
+          break;
+        case "blur":
+          props.onBlur?.();
+          break;
+      }
     });
 
     return () => {

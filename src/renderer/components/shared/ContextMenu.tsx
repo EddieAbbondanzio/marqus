@@ -13,11 +13,11 @@ import { getNodeEnv } from "../../../shared/env";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { Execute } from "../../io/commands";
 import { CommandInput, CommandType, SetUI } from "../../io/commands/types";
-import { useFocus } from "../../io/focus";
 import { useKeyboard } from "../../io/keyboard";
 import { MouseModifier, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "../Focusable";
+import { FocusContext } from "../FocusTracker";
 
 export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   const items = [];
@@ -136,9 +136,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
   });
 
   const [items, setItems] = useState([] as JSX.Element[]);
-
-  const { focus } = useFocus(menuRef, false);
-
+  const ctx = useContext(FocusContext);
   useMouse(wrapperRef).listen({ event: "click", button: "right" }, (ev) => {
     ev.stopPropagation();
     const { clientX: left, clientY: top } = ev;
@@ -166,7 +164,8 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     });
 
     if (active) {
-      focus();
+      ctx.push(props.name);
+      console.log("Apply focus to", props.name);
     }
   });
 
@@ -245,9 +244,14 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
           break;
 
         case KeyCode.Escape:
+          if (state.active) {
+            ctx.pop();
+          }
+
           setState({
             active: false,
           });
+
           break;
 
         case KeyCode.ArrowUp:
@@ -293,6 +297,17 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     });
   };
 
+  const onFocus = () => menuRef.current?.focus();
+  const onBlur = () => {
+    console.log("ON BLUR CONTEXT MENU");
+    if (state.active) {
+      setState({
+        ...state,
+        active: false,
+      });
+    }
+  };
+
   return (
     <div
       ref={wrapperRef}
@@ -300,7 +315,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       data-context-menu={props.name}
     >
       {state.active && (
-        <Focusable name="sidebarContextMenu">
+        <Focusable name={props.name} onFocus={onFocus} onBlur={onBlur}>
           <div
             ref={menuRef}
             className="context-menu box m-0 p-0"

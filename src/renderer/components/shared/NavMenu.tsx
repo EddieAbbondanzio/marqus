@@ -5,7 +5,6 @@ import { classList, px } from "../../../shared/dom";
 import { EntityType } from "../../../shared/domain/entities";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { useKeyboard } from "../../io/keyboard";
-import { Focusable } from "../Focusable";
 import { Icon } from "./Icon";
 
 export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
@@ -46,18 +45,12 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
       onClick={() => props.onClick?.()}
       {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
     >
-      {/* <Focusable
-        name={props.id}
-        className="h-100 is-flex is-align-items-center is-flex-grow-1"
-        onBlur={props.onBlur}
-      > */}
       <div className={triggerClasses}>
         <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
           {props.icon != null && <Icon icon={props.icon} className="mr-1" />}
           <span>{props.text}</span>
         </div>
       </div>
-      {/* </Focusable> */}
       {props.children}
     </div>
   );
