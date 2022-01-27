@@ -4,6 +4,7 @@ import { PropsWithChildren } from "react";
 import { classList, px } from "../../../shared/dom";
 import { EntityType } from "../../../shared/domain/entities";
 import { KeyCode } from "../../../shared/io/keyCode";
+import { parseFullyQualifiedId } from "../../../shared/utils";
 import { useKeyboard } from "../../io/keyboard";
 import { Icon } from "./Icon";
 
@@ -53,12 +54,4 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
       {props.children}
     </div>
   );
-}
-
-export function parseNavMenuAttr(value: string) {
-  if (!/^(tag|notebook|note).\S+$/.test(value)) {
-    throw Error(`Invalid nav menu attribute ${value}`);
-  }
-
-  return value.split(".") as [EntityType, string];
 }

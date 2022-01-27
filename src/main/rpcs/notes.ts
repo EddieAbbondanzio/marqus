@@ -45,7 +45,7 @@ export const noteRpcs: RpcRegistry<"notes"> = {
 
     return items;
   },
-  "notes.create": async ({ name }) => {
+  "notes.create": async ({ name, notebook, tag }) => {
     if (!exists(NOTES_DIRECTORY)) {
       await createDirectory(NOTES_DIRECTORY);
     }
@@ -58,6 +58,13 @@ export const noteRpcs: RpcRegistry<"notes"> = {
       tags: [],
       notebooks: [],
     };
+
+    if (notebook != null) {
+      note.notebooks!.push(notebook);
+    }
+    if (tag != null) {
+      note.tags!.push(tag);
+    }
 
     await createDirectory(path.join(NOTES_DIRECTORY, note.id));
     await saveMetadata(note);

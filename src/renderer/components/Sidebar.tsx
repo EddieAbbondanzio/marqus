@@ -7,11 +7,12 @@ import { ContextMenu, ContextMenuItem } from "./shared/ContextMenu";
 import { Explorer } from "./Explorer";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./Focusable";
-import { NAV_MENU_ATTRIBUTE, parseNavMenuAttr } from "./shared/NavMenu";
+import { NAV_MENU_ATTRIBUTE } from "./shared/NavMenu";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
 import { State } from "../../shared/domain/state";
 import { PubSubContext } from "./PubSub";
+import { parseFullyQualifiedId } from "../../shared/utils";
 
 export interface SidebarProps {
   state: State;
@@ -33,7 +34,7 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
       return [];
     }
 
-    const [type, id] = parseNavMenuAttr(navMenuAttr);
+    const [type, id] = parseFullyQualifiedId(navMenuAttr);
     const items = [];
     switch (type) {
       case "tag":

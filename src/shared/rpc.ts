@@ -41,7 +41,10 @@ export interface RpcSchema {
 
   // Notes
   "notes.getAll": RpcOut<Note[]>;
-  "notes.create": RpcInOut<{ name: string }, Note>;
+  "notes.create": RpcInOut<
+    { name: string; tag?: string; notebook?: string },
+    Note
+  >;
   "notes.update": RpcInOut<{ id: string; name: string }, Note>;
 }
 

@@ -21,6 +21,7 @@ import { Tab, Tabs } from "./shared/Tabs";
 import { PubSubContext } from "./PubSub";
 import { clamp } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
+import { parseFullyQualifiedId } from "../../shared/utils";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -92,7 +93,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   }
 
   for (const item of items) {
-    const [type, id] = item.id.split(".");
+    const [type, id] = parseFullyQualifiedId(item.id);
 
     // We could hit a collision on ids here someday...
     if (input?.mode === "update" && input.id === id) {
@@ -119,7 +120,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     }
   }
 
-  if (input != null && input.mode === "create") {
+  if (input != null && input.mode === "create" && input.parent == null) {
     menus.push(
       <InlineInput
         name="sidebarInput"

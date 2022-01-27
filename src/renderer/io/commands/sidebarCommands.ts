@@ -1,10 +1,11 @@
 import { createAwaitableInput } from "../../../shared/awaitableInput";
-import { Note, Tag } from "../../../shared/domain/entities";
+import { Entity, EntityType, Note, Tag } from "../../../shared/domain/entities";
 import { getNoteSchema, getTagSchema } from "../../../shared/domain/schemas";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
 import { NotFoundError } from "../../../shared/errors";
+import { parseFullyQualifiedId } from "../../../shared/utils";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -181,8 +182,11 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     }
   },
   "sidebar.createNote": async (ctx) => {
-    let { notes } = ctx.getState();
-    let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
+    let state = ctx.getState();
+    let schema: yup.StringSchema = yup.reach(
+      getNoteSchema(state.notes),
+      "name"
+    );
 
     let [input, completed] = createAwaitableInput(
       { value: "", schema },
@@ -198,6 +202,19 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         })
     );
 
+    // TODO: Add multi-select support
+    const { selected } = state.ui.sidebar.explorer;
+    let parent;
+    if (selected != null && selected.length > 0) {
+      const [type, id] = parseFullyQualifiedId(selected[0]);
+      if (type === "note" || type === "tag") {
+        parent = {
+          id,
+          type,
+        };
+      }
+    }
+
     // TODO: We'll need to allow creating notes in any view (except trash)
     // Note created in view == "tags" -> add tag to it
     // Note created in view == "notebooks" -> add notebook to it.
@@ -205,7 +222,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       focused: ["sidebarInput"],
       sidebar: {
         explorer: {
-          input,
+          input: {
+            ...input,
+            parent,
+          },
           view: "all",
         },
       },
