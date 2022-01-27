@@ -1,10 +1,9 @@
 import { createAwaitableInput } from "../../../shared/awaitableInput";
 import { Tag } from "../../../shared/domain/entities";
-import { getTagSchema } from "../../../shared/domain/schemas";
+import { getNoteSchema, getTagSchema } from "../../../shared/domain/schemas";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
-import { Section } from "../../../shared/domain/state";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -179,6 +178,61 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     if (res.text === "Yes") {
       await window.rpc("tags.delete", { id: tag.id });
     }
+  },
+  "sidebar.createNote": async (ctx) => {
+    let { notes } = ctx.getState();
+    let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
+
+    let [input, completed] = createAwaitableInput(
+      { value: "", schema },
+      (value) =>
+        ctx.setUI({
+          sidebar: {
+            explorer: {
+              input: {
+                value,
+              },
+            },
+          },
+        })
+    );
+
+    // TODO: We'll need to allow creating notes in any view (except trash)
+    // Note created in view == "tags" -> add tag to it
+    // Note created in view == "notebooks" -> add notebook to it.
+    ctx.setUI({
+      focused: ["sidebarInput"],
+      sidebar: {
+        explorer: {
+          input,
+          view: "all",
+        },
+      },
+    });
+
+    const [value, action] = await completed;
+    if (action === "confirm") {
+      try {
+        const note = await window.rpc("notes.create", { name: value });
+        ctx.setNotes((notes) => [...notes, note]);
+      } catch (e) {
+        promptError(e.message);
+      }
+    }
+
+    ctx.setUI({
+      sidebar: {
+        explorer: {
+          input: undefined,
+        },
+      },
+    });
+  },
+  "sidebar.renameNote": async (ctx, id) => {
+    console.log("rename note");
+  },
+  "sidebar.deleteNote": async (ctx, id) => {
+    console.log("delete tag.");
   },
   "sidebar.setSelection": async (ctx, selected) => {
     ctx.setUI({

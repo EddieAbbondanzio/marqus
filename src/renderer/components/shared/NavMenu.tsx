@@ -11,7 +11,6 @@ export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
 
 export interface NavMenuProps {
   id: string;
-  name: string;
   icon?: IconDefinition;
   text: string;
   collapsed?: boolean;

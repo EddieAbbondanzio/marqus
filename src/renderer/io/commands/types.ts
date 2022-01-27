@@ -1,5 +1,5 @@
 import { Coord } from "../../../shared/dom";
-import { Tag, Notebook } from "../../../shared/domain/entities";
+import { Tag, Notebook, Note } from "../../../shared/domain/entities";
 import { ExplorerView, State, UI } from "../../../shared/domain/state";
 import { Shortcut } from "../../../shared/domain/valueObjects";
 import { StartsWith } from "../../types";
@@ -18,6 +18,7 @@ export type SetUI = (t: PartialTransformer<UI> | DeepPartial<UI>) => void;
 export type SetTags = (t: Transformer<Tag[]>) => void;
 export type SetNotebooks = (t: Transformer<Notebook[]>) => void;
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
+export type SetNotes = (t: Transformer<Note[]>) => void;
 
 // Context implementation lives in src/renderer/commands/index.ts
 export interface ExecutionContext {
@@ -25,6 +26,7 @@ export interface ExecutionContext {
   setTags: SetTags;
   setNotebooks: SetNotebooks;
   setShortcuts: SetShortcuts;
+  setNotes: SetNotes;
   getState(): State;
   publish(message: string): void;
 }
@@ -50,6 +52,9 @@ export interface CommandSchema {
   "sidebar.createTag": Command;
   "sidebar.renameTag": Command<string>;
   "sidebar.deleteTag": Command<string>;
+  "sidebar.createNote": Command<string>;
+  "sidebar.renameNote": Command<string>;
+  "sidebar.deleteNote": Command<string>;
   "sidebar.setSelection": Command<string[]>;
   "sidebar.clearSelection": Command;
   "sidebar.moveSelectionUp": Command;

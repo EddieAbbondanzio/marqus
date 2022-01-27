@@ -43,7 +43,7 @@ const { rpc } = window;
         shortcuts,
         tags,
         notebooks: [],
-        notes: [],
+        notes,
       },
       publish
     );

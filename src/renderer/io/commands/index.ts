@@ -11,6 +11,7 @@ import {
   CommandSchema,
   CommandType,
   SetNotebooks,
+  SetNotes,
   SetShortcuts,
   SetTags,
   SetUI,
@@ -97,6 +98,12 @@ export function useCommands(
       shortcuts: transformer(prevState.shortcuts),
     }));
   };
+  const setNotes: SetNotes = (transformer) => {
+    setState((prevState) => ({
+      ...prevState,
+      notes: transformer(prevState.notes),
+    }));
+  };
 
   const execute: Execute = useCallback(
     async (name, input) => {
@@ -106,7 +113,15 @@ export function useCommands(
       }
 
       await command(
-        { setUI, setTags, setNotebooks, setShortcuts, getState, publish },
+        {
+          setUI,
+          setTags,
+          setNotebooks,
+          setShortcuts,
+          setNotes,
+          getState,
+          publish,
+        },
         input as any
       );
     },

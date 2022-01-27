@@ -3,6 +3,7 @@ import { Coord } from "./dom";
 import { Note, NoteFlag, Tag } from "./domain/entities";
 import { UI } from "./domain/state";
 import { Shortcut } from "./domain/valueObjects";
+import { StartsWith } from "../renderer/types";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.
@@ -39,7 +40,9 @@ export interface RpcSchema {
   "tags.delete": RpcIn<{ id: string }>;
 
   // Notes
-  "notes.getAll": RpcOut<Array<Note>>;
+  "notes.getAll": RpcOut<Note[]>;
+  "notes.create": RpcInOut<{ name: string }, Note>;
+  "notes.update": RpcInOut<{ id: string; name: string }, Note>;
 }
 
 export type RpcType = keyof RpcSchema;
@@ -72,6 +75,11 @@ export type RpcHandler<Type extends RpcType> = (
 /**
  * Registry for defining multiple RPC handlers.
  */
-export type RpcRegistry = Partial<{
-  [key in RpcType]: RpcHandler<key>;
-}>;
+export type RpcNamespace<Namespace extends string> = Pick<
+  RpcSchema,
+  StartsWith<keyof RpcSchema, Namespace>
+>;
+
+export type RpcRegistry<Namespace extends string> = {
+  [Key in StartsWith<keyof RpcSchema, Namespace>]: RpcHandler<Key>;
+};

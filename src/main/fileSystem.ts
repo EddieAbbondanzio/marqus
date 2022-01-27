@@ -161,6 +161,20 @@ export async function readDirectory(path: string): Promise<fs.Dirent[]> {
   });
 }
 
+export async function stat(path: string): Promise<fs.Stats> {
+  const fullPath = generateFullPath(path);
+
+  return new Promise((res, rej) => {
+    fs.stat(fullPath, (err, stats) => {
+      if (err != null) {
+        rej(err);
+      } else {
+        return res(stats);
+      }
+    });
+  });
+}
+
 export async function deleteFile(path: string): Promise<void> {
   const fullPath = generateFullPath(path);
 

@@ -62,7 +62,7 @@ export async function save(app: UI): Promise<void> {
   await uiFile.save(app);
 }
 
-export const appRpcs: RpcRegistry = {
+export const appRpcs: RpcRegistry<"app"> = {
   "app.promptUser": promptUser,
   "app.openDevTools": openDevTools,
   "app.reload": reload,

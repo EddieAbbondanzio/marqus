@@ -9,3 +9,9 @@ export class NotImplementedError extends Error {
     super(message);
   }
 }
+
+export class NotFoundError extends Error {
+  constructor(public messsage = "The requested resource was not found") {
+    super(messsage);
+  }
+}

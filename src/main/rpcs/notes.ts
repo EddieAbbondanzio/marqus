@@ -1,52 +1,97 @@
-import { Note } from "../../shared/domain/entities";
+import { Note, NoteFlag } from "../../shared/domain/entities";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
-import { isId } from "../../shared/utils";
+import { isId, uuid } from "../../shared/utils";
 import {
   createDirectory,
   exists as exists,
   readDirectory,
   readFile,
+  stat,
+  writeFile,
 } from "../fileSystem";
 import * as path from "path";
-import { noteSchema } from "../../shared/domain/schemas";
+import { getNoteSchema } from "../../shared/domain/schemas";
+import { InvalidOpError, NotFoundError } from "../../shared/errors";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const CONTENT_FILE_NAME = "content.md";
 
-const getAll: RpcHandler<"notes.getAll"> = async (): Promise<Note[]> => {
-  /*
-   * Since we can't perform async loads within components we'll build a massive
-   * map of every note we can find in the file system and send it over to the
-   * renderer. Then we can do our filtering on the front end.
-   */
+export const noteRpcs: RpcRegistry<"notes"> = {
+  "notes.getAll": async () => {
+    /*
+     * Since we can't perform async loads within components we'll build a massive
+     * map of every note we can find in the file system and send it over to the
+     * renderer. Then we can do our filtering on the front end.
+     */
 
-  if (!exists(NOTES_DIRECTORY)) {
-    createDirectory(NOTES_DIRECTORY);
-    return [];
-  }
-
-  let items: Note[] = [];
-  const entries = await readDirectory(NOTES_DIRECTORY);
-  for (const entry of entries) {
-    // We only care about note directoties
-    if (!entry.isDirectory() || !isId(entry.name)) {
-      continue;
+    if (!exists(NOTES_DIRECTORY)) {
+      await createDirectory(NOTES_DIRECTORY);
+      return [];
     }
 
-    const metadataPath = path.join(
-      NOTES_DIRECTORY,
-      entry.name,
-      METADATA_FILE_NAME
-    );
-    const note: Note = await readFile(metadataPath, "json");
-    await noteSchema.validate(note);
-    items.push(note);
-  }
+    const noteSchema = getNoteSchema();
+    let items: Note[] = [];
+    const entries = await readDirectory(NOTES_DIRECTORY);
+    for (const entry of entries) {
+      // We only care about note directoties
+      if (!entry.isDirectory() || !isId(entry.name)) {
+        continue;
+      }
 
-  return items;
+      const note = await loadMetadata(entry.name);
+      items.push(note);
+    }
+
+    return items;
+  },
+  "notes.create": async ({ name }) => {
+    if (!exists(NOTES_DIRECTORY)) {
+      await createDirectory(NOTES_DIRECTORY);
+    }
+
+    const note: Note = {
+      id: uuid(),
+      type: "note",
+      dateCreated: new Date(),
+      name,
+      tags: [],
+      notebooks: [],
+    };
+
+    await createDirectory(path.join(NOTES_DIRECTORY, note.id));
+    await saveMetadata(note);
+
+    return note;
+  },
+  "notes.update": async (input) => {
+    if (!exists(NOTES_DIRECTORY)) {
+      await createDirectory(NOTES_DIRECTORY);
+    }
+
+    const notePath = path.join(NOTES_DIRECTORY, input.id);
+    if (!exists(notePath)) {
+      throw new NotFoundError(`Note ${input.id} not found in the file system.`);
+    }
+
+    const note = await loadMetadata(input.id);
+    note.name = input.name;
+    note.dateUpdated = new Date();
+    await saveMetadata(note);
+
+    return note;
+  },
 };
 
-export const noteRpcs: RpcRegistry = {
-  "notes.getAll": getAll,
-};
+async function saveMetadata(note: Note): Promise<void> {
+  const metadataPath = path.join(NOTES_DIRECTORY, note.id, METADATA_FILE_NAME);
+  await writeFile(metadataPath, note, "json");
+}
+
+async function loadMetadata(noteId: string): Promise<Note> {
+  const metadataPath = path.join(NOTES_DIRECTORY, noteId, METADATA_FILE_NAME);
+  const note: Note = await readFile(metadataPath, "json");
+  await getNoteSchema().validate(note);
+
+  return note;
+}

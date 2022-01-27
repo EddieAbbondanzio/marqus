@@ -20,6 +20,7 @@ import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { PubSubContext } from "./PubSub";
 import { clamp } from "lodash";
+import { InvalidOpError } from "../../shared/errors";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -36,6 +37,12 @@ export interface ExplorerProps {
   execute: Execute;
 }
 
+export interface ExplorerItem {
+  id: string;
+  text: string;
+  children?: ExplorerItem[];
+}
+
 export function Explorer({ state, setUI, execute }: ExplorerProps) {
   const { explorer } = state.ui.sidebar;
 
@@ -44,40 +51,51 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   const isSelected = (id: string) => explorer.selected?.some((s) => s === id);
 
   const { input, view } = explorer;
+  let items: ExplorerItem[] = [];
   let menus: JSX.Element[] = [];
   let selectables: string[] = [];
 
-  if (view === "tags") {
-    const { tags } = state;
-    for (const tag of tags) {
-      const navMenuId = `tag.${tag.id}`;
-
-      if (input?.mode === "update" && input.id === tag.id) {
-        menus.push(
-          <InlineInput
-            name="sidebarInput"
-            key="create"
-            size="is-small"
-            {...input}
-          />
-        );
-      } else {
-        menus.push(
-          <NavMenu
-            id={navMenuId}
-            key={navMenuId}
-            name={tag.name}
-            selected={isSelected(navMenuId)}
-            text={tag.name}
-            onClick={() => execute("sidebar.setSelection", [navMenuId])}
-            onEsc={() => execute("sidebar.clearSelection")}
-          ></NavMenu>
-        );
-        selectables.push(navMenuId);
+  switch (view) {
+    case "all":
+      const { notes } = state;
+      for (const note of notes) {
+        items.push({
+          id: `note.${note.id}`,
+          text: note.name,
+        });
       }
-    }
+      break;
 
-    if (input != null && input.mode === "create") {
+    case "tags":
+      const { tags } = state;
+      for (const tag of tags) {
+        items.push({
+          id: `tag.${tag.id}`,
+          text: tag.name,
+        });
+
+        // TODO: Add notes under each tag
+      }
+      break;
+
+    case "notebooks":
+      const { notebooks } = state;
+      for (const notebook of notebooks) {
+        items.push({
+          id: `notebook.${notebook.id}`,
+          text: notebook.name,
+        });
+      }
+
+      // TODO: Add notes under each notebook and add nested notebook support
+      break;
+  }
+
+  for (const item of items) {
+    const [type, id] = item.id.split(".");
+
+    // We could hit a collision on ids here someday...
+    if (input?.mode === "update" && input.id === id) {
       menus.push(
         <InlineInput
           name="sidebarInput"
@@ -86,7 +104,30 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
           {...input}
         />
       );
+    } else {
+      menus.push(
+        <NavMenu
+          id={item.id}
+          key={item.id}
+          selected={isSelected(item.id)}
+          text={item.text}
+          onClick={() => execute("sidebar.setSelection", [item.id])}
+          onEsc={() => execute("sidebar.clearSelection")}
+        ></NavMenu>
+      );
+      selectables.push(item.id);
     }
+  }
+
+  if (input != null && input.mode === "create") {
+    menus.push(
+      <InlineInput
+        name="sidebarInput"
+        key="create"
+        size="is-small"
+        {...input}
+      />
+    );
   }
 
   // Save for reference. For now...
@@ -104,6 +145,11 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       case "tag":
         execute("sidebar.createTag");
         break;
+      case "note":
+        execute("sidebar.createNote");
+        break;
+      default:
+        throw new InvalidOpError(`New button clicked for type: '${opt}'`);
     }
   };
 

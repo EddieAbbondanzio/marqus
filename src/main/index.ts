@@ -9,7 +9,7 @@ import { tagRpcs } from "./rpcs/tags";
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
-export const handlers: RpcRegistry = {
+export const handlers = {
   ...appRpcs,
   ...shortcutRpcs,
   ...tagRpcs,

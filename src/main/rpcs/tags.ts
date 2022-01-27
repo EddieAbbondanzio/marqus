@@ -67,7 +67,7 @@ const deleteTag = async ({ id }: { id: string }): Promise<void> => {
   await tagFile.save(tags);
 };
 
-export const tagRpcs: RpcRegistry = {
+export const tagRpcs: RpcRegistry<"tags"> = {
   "tags.getAll": getAllTags,
   "tags.create": createTag,
   "tags.update": updateTag,
