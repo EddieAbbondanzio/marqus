@@ -1,9 +1,10 @@
 import { createAwaitableInput } from "../../../shared/awaitableInput";
-import { Tag } from "../../../shared/domain/entities";
+import { Note, Tag } from "../../../shared/domain/entities";
 import { getNoteSchema, getTagSchema } from "../../../shared/domain/schemas";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
+import { NotFoundError } from "../../../shared/errors";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -229,7 +230,60 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.renameNote": async (ctx, id) => {
-    console.log("rename note");
+    let note = getNote(ctx, id!);
+    let { notes } = ctx.getState();
+    let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
+
+    let [input, completed] = createAwaitableInput(
+      { value: note.name, id: note.id, schema },
+      (value) =>
+        ctx.setUI({
+          sidebar: {
+            explorer: {
+              input: {
+                value,
+              },
+            },
+          },
+        })
+    );
+
+    // TODO: We'll need to allow renaming notes in any view (except trash)
+    ctx.setUI({
+      focused: ["sidebarInput"],
+      sidebar: {
+        explorer: {
+          input,
+          view: "all",
+        },
+      },
+    });
+
+    const [value, action] = await completed;
+    if (action === "confirm") {
+      try {
+        const newNote = await window.rpc("notes.update", {
+          id: note.id,
+          name: value,
+        });
+        ctx.setNotes((notes) => {
+          const index = notes.findIndex((n) => n.id === note.id);
+          notes.splice(index, 1, newNote);
+
+          return notes;
+        });
+      } catch (e) {
+        promptError(e.message);
+      }
+    }
+
+    ctx.setUI({
+      sidebar: {
+        explorer: {
+          input: undefined,
+        },
+      },
+    });
   },
   "sidebar.deleteNote": async (ctx, id) => {
     console.log("delete tag.");
@@ -277,8 +331,16 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
 function getTag(ctx: ExecutionContext, id: string): Tag {
   const tag = ctx.getState().tags.find((t) => t.id === id);
   if (tag == null) {
-    throw new Error(`No tag with id ${id} found.`);
+    throw new NotFoundError(`No tag with id ${id} found.`);
   }
 
   return tag;
+}
+
+function getNote(ctx: ExecutionContext, id: string): Note {
+  const note = ctx.getState().notes.find((n) => n.id === id);
+  if (note == null) {
+    throw new NotFoundError(`No note with id ${id} found.`);
+  }
+  return note;
 }

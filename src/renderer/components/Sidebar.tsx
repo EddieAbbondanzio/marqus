@@ -61,7 +61,26 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
       case "notebook":
         throw new NotImplementedError();
       case "note":
-        throw new NotImplementedError();
+        items.push(
+          <ContextMenuItem
+            text="New Note"
+            command="sidebar.createNote"
+            key="createNote"
+          />,
+          <ContextMenuItem
+            text="Rename"
+            command="sidebar.renameNote"
+            commandInput={id}
+            key="renameNote"
+          />,
+          <ContextMenuItem
+            text="Delete"
+            command="sidebar.deleteNote"
+            commandInput={id}
+            key="deleteTag"
+          />
+        );
+        break;
     }
 
     return items;
