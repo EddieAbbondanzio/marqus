@@ -344,6 +344,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.moveSelectionUp": async (ctx) => {
+    console.log("UP");
     ctx.publish("sidebar.moveSelectionUp");
   },
   "sidebar.moveSelectionDown": async (ctx) => {

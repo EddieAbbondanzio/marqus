@@ -8,7 +8,13 @@ import {
   faAngleDoubleDown,
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useContext, useEffect, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import {
   UI,
   ExplorerView,
@@ -24,10 +30,10 @@ import { NavMenu } from "./shared/NavMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { PubSubContext } from "./PubSub";
-import { clamp } from "lodash";
+import { clamp, head } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
 import { fullyQualifyId, parseFullyQualifiedId } from "../../shared/utils";
-import { Note } from "../../shared/domain/entities";
+import { Note, Notebook } from "../../shared/domain/entities";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -54,33 +60,66 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   const { notes, tags, notebooks } = state;
   const { explorer } = state.ui.sidebar;
   const { input, view, selected } = explorer;
-  let items: ExplorerItem[] = [];
-  let selectables: string[] = [];
 
-  if (view === "all") {
-    items = notes.map((n) => ({
-      id: fullyQualifyId("note", n.id),
-      text: n.name,
-    }));
-  } else if (view === "tags") {
-    items = tags.map((t) => {
-      const children = getNotesForTag(notes, t.id).map((n) => ({
-        id: fullyQualifyId("note", n.id),
-        text: n.name,
-      }));
+  /*
+   * items are nested
+   * selectables are flat for easy traversal
+   */
+  const [items, selectables] = useMemo(() => {
+    let items: ExplorerItem[] = [];
+    let selectables: string[] = [];
 
-      return {
-        id: fullyQualifyId("tag", t.id),
-        text: t.name,
-        children,
-      };
-    });
-  } else if (view === "notebooks") {
-    items = notebooks.map((n) => ({
-      id: fullyQualifyId("notebook", n.id),
-      text: n.name,
-    }));
-  }
+    switch (view) {
+      case "all":
+        notes.forEach((n) => {
+          const id = fullyQualifyId("note", n.id);
+          items.push({
+            id,
+            text: n.name,
+          });
+          selectables.push(id);
+        });
+        break;
+
+      case "tags":
+        tags.forEach((t) => {
+          const id = fullyQualifyId("tag", t.id);
+          const children = getNotesForTag(notes, t.id).map((n) => ({
+            id: fullyQualifyId("note", n.id),
+            text: n.name,
+          }));
+
+          items.push({
+            id,
+            text: t.name,
+            children,
+          });
+          selectables.push(id, ...children.map((c) => c.id));
+        });
+        break;
+
+      case "notebooks":
+        const recursisve = (n: Notebook) => {
+          const id = fullyQualifyId("notebook", n.id);
+          const item: ExplorerItem = {
+            id,
+            text: n.name,
+          };
+          items.push(item);
+          selectables.push(id);
+
+          let children;
+          if (n.children != null && n.children.length > 0) {
+            n.children.forEach(recursisve);
+            item.children = children;
+          }
+        };
+        notebooks.forEach(recursisve);
+        break;
+    }
+
+    return [items, selectables];
+  }, [view, notes, tags, notebooks]);
 
   const renderMenus = (
     items: ExplorerItem[],
@@ -90,7 +129,6 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
 
     for (const item of items) {
       const [, id] = parseFullyQualifiedId(item.id);
-
       let children;
       if (hasChildren(item, input)) {
         children = renderMenus(item.children ?? [], item);
@@ -113,7 +151,6 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
             selected={selected?.some((s) => s === item.id)}
             text={item.text}
             onClick={() => execute("sidebar.setSelection", [item.id])}
-            onEsc={() => execute("sidebar.clearSelection")}
             children={children}
           />
         );
@@ -150,9 +187,8 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     }
   };
 
-  const pubsub = useContext(PubSubContext);
-  const moveSelectionUp = () => {
-    if (explorer.selected == null || explorer.selected.length === 0) {
+  const moveSelectionUp = useCallback(() => {
+    if ((selected?.length ?? 0) === 0) {
       setUI({
         sidebar: {
           explorer: {
@@ -161,7 +197,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         },
       });
     } else {
-      const curr = selectables.findIndex((s) => s === explorer.selected![0]);
+      const curr = selectables.findIndex((s) => s === selected![0]);
       if (curr == -1) {
         throw Error(`Current selectable not found`);
       }
@@ -177,39 +213,38 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         });
       }
     }
-  };
-  const moveSelectionDown = () => {
-    if (explorer.selected == null || explorer.selected.length === 0) {
-      setUI({
-        sidebar: {
-          explorer: {
-            selected: selectables.slice(0, 1),
-          },
-        },
-      });
-    } else {
-      const curr = selectables.findIndex((s) => s === explorer.selected![0]);
-      if (curr == -1) {
+  }, [selectables, items, selected]);
+  console.log("explorer() selected: ", selected);
+  const moveSelectionDown = useCallback(() => {
+    let nextIndex = 0;
+    let currIndex;
+    if (selected != null && selected.length > 0) {
+      currIndex = selectables.findIndex((s) => s === head(selected));
+      if (currIndex == -1) {
         throw Error(`Current selectable not found`);
       }
 
-      const next = clamp(curr + 1, 0, selectables.length - 1);
-      if (curr !== next) {
-        setUI({
-          sidebar: {
-            explorer: {
-              selected: selectables.slice(next, next + 1),
-            },
-          },
-        });
+      nextIndex = clamp(currIndex + 1, 0, selectables.length - 1);
+      if (nextIndex == currIndex) {
+        return;
       }
     }
-  };
 
+    setUI({
+      sidebar: {
+        explorer: {
+          selected: selectables.slice(nextIndex, nextIndex + 1),
+        },
+      },
+    });
+  }, [selectables, items, selected]);
+
+  const pubsub = useContext(PubSubContext);
   useEffect(() => {
+    console.log("sub");
     pubsub.subscribe("sidebar.moveSelectionUp", moveSelectionUp);
     pubsub.subscribe("sidebar.moveSelectionDown", moveSelectionDown);
-  }, [explorer]);
+  }, []);
 
   const setView = (view: ExplorerView) => () =>
     execute("sidebar.setExplorerView", view);

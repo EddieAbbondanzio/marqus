@@ -15,20 +15,14 @@ export function PubSub({ children }: PropsWithChildren<{}>) {
   const [state, setState] = useState<Record<string, Subscriber>>({});
 
   const subscribe = (msg: string, sub: Subscriber) => {
-    if (state[msg] == null) {
-      setState((prev) => {
-        const next = {
-          ...prev,
-          [msg]: sub,
-        };
-        return next;
-      });
-    } else {
-      setState((prev) => ({
-        ...prev,
-        [msg]: sub,
-      }));
+    if (state[msg] != null && state[msg] == sub) {
+      return;
     }
+
+    setState((prev) => ({
+      ...prev,
+      [msg]: sub,
+    }));
   };
 
   const unsubscribe = (msg: string, sub: Subscriber) => {

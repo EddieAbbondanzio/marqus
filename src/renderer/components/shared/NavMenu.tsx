@@ -17,36 +17,33 @@ export interface NavMenuProps {
   collapsed?: boolean;
   selected?: boolean;
   onClick?: () => any;
-  onEsc?: () => any;
 }
 
 export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
   const triggerClasses = classList(
     "nav-menu-trigger",
     "is-flex",
-    "is-align-items-center"
-  );
-
-  const menuClasses = classList(
-    "nav-menu",
-    "is-flex",
-    "is-justify-content-center",
-    "is-flex-direction-column",
+    "is-align-items-center",
     { "has-background-primary": props.selected }
   );
 
-  const wrapper = useRef(null! as HTMLDivElement);
-  const kb = useKeyboard(wrapper);
-  kb.listen({ keys: [KeyCode.Enter], event: "keydown" }, async (ev) => {
+  const wrapperClasses = classList(
+    "nav-menu",
+    "is-flex",
+    "is-justify-content-center",
+    "is-flex-direction-column"
+  );
+
+  const onClick = (ev: React.MouseEvent<HTMLDivElement>) => {
+    // Support nested nav menus
     ev.stopPropagation();
-    console.log("Key press!");
-  });
+    props.onClick?.();
+  };
 
   return (
     <div
-      ref={wrapper}
-      className={menuClasses}
-      onClick={() => props.onClick?.()}
+      className={wrapperClasses}
+      onClick={onClick}
       {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
     >
       <div className={triggerClasses} style={{ height: px(30) }}>
