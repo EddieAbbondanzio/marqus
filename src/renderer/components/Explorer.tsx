@@ -65,7 +65,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   } else if (view === "tags") {
     items = tags.map((t) => {
       const children = getNotesForTag(notes, t.id).map((n) => ({
-        id: n.id,
+        id: fullyQualifyId("note", n.id),
         text: n.name,
       }));
 

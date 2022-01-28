@@ -207,13 +207,24 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     // TODO: Add multi-select support
     const { selected } = state.ui.sidebar.explorer;
     let view: ExplorerView = "all";
+    let tag;
+    let notebook;
     let parentId;
     if (selected != null && selected.length > 0) {
-      const firstSelected = head(selected);
-      const [type] = parseFullyQualifiedId(selected[0]);
-      if (type === "notebook" || type === "tag") {
-        view = `${type}s`;
-        parentId = firstSelected;
+      const firstSelected = head(selected)!;
+      const [type, id] = parseFullyQualifiedId(firstSelected);
+      parentId = firstSelected;
+
+      switch (type) {
+        case "notebook":
+          view = "notebooks";
+          notebook = id;
+          break;
+
+        case "tag":
+          view = "tags";
+          tag = id;
+          break;
       }
     }
 
@@ -236,7 +247,11 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     const [value, action] = await completed;
     if (action === "confirm") {
       try {
-        const note = await window.rpc("notes.create", { name: value });
+        const note = await window.rpc("notes.create", {
+          name: value,
+          notebook,
+          tag,
+        });
         ctx.setNotes((notes) => [...notes, note]);
       } catch (e) {
         promptError(e.message);
