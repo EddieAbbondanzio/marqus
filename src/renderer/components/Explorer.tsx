@@ -9,7 +9,12 @@ import {
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useContext, useEffect, useRef } from "react";
-import { UI, ExplorerView, State } from "../../shared/domain/state";
+import {
+  UI,
+  ExplorerView,
+  State,
+  ExplorerInput,
+} from "../../shared/domain/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { NewButton, NewButtonOption } from "./NewButton";
@@ -21,7 +26,8 @@ import { Tab, Tabs } from "./shared/Tabs";
 import { PubSubContext } from "./PubSub";
 import { clamp } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
-import { parseFullyQualifiedId } from "../../shared/utils";
+import { fullyQualifyId, parseFullyQualifiedId } from "../../shared/utils";
+import { Note } from "../../shared/domain/entities";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -45,101 +51,91 @@ export interface ExplorerItem {
 }
 
 export function Explorer({ state, setUI, execute }: ExplorerProps) {
+  const { notes, tags, notebooks } = state;
   const { explorer } = state.ui.sidebar;
-
-  const setView = (view: ExplorerView) => () =>
-    execute("sidebar.setExplorerView", view);
-  const isSelected = (id: string) => explorer.selected?.some((s) => s === id);
-
-  const { input, view } = explorer;
+  const { input, view, selected } = explorer;
   let items: ExplorerItem[] = [];
-  let menus: JSX.Element[] = [];
   let selectables: string[] = [];
 
-  switch (view) {
-    case "all":
-      const { notes } = state;
-      for (const note of notes) {
-        items.push({
-          id: `note.${note.id}`,
-          text: note.name,
-        });
-      }
-      break;
+  if (view === "all") {
+    items = notes.map((n) => ({
+      id: fullyQualifyId("note", n.id),
+      text: n.name,
+    }));
+  } else if (view === "tags") {
+    items = tags.map((t) => {
+      const children = getNotesForTag(notes, t.id).map((n) => ({
+        id: n.id,
+        text: n.name,
+      }));
 
-    case "tags":
-      const { tags } = state;
-      for (const tag of tags) {
-        items.push({
-          id: `tag.${tag.id}`,
-          text: tag.name,
-        });
-
-        // TODO: Add notes under each tag
-      }
-      break;
-
-    case "notebooks":
-      const { notebooks } = state;
-      for (const notebook of notebooks) {
-        items.push({
-          id: `notebook.${notebook.id}`,
-          text: notebook.name,
-        });
-      }
-
-      // TODO: Add notes under each notebook and add nested notebook support
-      break;
+      return {
+        id: fullyQualifyId("tag", t.id),
+        text: t.name,
+        children,
+      };
+    });
+  } else if (view === "notebooks") {
+    items = notebooks.map((n) => ({
+      id: fullyQualifyId("notebook", n.id),
+      text: n.name,
+    }));
   }
 
-  for (const item of items) {
-    const [type, id] = parseFullyQualifiedId(item.id);
+  const renderMenus = (
+    items: ExplorerItem[],
+    parent?: ExplorerItem
+  ): JSX.Element[] => {
+    let rendered: JSX.Element[] = [];
 
-    // We could hit a collision on ids here someday...
-    if (input?.mode === "update" && input.id === id) {
-      menus.push(
-        <InlineInput
-          name="sidebarInput"
-          key="create"
-          size="is-small"
-          {...input}
-        />
-      );
-    } else {
-      menus.push(
-        <NavMenu
-          id={item.id}
-          key={item.id}
-          selected={isSelected(item.id)}
-          text={item.text}
-          onClick={() => execute("sidebar.setSelection", [item.id])}
-          onEsc={() => execute("sidebar.clearSelection")}
-        ></NavMenu>
-      );
-      selectables.push(item.id);
+    for (const item of items) {
+      const [, id] = parseFullyQualifiedId(item.id);
+
+      let children;
+      if (hasChildren(item, input)) {
+        children = renderMenus(item.children ?? [], item);
+      }
+
+      if (input?.mode === "update" && input.id === id) {
+        rendered.push(
+          <InlineInput
+            name="sidebarInput"
+            key="create"
+            size="is-small"
+            {...input}
+          />
+        );
+      } else {
+        rendered.push(
+          <NavMenu
+            id={item.id}
+            key={item.id}
+            selected={selected?.some((s) => s === item.id)}
+            text={item.text}
+            onClick={() => execute("sidebar.setSelection", [item.id])}
+            onEsc={() => execute("sidebar.clearSelection")}
+            children={children}
+          />
+        );
+      }
     }
-  }
 
-  if (input != null && input.mode === "create" && input.parent == null) {
-    menus.push(
-      <InlineInput
-        name="sidebarInput"
-        key="create"
-        size="is-small"
-        {...input}
-      />
-    );
-  }
+    if (input?.mode === "create") {
+      if (input?.parentId == parent?.id) {
+        rendered.push(
+          <InlineInput
+            name="sidebarInput"
+            key="create"
+            size="is-small"
+            {...input}
+          />
+        );
+      }
+    }
 
-  // Save for reference. For now...
-  // menus.push(
-  //   <NavigationMenu
-  //     name="foo"
-  //     text="Foo"
-  //     key="1"
-  //     children={<NavigationMenu name="foo/bar" text="Nested" />}
-  //   />
-  // );
+    return rendered;
+  };
+  const menus = renderMenus(items);
 
   const newButtonClicked = (opt: NewButtonOption) => {
     switch (opt) {
@@ -215,6 +211,8 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     pubsub.subscribe("sidebar.moveSelectionDown", moveSelectionDown);
   }, [explorer]);
 
+  const setView = (view: ExplorerView) => () =>
+    execute("sidebar.setExplorerView", view);
   return (
     <div className="is-flex is-flex-grow-1 is-flex-direction-column h-100">
       <Tabs alignment="is-centered" className="mb-2">
@@ -288,4 +286,20 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       </Scrollable>
     </div>
   );
+}
+
+/**
+ * Checks if the explorer item has children to render. This will also
+ * include nested inputs.
+ * @returns True if there are any children or an input
+ */
+export function hasChildren(
+  item: ExplorerItem,
+  input?: ExplorerInput
+): boolean {
+  return Boolean(item.children?.length ?? 0 > 0) || item.id === input?.parentId;
+}
+
+export function getNotesForTag(notes: Note[], tagId: string) {
+  return notes.filter((n) => n.tags?.some((t) => t === tagId));
 }

@@ -21,12 +21,17 @@ export interface NavMenuProps {
 }
 
 export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
-  const triggerClasses = classList("nav-menu-trigger");
+  const triggerClasses = classList(
+    "nav-menu-trigger",
+    "is-flex",
+    "is-align-items-center"
+  );
 
   const menuClasses = classList(
     "nav-menu",
     "is-flex",
-    "is-align-items-center",
+    "is-justify-content-center",
+    "is-flex-direction-column",
     { "has-background-primary": props.selected }
   );
 
@@ -41,11 +46,10 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
     <div
       ref={wrapper}
       className={menuClasses}
-      style={{ height: px(30) }}
       onClick={() => props.onClick?.()}
       {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
     >
-      <div className={triggerClasses}>
+      <div className={triggerClasses} style={{ height: px(30) }}>
         <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
           {props.icon != null && <Icon icon={props.icon} className="mr-1" />}
           <span>{props.text}</span>

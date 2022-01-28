@@ -6,6 +6,8 @@ import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
 import { NotFoundError } from "../../../shared/errors";
 import { parseFullyQualifiedId } from "../../../shared/utils";
+import { ExplorerView } from "../../../shared/domain/state";
+import { head } from "lodash";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -204,14 +206,14 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
 
     // TODO: Add multi-select support
     const { selected } = state.ui.sidebar.explorer;
-    let parent;
+    let view: ExplorerView = "all";
+    let parentId;
     if (selected != null && selected.length > 0) {
-      const [type, id] = parseFullyQualifiedId(selected[0]);
-      if (type === "note" || type === "tag") {
-        parent = {
-          id,
-          type,
-        };
+      const firstSelected = head(selected);
+      const [type] = parseFullyQualifiedId(selected[0]);
+      if (type === "notebook" || type === "tag") {
+        view = `${type}s`;
+        parentId = firstSelected;
       }
     }
 
@@ -224,9 +226,9 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         explorer: {
           input: {
             ...input,
-            parent,
+            parentId,
           },
-          view: "all",
+          view,
         },
       },
     });
@@ -342,6 +344,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         explorer: {
           view,
           input: undefined,
+          selected: undefined,
         },
       },
     });

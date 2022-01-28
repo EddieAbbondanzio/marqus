@@ -40,10 +40,7 @@ export interface Explorer {
 }
 
 export interface ExplorerInput extends AwaitableInput {
-  parent?: {
-    id: string;
-    type: EntityType;
-  };
+  parentId?: string;
 }
 
 export type ExplorerView =
