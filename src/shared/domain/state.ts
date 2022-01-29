@@ -1,5 +1,5 @@
 import { AwaitableInput } from "../awaitableInput";
-import { fullyQualifyId } from "../utils";
+import { globalId } from "../utils";
 import { Tag, Notebook, EntityType, Note } from "./entities";
 import { Shortcut } from "./valueObjects";
 
@@ -41,11 +41,11 @@ export interface Explorer {
 }
 
 export interface ExplorerInput extends AwaitableInput {
-  parentId?: string;
+  parentGlobalId?: string;
 }
 
 export interface ExplorerItem {
-  id: string;
+  globalId: string;
   text: string;
   children?: ExplorerItem[];
 }

@@ -1,4 +1,4 @@
-import { fullyQualifyId } from "../utils";
+import { globalId } from "../utils";
 import { Note, Notebook, Tag } from "./entities";
 import { ExplorerView, ExplorerItem } from "./state";
 
@@ -15,9 +15,9 @@ export function getExplorerItems(
   switch (view) {
     case "all":
       notes.forEach((n) => {
-        const id = fullyQualifyId("note", n.id);
+        const id = globalId("note", n.id);
         items.push({
-          id,
+          globalId: id,
           text: n.name,
         });
         selectables.push(id);
@@ -26,26 +26,26 @@ export function getExplorerItems(
 
     case "tags":
       tags.forEach((t) => {
-        const id = fullyQualifyId("tag", t.id);
+        const id = globalId("tag", t.id);
         const children = getNotesForTag(notes, t.id).map((n) => ({
-          id: fullyQualifyId("note", n.id),
+          globalId: globalId("note", n.id),
           text: n.name,
         }));
 
         items.push({
-          id,
+          globalId: id,
           text: t.name,
           children,
         });
-        selectables.push(id, ...children.map((c) => c.id));
+        selectables.push(id, ...children.map((c) => c.globalId));
       });
       break;
 
     case "notebooks":
       const recursisve = (n: Notebook) => {
-        const id = fullyQualifyId("notebook", n.id);
+        const id = globalId("notebook", n.id);
         const item: ExplorerItem = {
-          id,
+          globalId: id,
           text: n.name,
         };
         items.push(item);

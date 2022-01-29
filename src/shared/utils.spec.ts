@@ -1,10 +1,4 @@
-import {
-  fullyQualifyId,
-  ID_LENGTH,
-  isId,
-  parseFullyQualifiedId,
-  uuid,
-} from "./utils";
+import { globalId, ID_LENGTH, isId, parseGlobalId, uuid } from "./utils";
 
 test("uuid()", () => {
   const a = uuid();
@@ -23,24 +17,24 @@ test("isId()", () => {
 
 test("fullyQualifyId()", () => {
   const id = uuid();
-  const fullyQualified = fullyQualifyId("tag", id);
+  const fullyQualified = globalId("tag", id);
   expect(fullyQualified).toBe(`tag.${id}`);
 });
 
-test("parseFullyQualifiedId() works", () => {
+test("parseGlobalId() works", () => {
   const id = uuid();
-  const fullyQualified = fullyQualifyId("tag", id);
-  const split = parseFullyQualifiedId(fullyQualified);
+  const fullyQualified = globalId("tag", id);
+  const split = parseGlobalId(fullyQualified);
 
   expect(split).toHaveLength(2);
   expect(split[0]).toBe("tag");
   expect(split[1]).toBe(id);
 });
 
-test("parseFullyQualifiedId() throws on invalid type", () => {
+test("parseGlobalId() throws on invalid type", () => {
   const id = uuid();
   const fq = `foo.${id}`;
   expect(() => {
-    parseFullyQualifiedId(fq);
+    parseGlobalId(fq);
   }).toThrow();
 });

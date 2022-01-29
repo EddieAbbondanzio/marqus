@@ -4,7 +4,7 @@ import { PropsWithChildren } from "react";
 import { classList, px } from "../../../shared/dom";
 import { EntityType } from "../../../shared/domain/entities";
 import { KeyCode } from "../../../shared/io/keyCode";
-import { parseFullyQualifiedId } from "../../../shared/utils";
+import { parseGlobalId } from "../../../shared/utils";
 import { useKeyboard } from "../../io/keyboard";
 import { Icon } from "./Icon";
 

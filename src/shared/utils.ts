@@ -17,18 +17,16 @@ export function isId(id: string): boolean {
   return /^[a-zA-Z\d]{10}$/.test(id);
 }
 
-export function fullyQualifyId(type: EntityType, id: string) {
+export function globalId(type: EntityType, id: string) {
   return `${type}.${id}`;
 }
 
-export function parseFullyQualifiedId(
-  fullyQualified: string
-): [EntityType, string] {
-  if (!/^(tag|notebook|note).[a-zA-Z0-9]{10}$/.test(fullyQualified)) {
-    throw Error(`Invalid fully qualified id ${fullyQualified}`);
+export function parseGlobalId(globalId: string): [EntityType, string] {
+  if (!/^(tag|notebook|note).[a-zA-Z0-9]{10}$/.test(globalId)) {
+    throw Error(`Invalid global id ${globalId}`);
   }
 
-  const split = fullyQualified.split(".") as [EntityType, string];
+  const split = globalId.split(".") as [EntityType, string];
   return split;
 }
 

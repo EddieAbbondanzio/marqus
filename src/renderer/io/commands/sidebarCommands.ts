@@ -5,7 +5,7 @@ import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
 import { NotFoundError } from "../../../shared/errors";
-import { parseFullyQualifiedId } from "../../../shared/utils";
+import { parseGlobalId } from "../../../shared/utils";
 import { ExplorerView } from "../../../shared/domain/state";
 import { clamp, head } from "lodash";
 import { getExplorerItems } from "../../../shared/domain/getters";
@@ -213,7 +213,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     let parentId;
     if (selected != null && selected.length > 0) {
       const firstSelected = head(selected)!;
-      const [type, id] = parseFullyQualifiedId(firstSelected);
+      const [type, id] = parseGlobalId(firstSelected);
       parentId = firstSelected;
 
       switch (type) {
@@ -238,7 +238,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         explorer: {
           input: {
             ...input,
-            parentId,
+            parentGlobalId: parentId,
           },
           view,
         },

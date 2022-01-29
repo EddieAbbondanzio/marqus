@@ -32,7 +32,7 @@ import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { clamp, head } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
-import { fullyQualifyId, parseFullyQualifiedId } from "../../shared/utils";
+import { globalId, parseGlobalId } from "../../shared/utils";
 import { Note, Notebook } from "../../shared/domain/entities";
 import { getExplorerItems } from "../../shared/domain/getters";
 
@@ -69,7 +69,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     let rendered: JSX.Element[] = [];
 
     for (const item of items) {
-      const [, id] = parseFullyQualifiedId(item.id);
+      const [, id] = parseGlobalId(item.globalId);
       let children;
       if (hasChildren(item, input)) {
         children = renderMenus(item.children ?? [], item);
@@ -87,11 +87,11 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       } else {
         rendered.push(
           <NavMenu
-            id={item.id}
-            key={item.id}
-            selected={selected?.some((s) => s === item.id)}
+            id={item.globalId}
+            key={item.globalId}
+            selected={selected?.some((s) => s === item.globalId)}
             text={item.text}
-            onClick={() => execute("sidebar.setSelection", [item.id])}
+            onClick={() => execute("sidebar.setSelection", [item.globalId])}
             children={children}
           />
         );
@@ -99,7 +99,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     }
 
     if (input?.mode === "create") {
-      if (input?.parentId == parent?.id) {
+      if (input?.parentGlobalId == parent?.globalId) {
         rendered.push(
           <InlineInput
             name="sidebarInput"
@@ -214,5 +214,8 @@ export function hasChildren(
   item: ExplorerItem,
   input?: ExplorerInput
 ): boolean {
-  return Boolean(item.children?.length ?? 0 > 0) || item.id === input?.parentId;
+  return (
+    Boolean(item.children?.length ?? 0 > 0) ||
+    item.globalId === input?.parentGlobalId
+  );
 }
