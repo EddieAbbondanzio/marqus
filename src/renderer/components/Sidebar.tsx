@@ -6,12 +6,11 @@ import { Filter } from "./Filter";
 import { ContextMenu, ContextMenuItem } from "./shared/ContextMenu";
 import { Explorer } from "./Explorer";
 import { Resizable } from "./shared/Resizable";
-import { Focusable } from "./Focusable";
+import { Focusable } from "./shared/Focusable";
 import { NAV_MENU_ATTRIBUTE } from "./shared/NavMenu";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
 import { State } from "../../shared/domain/state";
-import { PubSubContext } from "./PubSub";
 import { parseFullyQualifiedId } from "../../shared/utils";
 
 export interface SidebarProps {

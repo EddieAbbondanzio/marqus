@@ -28,7 +28,6 @@ export interface ExecutionContext {
   setShortcuts: SetShortcuts;
   setNotes: SetNotes;
   getState(): State;
-  publish(message: string): void;
 }
 
 export type Command<Input = void> = (

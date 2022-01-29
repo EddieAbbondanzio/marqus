@@ -1,16 +1,15 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { render } from "react-dom";
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
-import { FocusTracker } from "./components/FocusTracker";
-import { Focusable } from "./components/Focusable";
+import { Focusable } from "./components/shared/Focusable";
 import { UI } from "../shared/domain/state";
 import { Shortcut } from "../shared/domain/valueObjects";
 import { Note, Tag } from "../shared/domain/entities";
-import { PubSub, PubSubContext } from "./components/PubSub";
+import { FocusTracker } from "./components/shared/FocusTracker";
 
 const { rpc } = window;
 (async () => {
@@ -31,22 +30,18 @@ const { rpc } = window;
   } catch (e) {
     console.log("Fatal Error", e);
     await promptFatal((e as Error).message);
-    await rpc("app.quit");
+    rpc("app.quit");
     return;
   }
 
   function App() {
-    const { publish } = useContext(PubSubContext);
-    const [state, execute, setUI] = useCommands(
-      {
-        ui,
-        shortcuts,
-        tags,
-        notebooks: [],
-        notes,
-      },
-      publish
-    );
+    const [state, execute, setUI] = useCommands({
+      ui,
+      shortcuts,
+      tags,
+      notebooks: [],
+      notes,
+    });
     useShortcuts(shortcuts, state, execute);
 
     return (
@@ -64,10 +59,5 @@ const { rpc } = window;
     );
   }
 
-  render(
-    <PubSub>
-      <App />
-    </PubSub>,
-    document.getElementById("app")
-  );
+  render(<App />, document.getElementById("app"));
 })();

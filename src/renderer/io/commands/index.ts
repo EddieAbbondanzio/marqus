@@ -1,7 +1,6 @@
 import { cloneDeep, merge, mergeWith } from "lodash";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { State, UI } from "../../../shared/domain/state";
-import { Publish, PubSub } from "../../components/PubSub";
 import { deepUpdate } from "../../utils/deepUpdate";
 import { appCommands } from "./appCommands";
 import { editorCommands } from "./editorCommands";
@@ -35,10 +34,7 @@ export type Execute = <C extends CommandType>(
 ) => Promise<void>;
 
 // Commands really only oeprate on UI
-export function useCommands(
-  previousState: State,
-  publish: Publish
-): [State, Execute, SetUI] {
+export function useCommands(previousState: State): [State, Execute, SetUI] {
   // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
 
   const [state, setState] = useState(previousState);
@@ -78,7 +74,6 @@ export function useCommands(
    */
 
   const setTags: SetTags = (transformer) => {
-    console.log("setTags()");
     setState((prevState) => ({
       ...prevState,
       tags: transformer(prevState.tags),
@@ -120,7 +115,6 @@ export function useCommands(
           setShortcuts,
           setNotes,
           getState,
-          publish,
         },
         input as any
       );

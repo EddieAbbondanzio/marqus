@@ -7,7 +7,7 @@ import { KeyCode } from "../../../shared/io/keyCode";
 import { isBlank } from "../../../shared/string";
 import { useKeyboard } from "../../io/keyboard";
 import { BulmaSize } from "../../shared";
-import { Focusable } from "../Focusable";
+import { Focusable } from "./Focusable";
 
 export interface InlineInputProps {
   name: string;

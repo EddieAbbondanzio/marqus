@@ -434,6 +434,7 @@ export function isAction(key: KeyCode) {
   }
 }
 
+// Catch all for random keys not included in other groups.
 export function isMisc(key: KeyCode) {
   switch (key) {
     case KeyCode.Backquote:
@@ -469,7 +470,6 @@ export function parseKeyCodes(shortcutString: string): KeyCode[] {
 
   for (const key of rawKeys) {
     const trimmedKey = key.trim();
-
     if (!isValidKeyCode(trimmedKey)) {
       throw Error(`Invalid key code: ${trimmedKey}`);
     }

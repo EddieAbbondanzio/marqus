@@ -20,6 +20,7 @@ import {
   ExplorerView,
   State,
   ExplorerInput,
+  ExplorerItem,
 } from "../../shared/domain/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
@@ -29,11 +30,11 @@ import { InlineInput } from "./shared/InlineInput";
 import { NavMenu } from "./shared/NavMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
-import { PubSubContext } from "./PubSub";
 import { clamp, head } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
 import { fullyQualifyId, parseFullyQualifiedId } from "../../shared/utils";
 import { Note, Notebook } from "../../shared/domain/entities";
+import { getExplorerItems } from "../../shared/domain/getters";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -50,77 +51,17 @@ export interface ExplorerProps {
   execute: Execute;
 }
 
-export interface ExplorerItem {
-  id: string;
-  text: string;
-  children?: ExplorerItem[];
-}
-
 export function Explorer({ state, setUI, execute }: ExplorerProps) {
   const { notes, tags, notebooks } = state;
   const { explorer } = state.ui.sidebar;
   const { input, view, selected } = explorer;
 
-  /*
-   * items are nested
-   * selectables are flat for easy traversal
-   */
-  const [items, selectables] = useMemo(() => {
-    let items: ExplorerItem[] = [];
-    let selectables: string[] = [];
+  const [items] = useMemo(
+    () => getExplorerItems(view, notes, notebooks, tags),
+    [view, notes, notebooks, tags]
+  );
 
-    switch (view) {
-      case "all":
-        notes.forEach((n) => {
-          const id = fullyQualifyId("note", n.id);
-          items.push({
-            id,
-            text: n.name,
-          });
-          selectables.push(id);
-        });
-        break;
-
-      case "tags":
-        tags.forEach((t) => {
-          const id = fullyQualifyId("tag", t.id);
-          const children = getNotesForTag(notes, t.id).map((n) => ({
-            id: fullyQualifyId("note", n.id),
-            text: n.name,
-          }));
-
-          items.push({
-            id,
-            text: t.name,
-            children,
-          });
-          selectables.push(id, ...children.map((c) => c.id));
-        });
-        break;
-
-      case "notebooks":
-        const recursisve = (n: Notebook) => {
-          const id = fullyQualifyId("notebook", n.id);
-          const item: ExplorerItem = {
-            id,
-            text: n.name,
-          };
-          items.push(item);
-          selectables.push(id);
-
-          let children;
-          if (n.children != null && n.children.length > 0) {
-            n.children.forEach(recursisve);
-            item.children = children;
-          }
-        };
-        notebooks.forEach(recursisve);
-        break;
-    }
-
-    return [items, selectables];
-  }, [view, notes, tags, notebooks]);
-
+  // Recursively renders
   const renderMenus = (
     items: ExplorerItem[],
     parent?: ExplorerItem
@@ -186,65 +127,6 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         throw new InvalidOpError(`New button clicked for type: '${opt}'`);
     }
   };
-
-  const moveSelectionUp = useCallback(() => {
-    if ((selected?.length ?? 0) === 0) {
-      setUI({
-        sidebar: {
-          explorer: {
-            selected: selectables.slice(-1),
-          },
-        },
-      });
-    } else {
-      const curr = selectables.findIndex((s) => s === selected![0]);
-      if (curr == -1) {
-        throw Error(`Current selectable not found`);
-      }
-
-      const next = clamp(curr - 1, 0, selectables.length - 1);
-      if (curr !== next) {
-        setUI({
-          sidebar: {
-            explorer: {
-              selected: selectables.slice(next, next + 1),
-            },
-          },
-        });
-      }
-    }
-  }, [selectables, items, selected]);
-  console.log("explorer() selected: ", selected);
-  const moveSelectionDown = useCallback(() => {
-    let nextIndex = 0;
-    let currIndex;
-    if (selected != null && selected.length > 0) {
-      currIndex = selectables.findIndex((s) => s === head(selected));
-      if (currIndex == -1) {
-        throw Error(`Current selectable not found`);
-      }
-
-      nextIndex = clamp(currIndex + 1, 0, selectables.length - 1);
-      if (nextIndex == currIndex) {
-        return;
-      }
-    }
-
-    setUI({
-      sidebar: {
-        explorer: {
-          selected: selectables.slice(nextIndex, nextIndex + 1),
-        },
-      },
-    });
-  }, [selectables, items, selected]);
-
-  const pubsub = useContext(PubSubContext);
-  useEffect(() => {
-    console.log("sub");
-    pubsub.subscribe("sidebar.moveSelectionUp", moveSelectionUp);
-    pubsub.subscribe("sidebar.moveSelectionDown", moveSelectionDown);
-  }, []);
 
   const setView = (view: ExplorerView) => () =>
     execute("sidebar.setExplorerView", view);
@@ -333,8 +215,4 @@ export function hasChildren(
   input?: ExplorerInput
 ): boolean {
   return Boolean(item.children?.length ?? 0 > 0) || item.id === input?.parentId;
-}
-
-export function getNotesForTag(notes: Note[], tagId: string) {
-  return notes.filter((n) => n.tags?.some((t) => t === tagId));
 }

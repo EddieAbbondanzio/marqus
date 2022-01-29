@@ -4,9 +4,9 @@ import React, {
   useLayoutEffect,
   useRef,
 } from "react";
-import { KeyCode } from "../../shared/io/keyCode";
-import { useKeyboard } from "../io/keyboard";
-import { findParent } from "../utils/findParent";
+import { KeyCode } from "../../../shared/io/keyCode";
+import { useKeyboard } from "../../io/keyboard";
+import { findParent } from "../../utils/findParent";
 import { FocusContext } from "./FocusTracker";
 
 export const FOCUSABLE_ATTRIBUTE = "data-focusable";

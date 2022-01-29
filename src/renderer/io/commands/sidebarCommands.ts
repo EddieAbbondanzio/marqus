@@ -1,5 +1,5 @@
 import { createAwaitableInput } from "../../../shared/awaitableInput";
-import { Entity, EntityType, Note, Tag } from "../../../shared/domain/entities";
+import { Note, Tag } from "../../../shared/domain/entities";
 import { getNoteSchema, getTagSchema } from "../../../shared/domain/schemas";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
@@ -7,7 +7,8 @@ import * as yup from "yup";
 import { NotFoundError } from "../../../shared/errors";
 import { parseFullyQualifiedId } from "../../../shared/utils";
 import { ExplorerView } from "../../../shared/domain/state";
-import { head } from "lodash";
+import { clamp, head } from "lodash";
+import { getExplorerItems } from "../../../shared/domain/getters";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -343,12 +344,73 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
   },
-  "sidebar.moveSelectionUp": async (ctx) => {
-    console.log("UP");
-    ctx.publish("sidebar.moveSelectionUp");
+  "sidebar.moveSelectionUp": async ({ getState, setUI }) => {
+    const { ui, notes, notebooks, tags } = getState();
+    const [, selectables] = getExplorerItems(
+      ui.sidebar.explorer.view,
+      notes,
+      notebooks,
+      tags
+    );
+
+    const { selected } = ui.sidebar.explorer;
+    if ((selected?.length ?? 0) === 0) {
+      setUI({
+        sidebar: {
+          explorer: {
+            selected: selectables.slice(-1),
+          },
+        },
+      });
+    } else {
+      const curr = selectables.findIndex((s) => s === selected![0]);
+      if (curr == -1) {
+        throw Error(`Current selectable not found`);
+      }
+
+      const next = clamp(curr - 1, 0, selectables.length - 1);
+      if (curr !== next) {
+        setUI({
+          sidebar: {
+            explorer: {
+              selected: selectables.slice(next, next + 1),
+            },
+          },
+        });
+      }
+    }
   },
-  "sidebar.moveSelectionDown": async (ctx) => {
-    ctx.publish("sidebar.moveSelectionDown");
+  "sidebar.moveSelectionDown": async ({ getState, setUI }) => {
+    const { ui, notes, notebooks, tags } = getState();
+    const [, selectables] = getExplorerItems(
+      ui.sidebar.explorer.view,
+      notes,
+      notebooks,
+      tags
+    );
+
+    const { selected } = ui.sidebar.explorer;
+    let nextIndex = 0;
+    let currIndex;
+    if (selected != null && selected.length > 0) {
+      currIndex = selectables.findIndex((s) => s === head(selected));
+      if (currIndex == -1) {
+        throw Error(`Current selectable not found`);
+      }
+
+      nextIndex = clamp(currIndex + 1, 0, selectables.length - 1);
+      if (nextIndex == currIndex) {
+        return;
+      }
+    }
+
+    setUI({
+      sidebar: {
+        explorer: {
+          selected: selectables.slice(nextIndex, nextIndex + 1),
+        },
+      },
+    });
   },
   "sidebar.setExplorerView": async (ctx, view) => {
     if (view == null) {

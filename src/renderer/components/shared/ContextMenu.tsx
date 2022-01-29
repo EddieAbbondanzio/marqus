@@ -16,8 +16,8 @@ import { CommandInput, CommandType, SetUI } from "../../io/commands/types";
 import { useKeyboard } from "../../io/keyboard";
 import { MouseModifier, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
-import { Focusable } from "../Focusable";
-import { FocusContext } from "../FocusTracker";
+import { Focusable } from "./Focusable";
+import { FocusContext } from "./FocusTracker";
 
 export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   const items = [];
