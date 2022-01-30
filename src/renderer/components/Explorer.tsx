@@ -33,6 +33,8 @@ import { Tab, Tabs } from "./shared/Tabs";
 import { clamp, head } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
 import { getExplorerItems, parseGlobalId } from "../../shared/domain/utils";
+import { useKeyboard } from "../io/keyboard";
+import { KeyCode } from "../../shared/io/keyCode";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",

@@ -15,6 +15,7 @@ export interface FocusableProps {
   name: string;
   className?: string;
   overwrite?: boolean;
+  blurOnEscape?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
 }
@@ -32,8 +33,13 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
 
   // Listen for if we should blur it.
   kb.listen({ keys: [KeyCode.Escape], event: "keydown" }, async (ev) => {
+    if (props.blurOnEscape == null || !props.blurOnEscape) {
+      return;
+    }
+
     // We stop propagation to support nested focusables
     ev.stopPropagation();
+    console.log("focusable ", props.name, " stopped escape");
 
     const div = ref.current;
     if (div != null) {

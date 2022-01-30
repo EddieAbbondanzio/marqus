@@ -335,6 +335,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.clearSelection": async (ctx) => {
+    console.log("clear!");
     ctx.setUI({
       sidebar: {
         explorer: {

@@ -126,7 +126,11 @@ export function InlineInput(props: InlineInputProps): JSX.Element {
 
   return (
     <div className="inline-input field mb-0" style={{ position: "relative" }}>
-      <Focusable name={props.name} onFocus={() => input.current?.focus()}>
+      <Focusable
+        name={props.name}
+        onFocus={() => input.current?.focus()}
+        blurOnEscape={true}
+      >
         <input
           ref={input}
           className={classes}

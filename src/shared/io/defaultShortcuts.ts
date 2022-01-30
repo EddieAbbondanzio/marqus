@@ -2,6 +2,7 @@ import { Shortcut } from "../domain/valueObjects";
 import { KeyCode, sortKeyCodes } from "./keyCode";
 
 export const COMMON_KEY_COMBOS: Record<string, KeyCode[]> = {
+  escape: [KeyCode.Escape],
   scrollDown: [KeyCode.Control, KeyCode.ArrowDown],
   scrollUp: [KeyCode.Control, KeyCode.ArrowUp],
 };
@@ -38,6 +39,11 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.ArrowDown],
     when: "sidebar",
     repeat: true,
+  },
+  {
+    command: "sidebar.clearSelection",
+    keys: COMMON_KEY_COMBOS.escape,
+    when: "sidebar",
   },
   {
     command: "sidebar.createTag",
