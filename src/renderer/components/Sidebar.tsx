@@ -11,7 +11,7 @@ import { NAV_MENU_ATTRIBUTE } from "./shared/NavMenu";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
 import { State } from "../../shared/domain/state";
-import { parseGlobalId } from "../../shared/utils";
+import { parseGlobalId } from "../../shared/domain/utils";
 
 export interface SidebarProps {
   state: State;

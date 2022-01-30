@@ -1,8 +1,8 @@
 import * as yup from "yup";
 import { Tag, Notebook, Note } from "./entities";
 import { UI } from "./state";
+import { uuid, isId } from "./utils";
 import { Shortcut } from "./valueObjects";
-import { uuid, isId } from "../utils";
 
 const id = yup.string().optional().default(uuid).test(isId);
 

@@ -2,10 +2,6 @@ import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import React, { useEffect, useMemo, useRef } from "react";
 import { PropsWithChildren } from "react";
 import { classList, px } from "../../../shared/dom";
-import { EntityType } from "../../../shared/domain/entities";
-import { KeyCode } from "../../../shared/io/keyCode";
-import { parseGlobalId } from "../../../shared/utils";
-import { useKeyboard } from "../../io/keyboard";
 import { Icon } from "./Icon";
 
 export const NAV_MENU_ATTRIBUTE = "data-nav-menu";

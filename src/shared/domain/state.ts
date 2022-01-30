@@ -1,5 +1,4 @@
 import { AwaitableInput } from "../awaitableInput";
-import { globalId } from "../utils";
 import { Tag, Notebook, EntityType, Note } from "./entities";
 import { Shortcut } from "./valueObjects";
 

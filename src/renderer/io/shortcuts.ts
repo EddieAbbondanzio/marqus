@@ -4,7 +4,7 @@ import { Section, State, UI } from "../../shared/domain/state";
 import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
 import { CommandType } from "./commands/types";
 import { Execute } from "./commands";
-import { sleep } from "../../shared/utils";
+import { sleep } from "../../shared/sleep";
 import { Shortcut } from "../../shared/domain/valueObjects";
 
 export function useShortcuts(

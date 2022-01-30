@@ -32,9 +32,7 @@ import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { clamp, head } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
-import { globalId, parseGlobalId } from "../../shared/utils";
-import { Note, Notebook } from "../../shared/domain/entities";
-import { getExplorerItems } from "../../shared/domain/getters";
+import { getExplorerItems, parseGlobalId } from "../../shared/domain/utils";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",

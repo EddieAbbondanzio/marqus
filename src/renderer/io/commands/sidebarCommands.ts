@@ -5,10 +5,9 @@ import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
 import { NotFoundError } from "../../../shared/errors";
-import { parseGlobalId } from "../../../shared/utils";
 import { ExplorerView } from "../../../shared/domain/state";
 import { clamp, head } from "lodash";
-import { getExplorerItems } from "../../../shared/domain/getters";
+import { getExplorerItems, parseGlobalId } from "../../../shared/domain/utils";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {

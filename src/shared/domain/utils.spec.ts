@@ -1,4 +1,4 @@
-import { globalId, ID_LENGTH, isId, parseGlobalId, uuid } from "./utils";
+import { uuid, ID_LENGTH, isId, globalId, parseGlobalId } from "./utils";
 
 test("uuid()", () => {
   const a = uuid();
