@@ -1,6 +1,6 @@
 import { PromptButton, PromptOptions } from "./prompt";
 import { Coord } from "./dom";
-import { Note, NoteFlag, Tag } from "./domain/entities";
+import { Note, Notebook, NoteFlag, Tag } from "./domain/entities";
 import { UI } from "./domain/state";
 import { Shortcut } from "./domain/valueObjects";
 import { StartsWith } from "../renderer/types";
@@ -38,6 +38,12 @@ export interface RpcSchema {
   "tags.create": RpcInOut<{ name: string }, Tag>;
   "tags.update": RpcInOut<{ id: string; name: string }, Tag>;
   "tags.delete": RpcIn<{ id: string }>;
+
+  // Notebooks
+  "notebooks.getAll": RpcOut<Notebook[]>;
+  "notebooks.create": RpcInOut<{ name: string; parentId?: string }, Notebook>;
+  "notebooks.update": RpcInOut<{ id: string; name: string }, Notebook>;
+  "notebooks.delete": RpcIn<{ id: string }>;
 
   // Notes
   "notes.getAll": RpcOut<Note[]>;

@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcArgument, RpcRegistry } from "../shared/rpc";
 import { appRpcs } from "./rpcs/app";
+import { notebooksRpcs } from "./rpcs/notebooks";
 import { noteRpcs } from "./rpcs/notes";
 import { shortcutRpcs } from "./rpcs/shortcuts";
 import { tagRpcs } from "./rpcs/tags";
@@ -14,6 +15,7 @@ export const handlers = {
   ...shortcutRpcs,
   ...tagRpcs,
   ...noteRpcs,
+  ...notebooksRpcs,
 };
 
 if (getProcessType() !== "main") {
