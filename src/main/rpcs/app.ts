@@ -1,7 +1,9 @@
 import { BrowserWindow, dialog } from "electron";
 import { UI } from "../../shared/domain/state";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
-import { uiFile as uiFile } from "../fileHandlers";
+import * as yup from "yup";
+import { px } from "../../shared/dom";
+import { createFileHandler } from "../fileSystem";
 
 const promptUser: RpcHandler<"app.promptUser"> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
@@ -72,3 +74,53 @@ export const appRpcs: RpcRegistry<"app"> = {
   "app.loadPreviousUIState": load,
   "app.saveUIState": save,
 };
+
+const appSchema = yup.object().shape({
+  sidebar: yup.object().shape({
+    width: yup.string().required(),
+    scroll: yup.number().required().min(0),
+    hidden: yup.boolean().optional(),
+    filter: yup.object().shape({
+      expanded: yup.boolean().optional(),
+    }),
+    explorer: yup.object().shape({
+      view: yup
+        .mixed()
+        .oneOf(["all", "notebooks", "tags", "favorites", "temp", "trash"])
+        .required(),
+    }),
+  }),
+});
+
+export const uiFile = createFileHandler<UI>("ui.json", appSchema, {
+  serialize: (ui) => {
+    // Nuke out stuff we don't want to persist.
+    ui.sidebar.explorer.input = undefined;
+    ui.sidebar.explorer.selected = undefined;
+    ui.focused = undefined!;
+
+    return ui;
+  },
+  deserialize: (ui) => {
+    if (ui == null) {
+      return;
+    }
+
+    ui.sidebar.explorer.input = undefined;
+    ui.sidebar.explorer.selected = undefined;
+    ui.focused = [];
+    return ui;
+  },
+  defaultValue: {
+    sidebar: {
+      hidden: false,
+      width: px(300),
+      scroll: 0,
+      filter: {},
+      explorer: {
+        view: "notebooks",
+      },
+    },
+    focused: [],
+  },
+});

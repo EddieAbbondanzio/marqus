@@ -1,7 +1,9 @@
 import { RpcHandler, RpcRegistry, RpcSchema } from "../../shared/rpc";
-import { tagFile } from "../fileHandlers";
 import { Tag } from "../../shared/domain/entities";
 import { uuid } from "../../shared/domain/utils";
+import { getTagSchema } from "../../shared/domain/schemas";
+import { createFileHandler } from "../fileSystem";
+import * as yup from "yup";
 
 const getAllTags = async (): Promise<Tag[]> => tagFile.load();
 
@@ -23,7 +25,6 @@ const createTag: RpcHandler<"tags.create"> = async ({
     dateCreated: new Date(),
   };
 
-  console.log("Tag was created: ", tag.id);
   tags.push(tag);
   await tagFile.save(tags);
 
@@ -73,3 +74,14 @@ export const tagRpcs: RpcRegistry<"tags"> = {
   "tags.update": updateTag,
   "tags.delete": deleteTag,
 };
+
+export const tagFile = createFileHandler<Tag[]>(
+  "tags.json",
+  yup.array(getTagSchema()).optional(),
+  {
+    defaultValue: [],
+    serialize: (c: Tag[]) => c.map(({ type, ...t }) => t),
+    deserialize: (c?: Omit<Tag, "type">[]) =>
+      (c ?? []).map((t) => ({ ...t, type: "tag" })),
+  }
+);

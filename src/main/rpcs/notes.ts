@@ -1,16 +1,15 @@
-import { Note, NoteFlag } from "../../shared/domain/entities";
-import { RpcHandler, RpcRegistry } from "../../shared/rpc";
+import { Note } from "../../shared/domain/entities";
+import { RpcRegistry } from "../../shared/rpc";
 import {
   createDirectory,
   exists as exists,
   readDirectory,
   readFile,
-  stat,
   writeFile,
 } from "../fileSystem";
 import * as path from "path";
 import { getNoteSchema } from "../../shared/domain/schemas";
-import { InvalidOpError, NotFoundError } from "../../shared/errors";
+import { NotFoundError } from "../../shared/errors";
 import { isId, uuid } from "../../shared/domain/utils";
 
 export const NOTES_DIRECTORY = "notes";

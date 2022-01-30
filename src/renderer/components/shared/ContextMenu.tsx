@@ -313,7 +313,12 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       data-context-menu={props.name}
     >
       {state.active && (
-        <Focusable name={props.name} onFocus={onFocus} onBlur={onBlur}>
+        <Focusable
+          name={props.name}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          blurOnEscape={true}
+        >
           <div
             ref={menuRef}
             className="context-menu box m-0 p-0"
