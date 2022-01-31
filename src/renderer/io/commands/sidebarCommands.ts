@@ -6,7 +6,7 @@ import * as yup from "yup";
 import { NotFoundError } from "../../../shared/errors";
 import { ExplorerView } from "../../../shared/domain/state";
 import { clamp, head } from "lodash";
-import { parseGlobalId } from "../../../shared/domain/utils";
+import { parseGlobalId } from "../../../shared/domain/id";
 import { getExplorerItems } from "../../components/Explorer";
 import { getNoteById, Note } from "../../../shared/domain/note";
 import { getTagById, Tag } from "../../../shared/domain/tag";

@@ -31,7 +31,7 @@ import { NavMenu } from "./shared/NavMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { InvalidOpError } from "../../shared/errors";
-import { globalId, parseGlobalId } from "../../shared/domain/utils";
+import { globalId, parseGlobalId } from "../../shared/domain/id";
 import { Note, getNotesForTag } from "../../shared/domain/note";
 import { Notebook } from "../../shared/domain/notebook";
 import { Tag } from "../../shared/domain/tag";

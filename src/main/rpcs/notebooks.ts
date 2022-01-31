@@ -2,7 +2,7 @@ import * as yup from "yup";
 import { string } from "yup/lib/locale";
 import { Notebook } from "../../shared/domain/notebook";
 import { notebookSchema } from "../../shared/domain/schemas";
-import { uuid } from "../../shared/domain/utils";
+import { uuid } from "../../shared/domain/id";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import { createFileHandler } from "../fileSystem";
 

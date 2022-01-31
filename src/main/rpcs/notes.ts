@@ -9,7 +9,7 @@ import {
 import * as path from "path";
 import { getNoteSchema } from "../../shared/domain/schemas";
 import { NotFoundError } from "../../shared/errors";
-import { isId, uuid } from "../../shared/domain/utils";
+import { isId, uuid } from "../../shared/domain/id";
 import { Note } from "../../shared/domain/note";
 
 export const NOTES_DIRECTORY = "notes";

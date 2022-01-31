@@ -1,6 +1,5 @@
 import * as yup from "yup";
-import { UI } from "./state";
-import { uuid, isId } from "./utils";
+import { uuid, isId } from "./id";
 import { Shortcut } from "./shortcut";
 import { Note } from "./note";
 import { Notebook } from "./notebook";
