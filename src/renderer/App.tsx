@@ -7,9 +7,10 @@ import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { Focusable } from "./components/shared/Focusable";
 import { UI } from "../shared/domain/state";
-import { Shortcut } from "../shared/domain/valueObjects";
-import { Note, Tag } from "../shared/domain/entities";
+import { Shortcut } from "../shared/domain/shortcut";
 import { FocusTracker } from "./components/shared/FocusTracker";
+import { Note } from "../shared/domain/note";
+import { Tag } from "../shared/domain/tag";
 
 const { rpc } = window;
 (async () => {

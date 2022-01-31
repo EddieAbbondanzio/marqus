@@ -1,6 +1,8 @@
 import { AwaitableInput } from "../awaitableInput";
-import { Tag, Notebook, EntityType, Note } from "./entities";
-import { Shortcut } from "./valueObjects";
+import { Note } from "./note";
+import { Notebook } from "./notebook";
+import { Shortcut } from "./shortcut";
+import { Tag } from "./tag";
 
 export interface State {
   ui: UI;

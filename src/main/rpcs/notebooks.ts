@@ -1,14 +1,30 @@
 import * as yup from "yup";
 import { string } from "yup/lib/locale";
-import { Notebook } from "../../shared/domain/entities";
+import { Notebook } from "../../shared/domain/notebook";
 import { notebookSchema } from "../../shared/domain/schemas";
+import { uuid } from "../../shared/domain/utils";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import { createFileHandler } from "../fileSystem";
 
 const getAll = async (): Promise<Notebook[]> => notebookFile.load();
 
 const createNotebook: RpcHandler<"notebooks.create"> = async ({ name }) => {
-  throw Error();
+  const notebooks = await notebookFile.load();
+  if (notebooks.some((n) => n.name === name)) {
+    throw Error(`Notebook name ${name} already in use`);
+  }
+
+  const notebook: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name,
+    dateCreated: new Date(),
+  };
+
+  notebooks.push(notebook);
+  await notebookFile.save(notebooks);
+
+  return notebook;
 };
 
 const updateNotebook: RpcHandler<"notebooks.update"> = async ({ id, name }) => {

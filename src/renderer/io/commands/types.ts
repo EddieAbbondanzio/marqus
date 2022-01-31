@@ -1,9 +1,11 @@
 import { Coord } from "../../../shared/dom";
-import { Tag, Notebook, Note } from "../../../shared/domain/entities";
 import { ExplorerView, State, UI } from "../../../shared/domain/state";
-import { Shortcut } from "../../../shared/domain/valueObjects";
+import { Shortcut } from "../../../shared/domain/shortcut";
 import { StartsWith } from "../../types";
 import { DeepPartial } from "tsdef";
+import { Tag } from "../../../shared/domain/tag";
+import { Note } from "../../../shared/domain/note";
+import { Notebook } from "../../../shared/domain/notebook";
 
 // NB: Don't pull this into index.ts unless you want circular dependencies
 

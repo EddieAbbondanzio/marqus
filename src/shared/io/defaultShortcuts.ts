@@ -1,4 +1,4 @@
-import { Shortcut } from "../domain/valueObjects";
+import { Shortcut } from "../domain/shortcut";
 import { KeyCode, sortKeyCodes } from "./keyCode";
 
 export const COMMON_KEY_COMBOS: Record<string, KeyCode[]> = {

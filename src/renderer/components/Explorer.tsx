@@ -30,11 +30,11 @@ import { InlineInput } from "./shared/InlineInput";
 import { NavMenu } from "./shared/NavMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
-import { clamp, head } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
-import { getExplorerItems, parseGlobalId } from "../../shared/domain/utils";
-import { useKeyboard } from "../io/keyboard";
-import { KeyCode } from "../../shared/io/keyCode";
+import { globalId, parseGlobalId } from "../../shared/domain/utils";
+import { Note, getNotesForTag } from "../../shared/domain/note";
+import { Notebook } from "../../shared/domain/notebook";
+import { Tag } from "../../shared/domain/tag";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -218,4 +218,66 @@ export function hasChildren(
     Boolean(item.children?.length ?? 0 > 0) ||
     item.globalId === input?.parentGlobalId
   );
+}
+
+// Move this to a better spot later
+export function getExplorerItems(
+  view: ExplorerView,
+  notes: Note[],
+  notebooks: Notebook[],
+  tags: Tag[]
+): [ExplorerItem[], string[]] {
+  let items: ExplorerItem[] = [];
+  let selectables: string[] = [];
+
+  switch (view) {
+    case "all":
+      notes.forEach((n) => {
+        const id = globalId("note", n.id);
+        items.push({
+          globalId: id,
+          text: n.name,
+        });
+        selectables.push(id);
+      });
+      break;
+
+    case "tags":
+      tags.forEach((t) => {
+        const id = globalId("tag", t.id);
+        const children = getNotesForTag(notes, t.id).map((n) => ({
+          globalId: globalId("note", n.id),
+          text: n.name,
+        }));
+
+        items.push({
+          globalId: id,
+          text: t.name,
+          children,
+        });
+        selectables.push(id, ...children.map((c) => c.globalId));
+      });
+      break;
+
+    case "notebooks":
+      const recursisve = (n: Notebook) => {
+        const id = globalId("notebook", n.id);
+        const item: ExplorerItem = {
+          globalId: id,
+          text: n.name,
+        };
+        items.push(item);
+        selectables.push(id);
+
+        let children;
+        if (n.children != null && n.children.length > 0) {
+          n.children.forEach(recursisve);
+          item.children = children;
+        }
+      };
+      notebooks.forEach(recursisve);
+      break;
+  }
+
+  return [items, selectables];
 }

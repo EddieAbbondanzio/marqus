@@ -1,5 +1,4 @@
 import { createAwaitableInput } from "../../../shared/awaitableInput";
-import { Note, Tag } from "../../../shared/domain/entities";
 import { getNoteSchema, getTagSchema } from "../../../shared/domain/schemas";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
@@ -7,7 +6,10 @@ import * as yup from "yup";
 import { NotFoundError } from "../../../shared/errors";
 import { ExplorerView } from "../../../shared/domain/state";
 import { clamp, head } from "lodash";
-import { getExplorerItems, parseGlobalId } from "../../../shared/domain/utils";
+import { parseGlobalId } from "../../../shared/domain/utils";
+import { getExplorerItems } from "../../components/Explorer";
+import { getNoteById, Note } from "../../../shared/domain/note";
+import { getTagById, Tag } from "../../../shared/domain/tag";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -128,7 +130,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     const otherTags = tags.filter((t) => t.id !== id);
     let schema: yup.StringSchema = yup.reach(getTagSchema(otherTags), "name");
 
-    const tag = getTag(ctx, id!);
+    const tag = getTagById(tags, id!);
     let [input, completed] = createAwaitableInput(
       { value: tag.name, id: tag.id, schema },
       (value) =>
@@ -176,7 +178,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.deleteTag": async (ctx, id) => {
-    const tag = getTag(ctx, id!);
+    const { tags } = ctx.getState();
+    const tag = getTagById(tags, id!);
     const res = await promptConfirmAction("delete", `tag ${tag.name}`);
 
     if (res.text === "Yes") {
@@ -267,8 +270,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.renameNote": async (ctx, id) => {
-    let note = getNote(ctx, id!);
-    let { notes } = ctx.getState();
+    const { notes } = ctx.getState();
+    let note = getNoteById(notes, id!);
     let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
 
     let [input, completed] = createAwaitableInput(
@@ -428,20 +431,3 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
 };
-
-function getTag(ctx: ExecutionContext, id: string): Tag {
-  const tag = ctx.getState().tags.find((t) => t.id === id);
-  if (tag == null) {
-    throw new NotFoundError(`No tag with id ${id} found.`);
-  }
-
-  return tag;
-}
-
-function getNote(ctx: ExecutionContext, id: string): Note {
-  const note = ctx.getState().notes.find((n) => n.id === id);
-  if (note == null) {
-    throw new NotFoundError(`No note with id ${id} found.`);
-  }
-  return note;
-}

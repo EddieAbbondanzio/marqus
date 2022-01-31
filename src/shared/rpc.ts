@@ -1,9 +1,11 @@
 import { PromptButton, PromptOptions } from "./prompt";
 import { Coord } from "./dom";
-import { Note, Notebook, NoteFlag, Tag } from "./domain/entities";
 import { UI } from "./domain/state";
-import { Shortcut } from "./domain/valueObjects";
+import { Shortcut } from "./domain/shortcut";
 import { StartsWith } from "../renderer/types";
+import { Note } from "./domain/note";
+import { Notebook } from "./domain/notebook";
+import { Tag } from "./domain/tag";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.

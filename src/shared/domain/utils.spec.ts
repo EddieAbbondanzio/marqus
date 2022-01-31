@@ -1,12 +1,4 @@
-import { Note } from "./entities";
-import {
-  uuid,
-  ID_LENGTH,
-  isId,
-  globalId,
-  parseGlobalId,
-  getNotesForTag,
-} from "./utils";
+import { uuid, ID_LENGTH, isId, globalId, parseGlobalId } from "./utils";
 
 test("uuid()", () => {
   const a = uuid();
@@ -45,23 +37,4 @@ test("parseGlobalId() throws on invalid type", () => {
   expect(() => {
     parseGlobalId(fq);
   }).toThrow();
-});
-
-test("getNotesForTag() returns notes", () => {
-  const n1 = {
-    id: "1",
-    tags: ["tag-a"],
-  } as Note;
-  const n2 = {
-    id: "2",
-    tags: ["tag-b"],
-  } as Note;
-  const n3 = {
-    id: "3",
-    tags: ["tag-a", "tag-b"],
-  } as Note;
-
-  const matches = getNotesForTag([n1, n2, n3], "tag-a");
-  expect(matches).toHaveLength(2);
-  expect(matches).toEqual([n1, n3]);
 });

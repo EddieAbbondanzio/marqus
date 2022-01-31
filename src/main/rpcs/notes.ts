@@ -1,4 +1,3 @@
-import { Note } from "../../shared/domain/entities";
 import { RpcRegistry } from "../../shared/rpc";
 import {
   createDirectory,
@@ -11,6 +10,7 @@ import * as path from "path";
 import { getNoteSchema } from "../../shared/domain/schemas";
 import { NotFoundError } from "../../shared/errors";
 import { isId, uuid } from "../../shared/domain/utils";
+import { Note } from "../../shared/domain/note";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";

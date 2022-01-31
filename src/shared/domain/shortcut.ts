@@ -1,6 +1,5 @@
 import { AwaitableInput } from "../awaitableInput";
 import { KeyCode } from "../io/keyCode";
-import { Note, NoteFlag } from "./entities";
 import { Section } from "./state";
 
 /*
