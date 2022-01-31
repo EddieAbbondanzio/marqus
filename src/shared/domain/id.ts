@@ -2,6 +2,7 @@ import { customAlphabet } from "nanoid";
 import { Note } from "./note";
 import { ExplorerView, ExplorerItem } from "./state";
 import { EntityType } from "./types";
+import * as yup from "yup";
 
 export const ID_LENGTH = 10;
 export const ID_ALPHABET =
@@ -31,3 +32,5 @@ export function parseGlobalId(globalId: string): [EntityType, string] {
   const split = globalId.split(".") as [EntityType, string];
   return split;
 }
+
+export const idSchema = yup.string().optional().default(uuid).test(isId);

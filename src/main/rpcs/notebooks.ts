@@ -1,17 +1,30 @@
 import * as yup from "yup";
 import { string } from "yup/lib/locale";
-import { Notebook } from "../../shared/domain/notebook";
-import { notebookSchema } from "../../shared/domain/schemas";
+import {
+  getNotebookById,
+  Notebook,
+  notebookSchema,
+  removeChild,
+} from "../../shared/domain/notebook";
 import { uuid } from "../../shared/domain/id";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import { createFileHandler } from "../fileSystem";
+import { NotFoundError } from "../../shared/errors";
 
 const getAll = async (): Promise<Notebook[]> => notebookFile.load();
 
-const createNotebook: RpcHandler<"notebooks.create"> = async ({ name }) => {
+const createNotebook: RpcHandler<"notebooks.create"> = async ({
+  name,
+  parentId,
+}) => {
   const notebooks = await notebookFile.load();
   if (notebooks.some((n) => n.name === name)) {
     throw Error(`Notebook name ${name} already in use`);
+  }
+
+  let parent;
+  if (parentId != null) {
+    parent = getNotebookById(notebooks, parentId);
   }
 
   const notebook: Notebook = {
@@ -19,6 +32,7 @@ const createNotebook: RpcHandler<"notebooks.create"> = async ({ name }) => {
     type: "notebook",
     name,
     dateCreated: new Date(),
+    parent,
   };
 
   notebooks.push(notebook);
@@ -27,12 +41,43 @@ const createNotebook: RpcHandler<"notebooks.create"> = async ({ name }) => {
   return notebook;
 };
 
-const updateNotebook: RpcHandler<"notebooks.update"> = async ({ id, name }) => {
-  throw Error();
+const updateNotebook: RpcHandler<"notebooks.update"> = async ({
+  id,
+  name,
+  parentId,
+}) => {
+  const notebooks = await notebookFile.load();
+  const notebook = getNotebookById(notebooks, id);
+
+  // Allow switching parents
+  if (parentId != null) {
+    let parent = getNotebookById(notebooks, parentId);
+    notebook.parent = parent;
+  }
+
+  notebook.name = name;
+  notebook.dateUpdated = new Date();
+
+  await notebookFile.save(notebooks);
+  return notebook;
 };
 
 const deleteNotebook: RpcHandler<"notebooks.delete"> = async ({ id }) => {
-  throw Error();
+  const notebooks = await notebookFile.load();
+  const notebook = getNotebookById(notebooks, id);
+
+  if (notebook.parent != null) {
+    removeChild(notebook.parent, notebook);
+  } else {
+    const index = notebooks.findIndex((n) => n.id === id);
+    if (index === -1) {
+      throw new NotFoundError(`No notebook with id ${id} found`);
+    }
+
+    notebooks.splice(index, 1);
+  }
+
+  await notebookFile.save(notebooks);
 };
 
 export const notebooksRpcs: RpcRegistry<"notebooks"> = {

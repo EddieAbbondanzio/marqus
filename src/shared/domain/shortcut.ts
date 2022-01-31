@@ -1,6 +1,7 @@
 import { AwaitableInput } from "../awaitableInput";
 import { KeyCode } from "../io/keyCode";
 import { Section } from "./state";
+import * as yup from "yup";
 
 /*
  * Shortcuts are not entities because any two shortcuts are considered equal
@@ -15,3 +16,12 @@ export interface Shortcut {
   repeat?: boolean;
   userDefined?: boolean;
 }
+
+export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
+  command: yup.string().required(),
+  keys: yup.array(),
+  disabled: yup.boolean().optional(),
+  when: yup.mixed().optional().oneOf(["sidebar", "editor"]),
+  repeat: yup.bool().optional(),
+  userDefined: yup.bool().optional(),
+});

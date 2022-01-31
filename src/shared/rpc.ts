@@ -44,7 +44,10 @@ export interface RpcSchema {
   // Notebooks
   "notebooks.getAll": RpcOut<Notebook[]>;
   "notebooks.create": RpcInOut<{ name: string; parentId?: string }, Notebook>;
-  "notebooks.update": RpcInOut<{ id: string; name: string }, Notebook>;
+  "notebooks.update": RpcInOut<
+    { id: string; name: string; parentId?: string },
+    Notebook
+  >;
   "notebooks.delete": RpcIn<{ id: string }>;
 
   // Notes

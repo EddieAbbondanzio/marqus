@@ -1,5 +1,4 @@
 import { createAwaitableInput } from "../../../shared/awaitableInput";
-import { getNoteSchema, getTagSchema } from "../../../shared/domain/schemas";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
@@ -8,8 +7,8 @@ import { ExplorerView } from "../../../shared/domain/state";
 import { clamp, head } from "lodash";
 import { parseGlobalId } from "../../../shared/domain/id";
 import { getExplorerItems } from "../../components/Explorer";
-import { getNoteById, Note } from "../../../shared/domain/note";
-import { getTagById, Tag } from "../../../shared/domain/tag";
+import { getNoteById, getNoteSchema, Note } from "../../../shared/domain/note";
+import { getTagById, getTagSchema, Tag } from "../../../shared/domain/tag";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -186,6 +185,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       await window.rpc("tags.delete", { id: tag.id });
     }
   },
+  "sidebar.createNotebook": async (ctx) => {},
   "sidebar.createNote": async (ctx) => {
     let state = ctx.getState();
     let schema: yup.StringSchema = yup.reach(
