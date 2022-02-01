@@ -33,4 +33,4 @@ export function parseGlobalId(globalId: string): [EntityType, string] {
   return split;
 }
 
-export const idSchema = yup.string().optional().default(uuid).test(isId);
+export const idSchema = yup.string().required().test(isId);

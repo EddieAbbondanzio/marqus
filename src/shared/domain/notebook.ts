@@ -1,6 +1,7 @@
 import { NotFoundError } from "../errors";
 import { Entity } from "./types";
 import * as yup from "yup";
+import { idSchema } from "./id";
 
 export interface Notebook extends Entity<"notebook"> {
   name: string;
@@ -9,9 +10,46 @@ export interface Notebook extends Entity<"notebook"> {
   children?: Notebook[];
 }
 
-export const notebookSchema: yup.SchemaOf<Notebook> = yup
-  .object()
-  .shape({} as any);
+export function getNotebookSchema(
+  notebooks: Notebook[] = []
+): yup.SchemaOf<Notebook> {
+  const schema: yup.SchemaOf<Notebook> = yup
+    .object()
+    .shape({
+      id: idSchema,
+      type: yup.string().required().equals(["notebook"]),
+      name: yup
+        .string()
+        .required("Notebook is required")
+        .min(1, "Notebook must be atleast 1 character")
+        .max(64, "Notebook cannot be more than 64 characters")
+        .notOneOf(
+          notebooks.map((n) => n.name),
+          "Notebook already exists"
+        ),
+      dateCreated: yup.date(),
+      dateUpdated: yup.date().optional(),
+      parent: yup.lazy((val) => {
+        if (val != null) {
+          return schema.default(undefined);
+        } else {
+          return yup.mixed().optional();
+        }
+      }),
+      children: yup.array(
+        yup.lazy((val) => {
+          if (val != null) {
+            return schema.default(undefined);
+          } else {
+            return yup.mixed().optional();
+          }
+        })
+      ),
+    })
+    .defined();
+
+  return schema;
+}
 
 // Will recursively search for a notebook
 export function getNotebookById(notebooks: Notebook[], id: string): Notebook {

@@ -2,8 +2,8 @@ import * as yup from "yup";
 import { string } from "yup/lib/locale";
 import {
   getNotebookById,
+  getNotebookSchema,
   Notebook,
-  notebookSchema,
   removeChild,
 } from "../../shared/domain/notebook";
 import { uuid } from "../../shared/domain/id";
@@ -87,15 +87,50 @@ export const notebooksRpcs: RpcRegistry<"notebooks"> = {
   "notebooks.delete": deleteNotebook,
 };
 
+export type SerializedNotebook = Omit<
+  Notebook,
+  "type" | "parent" | "children"
+> & { children?: SerializedNotebook[] };
+
+const serialize = (n: Notebook): SerializedNotebook => {
+  // Remove type / parent props
+  const { type, parent, children, ...serializeProps } = n;
+
+  // Recursively handle children
+  let serializedChildren: SerializedNotebook[] | undefined;
+  if (children != null && children.length > 0) {
+    serializedChildren = children.map((c) => serialize(c));
+  }
+
+  return {
+    ...serializeProps,
+    children: serializedChildren,
+  };
+};
+
+const deserialize = (n: SerializedNotebook, parent?: Notebook): Notebook => {
+  let { children, ...props } = n;
+
+  let notebook: Notebook = {
+    type: "notebook",
+    parent,
+    ...props,
+  };
+
+  if (n.children != null && n.children.length > 0) {
+    notebook.children = n.children.map((child) => deserialize(child, notebook));
+  }
+
+  return notebook;
+};
+
 export const notebookFile = createFileHandler<Notebook[]>(
   "notebooks.json",
-  yup.array(notebookSchema).optional(),
+  yup.array(getNotebookSchema()).optional(),
   {
     defaultValue: [],
-    serialize: (n: Notebook[]) => n.map(({ type, ...n }) => n),
-    deserialize: (c?: Omit<Notebook, "type">[]) => {
-      console.log("Need to handle nested notebooks here. Validation too");
-      return (c ?? []).map((n) => ({ ...n, type: "notebook" }));
-    },
+    serialize: (notebooks) => notebooks.map(serialize),
+    deserialize: (notebooks) =>
+      notebooks.map((n: SerializedNotebook) => deserialize(n)),
   }
 );
