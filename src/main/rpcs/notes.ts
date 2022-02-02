@@ -10,6 +10,7 @@ import * as path from "path";
 import { NotFoundError } from "../../shared/errors";
 import { isId, uuid } from "../../shared/domain/id";
 import { getNoteSchema, Note } from "../../shared/domain/note";
+import moment from "moment";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
@@ -88,14 +89,30 @@ export const noteRpcs: RpcRegistry<"notes"> = {
   },
 };
 
-async function saveMetadata(note: Note): Promise<void> {
+export async function saveMetadata(note: Note): Promise<void> {
   const metadataPath = path.join(NOTES_DIRECTORY, note.id, METADATA_FILE_NAME);
-  await writeFile(metadataPath, note, "json");
+  const { type, ...metadata } = note;
+  
+  await writeFile(metadataPath, metadata, "json");
 }
 
-async function loadMetadata(noteId: string): Promise<Note> {
+export async function loadMetadata(noteId: string): Promise<Note> {
   const metadataPath = path.join(NOTES_DIRECTORY, noteId, METADATA_FILE_NAME);
-  const note: Note = await readFile(metadataPath, "json");
+  const { dateCreated, dateUpdated, ...props }: any = await readFile(
+    metadataPath,
+    "json"
+  );
+
+  const note: Note = {
+    type: "note",
+    dateCreated: moment(dateCreated).toDate(),
+    ...props,
+  };
+
+  if (dateUpdated != null) {
+    note.dateUpdated = moment(dateUpdated).toDate();
+  }
+
   await getNoteSchema().validate(note);
 
   return note;
