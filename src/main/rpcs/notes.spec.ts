@@ -28,7 +28,12 @@ test("saveMetadata", async () => {
 
   await saveMetadata(note);
   expect(writeFile as jest.Mock).toBeCalled();
-  expect((writeFile as jest.Mock).mock.calls[0][1]).not.toHaveProperty("type");
+  const serialized = (writeFile as jest.Mock).mock.calls[0][1];
+  expect(serialized).toHaveProperty("id", note.id);
+  expect(serialized).not.toHaveProperty("type");
+  expect(serialized).toHaveProperty("dateCreated");
+  expect(serialized).toHaveProperty("dateUpdated");
+  expect(serialized).toHaveProperty("name", "Foo");
 });
 
 test("loadMetadata", async () => {

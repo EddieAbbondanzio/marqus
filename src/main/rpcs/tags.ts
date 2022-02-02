@@ -3,6 +3,8 @@ import { uuid } from "../../shared/domain/id";
 import { createFileHandler } from "../fileSystem";
 import * as yup from "yup";
 import { getTagSchema, Tag } from "../../shared/domain/tag";
+import { EntityType } from "../../shared/domain/types";
+import moment from "moment";
 
 const getAllTags = async (): Promise<Tag[]> => tagFile.load();
 
@@ -71,13 +73,29 @@ export const tagRpcs: RpcRegistry<"tags"> = {
   "tags.delete": deleteTag,
 };
 
+export const serialize = (c: Tag[]) => c.map(({ type, ...t }) => t);
+
+export const deserialize = (c?: Omit<Tag, "type">[]) =>
+  (c ?? []).map(({ dateCreated, dateUpdated, ...props }) => {
+    const tag = {
+      type: "tag",
+      ...props,
+    } as Tag;
+
+    tag.dateCreated = moment(dateCreated).toDate();
+    if (dateUpdated != null) {
+      tag.dateUpdated = moment(dateUpdated).toDate();
+    }
+
+    return tag;
+  });
+
 export const tagFile = createFileHandler<Tag[]>(
   "tags.json",
   yup.array(getTagSchema()).optional(),
   {
     defaultValue: [],
-    serialize: (c: Tag[]) => c.map(({ type, ...t }) => t),
-    deserialize: (c?: Omit<Tag, "type">[]) =>
-      (c ?? []).map((t) => ({ ...t, type: "tag" })),
+    serialize,
+    deserialize,
   }
 );
