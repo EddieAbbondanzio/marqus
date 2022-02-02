@@ -10,6 +10,7 @@ import { uuid } from "../../shared/domain/id";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import { createFileHandler } from "../fileSystem";
 import { NotFoundError } from "../../shared/errors";
+import moment from "moment";
 
 const getAll = async (): Promise<Notebook[]> => notebookFile.load();
 
@@ -92,7 +93,7 @@ export type SerializedNotebook = Omit<
   "type" | "parent" | "children"
 > & { children?: SerializedNotebook[] };
 
-const serialize = (n: Notebook): SerializedNotebook => {
+export const serialize = (n: Notebook): SerializedNotebook => {
   // Remove type / parent props
   const { type, parent, children, ...serializeProps } = n;
 
@@ -108,17 +109,24 @@ const serialize = (n: Notebook): SerializedNotebook => {
   };
 };
 
-const deserialize = (n: SerializedNotebook, parent?: Notebook): Notebook => {
-  let { children, ...props } = n;
+export const deserialize = (
+  n: SerializedNotebook,
+  parent?: Notebook
+): Notebook => {
+  let { children, dateCreated, dateUpdated, ...props } = n;
 
   let notebook: Notebook = {
     type: "notebook",
     parent,
     ...props,
+    dateCreated: moment(dateCreated).toDate(),
   };
 
   if (n.children != null && n.children.length > 0) {
     notebook.children = n.children.map((child) => deserialize(child, notebook));
+  }
+  if (dateUpdated != null) {
+    notebook.dateUpdated = new Date(dateUpdated);
   }
 
   return notebook;

@@ -24,7 +24,6 @@ export function getNotebookSchema(
         .min(1, "Notebook must be atleast 1 character")
         .max(64, "Notebook cannot be more than 64 characters")
         .test("unique-name", "Notebook already exists", (name, ctx) => {
-          // Parent will be the notebook object.
           const notebook = ctx.parent as Notebook;
           const siblings = notebook.parent?.children ?? notebooks;
           return !siblings.some((s) => s.name === name && s.id !== notebook.id);
