@@ -1,5 +1,77 @@
 import { uuid } from "./id";
-import { getNotebookById, Notebook } from "./notebook";
+import {
+  addChild,
+  getNotebookById,
+  getNotebookSchema,
+  Notebook,
+  removeChild,
+} from "./notebook";
+
+test("getNotebookSchema detects duplicate name and same parent", () => {
+  const notebook1: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "foo",
+    dateCreated: new Date(),
+  };
+  const notebook2: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "foo",
+    dateCreated: new Date(),
+  };
+
+  const schema = getNotebookSchema([notebook1]);
+  expect(() => {
+    schema.validateSync(notebook2);
+  }).toThrow();
+});
+
+test("getNotebookSchema ignores same name with different parents", () => {
+  const root: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "foo",
+    dateCreated: new Date(),
+  };
+  const rootWithChild: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "parent",
+    dateCreated: new Date(),
+  };
+  const child: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "foo",
+    dateCreated: new Date(),
+  };
+  addChild(rootWithChild, child);
+
+  const schema = getNotebookSchema([root, rootWithChild]);
+  expect(() => {
+    schema.validateSync(child);
+  }).not.toThrow();
+});
+
+test("getNotebook schema recursively works on children", () => {
+  const parent: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "bar",
+    dateCreated: new Date(),
+  };
+  const notebook2: Notebook = {
+    id: uuid(),
+    type: "notebook",
+  } as Notebook;
+  addChild(parent, notebook2);
+
+  const schema = getNotebookSchema([parent]);
+  expect(() => {
+    schema.validateSync(parent);
+  }).toThrow();
+});
 
 describe("getNotebookById()", () => {
   const notebooks: Notebook[] = [
@@ -35,4 +107,49 @@ describe("getNotebookById()", () => {
       const match = getNotebookById(notebooks, "1");
     }).toThrow();
   });
+});
+
+test("addChild", () => {
+  const parent: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "Parent",
+    dateCreated: new Date(),
+  };
+  const child: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "Child",
+    dateCreated: new Date(),
+  };
+  addChild(parent, child);
+  expect(parent.children).toHaveLength(1);
+  expect(child.parent).toBe(parent);
+});
+
+test("removeChild", () => {
+  const parent: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "Parent",
+    dateCreated: new Date(),
+  };
+  const child1: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "Child",
+    dateCreated: new Date(),
+  };
+  const child2: Notebook = {
+    id: uuid(),
+    type: "notebook",
+    name: "Child",
+    dateCreated: new Date(),
+  };
+  addChild(parent, child1);
+  addChild(parent, child2);
+
+  removeChild(parent, child1);
+  expect(parent.children).toEqual([child2]);
+  expect(child1.parent).toBe(undefined);
 });

@@ -23,19 +23,16 @@ export function getNotebookSchema(
         .required("Notebook is required")
         .min(1, "Notebook must be atleast 1 character")
         .max(64, "Notebook cannot be more than 64 characters")
-        .notOneOf(
-          notebooks.map((n) => n.name),
-          "Notebook already exists"
-        ),
-      dateCreated: yup.date(),
+        .test("unique-name", "Notebook already exists", (name, ctx) => {
+          // Parent will be the notebook object.
+          const notebook = ctx.parent as Notebook;
+          const siblings = notebook.parent?.children ?? notebooks;
+          return !siblings.some((s) => s.name === name && s.id !== notebook.id);
+        }),
+      dateCreated: yup.date().required(),
       dateUpdated: yup.date().optional(),
-      parent: yup.lazy((val) => {
-        if (val != null) {
-          return schema.default(undefined);
-        } else {
-          return yup.mixed().optional();
-        }
-      }),
+      // We ignore parent since we would have already validate it.
+      parent: yup.mixed().optional(),
       children: yup.array(
         yup.lazy((val) => {
           if (val != null) {
