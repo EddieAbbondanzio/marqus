@@ -263,22 +263,27 @@ export function getExplorerItems(
       break;
 
     case "notebooks":
-      const recursisve = (n: Notebook) => {
+      const recursive = (n: Notebook, parent?: ExplorerItem) => {
         const id = globalId("notebook", n.id);
+        selectables.push(id);
+
         const item: ExplorerItem = {
           globalId: id,
           text: n.name,
         };
-        items.push(item);
-        selectables.push(id);
 
-        let children;
         if (n.children != null && n.children.length > 0) {
-          n.children.forEach(recursisve);
-          item.children = children;
+          n.children.forEach((n) => recursive(n, item));
+        }
+
+        if (parent == null) {
+          items.push(item);
+        } else {
+          parent.children ??= [];
+          parent.children.push(item);
         }
       };
-      notebooks.forEach(recursisve);
+      notebooks.forEach((n) => recursive(n));
       break;
   }
 

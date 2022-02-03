@@ -240,7 +240,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     const [value, action] = await completed;
     if (action === "confirm") {
       try {
-        const notebook = await window.rpc("notebooks.create", { name: value });
+        const notebook = await window.rpc("notebooks.create", {
+          name: value,
+          parentId: parent?.id,
+        });
         ctx.setNotebooks((notebooks) => [...notebooks, notebook]);
       } catch (e) {
         promptError(e.message);

@@ -65,10 +65,6 @@ export function createFileHandler<Content>(
       throw Error(`${name} file content cannot be null.`);
     }
 
-    if (previous != null && isEqual(content, previous)) {
-      return content;
-    }
-
     await schema.validate(content);
 
     let c;
