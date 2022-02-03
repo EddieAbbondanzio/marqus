@@ -12,7 +12,6 @@ export interface NewButtonProps {
 
 // Dumb component
 export function NewButton(props: NewButtonProps) {
-  let [dropdownActive, setDropdownActive] = useState(false);
   let onClick = (ev: React.MouseEvent<HTMLElement>) => {
     ev.stopPropagation();
 
@@ -51,7 +50,7 @@ export function NewButton(props: NewButtonProps) {
 
   return (
     <div>
-      <Dropdown trigger={trigger} active={dropdownActive} onSelect={onClick}>
+      <Dropdown trigger={trigger} onSelect={onClick}>
         {/* <a className="dropdown-item" data-new-option="temporaryNote">
           New temporary note
         </a> */}

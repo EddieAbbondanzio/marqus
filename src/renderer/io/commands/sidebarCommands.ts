@@ -4,11 +4,16 @@ import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
 import { NotFoundError } from "../../../shared/errors";
 import { ExplorerView } from "../../../shared/domain/state";
-import { clamp, head } from "lodash";
+import { clamp, create, head } from "lodash";
 import { parseGlobalId } from "../../../shared/domain/id";
 import { getExplorerItems } from "../../components/Explorer";
 import { getNoteById, getNoteSchema, Note } from "../../../shared/domain/note";
 import { getTagById, getTagSchema, Tag } from "../../../shared/domain/tag";
+import {
+  getNotebookById,
+  getNotebookSchema,
+  Notebook,
+} from "../../../shared/domain/notebook";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
@@ -185,7 +190,74 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       await window.rpc("tags.delete", { id: tag.id });
     }
   },
-  "sidebar.createNotebook": async (ctx) => {},
+  "sidebar.createNotebook": async (ctx) => {
+    const state = ctx.getState();
+    const { selected } = state.ui.sidebar.explorer;
+
+    let parentGlobalId: string | undefined;
+    let parent: Notebook | undefined;
+
+    if (selected != null && selected.length > 0) {
+      parentGlobalId = selected[0];
+      const [type, id] = parseGlobalId(parentGlobalId);
+      if (type === "notebook") {
+        parent = getNotebookById(state.notebooks, id);
+      }
+    }
+
+    let schema: yup.StringSchema = yup.reach(
+      getNotebookSchema(parent?.children ?? state.notebooks),
+      "name"
+    );
+
+    let [input, completed] = createAwaitableInput(
+      { value: "", schema },
+      (value) =>
+        ctx.setUI({
+          sidebar: {
+            explorer: {
+              input: {
+                value,
+              },
+            },
+          },
+        })
+    );
+
+    ctx.setUI({
+      focused: ["sidebarInput"],
+      sidebar: {
+        explorer: {
+          input: {
+            ...input,
+            parentGlobalId,
+          },
+          view: "notebooks",
+        },
+      },
+    });
+
+    const [value, action] = await completed;
+    if (action === "confirm") {
+      try {
+        const notebook = await window.rpc("notebooks.create", { name: value });
+        ctx.setNotebooks((notebooks) => [...notebooks, notebook]);
+      } catch (e) {
+        promptError(e.message);
+      }
+    }
+
+    ctx.setUI({
+      sidebar: {
+        explorer: {
+          input: undefined,
+        },
+      },
+    });
+  },
+  "sidebar.updateNotebook": async (ctx) => {
+    console.log("UPDATE");
+  },
   "sidebar.createNote": async (ctx) => {
     let state = ctx.getState();
     let schema: yup.StringSchema = yup.reach(

@@ -10,6 +10,7 @@ export interface Notebook extends Entity<"notebook"> {
   children?: Notebook[];
 }
 
+// Only pass siblings of new notebook
 export function getNotebookSchema(
   notebooks: Notebook[] = []
 ): yup.SchemaOf<Notebook> {
@@ -23,10 +24,9 @@ export function getNotebookSchema(
         .required("Notebook is required")
         .min(1, "Notebook must be atleast 1 character")
         .max(64, "Notebook cannot be more than 64 characters")
-        .test("unique-name", "Notebook already exists", (name, ctx) => {
-          const notebook = ctx.parent as Notebook;
-          const siblings = notebook.parent?.children ?? notebooks;
-          return !siblings.some((s) => s.name === name && s.id !== notebook.id);
+        .test("unique-name", "Notebook already exists", (name) => {
+          // Passed notebooks will only be siblings
+          return !notebooks.some((s) => s.name === name);
         }),
       dateCreated: yup.date().required(),
       dateUpdated: yup.date().optional(),

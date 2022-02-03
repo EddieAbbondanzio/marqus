@@ -27,33 +27,6 @@ test("getNotebookSchema detects duplicate name and same parent", () => {
   }).toThrow();
 });
 
-test("getNotebookSchema ignores same name with different parents", () => {
-  const root: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "foo",
-    dateCreated: new Date(),
-  };
-  const rootWithChild: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "parent",
-    dateCreated: new Date(),
-  };
-  const child: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "foo",
-    dateCreated: new Date(),
-  };
-  addChild(rootWithChild, child);
-
-  const schema = getNotebookSchema([root, rootWithChild]);
-  expect(() => {
-    schema.validateSync(child);
-  }).not.toThrow();
-});
-
 test("getNotebook schema recursively works on children", () => {
   const parent: Notebook = {
     id: uuid(),

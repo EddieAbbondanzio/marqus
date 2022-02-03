@@ -14,10 +14,7 @@ import moment from "moment";
 
 const getAll = async (): Promise<Notebook[]> => notebookFile.load();
 
-const createNotebook: RpcHandler<"notebooks.create"> = async ({
-  name,
-  parentId,
-}) => {
+const create: RpcHandler<"notebooks.create"> = async ({ name, parentId }) => {
   const notebooks = await notebookFile.load();
   if (notebooks.some((n) => n.name === name)) {
     throw Error(`Notebook name ${name} already in use`);
@@ -42,7 +39,7 @@ const createNotebook: RpcHandler<"notebooks.create"> = async ({
   return notebook;
 };
 
-const updateNotebook: RpcHandler<"notebooks.update"> = async ({
+const update: RpcHandler<"notebooks.update"> = async ({
   id,
   name,
   parentId,
@@ -63,7 +60,7 @@ const updateNotebook: RpcHandler<"notebooks.update"> = async ({
   return notebook;
 };
 
-const deleteNotebook: RpcHandler<"notebooks.delete"> = async ({ id }) => {
+const del: RpcHandler<"notebooks.delete"> = async ({ id }) => {
   const notebooks = await notebookFile.load();
   const notebook = getNotebookById(notebooks, id);
 
@@ -83,9 +80,9 @@ const deleteNotebook: RpcHandler<"notebooks.delete"> = async ({ id }) => {
 
 export const notebooksRpcs: RpcRegistry<"notebooks"> = {
   "notebooks.getAll": getAll,
-  "notebooks.create": createNotebook,
-  "notebooks.update": updateNotebook,
-  "notebooks.delete": deleteNotebook,
+  "notebooks.create": create,
+  "notebooks.update": update,
+  "notebooks.delete": del,
 };
 
 export type SerializedNotebook = Omit<
@@ -137,8 +134,8 @@ export const notebookFile = createFileHandler<Notebook[]>(
   yup.array(getNotebookSchema()).optional(),
   {
     defaultValue: [],
-    serialize: (notebooks) => notebooks.map(serialize),
+    serialize: (notebooks) => (notebooks ?? []).map(serialize),
     deserialize: (notebooks) =>
-      notebooks.map((n: SerializedNotebook) => deserialize(n)),
+      (notebooks ?? []).map((n: SerializedNotebook) => deserialize(n)),
   }
 );

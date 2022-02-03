@@ -59,7 +59,21 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         break;
 
       case "notebook":
-        throw new NotImplementedError();
+        items.push(
+          <ContextMenuItem
+            text="New Notebook"
+            command="sidebar.createNotebook"
+            key="createNotebook"
+          />,
+          <ContextMenuItem
+            text="New Notebook"
+            command="sidebar.updateNotebook"
+            key="updateNotebook"
+            commandInput={id}
+          />
+        );
+        break;
+
       case "note":
         items.push(
           <ContextMenuItem

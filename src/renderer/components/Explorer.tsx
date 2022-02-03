@@ -123,6 +123,9 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       case "note":
         execute("sidebar.createNote");
         break;
+      case "notebook":
+        execute("sidebar.createNotebook");
+        break;
       default:
         throw new InvalidOpError(`New button clicked for type: '${opt}'`);
     }

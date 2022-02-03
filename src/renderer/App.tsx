@@ -11,6 +11,7 @@ import { Shortcut } from "../shared/domain/shortcut";
 import { FocusTracker } from "./components/shared/FocusTracker";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
+import { Notebook } from "../shared/domain/notebook";
 
 const { rpc } = window;
 (async () => {
@@ -19,13 +20,15 @@ const { rpc } = window;
   let ui: UI;
   let shortcuts: Shortcut[] = [];
   let tags: Tag[] = [];
+  let notebooks: Notebook[] = [];
   let notes: Note[] = [];
 
   try {
-    [ui, shortcuts, tags, notes] = await Promise.all([
+    [ui, shortcuts, tags, notebooks, notes] = await Promise.all([
       rpc("app.loadPreviousUIState"),
       rpc("shortcuts.getAll"),
       rpc("tags.getAll"),
+      rpc("notebooks.getAll"),
       rpc("notes.getAll"),
     ]);
   } catch (e) {
@@ -40,7 +43,7 @@ const { rpc } = window;
       ui,
       shortcuts,
       tags,
-      notebooks: [],
+      notebooks,
       notes,
     });
     useShortcuts(shortcuts, state, execute);
