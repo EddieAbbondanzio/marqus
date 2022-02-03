@@ -31,7 +31,7 @@ import { NavMenu } from "./shared/NavMenu";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { InvalidOpError } from "../../shared/errors";
-import { globalId, parseGlobalId } from "../../shared/domain/id";
+import { globalId, isGlobalId, parseGlobalId } from "../../shared/domain/id";
 import { Note, getNotesForTag } from "../../shared/domain/note";
 import { Notebook } from "../../shared/domain/notebook";
 import { Tag } from "../../shared/domain/tag";
@@ -60,6 +60,15 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     () => getExplorerItems(view, notes, notebooks, tags),
     [view, notes, notebooks, tags]
   );
+
+  // Sanity check
+  if (input != null && input.parentGlobalId != null) {
+    if (!isGlobalId(input.parentGlobalId)) {
+      throw new Error(
+        `Explorer input parent id must be a global id. Instead '${input.parentGlobalId}' was passed.`
+      );
+    }
+  }
 
   // Recursively renders
   const renderMenus = (

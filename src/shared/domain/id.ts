@@ -24,8 +24,12 @@ export function globalId(type: EntityType, id: string) {
   return `${type}.${id}`;
 }
 
+export function isGlobalId(globalId: string): boolean {
+  return /^(tag|notebook|note).[a-zA-Z0-9]{10}$/.test(globalId);
+}
+
 export function parseGlobalId(globalId: string): [EntityType, string] {
-  if (!/^(tag|notebook|note).[a-zA-Z0-9]{10}$/.test(globalId)) {
+  if (!isGlobalId(globalId)) {
     throw Error(`Invalid global id ${globalId}`);
   }
 

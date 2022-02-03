@@ -84,5 +84,4 @@ export function removeChild(parent: Notebook, child: Notebook) {
 
   parent.children.splice(index, 1);
   delete child.parent;
-  console.log("remove from index: ", index, " new children: ", parent.children);
 }

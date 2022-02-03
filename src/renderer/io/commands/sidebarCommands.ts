@@ -356,9 +356,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       await window.rpc("notebooks.delete", { id: notebook.id });
       ctx.setNotebooks((notebooks) => {
         if (notebook.parent != null) {
-          console.log("remove child!");
-          removeChild(notebook.parent, notebook);
-          console.log("return back: ", notebooks);
+          const parent = getNotebookById(notebooks, notebook.parent.id);
+          removeChild(parent, notebook);
           return [...notebooks];
         } else {
           return notebooks.filter((n) => n.id !== notebook.id);
