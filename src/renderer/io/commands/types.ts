@@ -53,9 +53,9 @@ export interface CommandSchema {
   "sidebar.createTag": Command;
   "sidebar.renameTag": Command<string>;
   "sidebar.deleteTag": Command<string>;
-  "sidebar.createNotebook": Command<string>;
-  "sidebar.updateNotebook": Command<string>;
-  "sidebar.createNote": Command<string>;
+  "sidebar.createNotebook": Command;
+  "sidebar.renameNotebook": Command<string>;
+  "sidebar.createNote": Command;
   "sidebar.renameNote": Command<string>;
   "sidebar.deleteNote": Command<string>;
   "sidebar.setSelection": Command<string[]>;

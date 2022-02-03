@@ -1,6 +1,7 @@
 import * as yup from "yup";
 import { string } from "yup/lib/locale";
 import {
+  addChild,
   getNotebookById,
   getNotebookSchema,
   Notebook,
@@ -20,22 +21,21 @@ const create: RpcHandler<"notebooks.create"> = async ({ name, parentId }) => {
     throw Error(`Notebook name ${name} already in use`);
   }
 
-  let parent;
-  if (parentId != null) {
-    parent = getNotebookById(notebooks, parentId);
-  }
-
   const notebook: Notebook = {
     id: uuid(),
     type: "notebook",
     name,
     dateCreated: new Date(),
-    parent,
   };
 
-  notebooks.push(notebook);
-  await notebookFile.save(notebooks);
+  if (parentId != null) {
+    let parent = getNotebookById(notebooks, parentId);
+    addChild(parent, notebook);
+  } else {
+    notebooks.push(notebook);
+  }
 
+  await notebookFile.save(notebooks);
   return notebook;
 };
 
@@ -46,12 +46,6 @@ const update: RpcHandler<"notebooks.update"> = async ({
 }) => {
   const notebooks = await notebookFile.load();
   const notebook = getNotebookById(notebooks, id);
-
-  // Allow switching parents
-  if (parentId != null) {
-    let parent = getNotebookById(notebooks, parentId);
-    notebook.parent = parent;
-  }
 
   notebook.name = name;
   notebook.dateUpdated = new Date();

@@ -66,9 +66,9 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
             key="createNotebook"
           />,
           <ContextMenuItem
-            text="New Notebook"
-            command="sidebar.updateNotebook"
-            key="updateNotebook"
+            text="Rename"
+            command="sidebar.renameNotebook"
+            key="renameNotebook"
             commandInput={id}
           />
         );

@@ -255,8 +255,77 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
   },
-  "sidebar.updateNotebook": async (ctx) => {
-    console.log("UPDATE");
+  "sidebar.renameNotebook": async (ctx, id) => {
+    const state = ctx.getState();
+    let notebook = getNotebookById(state.notebooks, id!);
+    let siblings = (notebook.parent?.children ?? state.notebooks).filter(
+      (n) => n.id !== id!
+    );
+
+    let schema: yup.StringSchema = yup.reach(
+      getNotebookSchema(siblings),
+      "name"
+    );
+
+    let [input, completed] = createAwaitableInput(
+      { value: notebook.name, id: notebook.id, schema },
+      (value) =>
+        ctx.setUI({
+          sidebar: {
+            explorer: {
+              input: {
+                value,
+              },
+            },
+          },
+        })
+    );
+
+    ctx.setUI({
+      focused: ["sidebarInput"],
+      sidebar: {
+        explorer: {
+          input,
+          view: "notebooks",
+        },
+      },
+    });
+
+    const [value, action] = await completed;
+    if (action === "confirm") {
+      try {
+        const renamed = await window.rpc("notebooks.update", {
+          id: notebook.id,
+          name: value,
+        });
+        ctx.setNotebooks((notebooks) => {
+          if (notebook.parent == null) {
+            const index = notebooks.findIndex((n) => n.id === renamed.id);
+            notebooks.splice(index, 1, renamed);
+            console.log("renamed: ", renamed);
+          } else {
+            const parent = notebook.parent;
+            const index = parent.children!.findIndex(
+              (n) => n.id === renamed.id
+            );
+            parent.children!.splice(index, 1, renamed);
+            renamed.parent = parent;
+          }
+
+          return [...notebooks];
+        });
+      } catch (e) {
+        promptError(e.message);
+      }
+    }
+
+    ctx.setUI({
+      sidebar: {
+        explorer: {
+          input: undefined,
+        },
+      },
+    });
   },
   "sidebar.createNote": async (ctx) => {
     let state = ctx.getState();
