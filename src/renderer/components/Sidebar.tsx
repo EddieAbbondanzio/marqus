@@ -70,6 +70,12 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
             command="sidebar.renameNotebook"
             key="renameNotebook"
             commandInput={id}
+          />,
+          <ContextMenuItem
+            text="Delete"
+            command="sidebar.deleteNotebook"
+            commandInput={id}
+            key="deleteNotebook"
           />
         );
         break;

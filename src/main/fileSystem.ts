@@ -58,7 +58,11 @@ export function createFileHandler<Content>(
     throw Error(`Invalid file name ${name}`);
   }
 
-  let previous: Content;
+  /*
+   * Cache off last read state to save from having to load from file if
+   * nothing has changed.
+   */
+  let readCache: Content;
 
   const save: any = debounce(async (content?: Content): Promise<Content> => {
     if (content == null) {
@@ -75,15 +79,15 @@ export function createFileHandler<Content>(
     }
 
     await writeFile(name, c, "json");
-    previous = cloneDeep(content);
+    readCache = cloneDeep(content);
 
     return content;
   }, DEBOUNCE_INTERVAL_MS);
 
   const load = async () => {
     // File will never change unless we save it, so we can return cached state.
-    if (previous != null) {
-      return previous;
+    if (readCache != null) {
+      return readCache;
     }
     const content = await readFile(name, "json");
 

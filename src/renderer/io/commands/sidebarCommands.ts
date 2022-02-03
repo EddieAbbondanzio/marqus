@@ -2,17 +2,19 @@ import { createAwaitableInput } from "../../../shared/awaitableInput";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace, ExecutionContext } from "./types";
 import * as yup from "yup";
-import { NotFoundError } from "../../../shared/errors";
+import { NotFoundError, NotImplementedError } from "../../../shared/errors";
 import { ExplorerView } from "../../../shared/domain/state";
 import { clamp, create, head } from "lodash";
-import { parseGlobalId } from "../../../shared/domain/id";
+import { globalId, parseGlobalId } from "../../../shared/domain/id";
 import { getExplorerItems } from "../../components/Explorer";
 import { getNoteById, getNoteSchema, Note } from "../../../shared/domain/note";
 import { getTagById, getTagSchema, Tag } from "../../../shared/domain/tag";
 import {
+  addChild,
   getNotebookById,
   getNotebookSchema,
   Notebook,
+  removeChild,
 } from "../../../shared/domain/notebook";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
@@ -188,25 +190,27 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
 
     if (res.text === "Yes") {
       await window.rpc("tags.delete", { id: tag.id });
+      ctx.setTags((tags) => tags.filter((t) => t.id !== tag.id));
     }
   },
   "sidebar.createNotebook": async (ctx) => {
     const state = ctx.getState();
     const { selected } = state.ui.sidebar.explorer;
 
-    let parentGlobalId: string | undefined;
-    let parent: Notebook | undefined;
-
+    let parentId: string | undefined;
     if (selected != null && selected.length > 0) {
-      parentGlobalId = selected[0];
-      const [type, id] = parseGlobalId(parentGlobalId);
+      const [type, id] = parseGlobalId(selected[0]);
       if (type === "notebook") {
-        parent = getNotebookById(state.notebooks, id);
+        parentId = id;
       }
     }
 
+    let siblings =
+      parentId == null
+        ? state.notebooks
+        : getNotebookById(state.notebooks, parentId).children!;
     let schema: yup.StringSchema = yup.reach(
-      getNotebookSchema(parent?.children ?? state.notebooks),
+      getNotebookSchema(siblings),
       "name"
     );
 
@@ -224,6 +228,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         })
     );
 
+    let parentGlobalId =
+      parentId != null ? globalId("notebook", parentId) : undefined;
     ctx.setUI({
       focused: ["sidebarInput"],
       sidebar: {
@@ -242,9 +248,17 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       try {
         const notebook = await window.rpc("notebooks.create", {
           name: value,
-          parentId: parent?.id,
+          parentId,
         });
-        ctx.setNotebooks((notebooks) => [...notebooks, notebook]);
+        ctx.setNotebooks((notebooks) => {
+          if (parentId != null) {
+            const parent = getNotebookById(notebooks, parentId);
+            addChild(parent, notebook);
+            return [...notebooks];
+          } else {
+            return [...notebooks, notebook];
+          }
+        });
       } catch (e) {
         promptError(e.message);
       }
@@ -329,6 +343,28 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         },
       },
     });
+  },
+  "sidebar.deleteNotebook": async (ctx, id) => {
+    const { notebooks } = ctx.getState();
+    const notebook = getNotebookById(notebooks, id!);
+    const res = await promptConfirmAction(
+      "delete",
+      `notebook ${notebook.name}`
+    );
+
+    if (res.text === "Yes") {
+      await window.rpc("notebooks.delete", { id: notebook.id });
+      ctx.setNotebooks((notebooks) => {
+        if (notebook.parent != null) {
+          console.log("remove child!");
+          removeChild(notebook.parent, notebook);
+          console.log("return back: ", notebooks);
+          return [...notebooks];
+        } else {
+          return notebooks.filter((n) => n.id !== notebook.id);
+        }
+      });
+    }
   },
   "sidebar.createNote": async (ctx) => {
     let state = ctx.getState();
@@ -470,7 +506,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.deleteNote": async (ctx, id) => {
-    console.log("delete tag.");
+    throw new NotImplementedError();
   },
   "sidebar.setSelection": async (ctx, selected) => {
     ctx.setUI({
