@@ -1,4 +1,5 @@
 import { Note, getNotesForTag } from "./note";
+import { Tag } from "./tag";
 
 test("getNotesForTag() returns notes", () => {
   const n1 = {
@@ -14,7 +15,7 @@ test("getNotesForTag() returns notes", () => {
     tags: ["tag-a", "tag-b"],
   } as Note;
 
-  const matches = getNotesForTag([n1, n2, n3], "tag-a");
+  const matches = getNotesForTag([n1, n2, n3], { id: "tag-a" } as Tag);
   expect(matches).toHaveLength(2);
   expect(matches).toEqual([n1, n3]);
 });

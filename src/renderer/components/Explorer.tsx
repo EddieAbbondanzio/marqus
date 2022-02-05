@@ -32,7 +32,11 @@ import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { InvalidOpError } from "../../shared/errors";
 import { globalId, isGlobalId, parseGlobalId } from "../../shared/domain/id";
-import { Note, getNotesForTag } from "../../shared/domain/note";
+import {
+  Note,
+  getNotesForTag,
+  getNotesForNotebook,
+} from "../../shared/domain/note";
 import { Notebook } from "../../shared/domain/notebook";
 import { Tag } from "../../shared/domain/tag";
 
@@ -257,7 +261,7 @@ export function getExplorerItems(
     case "tags":
       tags.forEach((t) => {
         const id = globalId("tag", t.id);
-        const children = getNotesForTag(notes, t.id).map((n) => ({
+        const children = getNotesForTag(notes, t).map((n) => ({
           globalId: globalId("note", n.id),
           text: n.name,
         }));
@@ -284,6 +288,16 @@ export function getExplorerItems(
         if (n.children != null && n.children.length > 0) {
           n.children.forEach((n) => recursive(n, item));
         }
+
+        // Children are listed after nested notebooks
+        const itemNotes = getNotesForNotebook(notes, n);
+        item.children ??= [];
+        item.children.push(
+          ...itemNotes.map((n) => ({
+            globalId: globalId("note", n.id),
+            text: n.name,
+          }))
+        );
 
         if (parent == null) {
           items.push(item);

@@ -2,6 +2,8 @@ import { NotFoundError } from "../errors";
 import { Entity } from "./types";
 import * as yup from "yup";
 import { idSchema } from "./id";
+import { Tag } from "./tag";
+import { Notebook } from "./notebook";
 
 export enum NoteFlag {
   None,
@@ -45,6 +47,10 @@ export function getNoteById(notes: Note[], id: string): Note {
   return note;
 }
 
-export function getNotesForTag(notes: Note[], tagId: string) {
-  return notes.filter((n) => n.tags?.some((t) => t === tagId));
+export function getNotesForTag(notes: Note[], tag: Tag): Note[] {
+  return notes.filter((n) => n.tags?.some((t) => t === tag.id));
+}
+
+export function getNotesForNotebook(notes: Note[], notebook: Notebook): Note[] {
+  return notes.filter((n) => n.notebooks?.some((id) => id === notebook.id));
 }
