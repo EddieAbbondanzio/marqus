@@ -5,7 +5,7 @@ import * as yup from "yup";
 import { NotFoundError, NotImplementedError } from "../../../shared/errors";
 import { ExplorerView } from "../../../shared/domain/state";
 import { clamp, create, head } from "lodash";
-import { globalId, parseGlobalId } from "../../../shared/domain/id";
+import { resourceId, parseResourceId } from "../../../shared/domain/id";
 import { getExplorerItems } from "../../components/Explorer";
 import { getNoteById, getNoteSchema, Note } from "../../../shared/domain/note";
 import { getTagById, getTagSchema, Tag } from "../../../shared/domain/tag";
@@ -199,7 +199,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
 
     let parentId: string | undefined;
     if (selected != null && selected.length > 0) {
-      const [type, id] = parseGlobalId(selected[0]);
+      const [type, id] = parseResourceId(selected[0]);
       if (type === "notebook") {
         parentId = id;
       }
@@ -228,15 +228,13 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         })
     );
 
-    let parentGlobalId =
-      parentId != null ? globalId("notebook", parentId) : undefined;
     ctx.setUI({
       focused: ["sidebarInput"],
       sidebar: {
         explorer: {
           input: {
             ...input,
-            parentGlobalId,
+            parentId,
           },
           view: "notebooks",
         },
@@ -395,7 +393,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     let parentId;
     if (selected != null && selected.length > 0) {
       const firstSelected = head(selected)!;
-      const [type, id] = parseGlobalId(firstSelected);
+      const [type, id] = parseResourceId(firstSelected);
       parentId = firstSelected;
 
       switch (type) {
@@ -420,7 +418,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         explorer: {
           input: {
             ...input,
-            parentGlobalId: parentId,
+            parentId: parentId,
           },
           view,
         },
@@ -610,18 +608,18 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
   },
-  "sidebar.toggleExpanded": async (ctx, globalId) => {
+  "sidebar.toggleExpanded": async (ctx, id) => {
     ctx.setUI((prev) => {
       const { explorer } = prev.sidebar;
       if (explorer.expanded == null) {
-        explorer.expanded = [globalId!];
+        explorer.expanded = [id!];
       }
 
-      const exists = explorer.expanded.some((id) => id === globalId);
+      const exists = explorer.expanded.some((id) => id === id);
       if (exists) {
-        explorer.expanded = explorer.expanded.filter((id) => id !== globalId);
+        explorer.expanded = explorer.expanded.filter((id) => id !== id);
       } else {
-        explorer.expanded.push(globalId!);
+        explorer.expanded.push(id!);
       }
 
       return prev;

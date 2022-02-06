@@ -11,7 +11,7 @@ import { NAV_MENU_ATTRIBUTE } from "./ExplorerItems";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
 import { State } from "../../shared/domain/state";
-import { parseGlobalId } from "../../shared/domain/id";
+import { parseResourceId } from "../../shared/domain/id";
 
 export interface SidebarProps {
   state: State;
@@ -33,7 +33,7 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
       return [];
     }
 
-    const [type, id] = parseGlobalId(navMenuAttr);
+    const [type, id] = parseResourceId(navMenuAttr);
     const items = [];
     switch (type) {
       case "tag":

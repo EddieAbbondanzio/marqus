@@ -1,30 +1,27 @@
-import { uuid } from "../../shared/domain/id";
-import { Note } from "../../shared/domain/note";
-import { readFile, writeFile } from "../fileSystem";
+import { createNote, Note } from "../../shared/domain/note";
+import { writeFile } from "../fileSystem";
 import { loadMetadata, saveMetadata } from "./notes";
 
 jest.mock("../fileSystem", () => ({
   writeFile: jest.fn(),
   readFile: (path: string) => {
     return JSON.parse(
-      JSON.stringify({
-        id: uuid(),
-        dateCreated: new Date(),
-        dateUpdated: new Date(),
-        name: "Foo",
-      })
+      JSON.stringify(
+        createNote({
+          dateUpdated: new Date(),
+          name: "Foo",
+        })
+      )
     );
   },
+  createDirectory: jest.fn(),
 }));
 
 test("saveMetadata", async () => {
-  const note: Note = {
-    id: uuid(),
-    type: "note",
-    dateCreated: new Date(),
+  const note = createNote({
+    name: "foo",
     dateUpdated: new Date(),
-    name: "Foo",
-  };
+  });
 
   await saveMetadata(note);
   expect(writeFile as jest.Mock).toBeCalled();
@@ -33,7 +30,7 @@ test("saveMetadata", async () => {
   expect(serialized).not.toHaveProperty("type");
   expect(serialized).toHaveProperty("dateCreated");
   expect(serialized).toHaveProperty("dateUpdated");
-  expect(serialized).toHaveProperty("name", "Foo");
+  expect(serialized).toHaveProperty("name", "foo");
 });
 
 test("loadMetadata", async () => {

@@ -2,16 +2,17 @@ import * as yup from "yup";
 import { string } from "yup/lib/locale";
 import {
   addChild,
+  createNotebook,
   getNotebookById,
   getNotebookSchema,
   Notebook,
   removeChild,
 } from "../../shared/domain/notebook";
-import { uuid } from "../../shared/domain/id";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import { createFileHandler } from "../fileSystem";
 import { NotFoundError } from "../../shared/errors";
 import moment from "moment";
+import { resourceId } from "../../shared/domain/id";
 
 const getAll = async (): Promise<Notebook[]> => notebookFile.load();
 
@@ -21,12 +22,9 @@ const create: RpcHandler<"notebooks.create"> = async ({ name, parentId }) => {
     throw Error(`Notebook name ${name} already in use`);
   }
 
-  const notebook: Notebook = {
-    id: uuid(),
-    type: "notebook",
+  const notebook = createNotebook({
     name,
-    dateCreated: new Date(),
-  };
+  });
 
   if (parentId != null) {
     let parent = getNotebookById(notebooks, parentId);

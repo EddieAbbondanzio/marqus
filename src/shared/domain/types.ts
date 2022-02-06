@@ -2,13 +2,13 @@ import { Note } from "./note";
 import { Notebook } from "./notebook";
 import { Tag } from "./tag";
 
-export interface Entity<Type extends EntityType> {
+export interface Resource<Type extends ResourceType> {
   id: string;
   type: Type;
   dateCreated: Date;
   dateUpdated?: Date;
 }
-export type EntityType = "tag" | "notebook" | "note";
+export type ResourceType = "tag" | "notebook" | "note";
 
 export function isTag(t: any): t is Tag {
   return t.type === "tag";

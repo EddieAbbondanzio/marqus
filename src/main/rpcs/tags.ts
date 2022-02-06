@@ -1,14 +1,13 @@
-import { RpcHandler, RpcRegistry, RpcSchema } from "../../shared/rpc";
-import { uuid } from "../../shared/domain/id";
+import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import { createFileHandler } from "../fileSystem";
 import * as yup from "yup";
-import { getTagSchema, Tag } from "../../shared/domain/tag";
-import { EntityType } from "../../shared/domain/types";
+import { createTag, getTagSchema, Tag } from "../../shared/domain/tag";
 import moment from "moment";
+import { resourceId } from "../../shared/domain/id";
 
 const getAllTags = async (): Promise<Tag[]> => tagFile.load();
 
-const createTag: RpcHandler<"tags.create"> = async ({
+const create: RpcHandler<"tags.create"> = async ({
   name,
 }: {
   name: string;
@@ -18,12 +17,9 @@ const createTag: RpcHandler<"tags.create"> = async ({
     throw Error(`Tag name ${name} already in use`);
   }
 
-  const tag: Tag = {
-    id: uuid(),
-    type: "tag",
+  const tag = createTag({
     name,
-    dateCreated: new Date(),
-  };
+  });
 
   tags.push(tag);
   await tagFile.save(tags);
@@ -68,7 +64,7 @@ const deleteTag = async ({ id }: { id: string }): Promise<void> => {
 
 export const tagRpcs: RpcRegistry<"tags"> = {
   "tags.getAll": getAllTags,
-  "tags.create": createTag,
+  "tags.create": create,
   "tags.update": updateTag,
   "tags.delete": deleteTag,
 };

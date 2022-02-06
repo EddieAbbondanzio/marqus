@@ -1,26 +1,14 @@
-import { uuid } from "./id";
 import {
   addChild,
+  createNotebook,
   getNotebookById,
   getNotebookSchema,
-  Notebook,
   removeChild,
 } from "./notebook";
 
 test("getNotebookSchema detects duplicate name and same parent", () => {
-  const notebook1: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "foo",
-    dateCreated: new Date(),
-  };
-  const notebook2: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "foo",
-    dateCreated: new Date(),
-  };
-
+  const notebook1 = createNotebook({ name: "foo" });
+  const notebook2 = createNotebook({ name: "foo" });
   const schema = getNotebookSchema([notebook1]);
   expect(() => {
     schema.validateSync(notebook2);
@@ -28,17 +16,10 @@ test("getNotebookSchema detects duplicate name and same parent", () => {
 });
 
 test("getNotebook schema recursively works on children", () => {
-  const parent: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "bar",
-    dateCreated: new Date(),
-  };
-  const notebook2: Notebook = {
-    id: uuid(),
-    type: "notebook",
-  } as Notebook;
-  addChild(parent, notebook2);
+  const parent = createNotebook({ name: "foo" });
+  const child = createNotebook({ name: "foo" });
+  child.name = null!;
+  addChild(parent, child);
 
   const schema = getNotebookSchema([parent]);
   expect(() => {
@@ -47,17 +28,14 @@ test("getNotebook schema recursively works on children", () => {
 });
 
 describe("getNotebookById()", () => {
-  const notebooks: Notebook[] = [
-    {
-      id: uuid(),
-      name: "horse",
-      children: [
-        { id: uuid(), name: "correct" } as Notebook,
-        { id: uuid(), name: "battery" } as Notebook,
-        { id: uuid(), name: "staple" } as Notebook,
-      ],
-    } as Notebook,
-  ];
+  const notebooks = [createNotebook({ name: "horse" })];
+  const child1 = createNotebook({ name: "correct" });
+  const child2 = createNotebook({ name: "battery" });
+  const child3 = createNotebook({ name: "staple" });
+
+  addChild(notebooks[0], child1);
+  addChild(notebooks[0], child2);
+  addChild(notebooks[0], child3);
 
   test("throws if no notebooks passed", () => {
     expect(() => {
@@ -83,42 +61,17 @@ describe("getNotebookById()", () => {
 });
 
 test("addChild", () => {
-  const parent: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "Parent",
-    dateCreated: new Date(),
-  };
-  const child: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "Child",
-    dateCreated: new Date(),
-  };
+  const parent = createNotebook({ name: "parent" });
+  const child = createNotebook({ name: "child" });
   addChild(parent, child);
   expect(parent.children).toHaveLength(1);
   expect(child.parent).toBe(parent);
 });
 
 test("removeChild", () => {
-  const parent: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "Parent",
-    dateCreated: new Date(),
-  };
-  const child1: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "Child",
-    dateCreated: new Date(),
-  };
-  const child2: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "Child",
-    dateCreated: new Date(),
-  };
+  const parent = createNotebook({ name: "parent" });
+  const child1 = createNotebook({ name: "child1" });
+  const child2 = createNotebook({ name: "child2" });
   addChild(parent, child1);
   addChild(parent, child2);
 

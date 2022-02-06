@@ -1,10 +1,11 @@
-import { NotFoundError } from "../errors";
-import { Entity } from "./types";
+import { InvalidOpError, NotFoundError } from "../errors";
+import { Resource } from "./types";
 import * as yup from "yup";
-import { idSchema } from "./id";
+import { idSchema, resourceId } from "./id";
 import { Tag } from "./tag";
 import { Notebook } from "./notebook";
 import { faFile } from "@fortawesome/free-solid-svg-icons";
+import { isBlank } from "../string";
 
 export enum NoteFlag {
   None,
@@ -13,11 +14,27 @@ export enum NoteFlag {
   UnsavedChanges = 1 << 3,
 }
 
-export interface Note extends Entity<"note"> {
+export interface Note extends Resource<"note"> {
   name: string;
   notebooks?: string[];
   tags?: string[];
   flags?: NoteFlag;
+}
+
+export function createNote(props: Partial<Note>): Note {
+  const note = {
+    ...props,
+  } as Note;
+
+  if (isBlank(note.name)) {
+    throw new InvalidOpError("Name is required.");
+  }
+
+  note.id ??= resourceId("note");
+  note.type ??= "note";
+  note.dateCreated ??= new Date();
+
+  return note;
 }
 
 export function getNoteSchema(notes: Note[] = []): yup.SchemaOf<Note> {

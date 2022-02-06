@@ -1,13 +1,35 @@
-import { NotFoundError } from "../errors";
-import { Entity } from "./types";
+import { InvalidOpError, NotFoundError } from "../errors";
+import { Resource } from "./types";
 import * as yup from "yup";
-import { idSchema } from "./id";
+import { idSchema, resourceId } from "./id";
+import { isBlank } from "../string";
 
-export interface Notebook extends Entity<"notebook"> {
+export interface Notebook extends Resource<"notebook"> {
   name: string;
   expanded?: boolean;
   parent?: Notebook;
   children?: Notebook[];
+}
+
+export function createNotebook(props: Partial<Notebook>): Notebook {
+  const notebook = {
+    ...props,
+  } as Notebook;
+
+  if (isBlank(notebook.name)) {
+    throw new InvalidOpError("Name is required.");
+  }
+
+  notebook.id ??= resourceId("notebook");
+  notebook.type ??= "notebook";
+  notebook.dateCreated ??= new Date();
+
+  // Assign parent ref if needed
+  if (notebook.children != null) {
+    notebook.children.forEach((c) => (c.parent = notebook));
+  }
+
+  return notebook;
 }
 
 // Only pass siblings of new notebook

@@ -12,7 +12,11 @@ import { ExplorerInput, ExplorerMenu } from "./ExplorerItems";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { InvalidOpError } from "../../shared/errors";
-import { globalId, isGlobalId, parseGlobalId } from "../../shared/domain/id";
+import {
+  resourceId,
+  isResourceId,
+  parseResourceId,
+} from "../../shared/domain/id";
 import {
   Note,
   getNotesForTag,
@@ -54,10 +58,10 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   );
 
   // Sanity check
-  if (input != null && input.parentGlobalId != null) {
-    if (!isGlobalId(input.parentGlobalId)) {
+  if (input != null && input.parentId != null) {
+    if (!isResourceId(input.parentId)) {
       throw new Error(
-        `Explorer input parent id must be a global id. Instead '${input.parentGlobalId}' was passed.`
+        `Explorer input parent id must be a global id. Instead '${input.parentId}' was passed.`
       );
     }
   }
@@ -71,7 +75,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     let rendered: JSX.Element[] = [];
 
     for (const item of items) {
-      const [, id] = parseGlobalId(item.globalId);
+      const [, id] = parseResourceId(item.id);
       let children;
       if (hasChildren(item, input)) {
         children = renderMenus(item.children ?? [], item, depth + 1);
@@ -88,21 +92,21 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
           />
         );
       } else {
-        const isExpanded = expanded?.some((id) => id === item.globalId);
+        const isExpanded = expanded?.some((id) => id === item.id);
 
         const onClick = () => {
           if (hasChildren(item)) {
-            execute("sidebar.toggleExpanded", item.globalId);
+            execute("sidebar.toggleExpanded", item.id);
           }
           // We always want to do this
-          execute("sidebar.setSelection", [item.globalId]);
+          execute("sidebar.setSelection", [item.id]);
         };
 
         rendered.push(
           <ExplorerMenu
-            id={item.globalId}
-            key={item.globalId}
-            selected={selected?.some((s) => s === item.globalId)}
+            id={item.id}
+            key={item.id}
+            selected={selected?.some((s) => s === item.id)}
             text={item.text}
             onClick={onClick}
             children={children}
@@ -115,7 +119,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     }
 
     if (input?.mode === "create") {
-      if (input?.parentGlobalId == parent?.globalId) {
+      if (input?.parentId == parent?.id) {
         rendered.push(
           <ExplorerInput
             name="sidebarInput"
@@ -231,10 +235,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
  * @returns True if there are any children or an input
  */
 export function hasChildren(item: ExplorerItem, input?: any): boolean {
-  return (
-    Boolean(item.children?.length ?? 0 > 0) ||
-    item.globalId === input?.parentGlobalId
-  );
+  return Boolean(item.children?.length ?? 0 > 0) || item.id === input?.parentId;
 }
 
 // Move this to a better spot later
@@ -250,42 +251,39 @@ export function getExplorerItems(
   switch (view) {
     case "all":
       notes.forEach((n) => {
-        const id = globalId("note", n.id);
         items.push({
-          globalId: id,
+          id: n.id,
           text: n.name,
           icon: NOTE_ICON,
         });
-        selectables.push(id);
+        selectables.push(n.id);
       });
       break;
 
     case "tags":
       tags.forEach((t) => {
-        const id = globalId("tag", t.id);
         const children = getNotesForTag(notes, t).map((n) => ({
-          globalId: globalId("note", n.id),
+          id: n.id,
           text: n.name,
           icon: NOTE_ICON,
         }));
 
         items.push({
-          globalId: id,
+          id: t.id,
           text: t.name,
           icon: TAG_ICON,
           children,
         });
-        selectables.push(id, ...children.map((c) => c.globalId));
+        selectables.push(t.id, ...children.map((c) => c.id));
       });
       break;
 
     case "notebooks":
       const recursive = (n: Notebook, parent?: ExplorerItem) => {
-        const id = globalId("notebook", n.id);
-        selectables.push(id);
+        selectables.push(n.id);
 
         const item: ExplorerItem = {
-          globalId: id,
+          id: n.id,
           text: n.name,
           icon: NOTEBOOK_ICON,
         };
@@ -299,7 +297,7 @@ export function getExplorerItems(
         item.children ??= [];
         item.children.push(
           ...itemNotes.map((n) => ({
-            globalId: globalId("note", n.id),
+            id: n.id,
             text: n.name,
             icon: NOTE_ICON,
           }))

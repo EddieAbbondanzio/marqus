@@ -44,11 +44,11 @@ export interface Explorer {
 }
 
 export interface ExplorerInput extends AwaitableInput {
-  parentGlobalId?: string;
+  parentId?: string;
 }
 
 export interface ExplorerItem {
-  globalId: string;
+  id: string;
   text: string;
   children?: ExplorerItem[];
   icon?: IconDefinition;

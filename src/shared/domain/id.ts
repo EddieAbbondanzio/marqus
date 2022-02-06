@@ -1,40 +1,34 @@
 import { customAlphabet } from "nanoid";
-import { Note } from "./note";
-import { ExplorerView, ExplorerItem } from "./state";
-import { EntityType } from "./types";
+import { ResourceType } from "./types";
 import * as yup from "yup";
 
-export const ID_LENGTH = 10;
-export const ID_ALPHABET =
+const ID_LENGTH = 10;
+const ID_ALPHABET =
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-// Do not rename to id() unless you never want to use const id = id()
-export const uuid = customAlphabet(ID_ALPHABET, ID_LENGTH);
+// Only use this for infrastructure code.
+export const _uuid = customAlphabet(ID_ALPHABET, ID_LENGTH);
+export const UUID_REGEX = /[a-zA-Z0-9]{10}$/;
+const RESOURCE_REGEX = /^(tag|notebook|note).[a-zA-Z0-9]{10}$/;
 
-/**
- * Check if a string matches the uuid format being used.
- * @param id The id to test.
- * @returns True if the string is a v4 uuid.
- */
-export function isId(id: string): boolean {
-  return /^[a-zA-Z\d]{10}$/.test(id);
+export function resourceId(type: ResourceType, id?: string) {
+  return `${type}.${id ?? _uuid()}`;
 }
 
-export function globalId(type: EntityType, id: string) {
-  return `${type}.${id}`;
+export function isResourceId(id: string): boolean {
+  return RESOURCE_REGEX.test(id);
 }
 
-export function isGlobalId(globalId: string): boolean {
-  return /^(tag|notebook|note).[a-zA-Z0-9]{10}$/.test(globalId);
-}
-
-export function parseGlobalId(globalId: string): [EntityType, string] {
-  if (!isGlobalId(globalId)) {
-    throw Error(`Invalid global id ${globalId}`);
+export function parseResourceId(id: string): [ResourceType, string] {
+  if (!isResourceId(id)) {
+    throw Error(`Invalid global id ${id}`);
   }
 
-  const split = globalId.split(".") as [EntityType, string];
+  const split = id.split(".") as [ResourceType, string];
   return split;
 }
 
-export const idSchema = yup.string().required().test(isId);
+export const idSchema = yup
+  .string()
+  .required()
+  .test((val) => UUID_REGEX.test(val ?? ""));

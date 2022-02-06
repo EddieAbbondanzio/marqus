@@ -8,9 +8,14 @@ import {
 } from "../fileSystem";
 import * as path from "path";
 import { NotFoundError } from "../../shared/errors";
-import { isId, uuid } from "../../shared/domain/id";
-import { getNoteSchema, Note } from "../../shared/domain/note";
+import { createNote, getNoteSchema, Note } from "../../shared/domain/note";
 import moment from "moment";
+import {
+  isResourceId,
+  parseResourceId,
+  resourceId,
+  UUID_REGEX,
+} from "../../shared/domain/id";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
@@ -34,7 +39,7 @@ export const noteRpcs: RpcRegistry<"notes"> = {
     const entries = await readDirectory(NOTES_DIRECTORY);
     for (const entry of entries) {
       // We only care about note directoties
-      if (!entry.isDirectory() || !isId(entry.name)) {
+      if (!entry.isDirectory() || !UUID_REGEX.test(entry.name)) {
         continue;
       }
 
@@ -49,14 +54,9 @@ export const noteRpcs: RpcRegistry<"notes"> = {
       await createDirectory(NOTES_DIRECTORY);
     }
 
-    const note: Note = {
-      id: uuid(),
-      type: "note",
-      dateCreated: new Date(),
+    const note = createNote({
       name,
-      tags: [],
-      notebooks: [],
-    };
+    });
 
     if (notebook != null) {
       note.notebooks!.push(notebook);
@@ -65,7 +65,6 @@ export const noteRpcs: RpcRegistry<"notes"> = {
       note.tags!.push(tag);
     }
 
-    await createDirectory(path.join(NOTES_DIRECTORY, note.id));
     await saveMetadata(note);
 
     return note;
@@ -90,9 +89,12 @@ export const noteRpcs: RpcRegistry<"notes"> = {
 };
 
 export async function saveMetadata(note: Note): Promise<void> {
-  const metadataPath = path.join(NOTES_DIRECTORY, note.id, METADATA_FILE_NAME);
+  const [, rawId] = parseResourceId(note.id);
+  await createDirectory(path.join(NOTES_DIRECTORY, rawId));
+
+  const metadataPath = path.join(NOTES_DIRECTORY, rawId, METADATA_FILE_NAME);
   const { type, ...metadata } = note;
-  
+
   await writeFile(metadataPath, metadata, "json");
 }
 
@@ -103,11 +105,10 @@ export async function loadMetadata(noteId: string): Promise<Note> {
     "json"
   );
 
-  const note: Note = {
-    type: "note",
+  const note = createNote({
     dateCreated: moment(dateCreated).toDate(),
     ...props,
-  };
+  });
 
   if (dateUpdated != null) {
     note.dateUpdated = moment(dateUpdated).toDate();

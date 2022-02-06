@@ -1,26 +1,15 @@
-import { uuid } from "../../shared/domain/id";
-import { addChild, Notebook } from "../../shared/domain/notebook";
+import { resourceId } from "../../shared/domain/id";
+import {
+  addChild,
+  createNotebook,
+  Notebook,
+} from "../../shared/domain/notebook";
 import { deserialize, serialize, SerializedNotebook } from "./notebooks";
 
 test("serialize is recursive", () => {
-  const parent: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "Parent",
-    dateCreated: new Date(),
-  };
-  const child1: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "Parent",
-    dateCreated: new Date(),
-  };
-  const child2: Notebook = {
-    id: uuid(),
-    type: "notebook",
-    name: "Parent",
-    dateCreated: new Date(),
-  };
+  const parent = createNotebook({ name: "parent " });
+  const child1 = createNotebook({ name: "child" });
+  const child2 = createNotebook({ name: "child" });
   addChild(parent, child1);
   addChild(parent, child2);
 
@@ -36,18 +25,18 @@ test("serialize is recursive", () => {
 
 test("deserialize is recursive", () => {
   const parent: SerializedNotebook = {
-    id: uuid(),
+    id: resourceId("notebook").split(".")[1],
     name: "Parent",
     dateCreated: new Date(),
     dateUpdated: new Date(),
     children: [
       {
-        id: uuid(),
+        id: resourceId("notebook").split(".")[1],
         name: "Parent",
         dateCreated: new Date(),
       },
       {
-        id: uuid(),
+        id: resourceId("notebook").split(".")[1],
         name: "Parent",
         dateCreated: new Date(),
       },

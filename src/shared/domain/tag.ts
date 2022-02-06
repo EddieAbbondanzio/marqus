@@ -1,10 +1,27 @@
-import { NotFoundError } from "../errors";
-import { Entity } from "./types";
+import { InvalidOpError, NotFoundError } from "../errors";
+import { Resource } from "./types";
 import * as yup from "yup";
-import { idSchema } from "./id";
+import { idSchema, resourceId } from "./id";
+import { isBlank } from "../string";
 
-export interface Tag extends Entity<"tag"> {
+export interface Tag extends Resource<"tag"> {
   name: string;
+}
+
+export function createTag(props: Partial<Tag>): Tag {
+  const tag = {
+    ...props,
+  } as Tag;
+
+  if (isBlank(tag.name)) {
+    throw new InvalidOpError("Name is required.");
+  }
+
+  tag.id ??= resourceId("tag");
+  tag.type ??= "tag";
+  tag.dateCreated ??= new Date();
+
+  return tag;
 }
 
 export function getTagSchema(tags: Tag[] = []): yup.SchemaOf<Tag> {
