@@ -3,18 +3,12 @@ import {
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useMemo } from "react";
-import {
-  ExplorerView,
-  State,
-  ExplorerInput,
-  ExplorerItem,
-} from "../../shared/domain/state";
+import { ExplorerView, State, ExplorerItem } from "../../shared/domain/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { NewButton, NewButtonOption } from "./NewButton";
 import { Icon } from "./shared/Icon";
-import { InlineInput } from "./shared/InlineInput";
-import { NavMenu } from "./shared/NavMenu";
+import { ExplorerInput, ExplorerMenu } from "./ExplorerItems";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
 import { InvalidOpError } from "../../shared/errors";
@@ -85,11 +79,12 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
 
       if (input?.mode === "update" && input.id === id) {
         rendered.push(
-          <InlineInput
+          <ExplorerInput
             name="sidebarInput"
             key="create"
             size="is-small"
             {...input}
+            depth={depth}
           />
         );
       } else {
@@ -104,7 +99,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         };
 
         rendered.push(
-          <NavMenu
+          <ExplorerMenu
             id={item.globalId}
             key={item.globalId}
             selected={selected?.some((s) => s === item.globalId)}
@@ -122,11 +117,12 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     if (input?.mode === "create") {
       if (input?.parentGlobalId == parent?.globalId) {
         rendered.push(
-          <InlineInput
+          <ExplorerInput
             name="sidebarInput"
             key="create"
             size="is-small"
             {...input}
+            depth={depth}
           />
         );
       }
@@ -234,10 +230,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
  * include nested inputs.
  * @returns True if there are any children or an input
  */
-export function hasChildren(
-  item: ExplorerItem,
-  input?: ExplorerInput
-): boolean {
+export function hasChildren(item: ExplorerItem, input?: any): boolean {
   return (
     Boolean(item.children?.length ?? 0 > 0) ||
     item.globalId === input?.parentGlobalId
