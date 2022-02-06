@@ -1,22 +1,9 @@
 import {
-  faFile,
-  faBook,
-  faTag,
-  faStar,
-  faClock,
-  faTrash,
   faAngleDoubleDown,
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import React, { useMemo } from "react";
 import {
-  UI,
   ExplorerView,
   State,
   ExplorerInput,
@@ -39,6 +26,13 @@ import {
 } from "../../shared/domain/note";
 import { Notebook } from "../../shared/domain/notebook";
 import { Tag } from "../../shared/domain/tag";
+import {
+  FAVORITE_ICON,
+  NOTEBOOK_ICON,
+  NOTE_ICON,
+  TAG_ICON,
+  TRASH_ICON,
+} from "../libs/fontAwesome";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -58,7 +52,7 @@ export interface ExplorerProps {
 export function Explorer({ state, setUI, execute }: ExplorerProps) {
   const { notes, tags, notebooks } = state;
   const { explorer } = state.ui.sidebar;
-  const { input, view, selected } = explorer;
+  const { input, view, selected, expanded } = explorer;
 
   const [items] = useMemo(
     () => getExplorerItems(view, notes, notebooks, tags),
@@ -98,14 +92,26 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
           />
         );
       } else {
+        const isExpanded = expanded?.some((id) => id === item.globalId);
+
+        const onClick = () => {
+          if (hasChildren(item)) {
+            execute("sidebar.toggleExpanded", item.globalId);
+          } else {
+            execute("sidebar.setSelection", [item.globalId]);
+          }
+        };
+
         rendered.push(
           <NavMenu
             id={item.globalId}
             key={item.globalId}
             selected={selected?.some((s) => s === item.globalId)}
             text={item.text}
-            onClick={() => execute("sidebar.setSelection", [item.globalId])}
+            onClick={onClick}
             children={children}
+            icon={item.icon}
+            expanded={isExpanded}
           />
         );
       }
@@ -150,31 +156,31 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     <div className="is-flex is-flex-grow-1 is-flex-direction-column h-100">
       <Tabs alignment="is-centered" className="mb-2">
         <Tab title="All" isActive={view === "all"} onClick={setView("all")}>
-          <Icon icon={faFile} />
+          <Icon icon={NOTE_ICON} />
         </Tab>
         <Tab
           title="Notebooks"
           isActive={view === "notebooks"}
           onClick={setView("notebooks")}
         >
-          <Icon icon={faBook} />
+          <Icon icon={NOTEBOOK_ICON} />
         </Tab>
         <Tab title="Tags" isActive={view === "tags"} onClick={setView("tags")}>
-          <Icon icon={faTag} />
+          <Icon icon={TAG_ICON} />
         </Tab>
         <Tab
           title="Favorites"
           isActive={view === "favorites"}
           onClick={setView("favorites")}
         >
-          <Icon icon={faStar} />
+          <Icon icon={FAVORITE_ICON} />
         </Tab>
         <Tab
           title="Trash"
           isActive={view === "trash"}
           onClick={setView("trash")}
         >
-          <Icon icon={faTrash} />
+          <Icon icon={TRASH_ICON} />
         </Tab>
       </Tabs>
 
@@ -253,6 +259,7 @@ export function getExplorerItems(
         items.push({
           globalId: id,
           text: n.name,
+          icon: NOTE_ICON,
         });
         selectables.push(id);
       });
@@ -264,11 +271,13 @@ export function getExplorerItems(
         const children = getNotesForTag(notes, t).map((n) => ({
           globalId: globalId("note", n.id),
           text: n.name,
+          icon: NOTE_ICON,
         }));
 
         items.push({
           globalId: id,
           text: t.name,
+          icon: TAG_ICON,
           children,
         });
         selectables.push(id, ...children.map((c) => c.globalId));
@@ -283,6 +292,7 @@ export function getExplorerItems(
         const item: ExplorerItem = {
           globalId: id,
           text: n.name,
+          icon: NOTEBOOK_ICON,
         };
 
         if (n.children != null && n.children.length > 0) {
@@ -296,6 +306,7 @@ export function getExplorerItems(
           ...itemNotes.map((n) => ({
             globalId: globalId("note", n.id),
             text: n.name,
+            icon: NOTE_ICON,
           }))
         );
 

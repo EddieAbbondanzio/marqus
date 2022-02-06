@@ -610,4 +610,21 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
   },
+  "sidebar.toggleExpanded": async (ctx, globalId) => {
+    ctx.setUI((prev) => {
+      const { explorer } = prev.sidebar;
+      if (explorer.expanded == null) {
+        explorer.expanded = [globalId!];
+      }
+
+      const exists = explorer.expanded.some((id) => id === globalId);
+      if (exists) {
+        explorer.expanded = explorer.expanded.filter((id) => id !== globalId);
+      } else {
+        explorer.expanded.push(globalId!);
+      }
+
+      return prev;
+    });
+  },
 };

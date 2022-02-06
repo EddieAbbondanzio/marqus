@@ -1,10 +1,13 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faCaretDown, faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import React, { useEffect, useMemo, useRef } from "react";
 import { PropsWithChildren } from "react";
 import { classList, px } from "../../../shared/dom";
 import { Icon } from "./Icon";
 
 export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
+export const COLLAPSED_ICON = faCaretRight;
+export const EXPANDED_ICON = faCaretDown;
 
 export interface NavMenuProps {
   id: string;
@@ -13,6 +16,7 @@ export interface NavMenuProps {
   collapsed?: boolean;
   selected?: boolean;
   onClick?: () => any;
+  expanded?: boolean;
 }
 
 export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
@@ -20,6 +24,7 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
     "nav-menu-trigger",
     "is-flex",
     "is-align-items-center",
+    "has-background-primary-hover",
     { "has-background-primary": props.selected }
   );
 
@@ -30,11 +35,17 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
     "is-flex-direction-column"
   );
 
-  const onClick = (ev: React.MouseEvent<HTMLDivElement>) => {
+  const onClick = (ev: React.MouseEvent<HTMLElement>) => {
     // Support nested nav menus
     ev.stopPropagation();
     props.onClick?.();
   };
+
+  // Override icon to expanded / collapsed if we have children
+  let icon = props.icon;
+  if (props.children != null) {
+    icon = props.expanded ? EXPANDED_ICON : COLLAPSED_ICON;
+  }
 
   return (
     <div
@@ -42,13 +53,13 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
       onClick={onClick}
       {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
     >
-      <div className={triggerClasses} style={{ height: px(30) }}>
+      <a className={triggerClasses} style={{ height: px(30) }}>
         <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
-          {props.icon != null && <Icon icon={props.icon} className="mr-1" />}
+          {icon != null && <Icon icon={icon} className="mr-1" />}
           <span>{props.text}</span>
         </div>
-      </div>
-      {props.children}
+      </a>
+      {props.expanded && props.children}
     </div>
   );
 }

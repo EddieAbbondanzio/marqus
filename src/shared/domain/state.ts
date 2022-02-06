@@ -1,3 +1,4 @@
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { AwaitableInput } from "../awaitableInput";
 import { Note } from "./note";
 import { Notebook } from "./notebook";
@@ -39,6 +40,7 @@ export interface Explorer {
   view: ExplorerView;
   input?: ExplorerInput;
   selected?: string[];
+  expanded?: string[];
 }
 
 export interface ExplorerInput extends AwaitableInput {
@@ -49,6 +51,7 @@ export interface ExplorerItem {
   globalId: string;
   text: string;
   children?: ExplorerItem[];
+  icon?: IconDefinition;
 }
 
 export type ExplorerView =
