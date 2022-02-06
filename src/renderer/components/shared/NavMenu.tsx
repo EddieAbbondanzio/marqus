@@ -5,6 +5,8 @@ import { PropsWithChildren } from "react";
 import { classList, px } from "../../../shared/dom";
 import { Icon } from "./Icon";
 
+// Keep consistent with icon width in index.sass
+export const NAV_MENU_INDENT = 16;
 export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
 export const COLLAPSED_ICON = faCaretRight;
 export const EXPANDED_ICON = faCaretDown;
@@ -17,6 +19,7 @@ export interface NavMenuProps {
   selected?: boolean;
   onClick?: () => any;
   expanded?: boolean;
+  depth: number;
 }
 
 export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
@@ -53,9 +56,15 @@ export function NavMenu(props: PropsWithChildren<NavMenuProps>) {
       onClick={onClick}
       {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
     >
-      <a className={triggerClasses} style={{ height: px(30) }}>
-        <div className="px-2 is-flex is-flex-row is-align-items-center has-text-dark is-size-7">
-          {icon != null && <Icon icon={icon} className="mr-1" />}
+      <a
+        className={triggerClasses}
+        style={{
+          height: px(30),
+          paddingLeft: px(props.depth * NAV_MENU_INDENT),
+        }}
+      >
+        <div className="is-flex is-flex-row is-align-items-center has-text-dark is-size-7 w-100">
+          {icon != null && <Icon icon={icon} />}
           <span>{props.text}</span>
         </div>
       </a>

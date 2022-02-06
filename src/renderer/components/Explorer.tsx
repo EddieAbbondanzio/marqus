@@ -71,7 +71,8 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
   // Recursively renders
   const renderMenus = (
     items: ExplorerItem[],
-    parent?: ExplorerItem
+    parent?: ExplorerItem,
+    depth: number = 0
   ): JSX.Element[] => {
     let rendered: JSX.Element[] = [];
 
@@ -79,7 +80,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       const [, id] = parseGlobalId(item.globalId);
       let children;
       if (hasChildren(item, input)) {
-        children = renderMenus(item.children ?? [], item);
+        children = renderMenus(item.children ?? [], item, depth + 1);
       }
 
       if (input?.mode === "update" && input.id === id) {
@@ -97,9 +98,9 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         const onClick = () => {
           if (hasChildren(item)) {
             execute("sidebar.toggleExpanded", item.globalId);
-          } else {
-            execute("sidebar.setSelection", [item.globalId]);
           }
+          // We always want to do this
+          execute("sidebar.setSelection", [item.globalId]);
         };
 
         rendered.push(
@@ -112,6 +113,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
             children={children}
             icon={item.icon}
             expanded={isExpanded}
+            depth={depth}
           />
         );
       }
