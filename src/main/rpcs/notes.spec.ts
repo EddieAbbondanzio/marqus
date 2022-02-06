@@ -4,7 +4,7 @@ import { loadMetadata, saveMetadata } from "./notes";
 
 jest.mock("../fileSystem", () => ({
   writeFile: jest.fn(),
-  readFile: (path: string) => {
+  readFile: () => {
     return JSON.parse(
       JSON.stringify(
         createNote({

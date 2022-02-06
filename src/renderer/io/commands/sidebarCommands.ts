@@ -1,19 +1,18 @@
 import { createAwaitableInput } from "../../../shared/awaitableInput";
 import { promptConfirmAction, promptError } from "../../utils/prompt";
-import { CommandsForNamespace, ExecutionContext } from "./types";
+import { CommandsForNamespace } from "./types";
 import * as yup from "yup";
-import { NotFoundError, NotImplementedError } from "../../../shared/errors";
+import { NotImplementedError } from "../../../shared/errors";
 import { ExplorerView } from "../../../shared/domain/state";
-import { clamp, create, head } from "lodash";
-import { resourceId, parseResourceId } from "../../../shared/domain/id";
+import { clamp, head } from "lodash";
+import { parseResourceId } from "../../../shared/domain/id";
 import { getExplorerItems } from "../../components/Explorer";
-import { getNoteById, getNoteSchema, Note } from "../../../shared/domain/note";
-import { getTagById, getTagSchema, Tag } from "../../../shared/domain/tag";
+import { getNoteById, getNoteSchema } from "../../../shared/domain/note";
+import { getTagById, getTagSchema } from "../../../shared/domain/tag";
 import {
   addChild,
   getNotebookById,
   getNotebookSchema,
-  Notebook,
   removeChild,
 } from "../../../shared/domain/notebook";
 
@@ -201,7 +200,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     if (selected != null && selected.length > 0) {
       const [type, id] = parseResourceId(selected[0]);
       if (type === "notebook") {
-        parentId = id;
+        parentId = selected[0];
       }
     }
 
@@ -516,7 +515,18 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.clearSelection": async (ctx) => {
-    console.log("clear!");
+    const {
+      ui: {
+        sidebar: {
+          explorer: { selected },
+        },
+      },
+    } = ctx.getState();
+
+    if (selected == null || selected.length == 0) {
+      return;
+    }
+
     ctx.setUI({
       sidebar: {
         explorer: {
