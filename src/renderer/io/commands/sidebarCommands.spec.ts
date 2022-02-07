@@ -289,10 +289,11 @@ test("sidebar.setExplorerView", () => {
   expect(state.ui.sidebar.explorer.view).toBe("favorites");
 });
 
-test("sidebar.toggleExpanded", () => {
+test("sidebar.toggleExpanded collapses", () => {
   let notebook = resourceId("notebook");
+  let tag = resourceId("tag");
 
-  initialState.ui.sidebar.explorer.expanded = [notebook];
+  initialState.ui.sidebar.explorer.expanded = [notebook, tag];
   const { result } = renderHook(() => useCommands(initialState));
   act(() => {
     const [, execute] = result.current;
@@ -300,7 +301,7 @@ test("sidebar.toggleExpanded", () => {
   });
 
   const [state] = result.current;
-  expect(state.ui.sidebar.explorer.expanded).toEqual([]);
+  expect(state.ui.sidebar.explorer.expanded).toEqual([tag]);
 });
 
 test("sidebar.createTag creates on confirm", async () => {

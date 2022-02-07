@@ -653,15 +653,18 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
 
     ctx.setUI((prev) => {
       const { explorer } = prev.sidebar;
-      if (explorer.expanded == null) {
-        explorer.expanded = [id!];
+      if (explorer.expanded == null || explorer.expanded.length == 0) {
+        explorer.expanded = [id];
+        return prev;
       }
 
-      const exists = explorer.expanded.some((id) => id === id);
+      const exists = explorer.expanded.some((expandedId) => expandedId === id);
       if (exists) {
-        explorer.expanded = explorer.expanded.filter((id) => id !== id);
+        explorer.expanded = explorer.expanded.filter(
+          (expandedId) => expandedId !== id
+        );
       } else {
-        explorer.expanded.push(id!);
+        explorer.expanded.push(id);
       }
 
       return prev;

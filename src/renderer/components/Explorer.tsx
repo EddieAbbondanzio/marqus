@@ -97,6 +97,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         const onClick = (button: MouseButton) => {
           if (button & MouseButton.Left && hasChildren(item, input)) {
             execute("sidebar.toggleExpanded", item.id);
+            console.log("toggle: ", item);
           }
           // We always want to do this
           execute("sidebar.setSelection", [item.id]);

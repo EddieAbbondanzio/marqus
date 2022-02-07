@@ -1,8 +1,10 @@
+import { MouseEvent } from "react";
 import {
   DEFAULT_CURSOR,
   getDetails,
   MouseButton,
   MouseController,
+  MouseEventOpts,
   MouseModifier,
 } from "./mouse";
 
@@ -54,8 +56,11 @@ describe("MouseController", () => {
       button: MouseButton.Left,
       modifier: MouseModifier.None,
     });
-    c.notify({} as any, "click", MouseButton.Left);
-    expect(cb).toHaveBeenCalled();
+
+    const event = {};
+
+    c.notify(event as any, "click", MouseButton.Left);
+    expect(cb).toHaveBeenCalledWith(event, MouseButton.Left);
   });
 
   test("it skips listeners with the wrong button", () => {
