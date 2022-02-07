@@ -75,13 +75,12 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
     let rendered: JSX.Element[] = [];
 
     for (const item of items) {
-      const [, id] = parseResourceId(item.id);
       let children;
       if (hasChildren(item, input)) {
         children = renderMenus(item.children ?? [], item, depth + 1);
       }
 
-      if (input?.mode === "update" && input.id === id) {
+      if (input?.mode === "update" && input.id === item.id) {
         rendered.push(
           <ExplorerInput
             name="sidebarInput"
@@ -95,7 +94,7 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
         const isExpanded = expanded?.some((id) => id === item.id);
 
         const onClick = () => {
-          if (hasChildren(item)) {
+          if (hasChildren(item, input)) {
             execute("sidebar.toggleExpanded", item.id);
           }
           // We always want to do this

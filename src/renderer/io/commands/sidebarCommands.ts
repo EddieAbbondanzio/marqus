@@ -206,7 +206,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
 
     let parentId: string | undefined;
     if (selected != null && selected.length > 0) {
-      const [type, id] = parseResourceId(selected[0]);
+      const [type] = parseResourceId(selected[0]);
       if (type === "notebook") {
         parentId = selected[0];
       }
@@ -235,17 +235,27 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         })
     );
 
-    ctx.setUI({
-      focused: ["sidebarInput"],
-      sidebar: {
-        explorer: {
-          input: {
-            ...input,
-            parentId,
+    ctx.setUI((prev) => {
+      // Auto expand parent if one was passed.
+      let expanded = prev.sidebar.explorer.expanded;
+      if (parentId != null && !expanded?.some((id) => id === parentId)) {
+        expanded ??= [];
+        expanded?.push(parentId);
+      }
+
+      return {
+        focused: ["sidebarInput"],
+        sidebar: {
+          explorer: {
+            expanded,
+            input: {
+              ...input,
+              parentId,
+            },
+            view: "notebooks",
           },
-          view: "notebooks",
         },
-      },
+      };
     });
 
     const [value, action] = await completed;
