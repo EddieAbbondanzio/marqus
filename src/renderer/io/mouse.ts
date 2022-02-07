@@ -43,7 +43,15 @@ export type Cursor =
   | "zoom-in"
   | "zoom-out";
 
-export type MouseButton = "left" | "right";
+// export type MouseButton = "left" | "right";
+
+export enum MouseButton {
+  None = 0,
+  Left = 1 << 1,
+  Right = 1 << 2,
+  Any = ~(~0 << 3),
+}
+
 export type MouseEventType =
   | "mouseOver"
   | "mouseEnter"
@@ -72,7 +80,7 @@ export type MouseListenOpts =
   | { event: "click"; button?: MouseButton; modifier?: MouseModifier }
   | { event: Exclude<MouseEventType, "click"> };
 
-export type MouseCallback = (ev: MouseEvent) => void;
+export type MouseCallback = (ev: MouseEvent, button?: MouseButton) => void;
 
 export interface Mouse {
   listen(opts: MouseListenOpts, callback: MouseCallback): void;
@@ -198,7 +206,7 @@ export class MouseController implements Mouse {
     if (opts.event === "click") {
       this.listeners[opts.event] = {
         callback,
-        button: opts.button ?? "left",
+        button: opts.button ?? MouseButton.Any,
         modifier: opts.modifier ?? MouseModifier.None,
       };
     } else {
@@ -223,8 +231,7 @@ export class MouseController implements Mouse {
       if (button == null) {
         throw Error(`Click event requires button`);
       }
-
-      if (listener.button !== button) {
+      if ((listener.button! & button) == MouseButton.None) {
         // console.log("Button not a match", {
         //   listener: listener.button,
         //   button,
@@ -240,7 +247,7 @@ export class MouseController implements Mouse {
       }
     }
 
-    listener.callback(event);
+    listener.callback(event, button);
   }
 
   async cursor(cursorIcon: Cursor, cb: () => Promise<any>) {
@@ -263,10 +270,10 @@ export function getDetails(ev: MouseEvent): [MouseButton, MouseModifier] {
   let button: MouseButton;
   switch (ev.button) {
     case 0:
-      button = "left";
+      button = MouseButton.Left; // "left";
       break;
     case 2:
-      button = "right";
+      button = MouseButton.Right; // "right";
       break;
     default:
       throw new InvalidOpError(`Unknown mouse button ${ev.button}`);

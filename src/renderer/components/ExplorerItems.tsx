@@ -11,6 +11,7 @@ import { BulmaSize } from "../shared";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import * as yup from "yup";
+import { MouseButton, useMouse } from "../io/mouse";
 
 export const NAV_MENU_HEIGHT = 30;
 // Keep consistent with icon width in index.sass
@@ -25,7 +26,7 @@ export interface ExplorerMenuProps {
   text: string;
   collapsed?: boolean;
   selected?: boolean;
-  onClick?: () => any;
+  onClick?: (button: MouseButton) => any;
   expanded?: boolean;
   depth: number;
 }
@@ -46,30 +47,30 @@ export function ExplorerMenu(props: PropsWithChildren<ExplorerMenuProps>) {
     "is-flex-direction-column"
   );
 
-  const onClick = (ev: React.MouseEvent<HTMLElement>) => {
-    // Support nested nav menus
-    ev.stopPropagation();
-    props.onClick?.();
-  };
-
   // Override icon to expanded / collapsed if we have children
   let icon = props.icon;
   if (props.children != null) {
     icon = props.expanded ? EXPANDED_ICON : COLLAPSED_ICON;
   }
 
+  const triggerRef = useRef(null! as HTMLAnchorElement);
+  useMouse(triggerRef).listen(
+    { event: "click", button: MouseButton.Left | MouseButton.Right },
+    (ev, button) => {
+      ev.stopPropagation();
+      props.onClick?.(button!);
+    }
+  );
+
   return (
-    <div
-      className={wrapperClasses}
-      onClick={onClick}
-      {...{ [NAV_MENU_ATTRIBUTE]: props.id }}
-    >
+    <div className={wrapperClasses} {...{ [NAV_MENU_ATTRIBUTE]: props.id }}>
       <a
         className={triggerClasses}
         style={{
           height: px(30),
           paddingLeft: calculateIndent(props.depth),
         }}
+        ref={triggerRef}
       >
         <div className="is-flex is-flex-row is-align-items-center has-text-dark is-size-7 w-100">
           {icon != null && <Icon icon={icon} />}

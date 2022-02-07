@@ -21,38 +21,70 @@ export interface SidebarProps {
 
 export function Sidebar({ state, setUI, execute }: SidebarProps) {
   let contextMenuItems = (a: MouseEvent) => {
-    const navMenuAttr = findParent(
+    const items = [];
+    const { view } = state.ui.sidebar.explorer;
+    switch (view) {
+      case "tags":
+        items.push(
+          <ContextMenuItem
+            text="New tag"
+            command="sidebar.createTag"
+            key="createTag"
+          />
+        );
+        break;
+
+      case "notebooks":
+        items.push(
+          <ContextMenuItem
+            text="New Note"
+            command="sidebar.createNote"
+            key="createNote"
+          />,
+          <ContextMenuItem
+            text="New Notebook"
+            command="sidebar.createNotebook"
+            key="createNotebook"
+          />
+        );
+        break;
+
+      case "all":
+        items.push(
+          <ContextMenuItem
+            text="New Note"
+            command="sidebar.createNote"
+            key="createNote"
+          />
+        );
+        break;
+    }
+
+    const target = findParent(
       a.target as HTMLElement,
       (el) => el.hasAttribute(NAV_MENU_ATTRIBUTE),
       {
         matchValue: (el) => el.getAttribute(NAV_MENU_ATTRIBUTE),
       }
     );
-
-    if (navMenuAttr == null) {
-      return [];
+    if (target == null) {
+      return items;
     }
 
-    const [type, id] = parseResourceId(navMenuAttr);
-    const items = [];
-    switch (type) {
+    const [targetType] = parseResourceId(target);
+    switch (targetType) {
       case "tag":
         items.push(
           <ContextMenuItem
-            text="New tag"
-            command="sidebar.createTag"
-            key="createTag"
-          />,
-          <ContextMenuItem
             text="Rename"
             command="sidebar.renameTag"
-            commandInput={id}
+            commandInput={target}
             key="renameTag"
           />,
           <ContextMenuItem
             text="Delete"
             command="sidebar.deleteTag"
-            commandInput={id}
+            commandInput={target}
             key="deleteTag"
           />
         );
@@ -61,20 +93,15 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
       case "notebook":
         items.push(
           <ContextMenuItem
-            text="New Notebook"
-            command="sidebar.createNotebook"
-            key="createNotebook"
-          />,
-          <ContextMenuItem
             text="Rename"
             command="sidebar.renameNotebook"
             key="renameNotebook"
-            commandInput={id}
+            commandInput={target}
           />,
           <ContextMenuItem
             text="Delete"
             command="sidebar.deleteNotebook"
-            commandInput={id}
+            commandInput={target}
             key="deleteNotebook"
           />
         );
@@ -83,20 +110,15 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
       case "note":
         items.push(
           <ContextMenuItem
-            text="New Note"
-            command="sidebar.createNote"
-            key="createNote"
-          />,
-          <ContextMenuItem
             text="Rename"
             command="sidebar.renameNote"
-            commandInput={id}
+            commandInput={target}
             key="renameNote"
           />,
           <ContextMenuItem
             text="Delete"
             command="sidebar.deleteNote"
-            commandInput={id}
+            commandInput={target}
             key="deleteTag"
           />
         );

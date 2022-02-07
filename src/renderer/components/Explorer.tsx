@@ -31,6 +31,7 @@ import {
   TAG_ICON,
   TRASH_ICON,
 } from "../libs/fontAwesome";
+import { MouseButton } from "../io/mouse";
 
 export const EXPLORER_DESC: Record<ExplorerView, string> = {
   all: "All",
@@ -93,8 +94,8 @@ export function Explorer({ state, setUI, execute }: ExplorerProps) {
       } else {
         const isExpanded = expanded?.some((id) => id === item.id);
 
-        const onClick = () => {
-          if (hasChildren(item, input)) {
+        const onClick = (button: MouseButton) => {
+          if (button & MouseButton.Left && hasChildren(item, input)) {
             execute("sidebar.toggleExpanded", item.id);
           }
           // We always want to do this

@@ -304,6 +304,7 @@ test("sidebar.toggleExpanded", () => {
 });
 
 test("sidebar.createTag creates on confirm", async () => {
+  initialState.ui.sidebar.explorer.view = "all";
   const { result } = renderHook(() => useCommands(initialState));
   let commandCompleted: Promise<any>;
 
@@ -315,8 +316,9 @@ test("sidebar.createTag creates on confirm", async () => {
 
   await act(async () => {
     const [{ ui }] = result.current;
-    const { input } = ui.sidebar.explorer;
+    const { input, view } = ui.sidebar.explorer;
 
+    expect(view).toBe("tags");
     expect(input).not.toBe(undefined);
     input!.onInput("foo");
     input!.confirm();
@@ -333,6 +335,7 @@ test("sidebar.createTag creates on confirm", async () => {
 });
 
 test("sidebar.createTag cancels", async () => {
+  initialState.ui.sidebar.explorer.view = "all";
   const { result } = renderHook(() => useCommands(initialState));
   let commandCompleted: Promise<any>;
 
@@ -344,8 +347,9 @@ test("sidebar.createTag cancels", async () => {
 
   await act(async () => {
     const [{ ui }] = result.current;
-    const { input } = ui.sidebar.explorer;
+    const { input, view } = ui.sidebar.explorer;
 
+    expect(view).toBe("tags");
     expect(input).not.toBe(undefined);
     input!.onInput("foo");
     input!.cancel();

@@ -14,7 +14,7 @@ import { KeyCode } from "../../../shared/io/keyCode";
 import { Execute } from "../../io/commands";
 import { CommandInput, CommandType, SetUI } from "../../io/commands/types";
 import { useKeyboard } from "../../io/keyboard";
-import { MouseModifier, useMouse } from "../../io/mouse";
+import { MouseButton, MouseModifier, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "./Focusable";
 import { FocusContext } from "./FocusTracker";
@@ -137,55 +137,60 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
 
   const [items, setItems] = useState([] as JSX.Element[]);
   const ctx = useContext(FocusContext);
-  useMouse(wrapperRef).listen({ event: "click", button: "right" }, (ev) => {
-    ev.stopPropagation();
-    const { clientX: left, clientY: top } = ev;
+  useMouse(wrapperRef).listen(
+    { event: "click", button: MouseButton.Right },
+    (ev) => {
+      ev.stopPropagation();
+      const { clientX: left, clientY: top } = ev;
 
-    let active = !state.active;
-
-    let generatedItems = state.generatedItems ?? false;
-    if (active) {
-      if (!generatedItems) {
-        setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
+      let active = !state.active;
+      let generatedItems = state.generatedItems ?? false;
+      if (active) {
+        if (!generatedItems) {
+          setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
+        }
+      } else {
+        setItems([...GLOBAL_CONTEXT_ITEMS()]);
+        generatedItems = false;
       }
-    } else {
-      setItems([...GLOBAL_CONTEXT_ITEMS()]);
-      generatedItems = false;
-    }
 
-    setState({
-      ...state,
-      top,
-      left,
-      // Toggle allows closing menu with the same button that opened it.
-      active,
-      selected: active ? undefined : state.selected,
-      generatedItems,
-    });
+      setState({
+        ...state,
+        top,
+        left,
+        // Toggle allows closing menu with the same button that opened it.
+        active,
+        selected: active ? undefined : state.selected,
+        generatedItems,
+      });
 
-    if (active) {
-      ctx.push(props.name);
+      if (active) {
+        ctx.push(props.name);
+      }
     }
-  });
+  );
 
   // Listen for external click to blur menu
-  useMouse(window).listen({ event: "click" }, (ev) => {
-    if (state.active) {
-      const menu = findParent(ev.target as HTMLElement, (el) =>
-        el.classList.contains("context-menu")
-      );
+  useMouse(window).listen(
+    { event: "click", button: MouseButton.Left },
+    (ev) => {
+      if (state.active) {
+        const menu = findParent(ev.target as HTMLElement, (el) =>
+          el.classList.contains("context-menu")
+        );
 
-      if (!menu) {
-        setState({
-          ...state,
-          active: false,
-        });
-        props.setUI((s) => ({
-          focused: [s.focused?.[1]!],
-        }));
+        if (!menu) {
+          setState({
+            ...state,
+            active: false,
+          });
+          props.setUI((s) => ({
+            focused: [s.focused?.[1]!],
+          }));
+        }
       }
     }
-  });
+  );
 
   const calculateNextSelected = (
     items: JSX.Element[],

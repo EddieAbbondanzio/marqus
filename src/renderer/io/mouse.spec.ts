@@ -1,6 +1,7 @@
 import {
   DEFAULT_CURSOR,
   getDetails,
+  MouseButton,
   MouseController,
   MouseModifier,
 } from "./mouse";
@@ -17,7 +18,7 @@ describe("MouseController", () => {
     c.listen({ event: "click", modifier: MouseModifier.Control }, cb);
     expect(c.listeners["click"]).toEqual({
       callback: cb,
-      button: "left",
+      button: MouseButton.Any,
       modifier: MouseModifier.Control,
     });
   });
@@ -39,7 +40,7 @@ describe("MouseController", () => {
 
     const listener = c.listeners["click"];
     expect(listener).not.toBe(null);
-    expect(listener!.button).toBe("left");
+    expect(listener!.button).toBe(MouseButton.Any);
     expect(listener!.modifier).toBe(MouseModifier.None);
   });
 
@@ -47,13 +48,13 @@ describe("MouseController", () => {
     const c = new MouseController();
     const cb = jest.fn();
 
-    c.listen({ event: "click" }, cb);
+    c.listen({ event: "click", button: MouseButton.Left }, cb);
     expect(c.listeners["click"]).toEqual({
       callback: cb,
-      button: "left",
+      button: MouseButton.Left,
       modifier: MouseModifier.None,
     });
-    c.notify({} as any, "click", "left");
+    c.notify({} as any, "click", MouseButton.Left);
     expect(cb).toHaveBeenCalled();
   });
 
@@ -61,13 +62,13 @@ describe("MouseController", () => {
     const c = new MouseController();
     const cb = jest.fn();
 
-    c.listen({ event: "click", button: "right" }, cb);
+    c.listen({ event: "click", button: MouseButton.Right }, cb);
     expect(c.listeners["click"]).toEqual({
       callback: cb,
-      button: "right",
+      button: MouseButton.Right,
       modifier: MouseModifier.None,
     });
-    c.notify({} as any, "click", "left");
+    c.notify({} as any, "click", MouseButton.Left);
     expect(cb).not.toHaveBeenCalled();
   });
 
@@ -75,13 +76,13 @@ describe("MouseController", () => {
     const c = new MouseController();
     const cb = jest.fn();
 
-    c.listen({ event: "click" }, cb);
+    c.listen({ event: "click", button: MouseButton.Left }, cb);
     expect(c.listeners["click"]).toEqual({
       callback: cb,
-      button: "left",
+      button: MouseButton.Left,
       modifier: MouseModifier.None,
     });
-    c.notify({} as any, "click", "left", MouseModifier.Control);
+    c.notify({} as any, "click", MouseButton.Left, MouseModifier.Control);
     expect(cb).not.toHaveBeenCalled();
   });
 
@@ -111,12 +112,12 @@ describe("MouseController", () => {
 describe("getDetails()", () => {
   test("returns left click", () => {
     const [button] = getDetails({ button: 0 } as any);
-    expect(button).toBe("left");
+    expect(button).toBe(MouseButton.Left);
   });
 
   test("returns right click", () => {
     const [button] = getDetails({ button: 2 } as any);
-    expect(button).toBe("right");
+    expect(button).toBe(MouseButton.Right);
   });
 
   test("returns shift modifier", () => {
