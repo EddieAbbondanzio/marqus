@@ -15,13 +15,13 @@ import {
   getNotebookSchema,
   removeChild,
 } from "../../../shared/domain/notebook";
+import { NAV_MENU_HEIGHT } from "../../components/ExplorerItems";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.focus": async (ctx) => {
     ctx.setUI({
       focused: ["sidebar"],
     });
-    console.log("set focus to sidebar");
   },
   "sidebar.toggle": async (ctx) => {
     ctx.setUI((prev) => ({
@@ -32,7 +32,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.resizeWidth": async (ctx, width) => {
     if (width == null) {
-      return;
+      throw Error();
     }
 
     ctx.setUI({
@@ -43,7 +43,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.updateScroll": async (ctx, scroll) => {
     if (scroll == null) {
-      return;
+      throw Error();
     }
 
     ctx.setUI({
@@ -55,7 +55,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   "sidebar.scrollDown": async (ctx) => {
     ctx.setUI((prev) => {
       // Max scroll clamp is performed in scrollable.
-      const scroll = prev.sidebar.scroll + 30;
+      const scroll = prev.sidebar.scroll + NAV_MENU_HEIGHT;
       return {
         sidebar: {
           scroll,
@@ -65,7 +65,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.scrollUp": async (ctx) => {
     ctx.setUI((prev) => {
-      const scroll = Math.max(prev.sidebar.scroll - 30, 0);
+      const scroll = Math.max(prev.sidebar.scroll - NAV_MENU_HEIGHT, 0);
       return {
         sidebar: {
           scroll,
@@ -131,6 +131,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.renameTag": async (ctx, id) => {
+    if (id == null) {
+      throw Error();
+    }
+
     let { tags } = ctx.getState();
     const otherTags = tags.filter((t) => t.id !== id);
     let schema: yup.StringSchema = yup.reach(getTagSchema(otherTags), "name");
@@ -183,6 +187,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.deleteTag": async (ctx, id) => {
+    if (id == null) {
+      throw Error();
+    }
+
     const { tags } = ctx.getState();
     const tag = getTagById(tags, id!);
     const res = await promptConfirmAction("delete", `tag ${tag.name}`);
@@ -270,6 +278,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.renameNotebook": async (ctx, id) => {
+    if (id == null) {
+      throw Error();
+    }
+
     const state = ctx.getState();
     let notebook = getNotebookById(state.notebooks, id!);
     let siblings = (notebook.parent?.children ?? state.notebooks).filter(
@@ -342,6 +354,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.deleteNotebook": async (ctx, id) => {
+    if (id == null) {
+      throw Error();
+    }
+
     const { notebooks } = ctx.getState();
     const notebook = getNotebookById(notebooks, id!);
     const res = await promptConfirmAction(
@@ -447,6 +463,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.renameNote": async (ctx, id) => {
+    if (id == null) {
+      throw Error();
+    }
+
     const { notes } = ctx.getState();
     let note = getNoteById(notes, id!);
     let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
@@ -506,6 +526,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     throw new NotImplementedError();
   },
   "sidebar.setSelection": async (ctx, selected) => {
+    if (selected == null) {
+      throw Error();
+    }
+
     ctx.setUI({
       sidebar: {
         explorer: {
@@ -549,7 +573,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       setUI({
         sidebar: {
           explorer: {
-            selected: selectables.slice(-1),
+            selected: selectables.slice(0, 1),
           },
         },
       });
@@ -605,7 +629,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
   },
   "sidebar.setExplorerView": async (ctx, view) => {
     if (view == null) {
-      return;
+      throw Error();
     }
 
     ctx.setUI({
@@ -619,6 +643,10 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     });
   },
   "sidebar.toggleExpanded": async (ctx, id) => {
+    if (id == null) {
+      throw Error();
+    }
+
     ctx.setUI((prev) => {
       const { explorer } = prev.sidebar;
       if (explorer.expanded == null) {

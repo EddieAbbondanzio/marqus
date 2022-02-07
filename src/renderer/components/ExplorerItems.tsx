@@ -12,6 +12,7 @@ import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import * as yup from "yup";
 
+export const NAV_MENU_HEIGHT = 30;
 // Keep consistent with icon width in index.sass
 export const NAV_MENU_INDENT = 16;
 export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
