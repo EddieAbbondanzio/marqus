@@ -12,13 +12,14 @@ export interface AwaitableInput {
   confirm: () => void;
   cancel: () => void;
   schema: any;
+  completed: Promise<[value: string, action: AwaitableOutcome]>;
 }
 export type AwaitableOutcome = "confirm" | "cancel";
 
 export function createAwaitableInput(
   params: { value: string; id?: string; schema: yup.StringSchema },
   setValue: (value: string) => void
-): [AwaitableInput, Promise<[value: string, action: AwaitableOutcome]>] {
+): AwaitableInput {
   let mode: InputMode = params.id == null ? "create" : "update";
   let confirm: () => void;
   let cancel: () => void;
@@ -49,6 +50,8 @@ export function createAwaitableInput(
     setValue(val);
   };
 
+  const promise = Promise.race([confirmPromise, cancelPromise]);
+
   const obj: AwaitableInput = {
     id: params.id,
     mode,
@@ -57,7 +60,8 @@ export function createAwaitableInput(
     confirm: confirm!,
     cancel: cancel!,
     schema: params.schema,
+    completed: promise,
   };
 
-  return [obj, Promise.race([confirmPromise, cancelPromise])];
+  return obj;
 }

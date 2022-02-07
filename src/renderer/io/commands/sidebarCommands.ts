@@ -88,18 +88,16 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     let { tags } = ctx.getState();
     let schema: yup.StringSchema = yup.reach(getTagSchema(tags), "name");
 
-    let [input, completed] = createAwaitableInput(
-      { value: "", schema },
-      (value) =>
-        ctx.setUI({
-          sidebar: {
-            explorer: {
-              input: {
-                value,
-              },
+    let input = createAwaitableInput({ value: "", schema }, (value) =>
+      ctx.setUI({
+        sidebar: {
+          explorer: {
+            input: {
+              value,
             },
           },
-        })
+        },
+      })
     );
 
     ctx.setUI({
@@ -112,7 +110,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
 
-    const [value, action] = await completed;
+    const [value, action] = await input.completed;
     if (action === "confirm") {
       try {
         const tag = await window.rpc("tags.create", { name: value });
@@ -140,7 +138,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     let schema: yup.StringSchema = yup.reach(getTagSchema(otherTags), "name");
 
     const tag = getTagById(tags, id!);
-    let [input, completed] = createAwaitableInput(
+    let input = createAwaitableInput(
       { value: tag.name, id: tag.id, schema },
       (value) =>
         ctx.setUI({
@@ -164,7 +162,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
 
-    const [name, action] = await completed;
+    const [name, action] = await input.completed;
     if (action === "confirm") {
       try {
         const updated = await window.rpc("tags.update", { id: tag.id, name });
@@ -221,18 +219,16 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       "name"
     );
 
-    let [input, completed] = createAwaitableInput(
-      { value: "", schema },
-      (value) =>
-        ctx.setUI({
-          sidebar: {
-            explorer: {
-              input: {
-                value,
-              },
+    let input = createAwaitableInput({ value: "", schema }, (value) =>
+      ctx.setUI({
+        sidebar: {
+          explorer: {
+            input: {
+              value,
             },
           },
-        })
+        },
+      })
     );
 
     ctx.setUI((prev) => {
@@ -258,7 +254,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       };
     });
 
-    const [value, action] = await completed;
+    const [value, action] = await input.completed;
     if (action === "confirm") {
       try {
         const notebook = await window.rpc("notebooks.create", {
@@ -303,7 +299,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       "name"
     );
 
-    let [input, completed] = createAwaitableInput(
+    let input = createAwaitableInput(
       { value: notebook.name, id: notebook.id, schema },
       (value) =>
         ctx.setUI({
@@ -327,7 +323,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
 
-    const [value, action] = await completed;
+    const [value, action] = await input.completed;
     if (action === "confirm") {
       try {
         const renamed = await window.rpc("notebooks.update", {
@@ -396,18 +392,16 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       "name"
     );
 
-    let [input, completed] = createAwaitableInput(
-      { value: "", schema },
-      (value) =>
-        ctx.setUI({
-          sidebar: {
-            explorer: {
-              input: {
-                value,
-              },
+    let input = createAwaitableInput({ value: "", schema }, (value) =>
+      ctx.setUI({
+        sidebar: {
+          explorer: {
+            input: {
+              value,
             },
           },
-        })
+        },
+      })
     );
 
     // TODO: Add multi-select support
@@ -450,7 +444,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
 
-    const [value, action] = await completed;
+    const [value, action] = await input.completed;
     if (action === "confirm") {
       try {
         const note = await window.rpc("notes.create", {
@@ -481,7 +475,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
     let note = getNoteById(notes, id!);
     let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
 
-    let [input, completed] = createAwaitableInput(
+    let input = createAwaitableInput(
       { value: note.name, id: note.id, schema },
       (value) =>
         ctx.setUI({
@@ -506,7 +500,7 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
       },
     });
 
-    const [value, action] = await completed;
+    const [value, action] = await input.completed;
     if (action === "confirm") {
       try {
         const newNote = await window.rpc("notes.update", {

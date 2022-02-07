@@ -302,3 +302,62 @@ test("sidebar.toggleExpanded", () => {
   const [state] = result.current;
   expect(state.ui.sidebar.explorer.expanded).toEqual([]);
 });
+
+test("sidebar.createTag creates on confirm", async () => {
+  const { result } = renderHook(() => useCommands(initialState));
+  let commandCompleted: Promise<any>;
+
+  act(() => {
+    const [{ ui }, execute] = result.current;
+    expect(ui.sidebar.explorer.input).toBe(undefined);
+    commandCompleted = execute("sidebar.createTag");
+  });
+
+  await act(async () => {
+    const [{ ui }] = result.current;
+    const { input } = ui.sidebar.explorer;
+
+    expect(input).not.toBe(undefined);
+    input!.onInput("foo");
+    input!.confirm();
+
+    await commandCompleted!;
+  });
+
+  const rpcCall = (window.rpc as jest.Mock).mock.calls.find(
+    (c) => c[0] === "tags.create"
+  );
+  expect(rpcCall[1]).toEqual({ name: "foo" });
+  const [{ ui }] = result.current;
+  expect(ui.sidebar.explorer.input).toBe(undefined);
+});
+
+test("sidebar.createTag cancels", async () => {
+  const { result } = renderHook(() => useCommands(initialState));
+  let commandCompleted: Promise<any>;
+
+  act(() => {
+    const [{ ui }, execute] = result.current;
+    expect(ui.sidebar.explorer.input).toBe(undefined);
+    commandCompleted = execute("sidebar.createTag");
+  });
+
+  await act(async () => {
+    const [{ ui }] = result.current;
+    const { input } = ui.sidebar.explorer;
+
+    expect(input).not.toBe(undefined);
+    input!.onInput("foo");
+    input!.cancel();
+
+    await commandCompleted!;
+  });
+
+  const rpcCall = (window.rpc as jest.Mock).mock.calls.find(
+    (c) => c[0] === "tags.create"
+  );
+  expect(rpcCall).toBe(undefined);
+
+  const [{ ui }] = result.current;
+  expect(ui.sidebar.explorer.input).toBe(undefined);
+});
