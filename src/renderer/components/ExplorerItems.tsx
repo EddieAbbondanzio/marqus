@@ -58,7 +58,7 @@ export function ExplorerMenu(props: PropsWithChildren<ExplorerMenuProps>) {
     { event: "click", button: MouseButton.Left | MouseButton.Right },
     (ev, button) => {
       ev.stopPropagation();
-      props.onClick?.(button!);
+      props.onClick?.(button);
     }
   );
 

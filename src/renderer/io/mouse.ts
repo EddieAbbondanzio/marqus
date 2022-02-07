@@ -76,14 +76,19 @@ interface MouseDragging {
   hasMoved?: boolean;
 }
 
-export type MouseListenOpts =
-  | { event: "click"; button?: MouseButton; modifier?: MouseModifier }
-  | { event: Exclude<MouseEventType, "click"> };
+export type MouseClickEventOpts = {
+  event: "click";
+  button?: MouseButton;
+  modifier?: MouseModifier;
+};
+export type MouseEventOpts = { event: Exclude<MouseEventType, "click"> };
 
-export type MouseCallback = (ev: MouseEvent, button?: MouseButton) => void;
+export type MouseClickCallback = (ev: MouseEvent, button: MouseButton) => void;
+export type MouseCallback = (ev: MouseEvent, button: MouseButton) => void;
 
 export interface Mouse {
-  listen(opts: MouseListenOpts, callback: MouseCallback): void;
+  listen(opts: MouseClickEventOpts, callback: MouseClickCallback): void;
+  listen(opts: MouseEventOpts, callback: MouseCallback): void;
   cursor(cursor: Cursor, cb: () => Promise<any>): Promise<void>;
   setCursor(cursor: Cursor): void;
   resetCursor(): void;
@@ -196,22 +201,25 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
 export class MouseController implements Mouse {
   listeners: {
     [ev in MouseEventType]+?: {
-      callback: MouseCallback;
+      callback: MouseClickCallback;
       button?: MouseButton;
       modifier?: MouseModifier;
     };
   } = {};
 
-  listen(opts: MouseListenOpts, callback: MouseCallback): void {
+  listen(
+    opts: MouseClickEventOpts | MouseEventOpts,
+    callback: MouseClickCallback | MouseClickEventOpts
+  ): void {
     if (opts.event === "click") {
       this.listeners[opts.event] = {
-        callback,
+        callback: callback as MouseClickCallback,
         button: opts.button ?? MouseButton.Any,
         modifier: opts.modifier ?? MouseModifier.None,
       };
     } else {
       this.listeners[opts.event] = {
-        callback,
+        callback: callback as MouseCallback,
       };
     }
   }
@@ -247,7 +255,7 @@ export class MouseController implements Mouse {
       }
     }
 
-    listener.callback(event, button);
+    listener.callback(event, button!);
   }
 
   async cursor(cursorIcon: Cursor, cb: () => Promise<any>) {
