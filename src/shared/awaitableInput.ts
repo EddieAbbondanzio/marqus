@@ -6,6 +6,7 @@ export type InputMode = "create" | "update";
 export interface AwaitableInput {
   id?: string;
   mode: InputMode;
+  initialValue: string;
   // Render use only
   value: string;
   onInput: (value: string) => void;
@@ -55,6 +56,7 @@ export function createAwaitableInput(
   const obj: AwaitableInput = {
     id: params.id,
     mode,
+    initialValue: value,
     value,
     onInput: wrappedSetValue,
     confirm: confirm!,

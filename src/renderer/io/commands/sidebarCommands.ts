@@ -510,8 +510,8 @@ export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
         ctx.setNotes((notes) => {
           const index = notes.findIndex((n) => n.id === note.id);
           notes.splice(index, 1, newNote);
-
-          return notes;
+          console.log("new note name: ", newNote.name);
+          return [...notes];
         });
       } catch (e) {
         promptError(e.message);

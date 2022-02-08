@@ -85,6 +85,7 @@ export function ExplorerMenu(props: PropsWithChildren<ExplorerMenuProps>) {
 export interface ExplorerInputProps {
   name: string;
   className?: string;
+  initialValue: string;
   value: string;
   onInput: (value: string) => void;
   confirm: () => void;
@@ -127,11 +128,11 @@ export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
       return;
     }
 
-    if (!isBlank(input.current.value)) {
-      console.log("confirm");
+    const { value } = input.current;
+    // Only confirm if input has a value, and was changed
+    if (!isBlank(value) && value !== props.initialValue) {
       props.confirm();
     } else {
-      console.log("cancel");
       props.cancel();
     }
 

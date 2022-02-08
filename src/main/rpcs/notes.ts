@@ -74,12 +74,13 @@ export const noteRpcs: RpcRegistry<"notes"> = {
       await createDirectory(NOTES_DIRECTORY);
     }
 
-    const notePath = path.join(NOTES_DIRECTORY, input.id);
+    const [, bareId] = parseResourceId(input.id);
+    const notePath = path.join(NOTES_DIRECTORY, bareId);
     if (!exists(notePath)) {
       throw new NotFoundError(`Note ${input.id} not found in the file system.`);
     }
 
-    const note = await loadMetadata(input.id);
+    const note = await loadMetadata(bareId);
     note.name = input.name;
     note.dateUpdated = new Date();
     await saveMetadata(note);
@@ -90,7 +91,10 @@ export const noteRpcs: RpcRegistry<"notes"> = {
 
 export async function saveMetadata(note: Note): Promise<void> {
   const [, rawId] = parseResourceId(note.id);
-  await createDirectory(path.join(NOTES_DIRECTORY, rawId));
+  const dirPath = path.join(NOTES_DIRECTORY, rawId);
+  if (!exists(dirPath)) {
+    await createDirectory(dirPath);
+  }
 
   const metadataPath = path.join(NOTES_DIRECTORY, rawId, METADATA_FILE_NAME);
   const { type, ...metadata } = note;
