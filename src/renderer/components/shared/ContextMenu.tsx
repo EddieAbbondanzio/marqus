@@ -165,7 +165,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       });
 
       if (active) {
-        ctx.push(props.name);
+        ctx.push("contextMenu");
       }
     }
   );
