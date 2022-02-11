@@ -1,5 +1,5 @@
 import { Coord } from "../../../shared/dom";
-import { ExplorerView, State, UI } from "../../../shared/domain/state";
+import { ExplorerView, State, UI } from "../../store/state";
 import { Shortcut } from "../../../shared/domain/shortcut";
 import { StartsWith } from "../../types";
 import { DeepPartial } from "tsdef";

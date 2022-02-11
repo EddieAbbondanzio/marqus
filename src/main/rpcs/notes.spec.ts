@@ -15,6 +15,7 @@ jest.mock("../fileSystem", () => ({
     );
   },
   createDirectory: jest.fn(),
+  exists: jest.fn(),
 }));
 
 test("saveMetadata", async () => {

@@ -3,7 +3,7 @@ import { promptConfirmAction, promptError } from "../../utils/prompt";
 import { CommandsForNamespace } from "./types";
 import * as yup from "yup";
 import { NotImplementedError } from "../../../shared/errors";
-import { ExplorerView } from "../../../shared/domain/state";
+import { ExplorerView } from "../../store/state";
 import { clamp, head } from "lodash";
 import { parseResourceId } from "../../../shared/domain/id";
 import { getExplorerItems } from "../../components/Explorer";

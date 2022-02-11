@@ -10,7 +10,7 @@ import { Focusable } from "./shared/Focusable";
 import { NAV_MENU_ATTRIBUTE } from "./ExplorerItems";
 import { findParent } from "../utils/findParent";
 import { NotImplementedError } from "../../shared/errors";
-import { State } from "../../shared/domain/state";
+import { State } from "../store/state";
 import { parseResourceId } from "../../shared/domain/id";
 
 export interface SidebarProps {

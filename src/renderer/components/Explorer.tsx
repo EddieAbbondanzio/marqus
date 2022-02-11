@@ -3,7 +3,7 @@ import {
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useMemo } from "react";
-import { ExplorerView, State, ExplorerItem } from "../../shared/domain/state";
+import { ExplorerView, State, ExplorerItem } from "../store/state";
 import { Execute } from "../io/commands";
 import { SetUI } from "../io/commands/types";
 import { NewButton, NewButtonOption } from "./NewButton";

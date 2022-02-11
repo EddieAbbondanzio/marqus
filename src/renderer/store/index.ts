@@ -1,0 +1,192 @@
+import { Coord } from "../../shared/dom";
+import { ExplorerView, State } from "./state";
+import {
+  SetUI,
+  SetTags,
+  SetNotebooks,
+  SetShortcuts,
+  SetNotes,
+} from "../io/commands/types";
+import { StartsWith } from "../types";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { cloneDeep } from "lodash";
+import { deepUpdate } from "../utils/deepUpdate";
+
+export interface Store {
+  dispatch: Dispatch;
+  state: State;
+  on<EType extends EventType>(
+    event: EType,
+    listener: EventListener<EType>
+  ): void;
+  off<EType extends EventType>(
+    event: EType,
+    listener: EventListener<EType>
+  ): void;
+}
+
+export type Dispatch = <EType extends EventType>(
+  event: EType,
+  ...value: EventValue<EType> extends void ? [undefined?] : [EventValue<EType>]
+) => Promise<void>;
+
+export type EventListener<EType extends EventType> = (
+  ev: { type: EType; value: EventValue<EType> },
+  s: StoreControls
+) => Promise<void> | void;
+
+export interface StoreControls {
+  setUI: SetUI;
+  setTags: SetTags;
+  setNotebooks: SetNotebooks;
+  setShortcuts: SetShortcuts;
+  setNotes: SetNotes;
+  getState(): State;
+}
+
+export interface Events {
+  "app.openDevTools": void;
+  "app.reload": void;
+  "app.toggleFullScreen": void;
+  "app.inspectElement": Coord;
+  "sidebar.focus": void;
+  "sidebar.toggle": void;
+  "sidebar.updateScroll": number;
+  "sidebar.scrollDown": void;
+  "sidebar.scrollUp": void;
+  "sidebar.resizeWidth": string;
+  "sidebar.toggleFilter": void;
+  "sidebar.createTag": void;
+  "sidebar.renameTag": string;
+  "sidebar.deleteTag": string;
+  "sidebar.createNotebook": void;
+  "sidebar.renameNotebook": string;
+  "sidebar.deleteNotebook": string;
+  "sidebar.createNote": void;
+  "sidebar.renameNote": string;
+  "sidebar.deleteNote": string;
+  "sidebar.setSelection": string[];
+  "sidebar.clearSelection": void;
+  "sidebar.toggleExpanded": string;
+  "sidebar.moveSelectionUp": void;
+  "sidebar.moveSelectionDown": void;
+  "sidebar.setExplorerView": ExplorerView;
+  "editor.focus": void;
+}
+export type EventType = keyof Events;
+
+export type EventValue<Ev extends EventType> = Events[Ev];
+
+export type EventsForNamespace<Namespace extends string> = Pick<
+  Events,
+  StartsWith<EventType, Namespace>
+>;
+
+export function useStore(initialState: State): Store {
+  // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
+  const [state, setState] = useState(initialState);
+  const [listeners, setListeners] = useState<{
+    [eType in EventType]+?: EventListener<eType>;
+  }>({});
+  const lastState = useRef(state);
+
+  // We need to run these first
+  useLayoutEffect(() => {
+    lastState.current = state;
+  }, [state]);
+
+  const getState = () => {
+    const cloned = cloneDeep(lastState.current);
+    return cloned;
+  };
+
+  const setUI: SetUI = (transformer) => {
+    setState((prevState) => {
+      const updates =
+        typeof transformer === "function"
+          ? transformer(prevState.ui)
+          : transformer;
+
+      const ui = deepUpdate(prevState.ui, updates);
+      const newState = {
+        ...prevState,
+        ui,
+      };
+
+      void window.rpc("app.saveUIState", cloneDeep(newState.ui));
+      return newState;
+    });
+  };
+
+  /*
+   * The following setters are to update local cache. They do not
+   * perform any saving to file because all of that is handled by the rpcs.
+   */
+
+  const setTags: SetTags = (transformer) => {
+    setState((prevState) => ({
+      ...prevState,
+      tags: transformer(prevState.tags),
+    }));
+  };
+  const setNotebooks: SetNotebooks = (transformer) => {
+    console.log("setNotebooks()");
+    setState((prevState) => ({
+      ...prevState,
+      notebooks: transformer(prevState.notebooks),
+    }));
+  };
+  const setShortcuts: SetShortcuts = (transformer) => {
+    console.log("setShortcuts()");
+    setState((prevState) => ({
+      ...prevState,
+      shortcuts: transformer(prevState.shortcuts),
+    }));
+  };
+  const setNotes: SetNotes = (transformer) => {
+    setState((prevState) => ({
+      ...prevState,
+      notes: transformer(prevState.notes),
+    }));
+  };
+
+  const dispatch: Dispatch = useCallback(
+    async (event, value: any) => {
+      const listener = listeners[event];
+      if (listener == null) {
+        throw Error(`No listener for ${event} found.`);
+      }
+
+      await listener({ type: event, value } as any, {
+        setUI,
+        setTags,
+        setNotebooks,
+        setShortcuts,
+        setNotes,
+        getState,
+      });
+    },
+    [listeners, getState]
+  );
+
+  const on: Store["on"] = (e, listener) => {
+    setListeners((prev) => ({
+      ...prev,
+      [e]: listener,
+    }));
+  };
+
+  const off: Store["off"] = (e, listener) => {
+    setListeners((prev) => {
+      delete prev[e];
+      return prev;
+    });
+  };
+
+  return {
+    state,
+    on,
+    off,
+    dispatch,
+  };
+}

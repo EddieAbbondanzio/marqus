@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { PropsWithChildren } from "react";
 import { classList, Coord } from "../../../shared/dom";
-import { State, UI } from "../../../shared/domain/state";
+import { State, UI } from "../../store/state";
 import { getNodeEnv } from "../../../shared/env";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { Execute } from "../../io/commands";

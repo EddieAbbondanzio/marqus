@@ -1,17 +1,19 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { render } from "react-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { Focusable } from "./components/shared/Focusable";
-import { UI } from "../shared/domain/state";
+import { UI } from "./store/state";
 import { Shortcut } from "../shared/domain/shortcut";
 import { FocusTracker } from "./components/shared/FocusTracker";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
 import { Notebook } from "../shared/domain/notebook";
+import { Store, useStore } from "./store";
+import { Button } from "./components/shared/Button";
 
 const { rpc } = window;
 (async () => {
@@ -47,6 +49,17 @@ const { rpc } = window;
       notes,
     });
     useShortcuts(shortcuts, state, execute);
+
+    // Pass store down via props
+    const store = useStore({
+      ui,
+      shortcuts,
+      tags,
+      notebooks,
+      notes,
+    });
+
+    store.dispatch("sidebar.toggle");
 
     return (
       <FocusTracker

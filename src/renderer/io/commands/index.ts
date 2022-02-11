@@ -1,6 +1,6 @@
 import { cloneDeep, merge, mergeWith } from "lodash";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { State, UI } from "../../../shared/domain/state";
+import { State, UI } from "../../store/state";
 import { deepUpdate } from "../../utils/deepUpdate";
 import { appCommands } from "./appCommands";
 import { editorCommands } from "./editorCommands";

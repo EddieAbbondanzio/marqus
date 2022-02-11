@@ -4,7 +4,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { State, Section } from "../../../shared/domain/state";
+import { State, Section } from "../../store/state";
 import { SetUI } from "../../io/commands/types";
 
 export type FocusSubscriber = (event: "focus" | "blur") => void;

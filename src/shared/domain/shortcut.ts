@@ -1,6 +1,6 @@
 import { AwaitableInput } from "../awaitableInput";
 import { KeyCode } from "../io/keyCode";
-import { Section } from "./state";
+import { Section } from "../../renderer/store/state";
 import * as yup from "yup";
 
 /*

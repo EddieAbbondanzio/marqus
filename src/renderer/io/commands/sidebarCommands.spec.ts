@@ -1,7 +1,7 @@
 import { useCommands } from ".";
 import { sidebarCommands } from "./sidebarCommands";
 import { renderHook, act } from "@testing-library/react-hooks";
-import { State } from "../../../shared/domain/state";
+import { State } from "../../store/state";
 import { NAV_MENU_HEIGHT } from "../../components/ExplorerItems";
 import { resourceId } from "../../../shared/domain/id";
 import { createTag } from "../../../shared/domain/tag";
