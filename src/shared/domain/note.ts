@@ -5,7 +5,7 @@ import { idSchema, resourceId } from "./id";
 import { Tag } from "./tag";
 import { Notebook } from "./notebook";
 import { faFile } from "@fortawesome/free-solid-svg-icons";
-import { isBlank } from "../string";
+import { isBlank } from "../utils";
 
 export enum NoteFlag {
   None,

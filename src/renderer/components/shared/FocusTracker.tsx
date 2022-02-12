@@ -7,6 +7,7 @@ import React, {
 import { State, Section } from "../../store/state";
 import { SetUI } from "../../io/commands/types";
 import { Store, StoreListener } from "../../store";
+import { isEmpty } from "lodash";
 
 export type FocusSubscriber = (event: "focus" | "blur") => void;
 
@@ -34,6 +35,7 @@ export function FocusTracker({
 }: PropsWithChildren<FocusTrackerProps>) {
   const [state, setState] = useState<FocusTrackerState>({
     subscribers: {},
+    // Other props get defined as it's used.
   });
 
   const subscribe = (name: Section, subscriber: FocusSubscriber) => {
@@ -58,7 +60,7 @@ export function FocusTracker({
 
   useEffect(() => {
     const { focused } = store.state.ui;
-    if (focused == null || focused.length === 0) {
+    if (isEmpty(focused)) {
       setState((s) => ({
         ...s,
         previous: undefined,
@@ -128,7 +130,7 @@ const pushSection: StoreListener<"focus.push"> = (ev, ctx) => {
 
 const popSection: StoreListener<"focus.pop"> = (ev, ctx) => {
   ctx.setUI((s) => {
-    if (s.focused == null || s.focused.length === 0) {
+    if (isEmpty(s.focused)) {
       return s;
     }
 

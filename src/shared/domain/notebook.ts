@@ -2,7 +2,7 @@ import { InvalidOpError, NotFoundError } from "../errors";
 import { Resource } from "./types";
 import * as yup from "yup";
 import { idSchema, resourceId } from "./id";
-import { isBlank } from "../string";
+import { isBlank } from "../utils";
 
 export interface Notebook extends Resource<"notebook"> {
   name: string;

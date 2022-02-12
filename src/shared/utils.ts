@@ -1,9 +1,9 @@
 export function caseInsensitiveCompare(): (a: string, b: string) => number;
 export function caseInsensitiveCompare<T>(
-  mapper: (v: T) => string,
+  mapper: (v: T) => string
 ): (a: T, b: T) => number;
 export function caseInsensitiveCompare<T>(
-  mapper?: (v: T) => string,
+  mapper?: (v: T) => string
 ): (a: any, b: any) => number {
   if (mapper != null) {
     return (a: T, b: T) =>

@@ -1,6 +1,6 @@
 import { cloneDeep, get, propertyOf, remove, set } from "lodash";
 import { DeepPartial } from "tsdef";
-import { isBlank } from "../../shared/string";
+import { isBlank } from "../../shared/utils";
 
 /**
  * Recursive partial updater that applies property updates.

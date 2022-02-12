@@ -4,6 +4,7 @@ import React, {
   useLayoutEffect,
   useRef,
 } from "react";
+import { InvalidOpError } from "../../../shared/errors";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { useKeyboard } from "../../io/keyboard";
 import { findParent } from "../../utils/findParent";
@@ -81,6 +82,8 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
         case "blur":
           props.onBlur?.();
           break;
+        default:
+          throw new InvalidOpError(`Focusable got event: ${ev}`);
       }
     });
 
