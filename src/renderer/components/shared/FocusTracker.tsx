@@ -5,8 +5,8 @@ import React, {
   useEffect,
 } from "react";
 import { Section } from "../../store/state";
-import { Store, StoreListener } from "../../store";
-import { isEmpty } from "lodash";
+import { Store, StoreListener, useStore } from "../../store";
+import { head, isEmpty } from "lodash";
 
 export type FocusSubscriber = (event: "focus" | "blur") => void;
 
@@ -22,77 +22,107 @@ export interface FocusTrackerProps {
   store: Store;
 }
 
-export interface FocusTrackerState {
-  subscribers: Partial<Record<Section, FocusSubscriber>>;
-  previous?: Section;
-}
-
 export function FocusTracker({
   store,
   children,
   className,
 }: PropsWithChildren<FocusTrackerProps>) {
-  const [state, setState] = useState<FocusTrackerState>({
-    subscribers: {},
-    // Other props get defined as it's used.
-  });
+  const [subscribers, setSubscribers] = useState<
+    Partial<Record<Section, FocusSubscriber>>
+  >({});
 
-  const subscribe = (name: Section, subscriber: FocusSubscriber) => {
-    setState((s) => ({
-      ...s,
-      subscribers: {
-        ...s.subscribers,
-        [name]: subscriber,
-      },
-    }));
-  };
-
-  const unsubscribe = (name: Section) => {
-    setState((s) => ({
-      ...s,
-      subscribers: {
-        ...s.subscribers,
-        [name]: undefined,
-      },
-    }));
-  };
-
+  /*
+   * Notify subscribers if focused section has changed. We keep track of who
+   * we've last notified to ensure we don't create infinite render loops
+   * due to el.focus() re triggering the cycle.
+   */
+  const [previous, setPrevious] = useState<Section | undefined>(undefined);
   useEffect(() => {
-    const { focused } = store.state.ui;
-    if (isEmpty(focused)) {
-      setState((s) => ({
-        ...s,
-        previous: undefined,
-      }));
+    const curr = head(store.state.ui.focused);
+    if (previous != null && curr == previous) {
       return;
     }
 
     /*
-     * Detect if we need to notify a focusable. This will handle notifying of
-     * externally made changes too (like from setUI).
+     * We can't call this within setState() or else React throws a render error
+     * due to things changing while it's in the middle of rendering.
+     *
+     * Order is also important here. We want blur to fire before focus because
+     * these will most call .blur() and .focus() on HTML elements.
      */
-    const [curr] = focused.slice(0);
-    const { previous } = state;
-    if (previous != curr) {
-      if (curr != null) {
-        if (previous != null) {
-          const prevSub = state.subscribers[previous];
-          prevSub?.("blur");
-        }
-
-        const currSub = state.subscribers[curr];
-        if (currSub != null) {
-          currSub("focus");
-
-          // We only set state if sub was notified to prevent an infinite loop.
-          setState((s) => ({
-            ...s,
-            previous: curr,
-          }));
-        }
-      }
+    if (previous != null) {
+      const previousSub = subscribers[previous];
+      previousSub?.("blur");
     }
-  }, [store.state.ui.focused, state.previous, state.subscribers]);
+
+    const currSub = subscribers[curr!];
+    currSub?.("focus");
+    setPrevious(curr);
+  }, [store.state.ui.focused, previous]);
+
+  const subscribe = (name: Section, subscriber: FocusSubscriber) => {
+    setSubscribers((s) => ({
+      ...s,
+      [name]: subscriber,
+    }));
+  };
+
+  const unsubscribe = (name: Section) => {
+    setSubscribers((s) => ({
+      ...s,
+      [name]: undefined,
+    }));
+  };
+
+  const pushSection: StoreListener<"focus.push"> = ({ value: next }, ctx) => {
+    let previous: Section | undefined;
+    let wasSame = false;
+
+    ctx.setUI((s) => {
+      const focused = [next];
+
+      if (s.focused == focused) {
+        wasSame = true;
+        return s;
+      }
+
+      if (s.focused != null && s.focused !== focused) {
+        previous = head(s.focused)!;
+        focused.push(previous);
+      }
+
+      return {
+        focused,
+      };
+    });
+
+    if (wasSame) {
+      return;
+    }
+  };
+
+  const popSection: StoreListener<"focus.pop"> = (_, ctx) => {
+    let previous: Section | undefined;
+    ctx.setUI((s) => {
+      if (isEmpty(s.focused)) {
+        return s;
+      }
+
+      previous = head(s.focused);
+      return {
+        focused: [],
+      };
+    });
+
+    /*
+     * We can't call this within setState() or else React throws a render error
+     * due to things changing while it's in the middle of rendering.
+     */
+    if (previous != null) {
+      const sub = subscribers[previous];
+      sub?.("blur");
+    }
+  };
 
   useEffect(() => {
     store.on("focus.push", pushSection);
@@ -102,7 +132,7 @@ export function FocusTracker({
       store.off("focus.push", pushSection);
       store.off("focus.pop", popSection);
     };
-  }, [store.state]);
+  }, [store.state, subscribers]);
 
   const push = (name: Section) => store.dispatch("focus.push", name);
   const pop = () => store.dispatch("focus.pop");
@@ -113,28 +143,3 @@ export function FocusTracker({
     </FocusContext.Provider>
   );
 }
-
-const pushSection: StoreListener<"focus.push"> = (ev, ctx) => {
-  ctx.setUI((s) => {
-    const focused = [ev.value];
-    if (s.focused != null && s.focused[0] !== ev.value) {
-      focused.push(s.focused[0]);
-    }
-
-    return {
-      focused,
-    };
-  });
-};
-
-const popSection: StoreListener<"focus.pop"> = (ev, ctx) => {
-  ctx.setUI((s) => {
-    if (isEmpty(s.focused)) {
-      return s;
-    }
-
-    return {
-      focused: [],
-    };
-  });
-};

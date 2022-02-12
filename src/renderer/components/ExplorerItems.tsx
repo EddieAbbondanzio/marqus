@@ -5,13 +5,13 @@ import { PropsWithChildren } from "react";
 import { classList, percentage, px } from "../../shared/dom";
 import { InvalidOpError } from "../../shared/errors";
 import { KeyCode } from "../../shared/io/keyCode";
-import { isBlank } from "../../shared/utils";
 import { useKeyboard } from "../io/keyboard";
 import { BulmaSize } from "../shared";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import * as yup from "yup";
 import { MouseButton, useMouse } from "../io/mouse";
+import { isBlank } from "../../shared/utils";
 
 export const NAV_MENU_HEIGHT = 30;
 // Keep consistent with icon width in index.sass

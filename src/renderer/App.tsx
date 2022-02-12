@@ -51,12 +51,17 @@ async function main() {
     useShortcuts(store);
 
     useEffect(() => {
+      const focusSidebar = () => store.dispatch("focus.push", "sidebar");
+      const focusEditor = () => store.dispatch("focus.push", "editor");
+
       store.on("sidebar.toggle", toggleSidebar);
-      store.on(["sidebar.focus", "editor.focus"], focusSection);
+      store.on("sidebar.focus", focusSidebar);
+      store.on("editor.focus", focusEditor);
 
       return () => {
         store.off("sidebar.toggle", toggleSidebar);
-        store.off(["sidebar.focus", "editor.focus"], focusSection);
+        store.off("sidebar.focus", focusSidebar);
+        store.off("editor.focus", focusEditor);
       };
     }, [store.state]);
 
@@ -87,26 +92,6 @@ export const toggleSidebar: StoreListener<"sidebar.toggle"> = (_, ctx) => {
       hidden: !(prev.sidebar.hidden ?? false),
     },
   }));
-};
-
-export const focusSection: StoreListener<"sidebar.focus" | "editor.focus"> = (
-  ev,
-  ctx
-) => {
-  switch (ev.type) {
-    case "sidebar.focus":
-      ctx.setUI({
-        focused: ["sidebar"],
-      });
-      break;
-    case "editor.focus":
-      ctx.setUI({
-        focused: ["editor"],
-      });
-      break;
-    default:
-      throw new InvalidOpError(`Invalid focus event ${ev.type}`);
-  }
 };
 
 export const openDevTools = () => rpc("app.openDevTools");

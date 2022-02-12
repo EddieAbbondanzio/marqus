@@ -1,5 +1,5 @@
 import { KeyCode } from "../io/keyCode";
-import { Section } from "../../renderer/store/state";
+import { ALL_SECTIONS, Section } from "../../renderer/store/state";
 import * as yup from "yup";
 
 /*
@@ -20,7 +20,7 @@ export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
   event: yup.string().required(),
   keys: yup.array(),
   disabled: yup.boolean().optional(),
-  when: yup.mixed().optional().oneOf(["sidebar", "editor"]),
+  when: yup.mixed().optional().oneOf(ALL_SECTIONS),
   repeat: yup.bool().optional(),
   userDefined: yup.bool().optional(),
 });

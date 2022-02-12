@@ -1,5 +1,6 @@
 import React, {
   PropsWithChildren,
+  RefObject,
   useContext,
   useLayoutEffect,
   useRef,
@@ -40,7 +41,6 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
 
     // We stop propagation to support nested focusables
     ev.stopPropagation();
-    console.log("focusable ", props.name, " stopped escape");
 
     const div = ref.current;
     if (div != null) {
@@ -76,10 +76,12 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
     ctx.subscribe(name, (ev) => {
       switch (ev) {
         case "focus":
-          div.focus();
+          ref.current.focus();
           props.onFocus?.();
+
           break;
         case "blur":
+          ref.current.blur();
           props.onBlur?.();
           break;
         default:

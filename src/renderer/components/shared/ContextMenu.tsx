@@ -1,7 +1,9 @@
 import { clamp } from "lodash";
 import React, {
   SetStateAction,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -49,8 +51,8 @@ export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
 };
 
 export interface ContextMenuProps {
-  name: string;
   store: Store;
+  name: string;
   items: (ev?: MouseEvent) => JSX.Element[];
 }
 
@@ -244,25 +246,6 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
             });
           }
           break;
-
-        case KeyCode.Escape:
-          if (state.active) {
-            ctx.pop();
-          }
-
-          setState({
-            active: false,
-          });
-
-          break;
-
-        case KeyCode.ArrowUp:
-          setState((s) => calculateNextSelected(items, s, "up"));
-          break;
-
-        case KeyCode.ArrowDown:
-          setState((s) => calculateNextSelected(items, s, "down"));
-          break;
       }
     }
   );
@@ -301,6 +284,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
 
   const onFocus = () => menuRef.current?.focus();
   const onBlur = () => {
+    console.log("ContextMenu.onBlur()");
     if (state.active) {
       setState({
         ...state,
@@ -309,6 +293,25 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     }
   };
 
+  useEffect(() => {
+    const { store } = props;
+    const moveSelectionUp = () =>
+      setState((s) => calculateNextSelected(items, s, "up"));
+    const moveSelectionDown = () =>
+      setState((s) => calculateNextSelected(items, s, "down"));
+    const blur = () => store.dispatch("focus.pop");
+
+    store.on("contextMenu.moveSelectionDown", moveSelectionDown);
+    store.on("contextMenu.moveSelectionUp", moveSelectionUp);
+    store.on("contextMenu.blur", blur);
+
+    return () => {
+      store.off("contextMenu.moveSelectionDown", moveSelectionDown);
+      store.off("contextMenu.moveSelectionUp", moveSelectionUp);
+      store.off("contextMenu.blur", blur);
+    };
+  }, [props.store.state, setState]);
+
   return (
     <div
       ref={wrapperRef}
@@ -316,12 +319,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       data-context-menu={props.name}
     >
       {state.active && (
-        <Focusable
-          name={props.name}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          blurOnEscape={true}
-        >
+        <Focusable name={props.name} blurOnEscape={true}>
           <div
             ref={menuRef}
             className="context-menu box m-0 p-0"

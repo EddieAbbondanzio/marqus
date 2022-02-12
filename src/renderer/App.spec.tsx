@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react-hooks";
-import { focusSection, toggleSidebar } from "../App";
-import { useStore } from "../store";
-import { State } from "../store/state";
+import { toggleSidebar } from "./App";
+import { useStore } from "./store";
+import { State } from "./store/state";
 
 let initialState: State;
 
@@ -44,28 +44,3 @@ test("sidebar.toggle", async () => {
   const { state } = result.current;
   expect(state.ui.sidebar.hidden).toBe(true);
 });
-
-test.each([
-  ["sidebar.focus", "sidebar"],
-  ["editor.focus", "editor"],
-])(
-  "focusSection %s",
-  async (event: "sidebar.focus" | "editor.focus", section) => {
-    const { result } = renderHook(() => useStore(initialState));
-    act(() => {
-      const { on } = result.current;
-      on(event, focusSection);
-    });
-
-    await act(async () => {
-      const { dispatch, state } = result.current;
-      expect(state.ui.focused).toEqual([]);
-      await dispatch(event);
-    });
-
-    act(() => {
-      const { state } = result.current;
-      expect(state.ui.focused).toEqual([section]);
-    });
-  }
-);

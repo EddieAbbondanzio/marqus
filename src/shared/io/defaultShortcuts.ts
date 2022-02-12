@@ -3,11 +3,28 @@ import { KeyCode, sortKeyCodes } from "./keyCode";
 
 export const COMMON_KEY_COMBOS: Record<string, KeyCode[]> = {
   escape: [KeyCode.Escape],
+  down: [KeyCode.ArrowDown],
+  up: [KeyCode.ArrowUp],
   scrollDown: [KeyCode.Control, KeyCode.ArrowDown],
   scrollUp: [KeyCode.Control, KeyCode.ArrowUp],
 };
 
 const shortcuts: Shortcut[] = [
+  // Global
+  {
+    event: "app.openDevTools",
+    keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterI],
+  },
+  {
+    event: "app.reload",
+    keys: [KeyCode.Control, KeyCode.LetterR],
+  },
+  {
+    event: "app.toggleFullScreen",
+    keys: [KeyCode.F11],
+  },
+
+  // Sidebar
   {
     event: "sidebar.focus",
     keys: [KeyCode.Control, KeyCode.Digit1],
@@ -30,13 +47,13 @@ const shortcuts: Shortcut[] = [
   },
   {
     event: "sidebar.moveSelectionUp",
-    keys: [KeyCode.ArrowUp],
+    keys: COMMON_KEY_COMBOS.up,
     when: "sidebar",
     repeat: true,
   },
   {
     event: "sidebar.moveSelectionDown",
-    keys: [KeyCode.ArrowDown],
+    keys: COMMON_KEY_COMBOS.down,
     when: "sidebar",
     repeat: true,
   },
@@ -50,21 +67,30 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.LetterT],
     when: "sidebar",
   },
-  {
-    event: "app.openDevTools",
-    keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterI],
-  },
-  {
-    event: "app.reload",
-    keys: [KeyCode.Control, KeyCode.LetterR],
-  },
-  {
-    event: "app.toggleFullScreen",
-    keys: [KeyCode.F11],
-  },
+
+  // Editor
   {
     event: "editor.focus",
     keys: [KeyCode.Control, KeyCode.Digit2],
+  },
+
+  // Context Menu
+  {
+    event: "contextMenu.blur",
+    keys: COMMON_KEY_COMBOS.escape,
+    when: "contextMenu",
+  },
+  {
+    event: "contextMenu.moveSelectionDown",
+    keys: COMMON_KEY_COMBOS.down,
+    when: "contextMenu",
+    repeat: true,
+  },
+  {
+    event: "contextMenu.moveSelectionUp",
+    keys: COMMON_KEY_COMBOS.up,
+    when: "contextMenu",
+    repeat: true,
   },
 ];
 

@@ -11,6 +11,57 @@ import { Notebook } from "../../shared/domain/notebook";
 import { Shortcut } from "../../shared/domain/shortcut";
 import { Tag } from "../../shared/domain/tag";
 
+export interface Events {
+  // Global
+  "app.openDevTools": void;
+  "app.reload": void;
+  "app.toggleFullScreen": void;
+  "app.inspectElement": Coord;
+
+  // Sidebar
+  "sidebar.focus": void;
+  "sidebar.toggle": void;
+  "sidebar.updateScroll": number;
+  "sidebar.scrollDown": void;
+  "sidebar.scrollUp": void;
+  "sidebar.resizeWidth": string;
+  "sidebar.toggleFilter": void;
+  "sidebar.createTag": void;
+  "sidebar.renameTag": string;
+  "sidebar.deleteTag": string;
+  "sidebar.createNotebook": { parent?: string };
+  "sidebar.renameNotebook": { id: string };
+  "sidebar.deleteNotebook": string;
+  "sidebar.createNote": void;
+  "sidebar.renameNote": string;
+  "sidebar.deleteNote": string;
+  "sidebar.setSelection": string[];
+  "sidebar.clearSelection": void;
+  "sidebar.toggleItemExpanded": string;
+  "sidebar.moveSelectionUp": void;
+  "sidebar.moveSelectionDown": void;
+  "sidebar.setExplorerView": ExplorerView;
+
+  // Editor
+  "editor.focus": void;
+
+  // Focus Tracker
+  "focus.push": Section;
+  "focus.pop": void;
+
+  // Context Menu
+  "contextMenu.blur": void;
+  "contextMenu.executeSelected": void;
+  "contextMenu.moveSelectionUp": void;
+  "contextMenu.moveSelectionDown": void;
+}
+export type EventType = keyof Events;
+export type EventValue<Ev extends EventType> = Events[Ev];
+export type EventsForNamespace<Namespace extends string> = Pick<
+  Events,
+  StartsWith<EventType, Namespace>
+>;
+
 export type Transformer<S> = (previous: S) => S;
 export type PartialTransformer<S> = (previous: S) => DeepPartial<S>;
 
@@ -55,46 +106,6 @@ export type StoreListener<EType extends EventType> = (
   ev: { type: EType; value: EventValue<EType> },
   s: StoreControls
 ) => Promise<void> | void;
-
-export interface Events {
-  "app.openDevTools": void;
-  "app.reload": void;
-  "app.toggleFullScreen": void;
-  "app.inspectElement": Coord;
-  "sidebar.focus": void;
-  "sidebar.toggle": void;
-  "sidebar.updateScroll": number;
-  "sidebar.scrollDown": void;
-  "sidebar.scrollUp": void;
-  "sidebar.resizeWidth": string;
-  "sidebar.toggleFilter": void;
-  "sidebar.createTag": void;
-  "sidebar.renameTag": string;
-  "sidebar.deleteTag": string;
-  "sidebar.createNotebook": { parent?: string };
-  "sidebar.renameNotebook": { id: string };
-  "sidebar.deleteNotebook": string;
-  "sidebar.createNote": void;
-  "sidebar.renameNote": string;
-  "sidebar.deleteNote": string;
-  "sidebar.setSelection": string[];
-  "sidebar.clearSelection": void;
-  "sidebar.toggleItemExpanded": string;
-  "sidebar.moveSelectionUp": void;
-  "sidebar.moveSelectionDown": void;
-  "sidebar.setExplorerView": ExplorerView;
-  "editor.focus": void;
-  "focus.push": Section;
-  "focus.pop": void;
-}
-export type EventType = keyof Events;
-
-export type EventValue<Ev extends EventType> = Events[Ev];
-
-export type EventsForNamespace<Namespace extends string> = Pick<
-  Events,
-  StartsWith<EventType, Namespace>
->;
 
 export function useStore(initialState: State): Store {
   // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
@@ -196,6 +207,8 @@ export function useStore(initialState: State): Store {
       const flatten = Array.isArray(event) ? event : [event];
       flatten.forEach((e) => {
         if (prev[e] != listener) {
+          console.error("prev[e]:", prev[e]);
+          console.error("listener: ", listener);
           throw new InvalidOpError(
             `Listener to remove for ${e} was not a match.`
           );

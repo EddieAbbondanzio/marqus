@@ -18,7 +18,13 @@ export interface UI {
   focused: Section[];
 }
 
-export type Section = "sidebar" | "contextMenu" | "sidebarInput" | "editor";
+export const ALL_SECTIONS = [
+  "sidebar",
+  "contextMenu",
+  "sidebarInput",
+  "editor",
+] as const;
+export type Section = typeof ALL_SECTIONS[number];
 
 export interface Sidebar {
   width: string;
