@@ -43,8 +43,6 @@ export interface CommandSchema {
   "app.reload": Command;
   "app.toggleFullScreen": Command;
   "app.inspectElement": Command<Coord>;
-  "sidebar.focus": Command;
-  "sidebar.toggle": Command;
   "sidebar.updateScroll": Command<number>;
   "sidebar.scrollDown": Command;
   "sidebar.scrollUp": Command;
@@ -65,7 +63,6 @@ export interface CommandSchema {
   "sidebar.moveSelectionUp": Command;
   "sidebar.moveSelectionDown": Command;
   "sidebar.setExplorerView": Command<ExplorerView>;
-  "editor.focus": Command;
 }
 export type CommandType = keyof CommandSchema;
 export type CommandInput<Command extends CommandType> = Parameters<

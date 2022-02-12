@@ -1,4 +1,3 @@
-import { AwaitableInput } from "../awaitableInput";
 import { KeyCode } from "../io/keyCode";
 import { Section } from "../../renderer/store/state";
 import * as yup from "yup";
@@ -8,8 +7,8 @@ import * as yup from "yup";
  * as long as they have the same command and keys.
  */
 export interface Shortcut {
-  // Command is of type string as /shared doesn't have access to CommandType.
-  command: string;
+  // Event is of type string as /shared doesn't have access to CommandType.
+  event: string;
   keys: KeyCode[];
   disabled?: boolean;
   when?: Section;
@@ -18,7 +17,7 @@ export interface Shortcut {
 }
 
 export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
-  command: yup.string().required(),
+  event: yup.string().required(),
   keys: yup.array(),
   disabled: yup.boolean().optional(),
   when: yup.mixed().optional().oneOf(["sidebar", "editor"]),

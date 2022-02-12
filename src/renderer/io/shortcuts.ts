@@ -6,12 +6,11 @@ import { CommandType } from "./commands/types";
 import { Execute } from "./commands";
 import { sleep } from "../../shared/sleep";
 import { Shortcut } from "../../shared/domain/shortcut";
+import { EventType, Store } from "../store";
 
-export function useShortcuts(
-  shortcuts: Shortcut[],
-  state: State,
-  execute: Execute
-) {
+export function useShortcuts(store: Store) {
+  const { dispatch } = store;
+  const { shortcuts, ui } = store.state;
   const [activeKeys, setActiveKeys] = useState<
     Record<string, boolean | undefined>
   >({});
@@ -26,13 +25,11 @@ export function useShortcuts(
     const activeKeysArray = toKeyArray(activeKeys);
     const shortcut = shortcuts.find(
       (s) =>
-        isEqual(s.keys, activeKeysArray) &&
-        !s.disabled &&
-        isFocused(state.ui, s.when)
+        isEqual(s.keys, activeKeysArray) && !s.disabled && isFocused(ui, s.when)
     );
 
     if (shortcut != null) {
-      void execute(shortcut.command as CommandType, undefined!);
+      void dispatch(shortcut.event as EventType, undefined!);
 
       if (shortcut.repeat) {
         (async () => {
@@ -46,7 +43,7 @@ export function useShortcuts(
 
           if (isEqual(currKeys, activeKeysArray)) {
             let int = setInterval(() => {
-              void execute(shortcut.command as CommandType, undefined!);
+              void dispatch(shortcut.event as EventType, undefined!);
             }, 125);
 
             setIntervalState(int);
@@ -97,7 +94,7 @@ export function useShortcuts(
       window.removeEventListener("keydown", keyDown);
       window.removeEventListener("keyup", keyUp);
     };
-  }, [shortcuts, execute]);
+  }, [shortcuts, dispatch]);
 }
 
 export function isFocused(ui: UI, when?: Section): boolean {

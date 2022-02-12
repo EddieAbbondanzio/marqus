@@ -9,61 +9,61 @@ export const COMMON_KEY_COMBOS: Record<string, KeyCode[]> = {
 
 const shortcuts: Shortcut[] = [
   {
-    command: "sidebar.focus",
+    event: "sidebar.focus",
     keys: [KeyCode.Control, KeyCode.Digit1],
   },
   {
-    command: "sidebar.toggle",
+    event: "sidebar.toggle",
     keys: [KeyCode.Control, KeyCode.LetterB],
   },
   {
-    command: "sidebar.scrollDown",
+    event: "sidebar.scrollDown",
     keys: COMMON_KEY_COMBOS.scrollDown,
     when: "sidebar",
     repeat: true,
   },
   {
-    command: "sidebar.scrollUp",
+    event: "sidebar.scrollUp",
     keys: COMMON_KEY_COMBOS.scrollUp,
     when: "sidebar",
     repeat: true,
   },
   {
-    command: "sidebar.moveSelectionUp",
+    event: "sidebar.moveSelectionUp",
     keys: [KeyCode.ArrowUp],
     when: "sidebar",
     repeat: true,
   },
   {
-    command: "sidebar.moveSelectionDown",
+    event: "sidebar.moveSelectionDown",
     keys: [KeyCode.ArrowDown],
     when: "sidebar",
     repeat: true,
   },
   {
-    command: "sidebar.clearSelection",
+    event: "sidebar.clearSelection",
     keys: COMMON_KEY_COMBOS.escape,
     when: "sidebar",
   },
   {
-    command: "sidebar.createTag",
+    event: "sidebar.createTag",
     keys: [KeyCode.Control, KeyCode.LetterT],
     when: "sidebar",
   },
   {
-    command: "app.openDevTools",
+    event: "app.openDevTools",
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterI],
   },
   {
-    command: "app.reload",
+    event: "app.reload",
     keys: [KeyCode.Control, KeyCode.LetterR],
   },
   {
-    command: "app.toggleFullScreen",
+    event: "app.toggleFullScreen",
     keys: [KeyCode.F11],
   },
   {
-    command: "editor.focus",
+    event: "editor.focus",
     keys: [KeyCode.Control, KeyCode.Digit2],
   },
 ];

@@ -18,18 +18,6 @@ import {
 import { NAV_MENU_HEIGHT } from "../../components/ExplorerItems";
 
 export const sidebarCommands: CommandsForNamespace<"sidebar"> = {
-  "sidebar.focus": async (ctx) => {
-    ctx.setUI({
-      focused: ["sidebar"],
-    });
-  },
-  "sidebar.toggle": async (ctx) => {
-    ctx.setUI((prev) => ({
-      sidebar: {
-        hidden: !(prev.sidebar.hidden ?? false),
-      },
-    }));
-  },
   "sidebar.resizeWidth": async (ctx, width) => {
     if (width == null) {
       throw Error();

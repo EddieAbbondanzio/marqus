@@ -3,7 +3,6 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { State, UI } from "../../store/state";
 import { deepUpdate } from "../../utils/deepUpdate";
 import { appCommands } from "./appCommands";
-import { editorCommands } from "./editorCommands";
 import { sidebarCommands } from "./sidebarCommands";
 import {
   CommandInput,
@@ -25,7 +24,6 @@ import {
 export const commands: CommandSchema = {
   ...appCommands,
   ...sidebarCommands,
-  ...editorCommands,
 };
 
 export type Execute = <C extends CommandType>(

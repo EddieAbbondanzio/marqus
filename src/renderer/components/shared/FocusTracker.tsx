@@ -6,6 +6,7 @@ import React, {
 } from "react";
 import { State, Section } from "../../store/state";
 import { SetUI } from "../../io/commands/types";
+import { Store, StoreListener } from "../../store";
 
 export type FocusSubscriber = (event: "focus" | "blur") => void;
 
@@ -18,8 +19,7 @@ export const FocusContext = createContext<{
 
 export interface FocusTrackerProps {
   className?: string;
-  state: State;
-  setUI: SetUI;
+  store: Store;
 }
 
 export interface FocusTrackerState {
@@ -27,7 +27,11 @@ export interface FocusTrackerState {
   previous?: Section;
 }
 
-export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
+export function FocusTracker({
+  store,
+  children,
+  className,
+}: PropsWithChildren<FocusTrackerProps>) {
   const [state, setState] = useState<FocusTrackerState>({
     subscribers: {},
   });
@@ -52,33 +56,8 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
     }));
   };
 
-  const push = (name: Section, overwrite: boolean) => {
-    props.setUI((s) => {
-      const focused = [name];
-      if (!overwrite && s.focused != null && s.focused[0] !== name) {
-        focused.push(s.focused[0]);
-      }
-
-      return {
-        focused,
-      };
-    });
-  };
-
-  const pop = () => {
-    props.setUI((s) => {
-      if (s.focused == null || s.focused.length === 0) {
-        return s;
-      }
-
-      return {
-        focused: [],
-      };
-    });
-  };
-
   useEffect(() => {
-    const { focused } = props.state.ui;
+    const { focused } = store.state.ui;
     if (focused == null || focused.length === 0) {
       setState((s) => ({
         ...s,
@@ -112,11 +91,49 @@ export function FocusTracker(props: PropsWithChildren<FocusTrackerProps>) {
         }
       }
     }
-  }, [props.state.ui.focused, state.previous, state.subscribers]);
+  }, [store.state.ui.focused, state.previous, state.subscribers]);
+
+  useEffect(() => {
+    store.on("focus.push", pushSection);
+    store.on("focus.pop", popSection);
+
+    return () => {
+      store.off("focus.push", pushSection);
+      store.off("focus.pop", popSection);
+    };
+  }, [store.state]);
+
+  const push = (name: Section) => store.dispatch("focus.push", name);
+  const pop = () => store.dispatch("focus.pop");
 
   return (
     <FocusContext.Provider value={{ push, pop, subscribe, unsubscribe }}>
-      <div className={props.className}>{props.children}</div>
+      <div className={className}>{children}</div>
     </FocusContext.Provider>
   );
 }
+
+const pushSection: StoreListener<"focus.push"> = (ev, ctx) => {
+  ctx.setUI((s) => {
+    const focused = [ev.value];
+    if (s.focused != null && s.focused[0] !== ev.value) {
+      focused.push(s.focused[0]);
+    }
+
+    return {
+      focused,
+    };
+  });
+};
+
+const popSection: StoreListener<"focus.pop"> = (ev, ctx) => {
+  ctx.setUI((s) => {
+    if (s.focused == null || s.focused.length === 0) {
+      return s;
+    }
+
+    return {
+      focused: [],
+    };
+  });
+};

@@ -1,5 +1,5 @@
 import { Coord } from "../../shared/dom";
-import { ExplorerView, State } from "./state";
+import { ExplorerView, Section, State } from "./state";
 import {
   SetUI,
   SetTags,
@@ -11,17 +11,18 @@ import { StartsWith } from "../types";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { deepUpdate } from "../utils/deepUpdate";
+import { InvalidOpError } from "../../shared/errors";
 
 export interface Store {
   dispatch: Dispatch;
   state: State;
   on<EType extends EventType>(
-    event: EType,
-    listener: EventListener<EType>
+    event: EType | EType[],
+    listener: StoreListener<EType>
   ): void;
   off<EType extends EventType>(
-    event: EType,
-    listener: EventListener<EType>
+    event: EType | EType[],
+    listener: StoreListener<EType>
   ): void;
 }
 
@@ -30,7 +31,7 @@ export type Dispatch = <EType extends EventType>(
   ...value: EventValue<EType> extends void ? [undefined?] : [EventValue<EType>]
 ) => Promise<void>;
 
-export type EventListener<EType extends EventType> = (
+export type StoreListener<EType extends EventType> = (
   ev: { type: EType; value: EventValue<EType> },
   s: StoreControls
 ) => Promise<void> | void;
@@ -72,6 +73,8 @@ export interface Events {
   "sidebar.moveSelectionDown": void;
   "sidebar.setExplorerView": ExplorerView;
   "editor.focus": void;
+  "focus.push": Section;
+  "focus.pop": void;
 }
 export type EventType = keyof Events;
 
@@ -86,7 +89,7 @@ export function useStore(initialState: State): Store {
   // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
   const [state, setState] = useState(initialState);
   const [listeners, setListeners] = useState<{
-    [eType in EventType]+?: EventListener<eType>;
+    [eType in EventType]+?: StoreListener<eType>;
   }>({});
   const lastState = useRef(state);
 
@@ -169,16 +172,25 @@ export function useStore(initialState: State): Store {
     [listeners, getState]
   );
 
-  const on: Store["on"] = (e, listener) => {
-    setListeners((prev) => ({
-      ...prev,
-      [e]: listener,
-    }));
+  const on: Store["on"] = (event, listener) => {
+    setListeners((prev) => {
+      const flatten = Array.isArray(event) ? event : [event];
+      flatten.forEach((e) => (prev[e] = listener as any));
+      return prev;
+    });
   };
 
-  const off: Store["off"] = (e, listener) => {
+  const off: Store["off"] = (event, listener) => {
     setListeners((prev) => {
-      delete prev[e];
+      const flatten = Array.isArray(event) ? event : [event];
+      flatten.forEach((e) => {
+        if (prev[e] != listener) {
+          throw new InvalidOpError(
+            `Listener to remove for ${e} was not a match.`
+          );
+        }
+      });
+
       return prev;
     });
   };

@@ -12,11 +12,13 @@ import { FocusTracker } from "./components/shared/FocusTracker";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
 import { Notebook } from "../shared/domain/notebook";
-import { Store, useStore } from "./store";
+import { Store, StoreListener, useStore } from "./store";
 import { Button } from "./components/shared/Button";
+import { getNodeEnv } from "../shared/env";
+import { InvalidOpError } from "../shared/errors";
 
 const { rpc } = window;
-(async () => {
+async function main() {
   fontAwesomeLib();
 
   let ui: UI;
@@ -41,6 +43,7 @@ const { rpc } = window;
   }
 
   function App() {
+    // DEPRECATED!
     const [state, execute, setUI] = useCommands({
       ui,
       shortcuts,
@@ -48,7 +51,6 @@ const { rpc } = window;
       notebooks,
       notes,
     });
-    useShortcuts(shortcuts, state, execute);
 
     // Pass store down via props
     const store = useStore({
@@ -59,16 +61,27 @@ const { rpc } = window;
       notes,
     });
 
-    store.dispatch("sidebar.toggle");
+    useShortcuts(store);
+
+    useEffect(() => {
+      store.on("sidebar.toggle", toggleSidebar);
+      store.on(["sidebar.focus", "editor.focus"], focusSection);
+
+      return () => {
+        store.off("sidebar.toggle", toggleSidebar);
+        store.off(["sidebar.focus", "editor.focus"], focusSection);
+      };
+    }, [store.state]);
 
     return (
-      <FocusTracker
-        className="h-100 w-100 is-flex is-flex-row"
-        state={state}
-        setUI={setUI}
-      >
-        {!(state.ui.sidebar.hidden ?? false) && (
-          <Sidebar state={state} execute={execute} setUI={setUI} />
+      <FocusTracker className="h-100 w-100 is-flex is-flex-row" store={store}>
+        {!(store.state.ui.sidebar.hidden ?? false) && (
+          <Sidebar
+            store={store}
+            state={state}
+            execute={execute}
+            setUI={setUI}
+          />
         )}
 
         <Focusable name="editor">Editor!</Focusable>
@@ -77,4 +90,41 @@ const { rpc } = window;
   }
 
   render(<App />, document.getElementById("app"));
-})();
+}
+
+// Only render in production, or dev
+if (getNodeEnv() !== "test") {
+  void main();
+}
+
+/*
+ * Don't move these to be in Sidebar.tsx. Otherwise the listener will only work
+ * when the sidebar is being rendered.
+ */
+export const toggleSidebar: StoreListener<"sidebar.toggle"> = (_, ctx) => {
+  ctx.setUI((prev) => ({
+    sidebar: {
+      hidden: !(prev.sidebar.hidden ?? false),
+    },
+  }));
+};
+
+export const focusSection: StoreListener<"sidebar.focus" | "editor.focus"> = (
+  ev,
+  ctx
+) => {
+  switch (ev.type) {
+    case "sidebar.focus":
+      ctx.setUI({
+        focused: ["sidebar"],
+      });
+      break;
+    case "editor.focus":
+      ctx.setUI({
+        focused: ["editor"],
+      });
+      break;
+    default:
+      throw new InvalidOpError(`Invalid focus event ${ev.type}`);
+  }
+};

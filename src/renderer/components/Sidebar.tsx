@@ -9,11 +9,12 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { NAV_MENU_ATTRIBUTE } from "./ExplorerItems";
 import { findParent } from "../utils/findParent";
-import { NotImplementedError } from "../../shared/errors";
 import { State } from "../store/state";
 import { parseResourceId } from "../../shared/domain/id";
+import { Store, StoreListener } from "../store";
 
 export interface SidebarProps {
+  store: Store;
   state: State;
   setUI: SetUI;
   execute: Execute;

@@ -7,7 +7,7 @@ import { createFileHandler } from "../fileSystem";
 import * as yup from "yup";
 
 export interface ShortcutOverride {
-  command: string;
+  event: string;
   keys?: string;
   disabled?: boolean;
   when?: string;
@@ -56,9 +56,7 @@ export const shortcutFile = createFileHandler<Shortcut[]>(
 
       const values = [];
       for (const defaultShortcut of DEFAULT_SHORTCUTS) {
-        const userOverride = raw.find(
-          (s) => s.command === defaultShortcut.command
-        );
+        const userOverride = raw.find((s) => s.event === defaultShortcut.event);
 
         let shortcut: Shortcut;
 
@@ -68,7 +66,7 @@ export const shortcutFile = createFileHandler<Shortcut[]>(
           // Validate it has keys if it's new.
           if (userOverride.keys == null) {
             throw Error(
-              `User defined shortcut for ${userOverride.command} does not have any keys specified`
+              `User defined shortcut for ${userOverride.event} does not have any keys specified`
             );
           }
 

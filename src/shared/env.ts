@@ -1,4 +1,4 @@
-export type NodeEnv = "development" | "production";
+export type NodeEnv = "development" | "production" | "test";
 export const getNodeEnv = () => process.env.NODE_ENV as NodeEnv;
 
 export type ProcessType = "main" | "renderer";

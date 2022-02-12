@@ -31,30 +31,6 @@ beforeEach(() => {
   window.rpc = jest.fn();
 });
 
-test("sidebar.focus", () => {
-  const { result } = renderHook(() => useCommands(initialState));
-  act(() => {
-    const [state, execute] = result.current;
-    expect(state.ui.focused).toEqual([]);
-    execute("sidebar.focus");
-  });
-
-  const [state] = result.current;
-  expect(state.ui.focused).toEqual(["sidebar"]);
-});
-
-test("sidebar.toggle", () => {
-  const { result } = renderHook(() => useCommands(initialState));
-  act(() => {
-    const [state, execute] = result.current;
-    expect(state.ui.sidebar.hidden).not.toBe(true);
-    execute("sidebar.toggle");
-  });
-
-  const [state] = result.current;
-  expect(state.ui.sidebar.hidden).toBe(true);
-});
-
 test("sidebar.resizeWidth", () => {
   const { result } = renderHook(() => useCommands(initialState));
   act(() => {
