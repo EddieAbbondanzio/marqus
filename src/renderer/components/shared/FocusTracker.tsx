@@ -4,8 +4,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { State, Section } from "../../store/state";
-import { SetUI } from "../../io/commands/types";
+import { Section } from "../../store/state";
 import { Store, StoreListener } from "../../store";
 import { isEmpty } from "lodash";
 

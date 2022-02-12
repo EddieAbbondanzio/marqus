@@ -1,7 +1,5 @@
 import React, { useContext, useEffect } from "react";
 import { px } from "../../shared/dom";
-import { Execute } from "../io/commands";
-import { SetUI } from "../io/commands/types";
 import { Filter } from "./Filter";
 import { ContextMenu, ContextMenuItem } from "./shared/ContextMenu";
 import { Explorer } from "./Explorer";
@@ -9,19 +7,16 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { NAV_MENU_ATTRIBUTE } from "./ExplorerItems";
 import { findParent } from "../utils/findParent";
-import { State } from "../store/state";
 import { parseResourceId } from "../../shared/domain/id";
 import { Store, StoreListener } from "../store";
 
 export interface SidebarProps {
   store: Store;
-  state: State;
-  setUI: SetUI;
-  execute: Execute;
 }
 
-export function Sidebar({ state, setUI, execute }: SidebarProps) {
+export function Sidebar({ store }: SidebarProps) {
   let contextMenuItems = (a: MouseEvent) => {
+    const { state } = store;
     const items = [];
     const { view } = state.ui.sidebar.explorer;
     switch (view) {
@@ -29,7 +24,7 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         items.push(
           <ContextMenuItem
             text="New tag"
-            command="sidebar.createTag"
+            event="sidebar.createTag"
             key="createTag"
           />
         );
@@ -39,12 +34,12 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         items.push(
           <ContextMenuItem
             text="New Note"
-            command="sidebar.createNote"
+            event="sidebar.createNote"
             key="createNote"
           />,
           <ContextMenuItem
             text="New Notebook"
-            command="sidebar.createNotebook"
+            event="sidebar.createNotebook"
             key="createNotebook"
           />
         );
@@ -54,7 +49,7 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         items.push(
           <ContextMenuItem
             text="New Note"
-            command="sidebar.createNote"
+            event="sidebar.createNote"
             key="createNote"
           />
         );
@@ -78,14 +73,14 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         items.push(
           <ContextMenuItem
             text="Rename"
-            command="sidebar.renameTag"
-            commandInput={target}
+            event="sidebar.renameTag"
+            eventInput={target}
             key="renameTag"
           />,
           <ContextMenuItem
             text="Delete"
-            command="sidebar.deleteTag"
-            commandInput={target}
+            event="sidebar.deleteTag"
+            eventInput={target}
             key="deleteTag"
           />
         );
@@ -95,14 +90,14 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         items.push(
           <ContextMenuItem
             text="Rename"
-            command="sidebar.renameNotebook"
+            event="sidebar.renameNotebook"
             key="renameNotebook"
-            commandInput={target}
+            eventInput={{ id: target }}
           />,
           <ContextMenuItem
             text="Delete"
-            command="sidebar.deleteNotebook"
-            commandInput={target}
+            event="sidebar.deleteNotebook"
+            eventInput={target}
             key="deleteNotebook"
           />
         );
@@ -112,14 +107,14 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         items.push(
           <ContextMenuItem
             text="Rename"
-            command="sidebar.renameNote"
-            commandInput={target}
+            event="sidebar.renameNote"
+            eventInput={target}
             key="renameNote"
           />,
           <ContextMenuItem
             text="Delete"
-            command="sidebar.deleteNote"
-            commandInput={target}
+            event="sidebar.deleteNote"
+            eventInput={target}
             key="deleteTag"
           />
         );
@@ -132,8 +127,8 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
   return (
     <Resizable
       minWidth={px(300)}
-      width={state.ui.sidebar.width}
-      onResize={(w) => execute("sidebar.resizeWidth", w)}
+      width={store.state.ui.sidebar.width}
+      onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
       <Focusable
         name="sidebar"
@@ -142,14 +137,27 @@ export function Sidebar({ state, setUI, execute }: SidebarProps) {
         <ContextMenu
           name="sidebarContextMenu"
           items={contextMenuItems}
-          state={state}
-          execute={execute}
-          setUI={setUI}
+          store={store}
         >
-          <Filter state={state} setUI={setUI} execute={execute} />
-          <Explorer state={state} setUI={setUI} execute={execute} />
+          <Filter store={store} />
+          <Explorer store={store} />
         </ContextMenu>
       </Focusable>
     </Resizable>
   );
 }
+
+export const resizeWidth: StoreListener<"sidebar.resizeWidth"> = (
+  { value: width },
+  ctx
+) => {
+  if (width == null) {
+    throw Error();
+  }
+
+  ctx.setUI({
+    sidebar: {
+      width,
+    },
+  });
+};

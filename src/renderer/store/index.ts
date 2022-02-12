@@ -1,17 +1,37 @@
 import { Coord } from "../../shared/dom";
-import { ExplorerView, Section, State } from "./state";
-import {
-  SetUI,
-  SetTags,
-  SetNotebooks,
-  SetShortcuts,
-  SetNotes,
-} from "../io/commands/types";
+import { ExplorerView, Section, State, UI } from "./state";
 import { StartsWith } from "../types";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { deepUpdate } from "../utils/deepUpdate";
 import { InvalidOpError } from "../../shared/errors";
+import { DeepPartial } from "tsdef";
+import { Note } from "../../shared/domain/note";
+import { Notebook } from "../../shared/domain/notebook";
+import { Shortcut } from "../../shared/domain/shortcut";
+import { Tag } from "../../shared/domain/tag";
+
+export type Transformer<S> = (previous: S) => S;
+export type PartialTransformer<S> = (previous: S) => DeepPartial<S>;
+
+export interface StoreControls {
+  setUI: SetUI;
+  setTags: SetTags;
+  setNotebooks: SetNotebooks;
+  setShortcuts: SetShortcuts;
+  setNotes: SetNotes;
+  getState(): State;
+}
+
+/**
+ * SetUI supportes partial updates since it's unlikely we'll want to update
+ * every single property at once. This also works for nested props.
+ */
+export type SetUI = (t: PartialTransformer<UI> | DeepPartial<UI>) => void;
+export type SetTags = (t: Transformer<Tag[]>) => void;
+export type SetNotebooks = (t: Transformer<Notebook[]>) => void;
+export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
+export type SetNotes = (t: Transformer<Note[]>) => void;
 
 export interface Store {
   dispatch: Dispatch;
@@ -36,15 +56,6 @@ export type StoreListener<EType extends EventType> = (
   s: StoreControls
 ) => Promise<void> | void;
 
-export interface StoreControls {
-  setUI: SetUI;
-  setTags: SetTags;
-  setNotebooks: SetNotebooks;
-  setShortcuts: SetShortcuts;
-  setNotes: SetNotes;
-  getState(): State;
-}
-
 export interface Events {
   "app.openDevTools": void;
   "app.reload": void;
@@ -60,15 +71,15 @@ export interface Events {
   "sidebar.createTag": void;
   "sidebar.renameTag": string;
   "sidebar.deleteTag": string;
-  "sidebar.createNotebook": void;
-  "sidebar.renameNotebook": string;
+  "sidebar.createNotebook": { parent?: string };
+  "sidebar.renameNotebook": { id: string };
   "sidebar.deleteNotebook": string;
   "sidebar.createNote": void;
   "sidebar.renameNote": string;
   "sidebar.deleteNote": string;
   "sidebar.setSelection": string[];
   "sidebar.clearSelection": void;
-  "sidebar.toggleExpanded": string;
+  "sidebar.toggleItemExpanded": string;
   "sidebar.moveSelectionUp": void;
   "sidebar.moveSelectionDown": void;
   "sidebar.setExplorerView": ExplorerView;

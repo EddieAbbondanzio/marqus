@@ -2,10 +2,7 @@ import { isEqual, chain } from "lodash";
 import { RefObject, useEffect, useState } from "react";
 import { Section, State, UI } from "../store/state";
 import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
-import { CommandType } from "./commands/types";
-import { Execute } from "./commands";
 import { sleep } from "../../shared/sleep";
-import { Shortcut } from "../../shared/domain/shortcut";
 import { EventType, Store } from "../store";
 
 export function useShortcuts(store: Store) {

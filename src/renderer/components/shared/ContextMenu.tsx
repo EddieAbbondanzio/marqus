@@ -11,13 +11,12 @@ import { classList, Coord } from "../../../shared/dom";
 import { State, UI } from "../../store/state";
 import { getNodeEnv } from "../../../shared/env";
 import { KeyCode } from "../../../shared/io/keyCode";
-import { Execute } from "../../io/commands";
-import { CommandInput, CommandType, SetUI } from "../../io/commands/types";
 import { useKeyboard } from "../../io/keyboard";
-import { MouseButton, MouseModifier, useMouse } from "../../io/mouse";
+import { MouseButton, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "./Focusable";
 import { FocusContext } from "./FocusTracker";
+import { Dispatch, EventType, EventValue, Store } from "../../store";
 
 export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   const items = [];
@@ -25,10 +24,10 @@ export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   if (getNodeEnv() === "development") {
     items.push(
       <ContextMenuDivider key="devDivider" />,
-      <ContextMenuItem text="Reload" command="app.reload" key="reload" />,
+      <ContextMenuItem text="Reload" event="app.reload" key="reload" />,
       <ContextMenuItem
         text="Open Dev Tools"
-        command="app.openDevTools"
+        event="app.openDevTools"
         key="openDevTools"
       />
     );
@@ -38,8 +37,8 @@ export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
       items.push(
         <ContextMenuItem
           text="Inspect Element"
-          command="app.inspectElement"
-          commandInput={{ x, y }}
+          event="app.inspectElement"
+          eventInput={{ x, y }}
           key="inspectElement"
         />
       );
@@ -51,22 +50,20 @@ export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
 
 export interface ContextMenuProps {
   name: string;
-  state: State;
-  execute: Execute;
-  setUI: SetUI;
+  store: Store;
   items: (ev?: MouseEvent) => JSX.Element[];
 }
 
-export interface ContextMenuItemProps<C extends CommandType> {
+export interface ContextMenuItemProps<EType extends EventType> {
   text: string;
-  command: C;
-  commandInput?: CommandInput<C>;
+  event: EType;
+  eventInput?: EventValue<EType>;
   selected?: boolean;
   shortcut?: string;
 }
 
-export function ContextMenuItem<C extends CommandType>(
-  props: ContextMenuItemProps<C>
+export function ContextMenuItem<E extends EventType>(
+  props: ContextMenuItemProps<E>
 ) {
   const ctx = useContext(ContextMenuContext);
 
@@ -76,22 +73,20 @@ export function ContextMenuItem<C extends CommandType>(
     "is-flex",
     "is-justify-content-space-between",
     "is-align-items-center",
-    ctx.selected?.command === props.command
-      ? "has-background-primary"
-      : undefined
+    ctx.selected?.event === props.event ? "has-background-primary" : undefined
   );
 
   const ref = useRef(null! as HTMLDivElement);
   useMouse(ref).listen({ event: "mouseOver" }, () => {
     if (!props.selected) {
-      ctx.setSelected(props.command);
+      ctx.setSelected(props.event);
     }
   });
 
   return (
     <div
       ref={ref}
-      onClick={() => ctx.execute(props.command, props.commandInput)}
+      onClick={() => ctx.dispatch(props.event, props.eventInput as any)}
       className={classes}
       key={props.text}
     >
@@ -108,8 +103,8 @@ export function ContextMenuDivider() {
 }
 
 export interface ContextMenuSelected {
-  command: CommandType;
-  commandInput?: CommandInput<CommandType>;
+  event: EventType;
+  eventInput?: EventValue<EventType>;
   index: number;
 }
 
@@ -122,9 +117,9 @@ export interface ContextMenuState {
 }
 
 const ContextMenuContext = React.createContext<{
-  selected?: { command: string; index: number };
-  execute: Execute;
-  setSelected: (command: CommandType) => void;
+  selected?: { event: string; index: number };
+  dispatch: Dispatch;
+  setSelected: (event: EventType) => void;
 }>({} as any);
 
 export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
@@ -184,9 +179,8 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
             ...state,
             active: false,
           });
-          props.setUI((s) => ({
-            focused: [s.focused?.[1]!],
-          }));
+
+          props.store.dispatch("focus.pop");
         }
       }
     }
@@ -213,11 +207,12 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     }
 
     index = clamp(index, 0, items.length - 1);
-    const { command, commandParam } = items[index].props;
+    const { event, eventInput }: Omit<ContextMenuSelected, "index"> =
+      items[index].props;
     const selected = {
       index,
-      command,
-      commandParam,
+      event,
+      eventInput,
     };
 
     return {
@@ -239,7 +234,10 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       switch (key) {
         case KeyCode.Enter:
           if (state.selected != null) {
-            props.execute(state.selected.command, state.selected.commandInput);
+            props.store.dispatch(
+              state.selected.event,
+              state.selected.eventInput
+            );
 
             setState({
               active: false,
@@ -269,32 +267,32 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     }
   );
 
-  const setSelected = (command: CommandType) => {
+  const setSelected = (event: EventType) => {
     const index = items.findIndex((i) => {
-      return i.props.command === command;
+      return i.props.command === event;
     });
 
     if (index == -1) {
       console.error(
-        `Could not find item for command ${command} current items: `,
+        `Could not find context menuitem for event ${event} current items: `,
         items
       );
-      throw Error(`Could not find item for command ${command}`);
+      throw Error(`Could not find context menu item for event ${event}`);
     }
 
-    const { commandInput } = items[index].props;
+    const { eventInput } = items[index].props;
     setState({
       ...state,
       selected: {
-        command,
+        event,
         index,
-        commandInput,
+        eventInput,
       },
     });
   };
 
-  const execute: Execute = async (command, input) => {
-    props.execute(command, input);
+  const dispatch: Dispatch = async (event, input: any) => {
+    props.store.dispatch(event, input as any);
     setState({
       ...state,
       active: false,
@@ -339,7 +337,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
               <ContextMenuContext.Provider
                 value={{
                   selected: state.selected,
-                  execute,
+                  dispatch,
                   setSelected,
                 }}
               >

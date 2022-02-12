@@ -1,7 +1,6 @@
 import { fontAwesomeLib } from "./libs/fontAwesome";
 import { render } from "react-dom";
 import React, { useEffect } from "react";
-import { useCommands } from "./io/commands";
 import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
@@ -12,8 +11,7 @@ import { FocusTracker } from "./components/shared/FocusTracker";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
 import { Notebook } from "../shared/domain/notebook";
-import { Store, StoreListener, useStore } from "./store";
-import { Button } from "./components/shared/Button";
+import { StoreListener, useStore } from "./store";
 import { getNodeEnv } from "../shared/env";
 import { InvalidOpError } from "../shared/errors";
 
@@ -43,16 +41,6 @@ async function main() {
   }
 
   function App() {
-    // DEPRECATED!
-    const [state, execute, setUI] = useCommands({
-      ui,
-      shortcuts,
-      tags,
-      notebooks,
-      notes,
-    });
-
-    // Pass store down via props
     const store = useStore({
       ui,
       shortcuts,
@@ -60,7 +48,6 @@ async function main() {
       notebooks,
       notes,
     });
-
     useShortcuts(store);
 
     useEffect(() => {
@@ -75,14 +62,7 @@ async function main() {
 
     return (
       <FocusTracker className="h-100 w-100 is-flex is-flex-row" store={store}>
-        {!(store.state.ui.sidebar.hidden ?? false) && (
-          <Sidebar
-            store={store}
-            state={state}
-            execute={execute}
-            setUI={setUI}
-          />
-        )}
+        {!(store.state.ui.sidebar.hidden ?? false) && <Sidebar store={store} />}
 
         <Focusable name="editor">Editor!</Focusable>
       </FocusTracker>
@@ -128,3 +108,10 @@ export const focusSection: StoreListener<"sidebar.focus" | "editor.focus"> = (
       throw new InvalidOpError(`Invalid focus event ${ev.type}`);
   }
 };
+
+export const openDevTools = () => rpc("app.openDevTools");
+export const reload = () => rpc("app.reload");
+export const toggleFullScreen = () => rpc("app.toggleFullScreen");
+export const inspectElement: StoreListener<"app.inspectElement"> = ({
+  value: coord,
+}) => rpc("app.inspectElement", coord);

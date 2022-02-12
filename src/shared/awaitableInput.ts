@@ -15,10 +15,15 @@ export interface AwaitableInput {
   schema: any;
   completed: Promise<[value: string, action: AwaitableOutcome]>;
 }
+export type AwaitableParams = {
+  value: string;
+  id?: string;
+  schema: yup.StringSchema;
+};
 export type AwaitableOutcome = "confirm" | "cancel";
 
 export function createAwaitableInput(
-  params: { value: string; id?: string; schema: yup.StringSchema },
+  params: AwaitableParams,
   setValue: (value: string) => void
 ): AwaitableInput {
   let mode: InputMode = params.id == null ? "create" : "update";
