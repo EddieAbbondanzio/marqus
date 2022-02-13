@@ -1,7 +1,8 @@
 import { Shortcut } from "../domain/shortcut";
 import { KeyCode, sortKeyCodes } from "./keyCode";
 
-export const COMMON_KEY_COMBOS: Record<string, KeyCode[]> = {
+export const COMMON_KEY_COMBOS = {
+  enter: [KeyCode.Enter],
   escape: [KeyCode.Escape],
   down: [KeyCode.ArrowDown],
   up: [KeyCode.ArrowUp],
@@ -75,6 +76,11 @@ const shortcuts: Shortcut[] = [
   },
 
   // Context Menu
+  {
+    event: "contextMenu.run",
+    keys: COMMON_KEY_COMBOS.enter,
+    when: "contextMenu",
+  },
   {
     event: "contextMenu.blur",
     keys: COMMON_KEY_COMBOS.escape,

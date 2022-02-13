@@ -222,33 +222,6 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     };
   };
 
-  useKeyboard(menuRef).listen(
-    {
-      event: "keydown",
-      keys: [KeyCode.Escape, KeyCode.Enter, KeyCode.ArrowUp, KeyCode.ArrowDown],
-    },
-    async (_, key) => {
-      if (!state.active) {
-        return;
-      }
-
-      switch (key) {
-        case KeyCode.Enter:
-          if (state.selected != null) {
-            props.store.dispatch(
-              state.selected.event,
-              state.selected.eventInput
-            );
-
-            setState({
-              active: false,
-            });
-          }
-          break;
-      }
-    }
-  );
-
   const setSelected = (event: EventType) => {
     const index = items.findIndex((i) => {
       return i.props.event === event;
@@ -281,35 +254,43 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
     });
   };
 
-  const onFocus = () => menuRef.current?.focus();
-  const onBlur = () => {
-    console.log("ContextMenu.onBlur()");
-    if (state.active) {
-      setState({
-        ...state,
-        active: false,
-      });
-    }
-  };
-
   useEffect(() => {
     const { store } = props;
     const moveSelectionUp = () =>
       setState((s) => calculateNextSelected(items, s, "up"));
     const moveSelectionDown = () =>
       setState((s) => calculateNextSelected(items, s, "down"));
-    const blur = () => store.dispatch("focus.pop");
+    const blur = () => {
+      store.dispatch("focus.pop");
+      if (state.active) {
+        setState({
+          ...state,
+          active: false,
+        });
+      }
+    };
+    const run = () => {
+      if (state.selected != null) {
+        props.store.dispatch(state.selected.event, state.selected.eventInput);
+
+        setState({
+          active: false,
+        });
+      }
+    };
 
     store.on("contextMenu.moveSelectionDown", moveSelectionDown);
     store.on("contextMenu.moveSelectionUp", moveSelectionUp);
     store.on("contextMenu.blur", blur);
+    store.on("contextMenu.run", run);
 
     return () => {
       store.off("contextMenu.moveSelectionDown", moveSelectionDown);
       store.off("contextMenu.moveSelectionUp", moveSelectionUp);
       store.off("contextMenu.blur", blur);
+      store.off("contextMenu.run", run);
     };
-  }, [props.store.state, setState]);
+  }, [props.store.state, setState, state.selected]);
 
   return (
     <div
@@ -318,7 +299,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       data-context-menu={props.name}
     >
       {state.active && (
-        <Focusable name={props.name} blurOnEscape={true}>
+        <Focusable name={props.name}>
           <div
             ref={menuRef}
             className="context-menu box m-0 p-0"

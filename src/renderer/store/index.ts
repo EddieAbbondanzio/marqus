@@ -51,7 +51,7 @@ export interface Events {
 
   // Context Menu
   "contextMenu.blur": void;
-  "contextMenu.executeSelected": void;
+  "contextMenu.run": void;
   "contextMenu.moveSelectionUp": void;
   "contextMenu.moveSelectionDown": void;
 }

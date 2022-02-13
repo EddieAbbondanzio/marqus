@@ -121,6 +121,7 @@ export function FocusTracker({
     if (previous != null) {
       const sub = subscribers[previous];
       sub?.("blur");
+    } else {
     }
   };
 
@@ -132,7 +133,7 @@ export function FocusTracker({
       store.off("focus.push", pushSection);
       store.off("focus.pop", popSection);
     };
-  }, [store.state, subscribers]);
+  }, [store.state.ui.focused, subscribers]);
 
   const push = (name: Section) => store.dispatch("focus.push", name);
   const pop = () => store.dispatch("focus.pop");
