@@ -18,39 +18,44 @@ export function useShortcuts(store: Store) {
     console.warn("No shortcuts passed to useShortcuts() hook.");
   }
 
-  if (didKeysChange) {
-    const activeKeysArray = toKeyArray(activeKeys);
-    const shortcut = shortcuts.find(
-      (s) =>
-        isEqual(s.keys, activeKeysArray) && !s.disabled && isFocused(ui, s.when)
-    );
+  // Needs to be wrapped in useEffect() to prevent React from throwing a error
+  useEffect(() => {
+    if (didKeysChange) {
+      const activeKeysArray = toKeyArray(activeKeys);
+      const shortcut = shortcuts.find(
+        (s) =>
+          isEqual(s.keys, activeKeysArray) &&
+          !s.disabled &&
+          isFocused(ui, s.when)
+      );
 
-    if (shortcut != null) {
-      void dispatch(shortcut.event as EventType, undefined!);
+      if (shortcut != null) {
+        void dispatch(shortcut.event as EventType, undefined!);
 
-      if (shortcut.repeat) {
-        (async () => {
-          /*
-           * First pause is twice as long to ensure a user really
-           * wants it to repeat (IE hold to continue scrolling down)
-           * vs just being a false negative.
-           */
-          await sleep(250);
-          const currKeys = toKeyArray(activeKeys);
+        if (shortcut.repeat) {
+          (async () => {
+            /*
+             * First pause is twice as long to ensure a user really
+             * wants it to repeat (IE hold to continue scrolling down)
+             * vs just being a false negative.
+             */
+            await sleep(250);
+            const currKeys = toKeyArray(activeKeys);
 
-          if (isEqual(currKeys, activeKeysArray)) {
-            let int = setInterval(() => {
-              void dispatch(shortcut.event as EventType, undefined!);
-            }, 125);
+            if (isEqual(currKeys, activeKeysArray)) {
+              let int = setInterval(() => {
+                void dispatch(shortcut.event as EventType, undefined!);
+              }, 125);
 
-            setIntervalState(int);
-          }
-        })();
+              setIntervalState(int);
+            }
+          })();
+        }
       }
-    }
 
-    setDidKeysChange(false);
-  }
+      setDidKeysChange(false);
+    }
+  }, [activeKeys, shortcuts, didKeysChange]);
 
   useEffect(() => {
     const keyDown = (ev: KeyboardEvent) => {

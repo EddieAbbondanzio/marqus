@@ -4,7 +4,6 @@ import * as yup from "yup";
 import { idSchema, resourceId } from "./id";
 import { Tag } from "./tag";
 import { Notebook } from "./notebook";
-import { faFile } from "@fortawesome/free-solid-svg-icons";
 import { isBlank } from "../utils";
 
 export enum NoteFlag {

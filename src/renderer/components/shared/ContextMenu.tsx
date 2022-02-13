@@ -10,7 +10,6 @@ import React, {
 } from "react";
 import { PropsWithChildren } from "react";
 import { classList, Coord } from "../../../shared/dom";
-import { State, UI } from "../../store/state";
 import { getNodeEnv } from "../../../shared/env";
 import { KeyCode } from "../../../shared/io/keyCode";
 import { useKeyboard } from "../../io/keyboard";
@@ -252,7 +251,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
 
   const setSelected = (event: EventType) => {
     const index = items.findIndex((i) => {
-      return i.props.command === event;
+      return i.props.event === event;
     });
 
     if (index == -1) {

@@ -58,10 +58,19 @@ async function main() {
       store.on("sidebar.focus", focusSidebar);
       store.on("editor.focus", focusEditor);
 
+      store.on("app.inspectElement", inspectElement);
+      store.on("app.openDevTools", openDevTools);
+      store.on("app.reload", reload);
+      store.on("app.toggleFullScreen", toggleFullScreen);
       return () => {
         store.off("sidebar.toggle", toggleSidebar);
         store.off("sidebar.focus", focusSidebar);
         store.off("editor.focus", focusEditor);
+
+        store.off("app.inspectElement", inspectElement);
+        store.off("app.openDevTools", openDevTools);
+        store.off("app.reload", reload);
+        store.off("app.toggleFullScreen", toggleFullScreen);
       };
     }, [store.state]);
 
