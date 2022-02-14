@@ -6,7 +6,7 @@ import { classList, percentage, px } from "../../shared/dom";
 import { InvalidOpError } from "../../shared/errors";
 import { KeyCode } from "../../shared/io/keyCode";
 import { useKeyboard } from "../io/keyboard";
-import { BulmaSize } from "../libs/shared";
+import { BulmaSize } from "../libs/bulma";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import * as yup from "yup";

@@ -9,7 +9,11 @@ import { Icon } from "./shared/Icon";
 import { ExplorerInput, ExplorerMenu, NAV_MENU_HEIGHT } from "./ExplorerItems";
 import { Scrollable } from "./shared/Scrollable";
 import { Tab, Tabs } from "./shared/Tabs";
-import { InvalidOpError, NotImplementedError } from "../../shared/errors";
+import {
+  InvalidOpError,
+  NotFoundError,
+  NotImplementedError,
+} from "../../shared/errors";
 import { isResourceId, parseResourceId } from "../../shared/domain/id";
 import {
   Note,
@@ -34,8 +38,14 @@ import {
   TRASH_ICON,
 } from "../libs/fontAwesome";
 import { MouseButton } from "../io/mouse";
-import { EventType, EventValue, Store, StoreListener } from "../store";
-import { head, clamp, isEmpty } from "lodash";
+import {
+  EventType,
+  EventValue,
+  Store,
+  StoreControls,
+  StoreListener,
+} from "../store";
+import { head, clamp, isEmpty, take } from "lodash";
 import {
   AwaitableParams,
   createAwaitableInput,
@@ -63,7 +73,7 @@ export function Explorer({ store }: ExplorerProps) {
   const { explorer } = store.state.ui.sidebar;
   const { input, view, selected, expanded } = explorer;
 
-  const [items] = useMemo(
+  const [items, selectables] = useMemo(
     () => getExplorerItems(view, notes, notebooks, tags),
     [view, notes, notebooks, tags]
   );
@@ -167,16 +177,72 @@ export function Explorer({ store }: ExplorerProps) {
     store.dispatch("sidebar.setExplorerView", view);
 
   useEffect(() => {
+    const getNext = (increment: number) => {
+      if (isEmpty(selected)) {
+        return take(selectables, 1);
+      }
+      let next = 0;
+      let curr = 0;
+
+      const firstSelected = head(selected)!;
+      curr = selectables.findIndex((s) => s === firstSelected);
+      if (curr === -1) {
+        throw new NotFoundError(`No selectable ${firstSelected} found`);
+      }
+
+      next = clamp(curr + increment, 0, selectables.length - 1);
+      return selectables.slice(next, next + 1);
+    };
+    const updateSelected: StoreListener<
+      | "sidebar.clearSelection"
+      | "sidebar.moveSelectionDown"
+      | "sidebar.moveSelectionUp"
+    > = ({ type }, { setUI }) =>
+      setUI(() => {
+        let selected;
+        switch (type) {
+          case "sidebar.moveSelectionDown":
+            selected = getNext(1);
+            break;
+          case "sidebar.moveSelectionUp":
+            selected = getNext(-1);
+            break;
+        }
+        return {
+          sidebar: {
+            explorer: {
+              selected,
+            },
+          },
+        };
+      });
+
     store.on("sidebar.scrollUp", scrollUp);
     store.on("sidebar.scrollDown", scrollDown);
     store.on("sidebar.updateScroll", updateScroll);
     store.on("sidebar.toggleItemExpanded", toggleItemExpanded);
+    store.on(
+      [
+        "sidebar.moveSelectionUp",
+        "sidebar.moveSelectionDown",
+        "sidebar.clearSelection",
+      ],
+      updateSelected
+    );
 
     return () => {
       store.off("sidebar.scrollUp", scrollUp);
       store.off("sidebar.scrollDown", scrollDown);
       store.off("sidebar.updateScroll", updateScroll);
       store.off("sidebar.toggleItemExpanded", toggleItemExpanded);
+      store.off(
+        [
+          "sidebar.moveSelectionUp",
+          "sidebar.moveSelectionDown",
+          "sidebar.clearSelection",
+        ],
+        updateSelected
+      );
     };
   }, [store.state]);
 
@@ -775,82 +841,6 @@ export const clearSelection: StoreListener<"sidebar.clearSelection"> = (
       },
     });
   }
-};
-
-export const moveSelectionUp: StoreListener<"sidebar.moveSelectionUp"> = (
-  _,
-  { getState, setUI }
-) => {
-  const { ui, notes, notebooks, tags } = getState();
-  const [, selectables] = getExplorerItems(
-    ui.sidebar.explorer.view,
-    notes,
-    notebooks,
-    tags
-  );
-
-  const { selected } = ui.sidebar.explorer;
-  if (isEmpty(selected)) {
-    setUI({
-      sidebar: {
-        explorer: {
-          selected: selectables.slice(0, 1),
-        },
-      },
-    });
-  } else {
-    const curr = selectables.findIndex((s) => s === selected![0]);
-    if (curr == -1) {
-      throw Error(`Current selectable not found`);
-    }
-
-    const next = clamp(curr - 1, 0, selectables.length - 1);
-    if (curr !== next) {
-      setUI({
-        sidebar: {
-          explorer: {
-            selected: selectables.slice(next, next + 1),
-          },
-        },
-      });
-    }
-  }
-};
-
-export const moveSelectionDown: StoreListener<"sidebar.moveSelectionDown"> = (
-  _,
-  { getState, setUI }
-) => {
-  const { ui, notes, notebooks, tags } = getState();
-  const [, selectables] = getExplorerItems(
-    ui.sidebar.explorer.view,
-    notes,
-    notebooks,
-    tags
-  );
-
-  const { selected } = ui.sidebar.explorer;
-  let nextIndex = 0;
-  let currIndex;
-  if (selected != null && selected.length > 0) {
-    currIndex = selectables.findIndex((s) => s === head(selected));
-    if (currIndex == -1) {
-      throw Error(`Current selectable not found`);
-    }
-
-    nextIndex = clamp(currIndex + 1, 0, selectables.length - 1);
-    if (nextIndex == currIndex) {
-      return;
-    }
-  }
-
-  setUI({
-    sidebar: {
-      explorer: {
-        selected: selectables.slice(nextIndex, nextIndex + 1),
-      },
-    },
-  });
 };
 
 export const setExplorerView: StoreListener<"sidebar.setExplorerView"> = (
