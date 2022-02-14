@@ -183,7 +183,6 @@ export function Explorer({ store }: ExplorerProps) {
       }
       let next = 0;
       let curr = 0;
-
       const firstSelected = head(selected)!;
       curr = selectables.findIndex((s) => s === firstSelected);
       if (curr === -1) {
@@ -193,11 +192,13 @@ export function Explorer({ store }: ExplorerProps) {
       next = clamp(curr + increment, 0, selectables.length - 1);
       return selectables.slice(next, next + 1);
     };
+
     const updateSelected: StoreListener<
       | "sidebar.clearSelection"
       | "sidebar.moveSelectionDown"
       | "sidebar.moveSelectionUp"
-    > = ({ type }, { setUI }) =>
+      | "sidebar.setSelection"
+    > = ({ type, value }, { setUI }) =>
       setUI(() => {
         let selected;
         switch (type) {
@@ -206,6 +207,9 @@ export function Explorer({ store }: ExplorerProps) {
             break;
           case "sidebar.moveSelectionUp":
             selected = getNext(-1);
+            break;
+          case "sidebar.setSelection":
+            selected = value!;
             break;
         }
         return {
@@ -217,6 +221,20 @@ export function Explorer({ store }: ExplorerProps) {
         };
       });
 
+    const setView: StoreListener<"sidebar.setExplorerView"> = (
+      { value: view },
+      { setUI }
+    ) =>
+      setUI({
+        sidebar: {
+          explorer: {
+            view,
+            input: undefined,
+            selected: undefined,
+          },
+        },
+      });
+
     store.on("sidebar.scrollUp", scrollUp);
     store.on("sidebar.scrollDown", scrollDown);
     store.on("sidebar.updateScroll", updateScroll);
@@ -226,9 +244,11 @@ export function Explorer({ store }: ExplorerProps) {
         "sidebar.moveSelectionUp",
         "sidebar.moveSelectionDown",
         "sidebar.clearSelection",
+        "sidebar.setSelection",
       ],
       updateSelected
     );
+    store.on("sidebar.setExplorerView", setView);
 
     return () => {
       store.off("sidebar.scrollUp", scrollUp);
@@ -240,9 +260,11 @@ export function Explorer({ store }: ExplorerProps) {
           "sidebar.moveSelectionUp",
           "sidebar.moveSelectionDown",
           "sidebar.clearSelection",
+          "sidebar.setSelection",
         ],
         updateSelected
       );
+      store.off("sidebar.setExplorerView", setView);
     };
   }, [store.state]);
 
@@ -801,63 +823,4 @@ export const deleteNote: StoreListener<"sidebar.deleteNote"> = (
   ctx
 ) => {
   throw new NotImplementedError();
-};
-
-export const setSelection: StoreListener<"sidebar.setSelection"> = (
-  { value: selected },
-  ctx
-) => {
-  if (selected == null) {
-    throw Error();
-  }
-
-  ctx.setUI({
-    sidebar: {
-      explorer: {
-        selected,
-      },
-    },
-  });
-};
-
-export const clearSelection: StoreListener<"sidebar.clearSelection"> = (
-  _,
-  ctx
-) => {
-  const {
-    ui: {
-      sidebar: {
-        explorer: { selected },
-      },
-    },
-  } = ctx.getState();
-
-  if (!isEmpty(selected)) {
-    ctx.setUI({
-      sidebar: {
-        explorer: {
-          selected: [],
-        },
-      },
-    });
-  }
-};
-
-export const setExplorerView: StoreListener<"sidebar.setExplorerView"> = (
-  { value: view },
-  ctx
-) => {
-  if (view == null) {
-    throw Error();
-  }
-
-  ctx.setUI({
-    sidebar: {
-      explorer: {
-        view,
-        input: undefined,
-        selected: undefined,
-      },
-    },
-  });
 };
