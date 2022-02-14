@@ -4,7 +4,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { Section } from "../../store/state";
+import { Section } from "../../state";
 import { Store, StoreListener, useStore } from "../../store";
 import { head, isEmpty } from "lodash";
 

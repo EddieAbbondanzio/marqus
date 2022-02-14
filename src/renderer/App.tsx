@@ -5,7 +5,7 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { Focusable } from "./components/shared/Focusable";
-import { UI } from "./store/state";
+import { UI } from "./state";
 import { Shortcut } from "../shared/domain/shortcut";
 import { FocusTracker } from "./components/shared/FocusTracker";
 import { Note } from "../shared/domain/note";

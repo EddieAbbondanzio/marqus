@@ -1,9 +1,12 @@
-import { isEqual, chain } from "lodash";
-import { RefObject, useEffect, useState } from "react";
-import { Section, State, UI } from "../store/state";
-import { parseKeyCode, KeyCode, sortKeyCodes } from "../../shared/io/keyCode";
+import { chain, isEqual } from "lodash";
+import { useEffect, useState } from "react";
+import { KeyCode, parseKeyCode, sortKeyCodes } from "../../shared/io/keyCode";
 import { sleep } from "../../shared/sleep";
+import { Section, UI } from "../state";
 import { EventType, Store } from "../store";
+
+const INITIAL_DELAY = 250;
+const REPEAT_DELAY = 125;
 
 export function useShortcuts(store: Store) {
   const { dispatch } = store;
@@ -37,15 +40,15 @@ export function useShortcuts(store: Store) {
             /*
              * First pause is twice as long to ensure a user really
              * wants it to repeat (IE hold to continue scrolling down)
-             * vs just being a false negative.
+             * vs just being a key held too long.
              */
-            await sleep(250);
+            await sleep(INITIAL_DELAY);
             const currKeys = toKeyArray(activeKeys);
 
             if (isEqual(currKeys, activeKeysArray)) {
               let int = setInterval(() => {
                 void dispatch(shortcut.event as EventType, undefined!);
-              }, 125);
+              }, REPEAT_DELAY);
 
               setIntervalState(int);
             }

@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import { classList } from "../../../shared/dom";
-import { BulmaSize } from "../../shared";
+import { BulmaSize } from "../../libs/shared";
 
 export interface TabsProps {
   className?: string;

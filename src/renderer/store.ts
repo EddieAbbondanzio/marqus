@@ -1,15 +1,15 @@
-import { Coord } from "../../shared/dom";
+import { Coord } from "../shared/dom";
 import { ExplorerView, Section, State, UI } from "./state";
-import { StartsWith } from "../types";
+import { StartsWith } from "./types";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
-import { deepUpdate } from "../utils/deepUpdate";
-import { InvalidOpError } from "../../shared/errors";
+import { deepUpdate } from "./utils/deepUpdate";
+import { InvalidOpError } from "../shared/errors";
 import { DeepPartial } from "tsdef";
-import { Note } from "../../shared/domain/note";
-import { Notebook } from "../../shared/domain/notebook";
-import { Shortcut } from "../../shared/domain/shortcut";
-import { Tag } from "../../shared/domain/tag";
+import { Note } from "../shared/domain/note";
+import { Notebook } from "../shared/domain/notebook";
+import { Shortcut } from "../shared/domain/shortcut";
+import { Tag } from "../shared/domain/tag";
 
 export interface Events {
   // Global

@@ -1,7 +1,7 @@
 import React from "react";
 import { PropsWithChildren } from "react";
 import { classList } from "../../../shared/dom";
-import { BulmaSize } from "../../shared";
+import { BulmaSize } from "../../libs/shared";
 
 export interface InputProps {
   className?: string;

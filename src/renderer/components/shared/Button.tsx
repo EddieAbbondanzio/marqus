@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import { classList } from "../../../shared/dom";
-import { BulmaColor, BulmaSize, ButtonType } from "../../shared";
+import { BulmaColor, BulmaSize, ButtonType } from "../../libs/shared";
 import { IconProps } from "./Icon";
 
 export interface ButtonProps {

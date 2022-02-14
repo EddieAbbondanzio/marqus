@@ -5,7 +5,7 @@ import {
 } from "@fortawesome/react-fontawesome";
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { classList } from "../../../shared/dom";
-import { BulmaColor, BulmaSize, ButtonType } from "../../shared";
+import { BulmaColor, BulmaSize, ButtonType } from "../../libs/shared";
 
 export interface IconProps {
   icon: IconDefinition;
