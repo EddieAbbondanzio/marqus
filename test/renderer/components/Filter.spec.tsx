@@ -7,12 +7,12 @@ test.each([
   [undefined, true],
   [false, true],
   [true, false],
-])("sidebar.toggleFilter works for each case", (expanded, output) => {
+])("sidebar.toggleFilter works for each case", (input, output) => {
   const controls = createStoreControls({
     ui: {
       sidebar: {
         filter: {
-          expanded,
+          expanded: input,
         },
       },
     },

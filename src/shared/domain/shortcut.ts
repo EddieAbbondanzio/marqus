@@ -9,6 +9,7 @@ import * as yup from "yup";
 export interface Shortcut {
   // Event is of type string as /shared doesn't have access to CommandType.
   event: string;
+  eventInput?: any;
   keys: KeyCode[];
   disabled?: boolean;
   when?: Section;
@@ -18,6 +19,7 @@ export interface Shortcut {
 
 export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
   event: yup.string().required(),
+  eventInput: yup.mixed().optional(),
   keys: yup.array(),
   disabled: yup.boolean().optional(),
   when: yup.mixed().optional().oneOf(ALL_SECTIONS),

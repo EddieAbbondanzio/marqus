@@ -27,7 +27,8 @@ const shortcuts: Shortcut[] = [
 
   // Sidebar
   {
-    event: "sidebar.focus",
+    event: "focus.push",
+    eventInput: "sidebar",
     keys: [KeyCode.Control, KeyCode.Digit1],
   },
   {
@@ -71,7 +72,8 @@ const shortcuts: Shortcut[] = [
 
   // Editor
   {
-    event: "editor.focus",
+    event: "focus.push",
+    eventInput: "editor",
     keys: [KeyCode.Control, KeyCode.Digit2],
   },
 

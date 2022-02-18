@@ -50,12 +50,7 @@ async function main() {
     useShortcuts(store);
 
     useEffect(() => {
-      const focusSidebar = () => store.dispatch("focus.push", "sidebar");
-      const focusEditor = () => store.dispatch("focus.push", "editor");
-
       store.on("sidebar.toggle", toggleSidebar);
-      store.on("sidebar.focus", focusSidebar);
-      store.on("editor.focus", focusEditor);
 
       store.on("app.inspectElement", inspectElement);
       store.on("app.openDevTools", openDevTools);
@@ -66,8 +61,6 @@ async function main() {
       store.on("focus.pop", pop);
       return () => {
         store.off("sidebar.toggle", toggleSidebar);
-        store.off("sidebar.focus", focusSidebar);
-        store.off("editor.focus", focusEditor);
 
         store.off("app.inspectElement", inspectElement);
         store.off("app.openDevTools", openDevTools);

@@ -19,7 +19,6 @@ export interface Events {
   "app.inspectElement": Coord;
 
   // Sidebar
-  "sidebar.focus": void;
   "sidebar.toggle": void;
   "sidebar.updateScroll": number;
   "sidebar.scrollDown": void;
@@ -43,7 +42,6 @@ export interface Events {
   "sidebar.setExplorerView": ExplorerView;
 
   // Editor
-  "editor.focus": void;
 
   // Focus Tracker
   "focus.push": Section;

@@ -33,7 +33,7 @@ export function useShortcuts(store: Store) {
       );
 
       if (shortcut != null) {
-        void dispatch(shortcut.event as EventType, undefined!);
+        void dispatch(shortcut.event as EventType, shortcut.eventInput);
 
         if (shortcut.repeat) {
           (async () => {
@@ -47,7 +47,7 @@ export function useShortcuts(store: Store) {
 
             if (isEqual(currKeys, activeKeysArray)) {
               let int = setInterval(() => {
-                void dispatch(shortcut.event as EventType, undefined!);
+                void dispatch(shortcut.event as EventType, shortcut.eventInput);
               }, REPEAT_DELAY);
 
               setIntervalState(int);
