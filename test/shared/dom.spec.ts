@@ -1,4 +1,4 @@
-import { classList } from "./dom";
+import { classList } from "../../src/shared/dom";
 
 describe("classList()", () => {
   test("it skips nulls and undefined", () => {

@@ -1,8 +1,8 @@
-import { createNote, Note } from "../../shared/domain/note";
-import { writeFile } from "../fileSystem";
-import { loadMetadata, saveMetadata } from "./notes";
+import { createNote, Note } from "../../src/shared/domain/note";
+import { writeFile } from "../../src/main/fileSystem";
+import { loadMetadata, saveMetadata } from "../../src/main/rpcs/notes";
 
-jest.mock("../fileSystem", () => ({
+jest.mock("../../src/main/fileSystem", () => ({
   writeFile: jest.fn(),
   readFile: () => {
     return JSON.parse(

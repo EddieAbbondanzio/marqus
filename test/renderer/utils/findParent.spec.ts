@@ -1,4 +1,4 @@
-import { findParent } from "./findParent";
+import { findParent } from "../../../src/renderer/utils/findParent";
 
 describe("climbDomUntil()", () => {
   const parent = document.createElement("div");

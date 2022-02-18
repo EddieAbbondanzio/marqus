@@ -1,4 +1,4 @@
-import { deepUpdate } from "./deepUpdate";
+import { deepUpdate } from "../../../src/renderer/utils/deepUpdate";
 
 describe("deepUpdate()", () => {
   test("adds new props", () => {

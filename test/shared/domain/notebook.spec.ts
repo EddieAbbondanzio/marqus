@@ -1,10 +1,10 @@
 import {
-  addChild,
   createNotebook,
-  getNotebookById,
   getNotebookSchema,
+  addChild,
+  getNotebookById,
   removeChild,
-} from "./notebook";
+} from "../../../src/shared/domain/notebook";
 
 test("getNotebookSchema detects duplicate name and same parent", () => {
   const notebook1 = createNotebook({ name: "foo" });

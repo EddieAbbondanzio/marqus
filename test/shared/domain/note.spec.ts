@@ -1,5 +1,5 @@
-import { Note, getNotesForTag } from "./note";
-import { Tag } from "./tag";
+import { Note, getNotesForTag } from "../../../src/shared/domain/note";
+import { Tag } from "../../../src/shared/domain/tag";
 
 test("getNotesForTag() returns notes", () => {
   const n1 = {

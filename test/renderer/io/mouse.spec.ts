@@ -6,7 +6,7 @@ import {
   MouseController,
   MouseEventOpts,
   MouseModifier,
-} from "./mouse";
+} from "../../../src/renderer/io/mouse";
 
 describe("MouseController", () => {
   beforeEach(() => {

@@ -11,7 +11,7 @@ import {
   isAction,
   keyCodesToString,
   sortKeyCodes,
-} from "./keyCode";
+} from "../../../src/shared/io/keyCode";
 
 describe("parseKey()", () => {
   test.each([

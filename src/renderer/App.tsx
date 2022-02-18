@@ -12,7 +12,6 @@ import { Tag } from "../shared/domain/tag";
 import { Notebook } from "../shared/domain/notebook";
 import { StoreListener, useStore } from "./store";
 import { getNodeEnv } from "../shared/env";
-import { InvalidOpError } from "../shared/errors";
 import { head, isEmpty, isEqual } from "lodash";
 
 const { rpc } = window;

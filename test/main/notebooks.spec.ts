@@ -1,10 +1,14 @@
-import { resourceId } from "../../shared/domain/id";
+import { resourceId } from "../../src/shared/domain/id";
 import {
   addChild,
   createNotebook,
   Notebook,
-} from "../../shared/domain/notebook";
-import { deserialize, serialize, SerializedNotebook } from "./notebooks";
+} from "../../src/shared/domain/notebook";
+import {
+  deserialize,
+  serialize,
+  SerializedNotebook,
+} from "../../src/main/rpcs/notebooks";
 
 test("serialize is recursive", () => {
   const parent = createNotebook({ name: "parent " });
