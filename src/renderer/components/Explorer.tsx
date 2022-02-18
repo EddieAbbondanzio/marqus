@@ -104,7 +104,7 @@ export function Explorer({ store }: ExplorerProps) {
       if (input?.mode === "update" && input.id === item.id) {
         rendered.push(
           <ExplorerInput
-            name="sidebarInput"
+            store={store}
             key="create"
             size="is-small"
             {...input}
@@ -143,7 +143,7 @@ export function Explorer({ store }: ExplorerProps) {
       if (input?.parentId == parent?.id) {
         rendered.push(
           <ExplorerInput
-            name="sidebarInput"
+            store={store}
             key="create"
             size="is-small"
             {...input}
@@ -249,6 +249,7 @@ export function Explorer({ store }: ExplorerProps) {
       updateSelected
     );
     store.on("sidebar.setExplorerView", setView);
+    store.on(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
 
     return () => {
       store.off("sidebar.scrollUp", scrollUp);
@@ -265,6 +266,7 @@ export function Explorer({ store }: ExplorerProps) {
         updateSelected
       );
       store.off("sidebar.setExplorerView", setView);
+      store.off(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
     };
   }, [store.state]);
 
@@ -445,8 +447,9 @@ export const updateScroll: StoreListener<"sidebar.updateScroll"> = (
     },
   });
 };
-export const scrollUp: StoreListener<"sidebar.scrollUp"> = (ev, ctx) => {
-  ctx.setUI((prev) => {
+
+export const scrollUp: StoreListener<"sidebar.scrollUp"> = (_, { setUI }) => {
+  setUI((prev) => {
     const scroll = Math.max(prev.sidebar.scroll - NAV_MENU_HEIGHT, 0);
     return {
       sidebar: {
@@ -455,8 +458,12 @@ export const scrollUp: StoreListener<"sidebar.scrollUp"> = (ev, ctx) => {
     };
   });
 };
-export const scrollDown: StoreListener<"sidebar.scrollDown"> = (ev, ctx) => {
-  ctx.setUI((prev) => {
+
+export const scrollDown: StoreListener<"sidebar.scrollDown"> = (
+  _,
+  { setUI }
+) => {
+  setUI((prev) => {
     // Max scroll clamp is performed in scrollable.
     const scroll = prev.sidebar.scroll + NAV_MENU_HEIGHT;
     return {
@@ -495,16 +502,16 @@ export const toggleItemExpanded: StoreListener<"sidebar.toggleItemExpanded"> = (
   });
 };
 
-export const createTag: StoreListener<
+export const createOrRenameTag: StoreListener<
   "sidebar.createTag" | "sidebar.renameTag"
-> = async ({ value: id }, ctx) => {
-  let isRename = id != null;
+> = async ({ type, value: id }, ctx) => {
   let { tags } = ctx.getState();
-  const otherTags = isRename ? tags.filter((t) => t.id !== id) : tags;
+  const otherTags =
+    type == "sidebar.renameTag" ? tags.filter((t) => t.id !== id) : tags;
   let schema: yup.StringSchema = yup.reach(getTagSchema(otherTags), "name");
 
   let inputParams: AwaitableParams = { value: "", schema };
-  if (isRename) {
+  if (type == "sidebar.renameTag") {
     const tag = getTagById(tags, id!);
     inputParams.id = tag.id;
     inputParams.value = tag.name;

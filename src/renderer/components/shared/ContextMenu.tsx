@@ -11,13 +11,11 @@ import React, {
 import { PropsWithChildren } from "react";
 import { classList, Coord } from "../../../shared/dom";
 import { getNodeEnv } from "../../../shared/env";
-import { KeyCode } from "../../../shared/io/keyCode";
-import { useKeyboard } from "../../io/keyboard";
 import { MouseButton, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "./Focusable";
-import { FocusContext } from "./FocusTracker";
 import { Dispatch, EventType, EventValue, Store } from "../../store";
+import { Section } from "../../state";
 
 export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   const items = [];
@@ -51,7 +49,7 @@ export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
 
 export interface ContextMenuProps {
   store: Store;
-  name: string;
+  name: Section;
   items: (ev?: MouseEvent) => JSX.Element[];
 }
 
@@ -132,7 +130,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
   });
 
   const [items, setItems] = useState([] as JSX.Element[]);
-  const ctx = useContext(FocusContext);
+  // const ctx = useContext(FocusContext);
   useMouse(wrapperRef).listen(
     { event: "click", button: MouseButton.Right },
     (ev) => {
@@ -161,7 +159,8 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       });
 
       if (active) {
-        ctx.push("contextMenu");
+        props.store.dispatch("focus.push", "contextMenu");
+        // ctx.push("contextMenu");
       }
     }
   );
@@ -299,7 +298,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       data-context-menu={props.name}
     >
       {state.active && (
-        <Focusable name={props.name}>
+        <Focusable store={props.store} name={props.name}>
           <div
             ref={menuRef}
             className="context-menu box m-0 p-0"

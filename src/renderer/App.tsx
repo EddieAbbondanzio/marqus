@@ -5,15 +5,15 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { Focusable } from "./components/shared/Focusable";
-import { UI } from "./state";
+import { Section, UI } from "./state";
 import { Shortcut } from "../shared/domain/shortcut";
-import { FocusTracker } from "./components/shared/FocusTracker";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
 import { Notebook } from "../shared/domain/notebook";
 import { StoreListener, useStore } from "./store";
 import { getNodeEnv } from "../shared/env";
 import { InvalidOpError } from "../shared/errors";
+import { head, isEmpty, isEqual } from "lodash";
 
 const { rpc } = window;
 async function main() {
@@ -34,7 +34,7 @@ async function main() {
       rpc("notes.getAll"),
     ]);
   } catch (e) {
-    console.log("Fatal Error", e);
+    console.error("Fatal Error", e);
     await promptFatal((e as Error).message);
     rpc("app.quit");
     return;
@@ -62,6 +62,9 @@ async function main() {
       store.on("app.openDevTools", openDevTools);
       store.on("app.reload", reload);
       store.on("app.toggleFullScreen", toggleFullScreen);
+
+      store.on("focus.push", push);
+      store.on("focus.pop", pop);
       return () => {
         store.off("sidebar.toggle", toggleSidebar);
         store.off("sidebar.focus", focusSidebar);
@@ -71,15 +74,20 @@ async function main() {
         store.off("app.openDevTools", openDevTools);
         store.off("app.reload", reload);
         store.off("app.toggleFullScreen", toggleFullScreen);
+
+        store.off("focus.push", push);
+        store.off("focus.pop", pop);
       };
     }, [store.state]);
 
     return (
-      <FocusTracker className="h-100 w-100 is-flex is-flex-row" store={store}>
+      <div className="h-100 w-100 is-flex is-flex-row">
         {!(store.state.ui.sidebar.hidden ?? false) && <Sidebar store={store} />}
 
-        <Focusable name="editor">Editor!</Focusable>
-      </FocusTracker>
+        <Focusable store={store} name="editor">
+          Editor!
+        </Focusable>
+      </div>
     );
   }
 
@@ -109,3 +117,35 @@ export const toggleFullScreen = () => rpc("app.toggleFullScreen");
 export const inspectElement: StoreListener<"app.inspectElement"> = ({
   value: coord,
 }) => rpc("app.inspectElement", coord);
+
+export const push: StoreListener<"focus.push"> = ({ value: next }, ctx) => {
+  let previous: Section | undefined;
+  const state = ctx.getState();
+  if (isEqual(state.ui.focused, [next])) {
+    return;
+  }
+
+  ctx.setUI((s) => {
+    const focused = [next];
+    if (s.focused != null && s.focused !== focused) {
+      previous = head(s.focused)!;
+      focused.push(previous);
+    }
+
+    return {
+      focused,
+    };
+  });
+};
+
+export const pop: StoreListener<"focus.pop"> = (_, ctx) => {
+  ctx.setUI((s) => {
+    if (isEmpty(s.focused)) {
+      return s;
+    }
+
+    return {
+      focused: [],
+    };
+  });
+};

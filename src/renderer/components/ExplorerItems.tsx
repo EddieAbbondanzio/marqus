@@ -12,6 +12,7 @@ import { Icon } from "./shared/Icon";
 import * as yup from "yup";
 import { MouseButton, useMouse } from "../io/mouse";
 import { isBlank } from "../../shared/utils";
+import { Store } from "../store";
 
 export const NAV_MENU_HEIGHT = 30;
 // Keep consistent with icon width in index.sass
@@ -39,7 +40,6 @@ export function ExplorerMenu(props: PropsWithChildren<ExplorerMenuProps>) {
     "has-background-primary-hover",
     { "has-background-primary": props.selected }
   );
-
   const wrapperClasses = classList(
     "nav-menu",
     "is-flex",
@@ -83,7 +83,7 @@ export function ExplorerMenu(props: PropsWithChildren<ExplorerMenuProps>) {
 }
 
 export interface ExplorerInputProps {
-  name: string;
+  store: Store;
   className?: string;
   initialValue: string;
   value: string;
@@ -149,18 +149,9 @@ export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
     setFlags({ ...flags, wasTouched: true });
   };
 
-  // const stopProp = (ev: FocusEvent) => ev.stopPropagation();
-
   useEffect(() => {
     const { current: el } = input;
     el.setCustomValidity(errorMessage);
-
-    el.addEventListener("blur", onBlur);
-    // el.addEventListener("focusin", stopProp);
-    return () => {
-      el.removeEventListener("blur", onBlur);
-      // el.removeEventListener("focusin", stopProp);
-    };
   });
 
   const keyboard = useKeyboard(input);
@@ -174,7 +165,6 @@ export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
       switch (key) {
         case KeyCode.Enter:
           const isValid = await validate();
-
           if (!isValid) {
             return;
           }
@@ -193,11 +183,15 @@ export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
     }
   );
 
-  const classes = classList(
+  const inputClasses = classList(
     "input",
     props.size as string | undefined,
     props.className
   );
+
+  const onFocus = () => {
+    input.current.focus();
+  };
 
   return (
     <div
@@ -209,13 +203,14 @@ export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
       }}
     >
       <Focusable
-        name={props.name}
-        onFocus={() => input.current?.focus()}
-        blurOnEscape={true}
+        store={props.store}
+        name="sidebarInput"
+        onFocus={onFocus}
+        onBlur={onBlur}
       >
         <input
           ref={input}
-          className={classes}
+          className={inputClasses}
           onInput={onInput}
           value={props.value}
         ></input>

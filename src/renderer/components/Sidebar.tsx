@@ -131,14 +131,11 @@ export function Sidebar({ store }: SidebarProps) {
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
       <Focusable
+        store={store}
         name="sidebar"
         className="is-flex is-flex-grow-1 is-flex-direction-column"
       >
-        <ContextMenu
-          name="sidebarContextMenu"
-          items={contextMenuItems}
-          store={store}
-        >
+        <ContextMenu name="contextMenu" items={contextMenuItems} store={store}>
           <Filter store={store} />
           <Explorer store={store} />
         </ContextMenu>

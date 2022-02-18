@@ -1,100 +1,43 @@
-import React, {
-  PropsWithChildren,
-  RefObject,
-  useContext,
-  useLayoutEffect,
-  useRef,
-} from "react";
-import { InvalidOpError } from "../../../shared/errors";
-import { KeyCode } from "../../../shared/io/keyCode";
-import { useKeyboard } from "../../io/keyboard";
-import { findParent } from "../../utils/findParent";
-import { FocusContext } from "./FocusTracker";
+import { head } from "lodash";
+import React, { PropsWithChildren, useEffect, useRef } from "react";
+import { MouseButton, MouseModifier, useMouse } from "../../io/mouse";
+import { Section } from "../../state";
+import { Store } from "../../store";
 
 export const FOCUSABLE_ATTRIBUTE = "data-focusable";
 
 export interface FocusableProps {
-  name: string;
+  store: Store;
+  name: Section;
   className?: string;
   overwrite?: boolean;
-  // OLn
-  blurOnEscape?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
 }
 
 export function Focusable(props: PropsWithChildren<FocusableProps>) {
-  const ctx = useContext(FocusContext);
   const ref = useRef(null! as HTMLDivElement);
-  const kb = useKeyboard(ref);
+  useEffect(() => {
+    const curr = head(props.store.state.ui.focused);
 
-  const publish = (ev: FocusEvent) => {
-    // We stop propagation to support nested focusables
-    ev.stopPropagation();
-    ctx.push(props.name, props.overwrite);
-  };
-
-  // Listen for if we should blur it.
-  kb.listen({ keys: [KeyCode.Escape], event: "keydown" }, async (ev) => {
-    if (props.blurOnEscape == null || !props.blurOnEscape) {
-      return;
+    if (curr == null) {
+      ref.current.blur();
+      props.onBlur?.();
+    } else if (curr == props.name) {
+      ref.current.focus();
+      props.onFocus?.();
     }
+  }, [props.store.state.ui.focused, props.onFocus, props.onBlur]);
 
-    // We stop propagation to support nested focusables
-    ev.stopPropagation();
-
-    const div = ref.current;
-    if (div != null) {
-      div.blur();
-      ctx.pop();
-
-      // See if we can find a parent focusable and give it focus.
-      const parent = findParent(
-        div,
-        (el) => {
-          const attr = el.getAttribute(FOCUSABLE_ATTRIBUTE);
-          return attr != null && attr !== props.name;
-        },
-        { matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) }
-      );
-
-      if (parent != null) {
-        ctx.push(parent);
-      }
+  useMouse(ref).listen(
+    {
+      event: "click",
+      button: MouseButton.Left,
+    },
+    () => {
+      props.store.dispatch("focus.push", props.name);
     }
-  });
-
-  /*
-   * Focusables communicate with the root FocusTracker component via pub / sub.
-   * We need to initialize this component in useLayoutEffect() so it's ready
-   * before the FocusTracker.
-   */
-  useLayoutEffect(() => {
-    const name = props.name;
-    const div = ref.current;
-
-    div.addEventListener("focusin", publish);
-    ctx.subscribe(name, (ev) => {
-      switch (ev) {
-        case "focus":
-          ref.current.focus();
-          props.onFocus?.();
-
-          break;
-        case "blur":
-          ref.current.blur();
-          props.onBlur?.();
-          break;
-        default:
-          throw new InvalidOpError(`Focusable got event: ${ev}`);
-      }
-    });
-
-    return () => {
-      div.removeEventListener("focusin", publish);
-      ctx.unsubscribe(name);
-    };
-  }, []);
+  );
 
   return (
     <div
