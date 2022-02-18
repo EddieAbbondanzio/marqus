@@ -73,7 +73,7 @@ export function Filter({ store }: FilterProps) {
   );
 }
 
-const buildLabel = (text: string) => (
+export const buildLabel = (text: string) => (
   <label
     className="field-label is-small mr-2 has-text-weight-bold"
     style={{ minWidth: px(60) }}
@@ -82,14 +82,11 @@ const buildLabel = (text: string) => (
   </label>
 );
 
-const toggleFilter: StoreListener<"sidebar.toggleFilter"> = (e, ctx) => {
-  ctx.setUI((prev) => {
-    return {
-      sidebar: {
-        filter: {
-          expanded: !prev.sidebar.filter.expanded,
-        },
+export const toggleFilter: StoreListener<"sidebar.toggleFilter"> = (e, ctx) =>
+  ctx.setUI((prev) => ({
+    sidebar: {
+      filter: {
+        expanded: !prev.sidebar.filter.expanded,
       },
-    };
-  });
-};
+    },
+  }));
