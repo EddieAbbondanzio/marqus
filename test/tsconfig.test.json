@@ -17,12 +17,10 @@
       "*": [
         "node_modules/*"
       ]
-    }
+    },
+    "rootDir": "test"
   },
   "include": [
     "src/**/*",
-  ],
-  "exclude": [
-    "test/**/*"
   ]
 }

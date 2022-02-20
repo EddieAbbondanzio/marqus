@@ -1,29 +1,31 @@
+import { act } from "react-test-renderer";
 import { DeepPartial } from "tsdef";
 import { toggleFilter } from "../../../src/renderer/components/Filter";
-import { UI } from "../../../src/renderer/state";
-import { createStoreControls } from "../../_factories/storeControls";
+import { renderStoreHook } from "../../_factories/store";
 
 test.each([
   [undefined, true],
   [false, true],
   [true, false],
-])("sidebar.toggleFilter works for each case", (input, output) => {
-  const controls = createStoreControls({
+])("sidebar.toggleFilter", (input, output) => {
+  const { result } = renderStoreHook({
     ui: {
       sidebar: {
-        filter: {
-          expanded: input,
-        },
+        filter: { expanded: input },
       },
     },
   });
 
-  toggleFilter(undefined!, controls);
-  expect(controls.setUI as jest.Mock).toReturnWith<DeepPartial<UI>>({
-    sidebar: {
-      filter: {
-        expanded: output,
-      },
-    },
+  act(() => {
+    const store = result.current;
+    store.on("sidebar.toggleFilter", toggleFilter);
   });
+
+  act(() => {
+    const store = result.current;
+    store.dispatch("sidebar.toggleFilter");
+  });
+
+  const { state } = result.current;
+  expect(state.ui.sidebar.filter.expanded).toBe(output);
 });

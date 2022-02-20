@@ -1,11 +1,20 @@
-// test("sidebar.resizeWidth", () => {
-//   const { result } = renderHook(() => useCommands(initialState));
-//   act(() => {
-//     const [state, execute] = result.current;
-//     expect(state.ui.sidebar.width).toBe("300px");
-//     execute("sidebar.resizeWidth", "450px");
-//   });
+import { act } from "react-test-renderer";
+import { resizeWidth } from "../../../src/renderer/components/Sidebar";
+import { px } from "../../../src/shared/dom";
+import { renderStoreHook } from "../../_factories/store";
 
-//   const [state] = result.current;
-//   expect(state.ui.sidebar.width).toBe("450px");
-// });
+test("sidebar.resizeWidth", () => {
+  const { result } = renderStoreHook({ ui: { sidebar: { width: px(100) } } });
+  act(() => {
+    const store = result.current;
+    store.on("sidebar.resizeWidth", resizeWidth);
+  });
+
+  act(() => {
+    const store = result.current;
+    store.dispatch("sidebar.resizeWidth", px(250));
+  });
+
+  const { state } = result.current;
+  expect(state.ui.sidebar.width).toBe(px(250));
+});

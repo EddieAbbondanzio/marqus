@@ -1,8 +1,10 @@
 module.exports = {
-  preset: 'ts-jest',
+  preset: "ts-jest",
   transform: {
-    '^.+\\.(ts|tsx)?$': 'ts-jest',
+    "^.+\\.(ts|tsx)?$": "ts-jest",
     "^.+\\.(js|jsx)$": "babel-jest",
   },
-  "testEnvironment": "jsdom"
+  testEnvironment: "jsdom",
+  moduleDirectories: ["node_modules", "<rootDir>"],
+  setupFiles: ["<rootDir>/test/setup.ts"],
 };
