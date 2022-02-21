@@ -1,89 +1,92 @@
-// test("sidebar.updateScroll", () => {
-//   const { result } = renderHook(() => useCommands(initialState));
-//   act(() => {
-//     const [state, execute] = result.current;
-//     expect(state.ui.sidebar.scroll).toBe(0);
-//     execute("sidebar.updateScroll", 200);
-//   });
+import { renderHook } from "@testing-library/react-hooks";
+import { act } from "react-test-renderer";
+import { renderStoreHook } from "../../_factories/store";
+import {
+  scrollDown,
+  scrollUp,
+  updateScroll,
+} from "../../../src/renderer/components/Explorer";
+import { NAV_MENU_HEIGHT } from "../../../src/renderer/components/ExplorerItems";
+import { resourceId } from "../../../src/shared/domain/id";
 
-//   const [state] = result.current;
-//   expect(state.ui.sidebar.scroll).toBe(200);
-// });
+test("sidebar.updateScroll", async () => {
+  const { result } = renderStoreHook();
+  act(() => {
+    const store = result.current;
+    store.on("sidebar.updateScroll", updateScroll);
+  });
 
-// test("sidebar.scrollDown", () => {
-//   const { result } = renderHook(() => useCommands(initialState));
-//   act(() => {
-//     const [state, execute] = result.current;
-//     expect(state.ui.sidebar.scroll).toBe(0);
-//     execute("sidebar.scrollDown");
-//     execute("sidebar.scrollDown");
-//     execute("sidebar.scrollDown");
-//   });
+  await act(async () => {
+    const store = result.current;
+    expect(store.state.ui.sidebar.scroll).toBe(0);
+    await store.dispatch("sidebar.updateScroll", 200);
+  });
 
-//   const [state] = result.current;
-//   expect(state.ui.sidebar.scroll).toBe(NAV_MENU_HEIGHT * 3);
-// });
+  const { state } = result.current;
+  expect(state.ui.sidebar.scroll).toBe(200);
+});
 
-// test("sidebar.scrollUp once", () => {
-//   initialState.ui.sidebar.scroll = 120;
-//   const { result } = renderHook(() => useCommands(initialState));
-//   act(() => {
-//     const [, execute] = result.current;
-//     execute("sidebar.scrollUp");
-//   });
+test("sidebar.scrollDown", () => {
+  const { result } = renderStoreHook();
+  act(() => {
+    const store = result.current;
+    store.on("sidebar.scrollDown", scrollDown);
+  });
 
-//   const [state] = result.current;
-//   expect(state.ui.sidebar.scroll).toBe(90);
-// });
+  act(() => {
+    const store = result.current;
+    expect(store.state.ui.sidebar.scroll).toBe(0);
+    store.dispatch("sidebar.scrollDown");
+    store.dispatch("sidebar.scrollDown");
+    store.dispatch("sidebar.scrollDown");
+  });
 
-// test("sidebar.scrollUp clamps", () => {
-//   initialState.ui.sidebar.scroll = 30;
-//   const { result } = renderHook(() => useCommands(initialState));
-//   act(() => {
-//     const [, execute] = result.current;
-//     execute("sidebar.scrollUp");
-//     execute("sidebar.scrollUp");
-//   });
+  const { state } = result.current;
+  expect(state.ui.sidebar.scroll).toBe(NAV_MENU_HEIGHT * 3);
+});
 
-//   const [state] = result.current;
-//   expect(state.ui.sidebar.scroll).toBe(0);
-// });
+test("sidebar.scrollUp once", () => {
+  const { result } = renderStoreHook({
+    ui: {
+      sidebar: { scroll: 120 },
+    },
+  });
 
-// test("sidebar.toggleExpanded collapses", () => {
-//   let notebook = resourceId("notebook");
-//   let tag = resourceId("tag");
+  act(() => {
+    const store = result.current;
+    store.on("sidebar.scrollUp", scrollUp);
+  });
 
-//   initialState.ui.sidebar.explorer.expanded = [notebook, tag];
-//   const { result } = renderHook(() => useCommands(initialState));
-//   act(() => {
-//     const [, execute] = result.current;
-//     execute("sidebar.toggleExpanded", notebook);
-//   });
+  act(() => {
+    const store = result.current;
+    store.dispatch("sidebar.scrollUp");
+  });
 
-// let initialState: State;
+  const { state } = result.current;
+  expect(state.ui.sidebar.scroll).toBe(90);
+});
 
-// beforeEach(() => {
-//   initialState = {
-//     notebooks: [],
-//     notes: [],
-//     shortcuts: [],
-//     tags: [],
-//     ui: {
-//       sidebar: {
-//         explorer: {
-//           view: "all",
-//         },
-//         filter: {},
-//         scroll: 0,
-//         width: "300px",
-//       },
-//       focused: [],
-//     },
-//   };
+test("sidebar.scrollUp clamps", () => {
+  const { result } = renderStoreHook({
+    ui: {
+      sidebar: { scroll: 30 },
+    },
+  });
 
-//   // Lots of commands call this internally so we stub it.
-//   window.rpc = jest.fn();
-// });
+  act(() => {
+    const store = result.current;
+    store.on("sidebar.scrollUp", scrollUp);
+  });
+
+  act(() => {
+    const store = result.current;
+    store.dispatch("sidebar.scrollUp");
+    store.dispatch("sidebar.scrollUp");
+  });
+
+  const { state } = result.current;
+  expect(state.ui.sidebar.scroll).toBe(0);
+});
 
 // test("sidebar.setSelection", () => {
 //   const { result } = renderHook(() => useCommands(initialState));
@@ -242,67 +245,4 @@
 
 //   const [state] = result.current;
 //   expect(state.ui.sidebar.explorer.expanded).toEqual([tag]);
-// });
-
-// test("sidebar.createTag creates on confirm", async () => {
-//   initialState.ui.sidebar.explorer.view = "all";
-//   const { result } = renderHook(() => useCommands(initialState));
-//   let commandCompleted: Promise<any>;
-
-//   act(() => {
-//     const [{ ui }, execute] = result.current;
-//     expect(ui.sidebar.explorer.input).toBe(undefined);
-//     commandCompleted = execute("sidebar.createTag");
-//   });
-
-//   await act(async () => {
-//     const [{ ui }] = result.current;
-//     const { input, view } = ui.sidebar.explorer;
-
-//     expect(view).toBe("tags");
-//     expect(input).not.toBe(undefined);
-//     input!.onInput("foo");
-//     input!.confirm();
-
-//     await commandCompleted!;
-//   });
-
-//   const rpcCall = (window.rpc as jest.Mock).mock.calls.find(
-//     (c) => c[0] === "tags.create"
-//   );
-//   expect(rpcCall[1]).toEqual({ name: "foo" });
-//   const [{ ui }] = result.current;
-//   expect(ui.sidebar.explorer.input).toBe(undefined);
-// });
-
-// test("sidebar.createTag cancels", async () => {
-//   initialState.ui.sidebar.explorer.view = "all";
-//   const { result } = renderHook(() => useCommands(initialState));
-//   let commandCompleted: Promise<any>;
-
-//   act(() => {
-//     const [{ ui }, execute] = result.current;
-//     expect(ui.sidebar.explorer.input).toBe(undefined);
-//     commandCompleted = execute("sidebar.createTag");
-//   });
-
-//   await act(async () => {
-//     const [{ ui }] = result.current;
-//     const { input, view } = ui.sidebar.explorer;
-
-//     expect(view).toBe("tags");
-//     expect(input).not.toBe(undefined);
-//     input!.onInput("foo");
-//     input!.cancel();
-
-//     await commandCompleted!;
-//   });
-
-//   const rpcCall = (window.rpc as jest.Mock).mock.calls.find(
-//     (c) => c[0] === "tags.create"
-//   );
-//   expect(rpcCall).toBe(undefined);
-
-//   const [{ ui }] = result.current;
-//   expect(ui.sidebar.explorer.input).toBe(undefined);
 // });

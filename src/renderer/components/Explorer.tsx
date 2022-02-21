@@ -541,9 +541,26 @@ export const createOrRenameTag: StoreListener<
 
   const [value, action] = await input.completed;
   if (action === "confirm") {
+    let tag: Tag;
     try {
-      const tag = await window.rpc("tags.create", { name: value });
-      ctx.setTags((tags) => [...tags, tag]);
+      switch (type) {
+        case "sidebar.createTag":
+          tag = await window.rpc("tags.create", { name: value });
+          ctx.setTags((tags) => [...tags, tag]);
+          break;
+
+        case "sidebar.renameTag":
+          tag = await window.rpc("tags.update", { id: id!, name: value });
+          ctx.setTags((tags) => {
+            const index = tags.findIndex((t) => t.id === tag.id);
+            tags.splice(index, 1, tag);
+            return [...tags];
+          });
+          break;
+
+        default:
+          throw new InvalidOpError(`Invalid tag rpc ${type}`);
+      }
     } catch (e) {
       promptError(e.message);
     }
