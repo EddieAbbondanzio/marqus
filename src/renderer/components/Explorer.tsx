@@ -250,6 +250,7 @@ export function Explorer({ store }: ExplorerProps) {
     );
     store.on("sidebar.setExplorerView", setView);
     store.on(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
+    store.on("sidebar.deleteTag", deleteTag);
 
     return () => {
       store.off("sidebar.scrollUp", scrollUp);
@@ -267,6 +268,7 @@ export function Explorer({ store }: ExplorerProps) {
       );
       store.off("sidebar.setExplorerView", setView);
       store.off(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
+      store.off("sidebar.deleteTag", deleteTag);
     };
   }, [store.state]);
 
@@ -554,6 +556,7 @@ export const createOrRenameTag: StoreListener<
           ctx.setTags((tags) => {
             const index = tags.findIndex((t) => t.id === tag.id);
             tags.splice(index, 1, tag);
+
             return [...tags];
           });
           break;
