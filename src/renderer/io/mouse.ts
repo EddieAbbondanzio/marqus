@@ -240,17 +240,9 @@ export class MouseController implements Mouse {
         throw Error(`Click event requires button`);
       }
       if ((listener.button! & button) == MouseButton.None) {
-        // console.log("Button not a match", {
-        //   listener: listener.button,
-        //   button,
-        // });
         return;
       }
       if (listener.modifier !== (modifier ?? MouseModifier.None)) {
-        // console.log("Modifier not a match", {
-        // listener: listener.modifier,
-        // modifier,
-        // });
         return;
       }
     }

@@ -1,11 +1,41 @@
 import { head } from "lodash";
 import React, { PropsWithChildren, useEffect, useRef } from "react";
-import { MouseButton, MouseModifier, useMouse } from "../../io/mouse";
 import { Section } from "../../state";
 import { Store } from "../../store";
+import { findParent } from "../../utils/findParent";
 
 export const FOCUSABLE_ATTRIBUTE = "data-focusable";
 
+export const useFocusTracking = (store: Store) => {
+  /*
+   * We centralize this for good reason. By only keeping one listener that
+   * handles every event we can ensure we don't accidentally push new focusables
+   * as the event propagates up due to how events naturally like to bubble.
+   */
+  const onClick = (ev: MouseEvent) => {
+    const focusable = findParent(
+      ev.target as HTMLElement,
+      (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
+      { matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) as Section }
+    );
+
+    if (focusable != null) {
+      const current = head(store.state.ui.focused);
+      if (current != null && focusable === current) {
+        return;
+      }
+
+      store.dispatch("focus.push", focusable);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("click", onClick);
+    return () => {
+      window.removeEventListener("click", onClick);
+    };
+  });
+};
 export interface FocusableProps {
   store: Store;
   name: Section;
@@ -28,16 +58,6 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
       props.onFocus?.();
     }
   }, [props.store.state.ui.focused, props.onFocus, props.onBlur]);
-
-  useMouse(ref).listen(
-    {
-      event: "click",
-      button: MouseButton.Left,
-    },
-    () => {
-      props.store.dispatch("focus.push", props.name);
-    }
-  );
 
   return (
     <div

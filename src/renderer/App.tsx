@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
-import { Focusable } from "./components/shared/Focusable";
+import { Focusable, useFocusTracking } from "./components/shared/Focusable";
 import { Section, UI } from "./state";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
@@ -71,6 +71,8 @@ async function main() {
         store.off("focus.pop", pop);
       };
     }, [store.state]);
+
+    useFocusTracking(store);
 
     return (
       <div className="h-100 w-100 is-flex is-flex-row">

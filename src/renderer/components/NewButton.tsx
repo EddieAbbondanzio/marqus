@@ -51,9 +51,6 @@ export function NewButton(props: NewButtonProps) {
   return (
     <div>
       <Dropdown trigger={trigger} onSelect={onClick}>
-        {/* <a className="dropdown-item" data-new-option="temporaryNote">
-          New temporary note
-        </a> */}
         <a className="dropdown-item" data-new-option="tag">
           New tag
         </a>
