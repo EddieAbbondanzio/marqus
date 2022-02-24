@@ -124,16 +124,22 @@ export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
   }
 
   const onBlur = async () => {
+    const { value } = input.current;
+
+    // If it was empty and the user blurred we assume they didn't want to save
+    // their changes.
+    if (isBlank(value)) {
+      props.cancel();
+      return;
+    }
+
     if (flags.wasFinalized || errorMessage.length > 0 || !(await validate())) {
       return;
     }
 
-    const { value } = input.current;
-    // Only confirm if input has a value, and was changed
-    if (!isBlank(value) && value !== props.initialValue) {
+    // Don't bother confirming input if nothing was changed
+    if (value !== props.initialValue) {
       props.confirm();
-    } else {
-      props.cancel();
     }
 
     setFlags({ ...flags, wasFinalized: true });

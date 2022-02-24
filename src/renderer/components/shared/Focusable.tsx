@@ -19,12 +19,14 @@ export const useFocusTracking = (store: Store) => {
       { matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) as Section }
     );
 
+    console.log("onClick: ", focusable);
     if (focusable != null) {
       const current = head(store.state.ui.focused);
       if (current != null && focusable === current) {
         return;
       }
 
+      console.log("push: ", focusable);
       store.dispatch("focus.push", focusable);
     }
   };
@@ -50,7 +52,7 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
   useEffect(() => {
     const curr = head(props.store.state.ui.focused);
 
-    if (curr == null) {
+    if (curr == null || curr !== props.name) {
       ref.current.blur();
       props.onBlur?.();
     } else if (curr == props.name) {
