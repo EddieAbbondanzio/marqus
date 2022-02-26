@@ -13,21 +13,23 @@ export const useFocusTracking = (store: Store) => {
    * as the event propagates up due to how events naturally like to bubble.
    */
   const onClick = (ev: MouseEvent) => {
+    console.log("ON CLICK WAS CALLED");
     const focusable = findParent(
       ev.target as HTMLElement,
       (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
       { matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) as Section }
     );
 
-    console.log("onClick: ", focusable);
     if (focusable != null) {
       const current = head(store.state.ui.focused);
       if (current != null && focusable === current) {
         return;
       }
 
-      console.log("push: ", focusable);
+      console.log("PUSH!");
       store.dispatch("focus.push", focusable);
+    } else {
+      console.log("NO MATCH!");
     }
   };
 
@@ -45,6 +47,7 @@ export interface FocusableProps {
   overwrite?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
+  tabIndex?: number;
 }
 
 export function Focusable(props: PropsWithChildren<FocusableProps>) {
@@ -65,7 +68,7 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
     <div
       ref={ref}
       className={props.className}
-      tabIndex={-1}
+      tabIndex={props.tabIndex ?? -1}
       {...{ [FOCUSABLE_ATTRIBUTE]: props.name }}
     >
       {props.children}

@@ -1,6 +1,5 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { act } from "react-test-renderer";
-import { renderStoreHook } from "../../_factories/store";
 import {
   scrollDown,
   scrollUp,
@@ -8,6 +7,7 @@ import {
 } from "../../../src/renderer/components/Explorer";
 import { NAV_MENU_HEIGHT } from "../../../src/renderer/components/ExplorerItems";
 import { resourceId } from "../../../src/shared/domain/id";
+import { renderStoreHook } from "../../_mocks/store";
 
 test("sidebar.updateScroll", async () => {
   const { result } = renderStoreHook();

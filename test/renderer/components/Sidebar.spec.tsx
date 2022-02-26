@@ -1,7 +1,7 @@
 import { act } from "react-test-renderer";
 import { resizeWidth } from "../../../src/renderer/components/Sidebar";
 import { px } from "../../../src/shared/dom";
-import { renderStoreHook } from "../../_factories/store";
+import { renderStoreHook } from "../../_mocks/store";
 
 test("sidebar.resizeWidth", () => {
   const { result } = renderStoreHook({ ui: { sidebar: { width: px(100) } } });

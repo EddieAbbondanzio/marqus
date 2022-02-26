@@ -1,7 +1,7 @@
 import { act } from "react-test-renderer";
 import { DeepPartial } from "tsdef";
 import { toggleFilter } from "../../../src/renderer/components/Filter";
-import { renderStoreHook } from "../../_factories/store";
+import { renderStoreHook } from "../../_mocks/store";
 
 test.each([
   [undefined, true],

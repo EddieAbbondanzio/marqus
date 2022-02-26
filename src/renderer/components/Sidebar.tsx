@@ -124,6 +124,14 @@ export function Sidebar({ store }: SidebarProps) {
     return items;
   };
 
+  useEffect(() => {
+    store.on("sidebar.resizeWidth", resizeWidth);
+
+    return () => {
+      store.off("sidebar.resizeWidth", resizeWidth);
+    };
+  }, [store.state]);
+
   return (
     <Resizable
       minWidth={px(300)}

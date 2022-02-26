@@ -688,7 +688,6 @@ export const createNotebook: StoreListener<
           if (notebook.parent == null) {
             const index = notebooks.findIndex((n) => n.id === renamed.id);
             notebooks.splice(index, 1, renamed);
-            console.log("renamed: ", renamed);
           } else {
             const parent = notebook.parent;
             const index = parent.children!.findIndex(
