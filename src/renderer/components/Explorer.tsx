@@ -28,6 +28,7 @@ import {
   getNotebookSchema,
   Notebook,
   removeChild,
+  replaceChild,
 } from "../../shared/domain/notebook";
 import { getTagById, getTagSchema, Tag } from "../../shared/domain/tag";
 import {
@@ -674,14 +675,14 @@ export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
   ctx
 ) => {
   const state = ctx.getState();
-  const notebook = getNotebookById(state.notebooks, id);
+  const { name, parent } = getNotebookById(state.notebooks, id);
 
-  let siblings = notebook.parent?.children ?? state.notebooks;
+  let siblings = parent?.children ?? state.notebooks;
   let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
   let input = createAwaitableInput(
     {
-      id: notebook.id,
-      value: notebook.name,
+      id,
+      value: name,
       schema,
     },
     setExplorerInput(ctx)
@@ -691,10 +692,8 @@ export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
     focused: ["sidebarInput"],
     sidebar: {
       explorer: {
-        input: {
-          ...input,
-        },
         view: "notebooks",
+        input,
       },
     },
   });
@@ -702,20 +701,22 @@ export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
   const [value, action] = await input.completed;
   if (action === "confirm") {
     try {
-      let notebook = getNotebookById(state.notebooks, id);
       const renamed = await window.rpc("notebooks.update", {
-        id: notebook.id,
+        id,
         name: value,
       });
+
       ctx.setNotebooks((notebooks) => {
+        const notebook = getNotebookById(notebooks, id);
+
         if (notebook.parent == null) {
-          const index = notebooks.findIndex((n) => n.id === renamed.id);
-          notebooks.splice(index, 1, renamed);
+          notebooks.splice(
+            notebooks.findIndex((n) => n.id === renamed.id),
+            1,
+            renamed
+          );
         } else {
-          const parent = notebook.parent;
-          removeChild(parent, notebook);
-          addChild(parent, renamed);
-          renamed.parent = parent;
+          replaceChild(notebook.parent, notebook, renamed);
         }
 
         return [...notebooks];

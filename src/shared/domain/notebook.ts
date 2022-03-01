@@ -110,3 +110,23 @@ export function removeChild(parent: Notebook, child: Notebook) {
   parent.children.splice(index, 1);
   delete child.parent;
 }
+
+export function replaceChild(
+  parent: Notebook,
+  child: Notebook,
+  replacement: Notebook
+) {
+  if (parent.children == null) {
+    throw new InvalidOpError(
+      `Notebook ${parent.id} does not have any children to swap.`
+    );
+  }
+
+  const index = parent.children.findIndex((n) => n.id === child.id);
+  if (index === -1) {
+    throw new NotFoundError(`No child notebook with id ${child.id} found.`);
+  }
+
+  parent.children.splice(index, 1, replacement);
+  replacement.parent = parent;
+}

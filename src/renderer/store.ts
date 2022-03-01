@@ -153,11 +153,13 @@ export function useStore(initialState: State): Store {
     }));
   };
   const setNotebooks: SetNotebooks = (transformer) => {
-    console.log("setNotebooks()");
-    setState((prevState) => ({
-      ...prevState,
-      notebooks: transformer(prevState.notebooks),
-    }));
+    setState((prevState) => {
+      const notebooks = transformer(prevState.notebooks);
+      return {
+        ...prevState,
+        notebooks,
+      };
+    });
   };
   const setShortcuts: SetShortcuts = (transformer) => {
     console.log("setShortcuts()");
