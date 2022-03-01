@@ -151,6 +151,7 @@ export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
     }
 
     const value = (ev.target as HTMLInputElement).value as string;
+    console.log("ON INPUT!", value);
     props.onInput(value.trim());
     setFlags({ ...flags, wasTouched: true });
   };
@@ -217,7 +218,8 @@ export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
         <input
           ref={input}
           className={inputClasses}
-          onInput={onInput}
+          // We listen for onChange so we can support backspace
+          onChange={onInput}
           value={props.value}
         ></input>
         {errorMessage.length > 0 && (

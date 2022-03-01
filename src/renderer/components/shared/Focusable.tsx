@@ -13,7 +13,6 @@ export const useFocusTracking = (store: Store) => {
    * as the event propagates up due to how events naturally like to bubble.
    */
   const onClick = (ev: MouseEvent) => {
-    console.log("ON CLICK WAS CALLED");
     const focusable = findParent(
       ev.target as HTMLElement,
       (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
@@ -26,10 +25,7 @@ export const useFocusTracking = (store: Store) => {
         return;
       }
 
-      console.log("PUSH!");
       store.dispatch("focus.push", focusable);
-    } else {
-      console.log("NO MATCH!");
     }
   };
 

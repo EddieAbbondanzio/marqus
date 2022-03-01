@@ -28,7 +28,10 @@ test("getNotebook schema recursively works on children", () => {
 });
 
 describe("getNotebookById()", () => {
-  const notebooks = [createNotebook({ name: "horse" })];
+  const notebooks = [
+    createNotebook({ name: "horse" }),
+    createNotebook({ name: "horse2" }),
+  ];
   const child1 = createNotebook({ name: "correct" });
   const child2 = createNotebook({ name: "battery" });
   const child3 = createNotebook({ name: "staple" });
@@ -44,13 +47,22 @@ describe("getNotebookById()", () => {
   });
 
   test("can find a root match", () => {
-    const match = getNotebookById(notebooks, notebooks[0].id);
-    expect(match).toHaveProperty("id", notebooks[0].id);
+    let { id } = notebooks[0];
+    const match = getNotebookById(notebooks, id);
+    expect(match).toHaveProperty("id", id);
+  });
+
+  test("can find non first root", () => {
+    let { id } = notebooks[1];
+
+    const match = getNotebookById(notebooks, id);
+    expect(match).toHaveProperty("id", id);
   });
 
   test("can find a nested notebook", () => {
-    const match = getNotebookById(notebooks, notebooks[0].children![2].id);
-    expect(match).toHaveProperty("id", notebooks[0].children![2].id);
+    let { id } = notebooks[0].children![2];
+    const match = getNotebookById(notebooks, id);
+    expect(match).toHaveProperty("id", id);
   });
 
   test("returns nothing if no match found after searching", () => {

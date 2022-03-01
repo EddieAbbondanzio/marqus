@@ -92,7 +92,7 @@ export function Sidebar({ store }: SidebarProps) {
             text="Rename"
             event="sidebar.renameNotebook"
             key="renameNotebook"
-            eventInput={{ id: target }}
+            eventInput={target}
           />,
           <ContextMenuItem
             text="Delete"

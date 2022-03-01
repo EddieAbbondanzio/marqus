@@ -45,7 +45,7 @@ import {
   StoreControls,
   StoreListener,
 } from "../store";
-import { head, clamp, isEmpty, take } from "lodash";
+import { head, clamp, isEmpty, take, identity } from "lodash";
 import {
   AwaitableParams,
   createAwaitableInput,
@@ -166,7 +166,7 @@ export function Explorer({ store }: ExplorerProps) {
         store.dispatch("sidebar.createNote");
         break;
       case "notebook":
-        store.dispatch("sidebar.createNotebook", {});
+        store.dispatch("sidebar.createNotebook");
         break;
       default:
         throw new InvalidOpError(`New button clicked for type: '${opt}'`);
@@ -251,6 +251,8 @@ export function Explorer({ store }: ExplorerProps) {
     store.on("sidebar.setExplorerView", setView);
     store.on(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
     store.on("sidebar.deleteTag", deleteTag);
+    store.on("sidebar.createNotebook", createNotebook);
+    store.on("sidebar.renameNotebook", renameNotebook);
 
     return () => {
       store.off("sidebar.scrollUp", scrollUp);
@@ -269,6 +271,8 @@ export function Explorer({ store }: ExplorerProps) {
       store.off("sidebar.setExplorerView", setView);
       store.off(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
       store.off("sidebar.deleteTag", deleteTag);
+      store.off("sidebar.createNotebook", createNotebook);
+      store.off("sidebar.renameNotebook", renameNotebook);
     };
   }, [store.state]);
 
@@ -519,17 +523,7 @@ export const createOrRenameTag: StoreListener<
     inputParams.value = tag.name;
   }
 
-  let input = createAwaitableInput(inputParams, (value) =>
-    ctx.setUI({
-      sidebar: {
-        explorer: {
-          input: {
-            value,
-          },
-        },
-      },
-    })
-  );
+  let input = createAwaitableInput(inputParams, setExplorerInput(ctx));
 
   ctx.setUI({
     focused: ["sidebarInput"],
@@ -541,22 +535,24 @@ export const createOrRenameTag: StoreListener<
     },
   });
 
-  const [value, action] = await input.completed;
+  const [name, action] = await input.completed;
   if (action === "confirm") {
     let tag: Tag;
     try {
       switch (type) {
         case "sidebar.createTag":
-          tag = await window.rpc("tags.create", { name: value });
+          tag = await window.rpc("tags.create", { name });
           ctx.setTags((tags) => [...tags, tag]);
           break;
 
         case "sidebar.renameTag":
-          tag = await window.rpc("tags.update", { id: id!, name: value });
+          tag = await window.rpc("tags.update", { id: id!, name });
           ctx.setTags((tags) => {
-            const index = tags.findIndex((t) => t.id === tag.id);
-            tags.splice(index, 1, tag);
-
+            tags.splice(
+              tags.findIndex((t) => t.id === tag.id),
+              1,
+              tag
+            );
             return [...tags];
           });
           break;
@@ -596,12 +592,10 @@ export const deleteTag: StoreListener<"sidebar.deleteTag"> = async (
   }
 };
 
-export const createNotebook: StoreListener<
-  "sidebar.createNotebook" | "sidebar.renameNotebook"
-> = async (ev, ctx) => {
-  let isRename = ev.type == "sidebar.renameNotebook";
-  const { id, parent } = ev.value as { id?: string; parent?: string };
-
+export const createNotebook: StoreListener<"sidebar.createNotebook"> = async (
+  _,
+  ctx
+) => {
   const state = ctx.getState();
   const { selected } = state.ui.sidebar.explorer;
 
@@ -613,37 +607,21 @@ export const createNotebook: StoreListener<
     }
   }
 
-  let siblings =
-    parentId == null
-      ? state.notebooks
-      : getNotebookById(state.notebooks, parentId).children!;
-  let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
-
-  let inputParams: AwaitableParams = { value: "", schema };
-  if (isRename) {
-    let notebook = getNotebookById(state.notebooks, id!);
-    inputParams.id = notebook.id;
-    inputParams.value = notebook.name;
+  let siblings: Notebook[] = state.notebooks;
+  if (parentId != null) {
+    siblings = getNotebookById(siblings, parentId).children!;
   }
 
-  let input = createAwaitableInput(inputParams, (value) =>
-    ctx.setUI({
-      sidebar: {
-        explorer: {
-          input: {
-            value,
-          },
-        },
-      },
-    })
-  );
+  let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
+  let inputParams: AwaitableParams = { value: "", schema };
+
+  let input = createAwaitableInput(inputParams, setExplorerInput(ctx));
 
   ctx.setUI((prev) => {
-    // Auto expand parent if one was passed.
     let expanded = prev.sidebar.explorer.expanded;
-    if (parentId != null && !expanded?.some((id) => id === parentId)) {
+    if (!expanded?.some((id) => id === parentId)) {
       expanded ??= [];
-      expanded?.push(parentId);
+      expanded?.push(parentId!);
     }
 
     return {
@@ -664,42 +642,84 @@ export const createNotebook: StoreListener<
   const [value, action] = await input.completed;
   if (action === "confirm") {
     try {
-      if (ev.type == "sidebar.createNotebook") {
-        const notebook = await window.rpc("notebooks.create", {
-          name: value,
-          parentId,
-        });
-        ctx.setNotebooks((notebooks) => {
-          if (parentId != null) {
-            const parent = getNotebookById(notebooks, parentId);
-            addChild(parent, notebook);
-            return [...notebooks];
-          } else {
-            return [...notebooks, notebook];
-          }
-        });
-      } else {
-        let notebook = getNotebookById(state.notebooks, id!);
-        const renamed = await window.rpc("notebooks.update", {
-          id: notebook.id,
-          name: value,
-        });
-        ctx.setNotebooks((notebooks) => {
-          if (notebook.parent == null) {
-            const index = notebooks.findIndex((n) => n.id === renamed.id);
-            notebooks.splice(index, 1, renamed);
-          } else {
-            const parent = notebook.parent;
-            const index = parent.children!.findIndex(
-              (n) => n.id === renamed.id
-            );
-            parent.children!.splice(index, 1, renamed);
-            renamed.parent = parent;
-          }
-
+      const notebook = await window.rpc("notebooks.create", {
+        name: value,
+        parentId,
+      });
+      ctx.setNotebooks((notebooks) => {
+        if (parentId != null) {
+          const parent = getNotebookById(notebooks, parentId);
+          addChild(parent, notebook);
           return [...notebooks];
-        });
-      }
+        } else {
+          return [...notebooks, notebook];
+        }
+      });
+    } catch (e) {
+      promptError(e.message);
+    }
+  }
+
+  ctx.setUI({
+    sidebar: {
+      explorer: {
+        input: undefined,
+      },
+    },
+  });
+};
+
+export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
+  { value: id },
+  ctx
+) => {
+  const state = ctx.getState();
+  const notebook = getNotebookById(state.notebooks, id);
+
+  let siblings = notebook.parent?.children ?? state.notebooks;
+  let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
+  let input = createAwaitableInput(
+    {
+      id: notebook.id,
+      value: notebook.name,
+      schema,
+    },
+    setExplorerInput(ctx)
+  );
+
+  ctx.setUI({
+    focused: ["sidebarInput"],
+    sidebar: {
+      explorer: {
+        input: {
+          ...input,
+        },
+        view: "notebooks",
+      },
+    },
+  });
+
+  const [value, action] = await input.completed;
+  if (action === "confirm") {
+    try {
+      let notebook = getNotebookById(state.notebooks, id);
+      const renamed = await window.rpc("notebooks.update", {
+        id: notebook.id,
+        name: value,
+      });
+      ctx.setNotebooks((notebooks) => {
+        if (notebook.parent == null) {
+          const index = notebooks.findIndex((n) => n.id === renamed.id);
+          notebooks.splice(index, 1, renamed);
+        } else {
+          const parent = notebook.parent;
+          removeChild(parent, notebook);
+          addChild(parent, renamed);
+          renamed.parent = parent;
+        }
+
+        return [...notebooks];
+      });
     } catch (e) {
       promptError(e.message);
     }
@@ -760,17 +780,7 @@ export const createOrRenameNote: StoreListener<
     inputParams.value = note.name;
   }
 
-  let input = createAwaitableInput(inputParams, (value) =>
-    ctx.setUI({
-      sidebar: {
-        explorer: {
-          input: {
-            value,
-          },
-        },
-      },
-    })
-  );
+  let input = createAwaitableInput(inputParams, setExplorerInput(ctx));
 
   // TODO: We'll need to allow renaming notes in any view (except trash)
   ctx.setUI({
@@ -850,3 +860,16 @@ export const deleteNote: StoreListener<"sidebar.deleteNote"> = (
 ) => {
   throw new NotImplementedError();
 };
+
+function setExplorerInput(ctx: StoreControls) {
+  return (value: string) =>
+    ctx.setUI({
+      sidebar: {
+        explorer: {
+          input: {
+            value,
+          },
+        },
+      },
+    });
+}

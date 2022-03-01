@@ -71,21 +71,24 @@ export function getNotebookSchema(
 
 // Will recursively search for a notebook
 export function getNotebookById(notebooks: Notebook[], id: string): Notebook {
-  if (notebooks != null) {
-    for (let i = 0; i < notebooks.length; i++) {
-      if (notebooks[i].id === id) {
-        return notebooks[i];
-      } else if (notebooks[i].children?.length) {
-        const r = getNotebookById(notebooks[i].children!, id);
+  const toVisit: Notebook[] = [];
 
-        if (r != null) {
-          return r;
-        }
-      }
+  for (const notebook of notebooks) {
+    if (notebook.id === id) {
+      return notebook;
+    } else if (notebook.children != null && notebook.children.length > 0) {
+      toVisit.push(...notebook.children);
     }
   }
 
-  throw new NotFoundError(`No notebook with ${id} found`);
+  if (toVisit.length > 0) {
+    const found = getNotebookById(toVisit, id);
+    if (found != null) {
+      return found;
+    }
+  }
+
+  throw new NotFoundError(`No notebook with id ${id} found`);
 }
 
 export function addChild(parent: Notebook, child: Notebook) {
