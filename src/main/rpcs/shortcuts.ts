@@ -1,4 +1,4 @@
-import { Section } from "../../renderer/state";
+import { Section } from "../../shared/domain/state";
 import { Shortcut, shortcutSchema } from "../../shared/domain/shortcut";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { keyCodesToString, parseKeyCodes } from "../../shared/io/keyCode";

@@ -1,5 +1,5 @@
 import { BrowserWindow, dialog } from "electron";
-import { UI } from "../../renderer/state";
+import { UI } from "../../shared/domain/state";
 import { RpcHandler, RpcRegistry } from "../../shared/rpc";
 import * as yup from "yup";
 import { px } from "../../shared/dom";

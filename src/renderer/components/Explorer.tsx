@@ -3,7 +3,7 @@ import {
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useEffect, useMemo } from "react";
-import { ExplorerView, State, ExplorerItem } from "../state";
+import { ExplorerView, State, ExplorerItem } from "../../shared/domain/state";
 import { NewButton, NewButtonOption } from "./NewButton";
 import { Icon } from "./shared/Icon";
 import { ExplorerInput, ExplorerMenu, NAV_MENU_HEIGHT } from "./ExplorerItems";
@@ -255,6 +255,8 @@ export function Explorer({ store }: ExplorerProps) {
     store.on("sidebar.createNotebook", createNotebook);
     store.on("sidebar.renameNotebook", renameNotebook);
     store.on("sidebar.deleteNotebook", deleteNotebook);
+    store.on(["sidebar.createNote", "sidebar.renameNote"], createOrRenameNote);
+    store.on("sidebar.deleteNote", deleteNote);
 
     return () => {
       store.off("sidebar.scrollUp", scrollUp);
@@ -276,6 +278,11 @@ export function Explorer({ store }: ExplorerProps) {
       store.off("sidebar.createNotebook", createNotebook);
       store.off("sidebar.renameNotebook", renameNotebook);
       store.off("sidebar.deleteNotebook", deleteNotebook);
+      store.off(
+        ["sidebar.createNote", "sidebar.renameNote"],
+        createOrRenameNote
+      );
+      store.off("sidebar.deleteNote", deleteNote);
     };
   }, [store.state]);
 
@@ -766,10 +773,7 @@ export const deleteNotebook: StoreListener<"sidebar.deleteNotebook"> = async (
 
 export const createOrRenameNote: StoreListener<
   "sidebar.createNote" | "sidebar.renameNote"
-> = async (ev, ctx) => {
-  let { id } = ev as any;
-  let isRename = id == null;
-
+> = async ({ type, value: id }, ctx) => {
   const { notes } = ctx.getState();
   let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
   let inputParams: AwaitableParams = {
@@ -777,7 +781,7 @@ export const createOrRenameNote: StoreListener<
     schema,
   };
 
-  if (isRename) {
+  if (type === "sidebar.renameNote") {
     let note = getNoteById(notes, id!);
     inputParams.id = note.id;
     inputParams.value = note.name;
@@ -799,26 +803,21 @@ export const createOrRenameNote: StoreListener<
   const [value, action] = await input.completed;
   if (action === "confirm") {
     try {
-      if (!isRename) {
+      if (type === "sidebar.createNote") {
         // TODO: Add multi-select support
         const { selected } = ctx.getState().ui.sidebar.explorer;
-        let view: ExplorerView = "all";
         let tag;
         let notebook;
-        let parentId;
         if (selected != null && selected.length > 0) {
           const firstSelected = head(selected)!;
           const [type, id] = parseResourceId(firstSelected);
-          parentId = firstSelected;
 
           switch (type) {
             case "notebook":
-              view = "notebooks";
               notebook = id;
               break;
 
             case "tag":
-              view = "tags";
               tag = id;
               break;
           }

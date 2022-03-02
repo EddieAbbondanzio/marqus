@@ -1,5 +1,5 @@
 import { Coord } from "../shared/dom";
-import { ExplorerView, Section, State, UI } from "./state";
+import { ExplorerView, Section, State, UI } from "../shared/domain/state";
 import { StartsWith } from "./types";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";

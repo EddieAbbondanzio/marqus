@@ -2,7 +2,7 @@ import { chain, isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { KeyCode, parseKeyCode, sortKeyCodes } from "../../shared/io/keyCode";
 import { sleep } from "../../shared/sleep";
-import { Section, UI } from "../state";
+import { Section, UI } from "../../shared/domain/state";
 import { EventType, Store } from "../store";
 
 const INITIAL_DELAY = 250;

@@ -1,9 +1,9 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import { AwaitableInput } from "../shared/awaitableInput";
-import { Note } from "../shared/domain/note";
-import { Notebook } from "../shared/domain/notebook";
-import { Shortcut } from "../shared/domain/shortcut";
-import { Tag } from "../shared/domain/tag";
+import { AwaitableInput } from "../awaitableInput";
+import { Note } from "./note";
+import { Notebook } from "./notebook";
+import { Shortcut } from "./shortcut";
+import { Tag } from "./tag";
 
 export interface State {
   ui: UI;

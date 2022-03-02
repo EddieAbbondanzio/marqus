@@ -151,7 +151,6 @@ export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
     }
 
     const value = (ev.target as HTMLInputElement).value as string;
-    console.log("ON INPUT!", value);
     props.onInput(value.trim());
     setFlags({ ...flags, wasTouched: true });
   };

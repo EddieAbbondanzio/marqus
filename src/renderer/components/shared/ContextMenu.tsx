@@ -15,7 +15,7 @@ import { MouseButton, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "./Focusable";
 import { Dispatch, EventType, EventValue, Store } from "../../store";
-import { Section } from "../../state";
+import { Section } from "../../../shared/domain/state";
 
 export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   const items = [];
