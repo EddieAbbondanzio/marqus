@@ -254,6 +254,7 @@ export function Explorer({ store }: ExplorerProps) {
     store.on("sidebar.deleteTag", deleteTag);
     store.on("sidebar.createNotebook", createNotebook);
     store.on("sidebar.renameNotebook", renameNotebook);
+    store.on("sidebar.deleteNotebook", deleteNotebook);
 
     return () => {
       store.off("sidebar.scrollUp", scrollUp);
@@ -274,6 +275,7 @@ export function Explorer({ store }: ExplorerProps) {
       store.off("sidebar.deleteTag", deleteTag);
       store.off("sidebar.createNotebook", createNotebook);
       store.off("sidebar.renameNotebook", renameNotebook);
+      store.off("sidebar.deleteNotebook", deleteNotebook);
     };
   }, [store.state]);
 
