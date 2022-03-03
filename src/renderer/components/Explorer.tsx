@@ -118,7 +118,6 @@ export function Explorer({ store }: ExplorerProps) {
         const onClick = (button: MouseButton) => {
           if (button & MouseButton.Left && hasChildren(item, input)) {
             store.dispatch("sidebar.toggleItemExpanded", item.id);
-            console.log("toggle: ", item);
           }
           // We always want to do this
           store.dispatch("sidebar.setSelection", [item.id]);
@@ -494,24 +493,27 @@ export const toggleItemExpanded: StoreListener<"sidebar.toggleItemExpanded"> = (
   { value: id },
   ctx
 ) => {
-  if (id == null) {
-    throw Error();
-  }
-
   ctx.setUI((prev) => {
+    let toggleId = id ?? head(prev.sidebar.explorer.selected);
+    if (toggleId == null) {
+      throw new Error("No item to toggle");
+    }
+
     const { explorer } = prev.sidebar;
     if (explorer.expanded == null || explorer.expanded.length == 0) {
-      explorer.expanded = [id];
+      explorer.expanded = [toggleId];
       return prev;
     }
 
-    const exists = explorer.expanded.some((expandedId) => expandedId === id);
+    const exists = explorer.expanded.some(
+      (expandedId) => expandedId === toggleId
+    );
     if (exists) {
       explorer.expanded = explorer.expanded.filter(
-        (expandedId) => expandedId !== id
+        (expandedId) => expandedId !== toggleId
       );
     } else {
-      explorer.expanded.push(id);
+      explorer.expanded.push(toggleId);
     }
 
     return prev;

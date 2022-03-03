@@ -1,11 +1,7 @@
 import { Shortcut } from "../domain/shortcut";
-import { KeyCode, sortKeyCodes } from "./keyCode";
+import { KeyCode, KEYCODE_DELIMITER, sortKeyCodes } from "./keyCode";
 
 export const COMMON_KEY_COMBOS = {
-  enter: [KeyCode.Enter],
-  escape: [KeyCode.Escape],
-  down: [KeyCode.ArrowDown],
-  up: [KeyCode.ArrowUp],
   scrollDown: [KeyCode.Control, KeyCode.ArrowDown],
   scrollUp: [KeyCode.Control, KeyCode.ArrowUp],
 };
@@ -49,19 +45,24 @@ const shortcuts: Shortcut[] = [
   },
   {
     event: "sidebar.moveSelectionUp",
-    keys: COMMON_KEY_COMBOS.up,
+    keys: [KeyCode.ArrowUp],
     when: "sidebar",
     repeat: true,
   },
   {
     event: "sidebar.moveSelectionDown",
-    keys: COMMON_KEY_COMBOS.down,
+    keys: [KeyCode.ArrowDown],
     when: "sidebar",
     repeat: true,
   },
   {
     event: "sidebar.clearSelection",
-    keys: COMMON_KEY_COMBOS.escape,
+    keys: [KeyCode.Escape],
+    when: "sidebar",
+  },
+  {
+    event: "sidebar.toggleItemExpanded",
+    keys: [KeyCode.Space],
     when: "sidebar",
   },
   {
@@ -80,23 +81,23 @@ const shortcuts: Shortcut[] = [
   // Context Menu
   {
     event: "contextMenu.run",
-    keys: COMMON_KEY_COMBOS.enter,
+    keys: [KeyCode.Enter],
     when: "contextMenu",
   },
   {
     event: "contextMenu.blur",
-    keys: COMMON_KEY_COMBOS.escape,
+    keys: [KeyCode.Escape],
     when: "contextMenu",
   },
   {
     event: "contextMenu.moveSelectionDown",
-    keys: COMMON_KEY_COMBOS.down,
+    keys: [KeyCode.ArrowDown],
     when: "contextMenu",
     repeat: true,
   },
   {
     event: "contextMenu.moveSelectionUp",
-    keys: COMMON_KEY_COMBOS.up,
+    keys: [KeyCode.ArrowUp],
     when: "contextMenu",
     repeat: true,
   },
