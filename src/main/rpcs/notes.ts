@@ -59,10 +59,12 @@ export const noteRpcs: RpcRegistry<"notes"> = {
     });
 
     if (notebook != null) {
-      note.notebooks!.push(notebook);
+      note.notebooks ??= [];
+      note.notebooks.push(notebook);
     }
     if (tag != null) {
-      note.tags!.push(tag);
+      note.tags ??= [];
+      note.tags.push(tag);
     }
 
     await saveMetadata(note);

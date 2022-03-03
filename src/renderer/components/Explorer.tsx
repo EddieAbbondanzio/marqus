@@ -392,6 +392,7 @@ export function getExplorerItems(
       break;
 
     case "tags":
+      console.log("notes: ", notes);
       tags.forEach((t) => {
         const children = getNotesForTag(notes, t).map((n) => ({
           id: n.id,
@@ -399,6 +400,7 @@ export function getExplorerItems(
           icon: NOTE_ICON,
         }));
 
+        console.log("tag: ", t, " children: ", children);
         items.push({
           id: t.id,
           text: t.name,
@@ -812,15 +814,15 @@ export const createOrRenameNote: StoreListener<
         let notebook;
         if (selected != null && selected.length > 0) {
           const firstSelected = head(selected)!;
-          const [type, id] = parseResourceId(firstSelected);
+          const [type] = parseResourceId(firstSelected);
 
           switch (type) {
             case "notebook":
-              notebook = id;
+              notebook = firstSelected;
               break;
 
             case "tag":
-              tag = id;
+              tag = firstSelected;
               break;
           }
         }
