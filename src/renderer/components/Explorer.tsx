@@ -254,7 +254,8 @@ export function Explorer({ store }: ExplorerProps) {
     store.on("sidebar.createNotebook", createNotebook);
     store.on("sidebar.renameNotebook", renameNotebook);
     store.on("sidebar.deleteNotebook", deleteNotebook);
-    store.on(["sidebar.createNote", "sidebar.renameNote"], createOrRenameNote);
+    store.on("sidebar.createNote", createNote);
+    store.on("sidebar.renameNote", renameNote);
     store.on("sidebar.deleteNote", deleteNote);
 
     return () => {
@@ -277,10 +278,8 @@ export function Explorer({ store }: ExplorerProps) {
       store.off("sidebar.createNotebook", createNotebook);
       store.off("sidebar.renameNotebook", renameNotebook);
       store.off("sidebar.deleteNotebook", deleteNotebook);
-      store.off(
-        ["sidebar.createNote", "sidebar.renameNote"],
-        createOrRenameNote
-      );
+      store.off("sidebar.createNote", createNote);
+      store.off("sidebar.renameNote", renameNote);
       store.off("sidebar.deleteNote", deleteNote);
     };
   }, [store.state]);
@@ -379,6 +378,8 @@ export function getExplorerItems(
   let items: ExplorerItem[] = [];
   let selectables: string[] = [];
 
+  // ALphabetically sort notes by default for now.
+  // Must be in kept in sync with getNotesForTag, and getNotesForNotebook
   notes = orderBy(notes, ["name"]);
 
   switch (view) {
@@ -394,7 +395,6 @@ export function getExplorerItems(
       break;
 
     case "tags":
-      console.log("notes: ", notes);
       tags.forEach((t) => {
         const children = getNotesForTag(notes, t).map((n) => ({
           id: n.id,
@@ -402,7 +402,6 @@ export function getExplorerItems(
           icon: NOTE_ICON,
         }));
 
-        console.log("tag: ", t, " children: ", children);
         items.push({
           id: t.id,
           text: t.name,
@@ -629,7 +628,7 @@ export const createNotebook: StoreListener<"sidebar.createNotebook"> = async (
   }
 
   let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
-  let inputParams: AwaitableParams = { value: "", schema };
+  let inputParams: AwaitableParams = { value: "", schema, parentId };
 
   let input = createAwaitableInput(inputParams, setExplorerInput(ctx));
 
@@ -645,10 +644,7 @@ export const createNotebook: StoreListener<"sidebar.createNotebook"> = async (
       sidebar: {
         explorer: {
           expanded,
-          input: {
-            ...input,
-            parentId,
-          },
+          input,
           view: "notebooks",
         },
       },
@@ -777,21 +773,102 @@ export const deleteNotebook: StoreListener<"sidebar.deleteNotebook"> = async (
   }
 };
 
-export const createOrRenameNote: StoreListener<
-  "sidebar.createNote" | "sidebar.renameNote"
-> = async ({ type, value: id }, ctx) => {
+export const createNote: StoreListener<"sidebar.createNote"> = async (
+  _,
+  ctx
+) => {
+  const {
+    notes,
+    ui: {
+      sidebar: {
+        explorer: { selected, expanded },
+      },
+    },
+  } = ctx.getState();
+
+  let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
+  let view: ExplorerView = "all";
+  let parentId: string | undefined;
+  let relationships: { notebook?: string; tag?: string } = {};
+
+  const firstSelected = head(selected);
+  if (firstSelected != null) {
+    const [type] = parseResourceId(firstSelected);
+
+    switch (type) {
+      case "tag":
+        view = "tags";
+        relationships.tag = firstSelected;
+        parentId = firstSelected;
+        break;
+
+      case "notebook":
+        view = "notebooks";
+        relationships.notebook = firstSelected;
+        parentId = firstSelected;
+        break;
+    }
+  }
+
+  let input = createAwaitableInput(
+    {
+      schema,
+      parentId,
+    },
+    setExplorerInput(ctx)
+  );
+
+  // Expand parent if it isn't already.
+  if (parentId != null && expanded?.every((id) => id !== parentId)) {
+    expanded.push(parentId);
+  }
+
+  ctx.setUI({
+    focused: ["sidebarInput"],
+    sidebar: {
+      explorer: {
+        view,
+        input,
+        expanded,
+      },
+    },
+  });
+
+  const [name, action] = await input.completed;
+  if (action === "confirm") {
+    try {
+      const note = await window.rpc("notes.create", {
+        name,
+        ...relationships,
+      });
+      ctx.setNotes((notes) => [...notes, note]);
+    } catch (e) {
+      promptError(e.message);
+    }
+  }
+
+  ctx.setUI({
+    sidebar: {
+      explorer: {
+        input: undefined,
+      },
+    },
+  });
+};
+
+export const renameNote: StoreListener<"sidebar.renameNote"> = async (
+  { value: id },
+  ctx
+) => {
   const { notes } = ctx.getState();
   let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
+
+  const { name: value } = getNoteById(notes, id!);
   let inputParams: AwaitableParams = {
-    value: "",
+    id,
+    value,
     schema,
   };
-
-  if (type === "sidebar.renameNote") {
-    let note = getNoteById(notes, id!);
-    inputParams.id = note.id;
-    inputParams.value = note.name;
-  }
 
   let input = createAwaitableInput(inputParams, setExplorerInput(ctx));
 
@@ -801,53 +878,23 @@ export const createOrRenameNote: StoreListener<
     sidebar: {
       explorer: {
         input,
-        view: "all",
       },
     },
   });
 
-  const [value, action] = await input.completed;
+  const [name, action] = await input.completed;
   if (action === "confirm") {
     try {
-      if (type === "sidebar.createNote") {
-        // TODO: Add multi-select support
-        const { selected } = ctx.getState().ui.sidebar.explorer;
-        let tag;
-        let notebook;
-        if (selected != null && selected.length > 0) {
-          const firstSelected = head(selected)!;
-          const [type] = parseResourceId(firstSelected);
-
-          switch (type) {
-            case "notebook":
-              notebook = firstSelected;
-              break;
-
-            case "tag":
-              tag = firstSelected;
-              break;
-          }
-        }
-
-        const note = await window.rpc("notes.create", {
-          name: value,
-          notebook,
-          tag,
-        });
-        ctx.setNotes((notes) => [...notes, note]);
-      } else {
-        let note = getNoteById(notes, id!);
-        const newNote = await window.rpc("notes.update", {
-          id: note.id,
-          name: value,
-        });
-        ctx.setNotes((notes) => {
-          const index = notes.findIndex((n) => n.id === note.id);
-          notes.splice(index, 1, newNote);
-          console.log("new note name: ", newNote.name);
-          return [...notes];
-        });
-      }
+      let note = getNoteById(notes, id!);
+      const newNote = await window.rpc("notes.update", {
+        id,
+        name,
+      });
+      ctx.setNotes((notes) => {
+        const index = notes.findIndex((n) => n.id === note.id);
+        notes.splice(index, 1, newNote);
+        return [...notes];
+      });
     } catch (e) {
       promptError(e.message);
     }

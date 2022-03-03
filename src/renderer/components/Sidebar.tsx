@@ -26,6 +26,11 @@ export function Sidebar({ store }: SidebarProps) {
             text="New tag"
             event="sidebar.createTag"
             key="createTag"
+          />,
+          <ContextMenuItem
+            text="New Notebook"
+            event="sidebar.createNotebook"
+            key="createNotebook"
           />
         );
         break;

@@ -14,11 +14,13 @@ export interface AwaitableInput {
   cancel: () => void;
   schema: any;
   completed: Promise<[value: string, action: AwaitableOutcome]>;
+  parentId?: string;
 }
 export type AwaitableParams = {
-  value: string;
+  value?: string;
   id?: string;
   schema: yup.StringSchema;
+  parentId?: string;
 };
 export type AwaitableOutcome = "confirm" | "cancel";
 
@@ -30,7 +32,7 @@ export function createAwaitableInput(
   let confirm: () => void;
   let cancel: () => void;
   let outcome: Nullable<string>;
-  let value = params.value;
+  let value = params.value ?? "";
 
   let confirmPromise: Promise<[value: string, action: "confirm"]> = new Promise(
     (res) =>
@@ -68,6 +70,7 @@ export function createAwaitableInput(
     cancel: cancel!,
     schema: params.schema,
     completed: promise,
+    parentId: params.parentId,
   };
 
   return obj;

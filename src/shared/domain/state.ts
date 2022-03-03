@@ -40,13 +40,9 @@ export interface Filter {
 
 export interface Explorer {
   view: ExplorerView;
-  input?: ExplorerInput;
+  input?: AwaitableInput;
   selected?: string[];
   expanded?: string[];
-}
-
-export interface ExplorerInput extends AwaitableInput {
-  parentId?: string;
 }
 
 export interface ExplorerItem {
