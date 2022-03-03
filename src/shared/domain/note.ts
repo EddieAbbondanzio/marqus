@@ -5,6 +5,7 @@ import { idSchema, resourceId } from "./id";
 import { Tag } from "./tag";
 import { Notebook } from "./notebook";
 import { isBlank } from "../utils";
+import { orderBy } from "lodash";
 
 export enum NoteFlag {
   None,
@@ -65,9 +66,13 @@ export function getNoteById(notes: Note[], id: string): Note {
 }
 
 export function getNotesForTag(notes: Note[], tag: Tag): Note[] {
-  return notes.filter((n) => n.tags?.some((t) => t === tag.id));
+  const unsorted = notes.filter((n) => n.tags?.some((t) => t === tag.id));
+  return orderBy(unsorted, ["name"]);
 }
 
 export function getNotesForNotebook(notes: Note[], notebook: Notebook): Note[] {
-  return notes.filter((n) => n.notebooks?.some((id) => id === notebook.id));
+  const unsorted = notes.filter((n) =>
+    n.notebooks?.some((id) => id === notebook.id)
+  );
+  return orderBy(unsorted, ["name"]);
 }

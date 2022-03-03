@@ -46,7 +46,7 @@ import {
   StoreControls,
   StoreListener,
 } from "../store";
-import { head, clamp, isEmpty, take, identity } from "lodash";
+import { head, clamp, isEmpty, take, identity, orderBy } from "lodash";
 import {
   AwaitableParams,
   createAwaitableInput,
@@ -378,6 +378,8 @@ export function getExplorerItems(
 ): [ExplorerItem[], string[]] {
   let items: ExplorerItem[] = [];
   let selectables: string[] = [];
+
+  notes = orderBy(notes, ["name"]);
 
   switch (view) {
     case "all":
