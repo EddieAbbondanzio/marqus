@@ -15,6 +15,7 @@ export interface State {
 
 export interface UI {
   sidebar: Sidebar;
+  editor: Editor;
   focused: Section[];
 }
 
@@ -59,3 +60,9 @@ export type ExplorerView =
   | "favorites"
   | "temp"
   | "trash";
+
+export interface Editor {
+  view: EditorView;
+}
+
+export type EditorView = "edit" | "view";

@@ -20,6 +20,9 @@ beforeEach(() => {
         scroll: 0,
         width: "300px",
       },
+      editor: {
+        view: "view",
+      },
       focused: [],
     },
   };

@@ -71,7 +71,7 @@ export const noteRpcs: RpcRegistry<"notes"> = {
 
     return note;
   },
-  "notes.update": async (input) => {
+  "notes.rename": async (input) => {
     if (!exists(NOTES_DIRECTORY)) {
       await createDirectory(NOTES_DIRECTORY);
     }

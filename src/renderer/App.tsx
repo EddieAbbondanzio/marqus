@@ -1,10 +1,9 @@
-import { fontAwesomeLib } from "./libs/fontAwesome";
 import { render } from "react-dom";
 import React, { useEffect } from "react";
 import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
-import { Focusable, useFocusTracking } from "./components/shared/Focusable";
+import { useFocusTracking } from "./components/shared/Focusable";
 import { Section, UI } from "../shared/domain/state";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
@@ -13,11 +12,10 @@ import { Notebook } from "../shared/domain/notebook";
 import { StoreListener, useStore } from "./store";
 import { getNodeEnv } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
+import { Editor } from "./components/Editor";
 
 const { rpc } = window;
 async function main() {
-  fontAwesomeLib();
-
   let ui: UI;
   let shortcuts: Shortcut[] = [];
   let tags: Tag[] = [];
@@ -77,10 +75,7 @@ async function main() {
     return (
       <div className="h-100 w-100 is-flex is-flex-row">
         {!(store.state.ui.sidebar.hidden ?? false) && <Sidebar store={store} />}
-
-        <Focusable store={store} name="editor">
-          Editor!
-        </Focusable>
+        <Editor store={store} />
       </div>
     );
   }

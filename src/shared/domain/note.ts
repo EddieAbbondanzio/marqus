@@ -37,7 +37,7 @@ export function createNote(props: Partial<Note>): Note {
   return note;
 }
 
-export function getNoteSchema(notes: Note[] = []): yup.SchemaOf<Note> {
+export function getNoteSchema(): yup.SchemaOf<Note> {
   return yup
     .object()
     .shape({
@@ -48,6 +48,7 @@ export function getNoteSchema(notes: Note[] = []): yup.SchemaOf<Note> {
         .required()
         .min(1, "Note name must be atleast 1 character")
         .max(64, "Note name cannot be more than 64 characters"),
+      // Note names don't need to be unique
       tags: yup.array().of(yup.string()).optional(),
       notebooks: yup.array().of(yup.string()).optional(),
       flags: yup.number(),

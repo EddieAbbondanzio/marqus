@@ -561,7 +561,7 @@ export const createOrRenameTag: StoreListener<
           break;
 
         case "sidebar.renameTag":
-          tag = await window.rpc("tags.update", { id: id!, name });
+          tag = await window.rpc("tags.rename", { id: id!, name });
           ctx.setTags((tags) => {
             tags.splice(
               tags.findIndex((t) => t.id === tag.id),
@@ -712,7 +712,7 @@ export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
   const [value, action] = await input.completed;
   if (action === "confirm") {
     try {
-      const renamed = await window.rpc("notebooks.update", {
+      const renamed = await window.rpc("notebooks.rename", {
         id,
         name: value,
       });
@@ -786,7 +786,7 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
     },
   } = ctx.getState();
 
-  let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
+  let schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   let view: ExplorerView = "all";
   let parentId: string | undefined;
   let relationships: { notebook?: string; tag?: string } = {};
@@ -861,8 +861,7 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   ctx
 ) => {
   const { notes } = ctx.getState();
-  let schema: yup.StringSchema = yup.reach(getNoteSchema(notes), "name");
-
+  let schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   const { name: value } = getNoteById(notes, id!);
   let inputParams: AwaitableParams = {
     id,
@@ -886,7 +885,7 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   if (action === "confirm") {
     try {
       let note = getNoteById(notes, id!);
-      const newNote = await window.rpc("notes.update", {
+      const newNote = await window.rpc("notes.rename", {
         id,
         name,
       });

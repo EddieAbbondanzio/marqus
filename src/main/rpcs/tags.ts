@@ -27,7 +27,7 @@ const create: RpcHandler<"tags.create"> = async ({
   return tag;
 };
 
-const updateTag = async ({
+const renameTag = async ({
   id,
   name,
 }: {
@@ -65,7 +65,7 @@ const deleteTag = async ({ id }: { id: string }): Promise<void> => {
 export const tagRpcs: RpcRegistry<"tags"> = {
   "tags.getAll": getAllTags,
   "tags.create": create,
-  "tags.update": updateTag,
+  "tags.rename": renameTag,
   "tags.delete": deleteTag,
 };
 

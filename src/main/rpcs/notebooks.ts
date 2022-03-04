@@ -37,7 +37,7 @@ const create: RpcHandler<"notebooks.create"> = async ({ name, parentId }) => {
   return notebook;
 };
 
-const update: RpcHandler<"notebooks.update"> = async ({
+const rename: RpcHandler<"notebooks.rename"> = async ({
   id,
   name,
   parentId,
@@ -73,7 +73,7 @@ const del: RpcHandler<"notebooks.delete"> = async ({ id }) => {
 export const notebooksRpcs: RpcRegistry<"notebooks"> = {
   "notebooks.getAll": getAll,
   "notebooks.create": create,
-  "notebooks.update": update,
+  "notebooks.rename": rename,
   "notebooks.delete": del,
 };
 

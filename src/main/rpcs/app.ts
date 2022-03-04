@@ -121,6 +121,9 @@ export const uiFile = createFileHandler<UI>("ui.json", appSchema, {
         view: "notebooks",
       },
     },
+    editor: {
+      view: "view",
+    },
     focused: [],
   },
 });

@@ -38,13 +38,13 @@ export interface RpcSchema {
   // Tags
   "tags.getAll": RpcOut<Tag[]>;
   "tags.create": RpcInOut<{ name: string }, Tag>;
-  "tags.update": RpcInOut<{ id: string; name: string }, Tag>;
+  "tags.rename": RpcInOut<{ id: string; name: string }, Tag>;
   "tags.delete": RpcIn<{ id: string }>;
 
   // Notebooks
   "notebooks.getAll": RpcOut<Notebook[]>;
   "notebooks.create": RpcInOut<{ name: string; parentId?: string }, Notebook>;
-  "notebooks.update": RpcInOut<
+  "notebooks.rename": RpcInOut<
     { id: string; name: string; parentId?: string },
     Notebook
   >;
@@ -56,7 +56,7 @@ export interface RpcSchema {
     { name: string; tag?: string; notebook?: string },
     Note
   >;
-  "notes.update": RpcInOut<{ id: string; name: string }, Note>;
+  "notes.rename": RpcInOut<{ id: string; name: string }, Note>;
 }
 
 export type RpcType = keyof RpcSchema;
