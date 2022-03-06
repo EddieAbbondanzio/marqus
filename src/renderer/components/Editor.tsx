@@ -23,25 +23,36 @@ export function Editor({ store }: EditorProps) {
     };
   }, [store.state]);
 
-  const onInput = (ev: ChangeEvent<HTMLInputElement>) => {
+  const onChange = (ev: ChangeEvent<HTMLTextAreaElement>) => {
     store.dispatch("editor.setContent", ev.target.value);
   };
 
-  const inputRef = useRef(null! as HTMLInputElement);
+  const textareaRef = useRef(null! as HTMLTextAreaElement);
 
   const content = editor.isEditting ? (
-    <input ref={inputRef} value={editor.content} onChange={onInput}></input>
+    <textarea
+      className="markdown-editor"
+      ref={textareaRef}
+      value={editor.content}
+      onChange={onChange}
+    ></textarea>
   ) : (
     <Markdown content={editor.content!} />
   );
 
   const onFocus = () => {
-    inputRef.current?.focus();
+    textareaRef.current?.focus();
   };
   const onBlur = () => {};
 
   return (
-    <Focusable store={store} name="editor" onFocus={onFocus} onBlur={onBlur}>
+    <Focusable
+      className="w-100 p-2"
+      store={store}
+      name="editor"
+      onFocus={onFocus}
+      onBlur={onBlur}
+    >
       {content}
     </Focusable>
   );

@@ -67,7 +67,8 @@ export function useShortcuts(store: Store) {
        * everything but this gives the user a chance to redefine or disable any
        * shortcut.
        */
-      if ((ev.target as HTMLElement).tagName !== "INPUT") {
+      const tagName = (ev.target as HTMLElement).tagName;
+      if (tagName !== "INPUT" && tagName !== "TEXTAREA") {
         ev.preventDefault();
       }
 
