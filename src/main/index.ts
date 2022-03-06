@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
-import { RpcType, RpcArgument, RpcRegistry } from "../shared/rpc";
+import { RpcType, RpcArgument, RpcHandler } from "../shared/rpc";
 import { appRpcs } from "./rpcs/app";
 import { notebooksRpcs } from "./rpcs/notebooks";
 import { noteRpcs } from "./rpcs/notes";
@@ -39,7 +39,7 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
     });
   };
 
-  const handler = handlers[arg.type as RpcType];
+  const handler = handlers[arg.type];
 
   if (handler == null) {
     respondError(arg, Error("An error has occured."));
@@ -56,7 +56,8 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
 
   try {
     // Cast is gross
-    const res = await handler(arg.value as any);
+    // TODO: Revisit this.
+    const res = await handler(arg.value as never);
     respond(res);
   } catch (e) {
     respondError(arg, e);

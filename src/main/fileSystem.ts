@@ -285,6 +285,26 @@ export async function writeFile(
   });
 }
 
+export async function touch(path: string): Promise<void> {
+  return new Promise((res, rej) => {
+    const fullPath = generateFullPath(path);
+
+    fs.open(fullPath, "w", (openErr, fd) => {
+      if (openErr) {
+        return rej(openErr);
+      } else {
+        fs.close(fd, (closeErr) => {
+          if (closeErr) {
+            return rej(closeErr);
+          } else {
+            res();
+          }
+        });
+      }
+    });
+  });
+}
+
 export function generateFullPath(...path: string[]): string {
   return p.resolve(DATA_DIRECTORY, ...path);
 }

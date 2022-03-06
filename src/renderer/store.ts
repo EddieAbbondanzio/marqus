@@ -42,6 +42,9 @@ export interface Events {
   "sidebar.setExplorerView": ExplorerView;
 
   // Editor
+  "editor.save": void;
+  "editor.toggleView": void;
+  "editor.setContent": string;
 
   // Focus Tracker
   "focus.push": Section;

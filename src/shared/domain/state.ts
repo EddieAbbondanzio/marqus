@@ -62,7 +62,7 @@ export type ExplorerView =
   | "trash";
 
 export interface Editor {
-  view: EditorView;
+  isEditting: boolean;
+  content?: string;
+  noteId?: string;
 }
-
-export type EditorView = "edit" | "view";

@@ -57,6 +57,8 @@ export interface RpcSchema {
     Note
   >;
   "notes.rename": RpcInOut<{ id: string; name: string }, Note>;
+  "notes.loadContent": RpcInOut<string, string | null>;
+  "notes.saveContent": RpcIn<{ id: string; content: string }>;
 }
 
 export type RpcType = keyof RpcSchema;
@@ -74,6 +76,7 @@ export type Rpc = <Type extends RpcType>(
  */
 export type RpcArgument = {
   id: string;
+  // TODO: Can we make this type better. value relies on type prop
   type: RpcType;
   value: RpcSchema[RpcType];
 };

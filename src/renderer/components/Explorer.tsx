@@ -198,28 +198,49 @@ export function Explorer({ store }: ExplorerProps) {
       | "sidebar.moveSelectionDown"
       | "sidebar.moveSelectionUp"
       | "sidebar.setSelection"
-    > = ({ type, value }, { setUI }) =>
-      setUI(() => {
-        let selected;
-        switch (type) {
-          case "sidebar.moveSelectionDown":
-            selected = getNext(1);
-            break;
-          case "sidebar.moveSelectionUp":
-            selected = getNext(-1);
-            break;
-          case "sidebar.setSelection":
-            selected = value!;
-            break;
+    > = async ({ type, value }, { setUI }) => {
+      let selected: string[] | undefined;
+      let content: string | undefined;
+      let noteId: string | undefined;
+
+      switch (type) {
+        case "sidebar.moveSelectionDown":
+          selected = getNext(1);
+          break;
+        case "sidebar.moveSelectionUp":
+          selected = getNext(-1);
+          break;
+        case "sidebar.setSelection":
+          selected = value!;
+          break;
+      }
+
+      if (selected != null && selected.length == 1) {
+        const [firstSelected] = selected;
+        const [type, id] = parseResourceId(firstSelected);
+
+        if (type === "note") {
+          content =
+            (await window.rpc("notes.loadContent", firstSelected)) ?? undefined;
+          noteId = firstSelected;
         }
-        return {
-          sidebar: {
-            explorer: {
-              selected,
-            },
-          },
+      }
+
+      setUI((prev) => {
+        const next = {
+          ...prev,
         };
+
+        if (content != null) {
+          next.editor.content = content;
+          next.editor.noteId = noteId;
+        }
+
+        next.sidebar.explorer.selected = selected;
+
+        return next;
       });
+    };
 
     const setView: StoreListener<"sidebar.setExplorerView"> = (
       { value: view },

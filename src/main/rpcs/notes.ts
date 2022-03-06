@@ -4,6 +4,7 @@ import {
   exists as exists,
   readDirectory,
   readFile,
+  touch,
   writeFile,
 } from "../fileSystem";
 import * as path from "path";
@@ -19,7 +20,7 @@ import {
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
-export const CONTENT_FILE_NAME = "content.md";
+export const MARKDOWN_FILE_NAME = "index.md";
 
 export const noteRpcs: RpcRegistry<"notes"> = {
   "notes.getAll": async () => {
@@ -67,7 +68,7 @@ export const noteRpcs: RpcRegistry<"notes"> = {
       note.tags.push(tag);
     }
 
-    await saveMetadata(note);
+    await saveToFileSystem(note);
 
     return note;
   },
@@ -85,13 +86,32 @@ export const noteRpcs: RpcRegistry<"notes"> = {
     const note = await loadMetadata(bareId);
     note.name = input.name;
     note.dateUpdated = new Date();
-    await saveMetadata(note);
+    await saveToFileSystem(note);
 
     return note;
   },
+  "notes.loadContent": async (id) => {
+    const [, bareId] = parseResourceId(id);
+    const notePath = path.join(NOTES_DIRECTORY, bareId);
+    if (!exists(notePath)) {
+      throw new NotFoundError(`Note ${id} not found in the file system.`);
+    }
+
+    const content = await loadMarkdown(bareId);
+    return content;
+  },
+  "notes.saveContent": async ({ id, content }) => {
+    const [, bareId] = parseResourceId(id);
+    const notePath = path.join(NOTES_DIRECTORY, bareId);
+    if (!exists(notePath)) {
+      throw new NotFoundError(`Note ${id} not found in the file system.`);
+    }
+
+    await saveMarkdown(bareId, content);
+  },
 };
 
-export async function saveMetadata(note: Note): Promise<void> {
+export async function saveToFileSystem(note: Note): Promise<void> {
   const [, rawId] = parseResourceId(note.id);
   const dirPath = path.join(NOTES_DIRECTORY, rawId);
   if (!exists(dirPath)) {
@@ -99,9 +119,11 @@ export async function saveMetadata(note: Note): Promise<void> {
   }
 
   const metadataPath = path.join(NOTES_DIRECTORY, rawId, METADATA_FILE_NAME);
+  const markdownPath = path.join(NOTES_DIRECTORY, rawId, MARKDOWN_FILE_NAME);
   const { type, ...metadata } = note;
 
   await writeFile(metadataPath, metadata, "json");
+  await touch(markdownPath);
 }
 
 export async function loadMetadata(noteId: string): Promise<Note> {
@@ -123,4 +145,17 @@ export async function loadMetadata(noteId: string): Promise<Note> {
   await getNoteSchema().validate(note);
 
   return note;
+}
+
+export async function loadMarkdown(noteId: string): Promise<string | null> {
+  const markdownPath = path.join(NOTES_DIRECTORY, noteId, MARKDOWN_FILE_NAME);
+  return await readFile(markdownPath, "text");
+}
+export async function saveMarkdown(
+  noteId: string,
+  content: string
+): Promise<void> {
+  const markdownPath = path.join(NOTES_DIRECTORY, noteId, MARKDOWN_FILE_NAME);
+
+  return await writeFile(markdownPath, content, "text");
 }

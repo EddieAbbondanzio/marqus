@@ -77,6 +77,11 @@ const shortcuts: Shortcut[] = [
     eventInput: "editor",
     keys: [KeyCode.Control, KeyCode.Digit2],
   },
+  {
+    event: "editor.save",
+    keys: [KeyCode.Control, KeyCode.LetterS],
+  },
+  { event: "editor.toggleView", keys: [KeyCode.Control, KeyCode.LetterE] },
 
   // Context Menu
   {

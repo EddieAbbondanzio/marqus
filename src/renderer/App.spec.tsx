@@ -21,7 +21,8 @@ beforeEach(() => {
         width: "300px",
       },
       editor: {
-        view: "view",
+        isEditting: false,
+        content: "",
       },
       focused: [],
     },

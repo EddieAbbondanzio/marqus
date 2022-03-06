@@ -122,7 +122,7 @@ export const uiFile = createFileHandler<UI>("ui.json", appSchema, {
       },
     },
     editor: {
-      view: "view",
+      isEditting: false,
     },
     focused: [],
   },
