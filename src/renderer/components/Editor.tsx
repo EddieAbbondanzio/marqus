@@ -1,5 +1,6 @@
+import { debounce } from "lodash";
 import { marked } from "marked";
-import React, { ChangeEvent, useEffect, useRef } from "react";
+import React, { ChangeEvent, useEffect, useMemo, useRef } from "react";
 import { Store, StoreListener } from "../store";
 import { Markdown } from "./Markdown";
 import { Focusable } from "./shared/Focusable";
@@ -28,7 +29,6 @@ export function Editor({ store }: EditorProps) {
   };
 
   const textareaRef = useRef(null! as HTMLTextAreaElement);
-
   const content = editor.isEditting ? (
     <textarea
       className="markdown-editor"
@@ -40,23 +40,19 @@ export function Editor({ store }: EditorProps) {
     <Markdown content={editor.content!} />
   );
 
-  const onFocus = () => {
-    textareaRef.current?.focus();
-  };
-  const onBlur = () => {};
-
   return (
     <Focusable
       className="w-100 p-2"
       store={store}
       name="editor"
-      onFocus={onFocus}
-      onBlur={onBlur}
+      onFocus={() => textareaRef.current?.focus()}
     >
       {content}
     </Focusable>
   );
 }
+
+const debouncedRpc = debounce(window.rpc, 500);
 
 const setContent: StoreListener<"editor.setContent"> = async (
   { value: content },
@@ -71,7 +67,8 @@ const setContent: StoreListener<"editor.setContent"> = async (
         content,
       },
     });
-    await window.rpc("notes.saveContent", { id: editor.noteId, content });
+
+    await debouncedRpc("notes.saveContent", { id: editor.noteId, content });
   }
 };
 

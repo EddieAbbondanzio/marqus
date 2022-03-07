@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
 import { RpcType, RpcArgument, RpcHandler } from "../shared/rpc";
 import { appRpcs } from "./rpcs/app";
+import { configRpcs } from "./rpcs/config";
 import { notebooksRpcs } from "./rpcs/notebooks";
 import { noteRpcs } from "./rpcs/notes";
 import { shortcutRpcs } from "./rpcs/shortcuts";
@@ -16,6 +17,7 @@ export const handlers = {
   ...tagRpcs,
   ...noteRpcs,
   ...notebooksRpcs,
+  ...configRpcs,
 };
 
 if (getProcessType() !== "main") {
@@ -80,6 +82,8 @@ if (require("electron-squirrel-startup")) {
 }
 
 const createWindow = async (): Promise<void> => {
+  // TODO: Find a better spot for this?
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 600,
@@ -124,3 +128,4 @@ app.on("activate", () => {
 // code. You can also put them in separate files and import them here.
 
 // console.log("RPC handlers loaded.", handlers);
+console.log("Working directory: ", process.cwd());

@@ -1,7 +1,7 @@
 {
   "name": "marker",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "A markdown note taking app",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start --inspect-electron",

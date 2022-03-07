@@ -15,3 +15,9 @@ export class NotFoundError extends Error {
     super(messsage);
   }
 }
+
+export class NotSupportedError extends Error {
+  constructor(public message = "Not supported") {
+    super(message);
+  }
+}

@@ -6,6 +6,7 @@ import { StartsWith } from "../renderer/types";
 import { Note } from "./domain/note";
 import { Notebook } from "./domain/notebook";
 import { Tag } from "./domain/tag";
+import { Config } from "./domain/config";
 
 /*
  * Helper types to define inputs and outputs of RPC handlers.
@@ -17,9 +18,8 @@ export type RpcOut<O> = [void, Promise<O>];
 export type RpcVoid = [void, void];
 
 /*
- * TypeScript can't infer keys of a union type.
- * Don't break out RpcSchema into sub modules unless you
- * want to lose intellisense.
+ * TypeScript can't infer keys of a union type. Don't break out RpcSchema
+ * into sub modules unless you want to lose intellisense.
  */
 export interface RpcSchema {
   // App
@@ -59,6 +59,10 @@ export interface RpcSchema {
   "notes.rename": RpcInOut<{ id: string; name: string }, Note>;
   "notes.loadContent": RpcInOut<string, string | null>;
   "notes.saveContent": RpcIn<{ id: string; content: string }>;
+
+  // Config
+  "config.load": RpcOut<Config | null>;
+  "config.setDataDirectory": RpcIn<string>;
 }
 
 export type RpcType = keyof RpcSchema;

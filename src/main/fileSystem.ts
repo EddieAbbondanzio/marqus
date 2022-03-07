@@ -4,7 +4,6 @@ import { debounce, isEqual, cloneDeep } from "lodash";
 import { getNodeEnv } from "../shared/env";
 import * as yup from "yup";
 
-export const DATA_DIRECTORY = "data";
 export type FileContentType = "text" | "json";
 
 export type FileName =
@@ -128,31 +127,24 @@ export function createFileHandler<Content>(
 }
 
 export function exists(path: string): boolean {
-  const fullPath = generateFullPath(path);
-  return fs.existsSync(fullPath);
+  return fs.existsSync(path);
 }
 
 export async function createDirectory(path: string): Promise<void> {
-  const fullPath = generateFullPath(path);
-
   return new Promise((res, rej) => {
-    fs.mkdir(fullPath, (err) => (err != null ? rej(err) : res()));
+    fs.mkdir(path, (err) => (err != null ? rej(err) : res()));
   });
 }
 
 export async function deleteDirectory(path: string): Promise<void> {
-  const fullPath = generateFullPath(path);
-
   return new Promise((res, rej) => {
-    fs.rmdir(fullPath, (err) => (err != null ? rej(err) : res()));
+    fs.rmdir(path, (err) => (err != null ? rej(err) : res()));
   });
 }
 
 export async function readDirectory(path: string): Promise<fs.Dirent[]> {
-  const fullPath = generateFullPath(path);
-
   return new Promise((res, rej) => {
-    fs.readdir(fullPath, { withFileTypes: true }, (err, files) => {
+    fs.readdir(path, { withFileTypes: true }, (err, files) => {
       if (err != null) {
         return rej(err);
       }
@@ -162,10 +154,8 @@ export async function readDirectory(path: string): Promise<fs.Dirent[]> {
 }
 
 export async function stat(path: string): Promise<fs.Stats> {
-  const fullPath = generateFullPath(path);
-
   return new Promise((res, rej) => {
-    fs.stat(fullPath, (err, stats) => {
+    fs.stat(path, (err, stats) => {
       if (err != null) {
         rej(err);
       } else {
@@ -176,10 +166,8 @@ export async function stat(path: string): Promise<fs.Stats> {
 }
 
 export async function deleteFile(path: string): Promise<void> {
-  const fullPath = generateFullPath(path);
-
   return new Promise((res, rej) => {
-    fs.rm(fullPath, (err) => (err != null ? rej(err) : res()));
+    fs.rm(path, (err) => (err != null ? rej(err) : res()));
   });
 }
 
@@ -200,17 +188,15 @@ export async function readFile<
     : string | null
 > {
   return new Promise((res, rej) => {
-    const fullPath = generateFullPath(path);
-
-    if (!exists(fullPath)) {
+    if (!exists(path)) {
       if (!(opts?.required ?? false)) {
         return res(null as any);
       }
 
-      throw Error(`readFile(): File ${fullPath} did not exist.`);
+      throw Error(`readFile(): File ${path} did not exist.`);
     }
 
-    fs.readFile(fullPath, { encoding: "utf-8" }, (err, data) => {
+    fs.readFile(path, { encoding: "utf-8" }, (err, data) => {
       if (err != null) {
         return rej(err);
       }
@@ -270,7 +256,6 @@ export async function writeFile(
   }
 
   return new Promise((res, rej) => {
-    const fullPath = generateFullPath(path);
     let data: string;
 
     if (contentType === "json") {
@@ -279,7 +264,7 @@ export async function writeFile(
       data = content as string;
     }
 
-    fs.writeFile(fullPath, data, { encoding: "utf-8" }, (err) =>
+    fs.writeFile(path, data, { encoding: "utf-8" }, (err) =>
       err != null ? rej(err) : res()
     );
   });
@@ -287,9 +272,7 @@ export async function writeFile(
 
 export async function touch(path: string): Promise<void> {
   return new Promise((res, rej) => {
-    const fullPath = generateFullPath(path);
-
-    fs.open(fullPath, "w", (openErr, fd) => {
+    fs.open(path, "w", (openErr, fd) => {
       if (openErr) {
         return rej(openErr);
       } else {
@@ -303,8 +286,4 @@ export async function touch(path: string): Promise<void> {
       }
     });
   });
-}
-
-export function generateFullPath(...path: string[]): string {
-  return p.resolve(DATA_DIRECTORY, ...path);
 }
