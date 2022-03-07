@@ -52,7 +52,7 @@ export function Editor({ store }: EditorProps) {
   );
 }
 
-const debouncedRpc = debounce(window.rpc, 500);
+const debouncedRpc = debounce(window.ipc, 500);
 
 const setContent: StoreListener<"editor.setContent"> = async (
   { value: content },

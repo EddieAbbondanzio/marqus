@@ -1,23 +1,23 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { getNodeEnv, getProcessType } from "../shared/env";
-import { RpcType, RpcArgument, RpcHandler } from "../shared/rpc";
-import { appRpcs } from "./rpcs/app";
-import { configRpcs } from "./rpcs/config";
-import { notebooksRpcs } from "./rpcs/notebooks";
-import { noteRpcs } from "./rpcs/notes";
-import { shortcutRpcs } from "./rpcs/shortcuts";
-import { tagRpcs } from "./rpcs/tags";
+import { IpcType, IpcArgument, IpcHandler } from "../shared/ipc";
+import { appIpcs } from "./ipc/app";
+import { configIpcs } from "./ipc/config";
+import { notebooksIpcs } from "./ipc/notebooks";
+import { noteIpcs } from "./ipc/notes";
+import { shortcutIpcs } from "./ipc/shortcuts";
+import { tagIpcs } from "./ipc/tags";
 
 /*
  * Register new handlers here. You'll need to update IpcType too
  */
 export const handlers = {
-  ...appRpcs,
-  ...shortcutRpcs,
-  ...tagRpcs,
-  ...noteRpcs,
-  ...notebooksRpcs,
-  ...configRpcs,
+  ...appIpcs,
+  ...shortcutIpcs,
+  ...tagIpcs,
+  ...noteIpcs,
+  ...notebooksIpcs,
+  ...configIpcs,
 };
 
 if (getProcessType() !== "main") {
@@ -26,7 +26,7 @@ if (getProcessType() !== "main") {
   );
 }
 
-ipcMain.on("send", async (ev, arg: RpcArgument) => {
+ipcMain.on("send", async (ev, arg: IpcArgument) => {
   const respond = (value: any) =>
     ev.sender.send("send", {
       id: arg.id,
@@ -34,7 +34,7 @@ ipcMain.on("send", async (ev, arg: RpcArgument) => {
       value,
     });
 
-  const respondError = ({ id }: RpcArgument, error: Error) => {
+  const respondError = ({ id }: IpcArgument, error: Error) => {
     ev.sender.send("send", {
       id,
       error,

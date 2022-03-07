@@ -2,7 +2,7 @@ import { Section } from "../../shared/domain/state";
 import { Shortcut, shortcutSchema } from "../../shared/domain/shortcut";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { keyCodesToString, parseKeyCodes } from "../../shared/io/keyCode";
-import { RpcRegistry } from "../../shared/rpc";
+import { IpcRegistry } from "../../shared/ipc";
 import { createFileHandler } from "../fileSystem";
 import * as yup from "yup";
 
@@ -14,7 +14,7 @@ export interface ShortcutOverride {
   repeat?: boolean;
 }
 
-export const shortcutRpcs: RpcRegistry<"shortcuts"> = {
+export const shortcutIpcs: IpcRegistry<"shortcuts"> = {
   "shortcuts.getAll": () => shortcutFile.load(),
 };
 

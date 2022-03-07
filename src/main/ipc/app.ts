@@ -1,11 +1,11 @@
 import { BrowserWindow, dialog } from "electron";
 import { UI } from "../../shared/domain/state";
-import { RpcHandler, RpcRegistry } from "../../shared/rpc";
+import { IpcHandler, IpcRegistry } from "../../shared/ipc";
 import * as yup from "yup";
 import { px } from "../../shared/dom";
 import { createFileHandler } from "../fileSystem";
 
-const promptUser: RpcHandler<"app.promptUser"> = async (opts) => {
+const promptUser: IpcHandler<"app.promptUser"> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
   const defaultCount = opts.buttons.filter((b) => b.role === "default").length;
 
@@ -28,15 +28,15 @@ const promptUser: RpcHandler<"app.promptUser"> = async (opts) => {
   return opts.buttons[returnVal.response];
 };
 
-const openDevTools: RpcHandler<"app.openDevTools"> = async () => {
+const openDevTools: IpcHandler<"app.openDevTools"> = async () => {
   BrowserWindow.getFocusedWindow()?.webContents.openDevTools();
 };
 
-const reload: RpcHandler<"app.reload"> = async () => {
+const reload: IpcHandler<"app.reload"> = async () => {
   BrowserWindow.getFocusedWindow()?.webContents.reload();
 };
 
-const toggleFullScreen: RpcHandler<"app.toggleFullScreen"> = async () => {
+const toggleFullScreen: IpcHandler<"app.toggleFullScreen"> = async () => {
   const bw = BrowserWindow.getFocusedWindow();
   if (bw == null) {
     return;
@@ -45,11 +45,11 @@ const toggleFullScreen: RpcHandler<"app.toggleFullScreen"> = async () => {
   bw.setFullScreen(!bw.isFullScreen());
 };
 
-const quit: RpcHandler<"app.quit"> = async () => {
+const quit: IpcHandler<"app.quit"> = async () => {
   BrowserWindow.getAllWindows().forEach((w) => w.close());
 };
 
-const inspectElement: RpcHandler<"app.inspectElement"> = async (coord) => {
+const inspectElement: IpcHandler<"app.inspectElement"> = async (coord) => {
   BrowserWindow.getFocusedWindow()?.webContents.inspectElement(
     coord.x,
     coord.y
@@ -64,7 +64,7 @@ export async function save(app: UI): Promise<void> {
   await uiFile.save(app);
 }
 
-export const appRpcs: RpcRegistry<"app"> = {
+export const appIpcs: IpcRegistry<"app"> = {
   "app.promptUser": promptUser,
   "app.openDevTools": openDevTools,
   "app.reload": reload,

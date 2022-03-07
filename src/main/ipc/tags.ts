@@ -1,4 +1,4 @@
-import { RpcHandler, RpcRegistry } from "../../shared/rpc";
+import { IpcHandler, IpcRegistry } from "../../shared/ipc";
 import { createFileHandler } from "../fileSystem";
 import * as yup from "yup";
 import { createTag, getTagSchema, Tag } from "../../shared/domain/tag";
@@ -7,7 +7,7 @@ import { resourceId } from "../../shared/domain/id";
 
 const getAllTags = async (): Promise<Tag[]> => tagFile.load();
 
-const create: RpcHandler<"tags.create"> = async ({
+const create: IpcHandler<"tags.create"> = async ({
   name,
 }: {
   name: string;
@@ -62,7 +62,7 @@ const deleteTag = async ({ id }: { id: string }): Promise<void> => {
   await tagFile.save(tags);
 };
 
-export const tagRpcs: RpcRegistry<"tags"> = {
+export const tagIpcs: IpcRegistry<"tags"> = {
   "tags.getAll": getAllTags,
   "tags.create": create,
   "tags.rename": renameTag,

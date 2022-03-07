@@ -27,9 +27,6 @@ beforeEach(() => {
       focused: [],
     },
   };
-
-  // Lots of commands call this internally so we stub it.
-  window.rpc = jest.fn();
 });
 
 test("sidebar.toggle", async () => {

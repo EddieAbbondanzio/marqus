@@ -1,5 +1,5 @@
 import { NotFoundError } from "../../shared/errors";
-import { RpcRegistry } from "../../shared/rpc";
+import { IpcRegistry } from "../../shared/ipc";
 import { readFile, writeFile } from "../fileSystem";
 import { Config } from "../../shared/domain/config";
 import { app } from "electron";
@@ -7,7 +7,7 @@ import * as path from "path";
 
 export const CONFIG_FILE = "config.json";
 
-export const configRpcs: RpcRegistry<"config"> = {
+export const configIpcs: IpcRegistry<"config"> = {
   "config.load": async () => {
     return await getConfigFile();
   },

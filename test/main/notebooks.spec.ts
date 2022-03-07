@@ -8,7 +8,7 @@ import {
   deserialize,
   serialize,
   SerializedNotebook,
-} from "../../src/main/rpcs/notebooks";
+} from "../../src/main/ipc/notebooks";
 
 test("serialize is recursive", () => {
   const parent = createNotebook({ name: "parent " });

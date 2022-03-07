@@ -221,7 +221,7 @@ export function Explorer({ store }: ExplorerProps) {
 
         if (type === "note") {
           content =
-            (await window.rpc("notes.loadContent", firstSelected)) ?? undefined;
+            (await window.ipc("notes.loadContent", firstSelected)) ?? undefined;
           noteId = firstSelected;
         }
       }
@@ -577,12 +577,12 @@ export const createOrRenameTag: StoreListener<
     try {
       switch (type) {
         case "sidebar.createTag":
-          tag = await window.rpc("tags.create", { name });
+          tag = await window.ipc("tags.create", { name });
           ctx.setTags((tags) => [...tags, tag]);
           break;
 
         case "sidebar.renameTag":
-          tag = await window.rpc("tags.rename", { id: id!, name });
+          tag = await window.ipc("tags.rename", { id: id!, name });
           ctx.setTags((tags) => {
             tags.splice(
               tags.findIndex((t) => t.id === tag.id),
@@ -623,7 +623,7 @@ export const deleteTag: StoreListener<"sidebar.deleteTag"> = async (
   const res = await promptConfirmAction("delete", `tag ${tag.name}`);
 
   if (res.text === "Yes") {
-    await window.rpc("tags.delete", { id: tag.id });
+    await window.ipc("tags.delete", { id: tag.id });
     ctx.setTags((tags) => tags.filter((t) => t.id !== tag.id));
   }
 };
@@ -675,7 +675,7 @@ export const createNotebook: StoreListener<"sidebar.createNotebook"> = async (
   const [value, action] = await input.completed;
   if (action === "confirm") {
     try {
-      const notebook = await window.rpc("notebooks.create", {
+      const notebook = await window.ipc("notebooks.create", {
         name: value,
         parentId,
       });
@@ -733,7 +733,7 @@ export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
   const [value, action] = await input.completed;
   if (action === "confirm") {
     try {
-      const renamed = await window.rpc("notebooks.rename", {
+      const renamed = await window.ipc("notebooks.rename", {
         id,
         name: value,
       });
@@ -780,7 +780,7 @@ export const deleteNotebook: StoreListener<"sidebar.deleteNotebook"> = async (
   const res = await promptConfirmAction("delete", `notebook ${notebook.name}`);
 
   if (res.text === "Yes") {
-    await window.rpc("notebooks.delete", { id: notebook.id });
+    await window.ipc("notebooks.delete", { id: notebook.id });
     ctx.setNotebooks((notebooks) => {
       if (notebook.parent != null) {
         // notebook.parent will be a stale reference
@@ -858,7 +858,7 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
   const [name, action] = await input.completed;
   if (action === "confirm") {
     try {
-      const note = await window.rpc("notes.create", {
+      const note = await window.ipc("notes.create", {
         name,
         ...relationships,
       });
@@ -906,7 +906,7 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   if (action === "confirm") {
     try {
       let note = getNoteById(notes, id!);
-      const newNote = await window.rpc("notes.rename", {
+      const newNote = await window.ipc("notes.rename", {
         id,
         name,
       });

@@ -2,7 +2,7 @@ import { contextBridge, ipcRenderer } from "electron";
 import { customAlphabet } from "nanoid";
 import { _uuid } from "../shared/domain/id";
 import { getNodeEnv, getProcessType } from "../shared/env";
-import { RpcType, Rpc } from "../shared/rpc";
+import { IpcType, Ipc } from "../shared/ipc";
 export interface ExposedPromise {
   resolve: (val: any) => unknown;
   reject: (err: any) => unknown;
@@ -49,7 +49,7 @@ ipcRenderer.on("send", async (_, arg) => {
  * @param input Payload.
  * @returns The response the main thread gave
  */
-const rpc: Rpc = async (type: string, input?: any): Promise<any> => {
+const rpc: Ipc = async (type: string, input?: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     const id = _uuid();
     promises[id] = { resolve, reject };
@@ -74,7 +74,7 @@ contextBridge.exposeInMainWorld("rpc", rpc);
 
 declare global {
   interface Window {
-    rpc: Rpc;
+    ipc: Ipc;
   }
 }
 

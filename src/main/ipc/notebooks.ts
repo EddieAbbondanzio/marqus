@@ -8,7 +8,7 @@ import {
   Notebook,
   removeChild,
 } from "../../shared/domain/notebook";
-import { RpcHandler, RpcRegistry } from "../../shared/rpc";
+import { IpcHandler, IpcRegistry } from "../../shared/ipc";
 import { createFileHandler } from "../fileSystem";
 import { NotFoundError } from "../../shared/errors";
 import moment from "moment";
@@ -16,7 +16,7 @@ import { resourceId } from "../../shared/domain/id";
 
 const getAll = async (): Promise<Notebook[]> => notebookFile.load();
 
-const create: RpcHandler<"notebooks.create"> = async ({ name, parentId }) => {
+const create: IpcHandler<"notebooks.create"> = async ({ name, parentId }) => {
   const notebooks = await notebookFile.load();
   if (notebooks.some((n) => n.name === name)) {
     throw Error(`Notebook name ${name} already in use`);
@@ -37,7 +37,7 @@ const create: RpcHandler<"notebooks.create"> = async ({ name, parentId }) => {
   return notebook;
 };
 
-const rename: RpcHandler<"notebooks.rename"> = async ({
+const rename: IpcHandler<"notebooks.rename"> = async ({
   id,
   name,
   parentId,
@@ -52,7 +52,7 @@ const rename: RpcHandler<"notebooks.rename"> = async ({
   return notebook;
 };
 
-const del: RpcHandler<"notebooks.delete"> = async ({ id }) => {
+const del: IpcHandler<"notebooks.delete"> = async ({ id }) => {
   const notebooks = await notebookFile.load();
   const notebook = getNotebookById(notebooks, id);
 
@@ -70,7 +70,7 @@ const del: RpcHandler<"notebooks.delete"> = async ({ id }) => {
   await notebookFile.save(notebooks);
 };
 
-export const notebooksRpcs: RpcRegistry<"notebooks"> = {
+export const notebooksIpcs: IpcRegistry<"notebooks"> = {
   "notebooks.getAll": getAll,
   "notebooks.create": create,
   "notebooks.rename": rename,

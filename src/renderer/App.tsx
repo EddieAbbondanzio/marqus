@@ -4,7 +4,7 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { Section, UI } from "../shared/domain/state";
+import { Section, State, UI } from "../shared/domain/state";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
@@ -13,38 +13,31 @@ import { StoreListener, useStore } from "./store";
 import { getNodeEnv } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
+import { NotImplementedError } from "../shared/errors";
 
-const { rpc } = window;
+const { ipc: ipc } = window;
 async function main() {
-  let ui: UI;
-  let shortcuts: Shortcut[] = [];
-  let tags: Tag[] = [];
-  let notebooks: Notebook[] = [];
-  let notes: Note[] = [];
+  let initialState: State;
 
   try {
-    [ui, shortcuts, tags, notebooks, notes] = await Promise.all([
-      rpc("app.loadPreviousUIState"),
-      rpc("shortcuts.getAll"),
-      rpc("tags.getAll"),
-      rpc("notebooks.getAll"),
-      rpc("notes.getAll"),
-    ]);
+    const config = await ipc("config.load");
+    if (config == null) {
+      // Prompt user to select data directory
+      throw new NotImplementedError();
+
+      await ipc("app.reload");
+    }
+
+    initialState = await loadInitialState();
   } catch (e) {
     console.error("Fatal Error", e);
     await promptFatal((e as Error).message);
-    rpc("app.quit");
+    ipc("app.quit");
     return;
   }
 
   function App() {
-    const store = useStore({
-      ui,
-      shortcuts,
-      tags,
-      notebooks,
-      notes,
-    });
+    const store = useStore(initialState);
     useShortcuts(store);
 
     useEffect(() => {
@@ -88,6 +81,30 @@ if (getNodeEnv() !== "test") {
   void main();
 }
 
+async function loadInitialState(): Promise<State> {
+  let ui: UI;
+  let shortcuts: Shortcut[] = [];
+  let tags: Tag[] = [];
+  let notebooks: Notebook[] = [];
+  let notes: Note[] = [];
+
+  [ui, shortcuts, tags, notebooks, notes] = await Promise.all([
+    ipc("app.loadPreviousUIState"),
+    ipc("shortcuts.getAll"),
+    ipc("tags.getAll"),
+    ipc("notebooks.getAll"),
+    ipc("notes.getAll"),
+  ]);
+
+  return {
+    ui,
+    shortcuts,
+    tags,
+    notebooks,
+    notes,
+  };
+}
+
 /*
  * Don't move these to be in Sidebar.tsx. Otherwise the listener will only work
  * when the sidebar is being rendered.
@@ -100,12 +117,12 @@ export const toggleSidebar: StoreListener<"sidebar.toggle"> = (_, ctx) => {
   }));
 };
 
-export const openDevTools = () => rpc("app.openDevTools");
-export const reload = () => rpc("app.reload");
-export const toggleFullScreen = () => rpc("app.toggleFullScreen");
+export const openDevTools = () => ipc("app.openDevTools");
+export const reload = () => ipc("app.reload");
+export const toggleFullScreen = () => ipc("app.toggleFullScreen");
 export const inspectElement: StoreListener<"app.inspectElement"> = ({
   value: coord,
-}) => rpc("app.inspectElement", coord);
+}) => ipc("app.inspectElement", coord);
 
 export const push: StoreListener<"focus.push"> = ({ value: next }, ctx) => {
   let previous: Section | undefined;

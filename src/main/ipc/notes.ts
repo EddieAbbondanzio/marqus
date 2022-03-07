@@ -1,4 +1,4 @@
-import { RpcRegistry } from "../../shared/rpc";
+import { IpcRegistry } from "../../shared/ipc";
 import {
   createDirectory,
   exists as exists,
@@ -11,18 +11,13 @@ import * as path from "path";
 import { NotFoundError } from "../../shared/errors";
 import { createNote, getNoteSchema, Note } from "../../shared/domain/note";
 import moment from "moment";
-import {
-  isResourceId,
-  parseResourceId,
-  resourceId,
-  UUID_REGEX,
-} from "../../shared/domain/id";
+import { parseResourceId, UUID_REGEX } from "../../shared/domain/id";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
 
-export const noteRpcs: RpcRegistry<"notes"> = {
+export const noteIpcs: IpcRegistry<"notes"> = {
   "notes.getAll": async () => {
     /*
      * Since we can't perform async loads within components we'll build a massive

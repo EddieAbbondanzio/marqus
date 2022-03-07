@@ -1,2 +1,2 @@
 // Stub rpcs
-(window as any).rpc = jest.fn();
+(window as any).ipc = jest.fn();

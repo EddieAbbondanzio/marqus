@@ -20,6 +20,9 @@ export function createState(partial?: DeepPartial<State>) {
         scroll: 0,
         width: px(300),
       },
+      editor: {
+        isEditting: false,
+      },
     },
   };
 
@@ -27,5 +30,6 @@ export function createState(partial?: DeepPartial<State>) {
 }
 
 export function renderStoreHook(state?: DeepPartial<State>) {
+  // Lots of commands call this internally so we stub it.
   return renderHook(() => useStore(createState(state)));
 }

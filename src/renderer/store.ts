@@ -139,14 +139,14 @@ export function useStore(initialState: State): Store {
         ui,
       };
 
-      void window.rpc("app.saveUIState", cloneDeep(newState.ui));
+      void window.ipc("app.saveUIState", cloneDeep(newState.ui));
       return newState;
     });
   };
 
   /*
    * The following setters are to update local cache. They do not
-   * perform any saving to file because all of that is handled by the rpcs.
+   * perform any saving to file because all of that is handled by the ipcs.
    */
 
   const setTags: SetTags = (transformer) => {
