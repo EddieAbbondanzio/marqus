@@ -1,6 +1,6 @@
-import { NotSupportedError } from "../../shared/errors";
+import { NotFoundError } from "../../shared/errors";
 import { RpcRegistry } from "../../shared/rpc";
-import { exists, readFile, writeFile } from "../fileSystem";
+import { readFile, writeFile } from "../fileSystem";
 import { Config } from "../../shared/domain/config";
 import { app } from "electron";
 import * as path from "path";
@@ -9,37 +9,29 @@ export const CONFIG_FILE = "config.json";
 
 export const configRpcs: RpcRegistry<"config"> = {
   "config.load": async () => {
-    const configPath = getConfigPath();
-    
-    if(exists())    
-    
-    
-    const platform = os.platform();
-    if (platform !== "linux") {
-      throw new NotSupportedError(`Unsupported platform ${platform}`);
-    }
-
-    const configFile = await readFile(LINUX_CONFIG_PATH, "json");
-    return configFile;
+    return await getConfigFile();
   },
   "config.setDataDirectory": async (dataDirectory) => {
-    const platform = os.platform();
-    if (platform !== "linux") {
-      throw new NotSupportedError(`Unsupported platform ${platform}`);
-    }
+    let config = await getConfigFile();
+    config = Object.assign(config, { dataDirectory });
 
-    let configFile: Config | null = await readFile(LINUX_CONFIG_PATH, "json");
-    if (configFile == null) {
-      configFile = {
-        dataDirectory,
-      };
-    }
-
-    await writeFile(LINUX_CONFIG_PATH, configFile, "json");
+    const userDataDir = app.getPath("userData");
+    const filePath = path.join(userDataDir, CONFIG_FILE);
+    await writeFile(filePath, config, "json");
   },
 };
 
-export function getConfigPath() {
-  const dir = app.getPath("userData");
-  return path.join(dir, CONFIG_FILE);
+export async function getConfigFile(): Promise<Config | null>;
+export async function getConfigFile(opts?: {
+  required: true;
+}): Promise<Config> {
+  const userDataDir = app.getPath("userData");
+  const filePath = path.join(userDataDir, CONFIG_FILE);
+  const data = await readFile(filePath, "json");
+
+  if (data == null && opts?.required) {
+    throw new NotFoundError("No config file was found");
+  }
+
+  return data;
 }
