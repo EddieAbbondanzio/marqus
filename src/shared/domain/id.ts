@@ -7,7 +7,7 @@ const ID_ALPHABET =
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 // Only use this for infrastructure code.
-export const _uuid = customAlphabet(ID_ALPHABET, ID_LENGTH);
+const _uuid = customAlphabet(ID_ALPHABET, ID_LENGTH);
 export const UUID_REGEX = /[a-zA-Z0-9]{10}$/;
 const RESOURCE_REGEX = /^(tag|notebook|note).[a-zA-Z0-9]{10}$/;
 

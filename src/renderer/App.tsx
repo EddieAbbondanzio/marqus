@@ -20,13 +20,12 @@ async function main() {
   let initialState: State;
 
   try {
-    const config = await ipc("config.load");
-    if (config == null) {
-      // Prompt user to select data directory
-      throw new NotImplementedError();
+    // const config = await ipc("config.load");
+    // if (config == null) {
+    //   // Prompt user to select data directory
 
-      await ipc("app.reload");
-    }
+    //   await ipc("app.reload");
+    // }
 
     initialState = await loadInitialState();
   } catch (e) {

@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog } from "electron";
+import { BrowserWindow, dialog, IpcMain } from "electron";
 import { UI } from "../../shared/domain/state";
 import { IpcHandler, IpcRegistry } from "../../shared/ipc";
 import * as yup from "yup";
@@ -61,6 +61,7 @@ export async function load(): Promise<UI> {
 }
 
 export async function save(app: UI): Promise<void> {
+  console.log("Save: ", app);
   await uiFile.save(app);
 }
 
