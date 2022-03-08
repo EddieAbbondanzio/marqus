@@ -9,22 +9,24 @@ export const CONFIG_FILE = "config.json";
 
 export const configIpcs: IpcRegistry<"config"> = {
   "config.load": async () => {
-    return await getConfigFile();
+    return await getConfig();
   },
   "config.setDataDirectory": async (dataDirectory) => {
-    let config = await getConfigFile();
+    let config = await getConfig();
     config = Object.assign(config, { dataDirectory });
 
     const userDataDir = app.getPath("userData");
     const filePath = path.join(userDataDir, CONFIG_FILE);
     await writeFile(filePath, config, "json");
   },
+  "config.hasDataDirectory": async () => {
+    const config = await getConfig();
+    return config?.dataDirectory != null;
+  },
 };
 
-export async function getConfigFile(): Promise<Config | null>;
-export async function getConfigFile(opts?: {
-  required: true;
-}): Promise<Config> {
+export async function getConfig(): Promise<Config | null>;
+export async function getConfig(opts?: { required: true }): Promise<Config> {
   const userDataDir = app.getPath("userData");
   const filePath = path.join(userDataDir, CONFIG_FILE);
   const data = await readFile(filePath, "json");

@@ -15,17 +15,15 @@ import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
 import { NotImplementedError } from "../shared/errors";
 
-const { ipc: ipc } = window;
+const { ipc } = window;
 async function main() {
   let initialState: State;
 
   try {
-    // const config = await ipc("config.load");
-    // if (config == null) {
-    //   // Prompt user to select data directory
-
-    //   await ipc("app.reload");
-    // }
+    const hasDataDirectory = await ipc("config.hasDataDirectory");
+    if (!hasDataDirectory) {
+      console.log("NEEDS TO BE SET UP!");
+    }
 
     initialState = await loadInitialState();
   } catch (e) {

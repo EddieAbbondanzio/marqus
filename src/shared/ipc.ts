@@ -63,6 +63,7 @@ export interface IpcSchema {
   // Config
   "config.load": IpcOut<Config | null>;
   "config.setDataDirectory": IpcIn<string>;
+  "config.hasDataDirectory": IpcOut<boolean>;
 }
 
 export type IpcType = keyof IpcSchema;
@@ -74,16 +75,6 @@ export type Ipc = <Type extends IpcType>(
   // Allows for passing just the type ex: "tags.getAll" if no input expected
   ...params: IpcInput<Type> extends void ? [Type] : [Type, IpcInput<Type>]
 ) => IpcOutput<Type>;
-
-/**
- * Used internally by ipc by both the main and renderer side.
- */
-export type IpcArgument = {
-  id: string;
-  // TODO: Can we make this type better. value relies on type prop
-  type: IpcType;
-  value: IpcSchema[IpcType];
-};
 
 /**
  * Handler that implements a specific IPC action. These should only be

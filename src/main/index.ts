@@ -1,6 +1,5 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import { getNodeEnv, getProcessType } from "../shared/env";
-import { IpcType, IpcArgument, IpcHandler } from "../shared/ipc";
+import { getProcessType } from "../shared/env";
 import { appIpcs } from "./ipc/app";
 import { configIpcs } from "./ipc/config";
 import { notebooksIpcs } from "./ipc/notebooks";
