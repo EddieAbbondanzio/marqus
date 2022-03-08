@@ -61,7 +61,6 @@ export async function load(): Promise<UI> {
 }
 
 export async function save(app: UI): Promise<void> {
-  console.log("Save: ", app);
   await uiFile.save(app);
 }
 

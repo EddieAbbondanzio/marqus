@@ -13,18 +13,15 @@ import { StoreListener, useStore } from "./store";
 import { getNodeEnv } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
-import { NotImplementedError } from "../shared/errors";
+import { DataDirectoryModal } from "./components/DataDirectoryModal";
 
 const { ipc } = window;
 async function main() {
   let initialState: State;
+  let needDataDirectory = false;
 
   try {
-    const hasDataDirectory = await ipc("config.hasDataDirectory");
-    if (!hasDataDirectory) {
-      console.log("NEEDS TO BE SET UP!");
-    }
-
+    needDataDirectory = !(await ipc("config.hasDataDirectory"));
     initialState = await loadInitialState();
   } catch (e) {
     console.error("Fatal Error", e);
@@ -66,6 +63,7 @@ async function main() {
       <div className="h-100 w-100 is-flex is-flex-row">
         {!(store.state.ui.sidebar.hidden ?? false) && <Sidebar store={store} />}
         <Editor store={store} />
+        {needDataDirectory && <DataDirectoryModal />}
       </div>
     );
   }

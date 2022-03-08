@@ -62,8 +62,8 @@ export interface IpcSchema {
 
   // Config
   "config.load": IpcOut<Config | null>;
-  "config.setDataDirectory": IpcIn<string>;
   "config.hasDataDirectory": IpcOut<boolean>;
+  "config.selectDataDirectory": IpcVoid;
 }
 
 export type IpcType = keyof IpcSchema;

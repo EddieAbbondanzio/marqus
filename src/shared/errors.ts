@@ -1,5 +1,5 @@
 export class InvalidOpError extends Error {
-  constructor(public message: string) {
+  constructor(public message: string = "Operation was invalid") {
     super(message);
   }
 }

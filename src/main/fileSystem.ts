@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { debounce, isEqual, cloneDeep } from "lodash";
 import { getNodeEnv } from "../shared/env";
 import * as yup from "yup";
+import { getConfig } from "./ipc/config";
 
 export type FileContentType = "text" | "json";
 
@@ -56,6 +57,8 @@ export function createFileHandler<Content>(
   if (!isValidFileName(name)) {
     throw Error(`Invalid file name ${name}`);
   }
+
+  const config = await getConfig({ required: true });
 
   /*
    * Cache off last read state to save from having to load from file if
