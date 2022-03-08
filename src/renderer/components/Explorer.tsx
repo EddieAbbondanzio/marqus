@@ -594,7 +594,7 @@ export const createOrRenameTag: StoreListener<
           break;
 
         default:
-          throw new InvalidOpError(`Invalid tag rpc ${type}`);
+          throw new InvalidOpError(`Invalid tag ipc ${type}`);
       }
     } catch (e) {
       promptError(e.message);

@@ -44,12 +44,12 @@ ipcRenderer.on("send", async (_, arg) => {
 });
 
 /**
- * Send an rpc to the main thread.
+ * Send an Ipc to the main thread.
  * @param type String of the type
  * @param input Payload.
  * @returns The response the main thread gave
  */
-const rpc: Ipc = async (type: string, input?: any): Promise<any> => {
+const ipc: Ipc = async (type: string, input?: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     const id = _uuid();
     promises[id] = { resolve, reject };
@@ -70,7 +70,7 @@ const rpc: Ipc = async (type: string, input?: any): Promise<any> => {
 };
 
 // Only thing that should be exposed.
-contextBridge.exposeInMainWorld("rpc", rpc);
+contextBridge.exposeInMainWorld("ipc", ipc);
 
 declare global {
   interface Window {

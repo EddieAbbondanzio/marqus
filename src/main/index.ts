@@ -48,7 +48,7 @@ ipcMain.on("send", async (ev, arg: IpcArgument) => {
 
     if (getNodeEnv() === "development") {
       console.warn(
-        `Main recieved rpc: ${arg.type}
+        `Main recieved ipc: ${arg.type}
          but no handler was found. Any changes made to main thread code require a restart.`
       );
     }
@@ -64,8 +64,8 @@ ipcMain.on("send", async (ev, arg: IpcArgument) => {
   } catch (e) {
     respondError(arg, e);
 
-    console.error(`Caught error from rpc handler for type "${arg.type}"`, e);
-    console.error("Rpc argument: ", arg);
+    console.error(`Caught error from ipc handler for type "${arg.type}"`, e);
+    console.error("Ipc argument: ", arg);
   }
 });
 
@@ -127,5 +127,5 @@ app.on("activate", () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-// console.log("RPC handlers loaded.", handlers);
+// console.log("IPC handlers loaded.", handlers);
 console.log("Working directory: ", process.cwd());

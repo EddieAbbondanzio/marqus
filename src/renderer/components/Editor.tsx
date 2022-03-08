@@ -52,7 +52,7 @@ export function Editor({ store }: EditorProps) {
   );
 }
 
-const debouncedRpc = debounce(window.ipc, 500);
+const debouncedIpc = debounce(window.ipc, 500);
 
 const setContent: StoreListener<"editor.setContent"> = async (
   { value: content },
@@ -68,7 +68,7 @@ const setContent: StoreListener<"editor.setContent"> = async (
       },
     });
 
-    await debouncedRpc("notes.saveContent", { id: editor.noteId, content });
+    await debouncedIpc("notes.saveContent", { id: editor.noteId, content });
   }
 };
 

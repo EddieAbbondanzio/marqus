@@ -9,7 +9,7 @@ import { Tag } from "./domain/tag";
 import { Config } from "./domain/config";
 
 /*
- * Helper types to define inputs and outputs of RPC handlers.
+ * Helper types to define inputs and outputs of IPC handlers.
  */
 
 export type IpcIn<I> = [I, Promise<void>];
@@ -76,7 +76,7 @@ export type Ipc = <Type extends IpcType>(
 ) => IpcOutput<Type>;
 
 /**
- * Used internally by rpc by both the main and renderer side.
+ * Used internally by ipc by both the main and renderer side.
  */
 export type IpcArgument = {
   id: string;
@@ -86,7 +86,7 @@ export type IpcArgument = {
 };
 
 /**
- * Handler that implements a specific RPC action. These should only be
+ * Handler that implements a specific IPC action. These should only be
  * defined on the main thread.
  */
 export type IpcHandler<Type extends IpcType> = (
@@ -94,7 +94,7 @@ export type IpcHandler<Type extends IpcType> = (
 ) => IpcOutput<Type>;
 
 /**
- * Registry for defining multiple RPC handlers.
+ * Registry for defining multiple IPC handlers.
  */
 export type IpcNamespace<Namespace extends string> = Pick<
   IpcSchema,
