@@ -12,6 +12,7 @@ import { NotFoundError } from "../../shared/errors";
 import { createNote, getNoteSchema, Note } from "../../shared/domain/note";
 import moment from "moment";
 import { parseResourceId, UUID_REGEX } from "../../shared/domain/id";
+import { getConfig } from "./config";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
@@ -25,14 +26,12 @@ export const noteIpcs: IpcRegistry<"notes"> = {
      * renderer. Then we can do our filtering on the front end.
      */
 
-    if (!exists(NOTES_DIRECTORY)) {
-      await createDirectory(NOTES_DIRECTORY);
-      return [];
-    }
-
+    const { dataDirectory } = await getConfig({ required: true });
     const noteSchema = getNoteSchema();
     let items: Note[] = [];
-    const entries = await readDirectory(NOTES_DIRECTORY);
+    const entries = await readDirectory(
+      path.join(dataDirectory, NOTES_DIRECTORY)
+    );
     for (const entry of entries) {
       // We only care about note directoties
       if (!entry.isDirectory() || !UUID_REGEX.test(entry.name)) {
@@ -46,8 +45,11 @@ export const noteIpcs: IpcRegistry<"notes"> = {
     return items;
   },
   "notes.create": async ({ name, notebook, tag }) => {
-    if (!exists(NOTES_DIRECTORY)) {
-      await createDirectory(NOTES_DIRECTORY);
+    const { dataDirectory } = await getConfig({ required: true });
+
+    const dirPath = path.join(dataDirectory, NOTES_DIRECTORY);
+    if (!exists(dirPath)) {
+      await createDirectory(dirPath);
     }
 
     const note = createNote({
@@ -68,15 +70,8 @@ export const noteIpcs: IpcRegistry<"notes"> = {
     return note;
   },
   "notes.rename": async (input) => {
-    if (!exists(NOTES_DIRECTORY)) {
-      await createDirectory(NOTES_DIRECTORY);
-    }
-
     const [, bareId] = parseResourceId(input.id);
-    const notePath = path.join(NOTES_DIRECTORY, bareId);
-    if (!exists(notePath)) {
-      throw new NotFoundError(`Note ${input.id} not found in the file system.`);
-    }
+    await assertNoteExists(input.id);
 
     const note = await loadMetadata(bareId);
     note.name = input.name;
@@ -87,34 +82,54 @@ export const noteIpcs: IpcRegistry<"notes"> = {
   },
   "notes.loadContent": async (id) => {
     const [, bareId] = parseResourceId(id);
-    const notePath = path.join(NOTES_DIRECTORY, bareId);
-    if (!exists(notePath)) {
-      throw new NotFoundError(`Note ${id} not found in the file system.`);
-    }
+    await assertNoteExists(id);
 
     const content = await loadMarkdown(bareId);
     return content;
   },
   "notes.saveContent": async ({ id, content }) => {
     const [, bareId] = parseResourceId(id);
-    const notePath = path.join(NOTES_DIRECTORY, bareId);
-    if (!exists(notePath)) {
-      throw new NotFoundError(`Note ${id} not found in the file system.`);
-    }
+    await assertNoteExists(id);
 
     await saveMarkdown(bareId, content);
   },
 };
 
-export async function saveToFileSystem(note: Note): Promise<void> {
-  const [, rawId] = parseResourceId(note.id);
-  const dirPath = path.join(NOTES_DIRECTORY, rawId);
+export async function assertNoteExists(id: string): Promise<void> {
+  const [, bareId] = parseResourceId(id);
+  const { dataDirectory } = await getConfig({ required: true });
+
+  const dirPath = path.join(dataDirectory, NOTES_DIRECTORY);
   if (!exists(dirPath)) {
     await createDirectory(dirPath);
   }
 
-  const metadataPath = path.join(NOTES_DIRECTORY, rawId, METADATA_FILE_NAME);
-  const markdownPath = path.join(NOTES_DIRECTORY, rawId, MARKDOWN_FILE_NAME);
+  const fullPath = path.join(dataDirectory, NOTES_DIRECTORY, bareId);
+  if (!exists(fullPath)) {
+    throw new NotFoundError(`Note ${id} was not found in the file system.`);
+  }
+}
+
+export async function saveToFileSystem(note: Note): Promise<void> {
+  const [, rawId] = parseResourceId(note.id);
+  const { dataDirectory } = await getConfig({ required: true });
+  const dirPath = path.join(dataDirectory, NOTES_DIRECTORY, rawId);
+  if (!exists(dirPath)) {
+    await createDirectory(dirPath);
+  }
+
+  const metadataPath = path.join(
+    dataDirectory,
+    NOTES_DIRECTORY,
+    rawId,
+    METADATA_FILE_NAME
+  );
+  const markdownPath = path.join(
+    dataDirectory,
+    NOTES_DIRECTORY,
+    rawId,
+    MARKDOWN_FILE_NAME
+  );
   const { type, ...metadata } = note;
 
   await writeFile(metadataPath, metadata, "json");
@@ -122,7 +137,13 @@ export async function saveToFileSystem(note: Note): Promise<void> {
 }
 
 export async function loadMetadata(noteId: string): Promise<Note> {
-  const metadataPath = path.join(NOTES_DIRECTORY, noteId, METADATA_FILE_NAME);
+  const { dataDirectory } = await getConfig({ required: true });
+  const metadataPath = path.join(
+    dataDirectory,
+    NOTES_DIRECTORY,
+    noteId,
+    METADATA_FILE_NAME
+  );
   const { dateCreated, dateUpdated, ...props }: any = await readFile(
     metadataPath,
     "json"

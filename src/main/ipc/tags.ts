@@ -1,9 +1,8 @@
 import { IpcHandler, IpcRegistry } from "../../shared/ipc";
-import { createFileHandler } from "../fileSystem";
+import { createFileHandler } from "../fileHandler";
 import * as yup from "yup";
 import { createTag, getTagSchema, Tag } from "../../shared/domain/tag";
 import moment from "moment";
-import { resourceId } from "../../shared/domain/id";
 
 const getAllTags = async (): Promise<Tag[]> => tagFile.load();
 

@@ -43,9 +43,13 @@ export const configIpcs: IpcRegistry<"config"> = {
 export async function getConfig(): Promise<Config | null>;
 export async function getConfig(opts?: { required: true }): Promise<Config>;
 export async function getConfig(opts?: any): Promise<Config | null> {
+  /*
+   * Defualt config path(s):
+   * Linux: ~/.config/marker/config.json
+   */
+
   const userDataDir = app.getPath("userData");
   const filePath = path.join(userDataDir, CONFIG_FILE);
-  console.log("load config at: ", filePath);
   const data = await readFile(filePath, "json");
 
   if (data == null && opts?.required) {

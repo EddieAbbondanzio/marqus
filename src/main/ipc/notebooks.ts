@@ -9,7 +9,7 @@ import {
   removeChild,
 } from "../../shared/domain/notebook";
 import { IpcHandler, IpcRegistry } from "../../shared/ipc";
-import { createFileHandler } from "../fileSystem";
+import { createFileHandler } from "../fileHandler";
 import { NotFoundError } from "../../shared/errors";
 import moment from "moment";
 import { resourceId } from "../../shared/domain/id";

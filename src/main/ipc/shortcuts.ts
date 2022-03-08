@@ -3,7 +3,7 @@ import { Shortcut, shortcutSchema } from "../../shared/domain/shortcut";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { keyCodesToString, parseKeyCodes } from "../../shared/io/keyCode";
 import { IpcRegistry } from "../../shared/ipc";
-import { createFileHandler } from "../fileSystem";
+import { createFileHandler } from "../fileHandler";
 import * as yup from "yup";
 
 export interface ShortcutOverride {

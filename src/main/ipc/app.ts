@@ -3,7 +3,7 @@ import { UI } from "../../shared/domain/state";
 import { IpcHandler, IpcRegistry } from "../../shared/ipc";
 import * as yup from "yup";
 import { px } from "../../shared/dom";
-import { createFileHandler } from "../fileSystem";
+import { createFileHandler } from "../fileHandler";
 
 const promptUser: IpcHandler<"app.promptUser"> = async (opts) => {
   const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
