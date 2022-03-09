@@ -59,6 +59,7 @@ export interface IpcSchema {
   "notes.rename": IpcInOut<{ id: string; name: string }, Note>;
   "notes.loadContent": IpcInOut<string, string | null>;
   "notes.saveContent": IpcIn<{ id: string; content: string }>;
+  "notes.delete": IpcIn<{ id: string }>;
 
   // Config
   "config.load": IpcOut<Config | null>;

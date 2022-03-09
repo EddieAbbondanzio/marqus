@@ -934,11 +934,17 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   });
 };
 
-export const deleteNote: StoreListener<"sidebar.deleteNote"> = (
+export const deleteNote: StoreListener<"sidebar.deleteNote"> = async (
   { value: id },
   ctx
 ) => {
-  throw new NotImplementedError();
+  const { notes } = ctx.getState();
+  const note = getNoteById(notes, id!);
+  const res = await promptConfirmAction("delete", `note ${note.name}`);
+  if (res.text === "Yes") {
+    await window.ipc("notes.delete", { id: note.id });
+    ctx.setNotes((notes) => notes.filter((t) => t.id !== note.id));
+  }
 };
 
 function setExplorerInput(ctx: StoreControls) {

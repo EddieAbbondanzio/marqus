@@ -1,6 +1,7 @@
 import { IpcRegistry } from "../../shared/ipc";
 import {
   createDirectory,
+  deleteDirectory,
   exists as exists,
   readDirectory,
   readFile,
@@ -92,6 +93,13 @@ export const noteIpcs: IpcRegistry<"notes"> = {
     await assertNoteExists(id);
 
     await saveMarkdown(bareId, content);
+  },
+  "notes.delete": async ({ id }) => {
+    const [, bareId] = parseResourceId(id);
+    const { dataDirectory } = await getConfig({ required: true });
+    const noteDir = path.join(dataDirectory, NOTES_DIRECTORY, bareId);
+
+    await deleteDirectory(noteDir);
   },
 };
 
