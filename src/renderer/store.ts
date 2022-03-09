@@ -139,7 +139,13 @@ export function useStore(initialState: State): Store {
         ui,
       };
 
-      void window.ipc("app.saveUIState", cloneDeep(newState.ui));
+      // We need to delete some values before sending them over to the main
+      // thread otherwise electron will throw an error.
+      const clonedUI = cloneDeep(newState.ui);
+      delete clonedUI.sidebar.explorer.input;
+      delete clonedUI.sidebar.explorer.selected;
+
+      void window.ipc("app.saveUIState", clonedUI);
       return newState;
     });
   };

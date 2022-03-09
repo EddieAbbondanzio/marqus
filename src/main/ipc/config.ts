@@ -36,13 +36,20 @@ export const configIpcs: IpcRegistry<"config"> = {
     const userDataDir = app.getPath("userData");
     const filePath = path.join(userDataDir, CONFIG_FILE);
     await writeFile(filePath, config, "json");
+    configCache = config;
     focusedWindow.reload();
   },
 };
 
+let configCache: Config | undefined;
+
 export async function getConfig(): Promise<Config | null>;
 export async function getConfig(opts?: { required: true }): Promise<Config>;
 export async function getConfig(opts?: any): Promise<Config | null> {
+  if (configCache != null) {
+    return configCache;
+  }
+
   /*
    * Defualt config path(s):
    * Linux: ~/.config/marker/config.json
@@ -56,5 +63,6 @@ export async function getConfig(opts?: any): Promise<Config | null> {
     throw new NotFoundError("No config file was found");
   }
 
+  configCache = data;
   return data;
 }
