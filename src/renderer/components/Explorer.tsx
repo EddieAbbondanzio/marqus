@@ -231,13 +231,18 @@ export function Explorer({ store }: ExplorerProps) {
           ...prev,
         };
 
-        if (content != null) {
+        if (noteId != null) {
+          if (content == null) {
+            throw new Error(
+              `Cannot load note content. Content was null for ${noteId}`
+            );
+          }
+
           next.editor.content = content;
           next.editor.noteId = noteId;
         }
 
         next.sidebar.explorer.selected = selected;
-
         return next;
       });
     };

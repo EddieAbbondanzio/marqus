@@ -164,14 +164,26 @@ export async function loadMetadata(noteId: string): Promise<Note> {
 }
 
 export async function loadMarkdown(noteId: string): Promise<string | null> {
-  const markdownPath = path.join(NOTES_DIRECTORY, noteId, MARKDOWN_FILE_NAME);
-  return await readFile(markdownPath, "text");
+  const { dataDirectory } = await getConfig({ required: true });
+  const markdownPath = path.join(
+    dataDirectory,
+    NOTES_DIRECTORY,
+    noteId,
+    MARKDOWN_FILE_NAME
+  );
+  return (await readFile(markdownPath, "text")) ?? "";
 }
 export async function saveMarkdown(
   noteId: string,
   content: string
 ): Promise<void> {
-  const markdownPath = path.join(NOTES_DIRECTORY, noteId, MARKDOWN_FILE_NAME);
+  const { dataDirectory } = await getConfig({ required: true });
+  const markdownPath = path.join(
+    dataDirectory,
+    NOTES_DIRECTORY,
+    noteId,
+    MARKDOWN_FILE_NAME
+  );
 
   return await writeFile(markdownPath, content, "text");
 }
