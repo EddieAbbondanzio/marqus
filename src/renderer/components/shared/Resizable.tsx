@@ -103,8 +103,13 @@ export function Resizable(
     dispatch({ type: "resizeEnd" });
   });
 
+  const styles = {
+    width: state.width,
+    minWidth: props.minWidth,
+  };
+
   return (
-    <div className="resizable-wrapper h-100" ref={wrapper} style={state}>
+    <div className="resizable-wrapper h-100" ref={wrapper} style={styles}>
       {props.children}
       <div className="resizable-handle" ref={handle}>
         &nbsp;
