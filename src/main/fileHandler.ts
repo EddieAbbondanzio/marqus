@@ -1,9 +1,9 @@
 import { debounce, cloneDeep } from "lodash";
-import { getNodeEnv } from "../shared/env";
 import { writeFile, readFile } from "./fileSystem";
 import * as yup from "yup";
 import { getConfig } from "./ipc/config";
 import * as path from "path";
+import { isDevelopment } from "../shared/env";
 
 export type FileName =
   | "tags.json"
@@ -111,7 +111,7 @@ export function createFileHandler<Content>(
       try {
         await schema.validate(c);
       } catch (e) {
-        if (getNodeEnv() === "development") {
+        if (isDevelopment()) {
           console.log("Failed validation: ", JSON.stringify(c));
         }
 

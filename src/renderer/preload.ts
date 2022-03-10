@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { getNodeEnv, getProcessType } from "../shared/env";
+import { getProcessType, isDevelopment } from "../shared/env";
 import { Ipc } from "../shared/ipc";
 
 if (getProcessType() === "main") {
@@ -27,6 +27,6 @@ declare global {
 }
 
 // Sanity check
-if (getNodeEnv() === "development") {
+if (isDevelopment()) {
   console.log("preload complete");
 }

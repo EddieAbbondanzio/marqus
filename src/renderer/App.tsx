@@ -10,7 +10,7 @@ import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
 import { Notebook } from "../shared/domain/notebook";
 import { StoreListener, useStore } from "./store";
-import { getNodeEnv } from "../shared/env";
+import { isProduction, isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
@@ -71,8 +71,7 @@ async function main() {
   render(<App />, document.getElementById("app"));
 }
 
-// Only render in production, or dev
-if (getNodeEnv() !== "test") {
+if (!isTest()) {
   void main();
 }
 

@@ -10,17 +10,17 @@ import React, {
 } from "react";
 import { PropsWithChildren } from "react";
 import { classList, Coord } from "../../../shared/dom";
-import { getNodeEnv } from "../../../shared/env";
 import { MouseButton, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "./Focusable";
 import { Dispatch, EventType, EventValue, Store } from "../../store";
 import { Section } from "../../../shared/domain/state";
+import { isDevelopment } from "../../../shared/env";
 
 export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   const items = [];
 
-  if (getNodeEnv() === "development") {
+  if (isDevelopment()) {
     items.push(
       <ContextMenuDivider key="devDivider" />,
       <ContextMenuItem text="Reload" event="app.reload" key="reload" />,
