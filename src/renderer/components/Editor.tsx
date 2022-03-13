@@ -73,6 +73,13 @@ const setContent: StoreListener<"editor.setContent"> = async (
 };
 
 const toggleView: StoreListener<"editor.toggleView"> = (_, ctx) => {
+  const {
+    ui: { editor },
+  } = ctx.getState();
+  if (editor.noteId == null) {
+    return;
+  }
+
   ctx.setUI((prev) => ({
     editor: {
       isEditting: !(prev.editor.isEditting ?? false),
@@ -85,7 +92,7 @@ const save: StoreListener<"editor.save"> = (_, ctx) => {
     ui: { editor },
   } = ctx.getState();
 
-  if (!editor.isEditting) {
+  if (!editor.isEditting || editor.noteId == null) {
     return;
   }
 

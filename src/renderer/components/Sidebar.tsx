@@ -146,7 +146,7 @@ export function Sidebar({ store }: SidebarProps) {
       <Focusable
         store={store}
         name="sidebar"
-        className="is-flex is-flex-grow-1 is-flex-direction-column"
+        className="is-flex is-flex-grow-1 is-flex-direction-column m-w-100"
       >
         <ContextMenu name="contextMenu" items={contextMenuItems} store={store}>
           <Filter store={store} />
