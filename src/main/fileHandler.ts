@@ -1,16 +1,10 @@
 import { debounce, cloneDeep } from "lodash";
 import { writeFile, readFile } from "./fileSystem";
 import * as yup from "yup";
-import { getConfig } from "./ipc/config";
 import * as path from "path";
 import { isDevelopment } from "../shared/env";
-
-export type FileName =
-  | "tags.json"
-  | "notebooks.json"
-  | "shortcuts.json"
-  | "ui.json";
-
+import { Config } from "../shared/domain/config";
+import { MissingDataDirectoryError } from "../shared/errors";
 export interface FileHandlerOpts<Content> {
   defaultValue?: Content;
   serialize?: (c: Content) => any;
@@ -19,25 +13,13 @@ export interface FileHandlerOpts<Content> {
 
 const DEBOUNCE_INTERVAL_MS = 250;
 
-function isValidFileName(fileName: FileName) {
-  return (
-    fileName === "tags.json" ||
-    fileName === "notebooks.json" ||
-    fileName === "ui.json" ||
-    fileName === "shortcuts.json"
-  );
-}
-
 interface FileHandler<Content> {
   save(content: Content): Promise<Content>;
   load(): Promise<Content>;
 }
 
 export function createFileHandler<Content>(
-  /**
-   * The name of the file. Should include extension (.json)
-   */
-  name: FileName,
+  filePath: string,
   /**
    * Validation occurs before saving file contents, and after deserializing
    * when loading file contents
@@ -58,10 +40,6 @@ export function createFileHandler<Content>(
     deserialize?: (c?: any) => Content | undefined;
   }
 ): FileHandler<Content> {
-  if (!isValidFileName(name)) {
-    throw Error(`Invalid file name ${name}`);
-  }
-
   /*
    * Cache off last read state to save from having to load from file if
    * nothing has changed.
@@ -82,8 +60,6 @@ export function createFileHandler<Content>(
       c = content;
     }
 
-    const { dataDirectory } = await getConfig({ required: true });
-    const filePath = path.join(dataDirectory, name);
     await writeFile(filePath, c, "json");
     readCache = cloneDeep(content);
 
@@ -96,8 +72,6 @@ export function createFileHandler<Content>(
       return readCache;
     }
 
-    const { dataDirectory } = await getConfig({ required: true });
-    const filePath = path.join(dataDirectory, name);
     const content = await readFile(filePath, "json");
 
     let c;
@@ -134,4 +108,15 @@ export function createFileHandler<Content>(
     save,
     load,
   };
+}
+
+export function getPathInDataDirectory(
+  config: Config,
+  ...paths: string[]
+): string {
+  if (config.dataDirectory == null) {
+    throw new MissingDataDirectoryError();
+  }
+
+  return path.join(config.dataDirectory, ...paths);
 }

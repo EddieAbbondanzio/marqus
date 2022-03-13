@@ -1,96 +1,101 @@
-import { IpcHandler, IpcRegistry } from "../../shared/ipc";
-import { createFileHandler } from "../fileHandler";
+import { createFileHandler, getPathInDataDirectory } from "../fileHandler";
 import * as yup from "yup";
 import { createTag, getTagSchema, Tag } from "../../shared/domain/tag";
 import moment from "moment";
+import { IpcPlugin } from "../types";
+import { Config } from "../../shared/domain/config";
 
-const getAllTags = async (): Promise<Tag[]> => tagFile.load();
+const TAG_FILE = "tags.json";
 
-const create: IpcHandler<"tags.create"> = async ({
-  name,
-}: {
-  name: string;
-}): Promise<Tag> => {
-  const tags = await tagFile.load();
-  if (tags.some((t) => t.name === name)) {
-    throw Error(`Tag name ${name} already in use`);
-  }
+export const useTagIpcs: IpcPlugin = (ipc, config) => {
+  ipc.handle(
+    "tags.getAll",
+    async (): Promise<Tag[]> => getTagFileHandler(config).load()
+  );
 
-  const tag = createTag({
-    name,
-  });
+  ipc.handle(
+    "tags.create",
+    async ({ name }: { name: string }): Promise<Tag> => {
+      const tagFile = getTagFileHandler(config);
 
-  tags.push(tag);
-  await tagFile.save(tags);
+      const tags = await tagFile.load();
+      if (tags.some((t) => t.name === name)) {
+        throw Error(`Tag name ${name} already in use`);
+      }
 
-  return tag;
-};
+      const tag = createTag({
+        name,
+      });
 
-const renameTag = async ({
-  id,
-  name,
-}: {
-  id: string;
-  name: string;
-}): Promise<Tag> => {
-  const tags = await tagFile.load();
-  if (tags.some((t) => t.name === name && t.id !== id)) {
-    throw Error(`Tag name ${name} already in use`);
-  }
+      tags.push(tag);
+      await tagFile.save(tags);
 
-  const tag = tags.find((t) => t.id === id);
-  if (tag == null) {
-    throw Error(`No tag with id ${id} found`);
-  }
+      return tag;
+    }
+  );
 
-  tag.name = name;
-  tag.dateUpdated = new Date();
+  ipc.handle(
+    "tags.rename",
+    async ({ id, name }: { id: string; name: string }): Promise<Tag> => {
+      const tagFile = getTagFileHandler(config);
 
-  await tagFile.save(tags);
-  return tag;
-};
+      const tags = await tagFile.load();
+      if (tags.some((t) => t.name === name && t.id !== id)) {
+        throw Error(`Tag name ${name} already in use`);
+      }
 
-const deleteTag = async ({ id }: { id: string }): Promise<void> => {
-  const tags = await tagFile.load();
-  const index = tags.findIndex((t) => t.id === id);
-  if (index === -1) {
-    throw Error(`No tag with id ${id} found`);
-  }
+      const tag = tags.find((t) => t.id === id);
+      if (tag == null) {
+        throw Error(`No tag with id ${id} found`);
+      }
 
-  tags.splice(index, 1);
-  await tagFile.save(tags);
-};
+      tag.name = name;
+      tag.dateUpdated = new Date();
 
-export const tagIpcs: IpcRegistry<"tags"> = {
-  "tags.getAll": getAllTags,
-  "tags.create": create,
-  "tags.rename": renameTag,
-  "tags.delete": deleteTag,
-};
+      await tagFile.save(tags);
+      return tag;
+    }
+  );
 
-export const serialize = (c: Tag[]) => c.map(({ type, ...t }) => t);
+  ipc.handle("tags.delete", async ({ id }: { id: string }): Promise<void> => {
+    const tagFile = getTagFileHandler(config);
 
-export const deserialize = (c?: Omit<Tag, "type">[]) =>
-  (c ?? []).map(({ dateCreated, dateUpdated, ...props }) => {
-    const tag = {
-      type: "tag",
-      ...props,
-    } as Tag;
-
-    tag.dateCreated = moment(dateCreated).toDate();
-    if (dateUpdated != null) {
-      tag.dateUpdated = moment(dateUpdated).toDate();
+    const tags = await tagFile.load();
+    const index = tags.findIndex((t) => t.id === id);
+    if (index === -1) {
+      throw Error(`No tag with id ${id} found`);
     }
 
-    return tag;
+    tags.splice(index, 1);
+    await tagFile.save(tags);
   });
+};
 
-export const tagFile = createFileHandler<Tag[]>(
-  "tags.json",
-  yup.array(getTagSchema()).optional(),
-  {
-    defaultValue: [],
-    serialize,
-    deserialize,
-  }
-);
+export function getTagFileHandler(config: Config) {
+  const serialize = (c: Tag[]) => c.map(({ type, ...t }) => t);
+
+  const deserialize = (c?: Omit<Tag, "type">[]) =>
+    (c ?? []).map(({ dateCreated, dateUpdated, ...props }) => {
+      const tag = {
+        type: "tag",
+        ...props,
+      } as Tag;
+
+      tag.dateCreated = moment(dateCreated).toDate();
+      if (dateUpdated != null) {
+        tag.dateUpdated = moment(dateUpdated).toDate();
+      }
+
+      return tag;
+    });
+
+  return createFileHandler<Tag[]>(
+    getPathInDataDirectory(config, TAG_FILE),
+    yup.array(getTagSchema()).optional(),
+    {
+      defaultValue: [],
+      serialize,
+      deserialize,
+    }
+  );
+}

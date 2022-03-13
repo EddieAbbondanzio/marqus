@@ -1,8 +1,14 @@
 export interface Config {
-  dataDirectory: string;
+  dataDirectory?: string;
   windowHeight: number;
   windowWidth: number;
 }
 
-export const DEFAULT_WINDOW_HEIGHT = 600;
-export const DEFAULT_WINDOW_WIDTH = 800;
+export interface ConfigWithDataDirectory extends Config {
+  dataDirectory: string;
+}
+
+export const DEFAULT_CONFIG: Config = {
+  windowHeight: 600,
+  windowWidth: 800,
+};

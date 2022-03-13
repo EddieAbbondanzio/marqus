@@ -62,7 +62,6 @@ export interface IpcSchema {
   "notes.delete": IpcIn<{ id: string }>;
 
   // Config
-  "config.load": IpcOut<Config | null>;
   "config.hasDataDirectory": IpcOut<boolean>;
   "config.selectDataDirectory": IpcVoid;
 }

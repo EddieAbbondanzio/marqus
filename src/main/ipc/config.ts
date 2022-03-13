@@ -1,87 +1,53 @@
 import { InvalidOpError, NotFoundError } from "../../shared/errors";
-import { IpcRegistry } from "../../shared/ipc";
 import { readFile, writeFile } from "../fileSystem";
-import {
-  Config,
-  DEFAULT_WINDOW_HEIGHT,
-  DEFAULT_WINDOW_WIDTH,
-} from "../../shared/domain/config";
+import { Config, DEFAULT_CONFIG } from "../../shared/domain/config";
 import { app, BrowserWindow, dialog } from "electron";
 
 import * as path from "path";
 import { isDevelopment } from "../../shared/env";
+import { IpcPlugin } from "../types";
 
 export const CONFIG_FILE = "config.json";
 
-export const configIpcs: IpcRegistry<"config"> = {
-  "config.load": async () => {
-    return await getConfig();
-  },
-  "config.hasDataDirectory": async () => {
-    const config = await getConfig();
-    return config?.dataDirectory != null;
-  },
-  "config.selectDataDirectory": async () => {
+export const useConfigIpcs: IpcPlugin = (ipc, config) => {
+  ipc.handle(
+    "config.hasDataDirectory",
+    async () => config.dataDirectory != null
+  );
+
+  ipc.handle("config.selectDataDirectory", async () => {
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow == null) {
       throw new InvalidOpError();
     }
 
-    const res = await dialog.showOpenDialog(focusedWindow, {
+    const { filePaths } = await dialog.showOpenDialog(focusedWindow, {
       properties: ["openDirectory"],
     });
-
-    if (res.filePaths.length === 0) {
+    if (filePaths.length == 0) {
       return;
     }
 
-    let config = await getConfig();
-    config = Object.assign(config, { dataDirectory: res.filePaths[0] });
+    config.dataDirectory = filePaths[0];
 
-    const userDataDir = app.getPath("userData");
-    const filePath = path.join(userDataDir, CONFIG_FILE);
-    await writeFile(filePath, config, "json");
-    configCache = config;
+    await writeFile(getConfigPath(), config, "json");
     focusedWindow.reload();
-  },
+  });
 };
 
-let configCache: Config | undefined;
-
-export async function getConfig(): Promise<Config | null>;
-export async function getConfig(opts?: { required: true }): Promise<Config>;
-export async function getConfig(opts?: any): Promise<Config | null> {
-  if (configCache != null) {
-    return configCache;
-  }
-
-  let configDir: string;
+export async function loadConfig(): Promise<Config> {
+  let config: Config = await readFile(getConfigPath(), "json");
+  config ??= DEFAULT_CONFIG;
   if (isDevelopment()) {
-    // Default to project folder
-    configDir = process.cwd();
-  } else {
-    // ~/.config/marker on linux
-    configDir = app.getPath("userData");
+    config.dataDirectory = "data";
   }
-
-  const filePath = path.join(configDir, CONFIG_FILE);
-  let config: Config = await readFile(filePath, "json");
-
-  if (config == null) {
-    if (isDevelopment()) {
-      config = {
-        dataDirectory: path.join(process.cwd(), "data"),
-        windowHeight: DEFAULT_WINDOW_HEIGHT,
-        windowWidth: DEFAULT_WINDOW_WIDTH,
-      };
-      await writeFile(process.cwd(), config, "json");
-    }
-  }
-
-  if (config == null && opts?.required) {
-    throw new NotFoundError(`No config file was found (path: ${filePath})`);
-  }
-
-  configCache = config;
   return config;
+}
+
+export function getConfigPath(): string {
+  if (isDevelopment()) {
+    return path.join(process.cwd(), CONFIG_FILE);
+  } else {
+    return path.join(app.getPath("userData"), CONFIG_FILE);
+  }
 }
