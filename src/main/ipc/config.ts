@@ -1,13 +1,17 @@
-import { InvalidOpError, NotFoundError } from "../../shared/errors";
-import { readFile, writeFile } from "../fileSystem";
+import {
+  InvalidOpError,
+  MissingDataDirectoryError,
+  NotFoundError,
+} from "../../shared/errors";
+import { createDirectory, exists, readFile, writeFile } from "../fileSystem";
 import { Config, DEFAULT_CONFIG } from "../../shared/domain/config";
 import { app, BrowserWindow, dialog } from "electron";
-
 import * as path from "path";
-import { isDevelopment } from "../../shared/env";
+import { isDevelopment, isProduction } from "../../shared/env";
 import { IpcPlugin } from "../types";
 
 export const CONFIG_FILE = "config.json";
+export const DEFAULT_DEV_DATA_DIRECTORY = "data";
 
 export const useConfigIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle(
@@ -39,8 +43,22 @@ export async function loadConfig(): Promise<Config> {
   let config: Config = await readFile(getConfigPath(), "json");
   config ??= DEFAULT_CONFIG;
   if (isDevelopment()) {
-    config.dataDirectory = "data";
+    config.dataDirectory = DEFAULT_DEV_DATA_DIRECTORY;
+
+    if (!exists(config.dataDirectory)) {
+      await createDirectory(config.dataDirectory);
+    }
   }
+
+  // Sanity check
+  if (
+    isProduction() &&
+    config.dataDirectory != null &&
+    !(await exists(config.dataDirectory))
+  ) {
+    throw new MissingDataDirectoryError();
+  }
+
   return config;
 }
 
