@@ -313,28 +313,36 @@ export function Explorer({ store }: ExplorerProps) {
   return (
     <div className="is-flex is-flex-grow-1 is-flex-direction-column h-100">
       <Tabs alignment="is-centered" className="mb-2">
-        <Tab title="All" isActive={view === "all"} onClick={setView("all")}>
+        <Tab
+          title="All notes"
+          isActive={view === "all"}
+          onClick={setView("all")}
+        >
           <Icon icon={NOTE_ICON} />
         </Tab>
         <Tab
-          title="Notebooks"
+          title="Notes by notebook"
           isActive={view === "notebooks"}
           onClick={setView("notebooks")}
         >
           <Icon icon={NOTEBOOK_ICON} />
         </Tab>
-        <Tab title="Tags" isActive={view === "tags"} onClick={setView("tags")}>
+        <Tab
+          title="Notes by tag"
+          isActive={view === "tags"}
+          onClick={setView("tags")}
+        >
           <Icon icon={TAG_ICON} />
         </Tab>
         <Tab
-          title="Favorites"
+          title="Favorited notes"
           isActive={view === "favorites"}
           onClick={setView("favorites")}
         >
           <Icon icon={FAVORITE_ICON} />
         </Tab>
         <Tab
-          title="Trash"
+          title="Trashed notes"
           isActive={view === "trash"}
           onClick={setView("trash")}
         >
