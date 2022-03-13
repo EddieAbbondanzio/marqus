@@ -44,6 +44,10 @@ export async function loadConfig(): Promise<Config> {
   return config;
 }
 
+export async function saveConfig(config: Config): Promise<void> {
+  await writeFile(getConfigPath(), config, "json");
+}
+
 export function getConfigPath(): string {
   if (isDevelopment()) {
     return path.join(process.cwd(), CONFIG_FILE);

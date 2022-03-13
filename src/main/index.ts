@@ -2,7 +2,11 @@ import { app, BrowserWindow, IpcMain, ipcMain, Menu } from "electron";
 import { Config } from "../shared/domain/config";
 import { getProcessType, isDevelopment } from "../shared/env";
 import { useAppIpcs } from "./ipc/app";
-import { loadConfig, useConfigIpcs as useConfigIpcs } from "./ipc/config";
+import {
+  loadConfig,
+  saveConfig,
+  useConfigIpcs as useConfigIpcs,
+} from "./ipc/config";
 import { useNotebookIpcs } from "./ipc/notebooks";
 import { useNoteIpcs } from "./ipc/notes";
 import { useShortcutIpcs } from "./ipc/shortcuts";
@@ -21,9 +25,10 @@ if (getProcessType() !== "main") {
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
+let mainWindow: BrowserWindow;
+
 async function main() {
   const config: Config = await loadConfig();
-
   const typeSafeIpc: TypeSafeIpc = {
     handle: (ipc, handler) => {
       ipcMain.handle(ipc, (_, args) => handler(args));
@@ -43,10 +48,9 @@ async function main() {
   }
 
   const createWindow = async (): Promise<void> => {
-    // Create the browser window.
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
       height: config.windowHeight,
-      width: config.windowHeight,
+      width: config.windowWidth,
       webPreferences: {
         preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
         // Do not change these. They are for security purposes.
@@ -61,12 +65,14 @@ async function main() {
     if (isDevelopment()) {
       mainWindow.webContents.openDevTools();
     }
-  };
 
-  // This method will be called when Electron has finished
-  // initialization and is ready to create browser windows.
-  // Some APIs can only be used after this event occurs.
-  app.on("ready", createWindow);
+    mainWindow.on("resize", async () => {
+      const [width, height] = mainWindow.getSize();
+      config.windowHeight = height;
+      config.windowWidth = width;
+      await saveConfig(config);
+    });
+  };
 
   // Quit when all windows are closed, except on macOS. There, it's common
   // for applications and their menu bar to stay active until the user quits
@@ -84,5 +90,14 @@ async function main() {
       createWindow();
     }
   });
+
+  // Ready event might fire before we finish loading our config file causing us
+  // to miss it.
+  // Source: https://github.com/electron/electron/issues/12557
+  if (app.isReady()) {
+    createWindow();
+  } else {
+    app.on("ready", createWindow);
+  }
 }
 main();

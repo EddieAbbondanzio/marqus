@@ -142,8 +142,10 @@ export function useStore(initialState: State): Store {
       // We need to delete some values before sending them over to the main
       // thread otherwise electron will throw an error.
       const clonedUI = cloneDeep(newState.ui);
-      delete clonedUI.sidebar.explorer.input;
-      delete clonedUI.sidebar.explorer.selected;
+      if (clonedUI?.sidebar?.explorer != null) {
+        delete clonedUI.sidebar.explorer.input;
+        delete clonedUI.sidebar.explorer.selected;
+      }
 
       void window.ipc("app.saveUIState", clonedUI);
       return newState;

@@ -6,7 +6,6 @@ import {
   updateScroll,
 } from "../../../src/renderer/components/Explorer";
 import { NAV_MENU_HEIGHT } from "../../../src/renderer/components/ExplorerItems";
-import { resourceId } from "../../../src/shared/domain/id";
 import { renderStoreHook } from "../../_mocks/store";
 
 test("sidebar.updateScroll", async () => {

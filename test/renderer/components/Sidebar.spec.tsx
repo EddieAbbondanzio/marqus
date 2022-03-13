@@ -9,7 +9,7 @@ test("sidebar.resizeWidth", () => {
     const store = result.current;
     store.on("sidebar.resizeWidth", resizeWidth);
   });
-
+/*  */
   act(() => {
     const store = result.current;
     store.dispatch("sidebar.resizeWidth", px(250));
