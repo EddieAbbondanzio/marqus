@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import styled from "styled-components";
 import { getPx, isPx, px } from "../../../shared/dom";
 import { useMouse } from "../../io/mouse";
 import { Action } from "../../types";
@@ -103,17 +104,21 @@ export function Resizable(
     dispatch({ type: "resizeEnd" });
   });
 
-  const styles = {
-    width: state.width,
-    minWidth: props.minWidth,
-  };
-
   return (
-    <div className="resizable-wrapper h-100" ref={wrapper} style={styles}>
+    <Wrapper width={state.width} minWidth={props.minWidth} ref={wrapper}>
       {props.children}
-      <div className="resizable-handle" ref={handle}>
-        &nbsp;
-      </div>
-    </div>
+      <Handle ref={handle}>&nbsp;</Handle>
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div<Pick<ResizableProps, "width" | "minWidth">>`
+  display: flex;
+  height: 100%;
+  width: ${(props) => props.width};
+  min-width: ${(props) => props.minWidth};
+`;
+
+const Handle = styled.div`
+  cursor: pointer;
+`;

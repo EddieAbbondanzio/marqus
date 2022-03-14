@@ -14,6 +14,8 @@ import { isProduction, isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
+import OpenColor from "open-color";
+import styled from "styled-components";
 
 const { ipc } = window;
 async function main() {
@@ -60,20 +62,26 @@ async function main() {
     useFocusTracking(store);
 
     return (
-      <div className="h-100 w-100 is-flex is-flex-row">
+      <Container>
         {!(store.state.ui.sidebar.hidden ?? false) && <Sidebar store={store} />}
         <Editor store={store} />
         {needDataDirectory && <DataDirectoryModal />}
-      </div>
+      </Container>
     );
   }
 
   render(<App />, document.getElementById("app"));
 }
 
+// Don't render when running in test
 if (!isTest()) {
   void main();
 }
+
+const Container = styled.div`
+  height: 100%;
+  width: 100%;
+`;
 
 async function loadInitialState(): Promise<State> {
   let ui: UI;
