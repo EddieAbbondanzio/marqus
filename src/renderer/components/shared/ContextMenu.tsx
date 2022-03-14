@@ -16,6 +16,9 @@ import { Focusable } from "./Focusable";
 import { Dispatch, EventType, EventValue, Store } from "../../store";
 import { Section } from "../../../shared/domain/state";
 import { isDevelopment } from "../../../shared/env";
+import styled from "styled-components";
+import OpenColor from "open-color";
+import { THEME } from "../../theme";
 
 export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   const items = [];
@@ -292,16 +295,12 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
   }, [props.store.state, setState, state.selected]);
 
   return (
-    <div
-      ref={wrapperRef}
-      className="is-flex is-flex-direction-column is-flex-grow-1"
-      data-context-menu={props.name}
-    >
+    <Wrapper ref={wrapperRef} data-context-menu={props.name}>
       {state.active && (
         <Focusable store={props.store} name={props.name}>
-          <div
+          <Menu
             ref={menuRef}
-            className="context-menu box m-0 p-0"
+            className="p-2"
             style={{
               position: "absolute",
               zIndex: 1,
@@ -310,21 +309,29 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
             }}
             tabIndex={-1}
           >
-            <div>
-              <ContextMenuContext.Provider
-                value={{
-                  selected: state.selected,
-                  dispatch,
-                  setSelected,
-                }}
-              >
-                {items}
-              </ContextMenuContext.Provider>
-            </div>
-          </div>
+            <ContextMenuContext.Provider
+              value={{
+                selected: state.selected,
+                dispatch,
+                setSelected,
+              }}
+            >
+              {items}
+            </ContextMenuContext.Provider>
+          </Menu>
         </Focusable>
       )}
       {props.children}
-    </div>
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  height: 100%;
+  width: 100%;
+`;
+
+const Menu = styled.div`
+  border: 1px solid ${THEME.contextMenu.border};
+  background-color: ${THEME.contextMenu.background};
+`;

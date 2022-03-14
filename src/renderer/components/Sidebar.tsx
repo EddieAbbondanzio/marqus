@@ -9,6 +9,7 @@ import { NAV_MENU_ATTRIBUTE } from "./ExplorerItems";
 import { findParent } from "../utils/findParent";
 import { parseResourceId } from "../../shared/domain/id";
 import { Store, StoreListener } from "../store";
+import styled from "styled-components";
 
 export interface SidebarProps {
   store: Store;
@@ -143,19 +144,20 @@ export function Sidebar({ store }: SidebarProps) {
       width={store.state.ui.sidebar.width}
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
-      <Focusable
-        store={store}
-        name="sidebar"
-        className="is-flex is-flex-grow-1 is-flex-direction-column m-w-100"
-      >
+      <StyledFocusable store={store} name="sidebar">
         <ContextMenu name="contextMenu" items={contextMenuItems} store={store}>
           <Filter store={store} />
           <Explorer store={store} />
         </ContextMenu>
-      </Focusable>
+      </StyledFocusable>
     </Resizable>
   );
 }
+
+export const StyledFocusable = styled(Focusable)`
+  width: 100%;
+  height: 100%;
+`;
 
 export const resizeWidth: StoreListener<"sidebar.resizeWidth"> = (
   { value: width },
