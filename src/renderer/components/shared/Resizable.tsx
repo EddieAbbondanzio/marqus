@@ -13,6 +13,7 @@ import { useMouse } from "../../io/mouse";
 import { Action } from "../../types";
 
 export interface ResizableProps {
+  className?: string;
   minWidth?: string;
   width: string;
   /**
@@ -105,7 +106,12 @@ export function Resizable(
   });
 
   return (
-    <Wrapper width={state.width} minWidth={props.minWidth} ref={wrapper}>
+    <Wrapper
+      className={props.className}
+      width={state.width}
+      minWidth={props.minWidth}
+      ref={wrapper}
+    >
       {props.children}
       <Handle ref={handle}>&nbsp;</Handle>
     </Wrapper>

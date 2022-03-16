@@ -94,13 +94,11 @@ export function getUIFileHandler(config: Config) {
       },
       defaultValue: {
         sidebar: {
+          explorer: {},
           hidden: false,
           width: px(300),
           scroll: 0,
           filter: {},
-          explorer: {
-            view: "notebooks",
-          },
         },
         editor: {
           isEditting: false,
@@ -119,11 +117,6 @@ const appSchema = yup.object().shape({
     filter: yup.object().shape({
       expanded: yup.boolean().optional(),
     }),
-    explorer: yup.object().shape({
-      view: yup
-        .mixed()
-        .oneOf(["all", "notebooks", "tags", "favorites", "temp", "trash"])
-        .required(),
-    }),
+    explorer: yup.mixed(),
   }),
 });

@@ -3,17 +3,12 @@ import {
   faAngleDoubleUp,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useEffect, useMemo } from "react";
-import { ExplorerView, State, ExplorerItem } from "../../shared/domain/state";
+import { ExplorerItem } from "../../shared/domain/state";
 import { NewButton, NewButtonOption } from "./NewButton";
 import { Icon } from "./shared/Icon";
 import { ExplorerInput, ExplorerMenu, NAV_MENU_HEIGHT } from "./ExplorerItems";
 import { Scrollable } from "./shared/Scrollable";
-import { Tab, Tabs } from "./shared/Tabs";
-import {
-  InvalidOpError,
-  NotFoundError,
-  NotImplementedError,
-} from "../../shared/errors";
+import { InvalidOpError, NotFoundError } from "../../shared/errors";
 import { isResourceId, parseResourceId } from "../../shared/domain/id";
 import {
   Note,
@@ -31,52 +26,29 @@ import {
   replaceChild,
 } from "../../shared/domain/notebook";
 import { getTagById, getTagSchema, Tag } from "../../shared/domain/tag";
-import {
-  FAVORITE_ICON,
-  NOTEBOOK_ICON,
-  NOTE_ICON,
-  TAG_ICON,
-  TRASH_ICON,
-} from "../libs/fontAwesome";
+import { NOTEBOOK_ICON, NOTE_ICON, TAG_ICON } from "../libs/fontAwesome";
 import { MouseButton } from "../io/mouse";
-import {
-  EventType,
-  EventValue,
-  Store,
-  StoreControls,
-  StoreListener,
-} from "../store";
-import { head, clamp, isEmpty, take, identity, orderBy } from "lodash";
+import { Store, StoreControls, StoreListener } from "../store";
+import { head, clamp, isEmpty, take, orderBy } from "lodash";
 import {
   AwaitableParams,
   createAwaitableInput,
 } from "../../shared/awaitableInput";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import * as yup from "yup";
-import { AnyKey } from "tsdef";
-import { string } from "yup/lib/locale";
-
-export const EXPLORER_DESC: Record<ExplorerView, string> = {
-  all: "All",
-  favorites: "Favorites",
-  notebooks: "By notebook",
-  tags: "By tag",
-  temp: "Temporary",
-  trash: "Trash",
-};
 
 export interface ExplorerProps {
   store: Store;
 }
 
 export function Explorer({ store }: ExplorerProps) {
-  const { notes, tags, notebooks } = store.state;
+  const { notes, notebooks } = store.state;
   const { explorer } = store.state.ui.sidebar;
-  const { input, view, selected, expanded } = explorer;
+  const { input, selected, expanded } = explorer;
 
-  const [items, selectables] = useMemo(
-    () => getExplorerItems(view, notes, notebooks, tags),
-    [view, notes, notebooks, tags]
+  const items = useMemo(
+    () => getExplorerItems(notes, notebooks),
+    [notes, notebooks]
   );
 
   // Sanity check
@@ -173,24 +145,21 @@ export function Explorer({ store }: ExplorerProps) {
     }
   };
 
-  const setView = (view: ExplorerView) => () =>
-    store.dispatch("sidebar.setExplorerView", view);
-
   useEffect(() => {
     const getNext = (increment: number) => {
       if (isEmpty(selected)) {
-        return take(selectables, 1);
+        return take(items, 1);
       }
       let next = 0;
       let curr = 0;
       const firstSelected = head(selected)!;
-      curr = selectables.findIndex((s) => s === firstSelected);
+      curr = items.findIndex((s) => s.id === firstSelected);
       if (curr === -1) {
         throw new NotFoundError(`No selectable ${firstSelected} found`);
       }
 
-      next = clamp(curr + increment, 0, selectables.length - 1);
-      return selectables.slice(next, next + 1);
+      next = clamp(curr + increment, 0, items.length - 1);
+      return items.slice(next, next + 1);
     };
 
     const updateSelected: StoreListener<
@@ -199,7 +168,7 @@ export function Explorer({ store }: ExplorerProps) {
       | "sidebar.moveSelectionUp"
       | "sidebar.setSelection"
     > = async ({ type, value }, { setUI }) => {
-      let selected: string[] | undefined;
+      let selected: ExplorerItem[] | undefined;
       let content: string | undefined;
       let noteId: string | undefined;
 
@@ -211,18 +180,27 @@ export function Explorer({ store }: ExplorerProps) {
           selected = getNext(-1);
           break;
         case "sidebar.setSelection":
-          selected = value!;
+          if (value == null) {
+            selected = undefined;
+          } else {
+            // HACK
+            selected = [items.find((i) => i.id === value[0])!];
+          }
           break;
       }
 
       if (selected != null && selected.length == 1) {
         const [firstSelected] = selected;
-        const [type, id] = parseResourceId(firstSelected);
+        if (firstSelected == null) {
+          return;
+        }
+        const [type, id] = parseResourceId(firstSelected.id);
 
         if (type === "note") {
           content =
-            (await window.ipc("notes.loadContent", firstSelected)) ?? undefined;
-          noteId = firstSelected;
+            (await window.ipc("notes.loadContent", firstSelected.id)) ??
+            undefined;
+          noteId = firstSelected.id;
         }
       }
 
@@ -242,24 +220,11 @@ export function Explorer({ store }: ExplorerProps) {
           next.editor.noteId = noteId;
         }
 
-        next.sidebar.explorer.selected = selected;
+        // TODO: Add multiple select support
+        next.sidebar.explorer.selected = [selected![0].id];
         return next;
       });
     };
-
-    const setView: StoreListener<"sidebar.setExplorerView"> = (
-      { value: view },
-      { setUI }
-    ) =>
-      setUI({
-        sidebar: {
-          explorer: {
-            view,
-            input: undefined,
-            selected: undefined,
-          },
-        },
-      });
 
     store.on("sidebar.scrollUp", scrollUp);
     store.on("sidebar.scrollDown", scrollDown);
@@ -274,7 +239,6 @@ export function Explorer({ store }: ExplorerProps) {
       ],
       updateSelected
     );
-    store.on("sidebar.setExplorerView", setView);
     store.on(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
     store.on("sidebar.deleteTag", deleteTag);
     store.on("sidebar.createNotebook", createNotebook);
@@ -298,7 +262,6 @@ export function Explorer({ store }: ExplorerProps) {
         ],
         updateSelected
       );
-      store.off("sidebar.setExplorerView", setView);
       store.off(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
       store.off("sidebar.deleteTag", deleteTag);
       store.off("sidebar.createNotebook", createNotebook);
@@ -312,54 +275,8 @@ export function Explorer({ store }: ExplorerProps) {
 
   return (
     <div className="is-flex is-flex-grow-1 is-flex-direction-column h-100">
-      <Tabs alignment="is-centered" className="mb-2">
-        <Tab
-          title="All notes"
-          isActive={view === "all"}
-          onClick={setView("all")}
-        >
-          <Icon icon={NOTE_ICON} />
-        </Tab>
-        <Tab
-          title="Notes by notebook"
-          isActive={view === "notebooks"}
-          onClick={setView("notebooks")}
-        >
-          <Icon icon={NOTEBOOK_ICON} />
-        </Tab>
-        <Tab
-          title="Notes by tag"
-          isActive={view === "tags"}
-          onClick={setView("tags")}
-        >
-          <Icon icon={TAG_ICON} />
-        </Tab>
-        <Tab
-          title="Favorited notes"
-          isActive={view === "favorites"}
-          onClick={setView("favorites")}
-        >
-          <Icon icon={FAVORITE_ICON} />
-        </Tab>
-        <Tab
-          title="Trashed notes"
-          isActive={view === "trash"}
-          onClick={setView("trash")}
-        >
-          <Icon icon={TRASH_ICON} />
-        </Tab>
-      </Tabs>
-
       {/* Keep this out of scrollable */}
       <div className="px-2 pb-2 is-flex is-justify-content-space-between is-align-items-center has-border-bottom-1-light ">
-        <p className="is-size-7">
-          <span className="has-text-dark is-uppercase">Explorer</span>
-          <span className="has-text-grey is-italic">
-            {" "}
-            - {EXPLORER_DESC[view]}
-          </span>
-        </p>
-
         <div className="is-flex is-align-items-center">
           <NewButton onClick={newButtonClicked} />
 
@@ -367,18 +284,12 @@ export function Explorer({ store }: ExplorerProps) {
             <Icon
               icon={faAngleDoubleDown}
               color="is-dark"
-              size="is-small"
               title="Expand All"
               className="mr-1"
             />
           </a>
           <a>
-            <Icon
-              icon={faAngleDoubleUp}
-              color="is-dark"
-              title="Collapse All"
-              size="is-small"
-            />
+            <Icon icon={faAngleDoubleUp} color="is-dark" title="Collapse All" />
           </a>
         </div>
       </div>
@@ -404,85 +315,48 @@ export function hasChildren(item: ExplorerItem, input?: any): boolean {
 
 // Move this to a better spot later
 export function getExplorerItems(
-  view: ExplorerView,
   notes: Note[],
-  notebooks: Notebook[],
-  tags: Tag[]
-): [ExplorerItem[], string[]] {
+  notebooks: Notebook[]
+): ExplorerItem[] {
   let items: ExplorerItem[] = [];
-  let selectables: string[] = [];
 
-  // ALphabetically sort notes by default for now.
+  const recursive = (n: Notebook, parent?: ExplorerItem) => {
+    const item: ExplorerItem = {
+      id: n.id,
+      text: n.name,
+      icon: NOTEBOOK_ICON,
+    };
+
+    if (n.children != null && n.children.length > 0) {
+      n.children.forEach((n) => recursive(n, item));
+    }
+
+    // Children are listed after nested notebooks
+    const itemNotes = getNotesForNotebook(notes, n);
+    item.children ??= [];
+    item.children.push(
+      ...itemNotes.map((n) => ({
+        id: n.id,
+        text: n.name,
+        icon: NOTE_ICON,
+      }))
+    );
+
+    if (parent == null) {
+      items.push(item);
+    } else {
+      parent.children ??= [];
+      parent.children.push(item);
+    }
+  };
+
+  notes
+    .filter(isEmpty)
+    .forEach((n) => items.push({ id: n.id, text: n.name, icon: NOTE_ICON }));
+  notebooks.forEach((n) => recursive(n));
+
   // Must be in kept in sync with getNotesForTag, and getNotesForNotebook
-  notes = orderBy(notes, ["name"]);
-
-  switch (view) {
-    case "all":
-      notes.forEach((n) => {
-        items.push({
-          id: n.id,
-          text: n.name,
-          icon: NOTE_ICON,
-        });
-        selectables.push(n.id);
-      });
-      break;
-
-    case "tags":
-      tags.forEach((t) => {
-        const children = getNotesForTag(notes, t).map((n) => ({
-          id: n.id,
-          text: n.name,
-          icon: NOTE_ICON,
-        }));
-
-        items.push({
-          id: t.id,
-          text: t.name,
-          icon: TAG_ICON,
-          children,
-        });
-        selectables.push(t.id, ...children.map((c) => c.id));
-      });
-      break;
-
-    case "notebooks":
-      const recursive = (n: Notebook, parent?: ExplorerItem) => {
-        selectables.push(n.id);
-
-        const item: ExplorerItem = {
-          id: n.id,
-          text: n.name,
-          icon: NOTEBOOK_ICON,
-        };
-
-        if (n.children != null && n.children.length > 0) {
-          n.children.forEach((n) => recursive(n, item));
-        }
-
-        // Children are listed after nested notebooks
-        const itemNotes = getNotesForNotebook(notes, n);
-        item.children ??= [];
-        item.children.push(
-          ...itemNotes.map((n) => ({
-            id: n.id,
-            text: n.name,
-            icon: NOTE_ICON,
-          }))
-        );
-
-        if (parent == null) {
-          items.push(item);
-        } else {
-          parent.children ??= [];
-          parent.children.push(item);
-        }
-      };
-      notebooks.forEach((n) => recursive(n));
-      break;
-  }
-
-  return [items, selectables];
+  return orderBy(items, ["name"]);
 }
 
 export const updateScroll: StoreListener<"sidebar.updateScroll"> = (
@@ -579,7 +453,6 @@ export const createOrRenameTag: StoreListener<
     sidebar: {
       explorer: {
         input,
-        view: "tags",
       },
     },
   });
@@ -737,7 +610,6 @@ export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
     focused: ["sidebarInput"],
     sidebar: {
       explorer: {
-        view: "notebooks",
         input,
       },
     },
@@ -821,7 +693,6 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
   } = ctx.getState();
 
   let schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
-  let view: ExplorerView = "all";
   let parentId: string | undefined;
   let relationships: { notebook?: string; tag?: string } = {};
 
@@ -829,18 +700,9 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
   if (firstSelected != null) {
     const [type] = parseResourceId(firstSelected);
 
-    switch (type) {
-      case "tag":
-        view = "tags";
-        relationships.tag = firstSelected;
-        parentId = firstSelected;
-        break;
-
-      case "notebook":
-        view = "notebooks";
-        relationships.notebook = firstSelected;
-        parentId = firstSelected;
-        break;
+    if (type === "notebook") {
+      relationships.notebook = firstSelected;
+      parentId = firstSelected;
     }
   }
 
@@ -861,7 +723,6 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
     focused: ["sidebarInput"],
     sidebar: {
       explorer: {
-        view,
         input,
         expanded,
       },

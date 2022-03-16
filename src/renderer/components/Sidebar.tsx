@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from "react";
 import { px } from "../../shared/dom";
-import { Filter } from "./Filter";
 import { ContextMenu, ContextMenuItem } from "./shared/ContextMenu";
 import { Explorer } from "./Explorer";
 import { Resizable } from "./shared/Resizable";
@@ -10,6 +9,7 @@ import { findParent } from "../utils/findParent";
 import { parseResourceId } from "../../shared/domain/id";
 import { Store, StoreListener } from "../store";
 import styled from "styled-components";
+import { THEME } from "../styling/theme";
 
 export interface SidebarProps {
   store: Store;
@@ -17,50 +17,19 @@ export interface SidebarProps {
 
 export function Sidebar({ store }: SidebarProps) {
   let contextMenuItems = (a: MouseEvent) => {
-    const { state } = store;
     const items = [];
-    const { view } = state.ui.sidebar.explorer;
-    switch (view) {
-      case "tags":
-        items.push(
-          <ContextMenuItem
-            text="New tag"
-            event="sidebar.createTag"
-            key="createTag"
-          />,
-          <ContextMenuItem
-            text="New Notebook"
-            event="sidebar.createNotebook"
-            key="createNotebook"
-          />
-        );
-        break;
-
-      case "notebooks":
-        items.push(
-          <ContextMenuItem
-            text="New Note"
-            event="sidebar.createNote"
-            key="createNote"
-          />,
-          <ContextMenuItem
-            text="New Notebook"
-            event="sidebar.createNotebook"
-            key="createNotebook"
-          />
-        );
-        break;
-
-      case "all":
-        items.push(
-          <ContextMenuItem
-            text="New Note"
-            event="sidebar.createNote"
-            key="createNote"
-          />
-        );
-        break;
-    }
+    items.push(
+      <ContextMenuItem
+        text="New Note"
+        event="sidebar.createNote"
+        key="createNote"
+      />,
+      <ContextMenuItem
+        text="New Notebook"
+        event="sidebar.createNotebook"
+        key="createNotebook"
+      />
+    );
 
     const target = findParent(
       a.target as HTMLElement,
@@ -139,20 +108,23 @@ export function Sidebar({ store }: SidebarProps) {
   }, [store.state]);
 
   return (
-    <Resizable
+    <StyledResizable
       minWidth={px(300)}
       width={store.state.ui.sidebar.width}
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
       <StyledFocusable store={store} name="sidebar">
         <ContextMenu name="contextMenu" items={contextMenuItems} store={store}>
-          <Filter store={store} />
           <Explorer store={store} />
         </ContextMenu>
       </StyledFocusable>
-    </Resizable>
+    </StyledResizable>
   );
 }
+
+export const StyledResizable = styled(Resizable)`
+  background-color: ${THEME.sidebar.background};
+`;
 
 export const StyledFocusable = styled(Focusable)`
   width: 100%;

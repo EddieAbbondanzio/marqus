@@ -3,9 +3,17 @@
 
 import OpenColor from "open-color";
 
+const BORDER = OpenColor.gray[7];
+
 export const THEME = {
   contextMenu: {
     background: OpenColor.gray[0],
-    border: OpenColor.gray[8],
+    border: BORDER,
+  },
+  sidebar: {
+    background: OpenColor.gray[9],
+    inputsBackground: OpenColor.gray[7],
+    fontColor: OpenColor.gray[3],
+    filter: {},
   },
 };

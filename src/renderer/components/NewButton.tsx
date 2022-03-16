@@ -36,14 +36,14 @@ export function NewButton(props: NewButtonProps) {
         style={{ height: px(30) }}
         onClick={onClick}
       >
-        <Icon icon={faPlus} size="is-small" />
+        <Icon icon={faPlus} />
         New note
       </button>
       <button
         className="button is-small py-2 p-0 mb-0"
         style={{ height: px(30) }}
       >
-        <Icon icon={faChevronDown} size="is-small" />
+        <Icon icon={faChevronDown} />
       </button>
     </div>
   );

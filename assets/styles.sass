@@ -9,6 +9,17 @@ html
   body, #app
     height: 100%
 
+$weights: (100, 200, 300, 400, 500, 600, 700, 800, 900)
+@each $weight in $weights
+  .fw-#{$weight}
+    font-weight: $weight
+
+.fw-normal
+  font-weight: 400
+
+.fw-bold
+  font-weight: 700
+
 // Size helpers ex: w-100, mw-50, h75
 $types: (('w','width'), ('h', 'height'), ('mh', 'max-height'), ('mw', 'max-width'))
 $sizes: (5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100)
@@ -17,10 +28,9 @@ $sizes: (5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 
     .#{$abbr}-#{$size}
       #{$prop}: #{percentage($size / 100)}
 
-$spacer: 1rem
 $types: (('m','margin'), ('p','padding'))
-$sizes: (0: 0, 1: ($spacer * 0.25), 2: ($spacer * 0.5), 3: ($spacer * 1), 4: ($spacer * 2), 5: ($spacer * 4))
-$positions: ("a" : (""), "t" : ("-top"), "l": ("-left"), "b": ("-bottom"), "r": ("-right"), "x": ("-left", "-right"), "y": ("-top", "-bottom"))
+$sizes: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 2rem, 5: 4rem)
+$positions: ("" : (""), "t" : ("-top"), "l": ("-left"), "b": ("-bottom"), "r": ("-right"), "x": ("-left", "-right"), "y": ("-top", "-bottom"))
 
 @each $pos, $props in $positions
   @each $size, $value in $sizes

@@ -1,13 +1,27 @@
 import React, { PropsWithChildren } from "react";
 import { classList } from "../../../shared/dom";
-import { BulmaColor, BulmaSize, ButtonType } from "../../libs/bulma";
-import { IconProps } from "./Icon";
+
+export type ButtonColor =
+  | "is-primary"
+  | "is-link"
+  | "is-info"
+  | "is-success"
+  | "is-warning"
+  | "is-danger"
+  | "is-white"
+  | "is-light"
+  | "is-dark"
+  | "is-black";
+
+export type BulmaSize = "is-small" | "is-normal" | "is-medium" | "is-large";
+
+export type ButtonType = "submit" | "reset" | "button";
 
 export interface ButtonProps {
   onClick?: () => any;
   type?: ButtonType;
   size?: BulmaSize;
-  color?: BulmaColor | "is-text" | "is-ghost";
+  color?: ButtonColor | "is-text" | "is-ghost";
   isInverted?: boolean;
   isOutlined?: boolean;
   isRounded?: boolean;

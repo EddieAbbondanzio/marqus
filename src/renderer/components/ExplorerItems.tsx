@@ -6,7 +6,6 @@ import { classList, percentage, px } from "../../shared/dom";
 import { InvalidOpError } from "../../shared/errors";
 import { KeyCode } from "../../shared/io/keyCode";
 import { useKeyboard } from "../io/keyboard";
-import { BulmaSize } from "../libs/bulma";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import * as yup from "yup";
@@ -91,7 +90,7 @@ export interface ExplorerInputProps {
   confirm: () => void;
   cancel: () => void;
   schema?: yup.StringSchema;
-  size?: BulmaSize;
+  size?: string;
   depth: number;
 }
 

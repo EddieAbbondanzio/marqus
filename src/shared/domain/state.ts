@@ -40,7 +40,6 @@ export interface Filter {
 }
 
 export interface Explorer {
-  view: ExplorerView;
   input?: AwaitableInput;
   selected?: string[];
   expanded?: string[];
@@ -52,14 +51,6 @@ export interface ExplorerItem {
   children?: ExplorerItem[];
   icon?: IconDefinition;
 }
-
-export type ExplorerView =
-  | "all"
-  | "notebooks"
-  | "tags"
-  | "favorites"
-  | "temp"
-  | "trash";
 
 export interface Editor {
   isEditting: boolean;

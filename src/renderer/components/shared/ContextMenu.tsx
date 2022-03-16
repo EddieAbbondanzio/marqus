@@ -18,7 +18,7 @@ import { Section } from "../../../shared/domain/state";
 import { isDevelopment } from "../../../shared/env";
 import styled from "styled-components";
 import OpenColor from "open-color";
-import { THEME } from "../../theme";
+import { THEME } from "../../styling/theme";
 
 export const GLOBAL_CONTEXT_ITEMS = (ev?: MouseEvent) => {
   const items = [];
