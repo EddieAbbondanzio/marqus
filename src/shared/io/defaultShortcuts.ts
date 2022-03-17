@@ -65,11 +65,6 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Space],
     when: "sidebar",
   },
-  {
-    event: "sidebar.createTag",
-    keys: [KeyCode.Control, KeyCode.LetterT],
-    when: "sidebar",
-  },
 
   // Editor
   {

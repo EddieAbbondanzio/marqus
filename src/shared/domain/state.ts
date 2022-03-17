@@ -28,27 +28,18 @@ export const ALL_SECTIONS = [
 export type Section = typeof ALL_SECTIONS[number];
 
 export interface Sidebar {
+  hidden?: boolean;
   width: string;
   scroll: number;
-  filter: Filter;
-  explorer: Explorer;
-  hidden?: boolean;
-}
-
-export interface Filter {
-  expanded?: boolean;
-}
-
-export interface Explorer {
   input?: AwaitableInput;
   selected?: string[];
   expanded?: string[];
 }
 
-export interface ExplorerItem {
+export interface SidebarItem {
   id: string;
   text: string;
-  children?: ExplorerItem[];
+  children?: SidebarItem[];
   icon?: IconDefinition;
 }
 

@@ -3,12 +3,14 @@
 
 import OpenColor from "open-color";
 
+const HIGHLIGHT = OpenColor.blue[3];
 const BORDER = OpenColor.gray[7];
 
 export const THEME = {
   contextMenu: {
     background: OpenColor.gray[0],
     border: BORDER,
+    highlight: HIGHLIGHT,
   },
   sidebar: {
     background: OpenColor.gray[9],

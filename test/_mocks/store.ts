@@ -13,10 +13,6 @@ export function createState(partial?: DeepPartial<State>) {
     ui: {
       focused: [],
       sidebar: {
-        explorer: {
-          view: "all",
-        },
-        filter: {},
         scroll: 0,
         width: px(300),
       },

@@ -13,8 +13,6 @@ beforeEach(() => {
     tags: [],
     ui: {
       sidebar: {
-        explorer: {},
-        filter: {},
         scroll: 0,
         width: "300px",
       },

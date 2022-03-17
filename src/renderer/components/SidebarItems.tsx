@@ -20,7 +20,7 @@ export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
 export const COLLAPSED_ICON = faCaretRight;
 export const EXPANDED_ICON = faCaretDown;
 
-export interface ExplorerMenuProps {
+export interface SidebarMenuProps {
   id: string;
   icon?: IconDefinition;
   text: string;
@@ -31,7 +31,7 @@ export interface ExplorerMenuProps {
   depth: number;
 }
 
-export function ExplorerMenu(props: PropsWithChildren<ExplorerMenuProps>) {
+export function SidebarMenu(props: PropsWithChildren<SidebarMenuProps>) {
   const triggerClasses = classList(
     "nav-menu-trigger",
     "is-flex",
@@ -81,7 +81,7 @@ export function ExplorerMenu(props: PropsWithChildren<ExplorerMenuProps>) {
   );
 }
 
-export interface ExplorerInputProps {
+export interface SidebarInputProps {
   store: Store;
   className?: string;
   initialValue: string;
@@ -94,7 +94,7 @@ export interface ExplorerInputProps {
   depth: number;
 }
 
-export function ExplorerInput(props: ExplorerInputProps): JSX.Element {
+export function SidebarInput(props: SidebarInputProps): JSX.Element {
   const [flags, setFlags] = useState({
     wasFinalized: false,
     wasTouched: false,

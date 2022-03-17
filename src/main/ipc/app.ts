@@ -76,8 +76,8 @@ export function getUIFileHandler(config: Config) {
     {
       serialize: (ui) => {
         // Nuke out stuff we don't want to persist.
-        ui.sidebar.explorer.input = undefined;
-        ui.sidebar.explorer.selected = undefined;
+        ui.sidebar.input = undefined;
+        ui.sidebar.selected = undefined;
         ui.focused = undefined!;
 
         return ui;
@@ -87,18 +87,16 @@ export function getUIFileHandler(config: Config) {
           return;
         }
 
-        ui.sidebar.explorer.input = undefined;
-        ui.sidebar.explorer.selected = undefined;
+        ui.sidebar.input = undefined;
+        ui.sidebar.selected = undefined;
         ui.focused = [];
         return ui;
       },
       defaultValue: {
         sidebar: {
-          explorer: {},
           hidden: false,
           width: px(300),
           scroll: 0,
-          filter: {},
         },
         editor: {
           isEditting: false,
@@ -117,6 +115,5 @@ const appSchema = yup.object().shape({
     filter: yup.object().shape({
       expanded: yup.boolean().optional(),
     }),
-    explorer: yup.mixed(),
   }),
 });

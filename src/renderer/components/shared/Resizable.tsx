@@ -126,5 +126,5 @@ const Wrapper = styled.div<Pick<ResizableProps, "width" | "minWidth">>`
 `;
 
 const Handle = styled.div`
-  cursor: pointer;
+  cursor: ew-resize;
 `;
