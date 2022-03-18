@@ -7,12 +7,6 @@ import {
 } from "./shared/ContextMenu";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
-import {
-  SidebarInput,
-  SidebarMenu,
-  NAV_MENU_ATTRIBUTE,
-  NAV_MENU_HEIGHT,
-} from "./SidebarItems";
 import { findParent } from "../utils/findParent";
 import { isResourceId, parseResourceId } from "../../shared/domain/id";
 import { Store, StoreControls, StoreListener } from "../store";
@@ -45,6 +39,10 @@ import { MouseButton } from "../io/mouse";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
+
+export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
+export const NAV_MENU_HEIGHT = 24;
+export const NAV_MENU_INDENT = 16;
 
 export interface SidebarProps {
   store: Store;
@@ -211,15 +209,16 @@ export function Sidebar({ store }: SidebarProps) {
       }
 
       if (input?.mode === "update" && input.id === item.id) {
-        rendered.push(
-          <SidebarInput
-            store={store}
-            key="create"
-            size="is-small"
-            {...input}
-            depth={depth}
-          />
-        );
+        rendered
+          .push
+          // <SidebarInput
+          //   store={store}
+          //   key="create"
+          //   size="is-small"
+          //   {...input}
+          //   depth={depth}
+          // />
+          ();
       } else {
         const isExpanded = expanded?.some((id) => id === item.id);
 
@@ -231,34 +230,27 @@ export function Sidebar({ store }: SidebarProps) {
           store.dispatch("sidebar.setSelection", [item.id]);
         };
 
-        rendered.push(
-          <SidebarMenu
-            id={item.id}
-            key={item.id}
-            selected={selected?.some((s) => s === item.id)}
-            text={item.text}
-            onClick={onClick}
-            children={children}
-            icon={item.icon}
-            expanded={isExpanded}
-            depth={depth}
-          />
-        );
+        rendered
+          .push
+          // <SidebarMenu
+          //   id={item.id}
+          //   key={item.id}
+          //   selected={selected?.some((s) => s === item.id)}
+          //   text={item.text}
+          //   onClick={onClick}
+          //   children={children}
+          //   icon={item.icon}
+          //   expanded={isExpanded}
+          //   depth={depth}
+          // />
+          ();
       }
     }
 
     if (input?.mode === "create") {
       console.log("INPUT!");
       if (input?.parentId == parent?.id) {
-        rendered.push(
-          <SidebarInput
-            store={store}
-            key="create"
-            size="is-small"
-            {...input}
-            depth={depth}
-          />
-        );
+        rendered.push(<StyledInput />);
       }
     }
 
@@ -290,13 +282,19 @@ export function Sidebar({ store }: SidebarProps) {
   );
 }
 
-export const StyledResizable = styled(Resizable)`
+const StyledResizable = styled(Resizable)`
   background-color: ${THEME.sidebar.background};
 `;
 
-export const StyledFocusable = styled(Focusable)`
+const StyledFocusable = styled(Focusable)`
   width: 100%;
   height: 100%;
+`;
+
+const StyledInput = styled.input.attrs({ className: "py-1" })`
+  border: none;
+  width: 100%;
+  height: 16px;
 `;
 
 const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {

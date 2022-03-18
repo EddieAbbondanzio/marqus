@@ -1,5 +1,6 @@
 import { clamp, debounce } from "lodash";
 import React, { useCallback, useEffect, useRef } from "react";
+import styled from "styled-components";
 
 export interface ScrollableProps {
   scroll?: number;
@@ -7,11 +8,6 @@ export interface ScrollableProps {
 }
 
 export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
-  const styles: React.CSSProperties = {
-    overflowY: "auto",
-    overflowX: "visible",
-  };
-
   // Debounce it so we don't spam the event handler.
   const onScroll = useCallback(
     debounce(
@@ -43,13 +39,15 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
   });
 
   return (
-    <div
-      className="is-flex is-flex-direction-column is-flex-grow-1"
-      style={styles}
-      onScroll={onScroll}
-      ref={wrapper}
-    >
+    <StyledDiv onScroll={onScroll} ref={wrapper}>
       {props.children}
-    </div>
+    </StyledDiv>
   );
 }
+
+const StyledDiv = styled.div`
+  display: flex;
+  flex-grow: 1;
+  overflow-y: auto;
+  overlow-x: visible;
+`;

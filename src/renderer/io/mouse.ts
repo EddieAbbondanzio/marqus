@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { InvalidOpError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
-import { Action, ElementOrWindow, isRef } from "../types";
+import { ElementOrWindow, isRef } from "../types";
 
 export const DEFAULT_CURSOR = "auto";
 

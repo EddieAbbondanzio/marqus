@@ -1,9 +1,5 @@
 import { RefObject } from "react";
 
-export type Action<Type extends string, Props = {}> = {
-  [Property in keyof Props]: Props[Property];
-} & { type: Type };
-
 export type StartsWith<
   Set,
   Needle extends string

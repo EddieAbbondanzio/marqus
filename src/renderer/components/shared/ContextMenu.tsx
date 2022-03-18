@@ -191,7 +191,6 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
   }, [props.store.state, setPosition, position, items, selected, lastMoused]);
 
   const setSelectedIfDifferent = (item?: ContextMenuEntry) => {
-    console.log("moused!");
     if (item != null && lastMoused != null && lastMoused === item) {
       return;
     }
