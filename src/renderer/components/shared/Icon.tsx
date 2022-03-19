@@ -4,7 +4,8 @@ import {
   FontAwesomeIconProps,
 } from "@fortawesome/react-fontawesome";
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import { classList } from "../../../shared/dom";
+import { m1 } from "../../styling";
+import styled from "styled-components";
 
 export interface IconProps {
   icon: IconDefinition;
@@ -16,26 +17,18 @@ export interface IconProps {
 
 export function Icon(props: IconProps) {
   const size = props.size ?? "is-normal";
-  let color;
-  if (props.color) {
-    color = `has-text-${props.color.split("-")[1]}`;
-  }
-
-  const containerClasses = classList(
-    "icon",
-    "m-0",
-    size,
-    props.className,
-    color
-  );
 
   return (
-    <i className={containerClasses}>
+    <StyledI className={props.className}>
       <FontAwesomeIcon
         icon={props.icon}
         title={props.title}
         size={props.size}
       />
-    </i>
+    </StyledI>
   );
 }
+
+const StyledI = styled.i`
+  ${m1}
+`;

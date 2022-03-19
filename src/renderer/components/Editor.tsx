@@ -1,7 +1,9 @@
 import { debounce } from "lodash";
 import { marked } from "marked";
 import React, { ChangeEvent, useEffect, useMemo, useRef } from "react";
+import styled from "styled-components";
 import { Store, StoreListener } from "../store";
+import { p2, w100 } from "../styling";
 import { Markdown } from "./Markdown";
 import { Focusable } from "./shared/Focusable";
 export interface EditorProps {
@@ -31,7 +33,6 @@ export function Editor({ store }: EditorProps) {
   const textareaRef = useRef(null! as HTMLTextAreaElement);
   const content = editor.isEditting ? (
     <textarea
-      className="markdown-editor"
       ref={textareaRef}
       value={editor.content}
       onChange={onChange}
@@ -41,16 +42,20 @@ export function Editor({ store }: EditorProps) {
   );
 
   return (
-    <Focusable
-      className="w-100 p-2"
+    <StyledFocusable
       store={store}
       name="editor"
       onFocus={() => textareaRef.current?.focus()}
     >
       {content}
-    </Focusable>
+    </StyledFocusable>
   );
 }
+
+const StyledFocusable = styled(Focusable)`
+  ${w100}
+  ${p2}
+`;
 
 const debouncedIpc = debounce(window.ipc, 500);
 

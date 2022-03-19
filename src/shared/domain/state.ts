@@ -1,5 +1,5 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import { AwaitableInput } from "../awaitableInput";
+import { PromisedInput } from "../awaitableInput";
 import { Note } from "./note";
 import { Notebook } from "./notebook";
 import { Shortcut } from "./shortcut";
@@ -31,7 +31,7 @@ export interface Sidebar {
   hidden?: boolean;
   width: string;
   scroll: number;
-  input?: AwaitableInput;
+  input?: PromisedInput;
   selected?: string[];
   expanded?: string[];
 }

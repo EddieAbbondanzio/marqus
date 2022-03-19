@@ -3,20 +3,22 @@ import * as yup from "yup";
 
 export type InputMode = "create" | "update";
 
-export interface AwaitableInput {
+export interface PromisedInput {
   id?: string;
   mode: InputMode;
   initialValue: string;
   // Render use only
   value: string;
-  onInput: (value: string) => void;
+  onChange: (value: string) => void;
   confirm: () => void;
   cancel: () => void;
-  schema: any;
+  validate: (value: string) => ValidateOutcome;
   completed: Promise<[value: string, action: AwaitableOutcome]>;
   parentId?: string;
 }
-export type AwaitableParams = {
+type ValidateOutcome = { valid: true } | { valid: false; errors: string[] };
+
+export type PromisedInputParams = {
   value?: string;
   id?: string;
   schema: yup.StringSchema;
@@ -24,10 +26,10 @@ export type AwaitableParams = {
 };
 export type AwaitableOutcome = "confirm" | "cancel";
 
-export function createAwaitableInput(
-  params: AwaitableParams,
+export function createPromisedInput(
+  params: PromisedInputParams,
   setValue: (value: string) => void
-): AwaitableInput {
+): PromisedInput {
   let mode: InputMode = params.id == null ? "create" : "update";
   let confirm: () => void;
   let cancel: () => void;
@@ -59,16 +61,25 @@ export function createAwaitableInput(
   };
 
   const promise = Promise.race([confirmPromise, cancelPromise]);
+  const validate = (value: string): ValidateOutcome => {
+    try {
+      params.schema.validateSync(value);
+      return { valid: true };
+    } catch (e) {
+      const { errors } = e as yup.ValidationError;
+      return { valid: false, errors };
+    }
+  };
 
-  const obj: AwaitableInput = {
+  const obj: PromisedInput = {
     id: params.id,
     mode,
     initialValue: value,
     value,
-    onInput: wrappedSetValue,
+    onChange: wrappedSetValue,
     confirm: confirm!,
     cancel: cancel!,
-    schema: params.schema,
+    validate,
     completed: promise,
     parentId: params.parentId,
   };

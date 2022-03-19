@@ -25,9 +25,6 @@ export interface Events {
   "sidebar.scrollUp": void;
   "sidebar.resizeWidth": string;
   "sidebar.toggleFilter": void;
-  "sidebar.createTag": void;
-  "sidebar.renameTag": string;
-  "sidebar.deleteTag": string;
   "sidebar.createNotebook": void; // parentId is passed via selected
   "sidebar.renameNotebook": string;
   "sidebar.deleteNotebook": string;

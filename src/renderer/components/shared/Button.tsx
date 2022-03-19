@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import { classList } from "../../../shared/dom";
+// import { classList } from "../../../shared/dom";
 
 export type ButtonColor =
   | "is-primary"
@@ -31,22 +31,21 @@ export interface ButtonProps {
 }
 
 export function Button(props: PropsWithChildren<ButtonProps>) {
-  const classes = classList(
-    "button",
-    props.className,
-    props.color,
-    props.size,
-    {
-      "is-inverted": props.isInverted,
-      "is-outlined": props.isOutlined,
-      "is-rounded": props.isRounded,
-      "is-loading": props.isLoading,
-    }
-  );
+  // const classes = classList(
+  //   "button",
+  //   props.className,
+  //   props.color,
+  //   props.size,
+  //   {
+  //     "is-inverted": props.isInverted,
+  //     "is-outlined": props.isOutlined,
+  //     "is-rounded": props.isRounded,
+  //     "is-loading": props.isLoading,
+  //   }
+  // );
 
   return (
     <button
-      className={classes}
       title={props.title}
       type={props.type ?? "button"}
       onClick={props.onClick}

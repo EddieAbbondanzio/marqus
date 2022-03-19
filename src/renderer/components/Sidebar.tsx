@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { px } from "../../shared/dom";
 import {
   ContextMenu,
@@ -11,7 +11,7 @@ import { findParent } from "../utils/findParent";
 import { isResourceId, parseResourceId } from "../../shared/domain/id";
 import { Store, StoreControls, StoreListener } from "../store";
 import styled from "styled-components";
-import { THEME } from "../styling/theme";
+import { THEME } from "../styling";
 import { clamp, head, isEmpty, orderBy, take } from "lodash";
 import {
   Note,
@@ -30,8 +30,8 @@ import {
 import { SidebarItem } from "../../shared/domain/state";
 import { NOTEBOOK_ICON, NOTE_ICON } from "../libs/fontAwesome";
 import {
-  AwaitableParams,
-  createAwaitableInput,
+  PromisedInputParams,
+  createPromisedInput,
 } from "../../shared/awaitableInput";
 import { getTagSchema, getTagById, Tag } from "../../shared/domain/tag";
 import { NotFoundError, InvalidOpError } from "../../shared/errors";
@@ -39,6 +39,7 @@ import { MouseButton } from "../io/mouse";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
+import { SidebarInput } from "./SidebarInput";
 
 export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
 export const NAV_MENU_HEIGHT = 24;
@@ -159,8 +160,6 @@ export function Sidebar({ store }: SidebarProps) {
       ],
       updateSelected
     );
-    store.on(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
-    store.on("sidebar.deleteTag", deleteTag);
     store.on("sidebar.createNotebook", createNotebook);
     store.on("sidebar.renameNotebook", renameNotebook);
     store.on("sidebar.deleteNotebook", deleteNotebook);
@@ -183,8 +182,6 @@ export function Sidebar({ store }: SidebarProps) {
         ],
         updateSelected
       );
-      store.off(["sidebar.createTag", "sidebar.renameTag"], createOrRenameTag);
-      store.off("sidebar.deleteTag", deleteTag);
       store.off("sidebar.createNotebook", createNotebook);
       store.off("sidebar.renameNotebook", renameNotebook);
       store.off("sidebar.deleteNotebook", deleteNotebook);
@@ -248,9 +245,14 @@ export function Sidebar({ store }: SidebarProps) {
     }
 
     if (input?.mode === "create") {
-      console.log("INPUT!");
       if (input?.parentId == parent?.id) {
-        rendered.push(<StyledInput />);
+        rendered.push(
+          <SidebarInput
+            store={store}
+            key="sidebarInput"
+            awaitableInput={input}
+          />
+        );
       }
     }
 
@@ -289,12 +291,6 @@ const StyledResizable = styled(Resizable)`
 const StyledFocusable = styled(Focusable)`
   width: 100%;
   height: 100%;
-`;
-
-const StyledInput = styled.input.attrs({ className: "py-1" })`
-  border: none;
-  width: 100%;
-  height: 16px;
 `;
 
 const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
@@ -500,85 +496,6 @@ export const toggleItemExpanded: StoreListener<"sidebar.toggleItemExpanded"> = (
   });
 };
 
-export const createOrRenameTag: StoreListener<
-  "sidebar.createTag" | "sidebar.renameTag"
-> = async ({ type, value: id }, ctx) => {
-  let { tags } = ctx.getState();
-  const otherTags =
-    type == "sidebar.renameTag" ? tags.filter((t) => t.id !== id) : tags;
-  let schema: yup.StringSchema = yup.reach(getTagSchema(otherTags), "name");
-
-  let inputParams: AwaitableParams = { value: "", schema };
-  if (type == "sidebar.renameTag") {
-    const tag = getTagById(tags, id!);
-    inputParams.id = tag.id;
-    inputParams.value = tag.name;
-  }
-
-  let input = createAwaitableInput(inputParams, setExplorerInput(ctx));
-
-  ctx.setUI({
-    focused: ["sidebarInput"],
-    sidebar: {
-      input,
-    },
-  });
-
-  const [name, action] = await input.completed;
-  if (action === "confirm") {
-    let tag: Tag;
-    try {
-      switch (type) {
-        case "sidebar.createTag":
-          tag = await window.ipc("tags.create", { name });
-          ctx.setTags((tags) => [...tags, tag]);
-          break;
-
-        case "sidebar.renameTag":
-          tag = await window.ipc("tags.rename", { id: id!, name });
-          ctx.setTags((tags) => {
-            tags.splice(
-              tags.findIndex((t) => t.id === tag.id),
-              1,
-              tag
-            );
-            return [...tags];
-          });
-          break;
-
-        default:
-          throw new InvalidOpError(`Invalid tag ipc ${type}`);
-      }
-    } catch (e) {
-      promptError(e.message);
-    }
-  }
-
-  ctx.setUI({
-    sidebar: {
-      input: undefined,
-    },
-  });
-};
-
-export const deleteTag: StoreListener<"sidebar.deleteTag"> = async (
-  { value: id },
-  ctx
-) => {
-  if (id == null) {
-    throw Error();
-  }
-
-  const { tags } = ctx.getState();
-  const tag = getTagById(tags, id!);
-  const res = await promptConfirmAction("delete", `tag ${tag.name}`);
-
-  if (res.text === "Yes") {
-    await window.ipc("tags.delete", { id: tag.id });
-    ctx.setTags((tags) => tags.filter((t) => t.id !== tag.id));
-  }
-};
-
 export const createNotebook: StoreListener<"sidebar.createNotebook"> = async (
   _,
   ctx
@@ -600,9 +517,9 @@ export const createNotebook: StoreListener<"sidebar.createNotebook"> = async (
   }
 
   let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
-  let inputParams: AwaitableParams = { value: "", schema, parentId };
+  let inputParams: PromisedInputParams = { value: "", schema, parentId };
 
-  let input = createAwaitableInput(inputParams, setExplorerInput(ctx));
+  let input = createPromisedInput(inputParams, setExplorerInput(ctx));
 
   ctx.setUI((prev) => {
     let expanded = prev.sidebar.expanded;
@@ -658,7 +575,7 @@ export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
 
   let siblings = parent?.children ?? state.notebooks;
   let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
-  let input = createAwaitableInput(
+  let input = createPromisedInput(
     {
       id,
       value: name,
@@ -751,8 +668,6 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
   let parentId: string | undefined;
   let relationships: { notebook?: string; tag?: string } = {};
 
-  console.log("CREATE NOTE");
-
   const firstSelected = head(selected);
   if (firstSelected != null) {
     const [type] = parseResourceId(firstSelected);
@@ -763,7 +678,7 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
     }
   }
 
-  let input = createAwaitableInput(
+  let input = createPromisedInput(
     {
       schema,
       parentId,
@@ -811,13 +726,13 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   const { notes } = ctx.getState();
   let schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   const { name: value } = getNoteById(notes, id!);
-  let inputParams: AwaitableParams = {
+  let inputParams: PromisedInputParams = {
     id,
     value,
     schema,
   };
 
-  let input = createAwaitableInput(inputParams, setExplorerInput(ctx));
+  let input = createPromisedInput(inputParams, setExplorerInput(ctx));
 
   // TODO: We'll need to allow renaming notes in any view (except trash)
   ctx.setUI({

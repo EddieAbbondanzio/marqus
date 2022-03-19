@@ -7,7 +7,7 @@ import { EventType, EventValue, Store } from "../../store";
 import { Section } from "../../../shared/domain/state";
 import { isDevelopment } from "../../../shared/env";
 import styled from "styled-components";
-import { THEME } from "../../styling/theme";
+import { px2, py1, THEME } from "../../styling";
 import { findNext, findPrevious } from "../../../shared/utils";
 
 // These will appear at the bottom of the menu
@@ -264,11 +264,11 @@ const StyledDivider = styled.div`
   border-bottom: 1px solid ${THEME.contextMenu.border};
 `;
 
-const StyledEntry = styled.div.attrs({
-  className: "px-2 py-1",
-})`
+const StyledEntry = styled.div`
   display: flex;
   align-items: center;
+  ${px2}
+  ${py1}
 `;
 
 const StyledSelectedEntry = styled(StyledEntry)`
