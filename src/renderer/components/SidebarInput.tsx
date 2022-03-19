@@ -2,9 +2,10 @@ import OpenColor from "open-color";
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/awaitableInput";
+import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
-import { p1, py1 } from "../styling";
+import { mt1, p1, py1 } from "../styling";
 import { Focusable } from "./shared/Focusable";
 
 export interface SidebarInputProps {
@@ -17,10 +18,18 @@ export function SidebarInput(props: SidebarInputProps) {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
+  const [isValid, setIsValid] = useState(true);
+
+  const { cancel } = props.awaitableInput;
+  const tryConfirm = () => {
+    if (isValid) {
+      props.awaitableInput.confirm();
+    }
+  };
 
   const onBlur = () => {
     if (isBlank(props.awaitableInput.value)) {
-      props.awaitableInput.cancel();
+      cancel();
     } else {
       props.awaitableInput.confirm();
     }
@@ -38,9 +47,20 @@ export function SidebarInput(props: SidebarInputProps) {
       } else {
         setErrorMessage(undefined);
       }
+      setIsValid(validateOutcome.valid);
     }
 
     setChanges(value);
+  };
+
+  const keyDown = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+    const key = parseKeyCode(ev.code);
+    switch (key) {
+      case KeyCode.Enter:
+        return tryConfirm();
+      case KeyCode.Escape:
+        return cancel();
+    }
   };
 
   return (
@@ -54,6 +74,7 @@ export function SidebarInput(props: SidebarInputProps) {
         ref={inputRef}
         value={props.awaitableInput.value}
         onChange={onChange}
+        onKeyDown={keyDown}
       />
 
       {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
@@ -80,6 +101,6 @@ const ErrorMessage = styled.div`
   font-size: 0.8rem;
   border-radius: 4px;
   position: relative;
-  margin-top: 0.25rem;
+  ${mt1}
   ${p1}
 `;
