@@ -1,3 +1,4 @@
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import OpenColor from "open-color";
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
@@ -5,8 +6,68 @@ import { PromisedInput } from "../../shared/awaitableInput";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
-import { mt1, p1, py1 } from "../styling";
+import { mt1, p1, pr1, py1, THEME } from "../styling";
 import { Focusable } from "./shared/Focusable";
+import { Icon } from "./shared/Icon";
+
+export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
+export const NAV_MENU_HEIGHT = 24;
+export const NAV_MENU_INDENT = 12;
+
+export type SidebarMenuProps = SidebarMenuInput | SidebarMenuText;
+interface SidebarMenuInput {
+  store: Store;
+  icon: IconDefinition;
+  value: PromisedInput;
+}
+interface SidebarMenuText {
+  icon: IconDefinition;
+  id: string;
+  value: string;
+}
+
+export function SidebarMenu(props: SidebarMenuProps) {
+  const { value, icon } = props;
+  let content;
+  if (typeof props.value === "string") {
+    content = (
+      <StyledMenuText {...{ [NAV_MENU_ATTRIBUTE]: (props as any).id }}>
+        {props.value}
+      </StyledMenuText>
+    );
+  } else {
+    content = (
+      <SidebarInput
+        store={(props as any).store}
+        key="sidebarInput"
+        awaitableInput={value as PromisedInput}
+      />
+    );
+  }
+
+  return (
+    <StyledMenu>
+      <StyledMenuIcon icon={icon} size="xs" />
+      {content}
+    </StyledMenu>
+  );
+}
+
+const StyledMenu = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: ${NAV_MENU_HEIGHT}px;
+`;
+const StyledMenuIcon = styled(Icon)`
+  color: ${THEME.sidebar.font};
+  width: ${NAV_MENU_INDENT}px;
+  text-align: center;
+`;
+const StyledMenuText = styled.div`
+  color: ${THEME.sidebar.font};
+  font-size: 0.8rem;
+`;
 
 export interface SidebarInputProps {
   store: Store;
@@ -88,6 +149,7 @@ const StyledFocusable = styled(Focusable)`
   flex-grow: 1;
 `;
 
+// Keep height consistent with sidebar item
 const StyledInput = styled.input`
   border: none;
   height: 16px;

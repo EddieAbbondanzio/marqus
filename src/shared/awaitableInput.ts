@@ -1,13 +1,12 @@
 import { Nullable } from "tsdef";
 import * as yup from "yup";
+import { ResourceType } from "./domain/types";
 
 export type InputMode = "create" | "update";
 
 export interface PromisedInput {
   id?: string;
   mode: InputMode;
-  initialValue: string;
-  // Render use only
   value: string;
   onChange: (value: string) => void;
   confirm: () => void;
@@ -15,6 +14,7 @@ export interface PromisedInput {
   validate: (value: string) => ValidateOutcome;
   completed: Promise<[value: string, action: AwaitableOutcome]>;
   parentId?: string;
+  resourceType: ResourceType;
 }
 type ValidateOutcome = { valid: true } | { valid: false; errors: string[] };
 
@@ -23,6 +23,7 @@ export type PromisedInputParams = {
   id?: string;
   schema: yup.StringSchema;
   parentId?: string;
+  resourceType: ResourceType;
 };
 export type AwaitableOutcome = "confirm" | "cancel";
 
@@ -74,7 +75,6 @@ export function createPromisedInput(
   const obj: PromisedInput = {
     id: params.id,
     mode,
-    initialValue: value,
     value,
     onChange: wrappedSetValue,
     confirm: confirm!,
@@ -82,6 +82,7 @@ export function createPromisedInput(
     validate,
     completed: promise,
     parentId: params.parentId,
+    resourceType: params.resourceType,
   };
 
   return obj;

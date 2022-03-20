@@ -1,3 +1,4 @@
+// This file is ignored by prettier (see .prettierignore)
 
 // TODO: Leave this here for now. It'll function as the default theme. Once
 // we're ready to support user defined themes we'll pull it down to main.
@@ -21,9 +22,8 @@ export const THEME = {
   },
 };
 
-export const w100 = css`
-  width: 100%;
-`;
+export const w100 = css`width: 100%;`;
+export const h100 = css`heigh: 100%;`;
 
 export const SPACERS = ["0.25rem", "0.5rem", "1rem", "2rem"];
 

@@ -45,9 +45,9 @@ export function getNoteSchema(): yup.SchemaOf<Note> {
       type: yup.string().required().equals(["note"]),
       name: yup
         .string()
-        .required()
-        .min(1, "Note name must be atleast 1 character")
-        .max(64, "Note name cannot be more than 64 characters"),
+        .required("Name is required.")
+        .min(1, "Note name must be atleast 1 character.")
+        .max(64, "Note name cannot be more than 64 characters."),
       // Note names don't need to be unique
       tags: yup.array().of(yup.string()).optional(),
       notebooks: yup.array().of(yup.string()).optional(),

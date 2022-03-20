@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 
 export interface ScrollableProps {
+  className?: string;
   scroll?: number;
   onScroll?: (scrollPos: number) => void;
 }
@@ -39,7 +40,7 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
   });
 
   return (
-    <StyledDiv onScroll={onScroll} ref={wrapper}>
+    <StyledDiv className={props.className} onScroll={onScroll} ref={wrapper}>
       {props.children}
     </StyledDiv>
   );

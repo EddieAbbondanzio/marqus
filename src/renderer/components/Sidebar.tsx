@@ -11,7 +11,7 @@ import { findParent } from "../utils/findParent";
 import { isResourceId, parseResourceId } from "../../shared/domain/id";
 import { Store, StoreControls, StoreListener } from "../store";
 import styled from "styled-components";
-import { THEME } from "../styling";
+import { h100, py1, THEME, w100 } from "../styling";
 import { clamp, head, isEmpty, orderBy, take } from "lodash";
 import {
   Note,
@@ -28,23 +28,35 @@ import {
   replaceChild,
 } from "../../shared/domain/notebook";
 import { SidebarItem } from "../../shared/domain/state";
-import { NOTEBOOK_ICON, NOTE_ICON } from "../libs/fontAwesome";
+import { NOTEBOOK_ICON, NOTE_ICON, RESOURCE_ICONS } from "../libs/fontAwesome";
 import {
   PromisedInputParams,
   createPromisedInput,
+  PromisedInput,
 } from "../../shared/awaitableInput";
 import { getTagSchema, getTagById, Tag } from "../../shared/domain/tag";
-import { NotFoundError, InvalidOpError } from "../../shared/errors";
+import {
+  NotFoundError,
+  InvalidOpError,
+  NotSupportedError,
+} from "../../shared/errors";
 import { MouseButton } from "../io/mouse";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
-import { SidebarInput } from "./SidebarInput";
+import {
+  NAV_MENU_ATTRIBUTE,
+  NAV_MENU_HEIGHT,
+  SidebarInput,
+  SidebarMenu,
+} from "./SidebarMenu";
+import {
+  faChevronDown,
+  faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
 
-export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
-export const NAV_MENU_HEIGHT = 24;
-export const NAV_MENU_INDENT = 16;
-
+const EXPANDED_ICON = faChevronDown;
+const COLLAPSED_ICON = faChevronRight;
 export interface SidebarProps {
   store: Store;
 }
@@ -54,7 +66,10 @@ export function Sidebar({ store }: SidebarProps) {
   const { sidebar } = store.state.ui;
   const { input, selected, expanded } = sidebar;
 
-  const items = useMemo(() => getItems(notes, notebooks), [notes, notebooks]);
+  const items = useMemo(
+    () => getItems(notes, notebooks),
+    [notes, notebooks, store.state]
+  );
 
   // Sanity check
   if (input != null && input.parentId != null) {
@@ -198,24 +213,29 @@ export function Sidebar({ store }: SidebarProps) {
     depth: number = 0
   ): JSX.Element[] => {
     let rendered: JSX.Element[] = [];
-
     for (const item of items) {
       let children;
       if (hasChildren(item, input)) {
         children = renderMenus(item.children ?? [], item, depth + 1);
       }
 
+      const [type] = parseResourceId(item.id);
+      let icon;
+      if (type === "notebook") {
+        icon = item.expanded ? EXPANDED_ICON : COLLAPSED_ICON;
+      } else {
+        icon = RESOURCE_ICONS[type];
+      }
+
       if (input?.mode === "update" && input.id === item.id) {
-        rendered
-          .push
-          // <SidebarInput
-          //   store={store}
-          //   key="create"
-          //   size="is-small"
-          //   {...input}
-          //   depth={depth}
-          // />
-          ();
+        rendered.push(
+          <SidebarMenu
+            store={store}
+            key="sidebarInput"
+            value={input}
+            icon={icon}
+          />
+        );
       } else {
         const isExpanded = expanded?.some((id) => id === item.id);
 
@@ -227,30 +247,25 @@ export function Sidebar({ store }: SidebarProps) {
           store.dispatch("sidebar.setSelection", [item.id]);
         };
 
-        rendered
-          .push
-          // <SidebarMenu
-          //   id={item.id}
-          //   key={item.id}
-          //   selected={selected?.some((s) => s === item.id)}
-          //   text={item.text}
-          //   onClick={onClick}
-          //   children={children}
-          //   icon={item.icon}
-          //   expanded={isExpanded}
-          //   depth={depth}
-          // />
-          ();
+        rendered.push(
+          <SidebarMenu
+            icon={icon}
+            key={item.id}
+            id={item.id}
+            value={item.text}
+          />
+        );
       }
     }
 
     if (input?.mode === "create") {
       if (input?.parentId == parent?.id) {
         rendered.push(
-          <SidebarInput
+          <SidebarMenu
             store={store}
             key="sidebarInput"
-            awaitableInput={input}
+            value={input}
+            icon={RESOURCE_ICONS[input.resourceType]}
           />
         );
       }
@@ -272,12 +287,12 @@ export function Sidebar({ store }: SidebarProps) {
           items={getContextMenuItems}
           store={store}
         >
-          <Scrollable
+          <StyledScrollable
             scroll={store.state.ui.sidebar.scroll}
             onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
           >
             {menus}
-          </Scrollable>
+          </StyledScrollable>
         </ContextMenu>
       </StyledFocusable>
     </StyledResizable>
@@ -289,8 +304,13 @@ const StyledResizable = styled(Resizable)`
 `;
 
 const StyledFocusable = styled(Focusable)`
-  width: 100%;
-  height: 100%;
+  ${w100}
+  ${h100}
+`;
+
+const StyledScrollable = styled(Scrollable)`
+  display: flex;
+  flex-direction: column;
 `;
 
 const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
@@ -363,7 +383,7 @@ const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
  * include nested inputs.
  * @returns True if there are any children or an input
  */
-export function hasChildren(item: SidebarItem, input?: any): boolean {
+export function hasChildren(item: SidebarItem, input?: PromisedInput): boolean {
   return Boolean(item.children?.length ?? 0 > 0) || item.id === input?.parentId;
 }
 
@@ -400,9 +420,7 @@ export function getItems(notes: Note[], notebooks: Notebook[]): SidebarItem[] {
     }
   };
 
-  notes
-    .filter(isEmpty)
-    .forEach((n) => items.push({ id: n.id, text: n.name, icon: NOTE_ICON }));
+  notes.forEach((n) => items.push({ id: n.id, text: n.name, icon: NOTE_ICON }));
   notebooks.forEach((n) => recursive(n));
 
   // Must be in kept in sync with getNotesForTag, and getNotesForNotebook
@@ -517,7 +535,12 @@ export const createNotebook: StoreListener<"sidebar.createNotebook"> = async (
   }
 
   let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
-  let inputParams: PromisedInputParams = { value: "", schema, parentId };
+  let inputParams: PromisedInputParams = {
+    value: "",
+    schema,
+    parentId,
+    resourceType: "notebook",
+  };
 
   let input = createPromisedInput(inputParams, setExplorerInput(ctx));
 
@@ -580,6 +603,7 @@ export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
       id,
       value: name,
       schema,
+      resourceType: "notebook",
     },
     setExplorerInput(ctx)
   );
@@ -682,6 +706,7 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
     {
       schema,
       parentId,
+      resourceType: "note",
     },
     setExplorerInput(ctx)
   );
@@ -730,6 +755,7 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
     id,
     value,
     schema,
+    resourceType: "note",
   };
 
   let input = createPromisedInput(inputParams, setExplorerInput(ctx));
