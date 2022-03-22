@@ -6,7 +6,6 @@ import { isBlank } from "../utils";
 
 export interface Notebook extends Resource<"notebook"> {
   name: string;
-  expanded?: boolean;
   parent?: Notebook;
   children?: Notebook[];
 }

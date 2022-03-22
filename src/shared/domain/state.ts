@@ -41,7 +41,6 @@ export interface SidebarItem {
   text: string;
   children?: SidebarItem[];
   icon?: IconDefinition;
-  expanded?: boolean;
   depth: number;
 }
 

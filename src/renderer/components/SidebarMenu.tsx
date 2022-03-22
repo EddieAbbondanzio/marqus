@@ -37,10 +37,7 @@ export function SidebarMenu(props: SidebarMenuProps) {
   let content;
   if (typeof props.value === "string") {
     content = (
-      <StyledMenuText
-        {...{ [SIDEBAR_MENU_ATTRIBUTE]: (props as any).id }}
-        onClick={(props as any).onClick}
-      >
+      <StyledMenuText {...{ [SIDEBAR_MENU_ATTRIBUTE]: (props as any).id }}>
         {props.value}
       </StyledMenuText>
     );
@@ -57,14 +54,14 @@ export function SidebarMenu(props: SidebarMenuProps) {
   // TODO: Really fix this. It's sloppy.
   if ((props as any).isSelected) {
     return (
-      <SelectedMenu style={{ paddingLeft }}>
+      <SelectedMenu style={{ paddingLeft }} onClick={(props as any).onClick}>
         <StyledMenuIcon icon={icon} size="xs" />
         {content}
       </SelectedMenu>
     );
   } else {
     return (
-      <StyledMenu style={{ paddingLeft }}>
+      <StyledMenu style={{ paddingLeft }} onClick={(props as any).onClick}>
         <StyledMenuIcon icon={icon} size="xs" />
         {content}
       </StyledMenu>

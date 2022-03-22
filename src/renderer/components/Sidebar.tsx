@@ -69,8 +69,8 @@ export function Sidebar({ store }: SidebarProps) {
   const expandedLookup = keyBy(sidebar.expanded, (e) => e);
   const selectedLookup = keyBy(sidebar.selected, (s) => s);
 
-  const items = useMemo(
-    () => getItems(notes, notebooks),
+  const [items, itemsFlat] = useMemo(
+    () => getItems(notes, notebooks, expandedLookup),
     [notes, notebooks, store.state]
   );
 
@@ -122,7 +122,7 @@ export function Sidebar({ store }: SidebarProps) {
             selected = undefined;
           } else {
             // HACK
-            selected = [items.find((i) => i.id === value[0])!];
+            selected = [itemsFlat.find((i) => i.id === value[0])!];
           }
           break;
       }
@@ -272,9 +272,7 @@ export function Sidebar({ store }: SidebarProps) {
 
     return rendered;
   };
-  const itemsFlat = flatMapDeep(items, (item) =>
-    item.children != null ? [item, ...item.children] : [item]
-  );
+
   const menus = renderMenus(itemsFlat);
 
   return (
@@ -389,7 +387,11 @@ export function hasChildren(item: SidebarItem, input?: PromisedInput): boolean {
   return Boolean(item.children?.length ?? 0 > 0) || item.id === input?.parentId;
 }
 
-export function getItems(notes: Note[], notebooks: Notebook[]): SidebarItem[] {
+export function getItems(
+  notes: Note[],
+  notebooks: Notebook[],
+  expandedLookup: Record<string, any>
+): [SidebarItem[], SidebarItem[]] {
   let items: SidebarItem[] = [];
 
   const recursive = (n: Notebook, parent?: SidebarItem, depth?: number) => {
@@ -406,16 +408,18 @@ export function getItems(notes: Note[], notebooks: Notebook[]): SidebarItem[] {
     }
 
     // Children are listed after nested notebooks
-    const notebookNotes = getNotesForNotebook(notes, n);
-    item.children ??= [];
-    item.children.push(
-      ...notebookNotes.map((n) => ({
-        id: n.id,
-        text: n.name,
-        icon: NOTE_ICON,
-        depth: currDepth + 1,
-      }))
-    );
+    if (expandedLookup[n.id] != null) {
+      const notebookNotes = getNotesForNotebook(notes, n);
+      item.children ??= [];
+      item.children.push(
+        ...notebookNotes.map((n) => ({
+          id: n.id,
+          text: n.name,
+          icon: NOTE_ICON,
+          depth: currDepth + 1,
+        }))
+      );
+    }
 
     if (parent == null) {
       items.push(item);
@@ -433,7 +437,12 @@ export function getItems(notes: Note[], notebooks: Notebook[]): SidebarItem[] {
   notebooks.forEach((n) => recursive(n));
 
   // Must be kept in sync with getNotesForTag, and getNotesForNotebook
-  return orderBy(items, ["name"]);
+  const sorted = orderBy(items, ["name"]);
+  const sortedFlat = flatMapDeep(items, (item) =>
+    item.children != null ? [item, ...item.children] : [item]
+  );
+
+  return [sorted, sortedFlat];
 }
 
 export const resizeWidth: StoreListener<"sidebar.resizeWidth"> = (
