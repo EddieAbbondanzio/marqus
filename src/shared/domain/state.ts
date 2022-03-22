@@ -42,6 +42,7 @@ export interface SidebarItem {
   children?: SidebarItem[];
   icon?: IconDefinition;
   expanded?: boolean;
+  depth: number;
 }
 
 export interface Editor {

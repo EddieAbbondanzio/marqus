@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo } from "react";
 import { px } from "../../shared/dom";
 import {
   ContextMenu,
@@ -11,8 +11,16 @@ import { findParent } from "../utils/findParent";
 import { isResourceId, parseResourceId } from "../../shared/domain/id";
 import { Store, StoreControls, StoreListener } from "../store";
 import styled from "styled-components";
-import { h100, py1, THEME, w100 } from "../styling";
-import { clamp, head, isEmpty, orderBy, take } from "lodash";
+import { h100, THEME, w100 } from "../styling";
+import {
+  clamp,
+  flatMapDeep,
+  head,
+  isEmpty,
+  keyBy,
+  orderBy,
+  take,
+} from "lodash";
 import {
   Note,
   getNotesForNotebook,
@@ -34,20 +42,13 @@ import {
   createPromisedInput,
   PromisedInput,
 } from "../../shared/awaitableInput";
-import { getTagSchema, getTagById, Tag } from "../../shared/domain/tag";
-import {
-  NotFoundError,
-  InvalidOpError,
-  NotSupportedError,
-} from "../../shared/errors";
-import { MouseButton } from "../io/mouse";
+import { NotFoundError } from "../../shared/errors";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
 import {
-  NAV_MENU_ATTRIBUTE,
-  NAV_MENU_HEIGHT,
-  SidebarInput,
+  SIDEBAR_MENU_ATTRIBUTE,
+  SIDEBAR_MENU_HEIGHT,
   SidebarMenu,
 } from "./SidebarMenu";
 import {
@@ -64,7 +65,9 @@ export interface SidebarProps {
 export function Sidebar({ store }: SidebarProps) {
   const { notes, notebooks } = store.state;
   const { sidebar } = store.state.ui;
-  const { input, selected, expanded } = sidebar;
+  const { input } = sidebar;
+  const expandedLookup = keyBy(sidebar.expanded, (e) => e);
+  const selectedLookup = keyBy(sidebar.selected, (s) => s);
 
   const items = useMemo(
     () => getItems(notes, notebooks),
@@ -81,14 +84,13 @@ export function Sidebar({ store }: SidebarProps) {
   }
 
   useEffect(() => {
-    store.on("sidebar.resizeWidth", resizeWidth);
     const getNext = (increment: number) => {
-      if (isEmpty(selected)) {
+      if (isEmpty(sidebar.selected)) {
         return take(items, 1);
       }
       let next = 0;
       let curr = 0;
-      const firstSelected = head(selected)!;
+      const firstSelected = head(sidebar.selected)!;
       curr = items.findIndex((s) => s.id === firstSelected);
       if (curr === -1) {
         throw new NotFoundError(`No selectable ${firstSelected} found`);
@@ -162,6 +164,7 @@ export function Sidebar({ store }: SidebarProps) {
       });
     };
 
+    store.on("sidebar.resizeWidth", resizeWidth);
     store.on("sidebar.scrollUp", scrollUp);
     store.on("sidebar.scrollDown", scrollDown);
     store.on("sidebar.updateScroll", updateScroll);
@@ -209,20 +212,15 @@ export function Sidebar({ store }: SidebarProps) {
   // Recursively renders
   const renderMenus = (
     items: SidebarItem[],
-    parent?: SidebarItem,
-    depth: number = 0
+    parent?: SidebarItem
   ): JSX.Element[] => {
-    let rendered: JSX.Element[] = [];
-    for (const item of items) {
-      let children;
-      if (hasChildren(item, input)) {
-        children = renderMenus(item.children ?? [], item, depth + 1);
-      }
+    const rendered: JSX.Element[] = [];
 
+    for (const item of items) {
       const [type] = parseResourceId(item.id);
       let icon;
       if (type === "notebook") {
-        icon = item.expanded ? EXPANDED_ICON : COLLAPSED_ICON;
+        icon = expandedLookup[item.id] != null ? EXPANDED_ICON : COLLAPSED_ICON;
       } else {
         icon = RESOURCE_ICONS[type];
       }
@@ -234,16 +232,13 @@ export function Sidebar({ store }: SidebarProps) {
             key="sidebarInput"
             value={input}
             icon={icon}
+            isSelected={Boolean(selectedLookup[input.id])}
+            depth={item.depth}
           />
         );
       } else {
-        const isExpanded = expanded?.some((id) => id === item.id);
-
-        const onClick = (button: MouseButton) => {
-          if (button & MouseButton.Left && hasChildren(item, input)) {
-            store.dispatch("sidebar.toggleItemExpanded", item.id);
-          }
-          // We always want to do this
+        const onClick = () => {
+          store.dispatch("sidebar.toggleItemExpanded", item.id);
           store.dispatch("sidebar.setSelection", [item.id]);
         };
 
@@ -253,6 +248,9 @@ export function Sidebar({ store }: SidebarProps) {
             key={item.id}
             id={item.id}
             value={item.text}
+            onClick={onClick}
+            isSelected={Boolean(selectedLookup[item.id])}
+            depth={item.depth}
           />
         );
       }
@@ -266,6 +264,7 @@ export function Sidebar({ store }: SidebarProps) {
             key="sidebarInput"
             value={input}
             icon={RESOURCE_ICONS[input.resourceType]}
+            depth={0}
           />
         );
       }
@@ -273,7 +272,10 @@ export function Sidebar({ store }: SidebarProps) {
 
     return rendered;
   };
-  const menus = renderMenus(items);
+  const itemsFlat = flatMapDeep(items, (item) =>
+    item.children != null ? [item, ...item.children] : [item]
+  );
+  const menus = renderMenus(itemsFlat);
 
   return (
     <StyledResizable
@@ -329,9 +331,9 @@ const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
 
   const target = findParent(
     a.target as HTMLElement,
-    (el) => el.hasAttribute(NAV_MENU_ATTRIBUTE),
+    (el) => el.hasAttribute(SIDEBAR_MENU_ATTRIBUTE),
     {
-      matchValue: (el) => el.getAttribute(NAV_MENU_ATTRIBUTE),
+      matchValue: (el) => el.getAttribute(SIDEBAR_MENU_ATTRIBUTE),
     }
   );
   if (target == null) {
@@ -390,25 +392,28 @@ export function hasChildren(item: SidebarItem, input?: PromisedInput): boolean {
 export function getItems(notes: Note[], notebooks: Notebook[]): SidebarItem[] {
   let items: SidebarItem[] = [];
 
-  const recursive = (n: Notebook, parent?: SidebarItem) => {
+  const recursive = (n: Notebook, parent?: SidebarItem, depth?: number) => {
+    const currDepth = depth ?? 0;
     const item: SidebarItem = {
       id: n.id,
       text: n.name,
       icon: NOTEBOOK_ICON,
+      depth: currDepth,
     };
 
     if (n.children != null && n.children.length > 0) {
-      n.children.forEach((n) => recursive(n, item));
+      n.children.forEach((n) => recursive(n, item, currDepth + 1));
     }
 
     // Children are listed after nested notebooks
-    const itemNotes = getNotesForNotebook(notes, n);
+    const notebookNotes = getNotesForNotebook(notes, n);
     item.children ??= [];
     item.children.push(
-      ...itemNotes.map((n) => ({
+      ...notebookNotes.map((n) => ({
         id: n.id,
         text: n.name,
         icon: NOTE_ICON,
+        depth: currDepth + 1,
       }))
     );
 
@@ -420,10 +425,14 @@ export function getItems(notes: Note[], notebooks: Notebook[]): SidebarItem[] {
     }
   };
 
-  notes.forEach((n) => items.push({ id: n.id, text: n.name, icon: NOTE_ICON }));
+  notes
+    .filter((n) => isEmpty(n.notebooks))
+    .forEach((n) =>
+      items.push({ id: n.id, text: n.name, icon: NOTE_ICON, depth: 0 })
+    );
   notebooks.forEach((n) => recursive(n));
 
-  // Must be in kept in sync with getNotesForTag, and getNotesForNotebook
+  // Must be kept in sync with getNotesForTag, and getNotesForNotebook
   return orderBy(items, ["name"]);
 }
 
@@ -459,7 +468,7 @@ export const updateScroll: StoreListener<"sidebar.updateScroll"> = (
 
 export const scrollUp: StoreListener<"sidebar.scrollUp"> = (_, { setUI }) => {
   setUI((prev) => {
-    const scroll = Math.max(prev.sidebar.scroll - NAV_MENU_HEIGHT, 0);
+    const scroll = Math.max(prev.sidebar.scroll - SIDEBAR_MENU_HEIGHT, 0);
     return {
       sidebar: {
         scroll,
@@ -474,7 +483,7 @@ export const scrollDown: StoreListener<"sidebar.scrollDown"> = (
 ) => {
   setUI((prev) => {
     // Max scroll clamp is performed in scrollable.
-    const scroll = prev.sidebar.scroll + NAV_MENU_HEIGHT;
+    const scroll = prev.sidebar.scroll + SIDEBAR_MENU_HEIGHT;
     return {
       sidebar: {
         scroll,

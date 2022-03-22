@@ -3,6 +3,7 @@ import OpenColor from "open-color";
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/awaitableInput";
+import { px } from "../../shared/dom";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
@@ -10,28 +11,36 @@ import { mt1, p1, pr1, py1, THEME } from "../styling";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 
-export const NAV_MENU_ATTRIBUTE = "data-nav-menu";
-export const NAV_MENU_HEIGHT = 24;
-export const NAV_MENU_INDENT = 12;
+export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
+export const SIDEBAR_MENU_HEIGHT = 24;
+export const SIDEBAR_MENU_INDENT = 12;
 
 export type SidebarMenuProps = SidebarMenuInput | SidebarMenuText;
-interface SidebarMenuInput {
-  store: Store;
+interface BaseProps {
   icon: IconDefinition;
+  depth: number;
+}
+interface SidebarMenuInput extends BaseProps {
+  store: Store;
   value: PromisedInput;
 }
-interface SidebarMenuText {
-  icon: IconDefinition;
+interface SidebarMenuText extends BaseProps {
   id: string;
   value: string;
+  isSelected: boolean;
+  onClick: () => void;
 }
 
 export function SidebarMenu(props: SidebarMenuProps) {
+  const paddingLeft = px(props.depth * SIDEBAR_MENU_INDENT);
   const { value, icon } = props;
   let content;
   if (typeof props.value === "string") {
     content = (
-      <StyledMenuText {...{ [NAV_MENU_ATTRIBUTE]: (props as any).id }}>
+      <StyledMenuText
+        {...{ [SIDEBAR_MENU_ATTRIBUTE]: (props as any).id }}
+        onClick={(props as any).onClick}
+      >
         {props.value}
       </StyledMenuText>
     );
@@ -45,25 +54,46 @@ export function SidebarMenu(props: SidebarMenuProps) {
     );
   }
 
-  return (
-    <StyledMenu>
-      <StyledMenuIcon icon={icon} size="xs" />
-      {content}
-    </StyledMenu>
-  );
+  // TODO: Really fix this. It's sloppy.
+  if ((props as any).isSelected) {
+    return (
+      <SelectedMenu style={{ paddingLeft }}>
+        <StyledMenuIcon icon={icon} size="xs" />
+        {content}
+      </SelectedMenu>
+    );
+  } else {
+    return (
+      <StyledMenu style={{ paddingLeft }}>
+        <StyledMenuIcon icon={icon} size="xs" />
+        {content}
+      </StyledMenu>
+    );
+  }
 }
+
+// TODO: Fix this.
+const SelectedMenu = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: ${SIDEBAR_MENU_HEIGHT}px;
+  background-color: ${THEME.sidebar.selected};
+`;
 
 const StyledMenu = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: ${NAV_MENU_HEIGHT}px;
+  height: ${SIDEBAR_MENU_HEIGHT}px;
 `;
+
 const StyledMenuIcon = styled(Icon)`
   color: ${THEME.sidebar.font};
-  width: ${NAV_MENU_INDENT}px;
+  width: ${SIDEBAR_MENU_INDENT}px;
   text-align: center;
 `;
+
 const StyledMenuText = styled.div`
   color: ${THEME.sidebar.font};
   font-size: 0.8rem;

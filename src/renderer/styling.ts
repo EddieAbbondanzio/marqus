@@ -16,6 +16,7 @@ export const THEME = {
     highlight: HIGHLIGHT,
   },
   sidebar: {
+    selected: OpenColor.gray[7],
     background: OpenColor.gray[9],
     inputsBackground: OpenColor.gray[7],
     font: OpenColor.gray[3],
