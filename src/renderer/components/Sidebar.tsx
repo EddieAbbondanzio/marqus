@@ -91,13 +91,13 @@ export function Sidebar({ store }: SidebarProps) {
       let next = 0;
       let curr = 0;
       const firstSelected = head(sidebar.selected)!;
-      curr = items.findIndex((s) => s.id === firstSelected);
+      curr = itemsFlat.findIndex((s) => s.id === firstSelected);
       if (curr === -1) {
         throw new NotFoundError(`No selectable ${firstSelected} found`);
       }
 
-      next = clamp(curr + increment, 0, items.length - 1);
-      return items.slice(next, next + 1);
+      next = clamp(curr + increment, 0, itemsFlat.length - 1);
+      return itemsFlat.slice(next, next + 1);
     };
 
     const updateSelected: StoreListener<
