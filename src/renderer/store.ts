@@ -41,6 +41,7 @@ export interface Events {
   "editor.save": void;
   "editor.toggleView": void;
   "editor.setContent": string;
+  "editor.loadNote": string;
 
   // Focus Tracker
   "focus.push": Section;
@@ -169,7 +170,6 @@ export function useStore(initialState: State): Store {
     });
   };
   const setShortcuts: SetShortcuts = (transformer) => {
-    console.log("setShortcuts()");
     setState((prevState) => ({
       ...prevState,
       shortcuts: transformer(prevState.shortcuts),

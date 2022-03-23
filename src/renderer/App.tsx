@@ -14,7 +14,6 @@ import { isProduction, isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
-import OpenColor from "open-color";
 import styled from "styled-components";
 
 const { ipc } = window;
@@ -81,6 +80,8 @@ if (!isTest()) {
 const Container = styled.div`
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: row;
 `;
 
 async function loadInitialState(): Promise<State> {

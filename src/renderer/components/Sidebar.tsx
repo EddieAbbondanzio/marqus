@@ -107,8 +107,6 @@ export function Sidebar({ store }: SidebarProps) {
       | "sidebar.setSelection"
     > = async ({ type, value }, { setUI }) => {
       let selected: SidebarItem[] | undefined;
-      let content: string | undefined;
-      let noteId: string | undefined;
 
       switch (type) {
         case "sidebar.moveSelectionDown":
@@ -127,40 +125,10 @@ export function Sidebar({ store }: SidebarProps) {
           break;
       }
 
-      if (selected != null && selected.length == 1) {
-        const [firstSelected] = selected;
-        if (firstSelected == null) {
-          return;
-        }
-        const [type, id] = parseResourceId(firstSelected.id);
-
-        if (type === "note") {
-          content =
-            (await window.ipc("notes.loadContent", firstSelected.id)) ??
-            undefined;
-          noteId = firstSelected.id;
-        }
-      }
-
-      setUI((prev) => {
-        const next = {
-          ...prev,
-        };
-
-        if (noteId != null) {
-          if (content == null) {
-            throw new Error(
-              `Cannot load note content. Content was null for ${noteId}`
-            );
-          }
-
-          next.editor.content = content;
-          next.editor.noteId = noteId;
-        }
-
-        // TODO: Add multiple select support
-        next.sidebar.selected = [selected![0].id];
-        return next;
+      setUI({
+        sidebar: {
+          selected: selected == null ? undefined : [selected[0].id],
+        },
       });
     };
 
