@@ -143,6 +143,10 @@ export function useStore(initialState: State): Store {
         delete clonedUI.sidebar.input;
         delete clonedUI.sidebar.selected;
       }
+      if (clonedUI?.editor != null) {
+        delete clonedUI.editor.content;
+        delete clonedUI.editor.noteId;
+      }
 
       void window.ipc("app.saveUIState", clonedUI);
       return newState;
