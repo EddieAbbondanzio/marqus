@@ -33,9 +33,8 @@ export function Resizable(
     const minWidth = props.minWidth ?? px(100);
     const minWidthInt = getPx(minWidth);
 
-    console.log("mouse x: ", event.clientX);
-    const width = px(Math.max(minWidthInt, event.clientX));
-    setWidth(width);
+    const newWidth = px(Math.max(minWidthInt, event.clientX));
+    setWidth(newWidth);
   });
   mouse.listen("dragEnd", () => {
     props.onResize(width);
