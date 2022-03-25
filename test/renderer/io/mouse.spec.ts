@@ -1,10 +1,8 @@
-import { MouseEvent } from "react";
 import {
   DEFAULT_CURSOR,
   getDetails,
   MouseButton,
   MouseController,
-  MouseEventOpts,
   MouseModifier,
 } from "../../../src/renderer/io/mouse";
 
@@ -17,7 +15,7 @@ describe("MouseController", () => {
     const c = new MouseController();
     const cb = jest.fn();
 
-    c.listen({ event: "click", modifier: MouseModifier.Control }, cb);
+    c.listen("click", { modifier: MouseModifier.Control }, cb);
     expect(c.listeners["click"]).toEqual({
       callback: cb,
       button: MouseButton.Any,
@@ -29,7 +27,7 @@ describe("MouseController", () => {
     const c = new MouseController();
     const cb = jest.fn();
 
-    c.listen({ event: "dragEnd" }, cb);
+    c.listen("dragEnd", cb);
     expect(c.listeners["dragEnd"]).toEqual({
       callback: cb,
     });
@@ -38,7 +36,7 @@ describe("MouseController", () => {
   test("it defaults click listener opts", () => {
     const c = new MouseController();
     const cb = jest.fn();
-    c.listen({ event: "click" }, cb);
+    c.listen("click", cb);
 
     const listener = c.listeners["click"];
     expect(listener).not.toBe(null);
@@ -50,7 +48,7 @@ describe("MouseController", () => {
     const c = new MouseController();
     const cb = jest.fn();
 
-    c.listen({ event: "click", button: MouseButton.Left }, cb);
+    c.listen("click", { button: MouseButton.Left }, cb);
     expect(c.listeners["click"]).toEqual({
       callback: cb,
       button: MouseButton.Left,
@@ -67,7 +65,7 @@ describe("MouseController", () => {
     const c = new MouseController();
     const cb = jest.fn();
 
-    c.listen({ event: "click", button: MouseButton.Right }, cb);
+    c.listen("click", { button: MouseButton.Right }, cb);
     expect(c.listeners["click"]).toEqual({
       callback: cb,
       button: MouseButton.Right,
@@ -81,7 +79,7 @@ describe("MouseController", () => {
     const c = new MouseController();
     const cb = jest.fn();
 
-    c.listen({ event: "click", button: MouseButton.Left }, cb);
+    c.listen("click", { button: MouseButton.Left }, cb);
     expect(c.listeners["click"]).toEqual({
       callback: cb,
       button: MouseButton.Left,

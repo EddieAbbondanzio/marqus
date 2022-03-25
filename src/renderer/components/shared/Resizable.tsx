@@ -28,46 +28,41 @@ export function Resizable(
   const handle = useRef(null! as HTMLDivElement);
   const mouse = useMouse(handle);
 
-  mouse.listen({ event: "dragStart" }, () => mouse.setCursor("col-resize"));
-  mouse.listen({ event: "dragMove" }, (event: MouseEvent) => {
+  mouse.listen("dragStart", () => mouse.setCursor("col-resize"));
+  mouse.listen("dragMove", (event: MouseEvent) => {
     const minWidth = props.minWidth ?? px(100);
     const minWidthInt = getPx(minWidth);
 
-    const containerOffsetLeft = wrapper.current.offsetLeft;
-    const pointerRelativeXpos = event.clientX - containerOffsetLeft;
-
-    const width = px(Math.max(minWidthInt, pointerRelativeXpos));
+    console.log("mouse x: ", event.clientX);
+    const width = px(Math.max(minWidthInt, event.clientX));
     setWidth(width);
   });
-  mouse.listen({ event: "dragEnd" }, () => {
+  mouse.listen("dragEnd", () => {
     props.onResize(width);
     mouse.resetCursor();
   });
-  mouse.listen({ event: "dragCancel" }, () => {
+  mouse.listen("dragCancel", () => {
     // Reset it but don't notify prop onResize.
     setWidth(props.width);
     mouse.resetCursor();
   });
 
+  const style = {
+    height: "100%",
+    minWidth: props.minWidth,
+    display: "flex",
+    flex: `0 0 ${width}`,
+    flexGrow: 1,
+  };
+  console.log(width);
+
   return (
-    <Wrapper
-      className={props.className}
-      width={width}
-      minWidth={props.minWidth}
-      ref={wrapper}
-    >
+    <div className={props.className} ref={wrapper} style={style}>
       {props.children}
       <Handle ref={handle}>&nbsp;</Handle>
-    </Wrapper>
+    </div>
   );
 }
-
-const Wrapper = styled.div<Pick<ResizableProps, "width" | "minWidth">>`
-  display: flex;
-  height: 100%;
-  width: ${(props) => props.width};
-  min-width: ${(props) => props.minWidth};
-`;
 
 const Handle = styled.div`
   cursor: ew-resize;

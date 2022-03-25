@@ -76,42 +76,36 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
   const [lastMoused, setLastMoused] = useState<ContextMenuEntry | undefined>();
 
   // Listen for when to display the menu
-  useMouse(wrapperRef).listen(
-    { event: "click", button: MouseButton.Right },
-    (ev) => {
-      const { clientX: left, clientY: top } = ev;
+  useMouse(wrapperRef).listen("click", { button: MouseButton.Right }, (ev) => {
+    const { clientX: left, clientY: top } = ev;
 
-      if (position != null) {
-        return;
-      }
-
-      setPosition({
-        top,
-        left,
-      });
-      setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
-      setSelected(undefined);
-      setLastMoused(undefined);
-      props.store.dispatch("focus.push", "contextMenu");
+    if (position != null) {
+      return;
     }
-  );
+
+    setPosition({
+      top,
+      left,
+    });
+    setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
+    setSelected(undefined);
+    setLastMoused(undefined);
+    props.store.dispatch("focus.push", "contextMenu");
+  });
 
   // Listen for external click to blur menu
-  useMouse(window).listen(
-    { event: "click", button: MouseButton.Left },
-    (ev) => {
-      if (position != null) {
-        const menu = findParent(ev.target as HTMLElement, (el) =>
-          el.classList.contains("context-menu")
-        );
+  useMouse(window).listen("click", (ev) => {
+    if (position != null) {
+      const menu = findParent(ev.target as HTMLElement, (el) =>
+        el.classList.contains("context-menu")
+      );
 
-        if (!menu) {
-          setPosition(undefined);
-          props.store.dispatch("focus.pop");
-        }
+      if (!menu) {
+        setPosition(undefined);
+        props.store.dispatch("focus.pop");
       }
     }
-  );
+  });
 
   const dispatchAndHide = async <EType extends EventType>(
     event: EType,

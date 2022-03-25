@@ -268,6 +268,7 @@ export function Sidebar({ store }: SidebarProps) {
 }
 
 const StyledResizable = styled(Resizable)`
+  user-select: none;
   background-color: ${THEME.sidebar.background};
 `;
 
