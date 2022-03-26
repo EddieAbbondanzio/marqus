@@ -1,3 +1,4 @@
+import OpenColor from "open-color";
 import React from "react";
 import styled from "styled-components";
 import { mb2, mb3 } from "../css";
@@ -15,7 +16,8 @@ export function DataDirectoryModal() {
         </StyledP>
 
         <Button
-          color="is-success"
+          color={OpenColor.white}
+          backgroundColor={OpenColor.green[6]}
           onClick={() => window.ipc("config.selectDataDirectory")}
         >
           Select a directory

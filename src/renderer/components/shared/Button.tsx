@@ -1,55 +1,19 @@
 import React, { PropsWithChildren } from "react";
-
-export type ButtonColor =
-  | "is-primary"
-  | "is-link"
-  | "is-info"
-  | "is-success"
-  | "is-warning"
-  | "is-danger"
-  | "is-white"
-  | "is-light"
-  | "is-dark"
-  | "is-black";
-
-export type BulmaSize = "is-small" | "is-normal" | "is-medium" | "is-large";
+import styled from "styled-components";
+import { p2, p3, rounded } from "../../css";
 
 export type ButtonType = "submit" | "reset" | "button";
 
 export interface ButtonProps {
-  onClick?: () => any;
-  type?: ButtonType;
-  size?: BulmaSize;
-  color?: ButtonColor | "is-text" | "is-ghost";
-  isInverted?: boolean;
-  isOutlined?: boolean;
-  isRounded?: boolean;
-  isLoading?: boolean;
-  className?: string;
-  title?: string;
+  color?: string;
+  backgroundColor?: string;
 }
 
-export function Button(props: PropsWithChildren<ButtonProps>) {
-  // const classes = classList(
-  //   "button",
-  //   props.className,
-  //   props.color,
-  //   props.size,
-  //   {
-  //     "is-inverted": props.isInverted,
-  //     "is-outlined": props.isOutlined,
-  //     "is-rounded": props.isRounded,
-  //     "is-loading": props.isLoading,
-  //   }
-  // );
-
-  return (
-    <button
-      title={props.title}
-      type={props.type ?? "button"}
-      onClick={props.onClick}
-    >
-      {props.children}
-    </button>
-  );
-}
+export const Button = styled.button<ButtonProps>`
+  cursor: pointer;
+  border: none;
+  color: ${(props) => props.color};
+  background-color: ${(props) => props.backgroundColor};
+  ${p2};
+  ${rounded};
+`;
