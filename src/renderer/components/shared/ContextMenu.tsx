@@ -247,7 +247,7 @@ const StyledMenu = styled.div.attrs({
   tabIndex: -1,
   // Used to check if a click was inside the menu or not.
   className: "context-menu",
-})`
+})` 
   border: 1px solid ${THEME.contextMenu.border};
   background-color: ${THEME.contextMenu.background};
   position: absolute;
