@@ -2,7 +2,7 @@ import { BrowserWindow, dialog, IpcMain } from "electron";
 import { UI } from "../../shared/domain/state";
 import { IpcHandler, IpcRegistry } from "../../shared/ipc";
 import * as yup from "yup";
-import { px } from "../../shared/dom";
+import { px } from "../../renderer/utils/dom";
 import { createFileHandler, getPathInDataDirectory } from "../fileHandler";
 import { IpcPlugin } from "../types";
 import { Config } from "../../shared/domain/config";

@@ -1,5 +1,4 @@
 import React, { PropsWithChildren } from "react";
-// import { classList } from "../../../shared/dom";
 
 export type ButtonColor =
   | "is-primary"

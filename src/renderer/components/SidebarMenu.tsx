@@ -3,11 +3,11 @@ import OpenColor from "open-color";
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/awaitableInput";
-import { px } from "../../shared/dom";
+import { px } from "../utils/dom";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
-import { mt1, p1, pr1, py1, THEME } from "../styling";
+import { mt1, p1, pr1, py1, THEME } from "../css";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { px } from "../../shared/dom";
+import { px } from "../utils/dom";
 import {
   ContextMenu,
   ContextMenuItem,
@@ -11,7 +11,7 @@ import { findParent } from "../utils/findParent";
 import { isResourceId, parseResourceId } from "../../shared/domain/id";
 import { Store, StoreControls, StoreListener } from "../store";
 import styled from "styled-components";
-import { h100, THEME, w100 } from "../styling";
+import { h100, THEME, w100 } from "../css";
 import {
   clamp,
   flatMapDeep,

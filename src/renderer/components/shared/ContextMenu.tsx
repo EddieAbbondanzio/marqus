@@ -7,7 +7,7 @@ import { EventType, EventValue, Store } from "../../store";
 import { Section } from "../../../shared/domain/state";
 import { isDevelopment } from "../../../shared/env";
 import styled from "styled-components";
-import { px2, py1, THEME } from "../../styling";
+import { px2, py1, THEME } from "../../css";
 import { findNext, findPrevious } from "../../../shared/utils";
 
 // These will appear at the bottom of the menu

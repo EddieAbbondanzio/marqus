@@ -4,7 +4,7 @@ import {
   FontAwesomeIconProps,
 } from "@fortawesome/react-fontawesome";
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import { m1 } from "../../styling";
+import { m1 } from "../../css";
 import styled from "styled-components";
 
 export interface IconProps {

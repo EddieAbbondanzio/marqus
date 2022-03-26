@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useRef, useState } from "react";
 import styled from "styled-components";
-import { getPx, isPx, px } from "../../../shared/dom";
+import { getPx, isPx, px } from "../../utils/dom";
 import { useMouse } from "../../io/mouse";
 
 export interface ResizableProps {

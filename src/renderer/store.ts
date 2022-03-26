@@ -1,4 +1,4 @@
-import { Coord } from "../shared/dom";
+import { Coord } from "./utils/dom";
 import { Section, State, UI } from "../shared/domain/state";
 import { StartsWith } from "./types";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";

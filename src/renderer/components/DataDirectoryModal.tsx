@@ -1,25 +1,37 @@
 import React from "react";
+import styled from "styled-components";
+import { mb2, mb3 } from "../css";
 import { Button } from "./shared/Button";
+import { Header } from "./shared/Header";
+import { Modal } from "./shared/Modal";
 
 export function DataDirectoryModal() {
   return (
-    <div className="modal is-active">
-      <div className="modal-background"></div>
-      <div className="modal-content box">
-        <div className="is-flex is-flex-direction-column is-align-items-center">
-          <h1 className="is-size-2">Welcome!</h1>
-          <p className="mb-3">
-            Please select where you'd like to save your notes to get started
-          </p>
+    <Modal>
+      <Content>
+        <Header size={1}>Welcome!</Header>
+        <StyledP>
+          Please select where you'd like to save your notes to get started
+        </StyledP>
 
-          <Button
-            color="is-success"
-            onClick={() => window.ipc("config.selectDataDirectory")}
-          >
-            Select a directory
-          </Button>
-        </div>
-      </div>
-    </div>
+        <Button
+          color="is-success"
+          onClick={() => window.ipc("config.selectDataDirectory")}
+        >
+          Select a directory
+        </Button>
+      </Content>
+    </Modal>
   );
 }
+
+export const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+`;
+
+export const StyledP = styled.p`
+  ${mb3}
+`;

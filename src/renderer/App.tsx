@@ -19,10 +19,10 @@ import styled from "styled-components";
 const { ipc } = window;
 async function main() {
   let initialState: State;
-  let needDataDirectory = false;
+  let needDataDirectory = true;
 
   try {
-    needDataDirectory = !(await ipc("config.hasDataDirectory"));
+    // needDataDirectory = !(await ipc("config.hasDataDirectory"));
     initialState = await loadInitialState();
   } catch (e) {
     console.error("Fatal Error", e);

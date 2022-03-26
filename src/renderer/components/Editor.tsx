@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { parseResourceId } from "../../shared/domain/id";
 import { InvalidOpError } from "../../shared/errors";
 import { Store, StoreListener } from "../store";
-import { p2, w100 } from "../styling";
+import { p2, w100 } from "../css";
 import { Markdown } from "./Markdown";
 import { Focusable } from "./shared/Focusable";
 export interface EditorProps {
