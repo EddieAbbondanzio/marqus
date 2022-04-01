@@ -7,7 +7,6 @@ let initialState: State;
 
 beforeEach(() => {
   initialState = {
-    notebooks: [],
     notes: [],
     shortcuts: [],
     tags: [],

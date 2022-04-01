@@ -9,7 +9,7 @@ const ID_ALPHABET =
 // Only use this for infrastructure code.
 const _uuid = customAlphabet(ID_ALPHABET, ID_LENGTH);
 export const UUID_REGEX = /[a-zA-Z0-9]{10}$/;
-const RESOURCE_REGEX = /^(tag|notebook|note).[a-zA-Z0-9]{10}$/;
+const RESOURCE_REGEX = /^(tag|note).[a-zA-Z0-9]{10}$/;
 
 export function resourceId(type: ResourceType, id?: string) {
   return `${type}.${id ?? _uuid()}`;

@@ -53,7 +53,6 @@ export function Resizable(
     flex: `0 0 ${width}`,
     flexGrow: 1,
   };
-  console.log(width);
 
   return (
     <div className={props.className} ref={wrapper} style={style}>

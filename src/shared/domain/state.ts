@@ -1,7 +1,6 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { PromisedInput } from "../awaitableInput";
 import { Note } from "./note";
-import { Notebook } from "./notebook";
 import { Shortcut } from "./shortcut";
 import { Tag } from "./tag";
 
@@ -9,7 +8,6 @@ export interface State {
   ui: UI;
   tags: Tag[];
   notes: Note[];
-  notebooks: Notebook[];
   shortcuts: Shortcut[];
 }
 
@@ -40,7 +38,7 @@ export interface SidebarItem {
   id: string;
   text: string;
   children?: SidebarItem[];
-  icon?: IconDefinition;
+  icon: IconDefinition;
   depth: number;
 }
 

@@ -4,9 +4,7 @@ import { UI } from "./domain/state";
 import { Shortcut } from "./domain/shortcut";
 import { StartsWith } from "../renderer/types";
 import { Note } from "./domain/note";
-import { Notebook } from "./domain/notebook";
 import { Tag } from "./domain/tag";
-import { Config } from "./domain/config";
 
 /*
  * Helper types to define inputs and outputs of IPC handlers.
@@ -41,21 +39,9 @@ export interface IpcSchema {
   "tags.rename": IpcInOut<{ id: string; name: string }, Tag>;
   "tags.delete": IpcIn<{ id: string }>;
 
-  // Notebooks
-  "notebooks.getAll": IpcOut<Notebook[]>;
-  "notebooks.create": IpcInOut<{ name: string; parentId?: string }, Notebook>;
-  "notebooks.rename": IpcInOut<
-    { id: string; name: string; parentId?: string },
-    Notebook
-  >;
-  "notebooks.delete": IpcIn<{ id: string }>;
-
   // Notes
   "notes.getAll": IpcOut<Note[]>;
-  "notes.create": IpcInOut<
-    { name: string; tag?: string; notebook?: string },
-    Note
-  >;
+  "notes.create": IpcInOut<{ name: string; parent?: string }, Note>;
   "notes.rename": IpcInOut<{ id: string; name: string }, Note>;
   "notes.loadContent": IpcInOut<string, string | null>;
   "notes.saveContent": IpcIn<{ id: string; content: string }>;

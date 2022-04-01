@@ -2,10 +2,7 @@ import { InvalidOpError, NotFoundError } from "../errors";
 import { Resource } from "./types";
 import * as yup from "yup";
 import { idSchema, resourceId } from "./id";
-import { Tag } from "./tag";
-import { Notebook } from "./notebook";
 import { isBlank } from "../utils";
-import { orderBy } from "lodash";
 
 export enum NoteFlag {
   None,
@@ -16,9 +13,10 @@ export enum NoteFlag {
 
 export interface Note extends Resource<"note"> {
   name: string;
-  notebooks?: string[];
   tags?: string[];
   flags?: NoteFlag;
+  parent?: string;
+  children?: Note[];
 }
 
 export function createNote(props: Partial<Note>): Note {
@@ -50,7 +48,6 @@ export function getNoteSchema(): yup.SchemaOf<Note> {
         .max(64, "Note name cannot be more than 64 characters."),
       // Note names don't need to be unique
       tags: yup.array().of(yup.string()).optional(),
-      notebooks: yup.array().of(yup.string()).optional(),
       flags: yup.number(),
       dateCreated: yup.date().required(),
       dateUpdated: yup.date().optional(),
@@ -64,16 +61,4 @@ export function getNoteById(notes: Note[], id: string): Note {
     throw new NotFoundError(`No note with id ${id} found.`);
   }
   return note;
-}
-
-export function getNotesForTag(notes: Note[], tag: Tag): Note[] {
-  const unsorted = notes.filter((n) => n.tags?.some((t) => t === tag.id));
-  return orderBy(unsorted, ["name"]);
-}
-
-export function getNotesForNotebook(notes: Note[], notebook: Notebook): Note[] {
-  const unsorted = notes.filter((n) =>
-    n.notebooks?.some((id) => id === notebook.id)
-  );
-  return orderBy(unsorted, ["name"]);
 }

@@ -8,7 +8,6 @@ import { Section, State, UI } from "../shared/domain/state";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
-import { Notebook } from "../shared/domain/notebook";
 import { StoreListener, useStore } from "./store";
 import { isProduction, isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
@@ -88,14 +87,12 @@ async function loadInitialState(): Promise<State> {
   let ui: UI;
   let shortcuts: Shortcut[] = [];
   let tags: Tag[] = [];
-  let notebooks: Notebook[] = [];
   let notes: Note[] = [];
 
-  [ui, shortcuts, tags, notebooks, notes] = await Promise.all([
+  [ui, shortcuts, tags, notes] = await Promise.all([
     ipc("app.loadPreviousUIState"),
     ipc("shortcuts.getAll"),
     ipc("tags.getAll"),
-    ipc("notebooks.getAll"),
     ipc("notes.getAll"),
   ]);
 
@@ -103,7 +100,6 @@ async function loadInitialState(): Promise<State> {
     ui,
     shortcuts,
     tags,
-    notebooks,
     notes,
   };
 }

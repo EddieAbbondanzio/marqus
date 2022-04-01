@@ -50,7 +50,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     return items;
   });
 
-  ipc.handle("notes.create", async ({ name, notebook, tag }) => {
+  ipc.handle("notes.create", async ({ name, parent: parent }) => {
     const dirPath = getPathInDataDirectory(config, NOTES_DIRECTORY);
     if (!exists(dirPath)) {
       await createDirectory(dirPath);
@@ -58,16 +58,8 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
 
     const note = createNote({
       name,
+      parent,
     });
-
-    if (notebook != null) {
-      note.notebooks ??= [];
-      note.notebooks.push(notebook);
-    }
-    if (tag != null) {
-      note.tags ??= [];
-      note.tags.push(tag);
-    }
 
     await saveToFileSystem(config, note);
 

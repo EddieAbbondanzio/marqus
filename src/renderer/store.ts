@@ -7,7 +7,6 @@ import { deepUpdate } from "./utils/deepUpdate";
 import { InvalidOpError } from "../shared/errors";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
-import { Notebook } from "../shared/domain/notebook";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Tag } from "../shared/domain/tag";
 
@@ -25,9 +24,6 @@ export interface Events {
   "sidebar.scrollUp": void;
   "sidebar.resizeWidth": string;
   "sidebar.toggleFilter": void;
-  "sidebar.createNotebook": void; // parentId is passed via selected
-  "sidebar.renameNotebook": string;
-  "sidebar.deleteNotebook": string;
   "sidebar.createNote": void;
   "sidebar.renameNote": string;
   "sidebar.deleteNote": string;
@@ -66,7 +62,6 @@ export type PartialTransformer<S> = (previous: S) => DeepPartial<S>;
 export interface StoreControls {
   setUI: SetUI;
   setTags: SetTags;
-  setNotebooks: SetNotebooks;
   setShortcuts: SetShortcuts;
   setNotes: SetNotes;
   getState(): State;
@@ -78,7 +73,6 @@ export interface StoreControls {
  */
 export type SetUI = (t: PartialTransformer<UI> | DeepPartial<UI>) => void;
 export type SetTags = (t: Transformer<Tag[]>) => void;
-export type SetNotebooks = (t: Transformer<Notebook[]>) => void;
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
 export type SetNotes = (t: Transformer<Note[]>) => void;
 
@@ -164,15 +158,6 @@ export function useStore(initialState: State): Store {
       tags: transformer(prevState.tags),
     }));
   };
-  const setNotebooks: SetNotebooks = (transformer) => {
-    setState((prevState) => {
-      const notebooks = transformer(prevState.notebooks);
-      return {
-        ...prevState,
-        notebooks,
-      };
-    });
-  };
   const setShortcuts: SetShortcuts = (transformer) => {
     setState((prevState) => ({
       ...prevState,
@@ -196,7 +181,6 @@ export function useStore(initialState: State): Store {
       await listener({ type: event, value } as any, {
         setUI,
         setTags,
-        setNotebooks,
         setShortcuts,
         setNotes,
         getState,

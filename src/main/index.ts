@@ -7,7 +7,6 @@ import {
   saveConfig,
   useConfigIpcs as useConfigIpcs,
 } from "./ipc/config";
-import { useNotebookIpcs } from "./ipc/notebooks";
 import { useNoteIpcs } from "./ipc/notes";
 import { useShortcutIpcs } from "./ipc/shortcuts";
 import { useTagIpcs } from "./ipc/tags";
@@ -39,7 +38,6 @@ async function main() {
   useConfigIpcs(typeSafeIpc, config);
   useShortcutIpcs(typeSafeIpc, config);
   useTagIpcs(typeSafeIpc, config);
-  useNotebookIpcs(typeSafeIpc, config);
   useNoteIpcs(typeSafeIpc, config);
 
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.

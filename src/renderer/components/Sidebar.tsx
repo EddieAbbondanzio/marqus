@@ -21,28 +21,15 @@ import {
   orderBy,
   take,
 } from "lodash";
-import {
-  Note,
-  getNotesForNotebook,
-  getNoteById,
-  getNoteSchema,
-} from "../../shared/domain/note";
-import {
-  addChild,
-  getNotebookById,
-  getNotebookSchema,
-  Notebook,
-  removeChild,
-  replaceChild,
-} from "../../shared/domain/notebook";
+import { Note, getNoteById, getNoteSchema } from "../../shared/domain/note";
 import { SidebarItem } from "../../shared/domain/state";
-import { NOTEBOOK_ICON, NOTE_ICON, RESOURCE_ICONS } from "../libs/fontAwesome";
+import { NOTE_ICON, TAG_ICON } from "../libs/fontAwesome";
 import {
   PromisedInputParams,
   createPromisedInput,
   PromisedInput,
 } from "../../shared/awaitableInput";
-import { NotFoundError } from "../../shared/errors";
+import { InvalidOpError, NotFoundError } from "../../shared/errors";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
@@ -63,15 +50,15 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ store }: SidebarProps) {
-  const { notes, notebooks } = store.state;
+  const { notes } = store.state;
   const { sidebar } = store.state.ui;
   const { input } = sidebar;
   const expandedLookup = keyBy(sidebar.expanded, (e) => e);
   const selectedLookup = keyBy(sidebar.selected, (s) => s);
 
   const [items, itemsFlat] = useMemo(
-    () => getItems(notes, notebooks, expandedLookup),
-    [notes, notebooks, store.state]
+    () => getItems(notes, expandedLookup),
+    [notes, store.state]
   );
 
   // Sanity check
@@ -146,9 +133,6 @@ export function Sidebar({ store }: SidebarProps) {
       ],
       updateSelected
     );
-    store.on("sidebar.createNotebook", createNotebook);
-    store.on("sidebar.renameNotebook", renameNotebook);
-    store.on("sidebar.deleteNotebook", deleteNotebook);
     store.on("sidebar.createNote", createNote);
     store.on("sidebar.renameNote", renameNote);
     store.on("sidebar.deleteNote", deleteNote);
@@ -168,9 +152,6 @@ export function Sidebar({ store }: SidebarProps) {
         ],
         updateSelected
       );
-      store.off("sidebar.createNotebook", createNotebook);
-      store.off("sidebar.renameNotebook", renameNotebook);
-      store.off("sidebar.deleteNotebook", deleteNotebook);
       store.off("sidebar.createNote", createNote);
       store.off("sidebar.renameNote", renameNote);
       store.off("sidebar.deleteNote", deleteNote);
@@ -186,12 +167,6 @@ export function Sidebar({ store }: SidebarProps) {
 
     for (const item of items) {
       const [type] = parseResourceId(item.id);
-      let icon;
-      if (type === "notebook") {
-        icon = expandedLookup[item.id] != null ? EXPANDED_ICON : COLLAPSED_ICON;
-      } else {
-        icon = RESOURCE_ICONS[type];
-      }
 
       if (input?.mode === "update" && input.id === item.id) {
         rendered.push(
@@ -199,7 +174,7 @@ export function Sidebar({ store }: SidebarProps) {
             store={store}
             key="sidebarInput"
             value={input}
-            icon={icon}
+            icon={item.icon}
             isSelected={Boolean(selectedLookup[input.id])}
             depth={item.depth}
           />
@@ -212,7 +187,7 @@ export function Sidebar({ store }: SidebarProps) {
 
         rendered.push(
           <SidebarMenu
-            icon={icon}
+            icon={item.icon}
             key={item.id}
             id={item.id}
             value={item.text}
@@ -226,12 +201,24 @@ export function Sidebar({ store }: SidebarProps) {
 
     if (input?.mode === "create") {
       if (input?.parentId == parent?.id) {
+        let inputIcon;
+        switch (input.resourceType) {
+          case "note":
+            inputIcon = NOTE_ICON;
+            break;
+          case "tag":
+            inputIcon = TAG_ICON;
+            break;
+          default:
+            throw new InvalidOpError();
+        }
+
         rendered.push(
           <SidebarMenu
             store={store}
             key="sidebarInput"
             value={input}
-            icon={RESOURCE_ICONS[input.resourceType]}
+            icon={inputIcon}
             depth={0}
           />
         );
@@ -289,11 +276,6 @@ const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
       text: "New Note",
       event: "sidebar.createNote",
     },
-    {
-      role: "entry",
-      text: "New Notebook",
-      event: "sidebar.createNotebook",
-    },
   ];
 
   const target = findParent(
@@ -303,45 +285,22 @@ const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
       matchValue: (el) => el.getAttribute(SIDEBAR_MENU_ATTRIBUTE),
     }
   );
-  if (target == null) {
-    return items;
-  }
 
-  const [targetType] = parseResourceId(target);
-  switch (targetType) {
-    case "notebook":
-      items.push(
-        {
-          role: "entry",
-          text: "Rename",
-          event: "sidebar.renameNotebook",
-          eventInput: target,
-        },
-        {
-          role: "entry",
-          text: "Delete",
-          event: "sidebar.deleteNotebook",
-          eventInput: target,
-        }
-      );
-      break;
-
-    case "note":
-      items.push(
-        {
-          role: "entry",
-          text: "Rename",
-          event: "sidebar.renameNote",
-          eventInput: target,
-        },
-        {
-          role: "entry",
-          text: "Delete",
-          event: "sidebar.deleteNote",
-          eventInput: target,
-        }
-      );
-      break;
+  if (target != null) {
+    items.push(
+      {
+        role: "entry",
+        text: "Rename",
+        event: "sidebar.renameNote",
+        eventInput: target,
+      },
+      {
+        role: "entry",
+        text: "Delete",
+        event: "sidebar.deleteNote",
+        eventInput: target,
+      }
+    );
   }
 
   return items;
@@ -358,30 +317,29 @@ export function hasChildren(item: SidebarItem, input?: PromisedInput): boolean {
 
 export function getItems(
   notes: Note[],
-  notebooks: Notebook[],
   expandedLookup: Record<string, any>
 ): [SidebarItem[], SidebarItem[]] {
   let items: SidebarItem[] = [];
 
-  const recursive = (n: Notebook, parent?: SidebarItem, depth?: number) => {
+  const recursive = (note: Note, parent?: SidebarItem, depth?: number) => {
+    const isExpanded = expandedLookup[note.id];
+
     const currDepth = depth ?? 0;
     const item: SidebarItem = {
-      id: n.id,
-      text: n.name,
-      icon: NOTEBOOK_ICON,
+      id: note.id,
+      text: note.name,
+      icon: isExpanded ? EXPANDED_ICON : COLLAPSED_ICON,
       depth: currDepth,
     };
 
-    if (n.children != null && n.children.length > 0) {
-      n.children.forEach((n) => recursive(n, item, currDepth + 1));
+    if (note.children != null && note.children.length > 0) {
+      note.children.forEach((n) => recursive(n, item, currDepth + 1));
     }
 
-    // Children are listed after nested notebooks
-    if (expandedLookup[n.id] != null) {
-      const notebookNotes = getNotesForNotebook(notes, n);
+    if (isExpanded && !isEmpty(note.children)) {
       item.children ??= [];
       item.children.push(
-        ...notebookNotes.map((n) => ({
+        ...note.children!.map((n) => ({
           id: n.id,
           text: n.name,
           icon: NOTE_ICON,
@@ -398,14 +356,10 @@ export function getItems(
     }
   };
 
-  notes
-    .filter((n) => isEmpty(n.notebooks))
-    .forEach((n) =>
-      items.push({ id: n.id, text: n.name, icon: NOTE_ICON, depth: 0 })
-    );
-  notebooks.forEach((n) => recursive(n));
+  notes.forEach((n) =>
+    items.push({ id: n.id, text: n.name, icon: NOTE_ICON, depth: 0 })
+  );
 
-  // Must be kept in sync with getNotesForTag, and getNotesForNotebook
   const sorted = orderBy(items, ["name"]);
   const sortedFlat = flatMapDeep(items, (item) =>
     item.children != null ? [item, ...item.children] : [item]
@@ -501,169 +455,6 @@ export const toggleItemExpanded: StoreListener<"sidebar.toggleItemExpanded"> = (
   });
 };
 
-export const createNotebook: StoreListener<"sidebar.createNotebook"> = async (
-  _,
-  ctx
-) => {
-  const state = ctx.getState();
-  const { selected } = state.ui.sidebar;
-
-  let parentId: string | undefined;
-  if (selected != null && selected.length > 0) {
-    const [type] = parseResourceId(selected[0]);
-    if (type === "notebook") {
-      parentId = selected[0];
-    }
-  }
-
-  let siblings: Notebook[] = state.notebooks;
-  if (parentId != null) {
-    siblings = getNotebookById(siblings, parentId).children!;
-  }
-
-  let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
-  let inputParams: PromisedInputParams = {
-    value: "",
-    schema,
-    parentId,
-    resourceType: "notebook",
-  };
-
-  let input = createPromisedInput(inputParams, setExplorerInput(ctx));
-
-  ctx.setUI((prev) => {
-    let expanded = prev.sidebar.expanded;
-    if (!expanded?.some((id) => id === parentId)) {
-      expanded ??= [];
-      expanded?.push(parentId!);
-    }
-
-    return {
-      focused: ["sidebarInput"],
-      sidebar: {
-        expanded,
-        input,
-        view: "notebooks",
-      },
-    };
-  });
-
-  const [value, action] = await input.completed;
-  if (action === "confirm") {
-    try {
-      const notebook = await window.ipc("notebooks.create", {
-        name: value,
-        parentId,
-      });
-      ctx.setNotebooks((notebooks) => {
-        if (parentId != null) {
-          const parent = getNotebookById(notebooks, parentId);
-          addChild(parent, notebook);
-          return [...notebooks];
-        } else {
-          return [...notebooks, notebook];
-        }
-      });
-    } catch (e) {
-      promptError(e.message);
-    }
-  }
-
-  ctx.setUI({
-    sidebar: {
-      input: undefined,
-    },
-  });
-};
-
-export const renameNotebook: StoreListener<"sidebar.renameNotebook"> = async (
-  { value: id },
-  ctx
-) => {
-  const state = ctx.getState();
-  const { name, parent } = getNotebookById(state.notebooks, id);
-
-  let siblings = parent?.children ?? state.notebooks;
-  let schema: yup.StringSchema = yup.reach(getNotebookSchema(siblings), "name");
-  let input = createPromisedInput(
-    {
-      id,
-      value: name,
-      schema,
-      resourceType: "notebook",
-    },
-    setExplorerInput(ctx)
-  );
-
-  ctx.setUI({
-    focused: ["sidebarInput"],
-    sidebar: {
-      input,
-    },
-  });
-
-  const [value, action] = await input.completed;
-  if (action === "confirm") {
-    try {
-      const renamed = await window.ipc("notebooks.rename", {
-        id,
-        name: value,
-      });
-
-      ctx.setNotebooks((notebooks) => {
-        const notebook = getNotebookById(notebooks, id);
-
-        if (notebook.parent == null) {
-          notebooks.splice(
-            notebooks.findIndex((n) => n.id === renamed.id),
-            1,
-            renamed
-          );
-        } else {
-          replaceChild(notebook.parent, notebook, renamed);
-        }
-
-        return [...notebooks];
-      });
-    } catch (e) {
-      promptError(e.message);
-    }
-  }
-
-  ctx.setUI({
-    sidebar: {
-      input: undefined,
-    },
-  });
-};
-
-export const deleteNotebook: StoreListener<"sidebar.deleteNotebook"> = async (
-  { value: id },
-  ctx
-) => {
-  if (id == null) {
-    throw Error();
-  }
-
-  const { notebooks } = ctx.getState();
-  const notebook = getNotebookById(notebooks, id!);
-  const res = await promptConfirmAction("delete", `notebook ${notebook.name}`);
-
-  if (res.text === "Yes") {
-    await window.ipc("notebooks.delete", { id: notebook.id });
-    ctx.setNotebooks((notebooks) => {
-      if (notebook.parent != null) {
-        // notebook.parent will be a stale reference
-        const parent = getNotebookById(notebooks, notebook.parent.id);
-        removeChild(parent, notebook);
-        return [...notebooks];
-      } else {
-        return notebooks.filter((n) => n.id !== notebook.id);
-      }
-    });
-  }
-};
-
 export const createNote: StoreListener<"sidebar.createNote"> = async (
   _,
   ctx
@@ -677,14 +468,12 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
 
   let schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   let parentId: string | undefined;
-  let relationships: { notebook?: string; tag?: string } = {};
 
   const firstSelected = head(selected);
   if (firstSelected != null) {
     const [type] = parseResourceId(firstSelected);
 
-    if (type === "notebook") {
-      relationships.notebook = firstSelected;
+    if (type === "note") {
       parentId = firstSelected;
     }
   }
@@ -716,7 +505,7 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
     try {
       const note = await window.ipc("notes.create", {
         name,
-        ...relationships,
+        parent: parentId,
       });
       ctx.setNotes((notes) => [...notes, note]);
     } catch (e) {

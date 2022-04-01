@@ -7,8 +7,11 @@
 
 ## Demo Build
 
+Dig into this a bit more. It kinda works but doesn't. We need a dev server for the demo so we can see what it would take to get a demo working on the website.
+
 ```
-webpack --config webpack.demo.config.js
+npm run start-demo
+npm run publish-demo
 ```
 
 Source:
