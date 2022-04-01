@@ -5,10 +5,12 @@
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start --inspect-electron",
+    "start-demo": "npx webpack-cli serve --config webpack.demo.config.js ",
     "REPL": "node",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
+    "publish-demo": "npx webpack-cli --config webpack.demo.config.js -mode production",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest ./test --config=jest.config.js"
   },
@@ -93,6 +95,7 @@
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.20.0",
     "fork-ts-checker-webpack-plugin": "^6.0.1",
+    "html-webpack-plugin": "^4.5.2",
     "jest": "^27.3.1",
     "marked": "^4.0.12",
     "node-loader": "^2.0.0",
@@ -101,7 +104,9 @@
     "ts-jest": "^27.0.7",
     "ts-loader": "^9.2.2",
     "tsdef": "0.0.14",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.2",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4"
   },
   "dependencies": {
     "@types/styled-components": "^5.1.24",
