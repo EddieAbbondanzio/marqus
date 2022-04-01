@@ -26,3 +26,6 @@ pnpm-debug.log*
 
 # Eletron forge build dir.
 /out
+
+# Demo build dir
+/demo
