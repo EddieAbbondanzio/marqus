@@ -56,8 +56,8 @@ export function Sidebar({ store }: SidebarProps) {
   const expandedLookup = keyBy(sidebar.expanded, (e) => e);
   const selectedLookup = keyBy(sidebar.selected, (s) => s);
 
-  const [items, itemsFlat] = useMemo(
-    () => getItems(notes, expandedLookup),
+  const [menus, itemIds] = useMemo(
+    () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
     [notes, store.state]
   );
 
@@ -73,18 +73,18 @@ export function Sidebar({ store }: SidebarProps) {
   useEffect(() => {
     const getNext = (increment: number) => {
       if (isEmpty(sidebar.selected)) {
-        return take(items, 1);
+        return take(itemIds, 1);
       }
       let next = 0;
       let curr = 0;
       const firstSelected = head(sidebar.selected)!;
-      curr = itemsFlat.findIndex((s) => s.id === firstSelected);
+      curr = itemIds.findIndex((s) => s === firstSelected);
       if (curr === -1) {
         throw new NotFoundError(`No selectable ${firstSelected} found`);
       }
 
-      next = clamp(curr + increment, 0, itemsFlat.length - 1);
-      return itemsFlat.slice(next, next + 1);
+      next = clamp(curr + increment, 0, itemIds.length - 1);
+      return itemIds.slice(next, next + 1);
     };
 
     const updateSelected: StoreListener<
@@ -93,7 +93,7 @@ export function Sidebar({ store }: SidebarProps) {
       | "sidebar.moveSelectionUp"
       | "sidebar.setSelection"
     > = async ({ type, value }, { setUI }) => {
-      let selected: SidebarItem[] | undefined;
+      let selected: string[] | undefined;
 
       switch (type) {
         case "sidebar.moveSelectionDown":
@@ -107,14 +107,14 @@ export function Sidebar({ store }: SidebarProps) {
             selected = undefined;
           } else {
             // HACK
-            selected = [itemsFlat.find((i) => i.id === value[0])!];
+            selected = [itemIds.find((i) => i === value[0])!];
           }
           break;
       }
 
       setUI({
         sidebar: {
-          selected: selected == null ? undefined : [selected[0].id],
+          selected: selected == null ? undefined : [selected[0]],
         },
       });
     };
@@ -157,78 +157,6 @@ export function Sidebar({ store }: SidebarProps) {
       store.off("sidebar.deleteNote", deleteNote);
     };
   }, [store.state]);
-
-  // Recursively renders
-  const renderMenus = (
-    items: SidebarItem[],
-    parent?: SidebarItem
-  ): JSX.Element[] => {
-    const rendered: JSX.Element[] = [];
-
-    for (const item of items) {
-      const [type] = parseResourceId(item.id);
-
-      if (input?.mode === "update" && input.id === item.id) {
-        rendered.push(
-          <SidebarMenu
-            store={store}
-            key="sidebarInput"
-            value={input}
-            icon={item.icon}
-            isSelected={Boolean(selectedLookup[input.id])}
-            depth={item.depth}
-          />
-        );
-      } else {
-        const onClick = () => {
-          store.dispatch("sidebar.toggleItemExpanded", item.id);
-          store.dispatch("sidebar.setSelection", [item.id]);
-        };
-
-        rendered.push(
-          <SidebarMenu
-            icon={item.icon}
-            key={item.id}
-            id={item.id}
-            value={item.text}
-            onClick={onClick}
-            isSelected={Boolean(selectedLookup[item.id])}
-            depth={item.depth}
-          />
-        );
-      }
-    }
-
-    if (input?.mode === "create") {
-      if (input?.parentId == parent?.id) {
-        let inputIcon;
-        switch (input.resourceType) {
-          case "note":
-            inputIcon = NOTE_ICON;
-            break;
-          case "tag":
-            inputIcon = TAG_ICON;
-            break;
-          default:
-            throw new InvalidOpError();
-        }
-
-        rendered.push(
-          <SidebarMenu
-            store={store}
-            key="sidebarInput"
-            value={input}
-            icon={inputIcon}
-            depth={0}
-          />
-        );
-      }
-    }
-
-    return rendered;
-  };
-
-  const menus = renderMenus(itemsFlat);
 
   return (
     <StyledResizable
@@ -315,57 +243,78 @@ export function hasChildren(item: SidebarItem, input?: PromisedInput): boolean {
   return Boolean(item.children?.length ?? 0 > 0) || item.id === input?.parentId;
 }
 
-export function getItems(
+export function renderMenus(
   notes: Note[],
-  expandedLookup: Record<string, any>
-): [SidebarItem[], SidebarItem[]] {
-  let items: SidebarItem[] = [];
+  store: Store,
+  input: PromisedInput | undefined,
+  expandedLookup: Record<string, any>,
+  selectedLookup: Record<string, any>
+): [JSX.Element[], string[]] {
+  const menus: JSX.Element[] = [];
+  const flatIds: string[] = [];
 
-  const recursive = (note: Note, parent?: SidebarItem, depth?: number) => {
+  const recursive = (note: Note, parent?: Note, depth?: number) => {
     const isExpanded = expandedLookup[note.id];
-
+    const isSelected = selectedLookup[note.id];
     const currDepth = depth ?? 0;
-    const item: SidebarItem = {
-      id: note.id,
-      text: note.name,
-      icon: isExpanded ? EXPANDED_ICON : COLLAPSED_ICON,
-      depth: currDepth,
+
+    const onClick = () => {
+      store.dispatch("sidebar.toggleItemExpanded", note.id);
+      store.dispatch("sidebar.setSelection", [note.id]);
     };
 
+    menus.push(
+      <SidebarMenu
+        icon={isExpanded ? EXPANDED_ICON : COLLAPSED_ICON}
+        key={note.id}
+        id={note.id}
+        value={note.name}
+        onClick={onClick}
+        isSelected={isSelected}
+        depth={currDepth}
+      />
+    );
+    flatIds.push(note.id);
+
     if (note.children != null && note.children.length > 0) {
-      note.children.forEach((n) => recursive(n, item, currDepth + 1));
+      note.children.forEach((n) => recursive(n, note, currDepth + 1));
     }
 
-    if (isExpanded && !isEmpty(note.children)) {
-      item.children ??= [];
-      item.children.push(
-        ...note.children!.map((n) => ({
-          id: n.id,
-          text: n.name,
-          icon: NOTE_ICON,
-          depth: currDepth + 1,
-        }))
-      );
-    }
+    // Input is always added to end of list
+    if (input != null) {
+      if (
+        (input.parentId == null && currDepth === 0) ||
+        (input.parentId != null &&
+          parent != null &&
+          input.parentId === parent?.id)
+      ) {
+        let inputIcon;
+        switch (input.resourceType) {
+          case "note":
+            inputIcon = NOTE_ICON;
+            break;
+          case "tag":
+            inputIcon = TAG_ICON;
+            break;
+          default:
+            throw new InvalidOpError();
+        }
 
-    if (parent == null) {
-      items.push(item);
-    } else {
-      parent.children ??= [];
-      parent.children.push(item);
+        menus.push(
+          <SidebarMenu
+            store={store}
+            key="sidebarInput"
+            value={input}
+            icon={inputIcon}
+            depth={0}
+          />
+        );
+      }
     }
   };
+  orderBy(notes, ["name"]).forEach((n) => recursive(n));
 
-  notes.forEach((n) =>
-    items.push({ id: n.id, text: n.name, icon: NOTE_ICON, depth: 0 })
-  );
-
-  const sorted = orderBy(items, ["name"]);
-  const sortedFlat = flatMapDeep(items, (item) =>
-    item.children != null ? [item, ...item.children] : [item]
-  );
-
-  return [sorted, sortedFlat];
+  return [menus, flatIds];
 }
 
 export const resizeWidth: StoreListener<"sidebar.resizeWidth"> = (
