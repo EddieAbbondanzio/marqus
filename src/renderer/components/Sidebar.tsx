@@ -22,7 +22,6 @@ import {
   take,
 } from "lodash";
 import { Note, getNoteById, getNoteSchema } from "../../shared/domain/note";
-import { SidebarItem } from "../../shared/domain/state";
 import { NOTE_ICON, TAG_ICON } from "../libs/fontAwesome";
 import {
   PromisedInputParams,
@@ -233,15 +232,6 @@ const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
 
   return items;
 };
-
-/**
- * Checks if the explorer item has children to render. This will also
- * include nested inputs.
- * @returns True if there are any children or an input
- */
-export function hasChildren(item: SidebarItem, input?: PromisedInput): boolean {
-  return Boolean(item.children?.length ?? 0 > 0) || item.id === input?.parentId;
-}
 
 export function renderMenus(
   notes: Note[],

@@ -34,14 +34,6 @@ export interface Sidebar {
   expanded?: string[];
 }
 
-export interface SidebarItem {
-  id: string;
-  text: string;
-  children?: SidebarItem[];
-  icon: IconDefinition;
-  depth: number;
-}
-
 export interface Editor {
   isEditting: boolean;
   content?: string;
