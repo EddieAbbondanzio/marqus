@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useRef, useState } from "react";
+import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { getPx, isPx, px } from "../../utils/dom";
 import { useMouse } from "../../io/mouse";
@@ -28,23 +28,28 @@ export function Resizable(
   const handle = useRef(null! as HTMLDivElement);
   const mouse = useMouse(handle);
 
-  mouse.listen("dragStart", () => mouse.setCursor("col-resize"));
-  mouse.listen("dragMove", (event: MouseEvent) => {
-    const minWidth = props.minWidth ?? px(100);
-    const minWidthInt = getPx(minWidth);
+  useEffect(() => {
+    mouse.listen("dragStart", () => {
+      mouse.setCursor("col-resize");
+      console.log("DRAG START");
+    });
+    mouse.listen("dragMove", (event: MouseEvent) => {
+      const minWidth = props.minWidth ?? px(100);
+      const minWidthInt = getPx(minWidth);
 
-    const newWidth = px(Math.max(minWidthInt, event.clientX));
-    setWidth(newWidth);
-  });
-  mouse.listen("dragEnd", () => {
-    props.onResize(width);
-    mouse.resetCursor();
-  });
-  mouse.listen("dragCancel", () => {
-    // Reset it but don't notify prop onResize.
-    setWidth(props.width);
-    mouse.resetCursor();
-  });
+      const newWidth = px(Math.max(minWidthInt, event.clientX));
+      setWidth(newWidth);
+    });
+    mouse.listen("dragEnd", () => {
+      props.onResize(width);
+      mouse.resetCursor();
+    });
+    mouse.listen("dragCancel", () => {
+      // Reset it but don't notify prop onResize.
+      setWidth(props.width);
+      mouse.resetCursor();
+    });
+  }, [props.width, props.onResize]);
 
   const style = {
     height: "100%",

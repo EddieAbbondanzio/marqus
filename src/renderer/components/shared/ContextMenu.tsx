@@ -76,36 +76,39 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
   const [lastMoused, setLastMoused] = useState<ContextMenuEntry | undefined>();
 
   // Listen for when to display the menu
-  useMouse(wrapperRef).listen("click", { button: MouseButton.Right }, (ev) => {
-    const { clientX: left, clientY: top } = ev;
-
-    if (position != null) {
-      return;
-    }
-
-    setPosition({
-      top,
-      left,
-    });
-    setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
-    setSelected(undefined);
-    setLastMoused(undefined);
-    props.store.dispatch("focus.push", "contextMenu");
-  });
-
-  // Listen for external click to blur menu
-  useMouse(window).listen("click", (ev) => {
-    if (position != null) {
-      const menu = findParent(ev.target as HTMLElement, (el) =>
-        el.classList.contains("context-menu")
-      );
-
-      if (!menu) {
-        setPosition(undefined);
-        props.store.dispatch("focus.pop");
+  const wrapperMouse = useMouse(wrapperRef);
+  useEffect(() => {
+    wrapperMouse.listen("click", { button: MouseButton.Right }, (ev) => {
+      if (position != null) {
+        return;
       }
-    }
-  });
+      setPosition({
+        top: ev.clientY,
+        left: ev.clientX,
+      });
+      setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
+      setSelected(undefined);
+      setLastMoused(undefined);
+      props.store.dispatch("focus.push", "contextMenu");
+    });
+  }, [wrapperRef]);
+
+  // // Listen for external click to blur menu
+  const windowMouse = useMouse(window);
+  useEffect(() => {
+    windowMouse.listen("click", (ev) => {
+      if (position != null) {
+        const menu = findParent(ev.target as HTMLElement, (el) =>
+          el.classList.contains("context-menu")
+        );
+
+        if (!menu) {
+          setPosition(undefined);
+          props.store.dispatch("focus.pop");
+        }
+      }
+    });
+  }, [position, props.store]);
 
   const dispatchAndHide = async <EType extends EventType>(
     event: EType,
@@ -247,7 +250,7 @@ const StyledMenu = styled.div.attrs({
   tabIndex: -1,
   // Used to check if a click was inside the menu or not.
   className: "context-menu",
-})` 
+})`
   border: 1px solid ${THEME.contextMenu.border};
   background-color: ${THEME.contextMenu.background};
   position: absolute;

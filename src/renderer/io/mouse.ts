@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { InvalidOpError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
 import { ElementOrWindow, isRef } from "../types";
@@ -76,13 +76,12 @@ interface MouseDragging {
   hasMoved?: boolean;
 }
 
-export interface BaseMouseEventOpts {}
 export interface ClickEventOpts {
   button?: MouseButton;
   modifier?: MouseModifier;
 }
 
-export type MouseEventOpts = BaseMouseEventOpts | ClickEventOpts;
+export type MouseEventOpts = Record<string, never> | ClickEventOpts;
 
 export type MouseCallback = (ev: MouseEvent, button: MouseButton) => void;
 
@@ -96,22 +95,54 @@ export interface Mouse {
     opts: MouseEventOpts,
     callback: MouseCallback
   ): void;
-  cursor(cursor: Cursor, cb: () => Promise<any>): Promise<void>;
+  cursor(cursor: Cursor, cb: () => Promise<void>): Promise<void>;
   setCursor(cursor: Cursor): void;
   resetCursor(): void;
 }
 
-export function useMouse(
-  elOrWindow: ElementOrWindow,
-  deps?: React.DependencyList
-): Mouse {
+export function useMouse(elOrWindow: ElementOrWindow): Mouse {
   const [dragging, setDragging] = useState<MouseDragging>({
     element: undefined,
     hasMoved: false,
   });
-  const [mouse] = useState(new MouseController());
 
-  // Be careful modifying anything below.
+  const [listeners, setListeners] = useState<{
+    [ev in MouseEventType]+?: {
+      callback: MouseCallback;
+      button?: MouseButton;
+      modifier?: MouseModifier;
+    };
+  }>({});
+
+  const notify = (
+    event: MouseEvent,
+    type: MouseEventType,
+    button?: MouseButton,
+    modifier?: MouseModifier
+  ) => {
+    const listener = listeners[type];
+    if (listener == null) {
+      return;
+    }
+
+    if (type === "click") {
+      if (button == null) {
+        throw Error(`Click event requires button`);
+      }
+      if ((listener.button! & button) == MouseButton.None) {
+        return;
+      }
+      if (
+        listener.modifier != null &&
+        listener.modifier !== (modifier ?? MouseModifier.None)
+      ) {
+        return;
+      }
+    }
+
+    // eslint-disable-next-line
+    listener.callback(event, button!);
+  };
 
   const onMouseDown = (event: MouseEvent) => {
     if (dragging.element != null) {
@@ -135,14 +166,14 @@ export function useMouse(
        * We don't notify the listeners until after a first move otherwise it
        * can be difficult to distinguish a click from drag start.
        */
-      mouse.notify(event, "dragStart");
+      notify(event, "dragStart");
     }
 
     setDragging((s) => ({
       ...s,
       hasMoved: true,
     }));
-    mouse.notify(event, "dragMove");
+    notify(event, "dragMove");
   };
 
   const onMouseUp = (event: MouseEvent) => {
@@ -161,29 +192,26 @@ export function useMouse(
      * we should consider it a click.
      */
     if (!dragging.hasMoved) {
-      mouse.notify(event, "click", button, modifier);
+      notify(event, "click", button, modifier);
     }
 
     setDragging({ element: undefined, hasMoved: undefined });
-    mouse.notify(event, "dragEnd", button);
+    notify(event, "dragEnd", button);
   };
+
+  console.log("FECK");
 
   const onKeyUp = (event: KeyboardEvent) => {
     const key = parseKeyCode(event.code);
     if (key === KeyCode.Escape) {
       setDragging({ element: undefined, hasMoved: undefined });
-      mouse.notify(null!, "dragCancel");
+      notify(null!, "dragCancel");
     }
   };
 
-  const onMouseEnter = (event: MouseEvent) => mouse.notify(event, "mouseEnter");
-  const onMouseLeave = (event: MouseEvent) => mouse.notify(event, "mouseLeave");
-  const onMouseOver = (event: MouseEvent) => mouse.notify(event, "mouseOver");
-
-  const dependencies = [dragging, elOrWindow];
-  if (deps != null) {
-    dependencies.push(...deps);
-  }
+  const onMouseEnter = (event: MouseEvent) => notify(event, "mouseEnter");
+  const onMouseLeave = (event: MouseEvent) => notify(event, "mouseLeave");
+  const onMouseOver = (event: MouseEvent) => notify(event, "mouseOver");
 
   // Subscribe to it after render
   useEffect(() => {
@@ -208,90 +236,50 @@ export function useMouse(
       target.removeEventListener("mouseleave", onMouseLeave);
       target.removeEventListener("mouseover", onMouseOver);
     };
-  }, [dependencies]);
-
-  // Downcast to hide .notify()
-  return mouse as Mouse;
-}
-export class MouseController implements Mouse {
-  listeners: {
-    [ev in MouseEventType]+?: {
-      callback: MouseCallback;
-      button?: MouseButton;
-      modifier?: MouseModifier;
-    };
-  } = {};
-
-  listen<EventType extends MouseEventType>(
-    event: EventType,
-    ...params:
-      | [callback: MouseCallback]
-      | [opts: MouseEventOpts, callback: MouseCallback]
-  ): void {
-    let opts: MouseEventOpts | undefined;
-    let callback: MouseCallback;
-    if (params.length === 1) {
-      [callback] = params;
-    } else {
-      [opts, callback] = params;
-    }
-
-    // Assign default click opts
-    if (event === "click") {
-      opts ??= {} as any;
-      (opts as any).button ??= MouseButton.Any;
-      (opts as any).modifier ??= MouseModifier.None;
-    }
-
-    this.listeners[event] = {
-      callback,
-      ...opts,
-    };
-  }
-
-  notify(
-    event: MouseEvent,
-    type: MouseEventType,
-    button?: MouseButton,
-    modifier?: MouseModifier
-  ) {
-    const listener = this.listeners[type];
-    if (listener == null) {
-      return;
-    }
-
-    if (type === "click") {
-      if (button == null) {
-        throw Error(`Click event requires button`);
+  }, [dragging, elOrWindow, listeners, notify]);
+  return {
+    listen<EventType extends MouseEventType>(
+      event: EventType,
+      ...params:
+        | [callback: MouseCallback]
+        | [opts: MouseEventOpts, callback: MouseCallback]
+    ): void {
+      let opts: MouseEventOpts | undefined;
+      let callback: MouseCallback;
+      if (params.length === 1) {
+        [callback] = params;
+      } else {
+        [opts, callback] = params;
       }
-      if ((listener.button! & button) == MouseButton.None) {
-        return;
+
+      // Assign default click opts
+      if (event === "click") {
+        opts ??= {} as ClickEventOpts;
+        (opts as ClickEventOpts).button ??= MouseButton.Any;
+        (opts as ClickEventOpts).modifier ??= MouseModifier.None;
       }
-      if (
-        listener.modifier != null &&
-        listener.modifier !== (modifier ?? MouseModifier.None)
-      ) {
-        return;
-      }
-    }
 
-    listener.callback(event, button!);
-  }
-
-  async cursor(cursorIcon: Cursor, cb: () => Promise<any>) {
-    const original = document.body.style.cursor;
-    document.body.style.cursor = cursorIcon;
-    await cb();
-    document.body.style.cursor = original;
-  }
-
-  setCursor(cursor: Cursor) {
-    document.body.style.cursor = cursor;
-  }
-
-  resetCursor() {
-    document.body.style.cursor = DEFAULT_CURSOR;
-  }
+      setListeners({
+        ...listeners,
+        [event]: {
+          callback,
+          ...opts,
+        },
+      });
+    },
+    cursor: async (cursorIcon: Cursor, cb: () => Promise<any>) => {
+      const original = document.body.style.cursor;
+      document.body.style.cursor = cursorIcon;
+      await cb();
+      document.body.style.cursor = original;
+    },
+    setCursor: (cursor: Cursor) => {
+      document.body.style.cursor = cursor;
+    },
+    resetCursor: () => {
+      document.body.style.cursor = DEFAULT_CURSOR;
+    },
+  };
 }
 
 export function getDetails(ev: MouseEvent): [MouseButton, MouseModifier] {
