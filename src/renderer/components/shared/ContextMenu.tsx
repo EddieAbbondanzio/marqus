@@ -68,17 +68,17 @@ interface ContextMenuDivider {
   role: "divider";
 }
 
-export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
+export function ContextMenu(
+  props: PropsWithChildren<ContextMenuProps>
+): JSX.Element {
   const wrapperRef = useRef(null! as HTMLDivElement);
   const [position, setPosition] = useState<ContextMenuPosition | undefined>();
   const [items, setItems] = useState([] as ContextMenuItem[]);
   const [selected, setSelected] = useState<ContextMenuEntry | undefined>();
   const [lastMoused, setLastMoused] = useState<ContextMenuEntry | undefined>();
 
-  // Listen for when to display the menu
-  const wrapperMouse = useMouse(wrapperRef);
   useEffect(() => {
-    wrapperMouse.listen("click", { button: MouseButton.Right }, (ev) => {
+    const show = (ev: MouseEvent) => {
       if (position != null) {
         return;
       }
@@ -90,13 +90,9 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       setSelected(undefined);
       setLastMoused(undefined);
       props.store.dispatch("focus.push", "contextMenu");
-    });
-  }, [wrapperRef]);
+    };
 
-  // // Listen for external click to blur menu
-  const windowMouse = useMouse(window);
-  useEffect(() => {
-    windowMouse.listen("click", (ev) => {
+    const hide = (ev: MouseEvent) => {
       if (position != null) {
         const menu = findParent(ev.target as HTMLElement, (el) =>
           el.classList.contains("context-menu")
@@ -107,17 +103,17 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
           props.store.dispatch("focus.pop");
         }
       }
-    });
-  }, [position, props.store]);
+    };
 
-  const dispatchAndHide = async <EType extends EventType>(
-    event: EType,
-    input?: EventValue<EType>
-  ) => {
-    // Band-aid cast
-    props.store.dispatch<EType>(event, input as any);
-    setPosition(undefined);
-  };
+    const { current: el } = wrapperRef;
+    el.addEventListener("contextmenu", show);
+    window.addEventListener("click", hide);
+
+    return () => {
+      el.removeEventListener("contextmenu", show);
+      window.removeEventListener("click", hide);
+    };
+  }, [wrapperRef, position, props]);
 
   useEffect(() => {
     const { store } = props;
@@ -185,7 +181,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       store.off("contextMenu.blur", blur);
       store.off("contextMenu.run", run);
     };
-  }, [props.store.state, setPosition, position, items, selected, lastMoused]);
+  }, [props, setPosition, position, items, selected, lastMoused]);
 
   const setSelectedIfDifferent = (item?: ContextMenuEntry) => {
     if (item != null && lastMoused != null && lastMoused === item) {
@@ -196,6 +192,11 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
       setSelected(item);
       setLastMoused(item);
     }
+  };
+
+  const dispatchAndHide = async (item: ContextMenuEntry) => {
+    props.store.dispatch(item.event, item.eventInput);
+    setPosition(undefined);
   };
 
   return (
@@ -211,9 +212,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
                   return (
                     <StyledSelectedEntry
                       key={i}
-                      onClick={() =>
-                        dispatchAndHide(item.event, item.eventInput)
-                      }
+                      onClick={() => dispatchAndHide(item)}
                     >
                       {item.text}
                     </StyledSelectedEntry>
@@ -222,9 +221,7 @@ export function ContextMenu(props: PropsWithChildren<ContextMenuProps>) {
                   return (
                     <StyledEntry
                       key={i}
-                      onClick={() =>
-                        dispatchAndHide(item.event, item.eventInput)
-                      }
+                      onClick={() => dispatchAndHide(item)}
                       onMouseMove={() => setSelectedIfDifferent(item)}
                     >
                       {item.text}

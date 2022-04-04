@@ -9,7 +9,7 @@ import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
 import { StoreListener, useStore } from "./store";
-import { isProduction, isTest } from "../shared/env";
+import { isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
@@ -55,7 +55,7 @@ async function main() {
         store.off("focus.push", push);
         store.off("focus.pop", pop);
       };
-    }, [store.state]);
+    }, [store]);
 
     useFocusTracking(store);
 
@@ -89,6 +89,7 @@ async function loadInitialState(): Promise<State> {
   let tags: Tag[] = [];
   let notes: Note[] = [];
 
+  // eslint-disable-next-line prefer-const
   [ui, shortcuts, tags, notes] = await Promise.all([
     ipc("app.loadPreviousUIState"),
     ipc("shortcuts.getAll"),

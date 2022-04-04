@@ -43,8 +43,6 @@ export type Cursor =
   | "zoom-in"
   | "zoom-out";
 
-// export type MouseButton = "left" | "right";
-
 export enum MouseButton {
   None = 0,
   Left = 1 << 1,
@@ -100,6 +98,8 @@ export interface Mouse {
   resetCursor(): void;
 }
 
+// Track mouse dragging state along with clicks. Useful for listening for
+// clicks from specific mouse buttons and/or include modifier keys.
 export function useMouse(elOrWindow: ElementOrWindow): Mouse {
   const [dragging, setDragging] = useState<MouseDragging>({
     element: undefined,
@@ -140,7 +140,6 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
       }
     }
 
-    // eslint-disable-next-line
     listener.callback(event, button!);
   };
 
@@ -198,8 +197,6 @@ export function useMouse(elOrWindow: ElementOrWindow): Mouse {
     setDragging({ element: undefined, hasMoved: undefined });
     notify(event, "dragEnd", button);
   };
-
-  console.log("FECK");
 
   const onKeyUp = (event: KeyboardEvent) => {
     const key = parseKeyCode(event.code);
