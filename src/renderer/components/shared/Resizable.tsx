@@ -27,8 +27,7 @@ export function Resizable(
   const [width, setWidth] = useState(props.width);
   const handle = useRef(null! as HTMLDivElement);
 
-  const [drag, resetDrag] = useMouseDrag(handle);
-  useEffect(() => {
+  useMouseDrag(handle, (drag) => {
     if (drag != null) {
       switch (drag.state) {
         case "dragStarted":
@@ -47,18 +46,16 @@ export function Resizable(
         case "dragEnded":
           props.onResize(width);
           resetCursor();
-          resetDrag();
           break;
 
         case "dragCancelled":
           // Reset it but don't notify prop onResize.
           setWidth(props.width);
-          resetDrag();
           resetCursor();
           break;
       }
     }
-  }, [drag, resetDrag, props, width]);
+  });
 
   const style = {
     height: "100%",

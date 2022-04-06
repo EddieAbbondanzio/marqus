@@ -1,7 +1,6 @@
-import { Ref, RefObject, useEffect, useState } from "react";
+import { RefObject, useEffect, useState } from "react";
 import { InvalidOpError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
-import { ElementOrWindow } from "../types";
 
 export const DEFAULT_CURSOR = "auto";
 
@@ -77,8 +76,9 @@ export type DragState =
   | "dragCancelled";
 
 export function useMouseDrag(
-  ref: RefObject<HTMLElement | Window | null>
-): [MouseDrag | null, () => void] {
+  ref: RefObject<HTMLElement | Window | null>,
+  callback: (drag: MouseDrag | null) => void
+): void {
   const [drag, setDrag] = useState<MouseDrag | null>(null);
 
   useEffect(() => {
@@ -86,8 +86,6 @@ export function useMouseDrag(
     if (el == null) {
       return;
     }
-
-    console.log("Add listeners");
 
     const onMouseDown = (event: MouseEvent) => {
       if (
@@ -98,10 +96,12 @@ export function useMouseDrag(
         throw new InvalidOpError(`Mouse is already dragging. Can't restart.`);
       }
 
-      setDrag({
+      const newDrag: MouseDrag = {
         state: "dragStarted",
         event,
-      });
+      };
+      setDrag(newDrag);
+      callback(newDrag);
     };
 
     const onMouseMove = (event: MouseEvent) => {
@@ -113,10 +113,12 @@ export function useMouseDrag(
         return;
       }
 
-      setDrag({
+      const newDrag: MouseDrag = {
         state: "dragging",
         event,
-      });
+      };
+      setDrag(newDrag);
+      callback(newDrag);
     };
 
     const onMouseUp = (event: MouseEvent) => {
@@ -128,16 +130,21 @@ export function useMouseDrag(
         return;
       }
 
-      setDrag({
+      const newDrag: MouseDrag = {
         state: "dragEnded",
         event,
-      });
+      };
+      setDrag(newDrag);
+      callback(newDrag);
     };
 
     const onKeyUp = (event: KeyboardEvent) => {
       const key = parseKeyCode(event.code);
       if (key === KeyCode.Escape) {
         setDrag(null);
+        callback({
+          state: "dragCancelled",
+        });
       }
     };
 
@@ -151,7 +158,5 @@ export function useMouseDrag(
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [ref, drag, setDrag]);
-
-  return [drag, () => setDrag(null)];
+  }, [callback, drag, ref]);
 }
