@@ -32,7 +32,7 @@ async function main() {
 
   function App() {
     const store = useStore(initialState);
-    useShortcuts(store);
+    // useShortcuts(store);
 
     useEffect(() => {
       store.on("sidebar.toggle", toggleSidebar);

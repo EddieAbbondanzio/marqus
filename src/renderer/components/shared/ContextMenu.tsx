@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { PropsWithChildren } from "react";
-import { MouseButton, useMouse } from "../../io/mouse";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "./Focusable";
 import { EventType, EventValue, Store } from "../../store";

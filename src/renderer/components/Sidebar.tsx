@@ -48,7 +48,7 @@ export interface SidebarProps {
   store: Store;
 }
 
-export function Sidebar({ store }: SidebarProps) {
+export function Sidebar({ store }: SidebarProps): JSX.Element {
   const { notes } = store.state;
   const { sidebar } = store.state.ui;
   const { input } = sidebar;
@@ -57,7 +57,7 @@ export function Sidebar({ store }: SidebarProps) {
 
   const [menus, itemIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
-    [notes, store.state]
+    [notes, store, input, expandedLookup, selectedLookup]
   );
 
   // Sanity check
@@ -155,7 +155,7 @@ export function Sidebar({ store }: SidebarProps) {
       store.off("sidebar.renameNote", renameNote);
       store.off("sidebar.deleteNote", deleteNote);
     };
-  }, [store.state]);
+  }, [store, itemIds, sidebar]);
 
   return (
     <StyledResizable
