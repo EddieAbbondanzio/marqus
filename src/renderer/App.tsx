@@ -30,9 +30,9 @@ async function main() {
     return;
   }
 
-  function App() {
+  function App(): JSX.Element {
     const store = useStore(initialState);
-    // useShortcuts(store);
+    useShortcuts(store);
 
     useEffect(() => {
       store.on("sidebar.toggle", toggleSidebar);

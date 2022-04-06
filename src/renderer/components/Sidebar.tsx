@@ -155,7 +155,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       store.off("sidebar.renameNote", renameNote);
       store.off("sidebar.deleteNote", deleteNote);
     };
-  }, [store, itemIds, sidebar]);
+  }, [itemIds, sidebar, store]);
 
   return (
     <StyledResizable

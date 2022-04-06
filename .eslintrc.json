@@ -5,8 +5,9 @@
     "jest": true
   },
   "rules": {
-    "no-console": "warn",
-    "react/prop-types": "off"
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "react/prop-types": "off",
+    "@typescript-eslint/no-non-null-assertion": "off"
   },
   "extends": [
     "eslint:recommended",
