@@ -14,6 +14,7 @@ import styled from "styled-components";
 import { h100, THEME, w100 } from "../css";
 import {
   clamp,
+  Dictionary,
   flatMapDeep,
   head,
   isEmpty,
@@ -36,6 +37,7 @@ import {
   SIDEBAR_MENU_ATTRIBUTE,
   SIDEBAR_MENU_HEIGHT,
   SidebarMenu,
+  SidebarInput,
 } from "./SidebarMenu";
 import {
   faChevronDown,
@@ -237,25 +239,31 @@ export function renderMenus(
   notes: Note[],
   store: Store,
   input: PromisedInput | undefined,
-  expandedLookup: Record<string, any>,
-  selectedLookup: Record<string, any>
+  expandedLookup: Dictionary<string>,
+  selectedLookup: Dictionary<string>
 ): [JSX.Element[], string[]] {
   const menus: JSX.Element[] = [];
   const flatIds: string[] = [];
 
   const recursive = (note: Note, parent?: Note, depth?: number) => {
     const isExpanded = expandedLookup[note.id];
-    const isSelected = selectedLookup[note.id];
+    const isSelected = selectedLookup[note.id] != null;
     const currDepth = depth ?? 0;
+    const hasChildren = !isEmpty(note.children);
 
     const onClick = () => {
       store.dispatch("sidebar.toggleItemExpanded", note.id);
       store.dispatch("sidebar.setSelection", [note.id]);
     };
 
+    let icon;
+    if (hasChildren) {
+      icon = isExpanded ? EXPANDED_ICON : COLLAPSED_ICON;
+    }
+
     menus.push(
       <SidebarMenu
-        icon={isExpanded ? EXPANDED_ICON : COLLAPSED_ICON}
+        icon={icon}
         key={note.id}
         id={note.id}
         value={note.name}
@@ -266,8 +274,8 @@ export function renderMenus(
     );
     flatIds.push(note.id);
 
-    if (note.children != null && note.children.length > 0) {
-      note.children.forEach((n) => recursive(n, note, currDepth + 1));
+    if (hasChildren) {
+      note.children!.forEach((n) => recursive(n, note, currDepth + 1));
     }
 
     // Input is always added to end of list
@@ -276,26 +284,13 @@ export function renderMenus(
         (input.parentId == null && currDepth === 0) ||
         (input.parentId != null &&
           parent != null &&
-          input.parentId === parent?.id)
+          input.parentId === parent.id)
       ) {
-        let inputIcon;
-        switch (input.resourceType) {
-          case "note":
-            inputIcon = NOTE_ICON;
-            break;
-          case "tag":
-            inputIcon = TAG_ICON;
-            break;
-          default:
-            throw new InvalidOpError();
-        }
-
         menus.push(
-          <SidebarMenu
+          <SidebarInput
             store={store}
             key="sidebarInput"
             value={input}
-            icon={inputIcon}
             depth={0}
           />
         );
@@ -368,9 +363,16 @@ export const toggleItemExpanded: StoreListener<"sidebar.toggleItemExpanded"> = (
   ctx
 ) => {
   ctx.setUI((prev) => {
-    let toggleId = id ?? head(prev.sidebar.selected);
+    const toggleId = id ?? head(prev.sidebar.selected);
     if (toggleId == null) {
       throw new Error("No item to toggle");
+    }
+
+    // Don't expand notes with no children
+    const { notes } = ctx.getState();
+    const note = getNoteById(notes, toggleId);
+    if (isEmpty(note.children)) {
+      return prev;
     }
 
     const { sidebar } = prev;
@@ -399,13 +401,12 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
   ctx
 ) => {
   const {
-    notes,
     ui: {
       sidebar: { selected, expanded },
     },
   } = ctx.getState();
 
-  let schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
+  const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   let parentId: string | undefined;
 
   const firstSelected = head(selected);
@@ -417,7 +418,7 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
     }
   }
 
-  let input = createPromisedInput(
+  const input = createPromisedInput(
     {
       schema,
       parentId,
@@ -464,16 +465,16 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   ctx
 ) => {
   const { notes } = ctx.getState();
-  let schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
+  const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   const { name: value } = getNoteById(notes, id!);
-  let inputParams: PromisedInputParams = {
+  const inputParams: PromisedInputParams = {
     id,
     value,
     schema,
     resourceType: "note",
   };
 
-  let input = createPromisedInput(inputParams, setExplorerInput(ctx));
+  const input = createPromisedInput(inputParams, setExplorerInput(ctx));
 
   // TODO: We'll need to allow renaming notes in any view (except trash)
   ctx.setUI({
@@ -486,7 +487,7 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   const [name, action] = await input.completed;
   if (action === "confirm") {
     try {
-      let note = getNoteById(notes, id!);
+      const note = getNoteById(notes, id!);
       const newNote = await window.ipc("notes.rename", {
         id,
         name,

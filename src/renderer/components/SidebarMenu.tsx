@@ -7,7 +7,7 @@ import { px } from "../utils/dom";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
-import { mt1, p1, pr1, py1, THEME } from "../css";
+import { mt1, p1, py1, THEME } from "../css";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 
@@ -15,68 +15,33 @@ export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
 export const SIDEBAR_MENU_HEIGHT = 24;
 export const SIDEBAR_MENU_INDENT = 12;
 
-export type SidebarMenuProps = SidebarMenuInput | SidebarMenuText;
-interface BaseProps {
-  icon: IconDefinition;
+interface SidebarMenuProps {
+  icon?: IconDefinition;
   depth: number;
-}
-interface SidebarMenuInput extends BaseProps {
-  store: Store;
-  value: PromisedInput;
-}
-interface SidebarMenuText extends BaseProps {
   id: string;
   value: string;
   isSelected: boolean;
   onClick: () => void;
 }
 
-export function SidebarMenu(props: SidebarMenuProps) {
+export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   const paddingLeft = px(props.depth * SIDEBAR_MENU_INDENT);
-  const { value, icon } = props;
-  let content;
-  if (typeof props.value === "string") {
-    content = (
-      <StyledMenuText {...{ [SIDEBAR_MENU_ATTRIBUTE]: (props as any).id }}>
-        {props.value}
+  const { value, icon, isSelected, onClick } = props;
+
+  let backgroundColor = "transparent";
+  if (isSelected) {
+    backgroundColor = THEME.sidebar.selected;
+  }
+
+  return (
+    <StyledMenu style={{ paddingLeft, backgroundColor }} onClick={onClick}>
+      {icon && <StyledMenuIcon icon={icon} size="xs" />}
+      <StyledMenuText {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}>
+        {value}
       </StyledMenuText>
-    );
-  } else {
-    content = (
-      <SidebarInput
-        store={(props as any).store}
-        key="sidebarInput"
-        awaitableInput={value as PromisedInput}
-      />
-    );
-  }
-
-  // TODO: Really fix this. It's sloppy.
-  if ((props as any).isSelected) {
-    return (
-      <SelectedMenu style={{ paddingLeft }} onClick={(props as any).onClick}>
-        <StyledMenuIcon icon={icon} size="xs" />
-        {content}
-      </SelectedMenu>
-    );
-  } else {
-    return (
-      <StyledMenu style={{ paddingLeft }} onClick={(props as any).onClick}>
-        <StyledMenuIcon icon={icon} size="xs" />
-        {content}
-      </StyledMenu>
-    );
-  }
+    </StyledMenu>
+  );
 }
-
-// TODO: Fix this.
-const SelectedMenu = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: ${SIDEBAR_MENU_HEIGHT}px;
-  background-color: ${THEME.sidebar.selected};
-`;
 
 const StyledMenu = styled.div`
   display: flex;
@@ -98,33 +63,36 @@ const StyledMenuText = styled.div`
 
 export interface SidebarInputProps {
   store: Store;
-  awaitableInput: PromisedInput;
+  value: PromisedInput;
+  icon?: IconDefinition;
+  depth: number;
 }
 
-export function SidebarInput(props: SidebarInputProps) {
+export function SidebarInput(props: SidebarInputProps): JSX.Element {
+  const paddingLeft = px(props.depth * SIDEBAR_MENU_INDENT);
   const inputRef = useRef(null! as HTMLInputElement);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
   const [isValid, setIsValid] = useState(true);
 
-  const { cancel } = props.awaitableInput;
+  const { cancel } = props.value;
   const tryConfirm = () => {
     if (isValid) {
-      props.awaitableInput.confirm();
+      props.value.confirm();
     }
   };
 
   const onBlur = () => {
-    if (isBlank(props.awaitableInput.value)) {
+    if (isBlank(props.value.value)) {
       cancel();
     } else {
-      props.awaitableInput.confirm();
+      props.value.confirm();
     }
   };
 
   const onChange = async (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { validate, onChange: setChanges } = props.awaitableInput;
+    const { validate, onChange: setChanges } = props.value;
     const { value } = ev.target;
 
     // Apply validation if needed
@@ -152,21 +120,23 @@ export function SidebarInput(props: SidebarInputProps) {
   };
 
   return (
-    <StyledFocusable
-      store={props.store}
-      name="sidebarInput"
-      onFocus={() => inputRef.current?.focus()}
-      onBlur={onBlur}
-    >
-      <StyledInput
-        ref={inputRef}
-        value={props.awaitableInput.value}
-        onChange={onChange}
-        onKeyDown={keyDown}
-      />
+    <div style={{ paddingLeft }}>
+      <StyledFocusable
+        store={props.store}
+        name="sidebarInput"
+        onFocus={() => inputRef.current?.focus()}
+        onBlur={onBlur}
+      >
+        <StyledInput
+          ref={inputRef}
+          value={props.value.value}
+          onChange={onChange}
+          onKeyDown={keyDown}
+        />
 
-      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-    </StyledFocusable>
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+      </StyledFocusable>
+    </div>
   );
 }
 
