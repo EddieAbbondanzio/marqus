@@ -261,24 +261,38 @@ export function renderMenus(
       icon = isExpanded ? EXPANDED_ICON : COLLAPSED_ICON;
     }
 
-    menus.push(
-      <SidebarMenu
-        icon={icon}
-        key={note.id}
-        id={note.id}
-        value={note.name}
-        onClick={onClick}
-        isSelected={isSelected}
-        depth={currDepth}
-      />
-    );
+    if (input?.id != null && input.id === note.id) {
+      menus.push(
+        <SidebarInput
+          store={store}
+          key="sidebarInput"
+          value={input}
+          depth={currDepth}
+        />
+      );
+    } else {
+      menus.push(
+        <SidebarMenu
+          icon={icon}
+          key={note.id}
+          id={note.id}
+          value={note.name}
+          onClick={onClick}
+          isSelected={isSelected}
+          depth={currDepth}
+        />
+      );
+    }
+
     flatIds.push(note.id);
 
     if (hasChildren && isExpanded) {
-      note.children!.forEach((n) => recursive(n, note, currDepth + 1));
+      orderBy(note.children!, ["name"]).forEach((n) =>
+        recursive(n, note, currDepth + 1)
+      );
     }
 
-    // Input is always added to end of list
+    // When creating a new value input is always added to end of list
     if (input != null && input.parentId != null && input.parentId === note.id) {
       menus.push(
         <SidebarInput
@@ -291,7 +305,7 @@ export function renderMenus(
     }
   };
   orderBy(notes, ["name"]).forEach((n) => recursive(n));
-  if (input != null && input.parentId == null) {
+  if (input != null && input.parentId == null && input.id === null) {
     menus.push(
       <SidebarInput store={store} key="sidebarInput" value={input} depth={0} />
     );
@@ -497,14 +511,21 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   if (action === "confirm") {
     try {
       const note = getNoteById(notes, id!);
-      const newNote = await window.ipc("notes.rename", {
+      const updatedNote = await window.ipc("notes.rename", {
         id,
         name,
       });
       ctx.setNotes((notes) => {
-        const index = notes.findIndex((n) => n.id === note.id);
-        notes.splice(index, 1, newNote);
-        return [...notes];
+        if (updatedNote.parent == null) {
+          const index = notes.findIndex((n) => n.id === note.id);
+          notes.splice(index, 1, updatedNote);
+          return notes;
+        } else {
+          const parent = getNoteById(notes, updatedNote.parent);
+          const index = notes.findIndex((n) => n.id === note.id);
+          parent.children!.splice(index, 1, updatedNote);
+          return notes;
+        }
       });
     } catch (e) {
       promptError(e.message);
