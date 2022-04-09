@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEventHandler } from "react";
 import {
   FontAwesomeIcon,
   FontAwesomeIconProps,
@@ -13,13 +13,12 @@ export interface IconProps {
   title?: string;
   size?: FontAwesomeIconProps["size"];
   color?: string;
+  onClick?: MouseEventHandler;
 }
 
-export function Icon(props: IconProps) {
-  const size = props.size ?? "is-normal";
-
+export function Icon(props: IconProps): JSX.Element {
   return (
-    <StyledI className={props.className}>
+    <StyledI className={props.className} onClick={props.onClick}>
       <FontAwesomeIcon
         icon={props.icon}
         title={props.title}

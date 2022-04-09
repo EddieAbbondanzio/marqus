@@ -23,6 +23,7 @@ interface SidebarMenuProps {
   value: string;
   isSelected: boolean;
   onClick: () => void;
+  onIconClick: (ev: React.MouseEvent) => void;
 }
 
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
@@ -40,7 +41,13 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
       onClick={onClick}
       {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
     >
-      {icon && <StyledMenuIcon icon={icon} size="xs" />}
+      {icon && (
+        <StyledMenuIcon
+          icon={icon}
+          size="xs"
+          onClick={(ev) => props.onIconClick(ev)}
+        />
+      )}
       <StyledMenuText style={{ paddingLeft: !icon ? "20px" : undefined }}>
         {value}
       </StyledMenuText>

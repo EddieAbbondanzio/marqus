@@ -252,7 +252,9 @@ export function renderMenus(
     const hasChildren = !isEmpty(note.children);
 
     const onClick = () => {
-      store.dispatch("sidebar.toggleItemExpanded", note.id);
+      if (isSelected) {
+        store.dispatch("sidebar.toggleItemExpanded", note.id);
+      }
       store.dispatch("sidebar.setSelection", [note.id]);
     };
 
@@ -278,6 +280,10 @@ export function renderMenus(
           id={note.id}
           value={note.name}
           onClick={onClick}
+          onIconClick={(ev: React.MouseEvent) => {
+            ev.stopPropagation();
+            store.dispatch("sidebar.toggleItemExpanded", note.id);
+          }}
           isSelected={isSelected}
           depth={currDepth}
         />
