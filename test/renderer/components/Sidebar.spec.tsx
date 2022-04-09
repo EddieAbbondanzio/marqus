@@ -1,6 +1,6 @@
 import { act } from "react-test-renderer";
 import { resizeWidth } from "../../../src/renderer/components/Sidebar";
-import { px } from "../../../src/shared/dom";
+import { px } from "../../../src/renderer/utils/dom";
 import { renderStoreHook } from "../../_mocks/store";
 
 test("sidebar.resizeWidth", () => {
@@ -9,7 +9,7 @@ test("sidebar.resizeWidth", () => {
     const store = result.current;
     store.on("sidebar.resizeWidth", resizeWidth);
   });
-/*  */
+  /*  */
   act(() => {
     const store = result.current;
     store.dispatch("sidebar.resizeWidth", px(250));

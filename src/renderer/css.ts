@@ -16,6 +16,7 @@ export const THEME = {
     highlight: HIGHLIGHT,
   },
   sidebar: {
+    hover: OpenColor.gray[8],
     selected: OpenColor.gray[7],
     background: OpenColor.gray[9],
     inputsBackground: OpenColor.gray[7],

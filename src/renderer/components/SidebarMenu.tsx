@@ -30,7 +30,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   const paddingLeft = px(props.depth * SIDEBAR_MENU_INDENT);
   const { value, icon, isSelected, onClick } = props;
 
-  let backgroundColor = "transparent";
+  let backgroundColor;
   if (isSelected) {
     backgroundColor = THEME.sidebar.selected;
   }
@@ -55,11 +55,15 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   );
 }
 
-const StyledMenu = styled.div`
+const StyledMenu = styled.a`
+  cursor: pointer;
   display: flex;
   flex-direction: row;
   align-items: center;
   height: ${SIDEBAR_MENU_HEIGHT}px;
+  &:hover {
+    background-color: ${THEME.sidebar.hover};
+  }
 `;
 
 const StyledMenuIcon = styled(Icon)`
