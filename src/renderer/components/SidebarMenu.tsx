@@ -14,6 +14,7 @@ import { Icon } from "./shared/Icon";
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
 export const SIDEBAR_MENU_HEIGHT = 24;
 export const SIDEBAR_MENU_INDENT = 10;
+export const SIDEBAR_ICON_WIDTH = 20;
 
 interface SidebarMenuProps {
   icon?: IconDefinition;
@@ -34,12 +35,13 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   }
 
   return (
-    <StyledMenu style={{ paddingLeft, backgroundColor }} onClick={onClick}>
+    <StyledMenu
+      style={{ paddingLeft, backgroundColor }}
+      onClick={onClick}
+      {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
+    >
       {icon && <StyledMenuIcon icon={icon} size="xs" />}
-      <StyledMenuText
-        style={{ paddingLeft: !icon ? "20px" : undefined }}
-        {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
-      >
+      <StyledMenuText style={{ paddingLeft: !icon ? "20px" : undefined }}>
         {value}
       </StyledMenuText>
     </StyledMenu>
@@ -55,7 +57,7 @@ const StyledMenu = styled.div`
 
 const StyledMenuIcon = styled(Icon)`
   color: ${THEME.sidebar.font};
-  width: 20px;
+  width: ${SIDEBAR_ICON_WIDTH}px;
   padding: 0;
   text-align: center;
 `;
@@ -73,7 +75,9 @@ export interface SidebarInputProps {
 }
 
 export function SidebarInput(props: SidebarInputProps): JSX.Element {
-  const paddingLeft = px(props.depth * SIDEBAR_MENU_INDENT);
+  const paddingLeft = px(
+    props.depth * SIDEBAR_MENU_INDENT + SIDEBAR_ICON_WIDTH
+  );
   const inputRef = useRef(null! as HTMLInputElement);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined

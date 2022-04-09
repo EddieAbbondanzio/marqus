@@ -285,7 +285,7 @@ export function renderMenus(
           store={store}
           key="sidebarInput"
           value={input}
-          depth={0}
+          depth={currDepth + 1}
         />
       );
     }
@@ -445,7 +445,18 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
         name,
         parent: parentId,
       });
-      ctx.setNotes((notes) => [...notes, note]);
+
+      ctx.setNotes((notes) => {
+        if (parentId == null) {
+          return [...notes, note];
+        } else {
+          const parent = getNoteById(notes, parentId);
+          parent.children ??= [];
+          parent.children.push(note);
+          note.parent = parent.id;
+          return notes;
+        }
+      });
     } catch (e) {
       promptError(e.message);
     }
