@@ -3,6 +3,7 @@ import { Resource } from "./types";
 import * as yup from "yup";
 import { idSchema, resourceId } from "./id";
 import { isBlank } from "../utils";
+import { isEmpty } from "lodash";
 
 export enum NoteFlag {
   None,
@@ -56,9 +57,18 @@ export function getNoteSchema(): yup.SchemaOf<Note> {
 }
 
 export function getNoteById(notes: Note[], id: string): Note {
-  const note = notes.find((n) => n.id === id);
-  if (note == null) {
-    throw new NotFoundError(`No note with id ${id} found.`);
+  const toVisit = [...notes];
+
+  for (let i = 0; i < toVisit.length; i++) {
+    const note = toVisit[i];
+    if (note.id === id) {
+      return note;
+    }
+
+    if (!isEmpty(note.children)) {
+      toVisit.push(...note.children!);
+    }
   }
-  return note;
+
+  throw new NotFoundError(`No note with id ${id} found.`);
 }

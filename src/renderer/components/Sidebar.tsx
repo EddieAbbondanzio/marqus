@@ -274,30 +274,28 @@ export function renderMenus(
     );
     flatIds.push(note.id);
 
-    if (hasChildren) {
+    if (hasChildren && isExpanded) {
       note.children!.forEach((n) => recursive(n, note, currDepth + 1));
     }
 
     // Input is always added to end of list
-    if (input != null) {
-      if (
-        (input.parentId == null && currDepth === 0) ||
-        (input.parentId != null &&
-          parent != null &&
-          input.parentId === parent.id)
-      ) {
-        menus.push(
-          <SidebarInput
-            store={store}
-            key="sidebarInput"
-            value={input}
-            depth={0}
-          />
-        );
-      }
+    if (input != null && input.parentId != null && input.parentId === note.id) {
+      menus.push(
+        <SidebarInput
+          store={store}
+          key="sidebarInput"
+          value={input}
+          depth={0}
+        />
+      );
     }
   };
   orderBy(notes, ["name"]).forEach((n) => recursive(n));
+  if (input != null && input.parentId == null) {
+    menus.push(
+      <SidebarInput store={store} key="sidebarInput" value={input} depth={0} />
+    );
+  }
 
   return [menus, flatIds];
 }

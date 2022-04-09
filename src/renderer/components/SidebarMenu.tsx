@@ -13,7 +13,7 @@ import { Icon } from "./shared/Icon";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
 export const SIDEBAR_MENU_HEIGHT = 24;
-export const SIDEBAR_MENU_INDENT = 12;
+export const SIDEBAR_MENU_INDENT = 10;
 
 interface SidebarMenuProps {
   icon?: IconDefinition;
@@ -36,7 +36,10 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   return (
     <StyledMenu style={{ paddingLeft, backgroundColor }} onClick={onClick}>
       {icon && <StyledMenuIcon icon={icon} size="xs" />}
-      <StyledMenuText {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}>
+      <StyledMenuText
+        style={{ paddingLeft: !icon ? "20px" : undefined }}
+        {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
+      >
         {value}
       </StyledMenuText>
     </StyledMenu>
@@ -52,7 +55,8 @@ const StyledMenu = styled.div`
 
 const StyledMenuIcon = styled(Icon)`
   color: ${THEME.sidebar.font};
-  width: ${SIDEBAR_MENU_INDENT}px;
+  width: 20px;
+  padding: 0;
   text-align: center;
 `;
 

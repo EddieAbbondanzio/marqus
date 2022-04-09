@@ -16,6 +16,8 @@ import { parseResourceId, UUID_REGEX } from "../../shared/domain/id";
 import { IpcPlugin } from "../types";
 import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
+import { string } from "yup";
+import { chain, Dictionary, values } from "lodash";
 
 // Messy...
 
@@ -36,18 +38,25 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
       await createDirectory(noteDirPath);
     }
     const entries = await readDirectory(noteDirPath);
-    let items: Note[] = [];
+    const noteLookup: Dictionary<Note> = {};
+
     for (const entry of entries) {
-      // We only care about note directoties
       if (!entry.isDirectory() || !UUID_REGEX.test(entry.name)) {
         continue;
       }
 
       const note = await loadMetadata(config, entry.name);
-      items.push(note);
+      noteLookup[note.id] = note;
     }
 
-    return items;
+    const nested = values(noteLookup).filter((n) => n.parent != null);
+    for (const note of nested) {
+      const parent = noteLookup[note.parent!];
+      parent.children ??= [];
+      parent.children.push(note);
+    }
+
+    return values(noteLookup).filter((n) => n.parent == null);
   });
 
   ipc.handle("notes.create", async ({ name, parent: parent }) => {
