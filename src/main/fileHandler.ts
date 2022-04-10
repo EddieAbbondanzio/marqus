@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { debounce, cloneDeep } from "lodash";
 import { writeFile, readFile } from "./fileSystem";
 import * as yup from "yup";
@@ -7,13 +8,13 @@ import { Config } from "../shared/domain/config";
 import { MissingDataDirectoryError } from "../shared/errors";
 export interface FileHandlerOpts<Content> {
   defaultValue?: Content;
-  serialize?: (c: Content) => any;
+  serialize?: (c: Content) => unknown;
   deserialize?: (c: Content) => Content | null;
 }
 
 const DEBOUNCE_INTERVAL_MS = 250;
 
-interface FileHandler<Content> {
+export interface FileHandler<Content> {
   save(content: Content): Promise<Content>;
   load(): Promise<Content>;
 }

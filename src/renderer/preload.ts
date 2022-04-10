@@ -14,7 +14,8 @@ if (getProcessType() === "main") {
  * @param input Payload.
  * @returns The response the main thread gave
  */
-const ipc: Ipc = async (type: string, input?: any): Promise<any> =>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ipc: Ipc = async (type: string, input?: unknown): Promise<any> =>
   ipcRenderer.invoke(type, input);
 
 // Only thing that should be exposed.
@@ -28,5 +29,6 @@ declare global {
 
 // Sanity check
 if (isDevelopment()) {
+  // eslint-disable-next-line no-console
   console.log("preload complete");
 }

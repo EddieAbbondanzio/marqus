@@ -34,6 +34,19 @@ async function main() {
     const store = useStore(initialState);
     useShortcuts(store);
 
+    /*
+     * On first load attempt restore active note contents so the user can pick
+     * up where they left off.
+     */
+    useEffect(() => {
+      const { selected } = store.state.ui.sidebar;
+      if (selected != null) {
+        const [first] = selected;
+        store.dispatch("editor.loadNote", first);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     useEffect(() => {
       store.on("sidebar.toggle", toggleSidebar);
 
@@ -117,9 +130,9 @@ export const toggleSidebar: StoreListener<"sidebar.toggle"> = (_, ctx) => {
   }));
 };
 
-export const openDevTools = () => ipc("app.openDevTools");
-export const reload = () => ipc("app.reload");
-export const toggleFullScreen = () => ipc("app.toggleFullScreen");
+export const openDevTools = (): void => ipc("app.openDevTools");
+export const reload = (): void => ipc("app.reload");
+export const toggleFullScreen = (): void => ipc("app.toggleFullScreen");
 export const inspectElement: StoreListener<"app.inspectElement"> = ({
   value: coord,
 }) => ipc("app.inspectElement", coord);

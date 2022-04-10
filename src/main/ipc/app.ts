@@ -3,7 +3,12 @@ import { UI } from "../../shared/domain/state";
 import { IpcHandler, IpcRegistry } from "../../shared/ipc";
 import * as yup from "yup";
 import { px } from "../../renderer/utils/dom";
-import { createFileHandler, getPathInDataDirectory } from "../fileHandler";
+import {
+  createFileHandler,
+  FileHandler,
+  FileHandlerOpts,
+  getPathInDataDirectory,
+} from "../fileHandler";
 import { IpcPlugin } from "../types";
 import { Config } from "../../shared/domain/config";
 
@@ -69,7 +74,7 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
   });
 };
 
-export function getUIFileHandler(config: Config) {
+export function getUIFileHandler(config: Config): FileHandler<UI> {
   return createFileHandler<UI>(
     getPathInDataDirectory(config, UI_FILE),
     appSchema,
@@ -77,7 +82,6 @@ export function getUIFileHandler(config: Config) {
       serialize: (ui) => {
         // Nuke out stuff we don't want to persist.
         ui.sidebar.input = undefined;
-        ui.sidebar.selected = undefined;
         ui.focused = undefined!;
 
         return ui;
@@ -88,7 +92,6 @@ export function getUIFileHandler(config: Config) {
         }
 
         ui.sidebar.input = undefined;
-        ui.sidebar.selected = undefined;
         ui.focused = [];
         return ui;
       },

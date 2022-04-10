@@ -112,10 +112,10 @@ export function useStore(initialState: State): Store {
     lastState.current = state;
   }, [state]);
 
-  const getState = () => {
+  const getState = useCallback((): State => {
     const cloned = cloneDeep(lastState.current);
     return cloned;
-  };
+  }, []);
 
   const setUI: SetUI = (transformer) => {
     setState((prevState) => {
@@ -135,7 +135,6 @@ export function useStore(initialState: State): Store {
       const clonedUI = cloneDeep(newState.ui);
       if (clonedUI?.sidebar != null) {
         delete clonedUI.sidebar.input;
-        delete clonedUI.sidebar.selected;
       }
       if (clonedUI?.editor != null) {
         delete clonedUI.editor.content;

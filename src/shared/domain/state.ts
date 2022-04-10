@@ -1,4 +1,3 @@
-import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { PromisedInput } from "../awaitableInput";
 import { Note } from "./note";
 import { Shortcut } from "./shortcut";

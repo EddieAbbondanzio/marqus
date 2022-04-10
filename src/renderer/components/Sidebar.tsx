@@ -496,16 +496,16 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   const { notes } = ctx.getState();
   const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   const { name: value } = getNoteById(notes, id!);
-  const inputParams: PromisedInputParams = {
-    id,
-    value,
-    schema,
-    resourceType: "note",
-  };
 
-  const input = createPromisedInput(inputParams, setExplorerInput(ctx));
-
-  // TODO: We'll need to allow renaming notes in any view (except trash)
+  const input = createPromisedInput(
+    {
+      id,
+      value,
+      schema,
+      resourceType: "note",
+    },
+    setExplorerInput(ctx)
+  );
   ctx.setUI({
     focused: ["sidebarInput"],
     sidebar: {
@@ -521,6 +521,7 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
         id,
         name,
       });
+
       ctx.setNotes((notes) => {
         if (updatedNote.parent == null) {
           const index = notes.findIndex((n) => n.id === note.id);

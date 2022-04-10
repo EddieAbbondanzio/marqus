@@ -8,7 +8,7 @@ import { EventType, Store } from "../store";
 const INITIAL_DELAY = 250;
 const REPEAT_DELAY = 125;
 
-export function useShortcuts(store: Store) {
+export function useShortcuts(store: Store): void {
   const { dispatch } = store;
   const { shortcuts, ui } = store.state;
   const [activeKeys, setActiveKeys] = useState<
@@ -46,11 +46,11 @@ export function useShortcuts(store: Store) {
             const currKeys = toKeyArray(activeKeys);
 
             if (isEqual(currKeys, activeKeysArray)) {
-              let int = setInterval(() => {
+              const interval = setInterval(() => {
                 void dispatch(shortcut.event as EventType, shortcut.eventInput);
               }, REPEAT_DELAY);
 
-              setIntervalState(int);
+              setIntervalState(interval);
             }
           })();
         }
@@ -58,12 +58,12 @@ export function useShortcuts(store: Store) {
 
       setDidKeysChange(false);
     }
-  }, [activeKeys, shortcuts, didKeysChange]);
+  }, [dispatch, ui, activeKeys, shortcuts, didKeysChange]);
 
   useEffect(() => {
     const keyDown = (ev: KeyboardEvent) => {
       /*
-       * Disable all default shortcuts. This does require us to re-implement
+       * Disable all default shortcuts. This requires us to re-implement
        * everything but gives the user a chance to redefine or disable any
        * shortcut as they see fit.
        */
@@ -100,7 +100,7 @@ export function useShortcuts(store: Store) {
       window.removeEventListener("keydown", keyDown);
       window.removeEventListener("keyup", keyUp);
     };
-  }, [shortcuts, dispatch]);
+  }, [interval, shortcuts, dispatch]);
 }
 
 export function isFocused(ui: UI, when?: Section): boolean {

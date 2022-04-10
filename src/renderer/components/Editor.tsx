@@ -1,6 +1,5 @@
 import { debounce, head, isEmpty } from "lodash";
-import { marked } from "marked";
-import React, { ChangeEvent, useEffect, useMemo, useRef } from "react";
+import React, { ChangeEvent, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { parseResourceId } from "../../shared/domain/id";
 import { InvalidOpError } from "../../shared/errors";
@@ -12,7 +11,7 @@ export interface EditorProps {
   store: Store;
 }
 
-export function Editor({ store }: EditorProps) {
+export function Editor({ store }: EditorProps): JSX.Element {
   const {
     ui: { editor },
   } = store.state;
@@ -28,7 +27,7 @@ export function Editor({ store }: EditorProps) {
       store.off("editor.save", save);
       store.off("editor.toggleView", toggleView);
     };
-  }, [store.state]);
+  }, [store]);
 
   // Reload content on note change
   useEffect(() => {
@@ -44,7 +43,7 @@ export function Editor({ store }: EditorProps) {
     }
 
     store.dispatch("editor.loadNote", first);
-  }, [store.state.ui.sidebar.selected]);
+  }, [store]);
 
   const onChange = (ev: ChangeEvent<HTMLTextAreaElement>) => {
     store.dispatch("editor.setContent", ev.target.value);
@@ -98,7 +97,7 @@ const loadNote: StoreListener<"editor.loadNote"> = async (
     throw new InvalidOpError(`${noteId} is not a note`);
   }
 
-  let content = (await window.ipc("notes.loadContent", noteId)) ?? undefined;
+  const content = (await window.ipc("notes.loadContent", noteId)) ?? undefined;
   ctx.setUI({
     editor: {
       content,
@@ -149,7 +148,10 @@ const save: StoreListener<"editor.save"> = (_, ctx) => {
     return;
   }
 
-  // We don't actually save here. Saving is done every key press.
+  /*
+   * We don't actually do any saving within this listener. This is just a fake
+   * save function for the user to change the app back to read view.
+   */
 
   ctx.setUI({
     editor: {
