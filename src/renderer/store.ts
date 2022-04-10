@@ -24,7 +24,7 @@ export interface Events {
   "sidebar.scrollUp": void;
   "sidebar.resizeWidth": string;
   "sidebar.toggleFilter": void;
-  "sidebar.createNote": void;
+  "sidebar.createNote": string | null;
   "sidebar.renameNote": string;
   "sidebar.deleteNote": string;
   "sidebar.setSelection": string[];

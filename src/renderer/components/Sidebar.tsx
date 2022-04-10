@@ -12,24 +12,13 @@ import { isResourceId, parseResourceId } from "../../shared/domain/id";
 import { Store, StoreControls, StoreListener } from "../store";
 import styled from "styled-components";
 import { h100, THEME, w100 } from "../css";
-import {
-  clamp,
-  Dictionary,
-  flatMapDeep,
-  head,
-  isEmpty,
-  keyBy,
-  orderBy,
-  take,
-} from "lodash";
+import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
 import { Note, getNoteById, getNoteSchema } from "../../shared/domain/note";
-import { NOTE_ICON, TAG_ICON } from "../libs/fontAwesome";
 import {
-  PromisedInputParams,
   createPromisedInput,
   PromisedInput,
 } from "../../shared/awaitableInput";
-import { InvalidOpError, NotFoundError } from "../../shared/errors";
+import { NotFoundError } from "../../shared/errors";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
@@ -199,14 +188,6 @@ const StyledScrollable = styled(Scrollable)`
 `;
 
 const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
-  const items: ContextMenuItem[] = [
-    {
-      role: "entry",
-      text: "New Note",
-      event: "sidebar.createNote",
-    },
-  ];
-
   const target = findParent(
     a.target as HTMLElement,
     (el) => el.hasAttribute(SIDEBAR_MENU_ATTRIBUTE),
@@ -214,6 +195,15 @@ const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
       matchValue: (el) => el.getAttribute(SIDEBAR_MENU_ATTRIBUTE),
     }
   );
+
+  const items: ContextMenuItem[] = [
+    {
+      role: "entry",
+      text: "New Note",
+      event: "sidebar.createNote",
+      eventInput: target,
+    },
+  ];
 
   if (target != null) {
     items.push(
@@ -415,31 +405,31 @@ export const toggleItemExpanded: StoreListener<"sidebar.toggleItemExpanded"> = (
 };
 
 export const createNote: StoreListener<"sidebar.createNote"> = async (
-  _,
+  { value: parentId },
   ctx
 ) => {
   const {
     ui: {
-      sidebar: { selected, expanded },
+      sidebar: { expanded },
     },
   } = ctx.getState();
 
   const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
-  let parentId: string | undefined;
+  // let parentId: string | undefined;
 
-  const firstSelected = head(selected);
-  if (firstSelected != null) {
-    const [type] = parseResourceId(firstSelected);
+  // const firstSelected = head(selected);
+  // if (firstSelected != null) {
+  //   const [type] = parseResourceId(firstSelected);
 
-    if (type === "note") {
-      parentId = firstSelected;
-    }
-  }
+  //   if (type === "note") {
+  //     parentId = firstSelected;
+  //   }
+  // }
 
   const input = createPromisedInput(
     {
       schema,
-      parentId,
+      parentId: parentId ?? undefined,
       resourceType: "note",
     },
     setExplorerInput(ctx)
@@ -463,7 +453,7 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
     try {
       const note = await window.ipc("notes.create", {
         name,
-        parent: parentId,
+        parent: parentId ?? undefined,
       });
 
       ctx.setNotes((notes) => {
@@ -555,7 +545,15 @@ export const deleteNote: StoreListener<"sidebar.deleteNote"> = async (
   const res = await promptConfirmAction("delete", `note ${note.name}`);
   if (res.text === "Yes") {
     await window.ipc("notes.delete", { id: note.id });
-    ctx.setNotes((notes) => notes.filter((t) => t.id !== note.id));
+    ctx.setNotes((notes) => {
+      if (note.parent == null) {
+        return notes.filter((t) => t.id !== note.id);
+      }
+
+      const parent = getNoteById(notes, note.parent);
+      parent.children = parent.children!.filter((t) => t.id !== note.id);
+      return notes;
+    });
   }
 };
 
