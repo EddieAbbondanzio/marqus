@@ -20,7 +20,7 @@ export interface Note extends Resource<"note"> {
   children?: Note[];
 }
 
-export function createNote(props: Partial<Note>): Note {
+export function createNote(props: Partial<Note> & { name: string }): Note {
   const note = {
     ...props,
   } as Note;
@@ -32,6 +32,12 @@ export function createNote(props: Partial<Note>): Note {
   note.id ??= resourceId("note");
   note.type ??= "note";
   note.dateCreated ??= new Date();
+
+  if (!isEmpty(note.children)) {
+    for (const child of note.children!) {
+      child.parent = note.id;
+    }
+  }
 
   return note;
 }
