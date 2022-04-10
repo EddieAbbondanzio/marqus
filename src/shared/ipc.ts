@@ -1,6 +1,6 @@
 import { PromptButton, PromptOptions } from "./prompt";
 import { Coord } from "../renderer/utils/dom";
-import { UI } from "./domain/state";
+import { UI } from "./domain/ui";
 import { Shortcut } from "./domain/shortcut";
 import { StartsWith } from "../renderer/types";
 import { Note } from "./domain/note";

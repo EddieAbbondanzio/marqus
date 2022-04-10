@@ -1,5 +1,5 @@
 import { KeyCode } from "../io/keyCode";
-import { ALL_SECTIONS, Section } from "./state";
+import { ALL_SECTIONS, Section } from "./ui";
 import * as yup from "yup";
 
 /*

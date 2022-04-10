@@ -1,6 +1,6 @@
 import { head } from "lodash";
 import React, { PropsWithChildren, useEffect, useRef } from "react";
-import { Section } from "../../../shared/domain/state";
+import { Section } from "../../../shared/domain/ui";
 import { Store } from "../../store";
 import { findParent } from "../../utils/findParent";
 

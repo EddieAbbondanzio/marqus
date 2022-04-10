@@ -10,7 +10,7 @@ import {
 import { NotFoundError } from "../../shared/errors";
 import { createNote, getNoteSchema, Note } from "../../shared/domain/note";
 import moment from "moment";
-import { parseResourceId, UUID_REGEX } from "../../shared/domain/id";
+import { parseResourceId, UUID_REGEX } from "../../shared/domain";
 import { IpcPlugin } from "../types";
 import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";

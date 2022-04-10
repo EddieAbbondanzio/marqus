@@ -1,5 +1,3 @@
-import { chain } from "lodash";
-
 export interface Coord {
   x: number;
   y: number;
@@ -26,7 +24,7 @@ export function percentage(num: number): string {
 }
 
 export function isPercentage(raw: string): boolean {
-  return /^[0-9]{1,2}\%$|^100\%$/.test(raw);
+  return /^[0-9]{1,2}%$|^100%$/.test(raw);
 }
 
 export function getPercentage(raw: string): number {
@@ -37,8 +35,9 @@ export function getPercentage(raw: string): number {
   return Number.parseInt(raw.split("px")[0], 10);
 }
 
-export function hexToRgba(hex: string, a: number) {
+export function hexToRgba(hex: string, a: number): string {
   // Source: https://stackoverflow.com/a/21648508
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let c: any;
   if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
     c = hex.substring(1).split("");

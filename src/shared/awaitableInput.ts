@@ -1,6 +1,6 @@
 import { Nullable } from "tsdef";
 import * as yup from "yup";
-import { ResourceType } from "./domain/types";
+import { ResourceType } from "./domain";
 
 export type InputMode = "create" | "update";
 
@@ -31,20 +31,21 @@ export function createPromisedInput(
   params: PromisedInputParams,
   setValue: (value: string) => void
 ): PromisedInput {
-  let mode: InputMode = params.id == null ? "create" : "update";
+  const mode: InputMode = params.id == null ? "create" : "update";
   let confirm: () => void;
   let cancel: () => void;
   let outcome: Nullable<string>;
   let value = params.value ?? "";
 
-  let confirmPromise: Promise<[value: string, action: "confirm"]> = new Promise(
-    (res) =>
-      (confirm = () => {
-        outcome = "confirm";
-        res([value, "confirm"]);
-      })
-  );
-  let cancelPromise: Promise<[value: string, action: "cancel"]> = new Promise(
+  const confirmPromise: Promise<[value: string, action: "confirm"]> =
+    new Promise(
+      (res) =>
+        (confirm = () => {
+          outcome = "confirm";
+          res([value, "confirm"]);
+        })
+    );
+  const cancelPromise: Promise<[value: string, action: "cancel"]> = new Promise(
     (res) =>
       (cancel = () => {
         outcome = "cancel";

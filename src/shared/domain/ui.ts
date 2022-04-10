@@ -1,14 +1,4 @@
 import { PromisedInput } from "../awaitableInput";
-import { Note } from "./note";
-import { Shortcut } from "./shortcut";
-import { Tag } from "./tag";
-
-export interface State {
-  ui: UI;
-  tags: Tag[];
-  notes: Note[];
-  shortcuts: Shortcut[];
-}
 
 export interface UI {
   sidebar: Sidebar;

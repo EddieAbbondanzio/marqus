@@ -1,7 +1,7 @@
 import { chain, isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { KeyCode, parseKeyCode, sortKeyCodes } from "../../shared/io/keyCode";
-import { Section, UI } from "../../shared/domain/state";
+import { Section, UI } from "../../shared/domain/ui";
 import { EventType, Store } from "../store";
 import { sleep } from "../../shared/utils";
 

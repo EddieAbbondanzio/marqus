@@ -1,7 +1,6 @@
 import { InvalidOpError, NotFoundError } from "../errors";
-import { Resource } from "./types";
 import * as yup from "yup";
-import { idSchema, resourceId } from "./id";
+import { idSchema, Resource, resourceId } from ".";
 import { isBlank } from "../utils";
 
 export interface Tag extends Resource<"tag"> {

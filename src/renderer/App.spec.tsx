@@ -1,7 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { toggleSidebar } from "./App";
-import { useStore } from "./store";
-import { State } from "../shared/domain/state";
+import { State, useStore } from "./store";
 
 let initialState: State;
 

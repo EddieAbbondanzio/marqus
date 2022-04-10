@@ -7,8 +7,7 @@ import {
 } from "./shared/ContextMenu";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
-import { findParent } from "../utils/findParent";
-import { isResourceId, parseResourceId } from "../../shared/domain/id";
+import { isResourceId } from "../../shared/domain";
 import { Store, StoreControls, StoreListener } from "../store";
 import styled from "styled-components";
 import { h100, THEME, w100 } from "../css";
@@ -35,6 +34,7 @@ import {
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
+const MIN_WIDTH = px(300);
 export interface SidebarProps {
   store: Store;
 }
@@ -152,12 +152,12 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
 
   return (
     <StyledResizable
-      minWidth={px(300)}
+      minWidth={MIN_WIDTH}
       width={store.state.ui.sidebar.width}
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
       <StyledFocusable store={store} name="sidebar">
-        <ContextMenu items={getContextMenuItems} store={store}>
+        <ContextMenu store={store} items={getContextMenuItems}>
           <StyledScrollable
             scroll={store.state.ui.sidebar.scroll}
             onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
@@ -187,7 +187,6 @@ const StyledScrollable = styled(Scrollable)`
 
 const getContextMenuItems: ContextMenuItems = (ev: MouseEvent) => {
   const target = getSidebarMenuAttribute(ev.target as HTMLElement);
-
   const items: ContextMenuItem[] = [
     {
       role: "entry",
@@ -224,7 +223,6 @@ export function renderMenus(
   expandedLookup: Dictionary<string>,
   selectedLookup: Dictionary<string>
 ): [JSX.Element[], string[]] {
-  console.log("RENDER");
   const menus: JSX.Element[] = [];
   const flatIds: string[] = [];
 

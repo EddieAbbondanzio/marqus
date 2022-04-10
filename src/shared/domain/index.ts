@@ -1,5 +1,4 @@
 import { customAlphabet } from "nanoid";
-import { ResourceType } from "./types";
 import * as yup from "yup";
 
 const ID_LENGTH = 10;
@@ -11,7 +10,7 @@ const _uuid = customAlphabet(ID_ALPHABET, ID_LENGTH);
 export const UUID_REGEX = /[a-zA-Z0-9]{10}$/;
 const RESOURCE_REGEX = /^(tag|note).[a-zA-Z0-9]{10}$/;
 
-export function resourceId(type: ResourceType, id?: string) {
+export function resourceId(type: ResourceType, id?: string): string {
   return `${type}.${id ?? _uuid()}`;
 }
 
@@ -32,3 +31,11 @@ export const idSchema = yup
   .string()
   .required()
   .test((val) => UUID_REGEX.test(val ?? ""));
+
+export interface Resource<Type extends ResourceType> {
+  id: string;
+  type: Type;
+  dateCreated: Date;
+  dateUpdated?: Date;
+}
+export type ResourceType = "tag" | "note";

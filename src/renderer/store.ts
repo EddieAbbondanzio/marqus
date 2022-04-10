@@ -1,5 +1,5 @@
 import { Coord } from "./utils/dom";
-import { Section, State, UI } from "../shared/domain/state";
+import { Section, UI } from "../shared/domain/ui";
 import { StartsWith } from "./types";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
@@ -59,6 +59,13 @@ export type EventsForNamespace<Namespace extends string> = Pick<
 
 export type Transformer<S> = (previous: S) => S;
 export type PartialTransformer<S> = (previous: S) => DeepPartial<S>;
+
+export interface State {
+  ui: UI;
+  tags: Tag[];
+  notes: Note[];
+  shortcuts: Shortcut[];
+}
 
 export interface StoreControls {
   setUI: SetUI;

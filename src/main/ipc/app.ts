@@ -1,5 +1,5 @@
 import { BrowserWindow, dialog, IpcMain } from "electron";
-import { UI } from "../../shared/domain/state";
+import { UI } from "../../shared/domain/ui";
 import { IpcHandler, IpcRegistry } from "../../shared/ipc";
 import * as yup from "yup";
 import { px } from "../../renderer/utils/dom";

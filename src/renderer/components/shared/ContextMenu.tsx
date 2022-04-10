@@ -3,11 +3,11 @@ import { PropsWithChildren } from "react";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "./Focusable";
 import { EventType, EventValue, Store } from "../../store";
-import { Section } from "../../../shared/domain/state";
 import { isDevelopment } from "../../../shared/env";
 import styled from "styled-components";
 import { px2, py1, THEME } from "../../css";
 import { findNext, findPrevious } from "../../../shared/utils";
+import { Coord } from "../../utils/dom";
 
 /*
  * Electron has a built in context menu but we rolled our own so we could tie
@@ -55,11 +55,6 @@ export interface ContextMenuProps {
 
 export type ContextMenuItems = (ev?: MouseEvent) => ContextMenuItem[];
 
-export interface ContextMenuPosition {
-  top: number;
-  left: number;
-}
-
 export type ContextMenuItem = ContextMenuEntry | ContextMenuDivider;
 interface ContextMenuEntry<EType extends EventType = EventType> {
   role: "entry";
@@ -76,7 +71,7 @@ export function ContextMenu(
   props: PropsWithChildren<ContextMenuProps>
 ): JSX.Element {
   const wrapperRef = useRef(null! as HTMLDivElement);
-  const [position, setPosition] = useState<ContextMenuPosition | undefined>();
+  const [position, setPosition] = useState<Coord | undefined>();
   const [items, setItems] = useState([] as ContextMenuItem[]);
   const [selected, setSelected] = useState<ContextMenuEntry | undefined>();
   const [lastMoused, setLastMoused] = useState<ContextMenuEntry | undefined>();
@@ -87,8 +82,8 @@ export function ContextMenu(
         return;
       }
       setPosition({
-        top: ev.clientY,
-        left: ev.clientX,
+        x: ev.clientX,
+        y: ev.clientY,
       });
       setItems([...props.items(ev), ...GLOBAL_CONTEXT_ITEMS(ev)]);
       setSelected(undefined);
@@ -207,7 +202,7 @@ export function ContextMenu(
     <Wrapper ref={wrapperRef}>
       {position != null && (
         <Focusable store={props.store} name="contextMenu">
-          <StyledMenu style={position}>
+          <StyledMenu style={{ left: position.x, top: position.y }}>
             {items.map((item, i) => {
               if (item.role === "divider") {
                 return <StyledDivider key={i} />;

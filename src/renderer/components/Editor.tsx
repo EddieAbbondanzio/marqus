@@ -1,7 +1,7 @@
 import { debounce, head, isEmpty } from "lodash";
 import React, { ChangeEvent, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { parseResourceId } from "../../shared/domain/id";
+import { parseResourceId } from "../../shared/domain";
 import { InvalidOpError } from "../../shared/errors";
 import { Store, StoreListener } from "../store";
 import { p2, w100 } from "../css";
