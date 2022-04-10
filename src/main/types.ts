@@ -6,5 +6,4 @@ export interface TypeSafeIpc {
   handle<Type extends IpcType>(type: Type, handler: IpcHandler<Type>): void;
 }
 
-// What if we use this to register ipcs?
 export type IpcPlugin = (ipc: TypeSafeIpc, config: Config) => void;

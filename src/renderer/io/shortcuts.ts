@@ -1,9 +1,9 @@
 import { chain, isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { KeyCode, parseKeyCode, sortKeyCodes } from "../../shared/io/keyCode";
-import { sleep } from "../../shared/sleep";
 import { Section, UI } from "../../shared/domain/state";
 import { EventType, Store } from "../store";
+import { sleep } from "../../shared/utils";
 
 const INITIAL_DELAY = 250;
 const REPEAT_DELAY = 125;
@@ -27,8 +27,8 @@ export function useShortcuts(store: Store): void {
       const activeKeysArray = toKeyArray(activeKeys);
       const shortcut = shortcuts.find(
         (s) =>
-          isEqual(s.keys, activeKeysArray) &&
           !s.disabled &&
+          isEqual(s.keys, activeKeysArray) &&
           isFocused(ui, s.when)
       );
 

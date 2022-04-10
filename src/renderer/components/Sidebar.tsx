@@ -596,7 +596,7 @@ export const dragNote: StoreListener<"sidebar.dragNote"> = async (
       notes = notes.filter((n) => n.id !== note.id);
     }
 
-    // Add to new parent
+    // Add to new parent (if applicable)
     if (updatedNote.parent != null) {
       const newParent = getNoteById(notes, updatedNote.parent);
       newParent.children ??= [];
