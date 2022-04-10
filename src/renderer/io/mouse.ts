@@ -77,7 +77,8 @@ export type DragState =
 
 export function useMouseDrag(
   ref: RefObject<HTMLElement | Window | null>,
-  callback: (drag: MouseDrag | null) => void
+  callback: (drag: MouseDrag | null) => void,
+  opts?: { cursor: Cursor }
 ): void {
   const [drag, setDrag] = useState<MouseDrag | null>(null);
 
@@ -101,6 +102,9 @@ export function useMouseDrag(
         event,
       };
       setDrag(newDrag);
+      if (opts?.cursor) {
+        setCursor(opts.cursor);
+      }
       callback(newDrag);
     };
 
@@ -135,6 +139,9 @@ export function useMouseDrag(
         event,
       };
       setDrag(newDrag);
+      if (opts?.cursor) {
+        resetCursor();
+      }
       callback(newDrag);
     };
 
@@ -142,6 +149,9 @@ export function useMouseDrag(
       const key = parseKeyCode(event.code);
       if (key === KeyCode.Escape) {
         setDrag(null);
+        if (opts?.cursor) {
+          resetCursor();
+        }
         callback({
           state: "dragCancelled",
         });
@@ -158,5 +168,5 @@ export function useMouseDrag(
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [callback, drag, ref]);
+  }, [opts, callback, drag, ref]);
 }

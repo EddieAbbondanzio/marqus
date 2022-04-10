@@ -8,8 +8,10 @@ import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
 import { mt1, p1, py1, THEME } from "../css";
-import { Focusable } from "./shared/Focusable";
+import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
+import { useMouseDrag } from "../io/mouse";
+import { findParent } from "../utils/findParent";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
 export const SIDEBAR_MENU_HEIGHT = 24;
@@ -24,6 +26,7 @@ interface SidebarMenuProps {
   isSelected: boolean;
   onClick: () => void;
   onIconClick: (ev: React.MouseEvent) => void;
+  onDrag: (newParent?: string) => void;
 }
 
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
@@ -35,8 +38,27 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
     backgroundColor = THEME.sidebar.selected;
   }
 
+  const menuRef = useRef<HTMLAnchorElement>(null);
+  useMouseDrag(
+    menuRef,
+    (drag) => {
+      if (drag?.state === "dragEnded") {
+        const newParent = getSidebarMenuAttribute(
+          drag.event.target as HTMLElement
+        );
+        if (newParent != null) {
+          props.onDrag(newParent);
+        } else if (wasInsideFocusable(drag.event, "sidebar")) {
+          props.onDrag();
+        }
+      }
+    },
+    { cursor: "grabbing" }
+  );
+
   return (
     <StyledMenu
+      ref={menuRef}
       style={{ paddingLeft, backgroundColor }}
       onClick={onClick}
       {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
@@ -56,7 +78,6 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
 }
 
 const StyledMenu = styled.a`
-  cursor: pointer;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -182,3 +203,9 @@ const ErrorMessage = styled.div`
   ${mt1}
   ${p1}
 `;
+
+export function getSidebarMenuAttribute(element: HTMLElement): string | null {
+  return findParent(element, (el) => el.hasAttribute(SIDEBAR_MENU_ATTRIBUTE), {
+    matchValue: (el) => el.getAttribute(SIDEBAR_MENU_ATTRIBUTE),
+  });
+}

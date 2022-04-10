@@ -27,35 +27,34 @@ export function Resizable(
   const [width, setWidth] = useState(props.width);
   const handle = useRef(null! as HTMLDivElement);
 
-  useMouseDrag(handle, (drag) => {
-    if (drag != null) {
-      switch (drag.state) {
-        case "dragStarted":
-          setCursor("col-resize");
-          break;
-        case "dragging":
-          const minWidth = props.minWidth ?? px(100);
-          const minWidthInt = getPx(minWidth);
-          const newWidth = px(Math.max(minWidthInt, drag.event.clientX));
+  useMouseDrag(
+    handle,
+    (drag) => {
+      if (drag != null) {
+        switch (drag.state) {
+          case "dragging":
+            const minWidth = props.minWidth ?? px(100);
+            const minWidthInt = getPx(minWidth);
+            const newWidth = px(Math.max(minWidthInt, drag.event.clientX));
 
-          if (newWidth !== width) {
-            setWidth(newWidth);
-          }
-          break;
+            if (newWidth !== width) {
+              setWidth(newWidth);
+            }
+            break;
 
-        case "dragEnded":
-          props.onResize(width);
-          resetCursor();
-          break;
+          case "dragEnded":
+            props.onResize(width);
+            break;
 
-        case "dragCancelled":
-          // Reset it but don't notify prop onResize.
-          setWidth(props.width);
-          resetCursor();
-          break;
+          case "dragCancelled":
+            // Reset it but don't notify prop onResize.
+            setWidth(props.width);
+            break;
+        }
       }
-    }
-  });
+    },
+    { cursor: "ew-resize" }
+  );
 
   const style = {
     height: "100%",

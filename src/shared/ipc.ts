@@ -42,7 +42,7 @@ export interface IpcSchema {
   // Notes
   "notes.getAll": IpcOut<Note[]>;
   "notes.create": IpcInOut<{ name: string; parent?: string }, Note>;
-  "notes.rename": IpcInOut<{ id: string; name: string }, Note>;
+  "notes.updateMetadata": IpcInOut<Partial<Note> & { id: string }, Note>;
   "notes.loadContent": IpcInOut<string, string | null>;
   "notes.saveContent": IpcIn<{ id: string; content: string }>;
   "notes.delete": IpcIn<{ id: string }>;

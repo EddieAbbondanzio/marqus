@@ -6,7 +6,7 @@ import { findParent } from "../../utils/findParent";
 
 export const FOCUSABLE_ATTRIBUTE = "data-focusable";
 
-export const useFocusTracking = (store: Store) => {
+export const useFocusTracking = (store: Store): void => {
   /*
    * We centralize this for good reason. By only keeping one listener that
    * handles every event we can ensure we don't accidentally push new focusables
@@ -46,7 +46,9 @@ export interface FocusableProps {
   tabIndex?: number;
 }
 
-export function Focusable(props: PropsWithChildren<FocusableProps>) {
+export function Focusable(
+  props: PropsWithChildren<FocusableProps>
+): JSX.Element {
   const ref = useRef(null! as HTMLDivElement);
   useEffect(() => {
     const curr = head(props.store.state.ui.focused);
@@ -58,7 +60,7 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
       ref.current.focus();
       props.onFocus?.();
     }
-  }, [props.store.state.ui.focused, props.onFocus, props.onBlur]);
+  }, [props]);
 
   return (
     <div
@@ -69,5 +71,14 @@ export function Focusable(props: PropsWithChildren<FocusableProps>) {
     >
       {props.children}
     </div>
+  );
+}
+
+export function wasInsideFocusable(ev: Event, focusable: string): boolean {
+  return (
+    findParent(
+      ev.target as HTMLElement,
+      (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) === focusable
+    ) != null
   );
 }

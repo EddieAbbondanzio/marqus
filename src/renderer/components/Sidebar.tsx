@@ -23,10 +23,10 @@ import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
 import {
-  SIDEBAR_MENU_ATTRIBUTE,
   SIDEBAR_MENU_HEIGHT,
   SidebarMenu,
   SidebarInput,
+  getSidebarMenuAttribute,
 } from "./SidebarMenu";
 import {
   faChevronDown,
@@ -126,6 +126,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
     store.on("sidebar.createNote", createNote);
     store.on("sidebar.renameNote", renameNote);
     store.on("sidebar.deleteNote", deleteNote);
+    store.on("sidebar.dragNote", dragNote);
 
     return () => {
       store.off("sidebar.resizeWidth", resizeWidth);
@@ -145,6 +146,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       store.off("sidebar.createNote", createNote);
       store.off("sidebar.renameNote", renameNote);
       store.off("sidebar.deleteNote", deleteNote);
+      store.off("sidebar.dragNote", dragNote);
     };
   }, [itemIds, sidebar, store]);
 
@@ -187,14 +189,8 @@ const StyledScrollable = styled(Scrollable)`
   flex-direction: column;
 `;
 
-const getContextMenuItems: ContextMenuItems = (a: MouseEvent) => {
-  const target = findParent(
-    a.target as HTMLElement,
-    (el) => el.hasAttribute(SIDEBAR_MENU_ATTRIBUTE),
-    {
-      matchValue: (el) => el.getAttribute(SIDEBAR_MENU_ATTRIBUTE),
-    }
-  );
+const getContextMenuItems: ContextMenuItems = (ev: MouseEvent) => {
+  const target = getSidebarMenuAttribute(ev.target as HTMLElement);
 
   const items: ContextMenuItem[] = [
     {
@@ -232,6 +228,7 @@ export function renderMenus(
   expandedLookup: Dictionary<string>,
   selectedLookup: Dictionary<string>
 ): [JSX.Element[], string[]] {
+  console.log("RENDER");
   const menus: JSX.Element[] = [];
   const flatIds: string[] = [];
 
@@ -274,6 +271,9 @@ export function renderMenus(
             ev.stopPropagation();
             store.dispatch("sidebar.toggleItemExpanded", note.id);
           }}
+          onDrag={(newParent) =>
+            store.dispatch("sidebar.dragNote", { note: note.id, newParent })
+          }
           isSelected={isSelected}
           depth={currDepth}
         />
@@ -301,7 +301,7 @@ export function renderMenus(
     }
   };
   orderBy(notes, ["name"]).forEach((n) => recursive(n));
-  if (input != null && input.parentId == null && input.id === null) {
+  if (input != null && input.parentId == null && input.id == null) {
     menus.push(
       <SidebarInput store={store} key="sidebarInput" value={input} depth={0} />
     );
@@ -415,17 +415,6 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
   } = ctx.getState();
 
   const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
-  // let parentId: string | undefined;
-
-  // const firstSelected = head(selected);
-  // if (firstSelected != null) {
-  //   const [type] = parseResourceId(firstSelected);
-
-  //   if (type === "note") {
-  //     parentId = firstSelected;
-  //   }
-  // }
-
   const input = createPromisedInput(
     {
       schema,
@@ -507,7 +496,7 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   if (action === "confirm") {
     try {
       const note = getNoteById(notes, id!);
-      const updatedNote = await window.ipc("notes.rename", {
+      const updatedNote = await window.ipc("notes.updateMetadata", {
         id,
         name,
       });
@@ -555,6 +544,70 @@ export const deleteNote: StoreListener<"sidebar.deleteNote"> = async (
       return notes;
     });
   }
+};
+
+export const dragNote: StoreListener<"sidebar.dragNote"> = async (
+  { value },
+  ctx
+) => {
+  const { notes } = ctx.getState();
+  const note = getNoteById(notes, value.note);
+  let newParent;
+  if (value.newParent != null) {
+    newParent = getNoteById(notes, value.newParent);
+  }
+
+  // Don't allow if parent is itself
+  if (note.id === value.newParent) {
+    return;
+  }
+
+  // Don't bother if parent is the same.
+  if (
+    note.parent != null &&
+    newParent != null &&
+    note.parent === newParent.id
+  ) {
+    return;
+  }
+
+  // Prevent infinite loop by ensuring we can't reach the child from the parent.
+  if (!isEmpty(note.children) && newParent != null) {
+    const isNewParentChildOfNote =
+      getNoteById(note.children!, newParent.id, false) != null;
+    if (isNewParentChildOfNote) {
+      return;
+    }
+  }
+
+  const updatedNote = await window.ipc("notes.updateMetadata", {
+    id: note.id,
+    parent: newParent?.id,
+  });
+
+  ctx.setNotes((notes) => {
+    // Remove child from original parent. (If applicable)
+    if (note.parent != null) {
+      const ogParent = getNoteById(notes, note.parent);
+      ogParent.children = (ogParent.children ?? []).filter(
+        (c) => c.id !== note.id
+      );
+    } else {
+      notes = notes.filter((n) => n.id !== note.id);
+    }
+
+    // Add to new parent
+    if (updatedNote.parent != null) {
+      const newParent = getNoteById(notes, updatedNote.parent);
+      newParent.children ??= [];
+      newParent.children.push(updatedNote);
+      updatedNote.parent = newParent.id;
+    } else {
+      notes.push(updatedNote);
+    }
+
+    return notes;
+  });
 };
 
 function setExplorerInput(ctx: StoreControls) {

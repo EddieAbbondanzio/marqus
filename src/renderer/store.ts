@@ -26,6 +26,7 @@ export interface Events {
   "sidebar.toggleFilter": void;
   "sidebar.createNote": string | null;
   "sidebar.renameNote": string;
+  "sidebar.dragNote": { note: string; newParent?: string };
   "sidebar.deleteNote": string;
   "sidebar.setSelection": string[];
   "sidebar.clearSelection": void;

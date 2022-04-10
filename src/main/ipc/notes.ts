@@ -1,4 +1,3 @@
-import { IpcRegistry } from "../../shared/ipc";
 import {
   createDirectory,
   deleteDirectory,
@@ -8,7 +7,6 @@ import {
   touch,
   writeFile,
 } from "../fileSystem";
-import * as path from "path";
 import { NotFoundError } from "../../shared/errors";
 import { createNote, getNoteSchema, Note } from "../../shared/domain/note";
 import moment from "moment";
@@ -16,8 +14,7 @@ import { parseResourceId, UUID_REGEX } from "../../shared/domain/id";
 import { IpcPlugin } from "../types";
 import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
-import { string } from "yup";
-import { chain, Dictionary, values } from "lodash";
+import { Dictionary, values } from "lodash";
 
 // Messy...
 
@@ -75,12 +72,27 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     return note;
   });
 
-  ipc.handle("notes.rename", async (input) => {
+  ipc.handle("notes.updateMetadata", async (input) => {
     const [, bareId] = parseResourceId(input.id);
     await assertNoteExists(config, input.id);
 
     const note = await loadMetadata(config, bareId);
-    note.name = input.name;
+    const { id, name, parent, ...others } = input;
+
+    if (name != null) {
+      note.name = name;
+    }
+    // Allow unsetting parent
+    // eslint-disable-next-line no-prototype-builtins
+    if (input.hasOwnProperty("parent")) {
+      note.parent = input.parent;
+    }
+
+    // Sanity check
+    if (Object.keys(others).length > 0) {
+      console.warn(`ipc notes.updateMetadata does not support ${others}`);
+    }
+
     note.dateUpdated = new Date();
     await saveToFileSystem(config, note);
 
@@ -149,6 +161,7 @@ export async function saveToFileSystem(
     rawId,
     MARKDOWN_FILE_NAME
   );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { type, ...metadata } = note;
 
   await writeFile(metadataPath, metadata, "json");
