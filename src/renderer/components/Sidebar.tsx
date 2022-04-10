@@ -157,11 +157,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
       <StyledFocusable store={store} name="sidebar">
-        <ContextMenu
-          name="contextMenu"
-          items={getContextMenuItems}
-          store={store}
-        >
+        <ContextMenu items={getContextMenuItems} store={store}>
           <StyledScrollable
             scroll={store.state.ui.sidebar.scroll}
             onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}

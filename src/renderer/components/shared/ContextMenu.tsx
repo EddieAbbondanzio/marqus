@@ -9,6 +9,12 @@ import styled from "styled-components";
 import { px2, py1, THEME } from "../../css";
 import { findNext, findPrevious } from "../../../shared/utils";
 
+/*
+ * Electron has a built in context menu but we rolled our own so we could tie
+ * it into our contextual shortcut system better. Plus we can re-use font
+ * awesome icons on it.
+ */
+
 // These will appear at the bottom of the menu
 export const GLOBAL_CONTEXT_ITEMS: ContextMenuItems = (ev?: MouseEvent) => {
   const items: ContextMenuItem[] = [];
@@ -44,7 +50,6 @@ export const GLOBAL_CONTEXT_ITEMS: ContextMenuItems = (ev?: MouseEvent) => {
 
 export interface ContextMenuProps {
   store: Store;
-  name: Section;
   items: ContextMenuItems;
 }
 
@@ -199,9 +204,9 @@ export function ContextMenu(
   };
 
   return (
-    <Wrapper ref={wrapperRef} data-context-menu={props.name}>
+    <Wrapper ref={wrapperRef}>
       {position != null && (
-        <Focusable store={props.store} name={props.name}>
+        <Focusable store={props.store} name="contextMenu">
           <StyledMenu style={position}>
             {items.map((item, i) => {
               if (item.role === "divider") {
