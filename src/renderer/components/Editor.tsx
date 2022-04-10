@@ -7,6 +7,10 @@ import { Store, StoreListener } from "../store";
 import { p2, w100 } from "../css";
 import { Markdown } from "./Markdown";
 import { Focusable } from "./shared/Focusable";
+import { getNoteById } from "../../shared/domain/note";
+
+const NOTE_SAVE_INTERVAL = 500;
+
 export interface EditorProps {
   store: Store;
 }
@@ -38,7 +42,11 @@ export function Editor({ store }: EditorProps): JSX.Element {
 
     const first = head(selected)!;
     const [type] = parseResourceId(first);
-    if (type !== "note") {
+
+    if (
+      type !== "note" ||
+      getNoteById(store.state.notes, first, false) == null
+    ) {
       return;
     }
 
@@ -81,7 +89,7 @@ const StyledTextarea = styled.textarea`
   width: 100%;
 `;
 
-const debouncedIpc = debounce(window.ipc, 500);
+const debouncedIpc = debounce(window.ipc, NOTE_SAVE_INTERVAL);
 
 const loadNote: StoreListener<"editor.loadNote"> = async (
   { value: noteId },

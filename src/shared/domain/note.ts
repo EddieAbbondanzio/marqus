@@ -56,7 +56,17 @@ export function getNoteSchema(): yup.SchemaOf<Note> {
     .defined();
 }
 
-export function getNoteById(notes: Note[], id: string): Note {
+export function getNoteById(notes: Note[], id: string, required?: true): Note;
+export function getNoteById(
+  notes: Note[],
+  id: string,
+  required: false
+): Note | null;
+export function getNoteById(
+  notes: Note[],
+  id: string,
+  required = true
+): Note | null {
   const toVisit = [...notes];
 
   for (let i = 0; i < toVisit.length; i++) {
@@ -70,5 +80,9 @@ export function getNoteById(notes: Note[], id: string): Note {
     }
   }
 
-  throw new NotFoundError(`No note with id ${id} found.`);
+  if (required) {
+    throw new NotFoundError(`No note with id ${id} found.`);
+  } else {
+    return null;
+  }
 }

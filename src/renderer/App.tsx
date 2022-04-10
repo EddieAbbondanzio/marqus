@@ -34,19 +34,6 @@ async function main() {
     const store = useStore(initialState);
     useShortcuts(store);
 
-    /*
-     * On first load attempt restore active note contents so the user can pick
-     * up where they left off.
-     */
-    useEffect(() => {
-      const { selected } = store.state.ui.sidebar;
-      if (selected != null) {
-        const [first] = selected;
-        store.dispatch("editor.loadNote", first);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     useEffect(() => {
       store.on("sidebar.toggle", toggleSidebar);
 
