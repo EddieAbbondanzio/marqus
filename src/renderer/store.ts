@@ -1,6 +1,5 @@
 import { Coord } from "./utils/dom";
 import { Section, UI } from "../shared/domain/ui";
-import { StartsWith } from "./types";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
@@ -52,10 +51,6 @@ export interface Events {
 }
 export type EventType = keyof Events;
 export type EventValue<Ev extends EventType> = Events[Ev];
-export type EventsForNamespace<Namespace extends string> = Pick<
-  Events,
-  StartsWith<EventType, Namespace>
->;
 
 export type Transformer<S> = (previous: S) => S;
 export type PartialTransformer<S> = (previous: S) => DeepPartial<S>;
@@ -149,7 +144,7 @@ export function useStore(initialState: State): Store {
         delete clonedUI.editor.noteId;
       }
 
-      void window.ipc("app.saveUIState", clonedUI);
+      void window.ipc.invoke("app.saveUIState", clonedUI);
       return newState;
     });
   };

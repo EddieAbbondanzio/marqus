@@ -1,4 +1,4 @@
-import { partition, uniq } from "lodash";
+import { uniq } from "lodash";
 
 export const KEYCODE_DELIMITER = "+";
 
@@ -373,7 +373,7 @@ export function sortKeyCodes(keyCodes: KeyCode[]): KeyCode[] {
   ];
 }
 
-export function isModifier(key: KeyCode) {
+export function isModifier(key: KeyCode): boolean {
   switch (key) {
     case KeyCode.Meta:
     case KeyCode.Control:
@@ -385,26 +385,26 @@ export function isModifier(key: KeyCode) {
   }
 }
 
-export function isNumber(key: KeyCode) {
+export function isNumber(key: KeyCode): boolean {
   // Match #, or # where # = 0 - 9
   return /^\d$/.test(key);
 }
 
-export function isLetter(key: KeyCode) {
+export function isLetter(key: KeyCode): boolean {
   // Match a, b, c
   return /^[a-z]$/.test(key);
 }
 
-export function isFn(key: KeyCode) {
+export function isFn(key: KeyCode): boolean {
   // Match f1 - f12
   return /^f([0-9]|1[0-2])$/.test(key);
 }
 
-export function isNumpad(key: KeyCode) {
+export function isNumpad(key: KeyCode): boolean {
   return /^numpad[\S]+$/.test(key);
 }
 
-export function isArrow(key: KeyCode) {
+export function isArrow(key: KeyCode): boolean {
   switch (key) {
     case KeyCode.ArrowLeft:
     case KeyCode.ArrowRight:
@@ -416,7 +416,7 @@ export function isArrow(key: KeyCode) {
   }
 }
 
-export function isAction(key: KeyCode) {
+export function isAction(key: KeyCode): boolean {
   switch (key) {
     case KeyCode.Insert:
     case KeyCode.Escape:
@@ -435,7 +435,7 @@ export function isAction(key: KeyCode) {
 }
 
 // Catch all for random keys not included in other groups.
-export function isMisc(key: KeyCode) {
+export function isMisc(key: KeyCode): boolean {
   switch (key) {
     case KeyCode.Backquote:
     case KeyCode.Comma:

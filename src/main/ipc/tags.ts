@@ -2,8 +2,8 @@ import { createFileHandler, getPathInDataDirectory } from "../fileHandler";
 import * as yup from "yup";
 import { createTag, getTagSchema, Tag } from "../../shared/domain/tag";
 import moment from "moment";
-import { IpcPlugin } from "../types";
 import { Config } from "../../shared/domain/config";
+import { IpcPlugin } from "../../shared/ipc";
 
 const TAG_FILE = "tags.json";
 

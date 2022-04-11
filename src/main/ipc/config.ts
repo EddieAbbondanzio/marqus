@@ -1,14 +1,10 @@
-import {
-  InvalidOpError,
-  MissingDataDirectoryError,
-  NotFoundError,
-} from "../../shared/errors";
+import { InvalidOpError, MissingDataDirectoryError } from "../../shared/errors";
 import { createDirectory, exists, readFile, writeFile } from "../fileSystem";
 import { Config, DEFAULT_CONFIG } from "../../shared/domain/config";
 import { app, BrowserWindow, dialog } from "electron";
 import * as path from "path";
 import { isDevelopment, isProduction } from "../../shared/env";
-import { IpcPlugin } from "../types";
+import { IpcPlugin } from "../../shared/ipc";
 
 export const CONFIG_FILE = "config.json";
 export const DEFAULT_DEV_DATA_DIRECTORY = "data";

@@ -1,20 +1,64 @@
-import { BrowserWindow, dialog, IpcMain } from "electron";
-import { UI } from "../../shared/domain/ui";
-import { IpcHandler, IpcRegistry } from "../../shared/ipc";
+import {
+  BrowserWindow,
+  dialog,
+  Menu,
+  MenuItemConstructorOptions,
+} from "electron";
+import { ApplicationMenu, UI } from "../../shared/domain/ui";
 import * as yup from "yup";
 import { px } from "../../renderer/utils/dom";
 import {
   createFileHandler,
   FileHandler,
-  FileHandlerOpts,
   getPathInDataDirectory,
 } from "../fileHandler";
-import { IpcPlugin } from "../types";
 import { Config } from "../../shared/domain/config";
+import { IpcPlugin } from "../../shared/ipc";
+import { isEmpty } from "lodash";
 
 export const UI_FILE = "ui.json";
 
 export const useAppIpcs: IpcPlugin = (ipc, config) => {
+  ipc.handle("app.setApplicationMenu", (menus) => {
+    return new Promise((res) => {
+      const template: MenuItemConstructorOptions[] = [];
+
+      const recursive = (
+        menu: ApplicationMenu,
+        parent?: MenuItemConstructorOptions
+      ) => {
+        const t: MenuItemConstructorOptions = {
+          label: menu.label,
+          click: () => {
+            const { event, eventInput } = menu as any;
+            res({ event, input: eventInput as any });
+          },
+        };
+
+        if (parent != null) {
+          parent.submenu ??= [];
+          (parent.submenu as MenuItemConstructorOptions[]).push(t);
+        } else {
+          template.push(t);
+        }
+
+        if (!isEmpty((menu as any).children)) {
+          for (const child of (menu as any).children!) {
+            recursive(child, t);
+          }
+        }
+      };
+
+      for (const menu of menus) {
+        recursive(menu);
+      }
+
+      const bw = BrowserWindow.getFocusedWindow();
+      const menu = Menu.buildFromTemplate(template);
+      bw?.setMenu(menu);
+    });
+  });
+
   ipc.handle("app.promptUser", async (opts) => {
     const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
     const defaultCount = opts.buttons.filter(

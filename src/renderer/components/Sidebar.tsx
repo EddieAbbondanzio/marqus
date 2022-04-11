@@ -434,7 +434,7 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
   const [name, action] = await input.completed;
   if (action === "confirm") {
     try {
-      const note = await window.ipc("notes.create", {
+      const note = await window.ipc.invoke("notes.create", {
         name,
         parent: parentId ?? undefined,
       });
@@ -490,7 +490,7 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   if (action === "confirm") {
     try {
       const note = getNoteById(notes, id!);
-      const updatedNote = await window.ipc("notes.updateMetadata", {
+      const updatedNote = await window.ipc.invoke("notes.updateMetadata", {
         id,
         name,
       });
@@ -527,7 +527,7 @@ export const deleteNote: StoreListener<"sidebar.deleteNote"> = async (
   const note = getNoteById(notes, id!);
   const res = await promptConfirmAction("delete", `note ${note.name}`);
   if (res.text === "Yes") {
-    await window.ipc("notes.delete", { id: note.id });
+    await window.ipc.invoke("notes.delete", { id: note.id });
     ctx.setNotes((notes) => {
       if (note.parent == null) {
         return notes.filter((t) => t.id !== note.id);
@@ -574,7 +574,7 @@ export const dragNote: StoreListener<"sidebar.dragNote"> = async (
     }
   }
 
-  const updatedNote = await window.ipc("notes.updateMetadata", {
+  const updatedNote = await window.ipc.invoke("notes.updateMetadata", {
     id: note.id,
     parent: newParent?.id,
   });

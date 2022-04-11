@@ -11,12 +11,10 @@ import { NotFoundError } from "../../shared/errors";
 import { createNote, getNoteSchema, Note } from "../../shared/domain/note";
 import moment from "moment";
 import { parseResourceId, UUID_REGEX } from "../../shared/domain";
-import { IpcPlugin } from "../types";
 import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
 import { Dictionary, values } from "lodash";
-
-// Messy...
+import { IpcPlugin } from "../../shared/ipc";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";

@@ -1,6 +1,6 @@
 import { render } from "react-dom";
 import React, { useEffect } from "react";
-import { useShortcuts } from "./io/shortcuts";
+import { getShortcutStringForEvent, useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
@@ -8,7 +8,14 @@ import { Section, UI } from "../shared/domain/ui";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
-import { State, StoreListener, useStore } from "./store";
+import {
+  EventType,
+  EventValue,
+  State,
+  Store,
+  StoreListener,
+  useStore,
+} from "./store";
 import { isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
@@ -21,18 +28,19 @@ async function main() {
   let needDataDirectory = false;
 
   try {
-    needDataDirectory = !(await ipc("config.hasDataDirectory"));
+    needDataDirectory = !(await ipc.invoke("config.hasDataDirectory"));
     initialState = await loadInitialState();
   } catch (e) {
     console.error("Fatal Error", e);
     await promptFatal((e as Error).message);
-    ipc("app.quit");
+    ipc.invoke("app.quit");
     return;
   }
 
   function App(): JSX.Element {
     const store = useStore(initialState);
     useShortcuts(store);
+    useApplicationMenu(store);
 
     useEffect(() => {
       store.on("sidebar.toggle", toggleSidebar);
@@ -91,10 +99,10 @@ async function loadInitialState(): Promise<State> {
 
   // eslint-disable-next-line prefer-const
   [ui, shortcuts, tags, notes] = await Promise.all([
-    ipc("app.loadPreviousUIState"),
-    ipc("shortcuts.getAll"),
-    ipc("tags.getAll"),
-    ipc("notes.getAll"),
+    ipc.invoke("app.loadPreviousUIState"),
+    ipc.invoke("shortcuts.getAll"),
+    ipc.invoke("tags.getAll"),
+    ipc.invoke("notes.getAll"),
   ]);
 
   return {
@@ -117,12 +125,12 @@ export const toggleSidebar: StoreListener<"sidebar.toggle"> = (_, ctx) => {
   }));
 };
 
-export const openDevTools = (): void => ipc("app.openDevTools");
-export const reload = (): void => ipc("app.reload");
-export const toggleFullScreen = (): void => ipc("app.toggleFullScreen");
+export const openDevTools = (): void => ipc.invoke("app.openDevTools");
+export const reload = (): void => ipc.invoke("app.reload");
+export const toggleFullScreen = (): void => ipc.invoke("app.toggleFullScreen");
 export const inspectElement: StoreListener<"app.inspectElement"> = ({
   value: coord,
-}) => ipc("app.inspectElement", coord);
+}) => ipc.invoke("app.inspectElement", coord);
 
 export const push: StoreListener<"focus.push"> = ({ value: next }, ctx) => {
   let previous: Section | undefined;
@@ -155,3 +163,38 @@ export const pop: StoreListener<"focus.pop"> = (_, ctx) => {
     };
   });
 };
+
+export function useApplicationMenu(store: Store): void {
+  const { shortcuts } = store.state;
+
+  window.ipc
+    .invoke("app.setApplicationMenu", [
+      {
+        label: "File",
+        children: [
+          {
+            label: "Open data directory",
+            event: "app.reload",
+            eventInput: undefined,
+          },
+          // { label: "Change data directory" },
+        ],
+      },
+      // {
+      //   label: "Edit",
+      //   children: [{ label: "Cut" }, { label: "Copy" }, { label: "Paste" }],
+      // },
+      // {
+      //   label: "View",
+      //   children: [
+      //     {
+      //       label: "Toggle sidebar",
+      //       accelerator: getShortcutStringForEvent(shortcuts, "sidebar.toggle"),
+      //     },
+      //   ],
+      // },
+    ])
+    .then((val: any) => {
+      store.dispatch(val.event, val.input);
+    });
+}

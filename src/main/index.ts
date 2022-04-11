@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { app, BrowserWindow, IpcMain, ipcMain, Menu } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import { Config } from "../shared/domain/config";
 import { getProcessType, isDevelopment } from "../shared/env";
+import { IpcMainTS } from "../shared/ipc";
 import { useAppIpcs } from "./ipc/app";
 import {
   loadConfig,
@@ -11,7 +12,6 @@ import {
 import { useNoteIpcs } from "./ipc/notes";
 import { useShortcutIpcs } from "./ipc/shortcuts";
 import { useTagIpcs } from "./ipc/tags";
-import { TypeSafeIpc } from "./types";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -29,7 +29,7 @@ let mainWindow: BrowserWindow;
 
 async function main() {
   const config: Config = await loadConfig();
-  const typeSafeIpc: TypeSafeIpc = {
+  const typeSafeIpc: IpcMainTS = {
     handle: (ipc, handler) => {
       ipcMain.handle(ipc, (_, args) => handler(args));
     },

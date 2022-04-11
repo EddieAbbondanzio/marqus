@@ -1,3 +1,4 @@
+import { MenuItem } from "electron";
 import { PromisedInput } from "../awaitableInput";
 
 export interface UI {
@@ -28,3 +29,16 @@ export interface Editor {
   content?: string;
   noteId?: string;
 }
+
+export type ApplicationMenu = ParentApplicationMenu | LeafApplicationMenu;
+interface BaseApplicationMenu {
+  label: string;
+}
+
+type ParentApplicationMenu = BaseApplicationMenu & {
+  children: ApplicationMenu[];
+};
+type LeafApplicationMenu = BaseApplicationMenu & {
+  event: string;
+  eventInput?: any;
+};

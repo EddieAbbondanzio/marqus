@@ -1,26 +1,23 @@
 import { PromptButton, PromptOptions } from "./prompt";
 import { Coord } from "../renderer/utils/dom";
-import { UI } from "./domain/ui";
+import { ApplicationMenu, UI } from "./domain/ui";
 import { Shortcut } from "./domain/shortcut";
-import { StartsWith } from "../renderer/types";
 import { Note } from "./domain/note";
 import { Tag } from "./domain/tag";
+import { Config } from "./domain/config";
+import { EventType, EventValue } from "../renderer/store";
 
-/*
- * Helper types to define inputs and outputs of IPC handlers.
- */
+export interface IpcInvokeSchema {
+  /*
+   * TypeScript can't infer keys of a union type. Don't break out IpcSchema
+   * into sub modules unless you want to lose intellisense.
+   */
 
-export type IpcIn<I> = [I, Promise<void>];
-export type IpcInOut<I, O> = [I, Promise<O>];
-export type IpcOut<O> = [void, Promise<O>];
-export type IpcVoid = [void, void];
-
-/*
- * TypeScript can't infer keys of a union type. Don't break out IpcSchema
- * into sub modules unless you want to lose intellisense.
- */
-export interface IpcSchema {
   // App
+  "app.setApplicationMenu": IpcInOut<
+    ApplicationMenu[],
+    { event: EventType; input: any }
+  >;
   "app.promptUser": IpcInOut<PromptOptions, PromptButton>;
   "app.openDevTools": IpcVoid;
   "app.inspectElement": IpcIn<Coord>;
@@ -51,33 +48,39 @@ export interface IpcSchema {
   "config.hasDataDirectory": IpcOut<boolean>;
   "config.selectDataDirectory": IpcVoid;
 }
+export type InvokeType = keyof IpcInvokeSchema;
 
-export type IpcType = keyof IpcSchema;
+// Helper types to define inputs and outputs of IPC handlers.
+export type IpcIn<I> = [I, Promise<void>];
+export type IpcInOut<I, O> = [I, Promise<O>];
+export type IpcOut<O> = [void, Promise<O>];
+export type IpcVoid = [void, void];
 
-export type IpcInput<Type extends IpcType> = IpcSchema[Type][0];
-export type IpcOutput<Type extends IpcType> = IpcSchema[Type][1];
+export interface IpcRendererTS {
+  invoke: Invoker;
+  // Only use _on and _send in special cases.
+  _on: Electron.IpcRenderer["on"];
+  _off: Electron.IpcRenderer["off"];
+  _send: Electron.IpcRenderer["send"];
+}
 
-export type Ipc = <Type extends IpcType>(
+export type Invoker = <Type extends InvokeType>(
   // Allows for passing just the type ex: "tags.getAll" if no input expected
-  ...params: IpcInput<Type> extends void ? [Type] : [Type, IpcInput<Type>]
-) => IpcOutput<Type>;
+  ...params: InvokeInput<Type> extends void ? [Type] : [Type, InvokeInput<Type>]
+) => InvokeOutput<Type>;
 
-/**
- * Handler that implements a specific IPC action. These should only be
- * defined on the main thread.
- */
-export type IpcHandler<Type extends IpcType> = (
-  input: IpcInput<Type>
-) => IpcOutput<Type>;
+export type InvokeInput<Type extends InvokeType> = IpcInvokeSchema[Type][0];
+export type InvokeOutput<Type extends InvokeType> = IpcInvokeSchema[Type][1];
 
-/**
- * Registry for defining multiple IPC handlers.
- */
-export type IpcNamespace<Namespace extends string> = Pick<
-  IpcSchema,
-  StartsWith<keyof IpcSchema, Namespace>
->;
+// Basic wrapper for intellisense and easy testing support
+export interface IpcMainTS {
+  handle<Type extends InvokeType>(
+    type: Type,
+    handler: InvokeHandler<Type>
+  ): void;
+}
+export type InvokeHandler<Type extends InvokeType> = (
+  input: InvokeInput<Type>
+) => InvokeOutput<Type>;
 
-export type IpcRegistry<Namespace extends string> = {
-  [Key in StartsWith<keyof IpcSchema, Namespace>]: IpcHandler<Key>;
-};
+export type IpcPlugin = (ipc: IpcMainTS, config: Config) => void;

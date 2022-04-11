@@ -1,5 +1,5 @@
 import { Shortcut } from "../domain/shortcut";
-import { KeyCode, KEYCODE_DELIMITER, sortKeyCodes } from "./keyCode";
+import { KeyCode, sortKeyCodes } from "./keyCode";
 
 export const COMMON_KEY_COMBOS = {
   scrollDown: [KeyCode.Control, KeyCode.ArrowDown],

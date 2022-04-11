@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { getProcessType, isDevelopment } from "../shared/env";
-import { Ipc } from "../shared/ipc";
+import { IpcRendererTS } from "../shared/ipc";
 
 if (getProcessType() === "main") {
   throw Error(
@@ -8,22 +8,20 @@ if (getProcessType() === "main") {
   );
 }
 
-/**
- * Send an Ipc to the main thread.
- * @param type String of the type
- * @param input Payload.
- * @returns The response the main thread gave
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ipc: Ipc = async (type: string, input?: unknown): Promise<any> =>
-  ipcRenderer.invoke(type, input);
+// Wrapped for testing purposes.
+const ipcRendererTS: IpcRendererTS = {
+  invoke: ipcRenderer.invoke,
+  _on: ipcRenderer.on,
+  _off: ipcRenderer.off,
+  _send: ipcRenderer.send,
+};
 
 // Only thing that should be exposed.
-contextBridge.exposeInMainWorld("ipc", ipc);
+contextBridge.exposeInMainWorld("ipc", ipcRendererTS);
 
 declare global {
   interface Window {
-    ipc: Ipc;
+    ipc: IpcRendererTS;
   }
 }
 

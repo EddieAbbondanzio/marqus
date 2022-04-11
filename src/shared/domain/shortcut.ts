@@ -3,8 +3,8 @@ import { ALL_SECTIONS, Section } from "./ui";
 import * as yup from "yup";
 
 /*
- * Shortcuts are not entities because any two shortcuts are considered equal
- * as long as they have the same command and keys.
+ * Shortcuts are not entities because they are considered equal by value.
+ * We only test for event and keys for equality.
  */
 export interface Shortcut {
   // Event is of type string as /shared doesn't have access to CommandType.

@@ -1,7 +1,7 @@
 import OpenColor from "open-color";
 import React from "react";
 import styled from "styled-components";
-import { mb2, mb3 } from "../css";
+import { mb3 } from "../css";
 import { Button } from "./shared/Button";
 import { Header } from "./shared/Header";
 import { Modal } from "./shared/Modal";
@@ -18,7 +18,7 @@ export function DataDirectoryModal() {
         <Button
           color={OpenColor.white}
           backgroundColor={OpenColor.green[6]}
-          onClick={() => window.ipc("config.selectDataDirectory")}
+          onClick={() => window.ipc.invoke("config.selectDataDirectory")}
         >
           Select a directory
         </Button>

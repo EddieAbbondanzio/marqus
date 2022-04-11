@@ -1,9 +1,15 @@
 import { chain, isEqual } from "lodash";
 import { useEffect, useState } from "react";
-import { KeyCode, parseKeyCode, sortKeyCodes } from "../../shared/io/keyCode";
+import {
+  KeyCode,
+  keyCodesToString,
+  parseKeyCode,
+  sortKeyCodes,
+} from "../../shared/io/keyCode";
 import { Section, UI } from "../../shared/domain/ui";
 import { EventType, Store } from "../store";
 import { sleep } from "../../shared/utils";
+import { Shortcut } from "../../shared/domain/shortcut";
 
 const INITIAL_DELAY = 250;
 const REPEAT_DELAY = 125;
@@ -123,3 +129,15 @@ export const toKeyArray = (
     .map(([key]) => key as KeyCode)
     .thru(sortKeyCodes)
     .value();
+
+export function getShortcutStringForEvent(
+  shortcuts: Shortcut[],
+  event: EventType
+): string | undefined {
+  const s = shortcuts.find((s) => s.event === event);
+  if (s != null) {
+    return keyCodesToString(s.keys);
+  } else {
+    return undefined;
+  }
+}

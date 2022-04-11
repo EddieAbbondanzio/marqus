@@ -2,11 +2,10 @@ import { Section } from "../../shared/domain/ui";
 import { Shortcut, shortcutSchema } from "../../shared/domain/shortcut";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { keyCodesToString, parseKeyCodes } from "../../shared/io/keyCode";
-import { IpcRegistry } from "../../shared/ipc";
 import { createFileHandler, getPathInDataDirectory } from "../fileHandler";
 import * as yup from "yup";
-import { IpcPlugin } from "../types";
 import { Config } from "../../shared/domain/config";
+import { IpcPlugin } from "../../shared/ipc";
 
 export const SHORTCUTS_FILE = "shortcuts.json";
 

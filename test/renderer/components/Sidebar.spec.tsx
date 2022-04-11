@@ -95,7 +95,7 @@ test("sidebar.dragNote moves nested to root", async () => {
   });
 
   // mock ipc notes.updateMetadata return value
-  ((window as any).ipc as jest.Mock).mockImplementationOnce(() => ({
+  ((window as any).ipc.invoke as jest.Mock).mockImplementationOnce(() => ({
     id: "note-to-move",
     parent: undefined,
   }));
@@ -134,7 +134,7 @@ test("sidebar.dragNote moves root to nested", async () => {
   });
 
   // mock ipc notes.updateMetadata return value
-  ((window as any).ipc as jest.Mock).mockImplementationOnce(() => ({
+  ((window as any).ipc.invoke as jest.Mock).mockImplementationOnce(() => ({
     id: "note-to-move",
     parent: "new-parent",
   }));
@@ -178,7 +178,7 @@ test("sidebar.dragNote does not allow moving note to child", async () => {
   });
 
   // mock ipc notes.updateMetadata return value
-  ((window as any).ipc as jest.Mock).mockImplementationOnce(() => ({
+  ((window as any).ipc.invoke as jest.Mock).mockImplementationOnce(() => ({
     id: "note-to-move",
     parent: "new-parent",
   }));
@@ -215,7 +215,7 @@ test("sidebar.dragNote doesn't allow moving note to be child of itself", async (
   });
 
   // mock ipc notes.updateMetadata return value
-  ((window as any).ipc as jest.Mock).mockImplementationOnce(() => ({
+  ((window as any).ipc.invoke as jest.Mock).mockImplementationOnce(() => ({
     id: "note-to-move",
     parent: "note-to-move",
   }));
