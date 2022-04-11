@@ -4,7 +4,13 @@ import {
   Menu,
   MenuItemConstructorOptions,
 } from "electron";
-import { ApplicationMenu, menuHasChildren, UI } from "../../shared/domain/ui";
+import {
+  ApplicationMenu,
+  menuHasChildren,
+  menuHasEvent,
+  menuHasRole,
+  UI,
+} from "../../shared/domain/ui";
 import * as yup from "yup";
 import { px } from "../../shared/dom";
 import {
@@ -31,10 +37,16 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
         enabled: !(menu.disabled ?? false),
       };
 
-      if (!menuHasChildren(menu)) {
+      if (menuHasRole(menu)) {
+        t.role = menu.role;
+        // shortcut will be defaulted from device settings.
+      }
+
+      // eslint-disable-next-line no-prototype-builtins
+      if (!menuHasChildren(menu) && menuHasEvent(menu)) {
         t.click = () => {
           const bw = BrowserWindow.getFocusedWindow();
-          bw?.webContents.send(IpcChannels.ApplicationMenuClick, { 
+          bw?.webContents.send(IpcChannels.ApplicationMenuClick, {
             event: menu.event,
             eventInput: menu.eventInput,
           });

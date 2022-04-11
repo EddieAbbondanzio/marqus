@@ -167,9 +167,11 @@ export const pop: StoreListener<"focus.pop"> = (_, ctx) => {
 
 export function useApplicationMenu(store: Store): void {
   const shortcutLabels = getShortcutLabels(store.state.shortcuts);
+  const focused = store.state.ui.focused[0];
+
   void window.ipc("app.setApplicationMenu", [
     {
-      label: "File",
+      label: "&File",
       children: [
         {
           label: "Open data directory",
@@ -193,12 +195,28 @@ export function useApplicationMenu(store: Store): void {
         },
       ],
     },
-    // {
-    //   label: "Edit",
-    //   children: [{ label: "Cut" }, { label: "Copy" }, { label: "Paste" }],
-    // },
     {
-      label: "View",
+      label: "&Edit",
+      children: [
+        {
+          label: "Cut",
+          role: "cut",
+          disabled: focused !== "editor",
+        },
+        {
+          label: "Copy",
+          role: "copy",
+          disabled: focused !== "editor",
+        },
+        {
+          label: "Paste",
+          role: "paste",
+          disabled: focused !== "editor",
+        },
+      ],
+    },
+    {
+      label: "&View",
       children: [
         {
           label: "Fullscreen",

@@ -30,21 +30,29 @@ export interface Editor {
   noteId?: string;
 }
 
-export type ApplicationMenu = ParentApplicationMenu | ChildApplicationMenu;
+export type ApplicationMenu =
+  | ParentApplicationMenu
+  | ApplicationMenuWithEvent
+  | ApplicationMenuWithRole;
 interface BaseApplicationMenu {
   label: string;
   disabled?: boolean;
 }
 
-type ParentApplicationMenu = BaseApplicationMenu & {
+export interface ParentApplicationMenu extends BaseApplicationMenu {
   children: ApplicationMenu[];
-};
-type ChildApplicationMenu<EType extends UIEventType = UIEventType> =
-  BaseApplicationMenu & {
-    shortcut?: string;
-    event: EType;
-    eventInput?: UIEventInput<EType>;
-  };
+}
+
+export interface ApplicationMenuWithRole extends BaseApplicationMenu {
+  role: Electron.MenuItem["role"];
+}
+export interface ApplicationMenuWithEvent<
+  UIEvent extends UIEventType = UIEventType
+> extends BaseApplicationMenu {
+  shortcut?: string;
+  event: UIEvent;
+  eventInput?: UIEventInput<UIEvent>;
+}
 
 export function menuHasChildren(
   menu: ApplicationMenu
@@ -53,6 +61,19 @@ export function menuHasChildren(
   return menu.hasOwnProperty("children");
 }
 
+export function menuHasRole(
+  menu: ApplicationMenu
+): menu is ApplicationMenuWithRole {
+  // eslint-disable-next-line no-prototype-builtins
+  return menu.hasOwnProperty("role");
+}
+
+export function menuHasEvent(
+  menu: ApplicationMenu
+): menu is ApplicationMenuWithEvent {
+  // eslint-disable-next-line no-prototype-builtins
+  return menu.hasOwnProperty("event");
+}
 /*
  * Events are defined in shared so we can keep shortcuts and application menus
  * type safe.
