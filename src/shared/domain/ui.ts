@@ -60,6 +60,7 @@ export function menuHasChildren(
 export interface UIEvents {
   // Global
   "app.openDataDirectory": void;
+  "app.selectDataDirectory": void;
   "app.openDevTools": void;
   "app.reload": void;
   "app.toggleFullScreen": void;

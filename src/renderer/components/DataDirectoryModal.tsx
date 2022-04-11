@@ -2,11 +2,18 @@ import OpenColor from "open-color";
 import React from "react";
 import styled from "styled-components";
 import { mb3 } from "../css";
+import { Store } from "../store";
 import { Button } from "./shared/Button";
 import { Header } from "./shared/Header";
 import { Modal } from "./shared/Modal";
 
-export function DataDirectoryModal() {
+export interface DataDirectoryModalProps {
+  store: Store;
+}
+
+export function DataDirectoryModal({
+  store,
+}: DataDirectoryModalProps): JSX.Element {
   return (
     <Modal>
       <Content>
@@ -18,7 +25,7 @@ export function DataDirectoryModal() {
         <Button
           color={OpenColor.white}
           backgroundColor={OpenColor.green[6]}
-          onClick={() => window.ipc("config.selectDataDirectory")}
+          onClick={() => store.dispatch("app.selectDataDirectory")}
         >
           Select a directory
         </Button>

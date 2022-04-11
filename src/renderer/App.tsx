@@ -4,7 +4,7 @@ import { getShortcutLabels, useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { UIEventType, UIEventInput, Section, UI } from "../shared/domain/ui";
+import { Section, UI } from "../shared/domain/ui";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
@@ -43,6 +43,7 @@ async function main() {
       store.on("app.reload", reload);
       store.on("app.toggleFullScreen", toggleFullScreen);
       store.on("app.openDataDirectory", openDataDirectory);
+      store.on("app.selectDataDirectory", selectDataDirectory);
 
       store.on("focus.push", push);
       store.on("focus.pop", pop);
@@ -54,6 +55,7 @@ async function main() {
         store.off("app.reload", reload);
         store.off("app.toggleFullScreen", toggleFullScreen);
         store.off("app.openDataDirectory", openDataDirectory);
+        store.off("app.selectDataDirectory", selectDataDirectory);
 
         store.off("focus.push", push);
         store.off("focus.pop", pop);
@@ -66,7 +68,7 @@ async function main() {
       <Container>
         {!(store.state.ui.sidebar.hidden ?? false) && <Sidebar store={store} />}
         <Editor store={store} />
-        {needDataDirectory && <DataDirectoryModal />}
+        {needDataDirectory && <DataDirectoryModal store={store} />}
       </Container>
     );
   }
@@ -120,6 +122,8 @@ export const toggleSidebar: StoreListener<"app.toggleSidebar"> = (_, ctx) => {
   }));
 };
 
+export const selectDataDirectory = (): void =>
+  ipc("config.selectDataDirectory");
 export const openDataDirectory = (): void => ipc("config.openDataDirectory");
 export const openDevTools = (): void => ipc("app.openDevTools");
 export const reload = (): void => ipc("app.reload");
@@ -171,7 +175,11 @@ export function useApplicationMenu(store: Store): void {
           shortcut: shortcutLabels["app.openDataDirectory"],
           event: "app.openDataDirectory",
         },
-        // { label: "Change data directory" },
+        {
+          label: "Change data directory",
+          shortcut: shortcutLabels["app.selectDataDirectory"],
+          event: "app.selectDataDirectory",
+        },
         {
           label: "Reload app",
           shortcut: shortcutLabels["app.reload"],
