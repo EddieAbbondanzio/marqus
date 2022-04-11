@@ -9,6 +9,10 @@ export const COMMON_KEY_COMBOS = {
 const shortcuts: Shortcut[] = [
   // Global
   {
+    event: "app.quit",
+    keys: [KeyCode.Control, KeyCode.LetterQ],
+  },
+  {
     event: "app.openDevTools",
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterI],
   },

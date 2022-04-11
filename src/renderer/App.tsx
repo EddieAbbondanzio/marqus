@@ -36,8 +36,8 @@ async function main() {
     useApplicationMenu(store);
 
     useEffect(() => {
+      store.on("app.quit", quit);
       store.on("app.toggleSidebar", toggleSidebar);
-
       store.on("app.inspectElement", inspectElement);
       store.on("app.openDevTools", openDevTools);
       store.on("app.reload", reload);
@@ -48,8 +48,8 @@ async function main() {
       store.on("focus.push", push);
       store.on("focus.pop", pop);
       return () => {
+        store.off("app.quit", quit);
         store.off("app.toggleSidebar", toggleSidebar);
-
         store.off("app.inspectElement", inspectElement);
         store.off("app.openDevTools", openDevTools);
         store.off("app.reload", reload);
@@ -122,6 +122,7 @@ export const toggleSidebar: StoreListener<"app.toggleSidebar"> = (_, ctx) => {
   }));
 };
 
+export const quit = (): void => ipc("app.quit");
 export const selectDataDirectory = (): void =>
   ipc("config.selectDataDirectory");
 export const openDataDirectory = (): void => ipc("config.openDataDirectory");
@@ -181,10 +182,14 @@ export function useApplicationMenu(store: Store): void {
           event: "app.selectDataDirectory",
         },
         {
-          label: "Reload app",
+          label: "Reload",
           shortcut: shortcutLabels["app.reload"],
           event: "app.reload",
-          eventInput: undefined,
+        },
+        {
+          label: "Quit",
+          shortcut: shortcutLabels["app.quit"],
+          event: "app.quit",
         },
       ],
     },

@@ -13,10 +13,7 @@ import styled from "styled-components";
 import { h100, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
 import { Note, getNoteById, getNoteSchema } from "../../shared/domain/note";
-import {
-  createPromisedInput,
-  PromisedInput,
-} from "../../shared/awaitableInput";
+import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
 import { NotFoundError } from "../../shared/errors";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";

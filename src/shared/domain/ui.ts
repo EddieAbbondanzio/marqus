@@ -1,4 +1,4 @@
-import { PromisedInput } from "../awaitableInput";
+import { PromisedInput } from "../promisedInput";
 import { Coord } from "../dom";
 
 export interface UI {
@@ -59,6 +59,7 @@ export function menuHasChildren(
  */
 export interface UIEvents {
   // Global
+  "app.quit": void;
   "app.openDataDirectory": void;
   "app.selectDataDirectory": void;
   "app.openDevTools": void;

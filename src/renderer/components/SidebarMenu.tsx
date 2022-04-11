@@ -2,7 +2,7 @@ import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import OpenColor from "open-color";
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
-import { PromisedInput } from "../../shared/awaitableInput";
+import { PromisedInput } from "../../shared/promisedInput";
 import { px } from "../../shared/dom";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
