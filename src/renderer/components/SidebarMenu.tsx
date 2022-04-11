@@ -3,7 +3,7 @@ import OpenColor from "open-color";
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/awaitableInput";
-import { px } from "../utils/dom";
+import { px } from "../../shared/dom";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { px } from "../utils/dom";
+import { px } from "../../shared/dom";
 import {
   ContextMenu,
   ContextMenuItem,

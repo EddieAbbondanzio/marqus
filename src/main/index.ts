@@ -3,15 +3,15 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { Config } from "../shared/domain/config";
 import { getProcessType, isDevelopment } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
-import { useAppIpcs } from "./ipc/app";
+import { useAppIpcs } from "./ipcs/app";
 import {
   loadConfig,
   saveConfig,
   useConfigIpcs as useConfigIpcs,
-} from "./ipc/config";
-import { useNoteIpcs } from "./ipc/notes";
-import { useShortcutIpcs } from "./ipc/shortcuts";
-import { useTagIpcs } from "./ipc/tags";
+} from "./ipcs/config";
+import { useNoteIpcs } from "./ipcs/notes";
+import { useShortcutIpcs } from "./ipcs/shortcuts";
+import { useTagIpcs } from "./ipcs/tags";
 
 if (getProcessType() !== "main") {
   throw Error(

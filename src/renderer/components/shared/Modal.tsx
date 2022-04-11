@@ -3,7 +3,7 @@ import React from "react";
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
 import { p2, rounded } from "../../css";
-import { hexToRgba } from "../../utils/dom";
+import { hexToRgba } from "../../../shared/dom";
 
 export function Modal({ children }: PropsWithChildren<{}>) {
   return (

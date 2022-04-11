@@ -1,4 +1,4 @@
-import { chain, isEqual } from "lodash";
+import { chain, Dictionary, isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import {
   KeyCode,
@@ -130,14 +130,12 @@ export const toKeyArray = (
     .thru(sortKeyCodes)
     .value();
 
-export function getShortcutStringForEvent(
-  shortcuts: Shortcut[],
-  event: EventType
-): string | undefined {
-  const s = shortcuts.find((s) => s.event === event);
-  if (s != null) {
-    return keyCodesToString(s.keys);
-  } else {
-    return undefined;
+export function getShortcutLabels(shortcuts: Shortcut[]): Dictionary<string> {
+  const dict: Dictionary<string> = {};
+
+  for (const shortcut of shortcuts) {
+    dict[shortcut.event] = keyCodesToString(shortcut.keys);
   }
+
+  return dict;
 }

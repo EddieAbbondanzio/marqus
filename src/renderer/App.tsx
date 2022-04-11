@@ -1,6 +1,6 @@
 import { render } from "react-dom";
 import React, { useEffect } from "react";
-import { getShortcutStringForEvent, useShortcuts } from "./io/shortcuts";
+import { getShortcutLabels, useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
@@ -165,36 +165,48 @@ export const pop: StoreListener<"focus.pop"> = (_, ctx) => {
 };
 
 export function useApplicationMenu(store: Store): void {
-  const { shortcuts } = store.state;
+  (async () => {
+    const shortcutLabels = getShortcutLabels(store.state.shortcuts);
 
-  window.ipc
-    .invoke("app.setApplicationMenu", [
+    const clicked = await window.ipc.invoke("app.setApplicationMenu", [
       {
         label: "File",
         children: [
+          // { label: "Change data directory" },
           {
-            label: "Open data directory",
+            label: "Reload app",
+            shortcut: shortcutLabels["app.reload"],
             event: "app.reload",
             eventInput: undefined,
           },
-          // { label: "Change data directory" },
         ],
       },
       // {
       //   label: "Edit",
       //   children: [{ label: "Cut" }, { label: "Copy" }, { label: "Paste" }],
       // },
-      // {
-      //   label: "View",
-      //   children: [
-      //     {
-      //       label: "Toggle sidebar",
-      //       accelerator: getShortcutStringForEvent(shortcuts, "sidebar.toggle"),
-      //     },
-      //   ],
-      // },
-    ])
-    .then((val: any) => {
-      store.dispatch(val.event, val.input);
-    });
+      {
+        label: "View",
+        children: [
+          {
+            label: "Toggle sidebar",
+            shortcut: shortcutLabels["sidebar.toggle"],
+            event: "sidebar.toggle",
+          },
+        ],
+      },
+    ]);
+
+    try {
+      store.dispatch(
+        clicked.event as EventType,
+        clicked.eventInput as EventValue<EventType>
+      );
+    } catch (e) {
+      // Swallow errors from electron complaining ipc invoke didn't return.
+      if (!(e as Error).message.endsWith("reply was never sent")) {
+        throw e;
+      }
+    }
+  })();
 }

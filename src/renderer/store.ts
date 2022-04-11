@@ -1,4 +1,4 @@
-import { Coord } from "./utils/dom";
+import { Coord } from "../shared/dom";
 import { Section, UI } from "../shared/domain/ui";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";

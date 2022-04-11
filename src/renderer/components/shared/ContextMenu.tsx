@@ -7,7 +7,7 @@ import { isDevelopment } from "../../../shared/env";
 import styled from "styled-components";
 import { px2, py1, THEME } from "../../css";
 import { findNext, findPrevious } from "../../../shared/utils";
-import { Coord } from "../../utils/dom";
+import { Coord } from "../../../shared/dom";
 
 /*
  * Electron has a built in context menu but we rolled our own so we could tie

@@ -87,7 +87,7 @@ export function createFileHandler<Content>(
         await schema.validate(c);
       } catch (e) {
         if (isDevelopment()) {
-          console.log("Failed validation: ", JSON.stringify(c));
+          console.error("Failed validation: ", JSON.stringify(c));
         }
 
         throw e;

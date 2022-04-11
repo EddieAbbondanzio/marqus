@@ -1,4 +1,3 @@
-import { MenuItem } from "electron";
 import { PromisedInput } from "../awaitableInput";
 
 export interface UI {
@@ -30,7 +29,7 @@ export interface Editor {
   noteId?: string;
 }
 
-export type ApplicationMenu = ParentApplicationMenu | LeafApplicationMenu;
+export type ApplicationMenu = ParentApplicationMenu | ChildApplicationMenu;
 interface BaseApplicationMenu {
   label: string;
 }
@@ -38,7 +37,15 @@ interface BaseApplicationMenu {
 type ParentApplicationMenu = BaseApplicationMenu & {
   children: ApplicationMenu[];
 };
-type LeafApplicationMenu = BaseApplicationMenu & {
+type ChildApplicationMenu = BaseApplicationMenu & {
+  shortcut?: string;
   event: string;
   eventInput?: any;
 };
+
+export function menuHasChildren(
+  menu: ApplicationMenu
+): menu is ParentApplicationMenu {
+  // eslint-disable-next-line no-prototype-builtins
+  return menu.hasOwnProperty("children");
+}

@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { getPx, isPx, px } from "../../utils/dom";
+import { getPx, isPx, px } from "../../../shared/dom";
 import { resetCursor, setCursor, useMouseDrag } from "../../io/mouse";
 
 export interface ResizableProps {

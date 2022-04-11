@@ -1,11 +1,10 @@
 import { PromptButton, PromptOptions } from "./prompt";
-import { Coord } from "../renderer/utils/dom";
+import { Coord } from "./dom";
 import { ApplicationMenu, UI } from "./domain/ui";
 import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
 import { Tag } from "./domain/tag";
 import { Config } from "./domain/config";
-import { EventType, EventValue } from "../renderer/store";
 
 export interface IpcInvokeSchema {
   /*
@@ -16,7 +15,7 @@ export interface IpcInvokeSchema {
   // App
   "app.setApplicationMenu": IpcInOut<
     ApplicationMenu[],
-    { event: EventType; input: any }
+    { event: string; eventInput: unknown }
   >;
   "app.promptUser": IpcInOut<PromptOptions, PromptButton>;
   "app.openDevTools": IpcVoid;

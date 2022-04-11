@@ -4,9 +4,9 @@ import {
   Menu,
   MenuItemConstructorOptions,
 } from "electron";
-import { ApplicationMenu, UI } from "../../shared/domain/ui";
+import { ApplicationMenu, menuHasChildren, UI } from "../../shared/domain/ui";
 import * as yup from "yup";
-import { px } from "../../renderer/utils/dom";
+import { px } from "../../shared/dom";
 import {
   createFileHandler,
   FileHandler,
@@ -29,11 +29,14 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
       ) => {
         const t: MenuItemConstructorOptions = {
           label: menu.label,
-          click: () => {
-            const { event, eventInput } = menu as any;
-            res({ event, input: eventInput as any });
-          },
         };
+
+        if (!menuHasChildren(menu)) {
+          t.click = () =>
+            res({ event: menu.event, eventInput: menu.eventInput });
+          t.accelerator = menu.shortcut;
+          ``;
+        }
 
         if (parent != null) {
           parent.submenu ??= [];
@@ -42,8 +45,8 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
           template.push(t);
         }
 
-        if (!isEmpty((menu as any).children)) {
-          for (const child of (menu as any).children!) {
+        if (menuHasChildren(menu) && !isEmpty(menu.children)) {
+          for (const child of menu.children) {
             recursive(child, t);
           }
         }
