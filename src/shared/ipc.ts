@@ -13,10 +13,7 @@ export interface IpcInvokeSchema {
    */
 
   // App
-  "app.setApplicationMenu": IpcInOut<
-    ApplicationMenu[],
-    { event: string; eventInput: unknown }
-  >;
+  "app.setApplicationMenu": IpcIn<ApplicationMenu[]>;
   "app.promptUser": IpcInOut<PromptOptions, PromptButton>;
   "app.openDevTools": IpcVoid;
   "app.inspectElement": IpcIn<Coord>;
@@ -46,6 +43,7 @@ export interface IpcInvokeSchema {
   // Config
   "config.hasDataDirectory": IpcOut<boolean>;
   "config.selectDataDirectory": IpcVoid;
+  "config.openDataDirectory": IpcVoid;
 }
 export type InvokeType = keyof IpcInvokeSchema;
 
@@ -54,14 +52,6 @@ export type IpcIn<I> = [I, Promise<void>];
 export type IpcInOut<I, O> = [I, Promise<O>];
 export type IpcOut<O> = [void, Promise<O>];
 export type IpcVoid = [void, void];
-
-export interface IpcRendererTS {
-  invoke: Invoker;
-  // Only use _on and _send in special cases.
-  _on: Electron.IpcRenderer["on"];
-  _off: Electron.IpcRenderer["off"];
-  _send: Electron.IpcRenderer["send"];
-}
 
 export type Invoker = <Type extends InvokeType>(
   // Allows for passing just the type ex: "tags.getAll" if no input expected
@@ -83,3 +73,7 @@ export type InvokeHandler<Type extends InvokeType> = (
 ) => InvokeOutput<Type>;
 
 export type IpcPlugin = (ipc: IpcMainTS, config: Config) => void;
+
+export enum IpcChannels {
+  ApplicationMenuClick = "applicationMenuClick",
+}

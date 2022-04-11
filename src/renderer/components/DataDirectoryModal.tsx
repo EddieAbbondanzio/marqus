@@ -18,7 +18,7 @@ export function DataDirectoryModal() {
         <Button
           color={OpenColor.white}
           backgroundColor={OpenColor.green[6]}
-          onClick={() => window.ipc.invoke("config.selectDataDirectory")}
+          onClick={() => window.ipc("config.selectDataDirectory")}
         >
           Select a directory
         </Button>

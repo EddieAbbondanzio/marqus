@@ -52,15 +52,20 @@ export function menuHasChildren(
   return menu.hasOwnProperty("children");
 }
 
+/*
+ * Events are defined in shared so we can keep shortcuts and application menus
+ * type safe.
+ */
 export interface UIEvents {
   // Global
+  "app.openDataDirectory": void;
   "app.openDevTools": void;
   "app.reload": void;
   "app.toggleFullScreen": void;
   "app.inspectElement": Coord;
+  "app.toggleSidebar": void;
 
   // Sidebar
-  "sidebar.toggle": void;
   "sidebar.updateScroll": number;
   "sidebar.scrollDown": void;
   "sidebar.scrollUp": void;

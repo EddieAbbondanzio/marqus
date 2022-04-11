@@ -13,53 +13,56 @@ import {
   getPathInDataDirectory,
 } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
-import { IpcPlugin } from "../../shared/ipc";
+import { IpcChannels, IpcPlugin } from "../../shared/ipc";
 import { isEmpty } from "lodash";
 
 export const UI_FILE = "ui.json";
 
 export const useAppIpcs: IpcPlugin = (ipc, config) => {
-  ipc.handle("app.setApplicationMenu", (menus) => {
-    return new Promise((res) => {
-      const template: MenuItemConstructorOptions[] = [];
+  ipc.handle("app.setApplicationMenu", async (menus) => {
+    const template: MenuItemConstructorOptions[] = [];
 
-      const recursive = (
-        menu: ApplicationMenu,
-        parent?: MenuItemConstructorOptions
-      ) => {
-        const t: MenuItemConstructorOptions = {
-          label: menu.label,
-        };
-
-        if (!menuHasChildren(menu)) {
-          t.click = () =>
-            res({ event: menu.event, eventInput: menu.eventInput });
-          t.accelerator = menu.shortcut;
-          ``;
-        }
-
-        if (parent != null) {
-          parent.submenu ??= [];
-          (parent.submenu as MenuItemConstructorOptions[]).push(t);
-        } else {
-          template.push(t);
-        }
-
-        if (menuHasChildren(menu) && !isEmpty(menu.children)) {
-          for (const child of menu.children) {
-            recursive(child, t);
-          }
-        }
+    const recursive = (
+      menu: ApplicationMenu,
+      parent?: MenuItemConstructorOptions
+    ) => {
+      const t: MenuItemConstructorOptions = {
+        label: menu.label,
       };
 
-      for (const menu of menus) {
-        recursive(menu);
+      if (!menuHasChildren(menu)) {
+        t.click = () => {
+          const bw = BrowserWindow.getFocusedWindow();
+          bw?.webContents.send(IpcChannels.ApplicationMenuClick, {
+            event: menu.event,
+            eventInput: menu.eventInput,
+          });
+        };
+        t.accelerator = menu.shortcut;
+        ``;
       }
 
-      const bw = BrowserWindow.getFocusedWindow();
-      const menu = Menu.buildFromTemplate(template);
-      bw?.setMenu(menu);
-    });
+      if (parent != null) {
+        parent.submenu ??= [];
+        (parent.submenu as MenuItemConstructorOptions[]).push(t);
+      } else {
+        template.push(t);
+      }
+
+      if (menuHasChildren(menu) && !isEmpty(menu.children)) {
+        for (const child of menu.children) {
+          recursive(child, t);
+        }
+      }
+    };
+
+    for (const menu of menus) {
+      recursive(menu);
+    }
+
+    const bw = BrowserWindow.getFocusedWindow();
+    const menu = Menu.buildFromTemplate(template);
+    bw?.setMenu(menu);
   });
 
   ipc.handle("app.promptUser", async (opts) => {

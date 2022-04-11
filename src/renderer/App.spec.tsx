@@ -23,17 +23,17 @@ beforeEach(() => {
   };
 });
 
-test("sidebar.toggle", async () => {
+test("app.toggleSidebar", async () => {
   const { result } = renderHook(() => useStore(initialState));
   act(() => {
     const { on } = result.current;
-    on("sidebar.toggle", toggleSidebar);
+    on("app.toggleSidebar", toggleSidebar);
   });
 
   await act(async () => {
     const { dispatch, state } = result.current;
     expect(state.ui.sidebar.hidden).not.toBe(true);
-    await dispatch("sidebar.toggle");
+    await dispatch("app.toggleSidebar");
   });
 
   const { state } = result.current;

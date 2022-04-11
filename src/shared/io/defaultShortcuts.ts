@@ -28,7 +28,7 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.Digit1],
   },
   {
-    event: "sidebar.toggle",
+    event: "app.toggleSidebar",
     keys: [KeyCode.Control, KeyCode.LetterB],
   },
   {

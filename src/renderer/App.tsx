@@ -21,12 +21,12 @@ async function main() {
   let needDataDirectory = false;
 
   try {
-    needDataDirectory = !(await ipc.invoke("config.hasDataDirectory"));
+    needDataDirectory = !(await ipc("config.hasDataDirectory"));
     initialState = await loadInitialState();
   } catch (e) {
     console.error("Fatal Error", e);
     await promptFatal((e as Error).message);
-    ipc.invoke("app.quit");
+    ipc("app.quit");
     return;
   }
 
@@ -36,22 +36,24 @@ async function main() {
     useApplicationMenu(store);
 
     useEffect(() => {
-      store.on("sidebar.toggle", toggleSidebar);
+      store.on("app.toggleSidebar", toggleSidebar);
 
       store.on("app.inspectElement", inspectElement);
       store.on("app.openDevTools", openDevTools);
       store.on("app.reload", reload);
       store.on("app.toggleFullScreen", toggleFullScreen);
+      store.on("app.openDataDirectory", openDataDirectory);
 
       store.on("focus.push", push);
       store.on("focus.pop", pop);
       return () => {
-        store.off("sidebar.toggle", toggleSidebar);
+        store.off("app.toggleSidebar", toggleSidebar);
 
         store.off("app.inspectElement", inspectElement);
         store.off("app.openDevTools", openDevTools);
         store.off("app.reload", reload);
         store.off("app.toggleFullScreen", toggleFullScreen);
+        store.off("app.openDataDirectory", openDataDirectory);
 
         store.off("focus.push", push);
         store.off("focus.pop", pop);
@@ -92,10 +94,10 @@ async function loadInitialState(): Promise<State> {
 
   // eslint-disable-next-line prefer-const
   [ui, shortcuts, tags, notes] = await Promise.all([
-    ipc.invoke("app.loadPreviousUIState"),
-    ipc.invoke("shortcuts.getAll"),
-    ipc.invoke("tags.getAll"),
-    ipc.invoke("notes.getAll"),
+    ipc("app.loadPreviousUIState"),
+    ipc("shortcuts.getAll"),
+    ipc("tags.getAll"),
+    ipc("notes.getAll"),
   ]);
 
   return {
@@ -110,7 +112,7 @@ async function loadInitialState(): Promise<State> {
  * Don't move these to be in Sidebar.tsx. Otherwise the listener will only work
  * when the sidebar is being rendered.
  */
-export const toggleSidebar: StoreListener<"sidebar.toggle"> = (_, ctx) => {
+export const toggleSidebar: StoreListener<"app.toggleSidebar"> = (_, ctx) => {
   ctx.setUI((prev) => ({
     sidebar: {
       hidden: !(prev.sidebar.hidden ?? false),
@@ -118,12 +120,13 @@ export const toggleSidebar: StoreListener<"sidebar.toggle"> = (_, ctx) => {
   }));
 };
 
-export const openDevTools = (): void => ipc.invoke("app.openDevTools");
-export const reload = (): void => ipc.invoke("app.reload");
-export const toggleFullScreen = (): void => ipc.invoke("app.toggleFullScreen");
+export const openDataDirectory = (): void => ipc("config.openDataDirectory");
+export const openDevTools = (): void => ipc("app.openDevTools");
+export const reload = (): void => ipc("app.reload");
+export const toggleFullScreen = (): void => ipc("app.toggleFullScreen");
 export const inspectElement: StoreListener<"app.inspectElement"> = ({
   value: coord,
-}) => ipc.invoke("app.inspectElement", coord);
+}) => ipc("app.inspectElement", coord);
 
 export const push: StoreListener<"focus.push"> = ({ value: next }, ctx) => {
   let previous: Section | undefined;
@@ -158,48 +161,55 @@ export const pop: StoreListener<"focus.pop"> = (_, ctx) => {
 };
 
 export function useApplicationMenu(store: Store): void {
-  (async () => {
-    const shortcutLabels = getShortcutLabels(store.state.shortcuts);
+  const shortcutLabels = getShortcutLabels(store.state.shortcuts);
+  void window.ipc("app.setApplicationMenu", [
+    {
+      label: "File",
+      children: [
+        {
+          label: "Open data directory",
+          shortcut: shortcutLabels["app.openDataDirectory"],
+          event: "app.openDataDirectory",
+        },
+        // { label: "Change data directory" },
+        {
+          label: "Reload app",
+          shortcut: shortcutLabels["app.reload"],
+          event: "app.reload",
+          eventInput: undefined,
+        },
+      ],
+    },
+    // {
+    //   label: "Edit",
+    //   children: [{ label: "Cut" }, { label: "Copy" }, { label: "Paste" }],
+    // },
+    {
+      label: "View",
+      children: [
+        {
+          label: "Fullscreen",
+          shortcut: shortcutLabels["app.toggleFullScreen"],
+          event: "app.toggleFullScreen",
+        },
+        {
+          label: "Toggle sidebar",
+          shortcut: shortcutLabels["app.toggleSidebar"],
+          event: "app.toggleSidebar",
+        },
+      ],
+    },
+  ]);
 
-    const clicked = await window.ipc.invoke("app.setApplicationMenu", [
-      {
-        label: "File",
-        children: [
-          // { label: "Change data directory" },
-          {
-            label: "Reload app",
-            shortcut: shortcutLabels["app.reload"],
-            event: "app.reload",
-            eventInput: undefined,
-          },
-        ],
-      },
-      // {
-      //   label: "Edit",
-      //   children: [{ label: "Cut" }, { label: "Copy" }, { label: "Paste" }],
-      // },
-      {
-        label: "View",
-        children: [
-          {
-            label: "Toggle sidebar",
-            shortcut: shortcutLabels["sidebar.toggle"],
-            event: "sidebar.toggle",
-          },
-        ],
-      },
-    ]);
+  useEffect(() => {
+    const onClick = (ev: CustomEvent) => {
+      const { event, eventInput } = ev.detail;
+      store.dispatch(event, eventInput);
+    };
 
-    try {
-      store.dispatch(
-        clicked.event as UIEventType,
-        clicked.eventInput as UIEventInput<UIEventType>
-      );
-    } catch (e) {
-      // Swallow errors from electron complaining ipc invoke didn't return.
-      if (!(e as Error).message.endsWith("reply was never sent")) {
-        throw e;
-      }
-    }
-  })();
+    window.addEventListener("applicationmenu", onClick);
+    return () => {
+      window.removeEventListener("applicationmenu", onClick);
+    };
+  }, [store]);
 }

@@ -3,7 +3,7 @@ import { PromptOptions, PromptUser } from "../../shared/prompt";
 const { ipc } = window;
 
 export const prompt: PromptUser = async (opts: PromptOptions) =>
-  ipc.invoke("app.promptUser", opts);
+  ipc("app.promptUser", opts);
 
 export const promptError = async (errorMessage: string) =>
   prompt({

@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { getProcessType, isDevelopment } from "../shared/env";
-import { IpcRendererTS } from "../shared/ipc";
+import { Invoker, IpcChannels } from "../shared/ipc";
 
 if (getProcessType() === "main") {
   throw Error(
@@ -8,20 +8,12 @@ if (getProcessType() === "main") {
   );
 }
 
-// Wrapped for testing purposes.
-const ipcRendererTS: IpcRendererTS = {
-  invoke: ipcRenderer.invoke,
-  _on: ipcRenderer.on,
-  _off: ipcRenderer.off,
-  _send: ipcRenderer.send,
-};
-
 // Only thing that should be exposed.
-contextBridge.exposeInMainWorld("ipc", ipcRendererTS);
+contextBridge.exposeInMainWorld("ipc", ipcRenderer.invoke);
 
 declare global {
   interface Window {
-    ipc: IpcRendererTS;
+    ipc: Invoker;
   }
 }
 
@@ -30,3 +22,11 @@ if (isDevelopment()) {
   // eslint-disable-next-line no-console
   console.log("preload complete");
 }
+
+// Dispatch custom event to notify of application menu clicks
+ipcRenderer.on(IpcChannels.ApplicationMenuClick, (_, val: any) => {
+  const ev = new CustomEvent("applicationmenu", {
+    detail: val,
+  });
+  window.dispatchEvent(ev);
+});

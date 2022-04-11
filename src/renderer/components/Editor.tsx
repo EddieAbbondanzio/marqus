@@ -89,7 +89,7 @@ const StyledTextarea = styled.textarea`
   width: 100%;
 `;
 
-const debouncedInvoker = debounce(window.ipc.invoke, NOTE_SAVE_INTERVAL);
+const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL);
 
 const loadNote: StoreListener<"editor.loadNote"> = async (
   { value: noteId },
@@ -105,8 +105,7 @@ const loadNote: StoreListener<"editor.loadNote"> = async (
     throw new InvalidOpError(`${noteId} is not a note`);
   }
 
-  const content =
-    (await window.ipc.invoke("notes.loadContent", noteId)) ?? undefined;
+  const content = (await window.ipc("notes.loadContent", noteId)) ?? undefined;
   ctx.setUI({
     editor: {
       content,

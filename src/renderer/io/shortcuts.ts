@@ -133,12 +133,14 @@ export const toKeyArray = (
     .thru(sortKeyCodes)
     .value();
 
-export function getShortcutLabels(shortcuts: Shortcut[]): Dictionary<string> {
-  const dict: Dictionary<string> = {};
+export function getShortcutLabels(
+  shortcuts: Shortcut[]
+): Partial<Record<UIEventType, string>> {
+  const lookup: Partial<Record<UIEventType, string>> = {};
 
   for (const shortcut of shortcuts) {
-    dict[shortcut.event] = keyCodesToString(shortcut.keys);
+    lookup[shortcut.event] = keyCodesToString(shortcut.keys);
   }
 
-  return dict;
+  return lookup;
 }

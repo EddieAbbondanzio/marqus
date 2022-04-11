@@ -71,6 +71,11 @@ async function main() {
       config.windowWidth = width;
       await saveConfig(config);
     });
+
+    mainWindow.on("ready-to-show", () => {
+      console.log("MAIN WINDOW READY");
+      mainWindow.webContents.send("foo", "hi");
+    });
   };
 
   // Quit when all windows are closed, except on macOS. There, it's common

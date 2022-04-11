@@ -100,7 +100,7 @@ export function useStore(initialState: State): Store {
         delete clonedUI.editor.noteId;
       }
 
-      void window.ipc.invoke("app.saveUIState", clonedUI);
+      void window.ipc("app.saveUIState", clonedUI);
       return newState;
     });
   };

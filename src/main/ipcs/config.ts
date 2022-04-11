@@ -1,7 +1,7 @@
 import { InvalidOpError, MissingDataDirectoryError } from "../../shared/errors";
 import { createDirectory, exists, readFile, writeFile } from "../fileSystem";
 import { Config, DEFAULT_CONFIG } from "../../shared/domain/config";
-import { app, BrowserWindow, dialog } from "electron";
+import { app, BrowserWindow, dialog, shell } from "electron";
 import * as path from "path";
 import { isDevelopment, isProduction } from "../../shared/env";
 import { IpcPlugin } from "../../shared/ipc";
@@ -32,6 +32,13 @@ export const useConfigIpcs: IpcPlugin = (ipc, config) => {
 
     await writeFile(getConfigPath(), config, "json");
     focusedWindow.reload();
+  });
+  ipc.handle("config.openDataDirectory", async () => {
+    if (config.dataDirectory == null) {
+      return;
+    }
+
+    shell.openPath(config.dataDirectory);
   });
 };
 
