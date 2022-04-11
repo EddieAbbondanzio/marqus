@@ -14,6 +14,8 @@ export const THEME = {
     background: OpenColor.gray[0],
     border: BORDER,
     highlight: HIGHLIGHT,
+    font: OpenColor.gray[7],
+    shortcuts: OpenColor.gray[6],
   },
   sidebar: {
     hover: OpenColor.gray[8],

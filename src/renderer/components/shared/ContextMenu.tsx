@@ -5,10 +5,11 @@ import { Focusable } from "./Focusable";
 import { Store } from "../../store";
 import { isDevelopment } from "../../../shared/env";
 import styled from "styled-components";
-import { px2, py1, THEME } from "../../css";
+import { pl1, px2, py1, THEME } from "../../css";
 import { findNext, findPrevious } from "../../../shared/utils";
 import { Coord } from "../../../shared/dom";
 import { UIEventType, UIEventInput } from "../../../shared/domain/ui";
+import { getShortcutLabels } from "../../io/shortcuts";
 
 /*
  * Electron has a built in context menu but we rolled our own so we could tie
@@ -199,6 +200,8 @@ export function ContextMenu(
     setPosition(undefined);
   };
 
+  const shortcutLabels = getShortcutLabels(props.store.state.shortcuts);
+
   return (
     <Wrapper ref={wrapperRef}>
       {position != null && (
@@ -208,6 +211,8 @@ export function ContextMenu(
               if (item.role === "divider") {
                 return <StyledDivider key={i} />;
               } else {
+                const shortcutLabel = shortcutLabels[item.event];
+
                 if (selected != null && item.event === selected.event) {
                   return (
                     <StyledSelectedEntry
@@ -215,6 +220,11 @@ export function ContextMenu(
                       onClick={() => dispatchAndHide(item)}
                     >
                       {item.text}
+                      {shortcutLabel && (
+                        <StyledShortcutLabel>
+                          {shortcutLabel}
+                        </StyledShortcutLabel>
+                      )}
                     </StyledSelectedEntry>
                   );
                 } else {
@@ -225,6 +235,11 @@ export function ContextMenu(
                       onMouseMove={() => setSelectedIfDifferent(item)}
                     >
                       {item.text}
+                      {shortcutLabel && (
+                        <StyledShortcutLabel>
+                          {shortcutLabel}
+                        </StyledShortcutLabel>
+                      )}
                     </StyledEntry>
                   );
                 }
@@ -259,12 +274,21 @@ const StyledDivider = styled.div`
 `;
 
 const StyledEntry = styled.div`
+  color: ${THEME.contextMenu.font};
   display: flex;
   align-items: center;
+  justify-content: space-between;
   ${px2}
   ${py1}
 `;
 
 const StyledSelectedEntry = styled(StyledEntry)`
   background-color: ${THEME.contextMenu.highlight};
+`;
+
+const StyledShortcutLabel = styled.span`
+  ${pl1}
+  color: ${THEME.contextMenu.shortcuts};
+  font-size: 0.8rem;
+  text-transform: uppercase;
 `;

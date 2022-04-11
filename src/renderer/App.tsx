@@ -168,6 +168,7 @@ export const pop: StoreListener<"focus.pop"> = (_, ctx) => {
 export function useApplicationMenu(store: Store): void {
   const shortcutLabels = getShortcutLabels(store.state.shortcuts);
   const focused = store.state.ui.focused[0];
+  const selected = store.state.ui.sidebar.selected?.[0];
 
   void window.ipc("app.setApplicationMenu", [
     {
