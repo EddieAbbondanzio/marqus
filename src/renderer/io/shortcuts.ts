@@ -6,8 +6,8 @@ import {
   parseKeyCode,
   sortKeyCodes,
 } from "../../shared/io/keyCode";
-import { Section, UI } from "../../shared/domain/ui";
-import { EventType, Store } from "../store";
+import { UIEventType, Section, UI } from "../../shared/domain/ui";
+import { Store } from "../store";
 import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
 
@@ -39,7 +39,7 @@ export function useShortcuts(store: Store): void {
       );
 
       if (shortcut != null) {
-        void dispatch(shortcut.event as EventType, shortcut.eventInput);
+        void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
 
         if (shortcut.repeat) {
           (async () => {
@@ -53,7 +53,10 @@ export function useShortcuts(store: Store): void {
 
             if (isEqual(currKeys, activeKeysArray)) {
               const interval = setInterval(() => {
-                void dispatch(shortcut.event as EventType, shortcut.eventInput);
+                void dispatch(
+                  shortcut.event as UIEventType,
+                  shortcut.eventInput
+                );
               }, REPEAT_DELAY);
 
               setIntervalState(interval);

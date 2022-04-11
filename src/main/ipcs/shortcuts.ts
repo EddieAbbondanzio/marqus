@@ -1,8 +1,12 @@
-import { Section } from "../../shared/domain/ui";
+import { UIEventType, Section } from "../../shared/domain/ui";
 import { Shortcut, shortcutSchema } from "../../shared/domain/shortcut";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { keyCodesToString, parseKeyCodes } from "../../shared/io/keyCode";
-import { createFileHandler, getPathInDataDirectory } from "../fileHandler";
+import {
+  createFileHandler,
+  FileHandler,
+  getPathInDataDirectory,
+} from "../fileHandler";
 import * as yup from "yup";
 import { Config } from "../../shared/domain/config";
 import { IpcPlugin } from "../../shared/ipc";
@@ -10,7 +14,7 @@ import { IpcPlugin } from "../../shared/ipc";
 export const SHORTCUTS_FILE = "shortcuts.json";
 
 export interface ShortcutOverride {
-  event: string;
+  event: UIEventType;
   keys?: string;
   disabled?: boolean;
   when?: string;
@@ -21,11 +25,11 @@ export const useShortcutIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle("shortcuts.getAll", () => getShortcutsFileHandler(config).load());
 };
 
-export function getShortcutsFileHandler(config: Config) {
-  const filePath = getPathInDataDirectory(config, SHORTCUTS_FILE);
-
+export function getShortcutsFileHandler(
+  config: Config
+): FileHandler<Shortcut[]> {
   return createFileHandler<Shortcut[]>(
-    "shortcuts.json",
+    getPathInDataDirectory(config, SHORTCUTS_FILE),
     yup.array(shortcutSchema).optional(),
     {
       defaultValue: DEFAULT_SHORTCUTS,

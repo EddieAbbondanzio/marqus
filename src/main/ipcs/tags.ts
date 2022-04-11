@@ -1,4 +1,8 @@
-import { createFileHandler, getPathInDataDirectory } from "../fileHandler";
+import {
+  createFileHandler,
+  FileHandler,
+  getPathInDataDirectory,
+} from "../fileHandler";
 import * as yup from "yup";
 import { createTag, getTagSchema, Tag } from "../../shared/domain/tag";
 import moment from "moment";
@@ -71,7 +75,7 @@ export const useTagIpcs: IpcPlugin = (ipc, config) => {
   });
 };
 
-export function getTagFileHandler(config: Config) {
+export function getTagFileHandler(config: Config): FileHandler<Tag[]> {
   const serialize = (c: Tag[]) => c.map(({ type, ...t }) => t);
 
   const deserialize = (c?: Omit<Tag, "type">[]) =>

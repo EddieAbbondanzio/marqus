@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { PropsWithChildren } from "react";
 import { findParent } from "../../utils/findParent";
 import { Focusable } from "./Focusable";
-import { EventType, EventValue, Store } from "../../store";
+import { Store } from "../../store";
 import { isDevelopment } from "../../../shared/env";
 import styled from "styled-components";
 import { px2, py1, THEME } from "../../css";
 import { findNext, findPrevious } from "../../../shared/utils";
 import { Coord } from "../../../shared/dom";
+import { UIEventType, UIEventInput } from "../../../shared/domain/ui";
 
 /*
  * Electron has a built in context menu but we rolled our own so we could tie
@@ -56,11 +57,11 @@ export interface ContextMenuProps {
 export type ContextMenuItems = (ev?: MouseEvent) => ContextMenuItem[];
 
 export type ContextMenuItem = ContextMenuEntry | ContextMenuDivider;
-interface ContextMenuEntry<EType extends EventType = EventType> {
+interface ContextMenuEntry<EType extends UIEventType = UIEventType> {
   role: "entry";
   text: string;
   event: EType;
-  eventInput?: EventValue<EType>;
+  eventInput?: UIEventInput<EType>;
   shortcut?: string;
 }
 interface ContextMenuDivider {

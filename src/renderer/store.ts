@@ -1,5 +1,4 @@
-import { Coord } from "../shared/dom";
-import { Section, UI } from "../shared/domain/ui";
+import { UIEventType, UIEventInput, UI } from "../shared/domain/ui";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
@@ -8,49 +7,6 @@ import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Tag } from "../shared/domain/tag";
-
-export interface Events {
-  // Global
-  "app.openDevTools": void;
-  "app.reload": void;
-  "app.toggleFullScreen": void;
-  "app.inspectElement": Coord;
-
-  // Sidebar
-  "sidebar.toggle": void;
-  "sidebar.updateScroll": number;
-  "sidebar.scrollDown": void;
-  "sidebar.scrollUp": void;
-  "sidebar.resizeWidth": string;
-  "sidebar.toggleFilter": void;
-  "sidebar.createNote": string | null;
-  "sidebar.renameNote": string;
-  "sidebar.dragNote": { note: string; newParent?: string };
-  "sidebar.deleteNote": string;
-  "sidebar.setSelection": string[];
-  "sidebar.clearSelection": void;
-  "sidebar.toggleItemExpanded": string;
-  "sidebar.moveSelectionUp": void;
-  "sidebar.moveSelectionDown": void;
-
-  // Editor
-  "editor.save": void;
-  "editor.toggleView": void;
-  "editor.setContent": string;
-  "editor.loadNote": string;
-
-  // Focus Tracker
-  "focus.push": Section;
-  "focus.pop": void;
-
-  // Context Menu
-  "contextMenu.blur": void;
-  "contextMenu.run": void;
-  "contextMenu.moveSelectionUp": void;
-  "contextMenu.moveSelectionDown": void;
-}
-export type EventType = keyof Events;
-export type EventValue<Ev extends EventType> = Events[Ev];
 
 export type Transformer<S> = (previous: S) => S;
 export type PartialTransformer<S> = (previous: S) => DeepPartial<S>;
@@ -82,23 +38,23 @@ export type SetNotes = (t: Transformer<Note[]>) => void;
 export interface Store {
   dispatch: Dispatch;
   state: State;
-  on<EType extends EventType>(
-    event: EType | EType[],
-    listener: StoreListener<EType>
+  on<ET extends UIEventType>(
+    event: ET | ET[],
+    listener: StoreListener<ET>
   ): void;
-  off<EType extends EventType>(
+  off<EType extends UIEventType>(
     event: EType | EType[],
     listener: StoreListener<EType>
   ): void;
 }
 
-export type Dispatch = <EType extends EventType>(
-  event: EType,
-  ...value: EventValue<EType> extends void ? [undefined?] : [EventValue<EType>]
+export type Dispatch = <ET extends UIEventType>(
+  event: ET,
+  ...value: UIEventInput<ET> extends void ? [undefined?] : [UIEventInput<ET>]
 ) => Promise<void>;
 
-export type StoreListener<EType extends EventType> = (
-  ev: { type: EType; value: EventValue<EType> },
+export type StoreListener<ET extends UIEventType> = (
+  ev: { type: ET; value: UIEventInput<ET> },
   s: StoreControls
 ) => Promise<void> | void;
 
@@ -106,7 +62,7 @@ export function useStore(initialState: State): Store {
   // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
   const [state, setState] = useState(initialState);
   const [listeners, setListeners] = useState<{
-    [eType in EventType]+?: StoreListener<eType>;
+    [eType in UIEventType]+?: StoreListener<eType>;
   }>({});
   const lastState = useRef(state);
 

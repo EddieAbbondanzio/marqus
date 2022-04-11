@@ -1,4 +1,5 @@
 import { PromisedInput } from "../awaitableInput";
+import { Coord } from "../dom";
 
 export interface UI {
   sidebar: Sidebar;
@@ -37,11 +38,12 @@ interface BaseApplicationMenu {
 type ParentApplicationMenu = BaseApplicationMenu & {
   children: ApplicationMenu[];
 };
-type ChildApplicationMenu = BaseApplicationMenu & {
-  shortcut?: string;
-  event: string;
-  eventInput?: any;
-};
+type ChildApplicationMenu<EType extends UIEventType = UIEventType> =
+  BaseApplicationMenu & {
+    shortcut?: string;
+    event: EType;
+    eventInput?: UIEventInput<EType>;
+  };
 
 export function menuHasChildren(
   menu: ApplicationMenu
@@ -49,3 +51,46 @@ export function menuHasChildren(
   // eslint-disable-next-line no-prototype-builtins
   return menu.hasOwnProperty("children");
 }
+
+export interface UIEvents {
+  // Global
+  "app.openDevTools": void;
+  "app.reload": void;
+  "app.toggleFullScreen": void;
+  "app.inspectElement": Coord;
+
+  // Sidebar
+  "sidebar.toggle": void;
+  "sidebar.updateScroll": number;
+  "sidebar.scrollDown": void;
+  "sidebar.scrollUp": void;
+  "sidebar.resizeWidth": string;
+  "sidebar.toggleFilter": void;
+  "sidebar.createNote": string | null;
+  "sidebar.renameNote": string;
+  "sidebar.dragNote": { note: string; newParent?: string };
+  "sidebar.deleteNote": string;
+  "sidebar.setSelection": string[];
+  "sidebar.clearSelection": void;
+  "sidebar.toggleItemExpanded": string;
+  "sidebar.moveSelectionUp": void;
+  "sidebar.moveSelectionDown": void;
+
+  // Editor
+  "editor.save": void;
+  "editor.toggleView": void;
+  "editor.setContent": string;
+  "editor.loadNote": string;
+
+  // Focus Tracker
+  "focus.push": Section;
+  "focus.pop": void;
+
+  // Context Menu
+  "contextMenu.blur": void;
+  "contextMenu.run": void;
+  "contextMenu.moveSelectionUp": void;
+  "contextMenu.moveSelectionDown": void;
+}
+export type UIEventType = keyof UIEvents;
+export type UIEventInput<Ev extends UIEventType> = UIEvents[Ev];

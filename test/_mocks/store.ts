@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { DeepPartial } from "tsdef";
 import { State, StoreControls, useStore } from "../../src/renderer/store";
-import { px } from "../../src/renderer/utils/dom";
+import { px } from "../../src/shared/dom";
 
 export function createState(partial?: DeepPartial<State>) {
   const defaults: State = {

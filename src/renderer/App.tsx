@@ -4,18 +4,11 @@ import { getShortcutLabels, useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { Section, UI } from "../shared/domain/ui";
+import { UIEventType, UIEventInput, Section, UI } from "../shared/domain/ui";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
-import {
-  EventType,
-  EventValue,
-  State,
-  Store,
-  StoreListener,
-  useStore,
-} from "./store";
+import { State, Store, StoreListener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
@@ -199,8 +192,8 @@ export function useApplicationMenu(store: Store): void {
 
     try {
       store.dispatch(
-        clicked.event as EventType,
-        clicked.eventInput as EventValue<EventType>
+        clicked.event as UIEventType,
+        clicked.eventInput as UIEventInput<UIEventType>
       );
     } catch (e) {
       // Swallow errors from electron complaining ipc invoke didn't return.
