@@ -28,18 +28,18 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
     ) => {
       const t: MenuItemConstructorOptions = {
         label: menu.label,
+        enabled: !(menu.disabled ?? false),
       };
 
       if (!menuHasChildren(menu)) {
         t.click = () => {
           const bw = BrowserWindow.getFocusedWindow();
-          bw?.webContents.send(IpcChannels.ApplicationMenuClick, {
+          bw?.webContents.send(IpcChannels.ApplicationMenuClick, { 
             event: menu.event,
             eventInput: menu.eventInput,
           });
         };
         t.accelerator = menu.shortcut;
-        ``;
       }
 
       if (parent != null) {

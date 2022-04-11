@@ -33,6 +33,7 @@ export interface Editor {
 export type ApplicationMenu = ParentApplicationMenu | ChildApplicationMenu;
 interface BaseApplicationMenu {
   label: string;
+  disabled?: boolean;
 }
 
 type ParentApplicationMenu = BaseApplicationMenu & {
