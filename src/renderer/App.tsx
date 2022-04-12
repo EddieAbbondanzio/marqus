@@ -127,7 +127,10 @@ export const selectDataDirectory = (): void =>
   ipc("config.selectDataDirectory");
 export const openDataDirectory = (): void => ipc("config.openDataDirectory");
 export const openDevTools = (): void => ipc("app.openDevTools");
-export const reload = (): void => ipc("app.reload");
+export const reload = (): void => {
+  ipc("app.reload");
+  console.log("RELOAD!");
+};
 export const toggleFullScreen = (): void => ipc("app.toggleFullScreen");
 export const inspectElement: StoreListener<"app.inspectElement"> = ({
   value: coord,
@@ -168,7 +171,6 @@ export const pop: StoreListener<"focus.pop"> = (_, ctx) => {
 export function useApplicationMenu(store: Store): void {
   const shortcutLabels = getShortcutLabels(store.state.shortcuts);
   const focused = store.state.ui.focused[0];
-  const selected = store.state.ui.sidebar.selected?.[0];
 
   void window.ipc("app.setApplicationMenu", [
     {

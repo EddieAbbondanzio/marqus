@@ -259,7 +259,7 @@ export function renderMenus(
           value={note.name}
           onClick={onClick}
           onIconClick={(ev: React.MouseEvent) => {
-            console.log("CLCIK!", note.id);
+            // Prevents click of menu itself from triggering
             ev.stopPropagation();
             store.dispatch("sidebar.toggleItemExpanded", note.id);
           }}
