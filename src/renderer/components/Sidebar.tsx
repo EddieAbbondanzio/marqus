@@ -41,14 +41,8 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
   const { notes } = store.state;
   const { sidebar } = store.state.ui;
   const { input } = sidebar;
-  const expandedLookup = useMemo(
-    () => keyBy(sidebar.expanded, (e) => e),
-    [sidebar.expanded]
-  );
-  const selectedLookup = useMemo(
-    () => keyBy(sidebar.selected, (s) => s),
-    [sidebar.selected]
-  );
+  const expandedLookup = keyBy(sidebar.expanded, (e) => e);
+  const selectedLookup = keyBy(sidebar.selected, (s) => s);
 
   const [menus, itemIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
@@ -265,6 +259,7 @@ export function renderMenus(
           value={note.name}
           onClick={onClick}
           onIconClick={(ev: React.MouseEvent) => {
+            console.log("CLCIK!", note.id);
             ev.stopPropagation();
             store.dispatch("sidebar.toggleItemExpanded", note.id);
           }}
@@ -367,38 +362,8 @@ export const toggleItemExpanded: StoreListener<"sidebar.toggleItemExpanded"> = (
   { value: id },
   ctx
 ) => {
-  ctx.setUI((prev) => {
-    const toggleId = id ?? head(prev.sidebar.selected);
-    if (toggleId == null) {
-      throw new Error("No item to toggle");
-    }
-
-    // Don't expand notes with no children
-    const { notes } = ctx.getState();
-    const note = getNoteById(notes, toggleId);
-    if (isEmpty(note.children)) {
-      return prev;
-    }
-
-    const { sidebar } = prev;
-    if (isEmpty(sidebar.expanded)) {
-      sidebar.expanded = [toggleId];
-      return prev;
-    }
-
-    const exists = sidebar.expanded!.some(
-      (expandedId) => expandedId === toggleId
-    );
-    if (exists) {
-      sidebar.expanded = sidebar.expanded!.filter(
-        (expandedId) => expandedId !== toggleId
-      );
-    } else {
-      sidebar.expanded!.push(toggleId);
-    }
-
-    return prev;
-  });
+  const { selected } = ctx.getState().ui.sidebar;
+  toggleExpanded(ctx, id ?? head(selected));
 };
 
 export const createNote: StoreListener<"sidebar.createNote"> = async (
