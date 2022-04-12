@@ -88,7 +88,9 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
 
     // Sanity check
     if (Object.keys(others).length > 0) {
-      console.warn(`ipc notes.updateMetadata does not support ${others}`);
+      console.warn(
+        `ipc notes.updateMetadata does not support keys: ${Object.keys(others)}`
+      );
     }
 
     note.dateUpdated = new Date();

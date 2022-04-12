@@ -222,8 +222,9 @@ export function renderMenus(
 ): [JSX.Element[], string[]] {
   const menus: JSX.Element[] = [];
   const flatIds: string[] = [];
-
-  const recursive = (note: Note, parent?: Note, depth?: number) => {
+  console.log("BEGIN RENDER");
+  const recursive = (note: Note, depth?: number) => {
+    console.log("Render: ", note.name, " children: ", note.children);
     const isExpanded = expandedLookup[note.id];
     const isSelected = selectedLookup[note.id] != null;
     const currDepth = depth ?? 0;
@@ -275,7 +276,7 @@ export function renderMenus(
 
     if (hasChildren && isExpanded) {
       orderBy(note.children!, ["name"]).forEach((n) =>
-        recursive(n, note, currDepth + 1)
+        recursive(n, currDepth + 1)
       );
     }
 
@@ -553,12 +554,8 @@ export const dragNote: StoreListener<"sidebar.dragNote"> = async (
     return;
   }
 
-  // Don't bother if parent is the same.
-  if (
-    note.parent != null &&
-    newParent != null &&
-    note.parent === newParent.id
-  ) {
+  // Don't bother if parent is the same (also prevents root note moving to root)
+  if (note.parent === newParent?.id) {
     return;
   }
 
@@ -575,6 +572,8 @@ export const dragNote: StoreListener<"sidebar.dragNote"> = async (
     id: note.id,
     parent: newParent?.id,
   });
+
+  updatedNote.children = note.children;
 
   ctx.setNotes((notes) => {
     // Remove child from original parent. (If applicable)
