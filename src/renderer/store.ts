@@ -64,17 +64,12 @@ export function useStore(initialState: State): Store {
   const [listeners, setListeners] = useState<{
     [eType in UIEventType]+?: StoreListener<eType>;
   }>({});
-  const lastState = useRef(state);
+  const lastState = useRef(state as Readonly<State>);
 
   // We need to run these first
   useLayoutEffect(() => {
-    lastState.current = state;
+    lastState.current = cloneDeep(state);
   }, [state]);
-
-  const getState = useCallback((): State => {
-    const cloned = cloneDeep(lastState.current);
-    return cloned;
-  }, []);
 
   const setUI: SetUI = (transformer) => {
     setState((prevState) => {
@@ -141,10 +136,10 @@ export function useStore(initialState: State): Store {
         setTags,
         setShortcuts,
         setNotes,
-        getState,
+        getState: () => lastState.current,
       });
     },
-    [listeners, getState]
+    [listeners]
   );
 
   const on: Store["on"] = (event, listener) => {

@@ -153,6 +153,10 @@ test("sidebar.dragNote moves root to nested", async () => {
     expect(note.parent).toBe("new-parent");
     const ogParent = getNoteById(state.notes, "new-parent");
     expect(ogParent.children).toHaveLength(1);
+    // Test we auto expand new parent
+    expect(
+      (state.ui.sidebar.expanded ?? []).some((id) => id === "new-parent")
+    ).toBe(true);
   });
 });
 

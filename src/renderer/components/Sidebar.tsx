@@ -32,6 +32,7 @@ import {
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
 const MIN_WIDTH = px(300);
+
 export interface SidebarProps {
   store: Store;
 }
@@ -40,8 +41,14 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
   const { notes } = store.state;
   const { sidebar } = store.state.ui;
   const { input } = sidebar;
-  const expandedLookup = keyBy(sidebar.expanded, (e) => e);
-  const selectedLookup = keyBy(sidebar.selected, (s) => s);
+  const expandedLookup = useMemo(
+    () => keyBy(sidebar.expanded, (e) => e),
+    [sidebar.expanded]
+  );
+  const selectedLookup = useMemo(
+    () => keyBy(sidebar.selected, (s) => s),
+    [sidebar.selected]
+  );
 
   const [menus, itemIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
@@ -222,9 +229,7 @@ export function renderMenus(
 ): [JSX.Element[], string[]] {
   const menus: JSX.Element[] = [];
   const flatIds: string[] = [];
-  console.log("BEGIN RENDER");
   const recursive = (note: Note, depth?: number) => {
-    console.log("Render: ", note.name, " children: ", note.children);
     const isExpanded = expandedLookup[note.id];
     const isSelected = selectedLookup[note.id] != null;
     const currDepth = depth ?? 0;
@@ -598,7 +603,45 @@ export const dragNote: StoreListener<"sidebar.dragNote"> = async (
 
     return notes;
   });
+
+  if (newParent != null) {
+    toggleExpanded(ctx, newParent.id);
+  }
 };
+
+function toggleExpanded(ctx: StoreControls, noteId: string): void {
+  ctx.setUI((prev) => {
+    if (noteId == null) {
+      throw new Error("No item to toggle");
+    }
+
+    // Don't expand notes with no children
+    const { notes } = ctx.getState();
+    const note = getNoteById(notes, noteId);
+    if (isEmpty(note.children)) {
+      return prev;
+    }
+
+    const { sidebar } = prev;
+    if (isEmpty(sidebar.expanded)) {
+      sidebar.expanded = [noteId];
+      return prev;
+    }
+
+    const exists = sidebar.expanded!.some(
+      (expandedId) => expandedId === noteId
+    );
+    if (exists) {
+      sidebar.expanded = sidebar.expanded!.filter(
+        (expandedId) => expandedId !== noteId
+      );
+    } else {
+      sidebar.expanded!.push(noteId);
+    }
+
+    return prev;
+  });
+}
 
 function setExplorerInput(ctx: StoreControls) {
   return (value: string) =>
