@@ -102,10 +102,6 @@ export function useMouseDrag(
         event,
       };
       setDrag(newDrag);
-      if (opts?.cursor) {
-        setCursor(opts.cursor);
-      }
-      callback(newDrag);
     };
 
     const onMouseMove = (event: MouseEvent) => {
@@ -116,6 +112,13 @@ export function useMouseDrag(
       ) {
         return;
       }
+
+      if (opts?.cursor) {
+        setCursor(opts.cursor);
+      }
+
+      // Announce drag started
+      callback(drag);
 
       const newDrag: MouseDrag = {
         state: "dragging",
@@ -130,7 +133,11 @@ export function useMouseDrag(
        * If no element and an onMouseUp event was fired it means
        * the drag was cancelled and should be ignored.
        */
-      if (drag == null || drag.state === "dragCancelled") {
+      if (drag == null || drag.state !== "dragging") {
+        if (opts?.cursor) {
+          resetCursor();
+        }
+        setDrag(null);
         return;
       }
 

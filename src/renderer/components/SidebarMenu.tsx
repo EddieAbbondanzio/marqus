@@ -43,7 +43,6 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
     menuRef,
     (drag) => {
       if (drag?.state === "dragEnded") {
-        console.log("DRAG ENDED");
         const newParent = getSidebarMenuAttribute(
           drag.event.target as HTMLElement
         );
