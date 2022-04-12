@@ -512,7 +512,7 @@ export const dragNote: StoreListener<"sidebar.dragNote"> = async (
   { value },
   ctx
 ) => {
-  const { notes } = ctx.getState();
+  const { notes, ui } = ctx.getState();
   const note = getNoteById(notes, value.note);
   let newParent;
   if (value.newParent != null) {
@@ -569,7 +569,11 @@ export const dragNote: StoreListener<"sidebar.dragNote"> = async (
     return notes;
   });
 
-  if (newParent != null) {
+  const newParentId = newParent?.id;
+  if (
+    newParent != null &&
+    !ui.sidebar.expanded?.some((id) => id === newParentId)
+  ) {
     toggleExpanded(ctx, newParent.id);
   }
 };
