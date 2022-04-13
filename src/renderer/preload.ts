@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { getProcessType, isDevelopment } from "../shared/env";
-import { Invoker, IpcChannels } from "../shared/ipc";
+import { Ipc, IpcChannels } from "../shared/ipc";
 
 if (getProcessType() === "main") {
   throw Error(
@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld("ipc", ipcRenderer.invoke);
 
 declare global {
   interface Window {
-    ipc: Invoker;
+    ipc: Ipc;
   }
 }
 

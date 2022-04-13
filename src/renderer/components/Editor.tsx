@@ -8,6 +8,7 @@ import { p2, w100 } from "../css";
 import { Markdown } from "./Markdown";
 import { Focusable } from "./shared/Focusable";
 import { getNoteById } from "../../shared/domain/note";
+import { Ipc } from "../../shared/ipc";
 
 const NOTE_SAVE_INTERVAL = 500;
 
@@ -89,7 +90,7 @@ const StyledTextarea = styled.textarea`
   width: 100%;
 `;
 
-const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL);
+const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL) as Ipc;
 
 const loadNote: StoreListener<"editor.loadNote"> = async (
   { value: noteId },
@@ -128,7 +129,7 @@ const setContent: StoreListener<"editor.setContent"> = async (
       },
     });
 
-    await debouncedInvoker("notes.saveContent", { id: editor.noteId, content });
+    await debouncedInvoker("notes.saveContent", editor.noteId, content);
   }
 };
 

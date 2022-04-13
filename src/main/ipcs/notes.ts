@@ -15,6 +15,7 @@ import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
 import { Dictionary, values } from "lodash";
 import { IpcPlugin } from "../../shared/ipc";
+import { shell } from "electron";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
@@ -54,7 +55,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     return values(noteLookup).filter((n) => n.parent == null);
   });
 
-  ipc.handle("notes.create", async ({ name, parent: parent }) => {
+  ipc.handle("notes.create", async (name, parent) => {
     const dirPath = getPathInDataDirectory(config, NOTES_DIRECTORY);
     if (!exists(dirPath)) {
       await createDirectory(dirPath);
@@ -70,20 +71,20 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     return note;
   });
 
-  ipc.handle("notes.updateMetadata", async (input) => {
-    const [, bareId] = parseResourceId(input.id);
-    await assertNoteExists(config, input.id);
+  ipc.handle("notes.updateMetadata", async (id, props) => {
+    const [, bareId] = parseResourceId(id);
+    await assertNoteExists(config, id);
 
     const note = await loadMetadata(config, bareId);
-    const { id, name, parent, ...others } = input;
+    const { id: _id, name, parent: _parent, ...others } = props;
 
     if (name != null) {
       note.name = name;
     }
     // Allow unsetting parent
     // eslint-disable-next-line no-prototype-builtins
-    if (input.hasOwnProperty("parent")) {
-      note.parent = input.parent;
+    if (props.hasOwnProperty("parent")) {
+      note.parent = props.parent;
     }
 
     // Sanity check
@@ -107,14 +108,14 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     return content;
   });
 
-  ipc.handle("notes.saveContent", async ({ id, content }) => {
+  ipc.handle("notes.saveContent", async (id, content) => {
     const [, bareId] = parseResourceId(id);
     await assertNoteExists(config, id);
 
     await saveMarkdown(config, bareId, content);
   });
 
-  ipc.handle("notes.delete", async ({ id }) => {
+  ipc.handle("notes.delete", async (id) => {
     const [, bareId] = parseResourceId(id);
     const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
 

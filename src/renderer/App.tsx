@@ -122,16 +122,15 @@ export const toggleSidebar: StoreListener<"app.toggleSidebar"> = (_, ctx) => {
   }));
 };
 
-export const quit = (): void => ipc("app.quit");
-export const selectDataDirectory = (): void =>
+export const quit = (): Promise<void> => ipc("app.quit");
+export const selectDataDirectory = (): Promise<void> =>
   ipc("config.selectDataDirectory");
-export const openDataDirectory = (): void => ipc("config.openDataDirectory");
-export const openDevTools = (): void => ipc("app.openDevTools");
-export const reload = (): void => {
-  ipc("app.reload");
-  console.log("RELOAD!");
-};
-export const toggleFullScreen = (): void => ipc("app.toggleFullScreen");
+export const openDataDirectory = (): Promise<void> =>
+  ipc("config.openDataDirectory");
+export const openDevTools = (): Promise<void> => ipc("app.openDevTools");
+export const reload = (): Promise<void> => ipc("app.reload");
+export const toggleFullScreen = (): Promise<void> =>
+  ipc("app.toggleFullScreen");
 export const inspectElement: StoreListener<"app.inspectElement"> = ({
   value: coord,
 }) => ipc("app.inspectElement", coord);

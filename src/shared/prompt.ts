@@ -1,18 +1,20 @@
 export type PromptButtonRole = "cancel" | "default";
 
-export interface PromptButton {
+export interface PromptButton<T> {
   text: string;
   role?: PromptButtonRole;
-  value?: any;
+  value?: T;
 }
 
 export type PromptType = "none" | "info" | "warning" | "error";
 
-export interface PromptOptions {
+export interface PromptOptions<T> {
   title?: string;
   type?: PromptType;
   text: string;
-  buttons: PromptButton[];
+  buttons: PromptButton<T>[];
 }
 
-export type PromptUser = (opts: PromptOptions) => Promise<PromptButton>;
+export type PromptUser<T> = (
+  opts: PromptOptions<T>
+) => Promise<PromptButton<T>>;

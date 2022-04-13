@@ -71,16 +71,6 @@ export function useShortcuts(store: Store): void {
 
   useEffect(() => {
     const keyDown = (ev: KeyboardEvent) => {
-      /*
-       * Disable all default shortcuts. This requires us to re-implement
-       * everything but gives the user a chance to redefine or disable any
-       * shortcut as they see fit.
-       */
-      // const tagName = (ev.target as HTMLElement).tagName;
-      // if (tagName !== "INPUT" && tagName !== "TEXTAREA") {
-      //   ev.preventDefault();
-      // }
-
       // Prevent redundant calls
       if (!ev.repeat) {
         const key = parseKeyCode(ev.code);

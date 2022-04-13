@@ -17,51 +17,45 @@ export const useTagIpcs: IpcPlugin = (ipc, config) => {
     async (): Promise<Tag[]> => getTagFileHandler(config).load()
   );
 
-  ipc.handle(
-    "tags.create",
-    async ({ name }: { name: string }): Promise<Tag> => {
-      const tagFile = getTagFileHandler(config);
+  ipc.handle("tags.create", async (name): Promise<Tag> => {
+    const tagFile = getTagFileHandler(config);
 
-      const tags = await tagFile.load();
-      if (tags.some((t) => t.name === name)) {
-        throw Error(`Tag name ${name} already in use`);
-      }
-
-      const tag = createTag({
-        name,
-      });
-
-      tags.push(tag);
-      await tagFile.save(tags);
-
-      return tag;
+    const tags = await tagFile.load();
+    if (tags.some((t) => t.name === name)) {
+      throw Error(`Tag name ${name} already in use`);
     }
-  );
 
-  ipc.handle(
-    "tags.rename",
-    async ({ id, name }: { id: string; name: string }): Promise<Tag> => {
-      const tagFile = getTagFileHandler(config);
+    const tag = createTag({
+      name,
+    });
 
-      const tags = await tagFile.load();
-      if (tags.some((t) => t.name === name && t.id !== id)) {
-        throw Error(`Tag name ${name} already in use`);
-      }
+    tags.push(tag);
+    await tagFile.save(tags);
 
-      const tag = tags.find((t) => t.id === id);
-      if (tag == null) {
-        throw Error(`No tag with id ${id} found`);
-      }
+    return tag;
+  });
 
-      tag.name = name;
-      tag.dateUpdated = new Date();
+  ipc.handle("tags.rename", async (id, name): Promise<Tag> => {
+    const tagFile = getTagFileHandler(config);
 
-      await tagFile.save(tags);
-      return tag;
+    const tags = await tagFile.load();
+    if (tags.some((t) => t.name === name && t.id !== id)) {
+      throw Error(`Tag name ${name} already in use`);
     }
-  );
 
-  ipc.handle("tags.delete", async ({ id }: { id: string }): Promise<void> => {
+    const tag = tags.find((t) => t.id === id);
+    if (tag == null) {
+      throw Error(`No tag with id ${id} found`);
+    }
+
+    tag.name = name;
+    tag.dateUpdated = new Date();
+
+    await tagFile.save(tags);
+    return tag;
+  });
+
+  ipc.handle("tags.delete", async (id): Promise<void> => {
     const tagFile = getTagFileHandler(config);
 
     const tags = await tagFile.load();

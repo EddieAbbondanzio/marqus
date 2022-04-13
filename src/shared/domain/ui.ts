@@ -1,5 +1,5 @@
+import { Point } from "electron";
 import { PromisedInput } from "../promisedInput";
-import { Coord } from "../dom";
 
 export interface UI {
   sidebar: Sidebar;
@@ -86,7 +86,7 @@ export interface UIEvents {
   "app.openDevTools": void;
   "app.reload": void;
   "app.toggleFullScreen": void;
-  "app.inspectElement": Coord;
+  "app.inspectElement": Point;
   "app.toggleSidebar": void;
 
   // Sidebar

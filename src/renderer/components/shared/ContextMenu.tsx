@@ -7,9 +7,9 @@ import { isDevelopment } from "../../../shared/env";
 import styled from "styled-components";
 import { pl1, px2, py1, THEME } from "../../css";
 import { findNext, findPrevious } from "../../../shared/utils";
-import { Coord } from "../../../shared/dom";
 import { UIEventType, UIEventInput } from "../../../shared/domain/ui";
 import { getShortcutLabels } from "../../io/shortcuts";
+import { Point } from "electron";
 
 /*
  * Electron has a built in context menu but we rolled our own so we could tie
@@ -73,7 +73,7 @@ export function ContextMenu(
   props: PropsWithChildren<ContextMenuProps>
 ): JSX.Element {
   const wrapperRef = useRef(null! as HTMLDivElement);
-  const [position, setPosition] = useState<Coord | undefined>();
+  const [position, setPosition] = useState<Point | undefined>();
   const [items, setItems] = useState([] as ContextMenuItem[]);
   const [selected, setSelected] = useState<ContextMenuEntry | undefined>();
   const [lastMoused, setLastMoused] = useState<ContextMenuEntry | undefined>();

@@ -37,7 +37,7 @@ async function main() {
   const config: Config = await loadConfig();
   const typeSafeIpc: IpcMainTS = {
     handle: (ipc, handler) => {
-      ipcMain.handle(ipc, (_, args) => handler(args));
+      ipcMain.handle(ipc, (_, ...args) => handler.apply(handler, args));
     },
   };
 
