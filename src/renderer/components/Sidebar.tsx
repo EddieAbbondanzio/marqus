@@ -190,7 +190,7 @@ const getContextMenuItems: ContextMenuItems = (ev: MouseEvent) => {
   const items: ContextMenuItem[] = [
     {
       role: "entry",
-      text: "New Note",
+      text: "New note",
       event: "sidebar.createNote",
       eventInput: target,
     },
@@ -200,19 +200,19 @@ const getContextMenuItems: ContextMenuItems = (ev: MouseEvent) => {
     items.push(
       {
         role: "entry",
-        text: "Rename",
+        text: `Rename note`,
         event: "sidebar.renameNote",
         eventInput: target,
       },
       {
         role: "entry",
-        text: "Delete",
+        text: "Permanently delete",
         event: "sidebar.deleteNote",
         eventInput: target,
       },
       {
         role: "entry",
-        text: "Trash",
+        text: "Move to trash",
         event: "sidebar.moveNoteToTrash",
         eventInput: target,
       }

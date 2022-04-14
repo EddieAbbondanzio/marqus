@@ -33,7 +33,8 @@ export interface Editor {
 export type ApplicationMenu =
   | ParentApplicationMenu
   | ApplicationMenuWithEvent
-  | ApplicationMenuWithRole;
+  | ApplicationMenuWithRole
+  | ApplicationMenuSeperator;
 interface BaseApplicationMenu {
   label: string;
   disabled?: boolean;
@@ -46,12 +47,21 @@ export interface ParentApplicationMenu extends BaseApplicationMenu {
 export interface ApplicationMenuWithRole extends BaseApplicationMenu {
   role: Electron.MenuItem["role"];
 }
+export interface ApplicationMenuSeperator {
+  type: "separator";
+}
+
 export interface ApplicationMenuWithEvent<
   UIEvent extends UIEventType = UIEventType
 > extends BaseApplicationMenu {
   shortcut?: string;
   event: UIEvent;
   eventInput?: UIEventInput<UIEvent>;
+}
+
+export function isSeperator(m: ApplicationMenu): m is ApplicationMenuSeperator {
+  // eslint-disable-next-line no-prototype-builtins
+  return m.hasOwnProperty("type") && (m as any).type === "separator";
 }
 
 export function menuHasChildren(

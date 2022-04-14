@@ -6,6 +6,7 @@ import {
 } from "electron";
 import {
   ApplicationMenu,
+  isSeperator,
   menuHasChildren,
   menuHasEvent,
   menuHasRole,
@@ -32,10 +33,15 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
       menu: ApplicationMenu,
       parent?: MenuItemConstructorOptions
     ) => {
-      const t: MenuItemConstructorOptions = {
-        label: menu.label,
-        enabled: !(menu.disabled ?? false),
-      };
+      let t: MenuItemConstructorOptions;
+      if (isSeperator(menu)) {
+        t = { type: menu.type };
+      } else {
+        t = {
+          label: menu.label,
+          enabled: !(menu.disabled ?? false),
+        };
+      }
 
       if (menuHasRole(menu)) {
         t.role = menu.role;

@@ -13,7 +13,7 @@ import moment from "moment";
 import { parseResourceId, UUID_REGEX } from "../../shared/domain";
 import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
-import { Dictionary, values } from "lodash";
+import { Dictionary, isEmpty, values } from "lodash";
 import { IpcPlugin } from "../../shared/ipc";
 import { shell } from "electron";
 
@@ -41,7 +41,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
         continue;
       }
 
-      const note = await loadMetadata(config, entry.name);
+      const note = await loadNote(config, entry.name);
       noteLookup[note.id] = note;
     }
 
@@ -75,7 +75,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     const [, bareId] = parseResourceId(id);
     await assertNoteExists(config, id);
 
-    const note = await loadMetadata(config, bareId);
+    const note = await loadNote(config, bareId);
     const { id: _id, name, parent: _parent, ...others } = props;
 
     if (name != null) {
@@ -118,14 +118,26 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle("notes.delete", async (id) => {
     const [, bareId] = parseResourceId(id);
     const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
+    await assertNoteExists(config, id);
 
+    const note = await loadNote(config, bareId);
     await deleteDirectory(notePath);
+
+    const toDelete = note.children ?? [];
+    for (let i = 0; i < toDelete.length; i++) {
+      // const next = await loadNote(toDelete[i].)
+    }
   });
 
   ipc.handle("notes.moveToTrash", async (id) => {
     const [, bareId] = parseResourceId(id);
+    await assertNoteExists(config, id);
+
     const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
     await shell.trashItem(notePath);
+
+    // Do we have any orphans?
+    // TODO: Handle it here
   });
 };
 
@@ -175,10 +187,7 @@ export async function saveToFileSystem(
   await touch(markdownPath);
 }
 
-export async function loadMetadata(
-  config: Config,
-  noteId: string
-): Promise<Note> {
+export async function loadNote(config: Config, noteId: string): Promise<Note> {
   const metadataPath = getPathInDataDirectory(
     config,
     NOTES_DIRECTORY,

@@ -170,11 +170,26 @@ export const pop: StoreListener<"focus.pop"> = (_, ctx) => {
 export function useApplicationMenu(store: Store): void {
   const shortcutLabels = getShortcutLabels(store.state.shortcuts);
   const focused = store.state.ui.focused[0];
+  const selected = store.state.ui.sidebar.selected?.[0];
 
   void window.ipc("app.setApplicationMenu", [
     {
       label: "&File",
       children: [
+        {
+          label: "Delete note",
+          shortcut: shortcutLabels["sidebar.deleteNote"],
+          event: "sidebar.deleteNote",
+          eventInput: selected,
+          disabled: selected == null,
+        },
+        {
+          label: "Move note to trash",
+          shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
+          event: "sidebar.moveNoteToTrash",
+          eventInput: selected,
+          disabled: selected == null,
+        },
         {
           label: "Open data directory",
           shortcut: shortcutLabels["app.openDataDirectory"],
@@ -184,6 +199,9 @@ export function useApplicationMenu(store: Store): void {
           label: "Change data directory",
           shortcut: shortcutLabels["app.selectDataDirectory"],
           event: "app.selectDataDirectory",
+        },
+        {
+          type: "separator",
         },
         {
           label: "Reload",
