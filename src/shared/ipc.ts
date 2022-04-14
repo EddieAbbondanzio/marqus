@@ -34,6 +34,7 @@ export interface IpcSchema {
   "notes.loadContent"(id: string): Promise<string | null>;
   "notes.saveContent"(id: string, content: string): Promise<void>;
   "notes.delete"(id: string): Promise<void>;
+  "notes.moveToTrash"(id: string): Promise<void>;
 
   // Config
   "config.hasDataDirectory"(): Promise<boolean>;

@@ -99,6 +99,7 @@ export interface UIEvents {
   "sidebar.renameNote": string;
   "sidebar.dragNote": { note: string; newParent?: string };
   "sidebar.deleteNote": string;
+  "sidebar.moveNoteToTrash": string;
   "sidebar.setSelection": string[];
   "sidebar.clearSelection": void;
   "sidebar.toggleItemExpanded": string;

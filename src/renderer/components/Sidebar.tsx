@@ -125,6 +125,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
     store.on("sidebar.renameNote", renameNote);
     store.on("sidebar.deleteNote", deleteNote);
     store.on("sidebar.dragNote", dragNote);
+    store.on("sidebar.moveNoteToTrash", moveNoteToTrash);
 
     return () => {
       store.off("sidebar.resizeWidth", resizeWidth);
@@ -145,6 +146,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       store.off("sidebar.renameNote", renameNote);
       store.off("sidebar.deleteNote", deleteNote);
       store.off("sidebar.dragNote", dragNote);
+      store.off("sidebar.moveNoteToTrash", moveNoteToTrash);
     };
   }, [itemIds, sidebar, store]);
 
@@ -206,6 +208,12 @@ const getContextMenuItems: ContextMenuItems = (ev: MouseEvent) => {
         role: "entry",
         text: "Delete",
         event: "sidebar.deleteNote",
+        eventInput: target,
+      },
+      {
+        role: "entry",
+        text: "Trash",
+        event: "sidebar.moveNoteToTrash",
         eventInput: target,
       }
     );
@@ -496,6 +504,27 @@ export const deleteNote: StoreListener<"sidebar.deleteNote"> = async (
   const confirmed = await promptConfirmAction("delete", `note ${note.name}`);
   if (confirmed) {
     await window.ipc("notes.delete", note.id);
+    ctx.setNotes((notes) => {
+      if (note.parent == null) {
+        return notes.filter((t) => t.id !== note.id);
+      }
+
+      const parent = getNoteById(notes, note.parent);
+      parent.children = parent.children!.filter((t) => t.id !== note.id);
+      return notes;
+    });
+  }
+};
+
+export const moveNoteToTrash: StoreListener<"sidebar.moveNoteToTrash"> = async (
+  { value: id },
+  ctx
+) => {
+  const { notes } = ctx.getState();
+  const note = getNoteById(notes, id!);
+  const confirmed = await promptConfirmAction("trash", `note ${note.name}`);
+  if (confirmed) {
+    await window.ipc("notes.moveToTrash", note.id);
     ctx.setNotes((notes) => {
       if (note.parent == null) {
         return notes.filter((t) => t.id !== note.id);

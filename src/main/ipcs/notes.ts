@@ -87,7 +87,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
       note.parent = props.parent;
     }
 
-    // Sanity check
+    // Sanity check to ensure no extra props were passed
     if (Object.keys(others).length > 0) {
       console.warn(
         `ipc notes.updateMetadata does not support keys: ${Object.keys(others)}`
@@ -120,6 +120,12 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
 
     await deleteDirectory(notePath);
+  });
+
+  ipc.handle("notes.moveToTrash", async (id) => {
+    const [, bareId] = parseResourceId(id);
+    const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
+    await shell.trashItem(notePath);
   });
 };
 
