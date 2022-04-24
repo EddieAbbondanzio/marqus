@@ -78,7 +78,7 @@ export type DragState =
 export function useMouseDrag(
   ref: RefObject<HTMLElement | Window | null>,
   callback: (drag: MouseDrag | null) => void,
-  opts?: { cursor: Cursor }
+  opts?: { cursor: Cursor; disabled?: boolean }
 ): void {
   const [drag, setDrag] = useState<MouseDrag | null>(null);
 
@@ -89,6 +89,10 @@ export function useMouseDrag(
     }
 
     const onMouseDown = (event: MouseEvent) => {
+      if (opts?.disabled) {
+        return;
+      }
+
       if (
         drag != null &&
         drag.state !== "dragCancelled" &&
@@ -105,6 +109,10 @@ export function useMouseDrag(
     };
 
     const onMouseMove = (event: MouseEvent) => {
+      if (opts?.disabled) {
+        return;
+      }
+
       // Don't track movement when not holding.
       if (
         drag == null ||
@@ -129,6 +137,10 @@ export function useMouseDrag(
     };
 
     const onMouseUp = (event: MouseEvent) => {
+      if (opts?.disabled) {
+        return;
+      }
+
       /*
        * If no element and an onMouseUp event was fired it means
        * the drag was cancelled and should be ignored.

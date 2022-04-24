@@ -29,3 +29,6 @@ pnpm-debug.log*
 
 # Demo build dir
 /demo
+
+# Default dev data dir
+/data

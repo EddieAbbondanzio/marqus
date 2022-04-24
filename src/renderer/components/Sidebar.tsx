@@ -264,6 +264,7 @@ export function renderMenus(
     } else {
       menus.push(
         <SidebarMenu
+          store={store}
           icon={icon}
           key={note.id}
           id={note.id}

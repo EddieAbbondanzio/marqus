@@ -1,6 +1,6 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import OpenColor from "open-color";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/promisedInput";
 import { px } from "../../shared/dom";
@@ -27,6 +27,7 @@ interface SidebarMenuProps {
   onClick: () => void;
   onIconClick: (ev: React.MouseEvent) => void;
   onDrag: (newParent?: string) => void;
+  store: Store;
 }
 
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
@@ -39,8 +40,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   }
 
   const menuRef = useRef<HTMLAnchorElement>(null);
-  useMouseDrag(
-    menuRef,
+  const onDrag = useCallback(
     (drag) => {
       if (drag?.state === "dragEnded") {
         const newParent = getSidebarMenuAttribute(
@@ -53,8 +53,13 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         }
       }
     },
-    { cursor: "grabbing" }
+    [props]
   );
+
+  useMouseDrag(menuRef, onDrag, {
+    cursor: "grabbing",
+    disabled: props.store.state.ui.sidebar.input != null,
+  });
 
   return (
     <StyledMenu
