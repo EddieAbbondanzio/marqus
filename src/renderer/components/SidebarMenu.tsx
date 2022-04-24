@@ -193,7 +193,11 @@ const StyledFocusable = styled(Focusable)`
 // Keep height consistent with sidebar item
 const StyledInput = styled.input`
   border: none;
-  height: 16px;
+  outline: none;
+  -webkit-appearance: none;
+  height: 20px;
+  font-size: 0.8rem;
+  padding-left: 0;
   ${py1}
 `;
 
