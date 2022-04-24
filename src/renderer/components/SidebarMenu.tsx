@@ -1,5 +1,4 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import OpenColor from "open-color";
 import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/promisedInput";
@@ -195,7 +194,7 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
 }
 
 const Indented = styled.div`
-  background-color: ${OpenColor.gray[8]};
+  background-color: ${THEME.sidebar.hover};
   height: 28px;
 `;
 
@@ -214,15 +213,15 @@ const StyledInput = styled.input`
   height: 20px;
   font-size: 0.8rem;
   padding-left: 0;
-  background-color: ${OpenColor.gray[2]};
+  background-color: ${THEME.sidebar.inputsBackground};
   flex-grow: 1;
   ${py1}
 `;
 
 // Sampled: https://www.florin-pop.com/blog/2019/05/pure-css-tooltip/
 const ErrorMessage = styled.div`
-  background-color: ${OpenColor.red[1]};
-  color: ${OpenColor.red[9]};
+  background-color: ${THEME.sidebar.error.background};
+  color: ${THEME.sidebar.error.font};
   font-size: 0.8rem;
   border-radius: 4px;
   position: relative;

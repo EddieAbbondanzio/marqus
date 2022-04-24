@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { p2, rounded } from "../../css";
 import { hexToRgba } from "../../../shared/dom";
 
-export function Modal({ children }: PropsWithChildren<{}>) {
+export function Modal({ children }: PropsWithChildren<{}>): JSX.Element {
   return (
     <Background>
       <ModalCard>{children}</ModalCard>
