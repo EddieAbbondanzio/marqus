@@ -1,4 +1,4 @@
-import { PromptOptions } from "./prompt";
+import { PromptButton, PromptOptions } from "./prompt";
 import { ApplicationMenu, UI } from "./domain/ui";
 import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
@@ -9,7 +9,7 @@ import { Point } from "electron";
 export interface IpcSchema {
   // App
   "app.setApplicationMenu"(menus: ApplicationMenu[]): Promise<void>;
-  "app.promptUser"<T>(options: PromptOptions<T>): Promise<T>;
+  "app.promptUser"<T>(options: PromptOptions<T>): Promise<PromptButton<T>>;
   "app.openDevTools"(): Promise<void>;
   "app.inspectElement"(point: Point): Promise<void>;
   "app.reload"(): Promise<void>;

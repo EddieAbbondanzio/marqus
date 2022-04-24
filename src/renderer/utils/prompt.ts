@@ -32,7 +32,6 @@ export const promptConfirmAction = async (
     title: `Confirm ${verb}`,
   };
 
-  // Cast is a hack.
-  const outcome = await ipc("app.promptUser", opts);
-  return outcome as boolean;
+  const pickedButton = await ipc("app.promptUser", opts);
+  return pickedButton.value as boolean;
 };
