@@ -289,6 +289,6 @@ const StyledSelectedEntry = styled(StyledEntry)`
 const StyledShortcutLabel = styled.span`
   ${pl1}
   color: ${THEME.contextMenu.shortcuts};
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
 `;
