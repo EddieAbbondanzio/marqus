@@ -15,7 +15,7 @@ import {
   Note,
 } from "../../shared/domain/note";
 import moment from "moment";
-import { parseResourceId, UUID_REGEX } from "../../shared/domain";
+import { UUID_REGEX } from "../../shared/domain";
 import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
 import { keyBy, partition } from "lodash";
@@ -104,13 +104,12 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   });
 
   ipc.handle("notes.updateMetadata", async (id, props) => {
-    const [, bareId] = parseResourceId(id);
     await assertNoteExists(config, id);
 
     const metadataPath = getPathInDataDirectory(
       config,
       NOTES_DIRECTORY,
-      bareId,
+      id,
       METADATA_FILE_NAME
     );
     const meta = await readFile(metadataPath, "json");
@@ -141,38 +140,48 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   });
 
   ipc.handle("notes.loadContent", async (id) => {
-    const [, bareId] = parseResourceId(id);
     await assertNoteExists(config, id);
 
-    const content = await loadMarkdown(config, bareId);
+    const content = await loadMarkdown(config, id);
     return content;
   });
 
   ipc.handle("notes.saveContent", async (id, content) => {
-    const [, bareId] = parseResourceId(id);
     await assertNoteExists(config, id);
-
-    await saveMarkdown(config, bareId, content);
+    await saveMarkdown(config, id, content);
   });
 
   ipc.handle("notes.delete", async (id) => {
-    const [, bareId] = parseResourceId(id);
-    const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
-    await assertNoteExists(config, id);
+    const notes = await loadNotes(config);
+    const note = getNoteById(notes, id);
 
-    await deleteDirectory(notePath);
+    const recursive = async (n: Note) => {
+      const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, n.id);
 
-    // TODO: Delete orphans
+      await deleteDirectory(notePath);
+
+      for (const child of n.children ?? []) {
+        await recursive(child);
+      }
+    };
+    recursive(note);
   });
 
   ipc.handle("notes.moveToTrash", async (id) => {
-    const [, bareId] = parseResourceId(id);
-    await assertNoteExists(config, id);
+    const notes = await loadNotes(config);
+    const note = getNoteById(notes, id);
 
-    const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
-    await shell.trashItem(notePath);
+    const recursive = async (n: Note) => {
+      const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, n.id);
 
-    // TODO: Trash orphans
+      await shell.trashItem(notePath);
+
+      for (const child of n.children ?? []) {
+        await recursive(child);
+      }
+    };
+
+    recursive(note);
   });
 };
 
@@ -180,14 +189,12 @@ export async function assertNoteExists(
   config: Config,
   id: string
 ): Promise<void> {
-  const [, bareId] = parseResourceId(id);
-
   const dirPath = getPathInDataDirectory(config, NOTES_DIRECTORY);
   if (!exists(dirPath)) {
     await createDirectory(dirPath);
   }
 
-  const fullPath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
+  const fullPath = getPathInDataDirectory(config, NOTES_DIRECTORY, id);
   if (!exists(fullPath)) {
     throw new NotFoundError(`Note ${id} was not found in the file system.`);
   }
@@ -197,8 +204,7 @@ export async function saveToFileSystem(
   config: Config,
   note: Note
 ): Promise<void> {
-  const [, rawId] = parseResourceId(note.id);
-  const dirPath = getPathInDataDirectory(config, NOTES_DIRECTORY, rawId);
+  const dirPath = getPathInDataDirectory(config, NOTES_DIRECTORY, note.id);
   if (!exists(dirPath)) {
     await createDirectory(dirPath);
   }
@@ -206,13 +212,13 @@ export async function saveToFileSystem(
   const metadataPath = getPathInDataDirectory(
     config,
     NOTES_DIRECTORY,
-    rawId,
+    note.id,
     METADATA_FILE_NAME
   );
   const markdownPath = getPathInDataDirectory(
     config,
     NOTES_DIRECTORY,
-    rawId,
+    note.id,
     MARKDOWN_FILE_NAME
   );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

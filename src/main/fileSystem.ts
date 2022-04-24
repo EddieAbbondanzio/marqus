@@ -14,9 +14,7 @@ export async function createDirectory(path: string): Promise<void> {
 
 export async function deleteDirectory(path: string): Promise<void> {
   return new Promise((res, rej) => {
-    fs.rmdir(path, { recursive: true }, (err) =>
-      err != null ? rej(err) : res()
-    );
+    fs.rm(path, { recursive: true }, (err) => (err != null ? rej(err) : res()));
   });
 }
 
