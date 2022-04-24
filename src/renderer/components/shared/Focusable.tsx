@@ -75,10 +75,8 @@ export function Focusable(
 }
 
 export function wasInsideFocusable(ev: Event, focusable: string): boolean {
-  return (
-    findParent(
-      ev.target as HTMLElement,
-      (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) === focusable
-    ) != null
+  return findParent(
+    ev.target as HTMLElement,
+    (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) === focusable
   );
 }

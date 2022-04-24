@@ -46,9 +46,12 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         const newParent = getSidebarMenuAttribute(
           drag.event.target as HTMLElement
         );
+
         if (newParent != null) {
           props.onDrag(newParent);
-        } else if (wasInsideFocusable(drag.event, "sidebar")) {
+        }
+        // Drags that end outside of the sidebar should be considered cancels.
+        else if (wasInsideFocusable(drag.event, "sidebar")) {
           props.onDrag();
         }
       }
