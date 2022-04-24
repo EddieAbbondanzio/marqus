@@ -5,7 +5,7 @@ import { Focusable } from "./Focusable";
 import { Store } from "../../store";
 import { isDevelopment } from "../../../shared/env";
 import styled from "styled-components";
-import { pl1, px2, py1, THEME } from "../../css";
+import { pl1, px2, px3, py1, THEME } from "../../css";
 import { findNext, findPrevious } from "../../../shared/utils";
 import { UIEventType, UIEventInput } from "../../../shared/domain/ui";
 import { getShortcutLabels } from "../../io/shortcuts";
@@ -31,7 +31,7 @@ export const GLOBAL_CONTEXT_ITEMS: ContextMenuItems = (ev?: MouseEvent) => {
       },
       {
         role: "entry",
-        text: "Open Dev Tools",
+        text: "Open dev tools",
         event: "app.openDevTools",
       }
     );
@@ -40,7 +40,7 @@ export const GLOBAL_CONTEXT_ITEMS: ContextMenuItems = (ev?: MouseEvent) => {
       const { clientX: x, clientY: y } = ev;
       items.push({
         role: "entry",
-        text: "Inspect Element",
+        text: "Inspect element",
         event: "app.inspectElement",
         eventInput: { x, y },
       });
@@ -278,7 +278,7 @@ const StyledEntry = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  ${px2}
+  ${px3}
   ${py1}
 `;
 
@@ -289,6 +289,6 @@ const StyledSelectedEntry = styled(StyledEntry)`
 const StyledShortcutLabel = styled.span`
   ${pl1}
   color: ${THEME.contextMenu.shortcuts};
-  font-size: 0.7rem;
-  text-transform: uppercase;
+  font-size: 0.8rem;
+  text-transform: capitalize;
 `;

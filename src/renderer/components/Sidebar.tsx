@@ -236,6 +236,8 @@ export function renderMenus(
     const isSelected = selectedLookup[note.id] != null;
     const currDepth = depth ?? 0;
     const hasChildren = !isEmpty(note.children);
+    const hasInput =
+      input != null && input.parentId != null && input.parentId === note.id;
 
     const onClick = () => {
       if (isSelected) {
@@ -245,7 +247,7 @@ export function renderMenus(
     };
 
     let icon;
-    if (hasChildren) {
+    if (hasChildren || hasInput) {
       icon = isExpanded ? EXPANDED_ICON : COLLAPSED_ICON;
     }
 
@@ -289,7 +291,7 @@ export function renderMenus(
     }
 
     // When creating a new value input is always added to end of list
-    if (input != null && input.parentId != null && input.parentId === note.id) {
+    if (hasInput) {
       menus.push(
         <SidebarInput
           store={store}

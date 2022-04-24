@@ -1,6 +1,6 @@
 {
   "name": "marker",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A markdown note taking app",
   "main": ".webpack/main",
   "scripts": {
@@ -15,7 +15,7 @@
     "test": "jest ./test --config=jest.config.js"
   },
   "keywords": [],
-  "author": { 
+  "author": {
     "name": "Ed Abbondanzio",
     "email": "me@eddieabbondanz.io"
   },

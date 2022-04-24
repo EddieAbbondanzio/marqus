@@ -70,7 +70,9 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
           onClick={(ev) => props.onIconClick(ev)}
         />
       )}
-      <StyledMenuText style={{ paddingLeft: !icon ? "20px" : undefined }}>
+      <StyledMenuText
+        style={{ paddingLeft: !icon ? px(SIDEBAR_ICON_WIDTH) : undefined }}
+      >
         {value}
       </StyledMenuText>
     </StyledMenu>
@@ -81,7 +83,9 @@ const StyledMenu = styled.a`
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: ${SIDEBAR_MENU_HEIGHT}px;
+  height: ${px(SIDEBAR_MENU_HEIGHT)};
+  padding-top: 2px;
+  padding-bottom: 2px;
   &:hover {
     background-color: ${THEME.sidebar.hover};
   }
@@ -89,7 +93,7 @@ const StyledMenu = styled.a`
 
 const StyledMenuIcon = styled(Icon)`
   color: ${THEME.sidebar.font};
-  width: ${SIDEBAR_ICON_WIDTH}px;
+  width: ${px(SIDEBAR_ICON_WIDTH)};
   padding: 0;
   text-align: center;
 `;
