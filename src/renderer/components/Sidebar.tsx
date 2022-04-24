@@ -571,8 +571,6 @@ export const dragNote: StoreListener<"sidebar.dragNote"> = async (
     parent: newParent?.id,
   });
 
-  updatedNote.children = note.children;
-
   ctx.setNotes((notes) => {
     // Remove child from original parent. (If applicable)
     if (note.parent != null) {

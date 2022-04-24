@@ -8,18 +8,68 @@ import {
   writeFile,
 } from "../fileSystem";
 import { NotFoundError } from "../../shared/errors";
-import { createNote, getNoteSchema, Note } from "../../shared/domain/note";
+import {
+  createNote,
+  getNoteById,
+  getNoteSchema,
+  Note,
+} from "../../shared/domain/note";
 import moment from "moment";
 import { parseResourceId, UUID_REGEX } from "../../shared/domain";
 import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
-import { Dictionary, isEmpty, values } from "lodash";
+import { keyBy, partition } from "lodash";
 import { IpcPlugin } from "../../shared/ipc";
 import { shell } from "electron";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
+
+// Move this down somewhere better
+export async function loadNotes(config: Config): Promise<Note[]> {
+  const noteDirPath = getPathInDataDirectory(config, NOTES_DIRECTORY);
+  if (!exists(noteDirPath)) {
+    await createDirectory(noteDirPath);
+  }
+  const entries = await readDirectory(noteDirPath);
+  const notes: Note[] = [];
+
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !UUID_REGEX.test(entry.name)) {
+      continue;
+    }
+
+    const metadataPath = getPathInDataDirectory(
+      config,
+      NOTES_DIRECTORY,
+      entry.name,
+      METADATA_FILE_NAME
+    );
+    const meta = await readFile(metadataPath, "json");
+
+    const note = createNote({
+      dateCreated: moment(meta.dateCreated).toDate(),
+      ...meta,
+    });
+    await getNoteSchema().validate(note);
+
+    if (meta.dateUpdated != null) {
+      note.dateUpdated = moment(meta.dateUpdated).toDate();
+    }
+
+    // Don't build tree until end. We might not have loaded parent yet.
+    notes.push(note);
+  }
+
+  const lookup = keyBy(notes, "id");
+  const [roots, children] = partition(notes, (n) => n.parent == null);
+  for (const child of children) {
+    (lookup[child.parent!].children ??= []).push(child);
+  }
+
+  return roots;
+}
 
 export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle("notes.getAll", async () => {
@@ -33,26 +83,8 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     if (!exists(noteDirPath)) {
       await createDirectory(noteDirPath);
     }
-    const entries = await readDirectory(noteDirPath);
-    const noteLookup: Dictionary<Note> = {};
 
-    for (const entry of entries) {
-      if (!entry.isDirectory() || !UUID_REGEX.test(entry.name)) {
-        continue;
-      }
-
-      const note = await loadNote(config, entry.name);
-      noteLookup[note.id] = note;
-    }
-
-    const nested = values(noteLookup).filter((n) => n.parent != null);
-    for (const note of nested) {
-      const parent = noteLookup[note.parent!];
-      parent.children ??= [];
-      parent.children.push(note);
-    }
-
-    return values(noteLookup).filter((n) => n.parent == null);
+    return loadNotes(config);
   });
 
   ipc.handle("notes.create", async (name, parent) => {
@@ -75,17 +107,24 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     const [, bareId] = parseResourceId(id);
     await assertNoteExists(config, id);
 
-    const note = await loadNote(config, bareId);
-    const { id: _id, name, parent: _parent, ...others } = props;
+    const metadataPath = getPathInDataDirectory(
+      config,
+      NOTES_DIRECTORY,
+      bareId,
+      METADATA_FILE_NAME
+    );
+    const meta = await readFile(metadataPath, "json");
 
-    if (name != null) {
-      note.name = name;
+    if (props.name != null) {
+      meta.name = props.name;
     }
     // Allow unsetting parent
     // eslint-disable-next-line no-prototype-builtins
     if (props.hasOwnProperty("parent")) {
-      note.parent = props.parent;
+      meta.parent = props.parent;
     }
+
+    const { name, parent, ...others } = props;
 
     // Sanity check to ensure no extra props were passed
     if (Object.keys(others).length > 0) {
@@ -94,10 +133,11 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
       );
     }
 
-    note.dateUpdated = new Date();
-    await saveToFileSystem(config, note);
+    meta.dateUpdated = new Date();
+    delete meta.children;
 
-    return note;
+    await saveToFileSystem(config, meta);
+    return getNoteById(await loadNotes(config), meta.id);
   });
 
   ipc.handle("notes.loadContent", async (id) => {
@@ -120,13 +160,9 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
     await assertNoteExists(config, id);
 
-    const note = await loadNote(config, bareId);
     await deleteDirectory(notePath);
 
-    const toDelete = note.children ?? [];
-    for (let i = 0; i < toDelete.length; i++) {
-      // const next = await loadNote(toDelete[i].)
-    }
+    // TODO: Delete orphans
   });
 
   ipc.handle("notes.moveToTrash", async (id) => {
@@ -136,8 +172,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, bareId);
     await shell.trashItem(notePath);
 
-    // Do we have any orphans?
-    // TODO: Handle it here
+    // TODO: Trash orphans
   });
 };
 
@@ -185,32 +220,6 @@ export async function saveToFileSystem(
 
   await writeFile(metadataPath, metadata, "json");
   await touch(markdownPath);
-}
-
-export async function loadNote(config: Config, noteId: string): Promise<Note> {
-  const metadataPath = getPathInDataDirectory(
-    config,
-    NOTES_DIRECTORY,
-    noteId,
-    METADATA_FILE_NAME
-  );
-  const { dateCreated, dateUpdated, ...props }: any = await readFile(
-    metadataPath,
-    "json"
-  );
-
-  const note = createNote({
-    dateCreated: moment(dateCreated).toDate(),
-    ...props,
-  });
-
-  if (dateUpdated != null) {
-    note.dateUpdated = moment(dateUpdated).toDate();
-  }
-
-  await getNoteSchema().validate(note);
-
-  return note;
 }
 
 export async function loadMarkdown(
