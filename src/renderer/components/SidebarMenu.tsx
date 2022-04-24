@@ -106,13 +106,14 @@ const StyledMenuText = styled.div`
 export interface SidebarInputProps {
   store: Store;
   value: PromisedInput;
-  icon?: IconDefinition;
   depth: number;
+  icon?: IconDefinition;
 }
 
 export function SidebarInput(props: SidebarInputProps): JSX.Element {
   const paddingLeft = px(
-    props.depth * SIDEBAR_MENU_INDENT + SIDEBAR_ICON_WIDTH
+    props.depth * SIDEBAR_MENU_INDENT +
+      (props.icon == null ? SIDEBAR_ICON_WIDTH : 0)
   );
   const inputRef = useRef(null! as HTMLInputElement);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
@@ -164,13 +165,14 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
   };
 
   return (
-    <div style={{ paddingLeft }}>
+    <Indented style={{ paddingLeft }}>
       <StyledFocusable
         store={props.store}
         name="sidebarInput"
         onFocus={() => inputRef.current?.focus()}
         onBlur={onBlur}
       >
+        {props.icon && <StyledMenuIcon icon={props.icon} size="xs" />}
         <StyledInput
           ref={inputRef}
           value={props.value.value}
@@ -180,13 +182,19 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
 
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </StyledFocusable>
-    </div>
+    </Indented>
   );
 }
 
+const Indented = styled.div`
+  background-color: ${OpenColor.gray[8]};
+  height: 28px;
+`;
+
 const StyledFocusable = styled(Focusable)`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   flex-grow: 1;
 `;
 
@@ -198,6 +206,8 @@ const StyledInput = styled.input`
   height: 20px;
   font-size: 0.8rem;
   padding-left: 0;
+  background-color: ${OpenColor.gray[2]};
+  flex-grow: 1;
   ${py1}
 `;
 

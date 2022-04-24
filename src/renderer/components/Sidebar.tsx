@@ -254,6 +254,7 @@ export function renderMenus(
     if (input?.id != null && input.id === note.id) {
       menus.push(
         <SidebarInput
+          icon={icon}
           store={store}
           key="sidebarInput"
           value={input}
@@ -294,6 +295,7 @@ export function renderMenus(
     if (hasInput) {
       menus.push(
         <SidebarInput
+          icon={icon}
           store={store}
           key="sidebarInput"
           value={input}
