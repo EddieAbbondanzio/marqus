@@ -5,12 +5,21 @@ import { parseResourceId } from "../../shared/domain";
 import { InvalidOpError } from "../../shared/errors";
 import { Store, StoreListener } from "../store";
 import { p2, w100 } from "../css";
-import { Markdown } from "./Markdown";
 import { Focusable } from "./shared/Focusable";
 import { getNoteById } from "../../shared/domain/note";
 import { Ipc } from "../../shared/ipc";
+import * as monaco from "monaco-editor";
 
-const NOTE_SAVE_INTERVAL = 500;
+const NOTE_SAVE_INTERVAL = 500; //ms
+const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
+  language: "markdown",
+  lineNumbers: "off",
+  overviewRulerBorder: false,
+  overviewRulerLanes: 0,
+  minimap: {
+    enabled: false,
+  },
+};
 
 export interface EditorProps {
   store: Store;
@@ -55,27 +64,33 @@ export function Editor({ store }: EditorProps): JSX.Element {
   }, [store]);
 
   const onChange = (ev: ChangeEvent<HTMLTextAreaElement>) => {
+    console.log("CHANGE");
     store.dispatch("editor.setContent", ev.target.value);
   };
 
-  const textareaRef = useRef(null! as HTMLTextAreaElement);
-  const content = editor.isEditting ? (
-    <StyledTextarea
-      ref={textareaRef}
-      value={editor.content}
-      onChange={onChange}
-    ></StyledTextarea>
-  ) : (
-    <Markdown content={editor.content!} />
-  );
+  const editorRef = useRef(null as HTMLDivElement | null);
+  useEffect(() => {
+    if (editorRef.current == null) {
+      return;
+    }
+
+    const e = monaco.editor.create(editorRef.current, {
+      value: editor.content ?? "",
+      ...MONACO_SETTINGS,
+    });
+
+    return () => {
+      e.dispose();
+    };
+  }, [editorRef, editor]);
 
   return (
     <StyledFocusable
       store={store}
       name="editor"
-      onFocus={() => textareaRef.current?.focus()}
+      onFocus={() => editorRef.current?.focus()}
     >
-      {content}
+      <StyledEditor ref={editorRef}></StyledEditor>
     </StyledFocusable>
   );
 }
@@ -85,7 +100,7 @@ const StyledFocusable = styled(Focusable)`
   ${p2}
 `;
 
-const StyledTextarea = styled.textarea`
+const StyledEditor = styled.div`
   height: 100%;
   width: 100%;
 `;
