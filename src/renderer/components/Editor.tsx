@@ -1,18 +1,9 @@
-import { debounce, head, isEmpty } from "lodash";
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { debounce } from "lodash";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { parseResourceId } from "../../shared/domain";
-import { InvalidOpError } from "../../shared/errors";
 import { Store, StoreListener } from "../store";
 import { p2, w100 } from "../css";
 import { Focusable } from "./shared/Focusable";
-import { getNoteById } from "../../shared/domain/note";
 import { Ipc } from "../../shared/ipc";
 import * as monaco from "monaco-editor";
 
@@ -39,37 +30,65 @@ export function Editor({ store }: EditorProps): JSX.Element {
   // Heavily sampled: https://github.com/react-monaco-editor/react-monaco-editor
   // but also refactored it to be a function component.
 
+  // Monaco and onChangeSub are stored as refs because we don't want the
+  // component to re-render if either of them change.
   const containerElement = useRef<HTMLDivElement | null>(null);
-  const [monacoEditor, setMonacoEditor] =
-    useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const [onChangeSub, setOnChangeSub] = useState<monaco.IDisposable | null>(
-    null
-  );
+  const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const onChangeSub = useRef<monaco.IDisposable | null>(null);
+
   const [loadedNoteId, setloadedNoteId] = useState<string | null>(null);
+
+  useEffect(() => {
+    store.on("editor.setContent", setContent);
+    store.on("editor.save", save);
+    store.on("editor.toggleView", toggleView);
+
+    return () => {
+      store.off("editor.setContent", setContent);
+      store.off("editor.save", save);
+      store.off("editor.toggleView", toggleView);
+    };
+  }, [store]);
 
   // Mount / Unmount
   useEffect(() => {
-    if (containerElement.current != null) {
-      setMonacoEditor(
-        monaco.editor.create(containerElement.current, {
-          value: editor.content ?? "",
-          ...MONACO_SETTINGS,
-        })
-      );
+    const { current: el } = containerElement;
+    let resizeObserver: ResizeObserver | null = null;
+
+    if (el != null) {
+      monacoEditor.current = monaco.editor.create(el, {
+        value: editor.content ?? "",
+        ...MONACO_SETTINGS,
+      });
+
+      if (el == null) {
+        return;
+      }
+
+      // Monaco requires us to listen for changes in container size and manually
+      // trigger re-render
+      resizeObserver = new ResizeObserver(() => {
+        if (monacoEditor.current != null) {
+          monacoEditor.current.layout();
+        }
+      });
+      resizeObserver.observe(el);
     }
 
     return () => {
-      if (monacoEditor != null) {
-        monacoEditor.dispose();
+      resizeObserver?.disconnect();
 
-        const model = monacoEditor.getModel();
+      if (monacoEditor.current != null) {
+        monacoEditor.current.dispose();
+
+        const model = monacoEditor.current.getModel();
         if (model != null) {
           model.dispose();
         }
       }
 
-      if (onChangeSub != null) {
-        onChangeSub.dispose();
+      if (onChangeSub.current != null) {
+        onChangeSub.current.dispose();
       }
     };
     // No dependencies so this hook only runs once.
@@ -77,39 +96,41 @@ export function Editor({ store }: EditorProps): JSX.Element {
   }, []);
 
   const onChange = useCallback(() => {
-    if (monacoEditor == null) {
+    if (monacoEditor.current == null) {
       return;
     }
-    const value = monacoEditor.getModel()?.getValue();
+    const value = monacoEditor.current.getModel()?.getValue();
     if (value == null) {
       return;
     }
 
     store.dispatch("editor.setContent", value);
-  }, [store, monacoEditor]);
+  }, [store]);
 
   useEffect(() => {
-    if (monacoEditor == null) {
+    if (monacoEditor.current == null) {
       return;
     }
 
-    // Subscribe to changes
-    setOnChangeSub(monacoEditor.onDidChangeModelContent(onChange));
-  }, [monacoEditor, onChange]);
+    // Prevent memory leak
+    onChangeSub.current?.dispose();
+    onChangeSub.current =
+      monacoEditor.current.onDidChangeModelContent(onChange);
+  }, [onChange]);
 
   // Update monaco editor
   useEffect(() => {
-    if (monacoEditor == null) {
+    if (monacoEditor.current == null) {
       return;
     }
 
-    const model = monacoEditor.getModel();
+    const model = monacoEditor.current.getModel();
     if (model == null) {
       throw new Error("Editor model was null");
     }
 
     if (editor.noteId != null && editor.noteId !== loadedNoteId) {
-      monacoEditor.pushUndoStop();
+      monacoEditor.current.pushUndoStop();
       // @ts-expect-error lol
       model.pushEditOperations(
         [],
@@ -120,54 +141,19 @@ export function Editor({ store }: EditorProps): JSX.Element {
           },
         ]
       );
-      this.editor.pushUndoStop();
+      monacoEditor.current.pushUndoStop();
       setloadedNoteId(editor.noteId);
     }
-  }, [monacoEditor, editor, loadedNoteId, setloadedNoteId]);
-
-  // Monaco doesn't listen for container size changes so we re-trigger it's
-  // layout calculations each time a size change occurs.
-  useEffect(() => {
-    const { current: el } = containerElement;
-    if (el == null) {
-      return;
-    }
-
-    const onResize = () => {
-      if (monacoEditor != null) {
-        monacoEditor.layout();
-      }
-    };
-
-    const observer = new ResizeObserver(onResize);
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-    };
-  }, [containerElement, monacoEditor]);
-
-  useEffect(() => {
-    store.on("editor.loadNote", loadNote);
-    store.on("editor.setContent", setContent);
-    store.on("editor.save", save);
-    store.on("editor.toggleView", toggleView);
-
-    return () => {
-      store.off("editor.loadNote", loadNote);
-      store.off("editor.setContent", setContent);
-      store.off("editor.save", save);
-      store.off("editor.toggleView", toggleView);
-    };
-  }, [store]);
+  }, [editor, loadedNoteId, setloadedNoteId]);
 
   return (
-    // <StyledFocusable
-    // store={store}
-    // name="editor"
-    // onFocus={() => editorRef?.current?.focus()}
-    // >
-    <StyledEditor ref={containerElement}></StyledEditor>
-    // </StyledFocusable>
+    <StyledFocusable
+      store={store}
+      name="editor"
+      onFocus={() => monacoEditor.current?.focus()}
+    >
+      <StyledEditor ref={containerElement}></StyledEditor>
+    </StyledFocusable>
   );
 }
 
@@ -183,28 +169,25 @@ const StyledEditor = styled.div`
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL) as Ipc;
 
-const loadNote: StoreListener<"editor.loadNote"> = async (
-  { value: noteId },
-  ctx
-) => {
-  const state = ctx.getState();
-  if (noteId === state.ui.editor.noteId) {
-    return;
-  }
+// const loadNote: StoreListener<"sidebar.setSelection"> = async (
+//   { value: notes },
+//   ctx
+// ) => {
+//   const state = ctx.getState();
+//   const note = head(notes);
+//   if (note === state.ui.editor.noteId) {
+//     return;
+//   }
 
-  const [type] = parseResourceId(noteId);
-  if (type !== "note") {
-    throw new InvalidOpError(`${noteId} is not a note`);
-  }
-
-  const content = (await window.ipc("notes.loadContent", noteId)) ?? undefined;
-  ctx.setUI({
-    editor: {
-      content,
-      noteId,
-    },
-  });
-};
+//   console.log("loading note: ", note);
+//   const content = (await window.ipc("notes.loadContent", note!)) ?? undefined;
+//   ctx.setUI({
+//     editor: {
+//       content,
+//       noteId: note!,
+//     },
+//   });
+// };
 
 const setContent: StoreListener<"editor.setContent"> = async (
   { value: content },
