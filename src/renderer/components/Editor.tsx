@@ -1,5 +1,11 @@
 import { debounce, head, isEmpty } from "lodash";
-import React, { ChangeEvent, useEffect, useRef } from "react";
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { parseResourceId } from "../../shared/domain";
 import { InvalidOpError } from "../../shared/errors";
@@ -10,7 +16,7 @@ import { getNoteById } from "../../shared/domain/note";
 import { Ipc } from "../../shared/ipc";
 import * as monaco from "monaco-editor";
 
-const NOTE_SAVE_INTERVAL = 500; //ms
+const NOTE_SAVE_INTERVAL = 500; // ms
 const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   language: "markdown",
   lineNumbers: "off",
@@ -29,6 +35,117 @@ export function Editor({ store }: EditorProps): JSX.Element {
   const {
     ui: { editor },
   } = store.state;
+
+  // Heavily sampled: https://github.com/react-monaco-editor/react-monaco-editor
+  // but also refactored it to be a function component.
+
+  const containerElement = useRef<HTMLDivElement | null>(null);
+  const [monacoEditor, setMonacoEditor] =
+    useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [onChangeSub, setOnChangeSub] = useState<monaco.IDisposable | null>(
+    null
+  );
+  const [loadedNoteId, setloadedNoteId] = useState<string | null>(null);
+
+  // Mount / Unmount
+  useEffect(() => {
+    if (containerElement.current != null) {
+      setMonacoEditor(
+        monaco.editor.create(containerElement.current, {
+          value: editor.content ?? "",
+          ...MONACO_SETTINGS,
+        })
+      );
+    }
+
+    return () => {
+      if (monacoEditor != null) {
+        monacoEditor.dispose();
+
+        const model = monacoEditor.getModel();
+        if (model != null) {
+          model.dispose();
+        }
+      }
+
+      if (onChangeSub != null) {
+        onChangeSub.dispose();
+      }
+    };
+    // No dependencies so this hook only runs once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onChange = useCallback(() => {
+    if (monacoEditor == null) {
+      return;
+    }
+    const value = monacoEditor.getModel()?.getValue();
+    if (value == null) {
+      return;
+    }
+
+    store.dispatch("editor.setContent", value);
+  }, [store, monacoEditor]);
+
+  useEffect(() => {
+    if (monacoEditor == null) {
+      return;
+    }
+
+    // Subscribe to changes
+    setOnChangeSub(monacoEditor.onDidChangeModelContent(onChange));
+  }, [monacoEditor, onChange]);
+
+  // Update monaco editor
+  useEffect(() => {
+    if (monacoEditor == null) {
+      return;
+    }
+
+    const model = monacoEditor.getModel();
+    if (model == null) {
+      throw new Error("Editor model was null");
+    }
+
+    if (editor.noteId != null && editor.noteId !== loadedNoteId) {
+      monacoEditor.pushUndoStop();
+      // @ts-expect-error lol
+      model.pushEditOperations(
+        [],
+        [
+          {
+            range: model.getFullModelRange(),
+            text: editor.content,
+          },
+        ]
+      );
+      this.editor.pushUndoStop();
+      setloadedNoteId(editor.noteId);
+    }
+  }, [monacoEditor, editor, loadedNoteId, setloadedNoteId]);
+
+  // Monaco doesn't listen for container size changes so we re-trigger it's
+  // layout calculations each time a size change occurs.
+  useEffect(() => {
+    const { current: el } = containerElement;
+    if (el == null) {
+      return;
+    }
+
+    const onResize = () => {
+      if (monacoEditor != null) {
+        monacoEditor.layout();
+      }
+    };
+
+    const observer = new ResizeObserver(onResize);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+    };
+  }, [containerElement, monacoEditor]);
+
   useEffect(() => {
     store.on("editor.loadNote", loadNote);
     store.on("editor.setContent", setContent);
@@ -43,55 +160,14 @@ export function Editor({ store }: EditorProps): JSX.Element {
     };
   }, [store]);
 
-  // Reload content on note change
-  useEffect(() => {
-    const { selected } = store.state.ui.sidebar;
-    if (isEmpty(selected)) {
-      return;
-    }
-
-    const first = head(selected)!;
-    const [type] = parseResourceId(first);
-
-    if (
-      type !== "note" ||
-      getNoteById(store.state.notes, first, false) == null
-    ) {
-      return;
-    }
-
-    store.dispatch("editor.loadNote", first);
-  }, [store]);
-
-  const onChange = (ev: ChangeEvent<HTMLTextAreaElement>) => {
-    console.log("CHANGE");
-    store.dispatch("editor.setContent", ev.target.value);
-  };
-
-  const editorRef = useRef(null as HTMLDivElement | null);
-  useEffect(() => {
-    if (editorRef.current == null) {
-      return;
-    }
-
-    const e = monaco.editor.create(editorRef.current, {
-      value: editor.content ?? "",
-      ...MONACO_SETTINGS,
-    });
-
-    return () => {
-      e.dispose();
-    };
-  }, [editorRef, editor]);
-
   return (
-    <StyledFocusable
-      store={store}
-      name="editor"
-      onFocus={() => editorRef.current?.focus()}
-    >
-      <StyledEditor ref={editorRef}></StyledEditor>
-    </StyledFocusable>
+    // <StyledFocusable
+    // store={store}
+    // name="editor"
+    // onFocus={() => editorRef?.current?.focus()}
+    // >
+    <StyledEditor ref={containerElement}></StyledEditor>
+    // </StyledFocusable>
   );
 }
 
