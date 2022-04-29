@@ -8,7 +8,7 @@ import { Section, UI } from "../shared/domain/ui";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
-import { State, Store, StoreListener, useStore } from "./store";
+import { State, Store, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
@@ -114,7 +114,7 @@ async function loadInitialState(): Promise<State> {
  * Don't move these to be in Sidebar.tsx. Otherwise the listener will only work
  * when the sidebar is being rendered.
  */
-export const toggleSidebar: StoreListener<"app.toggleSidebar"> = (_, ctx) => {
+export const toggleSidebar: Listener<"app.toggleSidebar"> = (_, ctx) => {
   ctx.setUI((prev) => ({
     sidebar: {
       hidden: !(prev.sidebar.hidden ?? false),
@@ -131,11 +131,11 @@ export const openDevTools = (): Promise<void> => ipc("app.openDevTools");
 export const reload = (): Promise<void> => ipc("app.reload");
 export const toggleFullScreen = (): Promise<void> =>
   ipc("app.toggleFullScreen");
-export const inspectElement: StoreListener<"app.inspectElement"> = ({
+export const inspectElement: Listener<"app.inspectElement"> = ({
   value: coord,
 }) => ipc("app.inspectElement", coord);
 
-export const push: StoreListener<"focus.push"> = ({ value: next }, ctx) => {
+export const push: Listener<"focus.push"> = ({ value: next }, ctx) => {
   let previous: Section | undefined;
   const state = ctx.getState();
   if (isEqual(state.ui.focused, [next])) {
@@ -155,7 +155,7 @@ export const push: StoreListener<"focus.push"> = ({ value: next }, ctx) => {
   });
 };
 
-export const pop: StoreListener<"focus.pop"> = (_, ctx) => {
+export const pop: Listener<"focus.pop"> = (_, ctx) => {
   ctx.setUI((s) => {
     if (isEmpty(s.focused)) {
       return s;

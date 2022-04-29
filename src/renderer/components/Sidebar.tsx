@@ -8,7 +8,7 @@ import {
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { isResourceId } from "../../shared/domain";
-import { Store, StoreControls, StoreListener } from "../store";
+import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
@@ -75,7 +75,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       return itemIds.slice(next, next + 1);
     };
 
-    const updateSelected: StoreListener<
+    const updateSelected: Listener<
       | "sidebar.clearSelection"
       | "sidebar.moveSelectionDown"
       | "sidebar.moveSelectionUp"
@@ -315,7 +315,7 @@ export function renderMenus(
   return [menus, flatIds];
 }
 
-export const resizeWidth: StoreListener<"sidebar.resizeWidth"> = (
+export const resizeWidth: Listener<"sidebar.resizeWidth"> = (
   { value: width },
   ctx
 ) => {
@@ -330,7 +330,7 @@ export const resizeWidth: StoreListener<"sidebar.resizeWidth"> = (
   });
 };
 
-export const updateScroll: StoreListener<"sidebar.updateScroll"> = (
+export const updateScroll: Listener<"sidebar.updateScroll"> = (
   { value: scroll },
   ctx
 ) => {
@@ -345,7 +345,7 @@ export const updateScroll: StoreListener<"sidebar.updateScroll"> = (
   });
 };
 
-export const scrollUp: StoreListener<"sidebar.scrollUp"> = (_, { setUI }) => {
+export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
   setUI((prev) => {
     const scroll = Math.max(prev.sidebar.scroll - SIDEBAR_MENU_HEIGHT, 0);
     return {
@@ -356,10 +356,7 @@ export const scrollUp: StoreListener<"sidebar.scrollUp"> = (_, { setUI }) => {
   });
 };
 
-export const scrollDown: StoreListener<"sidebar.scrollDown"> = (
-  _,
-  { setUI }
-) => {
+export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
   setUI((prev) => {
     // Max scroll clamp is performed in scrollable.
     const scroll = prev.sidebar.scroll + SIDEBAR_MENU_HEIGHT;
@@ -371,7 +368,7 @@ export const scrollDown: StoreListener<"sidebar.scrollDown"> = (
   });
 };
 
-export const toggleItemExpanded: StoreListener<"sidebar.toggleItemExpanded"> = (
+export const toggleItemExpanded: Listener<"sidebar.toggleItemExpanded"> = (
   { value: id },
   ctx
 ) => {
@@ -379,7 +376,7 @@ export const toggleItemExpanded: StoreListener<"sidebar.toggleItemExpanded"> = (
   toggleExpanded(ctx, id ?? head(selected));
 };
 
-export const createNote: StoreListener<"sidebar.createNote"> = async (
+export const createNote: Listener<"sidebar.createNote"> = async (
   { value: parentId },
   ctx
 ) => {
@@ -444,7 +441,7 @@ export const createNote: StoreListener<"sidebar.createNote"> = async (
   });
 };
 
-export const renameNote: StoreListener<"sidebar.renameNote"> = async (
+export const renameNote: Listener<"sidebar.renameNote"> = async (
   { value: id },
   ctx
 ) => {
@@ -500,7 +497,7 @@ export const renameNote: StoreListener<"sidebar.renameNote"> = async (
   });
 };
 
-export const deleteNote: StoreListener<"sidebar.deleteNote"> = async (
+export const deleteNote: Listener<"sidebar.deleteNote"> = async (
   { value: id },
   ctx
 ) => {
@@ -521,7 +518,7 @@ export const deleteNote: StoreListener<"sidebar.deleteNote"> = async (
   }
 };
 
-export const moveNoteToTrash: StoreListener<"sidebar.moveNoteToTrash"> = async (
+export const moveNoteToTrash: Listener<"sidebar.moveNoteToTrash"> = async (
   { value: id },
   ctx
 ) => {
@@ -542,7 +539,7 @@ export const moveNoteToTrash: StoreListener<"sidebar.moveNoteToTrash"> = async (
   }
 };
 
-export const dragNote: StoreListener<"sidebar.dragNote"> = async (
+export const dragNote: Listener<"sidebar.dragNote"> = async (
   { value },
   ctx
 ) => {
@@ -609,7 +606,7 @@ export const dragNote: StoreListener<"sidebar.dragNote"> = async (
   }
 };
 
-function toggleExpanded(ctx: StoreControls, noteId: string): void {
+function toggleExpanded(ctx: StoreContext, noteId: string): void {
   ctx.setUI((prev) => {
     if (noteId == null) {
       throw new Error("No item to toggle");
@@ -643,7 +640,7 @@ function toggleExpanded(ctx: StoreControls, noteId: string): void {
   });
 }
 
-function setExplorerInput(ctx: StoreControls) {
+function setExplorerInput(ctx: StoreContext) {
   return (value: string) =>
     ctx.setUI({
       sidebar: {

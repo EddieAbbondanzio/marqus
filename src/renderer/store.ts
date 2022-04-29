@@ -1,15 +1,13 @@
 import { UIEventType, UIEventInput, UI } from "../shared/domain/ui";
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
-import { InvalidOpError } from "../shared/errors";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Tag } from "../shared/domain/tag";
 
-export type Transformer<S> = (previous: S) => S;
-export type PartialTransformer<S> = (previous: S) => DeepPartial<S>;
+export type Transformer<S, R = S> = (previous: S) => R;
 
 export interface State {
   ui: UI;
@@ -18,7 +16,7 @@ export interface State {
   shortcuts: Shortcut[];
 }
 
-export interface StoreControls {
+export interface StoreContext {
   setUI: SetUI;
   setTags: SetTags;
   setShortcuts: SetShortcuts;
@@ -26,11 +24,10 @@ export interface StoreControls {
   getState(): State;
 }
 
-/**
- * SetUI supportes partial updates since it's unlikely we'll want to update
- * every single property at once. This also works for nested props.
- */
-export type SetUI = (t: PartialTransformer<UI> | DeepPartial<UI>) => void;
+// UI supports partial updates since it's unlikely we'll want to do full updates
+export type SetUI = (
+  t: Transformer<UI, DeepPartial<UI>> | DeepPartial<UI>
+) => void;
 export type SetTags = (t: Transformer<Tag[]>) => void;
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
 export type SetNotes = (t: Transformer<Note[]>) => void;
@@ -38,13 +35,10 @@ export type SetNotes = (t: Transformer<Note[]>) => void;
 export interface Store {
   dispatch: Dispatch;
   state: State;
-  on<ET extends UIEventType>(
-    event: ET | ET[],
-    listener: StoreListener<ET>
-  ): void;
+  on<ET extends UIEventType>(event: ET | ET[], listener: Listener<ET>): void;
   off<EType extends UIEventType>(
     event: EType | EType[],
-    listener: StoreListener<EType>
+    listener: Listener<EType>
   ): void;
 }
 
@@ -53,17 +47,21 @@ export type Dispatch = <ET extends UIEventType>(
   ...value: UIEventInput<ET> extends void ? [undefined?] : [UIEventInput<ET>]
 ) => Promise<void>;
 
-export type StoreListener<ET extends UIEventType> = (
+export type Listener<ET extends UIEventType> = (
   ev: { type: ET; value: UIEventInput<ET> },
-  s: StoreControls
+  s: StoreContext
 ) => Promise<void> | void;
 
 export function useStore(initialState: State): Store {
   // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
   const [state, setState] = useState(initialState);
-  const [listeners, setListeners] = useState<{
-    [eType in UIEventType]+?: StoreListener<eType>;
+  const listeners = useRef<{
+    [eType in UIEventType]+?: Array<Listener<eType>>;
   }>({});
+
+  // const [listeners, setListeners] = useState<{
+  //   [eType in UIEventType]+?: StoreListener<eType>;
+  // }>({});
   const lastState = useRef(state as Readonly<State>);
 
   // We need to run these first
@@ -124,47 +122,44 @@ export function useStore(initialState: State): Store {
     }));
   };
 
-  const dispatch: Dispatch = useCallback(
-    async (event, value: any) => {
-      const listener = listeners[event];
-      if (listener == null) {
-        throw Error(`No listener for ${event} found.`);
-      }
+  const dispatch: Dispatch = async (event, value: any) => {
+    const eventListeners = listeners.current[event];
+    if (eventListeners == null || eventListeners.length == 0) {
+      return;
+    }
 
-      await listener({ type: event, value } as any, {
-        setUI,
-        setTags,
-        setShortcuts,
-        setNotes,
-        getState: () => lastState.current,
-      });
-    },
-    [listeners]
-  );
+    const ev = { type: event, value };
+    const ctx = {
+      setUI,
+      setTags,
+      setShortcuts,
+      setNotes,
+      getState: () => lastState.current,
+    };
+    for (const l of eventListeners as any[]) {
+      await l(ev, ctx);
+    }
+  };
 
   const on: Store["on"] = (event, listener) => {
-    setListeners((prev) => {
-      const flatten = Array.isArray(event) ? event : [event];
-      flatten.forEach((e) => (prev[e] = listener as any));
-      return prev;
-    });
+    const events = Array.isArray(event) ? event : [event];
+    for (const ev of events) {
+      listeners.current[ev] ??= [];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      listeners.current[ev]?.push(listener);
+    }
   };
 
   const off: Store["off"] = (event, listener) => {
-    setListeners((prev) => {
-      const flatten = Array.isArray(event) ? event : [event];
-      flatten.forEach((e) => {
-        if (prev[e] != listener) {
-          console.error("prev[e]:", prev[e]);
-          console.error("listener: ", listener);
-          throw new InvalidOpError(
-            `Listener to remove for ${e} was not a match.`
-          );
-        }
-      });
-
-      return prev;
-    });
+    const events = Array.isArray(event) ? event : [event];
+    for (const ev of events) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      listeners.current[ev] = listeners.current[ev]?.filter(
+        (l: any) => l !== listener
+      ) as any[];
+    }
   };
 
   return {

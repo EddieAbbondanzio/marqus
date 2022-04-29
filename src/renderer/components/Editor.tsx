@@ -1,7 +1,7 @@
 import { debounce } from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { Store, StoreListener } from "../store";
+import { Store, Listener } from "../store";
 import { p2, w100 } from "../css";
 import { Focusable } from "./shared/Focusable";
 import { Ipc } from "../../shared/ipc";
@@ -114,6 +114,7 @@ export function Editor({ store }: EditorProps): JSX.Element {
 
     // Prevent memory leak
     onChangeSub.current?.dispose();
+
     onChangeSub.current =
       monacoEditor.current.onDidChangeModelContent(onChange);
   }, [onChange]);
@@ -189,7 +190,7 @@ const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL) as Ipc;
 //   });
 // };
 
-const setContent: StoreListener<"editor.setContent"> = async (
+const setContent: Listener<"editor.setContent"> = async (
   { value: content },
   ctx
 ) => {
@@ -207,7 +208,7 @@ const setContent: StoreListener<"editor.setContent"> = async (
   }
 };
 
-const toggleView: StoreListener<"editor.toggleView"> = (_, ctx) => {
+const toggleView: Listener<"editor.toggleView"> = (_, ctx) => {
   const {
     ui: { editor },
   } = ctx.getState();
@@ -222,7 +223,7 @@ const toggleView: StoreListener<"editor.toggleView"> = (_, ctx) => {
   }));
 };
 
-const save: StoreListener<"editor.save"> = (_, ctx) => {
+const save: Listener<"editor.save"> = (_, ctx) => {
   const {
     ui: { editor },
   } = ctx.getState();
