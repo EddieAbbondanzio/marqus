@@ -42,11 +42,13 @@ export function Editor({ store }: EditorProps): JSX.Element {
     store.on("editor.setContent", setContent);
     store.on("editor.save", save);
     store.on("editor.toggleView", toggleView);
+    store.on("editor.loadNote", loadNote);
 
     return () => {
       store.off("editor.setContent", setContent);
       store.off("editor.save", save);
       store.off("editor.toggleView", toggleView);
+      store.off("editor.loadNote", loadNote);
     };
   }, [store]);
 
@@ -170,25 +172,23 @@ const StyledEditor = styled.div`
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL) as Ipc;
 
-// const loadNote: StoreListener<"sidebar.setSelection"> = async (
-//   { value: notes },
-//   ctx
-// ) => {
-//   const state = ctx.getState();
-//   const note = head(notes);
-//   if (note === state.ui.editor.noteId) {
-//     return;
-//   }
+const loadNote: Listener<"editor.loadNote"> = async (
+  { value: noteId },
+  ctx
+) => {
+  const state = ctx.getState();
+  if (noteId === state.ui.editor.noteId) {
+    return;
+  }
 
-//   console.log("loading note: ", note);
-//   const content = (await window.ipc("notes.loadContent", note!)) ?? undefined;
-//   ctx.setUI({
-//     editor: {
-//       content,
-//       noteId: note!,
-//     },
-//   });
-// };
+  const content = (await window.ipc("notes.loadContent", noteId)) ?? undefined;
+  ctx.setUI({
+    editor: {
+      content,
+      noteId,
+    },
+  });
+};
 
 const setContent: Listener<"editor.setContent"> = async (
   { value: content },
