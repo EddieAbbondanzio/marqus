@@ -7,7 +7,12 @@ import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Tag } from "../shared/domain/tag";
 
-export type Transformer<S, R = S> = (previous: S) => R;
+export interface Store {
+  state: State;
+  on: On;
+  off: Off;
+  dispatch: Dispatch;
+}
 
 export interface State {
   ui: UI;
@@ -15,6 +20,26 @@ export interface State {
   notes: Note[];
   shortcuts: Shortcut[];
 }
+
+export type Dispatch = <ET extends UIEventType>(
+  event: ET,
+  ...value: UIEventInput<ET> extends void ? [undefined?] : [UIEventInput<ET>]
+) => Promise<void>;
+
+export type On = <ET extends UIEventType>(
+  event: ET | ET[],
+  listener: Listener<ET>
+) => void;
+
+export type Off = <EType extends UIEventType>(
+  event: EType | EType[],
+  listener: Listener<EType>
+) => void;
+
+export type Listener<ET extends UIEventType> = (
+  ev: { type: ET; value: UIEventInput<ET> },
+  s: StoreContext
+) => Promise<void> | void;
 
 export interface StoreContext {
   setUI: SetUI;
@@ -32,25 +57,7 @@ export type SetTags = (t: Transformer<Tag[]>) => void;
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
 export type SetNotes = (t: Transformer<Note[]>) => void;
 
-export interface Store {
-  dispatch: Dispatch;
-  state: State;
-  on<ET extends UIEventType>(event: ET | ET[], listener: Listener<ET>): void;
-  off<EType extends UIEventType>(
-    event: EType | EType[],
-    listener: Listener<EType>
-  ): void;
-}
-
-export type Dispatch = <ET extends UIEventType>(
-  event: ET,
-  ...value: UIEventInput<ET> extends void ? [undefined?] : [UIEventInput<ET>]
-) => Promise<void>;
-
-export type Listener<ET extends UIEventType> = (
-  ev: { type: ET; value: UIEventInput<ET> },
-  s: StoreContext
-) => Promise<void> | void;
+export type Transformer<S, R = S> = (previous: S) => R;
 
 export function useStore(initialState: State): Store {
   // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
@@ -58,10 +65,6 @@ export function useStore(initialState: State): Store {
   const listeners = useRef<{
     [eType in UIEventType]+?: Array<Listener<eType>>;
   }>({});
-
-  // const [listeners, setListeners] = useState<{
-  //   [eType in UIEventType]+?: StoreListener<eType>;
-  // }>({});
   const lastState = useRef(state as Readonly<State>);
 
   // We need to run these first
@@ -90,7 +93,6 @@ export function useStore(initialState: State): Store {
       }
       if (clonedUI?.editor != null) {
         delete clonedUI.editor.content;
-        delete clonedUI.editor.noteId;
       }
 
       void window.ipc("app.saveUIState", clonedUI);
@@ -141,7 +143,7 @@ export function useStore(initialState: State): Store {
     }
   };
 
-  const on: Store["on"] = (event, listener) => {
+  const on: On = (event, listener) => {
     const events = Array.isArray(event) ? event : [event];
     for (const ev of events) {
       listeners.current[ev] ??= [];
@@ -151,7 +153,7 @@ export function useStore(initialState: State): Store {
     }
   };
 
-  const off: Store["off"] = (event, listener) => {
+  const off: Off = (event, listener) => {
     const events = Array.isArray(event) ? event : [event];
     for (const ev of events) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
