@@ -81,30 +81,6 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.LetterS],
   },
   { event: "editor.toggleView", keys: [KeyCode.Control, KeyCode.LetterE] },
-
-  // Context Menu
-  {
-    event: "contextMenu.run",
-    keys: [KeyCode.Enter],
-    when: "contextMenu",
-  },
-  {
-    event: "contextMenu.blur",
-    keys: [KeyCode.Escape],
-    when: "contextMenu",
-  },
-  {
-    event: "contextMenu.moveSelectionDown",
-    keys: [KeyCode.ArrowDown],
-    when: "contextMenu",
-    repeat: true,
-  },
-  {
-    event: "contextMenu.moveSelectionUp",
-    keys: [KeyCode.ArrowUp],
-    when: "contextMenu",
-    repeat: true,
-  },
 ];
 
 export const DEFAULT_SHORTCUTS = shortcuts.map((s) => ({

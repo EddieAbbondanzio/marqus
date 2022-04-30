@@ -7,12 +7,7 @@ export interface UI {
   focused: Section[];
 }
 
-export const ALL_SECTIONS = [
-  "sidebar",
-  "contextMenu",
-  "sidebarInput",
-  "editor",
-] as const;
+export const ALL_SECTIONS = ["sidebar", "sidebarInput", "editor"] as const;
 export type Section = typeof ALL_SECTIONS[number];
 
 export interface Sidebar {
