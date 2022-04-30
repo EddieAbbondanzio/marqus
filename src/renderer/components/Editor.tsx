@@ -1,5 +1,5 @@
 import { debounce } from "lodash";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Ipc } from "../../shared/ipc";
 import { w100, p2 } from "../css";
@@ -36,9 +36,8 @@ export function Editor({ store }: EditorProps): JSX.Element {
     };
   }, [store]);
 
-  // onFocus={() => monacoEditor.current?.focus()}
   return (
-    <StyledFocusable store={store} name="editor">
+    <StyledFocusable store={store} name="editor" autoFocus={false}>
       {content}
     </StyledFocusable>
   );
@@ -46,7 +45,6 @@ export function Editor({ store }: EditorProps): JSX.Element {
 
 const StyledFocusable = styled(Focusable)`
   ${w100}
-  ${p2}
 `;
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL) as Ipc;

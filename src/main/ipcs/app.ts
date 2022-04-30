@@ -176,9 +176,13 @@ export function buildMenus(
     // eslint-disable-next-line no-prototype-builtins
     if (!menuHasChildren(menu) && menuHasEvent(menu)) {
       t.click = (item, browserWindow, event) => {
-        // We have our own contextual shortcut system running on the renderer
-        // thread which means we don't need to listen for shortcuts here.
-        if (event.triggeredByAccelerator) {
+        // We don't listen for shortcuts in the application menu because we
+        // already listen for them in the renderer thread and this will cause
+        // them to fire twice.
+        if (
+          event.triggeredByAccelerator &&
+          channel === IpcChannels.ApplicationMenuClick
+        ) {
           return;
         }
 

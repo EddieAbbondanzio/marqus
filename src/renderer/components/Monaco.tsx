@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { Store } from "../store";
 import * as monaco from "monaco-editor";
@@ -33,6 +39,14 @@ export function Monaco({ store }: MonacoProps): JSX.Element {
   const onChangeSub = useRef<monaco.IDisposable | null>(null);
 
   const [loadedNoteId, setloadedNoteId] = useState<string | null>(null);
+
+  // A bit of a hack. But we need this to refocus the editor on each render.
+  const focused = store.state.ui.focused[0];
+  useEffect(() => {
+    if (focused === "editor") {
+      monacoEditor.current?.focus();
+    }
+  });
 
   // Mount / Unmount
   useEffect(() => {

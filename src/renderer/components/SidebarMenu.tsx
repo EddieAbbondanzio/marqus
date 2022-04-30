@@ -176,7 +176,7 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
       <StyledFocusable
         store={props.store}
         name="sidebarInput"
-        onFocus={() => inputRef.current?.focus()}
+        elementRef={inputRef}
         onBlur={onBlur}
       >
         {props.icon && <StyledMenuIcon icon={props.icon} size="xs" />}

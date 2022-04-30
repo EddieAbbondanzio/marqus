@@ -1,5 +1,10 @@
 import { head } from "lodash";
-import React, { PropsWithChildren, useEffect, useRef } from "react";
+import React, {
+  MutableRefObject,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+} from "react";
 import { Section } from "../../../shared/domain/ui";
 import { Store } from "../../store";
 import { findParent } from "../../utils/findParent";
@@ -40,7 +45,11 @@ export interface FocusableProps {
   store: Store;
   name: Section;
   className?: string;
+  elementRef?: MutableRefObject<
+    { focus: () => void; blur?: () => void } | HTMLElement
+  >;
   overwrite?: boolean;
+  autoFocus?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
   tabIndex?: number;
@@ -49,22 +58,36 @@ export interface FocusableProps {
 export function Focusable(
   props: PropsWithChildren<FocusableProps>
 ): JSX.Element {
-  const ref = useRef(null! as HTMLDivElement);
+  const containerRef = useRef(null! as HTMLDivElement);
   useEffect(() => {
     const curr = head(props.store.state.ui.focused);
+    const element = props.elementRef?.current;
 
     if (curr == null || curr !== props.name) {
-      ref.current.blur();
+      if (props.autoFocus == null || props.autoFocus) {
+        if (element != null) {
+          element.blur?.();
+        } else {
+          containerRef.current.blur();
+        }
+      }
+
       props.onBlur?.();
     } else if (curr == props.name) {
-      ref.current.focus();
+      if (props.autoFocus == null || props.autoFocus) {
+        if (element != null) {
+          element.focus();
+        } else {
+          containerRef.current.focus();
+        }
+      }
       props.onFocus?.();
     }
   }, [props]);
 
   return (
     <div
-      ref={ref}
+      ref={containerRef}
       className={props.className}
       tabIndex={props.tabIndex ?? -1}
       {...{ [FOCUSABLE_ATTRIBUTE]: props.name }}
