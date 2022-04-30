@@ -11,12 +11,10 @@ import { Tag } from "../shared/domain/tag";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
-import { Monaco } from "./components/Monaco";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
-import { Markdown } from "./components/Markdown";
 import { Editor } from "./components/Editor";
 
 const { ipc } = window;
@@ -106,6 +104,12 @@ async function loadInitialState(): Promise<State> {
     ipc("tags.getAll"),
     ipc("notes.getAll"),
   ]);
+
+  // Pull in note
+  if (ui.editor.noteId != null) {
+    ui.editor.content =
+      (await ipc("notes.loadContent", ui.editor.noteId)) ?? undefined;
+  }
 
   return {
     ui,
