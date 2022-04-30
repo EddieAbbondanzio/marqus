@@ -1,5 +1,5 @@
 import { UIEventType, UIEventInput, UI } from "../shared/domain/ui";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cloneDeep } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
 import { DeepPartial } from "tsdef";
@@ -124,7 +124,7 @@ export function useStore(initialState: State): Store {
     }));
   };
 
-  const dispatch: Dispatch = async (event, value: any) => {
+  const dispatch: Dispatch = useCallback(async (event, value: any) => {
     const eventListeners = listeners.current[event];
     if (eventListeners == null || eventListeners.length == 0) {
       return;
@@ -141,7 +141,7 @@ export function useStore(initialState: State): Store {
     for (const l of eventListeners as any[]) {
       await l(ev, ctx);
     }
-  };
+  }, []);
 
   const on: On = (event, listener) => {
     const events = Array.isArray(event) ? event : [event];
@@ -164,10 +164,10 @@ export function useStore(initialState: State): Store {
     }
   };
 
-  return {
-    state,
-    on,
-    off,
-    dispatch,
-  };
+  const store = useMemo(
+    () => ({ state, on, off, dispatch }),
+    [dispatch, state]
+  );
+
+  return store;
 }

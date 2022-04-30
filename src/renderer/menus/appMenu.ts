@@ -94,6 +94,7 @@ export function useApplicationMenu(store: Store): void {
   }, [focused, selected, shortcutLabels]);
 
   useEffect(() => {
+    console.log("listen");
     const onClick = (ev: CustomEvent) => {
       const { event, eventInput } = ev.detail;
       store.dispatch(event, eventInput);
