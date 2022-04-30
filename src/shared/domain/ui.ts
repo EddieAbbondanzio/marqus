@@ -30,57 +30,47 @@ export interface Editor {
   noteId?: string;
 }
 
-export type ApplicationMenu =
-  | ParentApplicationMenu
-  | ApplicationMenuWithEvent
-  | ApplicationMenuWithRole
-  | ApplicationMenuSeperator;
-interface BaseApplicationMenu {
+export type Menu = ParentMenu | MenuWithEvent | MenuWithRole | MenuSeperator;
+interface BaseMenu {
   label: string;
   disabled?: boolean;
+  hidden?: boolean;
 }
 
-export interface ParentApplicationMenu extends BaseApplicationMenu {
-  children: ApplicationMenu[];
+export interface ParentMenu extends BaseMenu {
+  children: Menu[];
 }
 
-export interface ApplicationMenuWithRole extends BaseApplicationMenu {
+export interface MenuWithRole extends BaseMenu {
   role: Electron.MenuItem["role"];
 }
-export interface ApplicationMenuSeperator {
+export interface MenuSeperator {
   type: "separator";
 }
 
-export interface ApplicationMenuWithEvent<
-  UIEvent extends UIEventType = UIEventType
-> extends BaseApplicationMenu {
+export interface MenuWithEvent<UIEvent extends UIEventType = UIEventType>
+  extends BaseMenu {
   shortcut?: string;
   event: UIEvent;
   eventInput?: UIEventInput<UIEvent>;
 }
 
-export function isSeperator(m: ApplicationMenu): m is ApplicationMenuSeperator {
+export function isSeperator(m: Menu): m is MenuSeperator {
   // eslint-disable-next-line no-prototype-builtins
   return m.hasOwnProperty("type") && (m as any).type === "separator";
 }
 
-export function menuHasChildren(
-  menu: ApplicationMenu
-): menu is ParentApplicationMenu {
+export function menuHasChildren(menu: Menu): menu is ParentMenu {
   // eslint-disable-next-line no-prototype-builtins
   return menu.hasOwnProperty("children");
 }
 
-export function menuHasRole(
-  menu: ApplicationMenu
-): menu is ApplicationMenuWithRole {
+export function menuHasRole(menu: Menu): menu is MenuWithRole {
   // eslint-disable-next-line no-prototype-builtins
   return menu.hasOwnProperty("role");
 }
 
-export function menuHasEvent(
-  menu: ApplicationMenu
-): menu is ApplicationMenuWithEvent {
+export function menuHasEvent(menu: Menu): menu is MenuWithEvent {
   // eslint-disable-next-line no-prototype-builtins
   return menu.hasOwnProperty("event");
 }

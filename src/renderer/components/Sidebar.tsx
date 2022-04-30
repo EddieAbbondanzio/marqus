@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo } from "react";
 import { px } from "../../shared/dom";
-import {
-  ContextMenu,
-  ContextMenuItem,
-  ContextMenuItems,
-} from "./shared/ContextMenu";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { isResourceId } from "../../shared/domain";
@@ -18,12 +13,7 @@ import { NotFoundError } from "../../shared/errors";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
-import {
-  SIDEBAR_MENU_HEIGHT,
-  SidebarMenu,
-  SidebarInput,
-  getSidebarMenuAttribute,
-} from "./SidebarMenu";
+import { SIDEBAR_MENU_HEIGHT, SidebarMenu, SidebarInput } from "./SidebarMenu";
 import {
   faChevronDown,
   faChevronRight,
@@ -157,14 +147,12 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
       <StyledFocusable store={store} name="sidebar">
-        <ContextMenu store={store} items={getContextMenuItems}>
-          <StyledScrollable
-            scroll={store.state.ui.sidebar.scroll}
-            onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
-          >
-            {menus}
-          </StyledScrollable>
-        </ContextMenu>
+        <StyledScrollable
+          scroll={store.state.ui.sidebar.scroll}
+          onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
+        >
+          {menus}
+        </StyledScrollable>
       </StyledFocusable>
     </StyledResizable>
   );
@@ -184,43 +172,6 @@ const StyledScrollable = styled(Scrollable)`
   display: flex;
   flex-direction: column;
 `;
-
-const getContextMenuItems: ContextMenuItems = (ev: MouseEvent) => {
-  const target = getSidebarMenuAttribute(ev.target as HTMLElement);
-  const items: ContextMenuItem[] = [
-    {
-      role: "entry",
-      text: "New note",
-      event: "sidebar.createNote",
-      eventInput: target,
-    },
-  ];
-
-  if (target != null) {
-    items.push(
-      {
-        role: "entry",
-        text: `Rename note`,
-        event: "sidebar.renameNote",
-        eventInput: target,
-      },
-      {
-        role: "entry",
-        text: "Permanently delete",
-        event: "sidebar.deleteNote",
-        eventInput: target,
-      },
-      {
-        role: "entry",
-        text: "Move to trash",
-        event: "sidebar.moveNoteToTrash",
-        eventInput: target,
-      }
-    );
-  }
-
-  return items;
-};
 
 export function renderMenus(
   notes: Note[],

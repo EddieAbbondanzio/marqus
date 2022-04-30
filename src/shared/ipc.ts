@@ -1,5 +1,5 @@
 import { PromptButton, PromptOptions } from "./prompt";
-import { ApplicationMenu, UI } from "./domain/ui";
+import { Menu, UI } from "./domain/ui";
 import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
 import { Tag } from "./domain/tag";
@@ -8,7 +8,8 @@ import { Point } from "electron";
 
 export interface IpcSchema {
   // App
-  "app.setApplicationMenu"(menus: ApplicationMenu[]): Promise<void>;
+  "app.setApplicationMenu"(menus: Menu[]): Promise<void>;
+  "app.showContextMenu"(menus: Menu[]): Promise<void>;
   "app.promptUser"<T>(options: PromptOptions<T>): Promise<PromptButton<T>>;
   "app.openDevTools"(): Promise<void>;
   "app.inspectElement"(point: Point): Promise<void>;
@@ -61,5 +62,6 @@ export interface IpcMainTS {
 export type IpcPlugin = (ipc: IpcMainTS, config: Config) => void;
 
 export enum IpcChannels {
-  ApplicationMenuClick = "applicationMenuClick",
+  ApplicationMenuClick = "applicationmenuclick",
+  ContextMenuClick = "contextmenuclick",
 }

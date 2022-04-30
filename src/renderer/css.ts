@@ -10,13 +10,6 @@ const HIGHLIGHT = OpenColor.blue[3];
 const BORDER = OpenColor.gray[7];
 
 export const THEME = {
-  contextMenu: {
-    background: OpenColor.gray[0],
-    border: BORDER,
-    highlight: HIGHLIGHT,
-    font: OpenColor.gray[7],
-    shortcuts: OpenColor.gray[6],
-  },
   sidebar: {
     hover: OpenColor.gray[8],
     selected: OpenColor.gray[7],

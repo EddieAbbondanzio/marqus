@@ -94,15 +94,14 @@ export function useApplicationMenu(store: Store): void {
   }, [focused, selected, shortcutLabels]);
 
   useEffect(() => {
-    console.log("listen");
     const onClick = (ev: CustomEvent) => {
       const { event, eventInput } = ev.detail;
       store.dispatch(event, eventInput);
     };
 
-    window.addEventListener("applicationmenu", onClick);
+    window.addEventListener("applicationmenuclick", onClick);
     return () => {
-      window.removeEventListener("applicationmenu", onClick);
+      window.removeEventListener("applicationmenuclick", onClick);
     };
   }, [store]);
 }

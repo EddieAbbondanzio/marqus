@@ -1,6 +1,6 @@
 import { render } from "react-dom";
 import React, { useEffect } from "react";
-import { getShortcutLabels, useShortcuts } from "./io/shortcuts";
+import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
@@ -8,13 +8,14 @@ import { Section, UI } from "../shared/domain/ui";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
-import { State, Store, Listener, useStore } from "./store";
+import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
 import { Editor } from "./components/Editor";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
+import { useContextMenu } from "./menus/contextMenu";
 
 const { ipc } = window;
 async function main() {
@@ -35,6 +36,7 @@ async function main() {
     const store = useStore(initialState);
     useShortcuts(store);
     useApplicationMenu(store);
+    useContextMenu(store);
 
     useEffect(() => {
       store.on("app.quit", quit);

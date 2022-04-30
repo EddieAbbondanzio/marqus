@@ -5,7 +5,7 @@ import {
   MenuItemConstructorOptions,
 } from "electron";
 import {
-  ApplicationMenu,
+  Menu as MenuType,
   isSeperator,
   menuHasChildren,
   menuHasEvent,
@@ -26,58 +26,20 @@ import { isEmpty } from "lodash";
 export const UI_FILE = "ui.json";
 
 export const useAppIpcs: IpcPlugin = (ipc, config) => {
+  ipc.handle("app.showContextMenu", async (menus) => {
+    const template: MenuItemConstructorOptions[] = buildMenus(
+      menus,
+      IpcChannels.ContextMenuClick
+    );
+    const menu = Menu.buildFromTemplate(template);
+    menu.popup();
+  });
+
   ipc.handle("app.setApplicationMenu", async (menus) => {
-    const template: MenuItemConstructorOptions[] = [];
-
-    const recursive = (
-      menu: ApplicationMenu,
-      parent?: MenuItemConstructorOptions
-    ) => {
-      let t: MenuItemConstructorOptions;
-      if (isSeperator(menu)) {
-        t = { type: menu.type };
-      } else {
-        t = {
-          label: menu.label,
-          enabled: !(menu.disabled ?? false),
-        };
-      }
-
-      if (menuHasRole(menu)) {
-        t.role = menu.role;
-        // shortcut will be defaulted from device settings.
-      }
-
-      // eslint-disable-next-line no-prototype-builtins
-      if (!menuHasChildren(menu) && menuHasEvent(menu)) {
-        t.click = () => {
-          const bw = BrowserWindow.getFocusedWindow();
-          bw?.webContents.send(IpcChannels.ApplicationMenuClick, {
-            event: menu.event,
-            eventInput: menu.eventInput,
-          });
-        };
-        t.accelerator = menu.shortcut;
-      }
-
-      if (parent != null) {
-        parent.submenu ??= [];
-        (parent.submenu as MenuItemConstructorOptions[]).push(t);
-      } else {
-        template.push(t);
-      }
-
-      if (menuHasChildren(menu) && !isEmpty(menu.children)) {
-        for (const child of menu.children) {
-          recursive(child, t);
-        }
-      }
-    };
-
-    for (const menu of menus) {
-      recursive(menu);
-    }
-
+    const template: MenuItemConstructorOptions[] = buildMenus(
+      menus,
+      IpcChannels.ApplicationMenuClick
+    );
     const bw = BrowserWindow.getFocusedWindow();
     const menu = Menu.buildFromTemplate(template);
     bw?.setMenu(menu);
@@ -188,3 +150,65 @@ const appSchema = yup.object().shape({
     }),
   }),
 });
+
+export function buildMenus(
+  menus: MenuType[],
+  channel: IpcChannels
+): MenuItemConstructorOptions[] {
+  const template: MenuItemConstructorOptions[] = [];
+
+  const recursive = (menu: MenuType, parent?: MenuItemConstructorOptions) => {
+    let t: MenuItemConstructorOptions;
+    if (isSeperator(menu)) {
+      t = { type: menu.type };
+    } else {
+      t = {
+        label: menu.label,
+        enabled: !(menu.disabled ?? false),
+      };
+    }
+
+    if (menuHasRole(menu)) {
+      t.role = menu.role;
+      // shortcut will be defaulted from device settings.
+    }
+
+    // eslint-disable-next-line no-prototype-builtins
+    if (!menuHasChildren(menu) && menuHasEvent(menu)) {
+      t.click = () => {
+        const bw = BrowserWindow.getFocusedWindow();
+        bw?.webContents.send(channel, {
+          event: menu.event,
+          eventInput: menu.eventInput,
+        });
+      };
+      t.accelerator = menu.shortcut;
+    }
+
+    if (parent != null) {
+      parent.submenu ??= [];
+      (parent.submenu as MenuItemConstructorOptions[]).push(t);
+    } else {
+      template.push(t);
+    }
+
+    if (menuHasChildren(menu) && !isEmpty(menu.children)) {
+      for (const child of menu.children) {
+        if ("hidden" in child && child.hidden) {
+          continue;
+        }
+        recursive(child, t);
+      }
+    }
+  };
+
+  for (const menu of menus) {
+    if ("hidden" in menu && menu.hidden) {
+      continue;
+    }
+
+    recursive(menu);
+  }
+
+  return template;
+}
