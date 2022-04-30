@@ -3,6 +3,11 @@ import { InvalidOpError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
 
 export const DEFAULT_CURSOR = "auto";
+export enum MouseButton {
+  Left = 0,
+  Middle = 1,
+  Right = 2,
+}
 
 export type Cursor =
   | "auto"
@@ -89,7 +94,7 @@ export function useMouseDrag(
     }
 
     const onMouseDown = (event: MouseEvent) => {
-      if (opts?.disabled) {
+      if (opts?.disabled || event.button !== MouseButton.Left) {
         return;
       }
 
@@ -109,7 +114,7 @@ export function useMouseDrag(
     };
 
     const onMouseMove = (event: MouseEvent) => {
-      if (opts?.disabled) {
+      if (opts?.disabled || event.button !== MouseButton.Left) {
         return;
       }
 
@@ -137,7 +142,7 @@ export function useMouseDrag(
     };
 
     const onMouseUp = (event: MouseEvent) => {
-      if (opts?.disabled) {
+      if (opts?.disabled || event.button !== MouseButton.Left) {
         return;
       }
 
