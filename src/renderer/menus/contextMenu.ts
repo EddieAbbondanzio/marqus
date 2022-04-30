@@ -77,7 +77,6 @@ export function useContextMenu(store: Store): void {
 
   useEffect(() => {
     const onClick = (ev: CustomEvent) => {
-      console.log("CLIK!", ev);
       const { event, eventInput } = ev.detail;
       store.dispatch(event, eventInput);
     };

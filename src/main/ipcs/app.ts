@@ -175,7 +175,13 @@ export function buildMenus(
 
     // eslint-disable-next-line no-prototype-builtins
     if (!menuHasChildren(menu) && menuHasEvent(menu)) {
-      t.click = () => {
+      t.click = (item, browserWindow, event) => {
+        // We have our own contextual shortcut system running on the renderer
+        // thread which means we don't need to listen for shortcuts here.
+        if (event.triggeredByAccelerator) {
+          return;
+        }
+
         const bw = BrowserWindow.getFocusedWindow();
         bw?.webContents.send(channel, {
           event: menu.event,

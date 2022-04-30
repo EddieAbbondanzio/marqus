@@ -11,11 +11,13 @@ import { Tag } from "../shared/domain/tag";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { head, isEmpty, isEqual } from "lodash";
-import { Editor } from "./components/Editor";
+import { Monaco } from "./components/Monaco";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
+import { Markdown } from "./components/Markdown";
+import { Editor } from "./components/Editor";
 
 const { ipc } = window;
 async function main() {

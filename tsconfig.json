@@ -20,7 +20,7 @@
     }
   },
   "include": [
-    "src/**/*",
+    "src/**/*", "test/renderer/components/App.spec.tsx",
   ],
   "exclude": [
     "test/**/*"

@@ -10,12 +10,18 @@ export function useApplicationMenu(store: Store): void {
   );
   const focused = store.state.ui.focused[0];
   const selected = store.state.ui.sidebar.selected?.[0];
+  const isEditting = store.state.ui.editor.isEditting;
 
   useEffect(() => {
     void window.ipc("app.setApplicationMenu", [
       {
         label: "&File",
         children: [
+          {
+            label: isEditting ? "Stop editting" : "Edit",
+            shortcut: shortcutLabels["editor.toggleView"],
+            event: "editor.toggleView",
+          },
           {
             label: "Delete note",
             shortcut: shortcutLabels["sidebar.deleteNote"],
@@ -91,7 +97,7 @@ export function useApplicationMenu(store: Store): void {
         ],
       },
     ]);
-  }, [focused, selected, shortcutLabels]);
+  }, [focused, selected, shortcutLabels, isEditting]);
 
   useEffect(() => {
     const onClick = (ev: CustomEvent) => {
