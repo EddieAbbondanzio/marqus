@@ -65,6 +65,7 @@ async function main() {
     }, [store]);
 
     useFocusTracking(store);
+    console.log("SEARCH STRING APP: ", store.state.ui.sidebar.searchString);
 
     return (
       <Container>

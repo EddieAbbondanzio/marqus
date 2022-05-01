@@ -8,8 +8,8 @@ import * as yup from "yup";
  */
 export interface Shortcut<EType extends UIEventType = UIEventType> {
   // Name is used as a unique identifier so shortcuts can be overrided by the
-  // user. Some shortcuts will use the same event (focus.push) so we can't rely
-  // on the event to be unique.
+  // user. Some shortcuts will use the same event (ex: focus.push) so we can't
+  // rely on the event to be unique.
   name: string;
   event: EType;
   eventInput?: UIEventInput<EType>;

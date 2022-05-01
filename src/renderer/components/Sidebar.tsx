@@ -6,7 +6,16 @@ import { isResourceId } from "../../shared/domain";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, THEME, w100 } from "../css";
-import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
+import {
+  clamp,
+  Dictionary,
+  head,
+  isEmpty,
+  keyBy,
+  List,
+  orderBy,
+  take,
+} from "lodash";
 import { Note, getNoteById, getNoteSchema } from "../../shared/domain/note";
 import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
 import { NotFoundError } from "../../shared/errors";
@@ -19,6 +28,7 @@ import {
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
+import { search } from "fast-fuzzy";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -29,13 +39,44 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ store }: SidebarProps): JSX.Element {
-  const { notes } = store.state;
   const { sidebar } = store.state.ui;
   const { input } = sidebar;
   const expandedLookup = keyBy(sidebar.expanded, (e) => e);
   const selectedLookup = keyBy(sidebar.selected, (s) => s);
 
-  console.log("SIDEBAR!", input);
+  const searchString = store.state.ui.sidebar.searchString;
+  const notes = useMemo(() => {
+    if (isEmpty(searchString)) {
+      return store.state.notes;
+    }
+
+    const flatNotes = [];
+    const recursive = (note: Note) => {
+      if (isEmpty(note.children)) {
+        return;
+      }
+
+      for (const child of note.children!) {
+        flatNotes.push(child);
+      }
+
+      for (const child of note.children!) {
+        recursive(child);
+      }
+    };
+
+    for (const root of store.state.notes) {
+      flatNotes.push(root);
+      recursive(root);
+    }
+
+    const matches = search(searchString!, flatNotes, {
+      keySelector: (n) => n.name,
+    });
+
+    return matches;
+  }, [searchString, store.state.notes]);
+
   const [menus, itemIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
     [notes, store, input, expandedLookup, selectedLookup]
@@ -118,6 +159,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
     store.on("sidebar.deleteNote", deleteNote);
     store.on("sidebar.dragNote", dragNote);
     store.on("sidebar.moveNoteToTrash", moveNoteToTrash);
+    store.on("sidebar.setSearchString", setSearchString);
 
     return () => {
       store.off("sidebar.resizeWidth", resizeWidth);
@@ -139,6 +181,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       store.off("sidebar.deleteNote", deleteNote);
       store.off("sidebar.dragNote", dragNote);
       store.off("sidebar.moveNoteToTrash", moveNoteToTrash);
+      store.off("sidebar.setSearchString", setSearchString);
     };
   }, [itemIds, sidebar, store]);
 
@@ -558,6 +601,18 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
   ) {
     toggleExpanded(ctx, newParent.id);
   }
+};
+
+export const setSearchString: Listener<"sidebar.setSearchString"> = async (
+  { value: searchString },
+  ctx
+) => {
+  console.log(searchString);
+  ctx.setUI({
+    sidebar: {
+      searchString,
+    },
+  });
 };
 
 function toggleExpanded(ctx: StoreContext, noteId: string): void {

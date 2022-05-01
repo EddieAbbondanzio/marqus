@@ -34,7 +34,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
         placeholder="Type to search..."
         type="search"
         ref={inputRef}
-        value={props.store.state.ui.sidebar.searchString}
+        value={props.store.state.ui.sidebar.searchString ?? ""}
         onInput={onInput}
       ></SearchInput>
     </StyledFocusable>
