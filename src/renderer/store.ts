@@ -1,6 +1,6 @@
-import { UIEventType, UIEventInput, UI } from "../shared/domain/ui";
+import { UIEventType, UIEventInput, UI, Section } from "../shared/domain/ui";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { cloneDeep } from "lodash";
+import { cloneDeep, head, isEqual } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
@@ -46,6 +46,7 @@ export interface StoreContext {
   setTags: SetTags;
   setShortcuts: SetShortcuts;
   setNotes: SetNotes;
+  focus(section: Section): void;
   getState(): State;
 }
 
@@ -90,6 +91,7 @@ export function useStore(initialState: State): Store {
       const clonedUI = cloneDeep(newState.ui);
       if (clonedUI?.sidebar != null) {
         delete clonedUI.sidebar.input;
+        delete clonedUI.sidebar.searchString;
       }
       if (clonedUI?.editor != null) {
         delete clonedUI.editor.content;
@@ -137,6 +139,26 @@ export function useStore(initialState: State): Store {
       setShortcuts,
       setNotes,
       getState: () => lastState.current,
+      // Hack. Revise this so we can get rid of redundant code in listener focus.push
+      focus: (section: Section) => {
+        let previous: Section | undefined;
+        const state = ctx.getState();
+        if (isEqual(state.ui.focused, [section])) {
+          return;
+        }
+
+        ctx.setUI((s) => {
+          const focused = [section];
+          if (s.focused != null && s.focused !== focused) {
+            previous = head(s.focused)!;
+            focused.push(previous);
+          }
+
+          return {
+            focused,
+          };
+        });
+      },
     };
     for (const l of eventListeners as any[]) {
       await l(ev, ctx);

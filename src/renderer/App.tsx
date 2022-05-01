@@ -41,6 +41,7 @@ async function main() {
     useEffect(() => {
       store.on("app.quit", quit);
       store.on("app.toggleSidebar", toggleSidebar);
+      store.on("sidebar.search", focusSidebarSearch);
       store.on("app.inspectElement", inspectElement);
       store.on("app.openDevTools", openDevTools);
       store.on("app.reload", reload);
@@ -53,6 +54,7 @@ async function main() {
       return () => {
         store.off("app.quit", quit);
         store.off("app.toggleSidebar", toggleSidebar);
+        store.off("sidebar.search", focusSidebarSearch);
         store.off("app.inspectElement", inspectElement);
         store.off("app.openDevTools", openDevTools);
         store.off("app.reload", reload);
@@ -174,4 +176,14 @@ export const pop: Listener<"focus.pop"> = (_, ctx) => {
       focused: [],
     };
   });
+};
+
+// Here so it works globally.
+export const focusSidebarSearch: Listener<"sidebar.search"> = (_, ctx) => {
+  ctx.setUI({
+    sidebar: {
+      hidden: false,
+    },
+  });
+  ctx.focus("sidebarSearch");
 };

@@ -36,6 +36,10 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.LetterB],
   },
   {
+    event: "sidebar.search",
+    keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterF],
+  },
+  {
     event: "sidebar.scrollDown",
     keys: COMMON_KEY_COMBOS.scrollDown,
     when: "sidebar",

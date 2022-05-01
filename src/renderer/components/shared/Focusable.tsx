@@ -46,7 +46,7 @@ export interface FocusableProps {
   name: Section;
   className?: string;
   elementRef?: MutableRefObject<
-    { focus: () => void; blur?: () => void } | HTMLElement
+    { focus: () => void; blur?: () => void } | HTMLElement | null
   >;
   overwrite?: boolean;
   autoFocus?: boolean;
@@ -83,7 +83,7 @@ export function Focusable(
       }
       props.onFocus?.();
     }
-  }, [props]);
+  });
 
   return (
     <div

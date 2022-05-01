@@ -7,10 +7,16 @@ export interface UI {
   focused: Section[];
 }
 
-export const ALL_SECTIONS = ["sidebar", "sidebarInput", "editor"] as const;
+export const ALL_SECTIONS = [
+  "sidebar",
+  "sidebarInput",
+  "sidebarSearch",
+  "editor",
+] as const;
 export type Section = typeof ALL_SECTIONS[number];
 
 export interface Sidebar {
+  searchString?: string;
   hidden?: boolean;
   width: string;
   scroll: number;
@@ -100,6 +106,8 @@ export interface UIEvents {
   "sidebar.toggleItemExpanded": string;
   "sidebar.moveSelectionUp": void;
   "sidebar.moveSelectionDown": void;
+  "sidebar.search": void;
+  "sidebar.setSearchString": string;
 
   // Editor
   "editor.save": void;
