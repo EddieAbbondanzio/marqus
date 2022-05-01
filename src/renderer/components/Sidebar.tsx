@@ -18,6 +18,7 @@ import {
   faChevronDown,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
+import { SidebarSearch } from "./SidebarSearch";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -151,6 +152,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
           scroll={store.state.ui.sidebar.scroll}
           onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
         >
+          <SidebarSearch store={store} />
           {menus}
         </StyledScrollable>
       </StyledFocusable>
@@ -248,7 +250,6 @@ export function renderMenus(
     if (hasInput) {
       menus.push(
         <SidebarInput
-          icon={icon}
           store={store}
           key="sidebarInput"
           value={input}
