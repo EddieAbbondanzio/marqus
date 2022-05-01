@@ -1,5 +1,5 @@
 import { chain, isEqual } from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   KeyCode,
   keyCodesToString,
@@ -11,8 +11,8 @@ import { Store } from "../store";
 import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
 
-const INITIAL_DELAY = 250;
-const REPEAT_DELAY = 125;
+const INITIAL_DELAY = 250; // ms
+const REPEAT_DELAY = 125; // ms
 
 export function useShortcuts(store: Store): void {
   const { dispatch } = store;
@@ -20,8 +20,8 @@ export function useShortcuts(store: Store): void {
   const [activeKeys, setActiveKeys] = useState<
     Record<string, boolean | undefined>
   >({});
-  const [interval, setIntervalState] = useState<NodeJS.Timer>();
-  const [didKeysChange, setDidKeysChange] = useState(false);
+  const interval = useRef<NodeJS.Timer>();
+  const didKeysChange = useRef(false);
 
   if (shortcuts.length === 0) {
     console.warn("No shortcuts passed to useShortcuts() hook.");
@@ -53,20 +53,20 @@ export function useShortcuts(store: Store): void {
             const currKeys = toKeyArray(activeKeys);
 
             if (isEqual(currKeys, activeKeysArray)) {
-              const interval = setInterval(() => {
+              const int = setInterval(() => {
                 void dispatch(
                   shortcut.event as UIEventType,
                   shortcut.eventInput
                 );
               }, REPEAT_DELAY);
 
-              setIntervalState(interval);
+              interval.current = int;
             }
           })();
         }
       }
 
-      setDidKeysChange(false);
+      didKeysChange.current = false;
     }
   }, [dispatch, ui, activeKeys, shortcuts, didKeysChange]);
 
@@ -76,7 +76,7 @@ export function useShortcuts(store: Store): void {
       if (!ev.repeat) {
         const key = parseKeyCode(ev.code);
         setActiveKeys((prev) => ({ ...prev, [key]: true }));
-        setDidKeysChange(true);
+        didKeysChange.current = true;
       }
     };
 
@@ -87,9 +87,9 @@ export function useShortcuts(store: Store): void {
         return prev;
       });
 
-      if (interval != null) {
-        clearInterval(interval);
-        setIntervalState(undefined);
+      if (interval.current != null) {
+        clearInterval(interval.current);
+        interval.current = undefined;
       }
     };
 
