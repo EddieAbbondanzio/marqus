@@ -106,7 +106,6 @@ export interface UIEvents {
   "sidebar.toggleItemExpanded": string;
   "sidebar.moveSelectionUp": void;
   "sidebar.moveSelectionDown": void;
-  "sidebar.search": void;
   "sidebar.setSearchString": string;
 
   // Editor

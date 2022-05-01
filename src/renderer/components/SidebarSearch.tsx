@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 import { px } from "../../shared/dom";
-import { py1, THEME, w100 } from "../css";
+import { w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { BorderlessInput } from "./shared/styled";

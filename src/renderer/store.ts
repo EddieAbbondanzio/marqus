@@ -41,12 +41,14 @@ export type Listener<ET extends UIEventType> = (
   s: StoreContext
 ) => Promise<void> | void;
 
+export type Focus = (section: Section) => void;
+
 export interface StoreContext {
   setUI: SetUI;
   setTags: SetTags;
   setShortcuts: SetShortcuts;
   setNotes: SetNotes;
-  focus(section: Section): void;
+  focus: Focus;
   getState(): State;
 }
 
@@ -73,7 +75,7 @@ export function useStore(initialState: State): Store {
     lastState.current = cloneDeep(state);
   }, [state]);
 
-  const setUI: SetUI = (transformer) => {
+  const setUI: SetUI = useCallback((transformer) => {
     setState((prevState) => {
       const updates =
         typeof transformer === "function"
@@ -100,7 +102,7 @@ export function useStore(initialState: State): Store {
       void window.ipc("app.saveUIState", clonedUI);
       return newState;
     });
-  };
+  }, []);
 
   /*
    * The following setters are to update local cache. They do not
@@ -126,44 +128,56 @@ export function useStore(initialState: State): Store {
     }));
   };
 
-  const dispatch: Dispatch = useCallback(async (event, value: any) => {
-    const eventListeners = listeners.current[event];
-    if (eventListeners == null || eventListeners.length == 0) {
-      return;
-    }
+  const focus: Focus = useCallback(
+    (section) => {
+      let previous: Section | undefined;
+      const { current: state } = lastState;
+      if (isEqual(state.ui.focused, [section])) {
+        return;
+      }
 
-    const ev = { type: event, value };
-    const ctx = {
+      setUI((s) => {
+        const focused = [section];
+        if (s.focused != null && s.focused !== focused) {
+          previous = head(s.focused)!;
+          focused.push(previous);
+        }
+
+        return {
+          focused,
+        };
+      });
+    },
+    [setUI]
+  );
+
+  const ctx = useMemo(
+    () => ({
       setUI,
       setTags,
       setShortcuts,
       setNotes,
+      focus,
       getState: () => lastState.current,
-      // Hack. Revise this so we can get rid of redundant code in listener focus.push
-      focus: (section: Section) => {
-        let previous: Section | undefined;
-        const state = ctx.getState();
-        if (isEqual(state.ui.focused, [section])) {
-          return;
-        }
+    }),
+    [focus, setUI]
+  );
 
-        ctx.setUI((s) => {
-          const focused = [section];
-          if (s.focused != null && s.focused !== focused) {
-            previous = head(s.focused)!;
-            focused.push(previous);
-          }
+  const dispatch: Dispatch = useCallback(
+    async (event, value: any) => {
+      const eventListeners = listeners.current[event];
+      if (eventListeners == null || eventListeners.length == 0) {
+        return;
+      }
 
-          return {
-            focused,
-          };
-        });
-      },
-    };
-    for (const l of eventListeners as any[]) {
-      await l(ev, ctx);
-    }
-  }, []);
+      const ev = { type: event, value };
+
+      for (const l of eventListeners as any[]) {
+        await l(ev, ctx);
+      }
+    },
+    [ctx]
+  );
 
   const on: On = (event, listener) => {
     const events = Array.isArray(event) ? event : [event];

@@ -37,11 +37,10 @@ async function main() {
     useShortcuts(store);
     useApplicationMenu(store);
     useContextMenu(store);
-
+    console.log("RENDER", store.state.ui.focused);
     useEffect(() => {
       store.on("app.quit", quit);
       store.on("app.toggleSidebar", toggleSidebar);
-      store.on("sidebar.search", focusSidebarSearch);
       store.on("app.inspectElement", inspectElement);
       store.on("app.openDevTools", openDevTools);
       store.on("app.reload", reload);
@@ -54,7 +53,6 @@ async function main() {
       return () => {
         store.off("app.quit", quit);
         store.off("app.toggleSidebar", toggleSidebar);
-        store.off("sidebar.search", focusSidebarSearch);
         store.off("app.inspectElement", inspectElement);
         store.off("app.openDevTools", openDevTools);
         store.off("app.reload", reload);
@@ -147,23 +145,7 @@ export const inspectElement: Listener<"app.inspectElement"> = ({
 }) => ipc("app.inspectElement", coord);
 
 export const push: Listener<"focus.push"> = ({ value: next }, ctx) => {
-  let previous: Section | undefined;
-  const state = ctx.getState();
-  if (isEqual(state.ui.focused, [next])) {
-    return;
-  }
-
-  ctx.setUI((s) => {
-    const focused = [next];
-    if (s.focused != null && s.focused !== focused) {
-      previous = head(s.focused)!;
-      focused.push(previous);
-    }
-
-    return {
-      focused,
-    };
-  });
+  ctx.focus(next);
 };
 
 export const pop: Listener<"focus.pop"> = (_, ctx) => {
@@ -176,14 +158,4 @@ export const pop: Listener<"focus.pop"> = (_, ctx) => {
       focused: [],
     };
   });
-};
-
-// Here so it works globally.
-export const focusSidebarSearch: Listener<"sidebar.search"> = (_, ctx) => {
-  ctx.setUI({
-    sidebar: {
-      hidden: false,
-    },
-  });
-  ctx.focus("sidebarSearch");
 };
