@@ -35,6 +35,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
   const expandedLookup = keyBy(sidebar.expanded, (e) => e);
   const selectedLookup = keyBy(sidebar.selected, (s) => s);
 
+  console.log("SIDEBAR!", input);
   const [menus, itemIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
     [notes, store, input, expandedLookup, selectedLookup]
@@ -354,8 +355,8 @@ export const createNote: Listener<"sidebar.createNote"> = async (
     expanded.push(parentId);
   }
 
+  ctx.focus("sidebarInput");
   ctx.setUI({
-    focused: ["sidebarInput"],
     sidebar: {
       input,
       expanded,
@@ -411,8 +412,8 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
     },
     setExplorerInput(ctx)
   );
+  ctx.focus("sidebarInput");
   ctx.setUI({
-    focused: ["sidebarInput"],
     sidebar: {
       input,
     },

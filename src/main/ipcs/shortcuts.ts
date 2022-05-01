@@ -14,6 +14,7 @@ import { IpcPlugin } from "../../shared/ipc";
 export const SHORTCUTS_FILE = "shortcuts.json";
 
 export interface ShortcutOverride {
+  name: string;
   event: UIEventType;
   keys?: string;
   disabled?: boolean;
@@ -66,9 +67,7 @@ export function getShortcutsFileHandler(
 
         const values = [];
         for (const defaultShortcut of DEFAULT_SHORTCUTS) {
-          const userOverride = raw.find(
-            (s) => s.event === defaultShortcut.event
-          );
+          const userOverride = raw.find((s) => s.name === defaultShortcut.name);
 
           let shortcut: Shortcut;
 

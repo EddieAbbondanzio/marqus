@@ -37,7 +37,6 @@ async function main() {
     useShortcuts(store);
     useApplicationMenu(store);
     useContextMenu(store);
-    console.log("RENDER", store.state.ui.focused);
     useEffect(() => {
       store.on("app.quit", quit);
       store.on("app.toggleSidebar", toggleSidebar);
