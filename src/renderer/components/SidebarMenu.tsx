@@ -30,8 +30,9 @@ interface SidebarMenuProps {
 }
 
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
-  const paddingLeft = px(props.depth * SIDEBAR_MENU_INDENT);
   const { value, icon, isSelected, onClick } = props;
+  const iconOffset = icon ? 0 : 8;
+  const paddingLeft = px(props.depth * SIDEBAR_MENU_INDENT + iconOffset);
 
   let backgroundColor;
   if (isSelected) {
@@ -120,7 +121,7 @@ export interface SidebarInputProps {
 export function SidebarInput(props: SidebarInputProps): JSX.Element {
   const paddingLeft = px(
     props.depth * SIDEBAR_MENU_INDENT +
-      (props.icon == null ? SIDEBAR_ICON_WIDTH : 0)
+      (props.icon == null ? SIDEBAR_ICON_WIDTH + 8 : 0)
   );
   const inputRef = useRef(null! as HTMLInputElement);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
