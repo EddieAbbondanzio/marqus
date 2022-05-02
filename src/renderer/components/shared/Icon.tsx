@@ -12,7 +12,6 @@ export interface IconProps {
   className?: string;
   title?: string;
   size?: FontAwesomeIconProps["size"];
-  color?: string;
   onClick?: MouseEventHandler;
 }
 

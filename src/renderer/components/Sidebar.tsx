@@ -607,7 +607,6 @@ export const setSearchString: Listener<"sidebar.setSearchString"> = async (
   { value: searchString },
   ctx
 ) => {
-  console.log(searchString);
   ctx.setUI({
     sidebar: {
       searchString,
