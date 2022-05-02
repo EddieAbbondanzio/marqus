@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { Menu } from "../../shared/domain/ui";
 import { isDevelopment } from "../../shared/env";
+import { getFocusableAttribute } from "../components/shared/Focusable";
 import { getSidebarMenuAttribute } from "../components/SidebarMenu";
 import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";
@@ -11,38 +12,40 @@ export function useContextMenu(store: Store): void {
     () => getShortcutLabels(store.state.shortcuts),
     [store.state.shortcuts]
   );
-  const focused = store.state.ui.focused[0];
   const selected = store.state.ui.sidebar.selected?.[0];
-
   useEffect(() => {
     const showMenu = (ev: MouseEvent) => {
-      const target = getSidebarMenuAttribute(ev.target as HTMLElement);
+      // Right clicking won't trigger a focus change so we need to manually
+      // determine what focusable the click occured in.
+      const focusable = getFocusableAttribute(ev.target as HTMLElement);
+      const sidebarMenu = getSidebarMenuAttribute(ev.target as HTMLElement);
+
       const items: Menu[] = [];
-      if (focused === "sidebar") {
+      if (focusable === "sidebar") {
         items.push({
           label: "New note",
           event: "sidebar.createNote",
-          eventInput: target,
+          eventInput: sidebarMenu,
         });
 
-        if (target != null) {
+        if (sidebarMenu != null) {
           items.push(
             {
               label: "Rename note",
               event: "sidebar.renameNote",
-              eventInput: target,
+              eventInput: sidebarMenu,
               shortcut: shortcutLabels["sidebar.renameNote"],
             },
             {
               label: "Permanently delete",
               event: "sidebar.deleteNote",
-              eventInput: target,
+              eventInput: sidebarMenu,
               shortcut: shortcutLabels["sidebar.deleteNote"],
             },
             {
               label: "Move to trash",
               event: "sidebar.moveNoteToTrash",
-              eventInput: target,
+              eventInput: sidebarMenu,
               shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
             }
           );
@@ -56,7 +59,7 @@ export function useContextMenu(store: Store): void {
         items.push({
           label: "Inspect element",
           event: "app.inspectElement",
-          eventInput: target,
+          eventInput: sidebarMenu,
           shortcut: shortcutLabels["app.inspectElement"],
         });
         items.push({
@@ -73,7 +76,7 @@ export function useContextMenu(store: Store): void {
     return () => {
       window.removeEventListener("contextmenu", showMenu);
     };
-  }, [selected, focused, shortcutLabels]);
+  }, [selected, shortcutLabels]);
 
   useEffect(() => {
     const onClick = (ev: CustomEvent) => {

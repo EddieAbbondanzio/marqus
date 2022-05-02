@@ -103,3 +103,13 @@ export function wasInsideFocusable(ev: Event, focusable: string): boolean {
     (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) === focusable
   );
 }
+
+export function getFocusableAttribute(element: HTMLElement): string | null {
+  return findParent<string | null>(
+    element,
+    (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
+    {
+      matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE),
+    }
+  );
+}

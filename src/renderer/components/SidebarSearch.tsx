@@ -77,7 +77,7 @@ const SearchInput = styled(BorderlessInput)`
   ${w100};
   height: ${px(SIDEBAR_MENU_HEIGHT + 4)};
   background-color: ${OpenColor.gray[8]};
-  color: ${OpenColor.gray[2]};
+  color: ${OpenColor.gray[1]};
   padding-left: 32px;
   padding-right: 32px;
   border-radius: 4px;
