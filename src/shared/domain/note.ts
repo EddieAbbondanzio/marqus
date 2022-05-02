@@ -94,6 +94,7 @@ export function getNoteById(
 
 export function flatten(notes: Note[]): Note[] {
   const flatNotes = [];
+
   const recursivelyFlatten = (note: Note): void =>
     void chain(note.children)
       .forEach((c) => {

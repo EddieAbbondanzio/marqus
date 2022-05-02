@@ -115,6 +115,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       setUI({
         sidebar: {
           selected: selected == null ? undefined : [selected[0]],
+          input: undefined,
         },
       });
     };
@@ -364,6 +365,11 @@ export const toggleItemExpanded: Listener<"sidebar.toggleItemExpanded"> = (
   { value: id },
   ctx
 ) => {
+  const state = ctx.getState();
+  if (state.ui.sidebar.input) {
+    ctx.setUI({ sidebar: { input: undefined } });
+  }
+
   const { selected } = ctx.getState().ui.sidebar;
   toggleExpanded(ctx, id ?? head(selected));
 };
@@ -440,7 +446,6 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
   const { notes } = ctx.getState();
   const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   const { name: value } = getNoteById(notes, id!);
-
   const input = createPromisedInput(
     {
       id,
