@@ -7,8 +7,10 @@ import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, THEME, w100 } from "../css";
 import {
+  chain,
   clamp,
   Dictionary,
+  flatMapDeep,
   head,
   isEmpty,
   keyBy,
@@ -16,7 +18,12 @@ import {
   orderBy,
   take,
 } from "lodash";
-import { Note, getNoteById, getNoteSchema } from "../../shared/domain/note";
+import {
+  Note,
+  getNoteById,
+  getNoteSchema,
+  flatten,
+} from "../../shared/domain/note";
 import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
 import { NotFoundError } from "../../shared/errors";
 import { promptError, promptConfirmAction } from "../utils/prompt";
@@ -45,38 +52,10 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
   const selectedLookup = keyBy(sidebar.selected, (s) => s);
 
   const searchString = store.state.ui.sidebar.searchString;
-  const notes = useMemo(() => {
-    if (isEmpty(searchString)) {
-      return store.state.notes;
-    }
-
-    const flatNotes = [];
-    const recursive = (note: Note) => {
-      if (isEmpty(note.children)) {
-        return;
-      }
-
-      for (const child of note.children!) {
-        flatNotes.push(child);
-      }
-
-      for (const child of note.children!) {
-        recursive(child);
-      }
-    };
-
-    for (const root of store.state.notes) {
-      flatNotes.push(root);
-      recursive(root);
-    }
-
-    const matches = search(searchString!, flatNotes, {
-      keySelector: (n) => n.name,
-    });
-
-    return matches;
-  }, [searchString, store.state.notes]);
-
+  const notes = useMemo(
+    () => applySearchString(store.state.notes, searchString),
+    [searchString, store.state.notes]
+  );
   const [menus, itemIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
     [notes, store, input, expandedLookup, selectedLookup]
@@ -218,6 +197,22 @@ const StyledScrollable = styled(Scrollable)`
   display: flex;
   flex-direction: column;
 `;
+
+export function applySearchString(
+  notes: Note[],
+  searchString?: string
+): Note[] {
+  if (isEmpty(searchString)) {
+    return notes;
+  }
+
+  const flatNotes = flatten(notes);
+  const matches = search(searchString!, flatNotes, {
+    keySelector: (n) => n.name,
+  });
+
+  return matches;
+}
 
 export function renderMenus(
   notes: Note[],

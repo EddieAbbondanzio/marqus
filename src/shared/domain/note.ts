@@ -2,7 +2,7 @@ import { InvalidOpError, NotFoundError } from "../errors";
 import * as yup from "yup";
 import { idSchema, Resource, resourceId } from ".";
 import { isBlank } from "../utils";
-import { isEmpty } from "lodash";
+import { chain, isEmpty } from "lodash";
 
 export enum NoteFlag {
   None,
@@ -90,4 +90,25 @@ export function getNoteById(
   } else {
     return null;
   }
+}
+
+export function flatten(notes: Note[]): Note[] {
+  const flatNotes = [];
+  const recursivelyFlatten = (note: Note): void =>
+    void chain(note.children)
+      .forEach((c) => {
+        flatNotes.push(c);
+      })
+      .forEach((c) => {
+        recursivelyFlatten(c);
+      })
+      .attempt()
+      .value();
+
+  for (const root of notes) {
+    flatNotes.push(root);
+    recursivelyFlatten(root);
+  }
+
+  return flatNotes;
 }
