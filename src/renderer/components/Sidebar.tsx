@@ -6,18 +6,7 @@ import { isResourceId } from "../../shared/domain";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, THEME, w100 } from "../css";
-import {
-  chain,
-  clamp,
-  Dictionary,
-  flatMapDeep,
-  head,
-  isEmpty,
-  keyBy,
-  List,
-  orderBy,
-  take,
-} from "lodash";
+import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
 import {
   Note,
   getNoteById,

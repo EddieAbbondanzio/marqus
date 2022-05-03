@@ -10,7 +10,7 @@ import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
-import { isEmpty } from "lodash";
+import { isEmpty, keyBy } from "lodash";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
@@ -109,6 +109,20 @@ async function loadInitialState(): Promise<State> {
     ui.editor.content =
       (await ipc("notes.loadContent", ui.editor.noteId)) ?? undefined;
   }
+
+  // Check for stale ids in expanded
+  const noteIds = keyBy(notes, (n) => n.id);
+  const expanded = [];
+
+  if (ui.sidebar.expanded != null) {
+    for (const e of ui.sidebar.expanded) {
+      if (noteIds[e] != null) {
+        expanded.push(e);
+      }
+    }
+  }
+
+  ui.sidebar.expanded = expanded;
 
   return {
     ui,
