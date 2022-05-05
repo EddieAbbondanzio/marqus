@@ -6,9 +6,6 @@
 import OpenColor from "open-color";
 import { css } from "styled-components";
 
-const HIGHLIGHT = OpenColor.blue[3];
-const BORDER = OpenColor.gray[7];
-
 export const THEME = {
   sidebar: {
     hover: OpenColor.gray[8],
@@ -21,7 +18,9 @@ export const THEME = {
       font: OpenColor.red[9],
     },
     search: {
-      background: OpenColor.black,
+      icon: OpenColor.white,
+      deleteIcon: OpenColor.red[0],
+      background: OpenColor.gray[8],
       font: OpenColor.gray[2],
     },
   },

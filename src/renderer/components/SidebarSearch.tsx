@@ -4,7 +4,7 @@ import OpenColor from "open-color";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 import { px } from "../../shared/dom";
-import { px1, px3, w100 } from "../css";
+import { px1, px3, THEME, w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -47,7 +47,9 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
         onInput={onInput}
       ></SearchInput>
       <SearchIcon icon={faSearch} />
-      {!isEmpty(searchString) && <ClearIcon icon={faTimes} onClick={onClear} />}
+      {!isEmpty(searchString) && (
+        <DeleteIcon icon={faTimes} onClick={onClear} />
+      )}
     </StyledFocusable>
   );
 }
@@ -61,13 +63,13 @@ const StyledFocusable = styled(Focusable)`
 
 const SearchIcon = styled(Icon)`
   position: absolute;
-  color: ${OpenColor.white};
+  color: ${THEME.sidebar.search.icon};
   left: 16px;
 `;
 
-const ClearIcon = styled(Icon)`
+const DeleteIcon = styled(Icon)`
   position: absolute;
-  color: ${OpenColor.red[9]};
+  color: ${THEME.sidebar.search.deleteIcon};
   right: 16px;
   cursor: pointer;
 `;
@@ -75,8 +77,8 @@ const ClearIcon = styled(Icon)`
 const SearchInput = styled(BorderlessInput)`
   ${w100};
   height: ${px(SIDEBAR_MENU_HEIGHT + 4)};
-  background-color: ${OpenColor.gray[8]};
-  color: ${OpenColor.gray[1]};
+  background-color: ${THEME.sidebar.search.background};
+  color: ${THEME.sidebar.search.font};
   padding-left: 32px;
   padding-right: 32px;
   border-radius: 4px;
