@@ -186,6 +186,7 @@ const StyledFocusable = styled(Focusable)`
 const StyledScrollable = styled(Scrollable)`
   display: flex;
   flex-direction: column;
+  ${h100};
 `;
 
 export function applySearchString(

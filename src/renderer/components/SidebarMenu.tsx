@@ -6,7 +6,7 @@ import { px } from "../../shared/dom";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
-import { mt1, p1, py1, THEME } from "../css";
+import { mt1, p1, p2, py1, THEME, w100 } from "../css";
 import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import { useMouseDrag } from "../io/mouse";
@@ -181,14 +181,15 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
         elementRef={inputRef}
         onBlur={onBlur}
       >
-        {props.icon && <StyledMenuIcon icon={props.icon} size="xs" />}
-        <StyledInput
-          ref={inputRef}
-          value={props.value.value}
-          onChange={onChange}
-          onKeyDown={keyDown}
-        />
-
+        <StyledDiv>
+          {props.icon && <StyledMenuIcon icon={props.icon} size="xs" />}
+          <StyledInput
+            ref={inputRef}
+            value={props.value.value}
+            onChange={onChange}
+            onKeyDown={keyDown}
+          />
+        </StyledDiv>
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </StyledFocusable>
     </Indented>
@@ -202,13 +203,19 @@ const Indented = styled.div`
 
 const StyledFocusable = styled(Focusable)`
   display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+`;
+
+const StyledDiv = styled.div`
+  display: flex;
   flex-direction: row;
-  align-items: center;
   flex-grow: 1;
 `;
 
 // Keep height consistent with sidebar item
 const StyledInput = styled.input`
+  ${w100};
   border: none;
   outline: none;
   -webkit-appearance: none;
@@ -216,8 +223,7 @@ const StyledInput = styled.input`
   font-size: 0.8rem;
   padding-left: 0;
   background-color: ${THEME.sidebar.inputsBackground};
-  flex-grow: 1;
-  ${py1}
+  ${py1};
 `;
 
 // Sampled: https://www.florin-pop.com/blog/2019/05/pure-css-tooltip/
@@ -228,7 +234,7 @@ const ErrorMessage = styled.div`
   border-radius: 4px;
   position: relative;
   ${mt1}
-  ${p1}
+  ${p2}
 `;
 
 export function getSidebarMenuAttribute(element: HTMLElement): string | null {

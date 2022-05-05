@@ -56,7 +56,6 @@ const StyledFocusable = styled(Focusable)`
   display: flex;
   flex-direction: row;
   align-items: center;
-  flex-grow: 1;
   position: relative;
 `;
 

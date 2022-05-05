@@ -110,7 +110,17 @@ async function loadInitialState(): Promise<State> {
       (await ipc("notes.loadContent", ui.editor.noteId)) ?? undefined;
   }
 
-  // Check for stale ids in expanded
+  ui = filterOutStaleIds(notes, ui);
+
+  return {
+    ui,
+    shortcuts,
+    tags,
+    notes,
+  };
+}
+
+function filterOutStaleIds(notes: Note[], ui: UI): UI {
   const noteIds = keyBy(notes, (n) => n.id);
   const expanded = [];
 
@@ -120,16 +130,10 @@ async function loadInitialState(): Promise<State> {
         expanded.push(e);
       }
     }
+    ui.sidebar.expanded = expanded;
   }
 
-  ui.sidebar.expanded = expanded;
-
-  return {
-    ui,
-    shortcuts,
-    tags,
-    notes,
-  };
+  return ui;
 }
 
 /*
