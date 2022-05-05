@@ -222,7 +222,8 @@ const StyledInput = styled.input`
   height: 20px;
   font-size: 0.8rem;
   padding-left: 0;
-  background-color: ${THEME.sidebar.inputsBackground};
+  background-color: ${THEME.sidebar.input.background};
+  color: ${THEME.sidebar.input.font};
   ${py1};
 `;
 

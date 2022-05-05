@@ -11,7 +11,6 @@ export const THEME = {
     hover: OpenColor.gray[8],
     selected: OpenColor.gray[7],
     background: OpenColor.gray[9],
-    inputsBackground: OpenColor.gray[2],
     font: OpenColor.gray[3],
     error: {
       background: OpenColor.red[1],
@@ -22,6 +21,10 @@ export const THEME = {
       deleteIcon: OpenColor.red[0],
       background: OpenColor.gray[8],
       font: OpenColor.gray[2],
+    },
+    input: {
+      font: OpenColor.gray[2],
+      background: OpenColor.gray[8],
     },
   },
 };
