@@ -1,11 +1,12 @@
 import { UIEventType, UIEventInput, UI, Section } from "../shared/domain/ui";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { cloneDeep, head, isEqual } from "lodash";
+import { cloneDeep, head, isEmpty, isEqual } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Tag } from "../shared/domain/tag";
+import { InvalidOpError } from "../shared/errors";
 
 export interface Store {
   state: State;
@@ -41,7 +42,7 @@ export type Listener<ET extends UIEventType> = (
   s: StoreContext
 ) => Promise<void> | void;
 
-export type Focus = (section: Section) => void;
+export type Focus = (...section: Section[]) => void;
 
 export interface StoreContext {
   setUI: SetUI;
@@ -129,23 +130,32 @@ export function useStore(initialState: State): Store {
   };
 
   const focus: Focus = useCallback(
-    (section) => {
-      let previous: Section | undefined;
+    (...sections) => {
+      if (new Set(sections).size !== sections.length) {
+        throw new InvalidOpError(`Sections to focus must be unique`);
+      }
+
+      // Don't push new section if new first is the same.
       const { current: state } = lastState;
-      if (isEqual(state.ui.focused, [section])) {
-        return;
+      if (!isEmpty(state.ui.focused)) {
+        if (state.ui.focused[0] === sections[0]) {
+          return;
+        }
       }
 
       setUI((s) => {
-        const focused = [section];
-        if (s.focused != null && s.focused !== focused) {
-          previous = head(s.focused)!;
-          focused.push(previous);
+        // If only 1 new section move it to top of stack.
+        if (sections.length === 1) {
+          return {
+            focused: [sections[0], s.focused[0]],
+          };
         }
-
-        return {
-          focused,
-        };
+        // If multiple new sections assume we are wiping the stack.
+        else {
+          return {
+            focused: sections,
+          };
+        }
       });
     },
     [setUI]

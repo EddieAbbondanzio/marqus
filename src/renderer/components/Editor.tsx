@@ -37,7 +37,7 @@ export function Editor({ store }: EditorProps): JSX.Element {
   }, [store]);
 
   return (
-    <StyledFocusable store={store} name="editor" autoFocus={false}>
+    <StyledFocusable store={store} name="editor" focusOnRender={false}>
       {content}
     </StyledFocusable>
   );

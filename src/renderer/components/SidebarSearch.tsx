@@ -1,9 +1,10 @@
 import { faCross, faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { isEmpty } from "lodash";
 import OpenColor from "open-color";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { px } from "../../shared/dom";
+import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { px1, px3, THEME, w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
@@ -39,6 +40,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
       store={props.store}
       name="sidebarSearch"
       elementRef={inputRef}
+      blurOnEsc={true}
     >
       <SearchInput
         placeholder="Type to search..."

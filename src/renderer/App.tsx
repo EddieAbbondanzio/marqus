@@ -10,7 +10,7 @@ import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
-import { isEmpty, keyBy } from "lodash";
+import { isEmpty, keyBy, tail } from "lodash";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
@@ -65,6 +65,7 @@ async function main() {
     }, [store]);
 
     useFocusTracking(store);
+    console.log("focused:", store.state.ui.focused);
 
     return (
       <Container>
@@ -162,7 +163,8 @@ export const inspectElement: Listener<"app.inspectElement"> = ({
 }) => ipc("app.inspectElement", coord);
 
 export const push: Listener<"focus.push"> = ({ value: next }, ctx) => {
-  ctx.focus(next);
+  const arr = Array.isArray(next) ? next : [next];
+  ctx.focus(...arr);
 };
 
 export const pop: Listener<"focus.pop"> = (_, ctx) => {
@@ -172,7 +174,7 @@ export const pop: Listener<"focus.pop"> = (_, ctx) => {
     }
 
     return {
-      focused: [],
+      focused: tail(s.focused),
     };
   });
 };

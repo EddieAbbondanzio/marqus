@@ -39,7 +39,6 @@ export function useShortcuts(store: Store): void {
       );
 
       if (shortcut != null) {
-        console.log("dispatch: ", shortcut);
         void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
 
         if (shortcut.repeat) {

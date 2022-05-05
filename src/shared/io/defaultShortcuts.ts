@@ -44,7 +44,7 @@ const shortcuts: Shortcut[] = [
   {
     name: "sidebar.focusSearch",
     event: "focus.push",
-    eventInput: "sidebarSearch",
+    eventInput: ["sidebarSearch", "sidebar"],
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterF],
   },
   {

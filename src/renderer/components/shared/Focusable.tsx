@@ -1,4 +1,4 @@
-import { head } from "lodash";
+import { head, isEmpty } from "lodash";
 import React, {
   MutableRefObject,
   PropsWithChildren,
@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { Section } from "../../../shared/domain/ui";
+import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { Store } from "../../store";
 import { findParent } from "../../utils/findParent";
 
@@ -45,14 +46,12 @@ export interface FocusableProps {
   store: Store;
   name: Section;
   className?: string;
-  elementRef?: MutableRefObject<
-    { focus: () => void; blur?: () => void } | HTMLElement | null
-  >;
-  overwrite?: boolean;
-  autoFocus?: boolean;
+  elementRef?: MutableRefObject<HTMLElement | null>;
+  focusOnRender?: boolean;
+  tabIndex?: number;
+  blurOnEsc?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
-  tabIndex?: number;
 }
 
 export function Focusable(
@@ -60,29 +59,39 @@ export function Focusable(
 ): JSX.Element {
   const containerRef = useRef(null! as HTMLDivElement);
   useEffect(() => {
-    const curr = head(props.store.state.ui.focused);
-    const element = props.elementRef?.current;
+    const element = props.elementRef?.current ?? containerRef.current;
+    const [current] = props.store.state.ui.focused;
 
-    if (curr == null || curr !== props.name) {
-      if (props.autoFocus == null || props.autoFocus) {
-        if (element != null) {
-          element.blur?.();
-        } else {
-          containerRef.current.blur();
-        }
+    if (current == null || current !== props.name) {
+      if (props.focusOnRender !== false) {
+        element.blur();
       }
 
       props.onBlur?.();
-    } else if (curr == props.name) {
-      if (props.autoFocus == null || props.autoFocus) {
-        if (element != null) {
-          element.focus();
-        } else {
-          containerRef.current.focus();
-        }
+    } else if (current === props.name) {
+      if (props.focusOnRender !== false) {
+        element.focus();
       }
       props.onFocus?.();
     }
+  });
+
+  useEffect(() => {
+    if (!props.blurOnEsc) {
+      return;
+    }
+
+    const { current: el } = containerRef;
+    const blur = (ev: KeyboardEvent) => {
+      if (parseKeyCode(ev.code) === KeyCode.Escape) {
+        props.store.dispatch("focus.pop");
+      }
+    };
+
+    el.addEventListener("keydown", blur);
+    return () => {
+      el?.removeEventListener("keydown", blur);
+    };
   });
 
   return (

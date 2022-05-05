@@ -115,7 +115,7 @@ export interface UIEvents {
   "editor.loadNote": string;
 
   // Focus Tracker
-  "focus.push": Section;
+  "focus.push": Section | Section[];
   "focus.pop": void;
 
   // Context Menu
