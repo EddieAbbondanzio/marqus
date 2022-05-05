@@ -29,7 +29,7 @@ export function useShortcuts(store: Store): void {
 
   // Needs to be wrapped in useEffect() to prevent React from throwing a error
   useEffect(() => {
-    if (didKeysChange) {
+    if (didKeysChange.current) {
       const activeKeysArray = toKeyArray(activeKeys);
       const shortcut = shortcuts.find(
         (s) =>
@@ -67,7 +67,7 @@ export function useShortcuts(store: Store): void {
 
       didKeysChange.current = false;
     }
-  }, [dispatch, ui, activeKeys, shortcuts, didKeysChange]);
+  }, [dispatch, ui, activeKeys, shortcuts]);
 
   useEffect(() => {
     const keyDown = (ev: KeyboardEvent) => {
