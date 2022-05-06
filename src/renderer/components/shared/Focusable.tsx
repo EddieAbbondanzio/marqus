@@ -19,9 +19,9 @@ export const useFocusTracking = (store: Store): void => {
    * handles every event we can ensure we don't accidentally push new focusables
    * as the event propagates up due to how events naturally like to bubble.
    */
+
   const onClick = (ev: MouseEvent) => {
     const focusable = getFocusableAttribute(ev.target as HTMLElement);
-
     if (focusable != null) {
       const current = head(store.state.ui.focused);
       if (current != null && focusable === current) {
@@ -55,23 +55,29 @@ export function Focusable(
   props: PropsWithChildren<FocusableProps>
 ): JSX.Element {
   const containerRef = useRef(null as HTMLDivElement | null);
+  const [current] = props.store.state.ui.focused;
+  const lastCurrent = useRef(null as Section | null);
+
   useEffect(() => {
     const element = props.elementRef?.current ?? containerRef.current;
-    const [current] = props.store.state.ui.focused;
 
-    if (current == null || current !== props.name) {
-      if (props.focusOnRender !== false) {
+    if (
+      (lastCurrent.current == null || lastCurrent.current !== current) &&
+      (current == null || current !== props.name)
+    ) {
+      if (props.focusOnRender ?? true) {
         element?.blur();
       }
 
       props.onBlur?.();
-    } else if (current === props.name) {
-      if (props.focusOnRender !== false) {
+      lastCurrent.current = current;
+    } else if (current != null && current === props.name) {
+      if (props.focusOnRender ?? true) {
         element?.focus();
       }
       props.onFocus?.();
     }
-  });
+  }, [current, props]);
 
   useEffect(() => {
     if (!props.blurOnEsc) {

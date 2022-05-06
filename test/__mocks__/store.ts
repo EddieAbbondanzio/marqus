@@ -1,9 +1,9 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { DeepPartial } from "tsdef";
-import { State, useStore } from "../../src/renderer/store";
+import { State, Store, useStore } from "../../src/renderer/store";
 import { px } from "../../src/shared/dom";
 
-export function createState(partial?: DeepPartial<State>) {
+export function createState(partial?: DeepPartial<State>): State {
   const defaults: State = {
     notes: [],
     shortcuts: [],
@@ -21,6 +21,18 @@ export function createState(partial?: DeepPartial<State>) {
   };
 
   return Object.assign(defaults, partial);
+}
+
+type CreateStore = Partial<Omit<Store, "state">> & {
+  state?: DeepPartial<State>;
+};
+export function createStore(partial?: CreateStore): Store {
+  return {
+    on: partial?.on ?? jest.fn(),
+    off: partial?.off ?? jest.fn(),
+    dispatch: partial?.dispatch ?? jest.fn(),
+    state: createState(partial?.state),
+  };
 }
 
 export function renderStoreHook(state?: DeepPartial<State>) {

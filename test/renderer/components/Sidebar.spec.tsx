@@ -4,7 +4,7 @@ import {
   resizeWidth,
 } from "../../../src/renderer/components/Sidebar";
 import { createNote, getNoteById } from "../../../src/shared/domain/note";
-import { renderStoreHook } from "../../_mocks/store";
+import { renderStoreHook } from "../../__mocks__/store";
 import { px } from "../../../src/shared/dom";
 import { act } from "@testing-library/react";
 

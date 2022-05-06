@@ -7,4 +7,7 @@ module.exports = {
   testEnvironment: "jsdom",
   moduleDirectories: ["node_modules", "<rootDir>"],
   setupFiles: ["<rootDir>/test/setup.ts"],
+  moduleNameMapper: {
+    "monaco-editor": "<rootDir>/test/__mocks__/monaco.ts",
+  },
 };

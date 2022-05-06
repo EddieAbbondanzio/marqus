@@ -10,6 +10,7 @@ import { UIEventType, Section, UI } from "../../shared/domain/ui";
 import { Store } from "../store";
 import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
+import { isTest } from "../../shared/env";
 
 const INITIAL_DELAY = 250; // ms
 const REPEAT_DELAY = 125; // ms
@@ -23,7 +24,7 @@ export function useShortcuts(store: Store): void {
   const interval = useRef<NodeJS.Timer>();
   const didKeysChange = useRef(false);
 
-  if (shortcuts.length === 0) {
+  if (!isTest() && shortcuts.length === 0) {
     console.warn("No shortcuts passed to useShortcuts() hook.");
   }
 

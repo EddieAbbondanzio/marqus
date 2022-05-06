@@ -9,3 +9,5 @@ React Testing Library is a higher level helper that wraps some of test-utils fun
 `render()` and `renderHook()` should be more than enough to test components plus utils.
 
 \*\*We need both @testing-library/react and @testing-library/react-hooks because we use React 17. These libraries merged in React 18+ but Electron Forge doesn't support React 18 yet.
+
+React Testing Library 12.1.5 docs: https://github.com/testing-library/react-testing-library/tree/0c4aabe0da1587754229f7614a2ddfdaddd0b1aa#hooks

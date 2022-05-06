@@ -32,56 +32,63 @@ async function main() {
     return;
   }
 
-  function App(): JSX.Element {
-    const store = useStore(initialState);
-    useShortcuts(store);
-    useApplicationMenu(store);
-    useContextMenu(store);
-    useEffect(() => {
-      store.on("app.quit", quit);
-      store.on("app.toggleSidebar", toggleSidebar);
-      store.on("app.inspectElement", inspectElement);
-      store.on("app.openDevTools", openDevTools);
-      store.on("app.reload", reload);
-      store.on("app.toggleFullScreen", toggleFullScreen);
-      store.on("app.openDataDirectory", openDataDirectory);
-      store.on("app.selectDataDirectory", selectDataDirectory);
-
-      store.on("focus.push", push);
-      store.on("focus.pop", pop);
-      return () => {
-        store.off("app.quit", quit);
-        store.off("app.toggleSidebar", toggleSidebar);
-        store.off("app.inspectElement", inspectElement);
-        store.off("app.openDevTools", openDevTools);
-        store.off("app.reload", reload);
-        store.off("app.toggleFullScreen", toggleFullScreen);
-        store.off("app.openDataDirectory", openDataDirectory);
-        store.off("app.selectDataDirectory", selectDataDirectory);
-
-        store.off("focus.push", push);
-        store.off("focus.pop", pop);
-      };
-    }, [store]);
-
-    useFocusTracking(store);
-    console.log("focused:", store.state.ui.focused);
-
-    return (
-      <Container>
-        {!(store.state.ui.sidebar.hidden ?? false) && <Sidebar store={store} />}
-        <Editor store={store} />
-        {needDataDirectory && <DataDirectoryModal store={store} />}
-      </Container>
-    );
-  }
-
-  render(<App />, document.getElementById("app"));
+  render(
+    <App initialState={initialState} needDataDirectory={needDataDirectory} />,
+    document.getElementById("app")
+  );
 }
 
 // Don't render when running in test
 if (!isTest()) {
   void main();
+}
+
+interface AppProps {
+  initialState: State;
+  needDataDirectory: boolean;
+}
+
+export function App(props: AppProps): JSX.Element {
+  const store = useStore(props.initialState);
+  useShortcuts(store);
+  useApplicationMenu(store);
+  useContextMenu(store);
+  useEffect(() => {
+    store.on("app.quit", quit);
+    store.on("app.toggleSidebar", toggleSidebar);
+    store.on("app.inspectElement", inspectElement);
+    store.on("app.openDevTools", openDevTools);
+    store.on("app.reload", reload);
+    store.on("app.toggleFullScreen", toggleFullScreen);
+    store.on("app.openDataDirectory", openDataDirectory);
+    store.on("app.selectDataDirectory", selectDataDirectory);
+
+    store.on("focus.push", push);
+    store.on("focus.pop", pop);
+    return () => {
+      store.off("app.quit", quit);
+      store.off("app.toggleSidebar", toggleSidebar);
+      store.off("app.inspectElement", inspectElement);
+      store.off("app.openDevTools", openDevTools);
+      store.off("app.reload", reload);
+      store.off("app.toggleFullScreen", toggleFullScreen);
+      store.off("app.openDataDirectory", openDataDirectory);
+      store.off("app.selectDataDirectory", selectDataDirectory);
+
+      store.off("focus.push", push);
+      store.off("focus.pop", pop);
+    };
+  }, [store]);
+
+  useFocusTracking(store);
+
+  return (
+    <Container>
+      {!(store.state.ui.sidebar.hidden ?? false) && <Sidebar store={store} />}
+      <Editor store={store} />
+      {props.needDataDirectory && <DataDirectoryModal store={store} />}
+    </Container>
+  );
 }
 
 const Container = styled.div`
