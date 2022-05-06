@@ -3,7 +3,7 @@ import {
   dragNote,
   resizeWidth,
 } from "../../../src/renderer/components/Sidebar";
-import { createNote, getNoteById, Note } from "../../../src/shared/domain/note";
+import { createNote, getNoteById } from "../../../src/shared/domain/note";
 import { renderStoreHook } from "../../_mocks/store";
 import { px } from "../../../src/shared/dom";
 import { act } from "@testing-library/react-hooks";

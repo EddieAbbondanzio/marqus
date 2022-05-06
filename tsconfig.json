@@ -20,7 +20,7 @@
     }
   },
   "include": [
-    "src/**/*", "test/renderer/components/App.spec.tsx",
+    "src/**/*", "tsconfig.json"
   ],
   "exclude": [
     "test/**/*"
