@@ -12,85 +12,86 @@ import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
 import { isTest } from "../../shared/env";
 
-const INITIAL_DELAY = 250; // ms
-const REPEAT_DELAY = 125; // ms
+// Don't use directly.
+export const INITIAL_DELAY = 250; // ms
+export const REPEAT_DELAY = 125; // ms
 
 export function useShortcuts(store: Store): void {
   const { dispatch } = store;
   const { shortcuts, ui } = store.state;
-  const [activeKeys, setActiveKeys] = useState<
-    Record<string, boolean | undefined>
-  >({});
+  const activeKeys = useRef<Record<string, boolean | undefined>>({});
   const interval = useRef<NodeJS.Timer>();
-  const didKeysChange = useRef(false);
+
+  // useState so we can trigger a re-render of the component and process any
+  // any changes in keys.
+  const [didKeysChange, setDidKeysChange] = useState(false);
 
   if (!isTest() && shortcuts.length === 0) {
     console.warn("No shortcuts passed to useShortcuts() hook.");
   }
 
-  // Needs to be wrapped in useEffect() to prevent React from throwing a error
-  useEffect(() => {
-    if (didKeysChange.current) {
-      const activeKeysArray = toKeyArray(activeKeys);
-      const shortcut = shortcuts.find(
-        (s) =>
-          !s.disabled &&
-          isEqual(s.keys, activeKeysArray) &&
-          isFocused(ui, s.when)
-      );
+  const resetState = () => {
+    clearInterval(interval.current!);
+    interval.current = undefined;
+    setDidKeysChange(true);
+  };
 
-      if (shortcut != null) {
-        void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
+  if (didKeysChange) {
+    const shortcut = shortcuts.find(
+      (s) =>
+        !s.disabled &&
+        isEqual(s.keys, toKeyArray(activeKeys.current)) &&
+        shouldExecute(ui, s.when)
+    );
 
-        if (shortcut.repeat) {
-          (async () => {
-            /*
-             * First pause is twice as long to ensure a user really
-             * wants it to repeat (IE hold to continue scrolling down)
-             * vs just being a key held too long.
-             */
-            await sleep(INITIAL_DELAY);
-            const currKeys = toKeyArray(activeKeys);
+    if (shortcut != null) {
+      void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
 
-            if (isEqual(currKeys, activeKeysArray)) {
-              const int = setInterval(() => {
-                void dispatch(
-                  shortcut.event as UIEventType,
-                  shortcut.eventInput
-                );
-              }, REPEAT_DELAY);
+      if (shortcut.repeat) {
+        (async () => {
+          const keysStarted = toKeyArray(activeKeys.current);
 
-              interval.current = int;
+          /*
+           * First pause is twice as long to ensure user actually wants it to
+           * repeat (IE hold to continue scrolling down) vs just a key held
+           * too long.
+           */
+          await sleep(INITIAL_DELAY);
+          const keysAfterInitialDelay = toKeyArray(activeKeys.current);
+
+          const trigger = () => {
+            const keysOnInterval = toKeyArray(activeKeys.current);
+            if (isEqual(keysStarted, keysOnInterval)) {
+              void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
             }
-          })();
-        }
-      }
+          };
 
-      didKeysChange.current = false;
+          if (isEqual(keysStarted, keysAfterInitialDelay)) {
+            trigger();
+            interval.current = setInterval(trigger, REPEAT_DELAY);
+          }
+        })();
+      }
     }
-  }, [dispatch, ui, activeKeys, shortcuts]);
+
+    setDidKeysChange(false);
+  }
 
   useEffect(() => {
     const keyDown = (ev: KeyboardEvent) => {
       // Prevent redundant calls
       if (!ev.repeat) {
         const key = parseKeyCode(ev.code);
-        setActiveKeys((prev) => ({ ...prev, [key]: true }));
-        didKeysChange.current = true;
+        activeKeys.current = { ...activeKeys.current, [key]: true };
+        resetState();
       }
     };
 
     const keyUp = ({ code }: KeyboardEvent) => {
       const key = parseKeyCode(code);
-      setActiveKeys((prev) => {
-        delete prev[key];
-        return prev;
-      });
+      delete activeKeys.current[key];
 
-      if (interval.current != null) {
-        clearInterval(interval.current);
-        interval.current = undefined;
-      }
+      resetState();
     };
 
     window.addEventListener("keydown", keyDown);
@@ -103,7 +104,7 @@ export function useShortcuts(store: Store): void {
   }, [interval, shortcuts, dispatch]);
 }
 
-export function isFocused(ui: UI, when?: Section): boolean {
+export function shouldExecute(ui: UI, when?: Section): boolean {
   if (ui.focused == null || ui.focused[0] == null) {
     return when == null;
   } else if (when == null) {

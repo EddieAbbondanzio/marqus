@@ -106,8 +106,8 @@ export function useStore(initialState: State): Store {
   }, []);
 
   /*
-   * The following setters are to update local cache. They do not
-   * perform any saving to file because all of that is handled by the ipcs.
+   * The following setters update local cache. They do not save to file because
+   * data persistence is handled by the main thread.
    */
 
   const setTags: SetTags = (transformer) => {
