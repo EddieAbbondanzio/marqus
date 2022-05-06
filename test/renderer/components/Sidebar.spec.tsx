@@ -1,4 +1,3 @@
-import { act } from "react-test-renderer";
 import {
   deleteNote,
   dragNote,
@@ -6,8 +5,8 @@ import {
 } from "../../../src/renderer/components/Sidebar";
 import { createNote, getNoteById, Note } from "../../../src/shared/domain/note";
 import { renderStoreHook } from "../../_mocks/store";
-import { promptConfirmAction } from "../../../src/renderer/utils/prompt";
 import { px } from "../../../src/shared/dom";
+import { act } from "@testing-library/react-hooks";
 
 jest.mock("../../../src/renderer/utils/prompt", () => ({
   promptConfirmAction: jest.fn().mockImplementation(() => ({ text: "Yes" })),
@@ -15,6 +14,7 @@ jest.mock("../../../src/renderer/utils/prompt", () => ({
 
 test("sidebar.resizeWidth", () => {
   const { result } = renderStoreHook({ ui: { sidebar: { width: px(100) } } });
+
   act(() => {
     const store = result.current;
     store.on("sidebar.resizeWidth", resizeWidth);
