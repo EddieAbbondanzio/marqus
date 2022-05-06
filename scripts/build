@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # Increment version?
 echo "Increment version? (patch/minor/major)"
 read INCREMENT
@@ -26,7 +28,7 @@ case $INCREMENT in
 esac
 
 Build it
-npm run-script publish
+npm run-script publish || exit 1
 
 # Make the new output directory
 VERSION=$(grep version package.json | awk -F \" '{print $4}')
@@ -35,7 +37,7 @@ mkdir  "out/v${VERSION}"
 # Copy output to version specific directory
 cd out
 
-cp "deb/x64/marker_${VERSION}_amd64.deb" "v${VERSION}/marker.deb"
-cp "rpm/x64/marker_${VERSION}_amd64.rpm" "v${VERSION}/marker.rpm"
+mv "make/deb/x64/marker_${VERSION}_amd64.deb" "v${VERSION}/marker-v${VERSION}.deb"
+mv "make/rpm/x64/marker-${VERSION}-1.x86_64.rpm" "v${VERSION}/marker-v${VERSION}.rpm"
 
 echo "DONE!"
