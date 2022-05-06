@@ -12,9 +12,8 @@ import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
 import { isTest } from "../../shared/env";
 
-// Don't use directly.
-export const INITIAL_DELAY = 250; // ms
-export const REPEAT_DELAY = 125; // ms
+const INITIAL_DELAY = 250; // ms
+const REPEAT_DELAY = 125; // ms
 
 export function useShortcuts(store: Store): void {
   const { dispatch } = store;

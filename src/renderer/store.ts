@@ -1,6 +1,6 @@
 import { UIEventType, UIEventInput, UI, Section } from "../shared/domain/ui";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { cloneDeep, head, isEmpty, isEqual } from "lodash";
+import { cloneDeep, isEmpty } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
@@ -63,12 +63,14 @@ export type SetNotes = (t: Transformer<Note[]>) => void;
 
 export type Transformer<S, R = S> = (previous: S) => R;
 
+export type ListenerLookup = {
+  [EV in UIEventType]?: Array<Listener<EV>>;
+};
+
 export function useStore(initialState: State): Store {
   // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
   const [state, setState] = useState(initialState);
-  const listeners = useRef<{
-    [eType in UIEventType]+?: Array<Listener<eType>>;
-  }>({});
+  const listeners = useRef<ListenerLookup>({});
   const lastState = useRef(state as Readonly<State>);
 
   // We need to run these first
@@ -175,38 +177,45 @@ export function useStore(initialState: State): Store {
 
   const dispatch: Dispatch = useCallback(
     async (event, value: any) => {
-      const eventListeners = listeners.current[event];
-      if (eventListeners == null || eventListeners.length == 0) {
+      const eventListeners: any = listeners.current[event];
+      if (eventListeners == null || eventListeners.length === 0) {
         return;
       }
 
       const ev = { type: event, value };
 
-      for (const l of eventListeners as any[]) {
-        await l(ev, ctx);
+      for (const l of eventListeners) {
+        await l(ev as any, ctx);
       }
     },
     [ctx]
   );
 
-  const on: On = (event, listener) => {
+  const on: On = <ET extends UIEventType>(
+    event: ET | ET[],
+    listener: Listener<ET>
+  ) => {
     const events = Array.isArray(event) ? event : [event];
     for (const ev of events) {
-      listeners.current[ev] ??= [];
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      listeners.current[ev]?.push(listener);
+      if (listeners.current[ev] == null) {
+        listeners.current[ev] = [];
+      }
+
+      listeners.current[ev]!.push(listener as Listener<UIEventType>);
     }
   };
 
   const off: Off = (event, listener) => {
     const events = Array.isArray(event) ? event : [event];
     for (const ev of events) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      listeners.current[ev] = listeners.current[ev]?.filter(
-        (l: any) => l !== listener
-      ) as any[];
+      const index = listeners.current[ev]!.findIndex((l) => l === listener);
+      if (index === -1) {
+        throw new InvalidOpError(
+          `No matching listener found on ${ev} for ${listener}`
+        );
+      }
+
+      listeners.current[ev]?.splice(index, 1);
     }
   };
 

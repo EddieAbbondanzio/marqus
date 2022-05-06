@@ -6,9 +6,10 @@ import {
   wasInsideFocusable,
 } from "../../../src/renderer/components/shared/Focusable";
 import { App } from "../../../src/renderer/App";
-import { createState, createStore } from "../../__mocks__/store";
+import { createState } from "../../__factories__/state";
 import React from "react";
 import * as store from "../../../src/renderer/store";
+import { createStore } from "../../__factories__/store";
 
 const dispatch = jest.fn();
 jest.spyOn(store, "useStore").mockImplementation(() => ({

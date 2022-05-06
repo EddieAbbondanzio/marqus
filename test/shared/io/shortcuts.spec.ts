@@ -1,8 +1,6 @@
 import { fireEvent } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import {
-  INITIAL_DELAY,
-  REPEAT_DELAY,
   shouldExecute,
   useShortcuts,
 } from "../../../src/renderer/io/shortcuts";
@@ -10,7 +8,7 @@ import { Shortcut } from "../../../src/shared/domain/shortcut";
 import { UI } from "../../../src/shared/domain/ui";
 import { KeyCode } from "../../../src/shared/io/keyCode";
 import * as Utils from "../../../src/shared/utils";
-import { createStore } from "../../__mocks__/store";
+import { createStore } from "../../__factories__/store";
 
 jest.useFakeTimers();
 

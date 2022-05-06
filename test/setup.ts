@@ -1,2 +1,1 @@
-// Mock IPC for testing
-(window as any).ipc = jest.fn();
+window.ipc = jest.fn();
