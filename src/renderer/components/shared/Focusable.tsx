@@ -1,4 +1,4 @@
-import { head, isEmpty } from "lodash";
+import { head } from "lodash";
 import React, {
   MutableRefObject,
   PropsWithChildren,
@@ -10,6 +10,7 @@ import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { Store } from "../../store";
 import { findParent } from "../../utils/findParent";
 
+// Should not be used directly.
 export const FOCUSABLE_ATTRIBUTE = "data-focusable";
 
 export const useFocusTracking = (store: Store): void => {
@@ -19,11 +20,7 @@ export const useFocusTracking = (store: Store): void => {
    * as the event propagates up due to how events naturally like to bubble.
    */
   const onClick = (ev: MouseEvent) => {
-    const focusable = findParent(
-      ev.target as HTMLElement,
-      (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
-      { matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) as Section }
-    );
+    const focusable = getFocusableAttribute(ev.target as HTMLElement);
 
     if (focusable != null) {
       const current = head(store.state.ui.focused);
@@ -57,20 +54,20 @@ export interface FocusableProps {
 export function Focusable(
   props: PropsWithChildren<FocusableProps>
 ): JSX.Element {
-  const containerRef = useRef(null! as HTMLDivElement);
+  const containerRef = useRef(null as HTMLDivElement | null);
   useEffect(() => {
     const element = props.elementRef?.current ?? containerRef.current;
     const [current] = props.store.state.ui.focused;
 
     if (current == null || current !== props.name) {
       if (props.focusOnRender !== false) {
-        element.blur();
+        element?.blur();
       }
 
       props.onBlur?.();
     } else if (current === props.name) {
       if (props.focusOnRender !== false) {
-        element.focus();
+        element?.focus();
       }
       props.onFocus?.();
     }
@@ -88,7 +85,7 @@ export function Focusable(
       }
     };
 
-    el.addEventListener("keydown", blur);
+    el?.addEventListener("keydown", blur);
     return () => {
       el?.removeEventListener("keydown", blur);
     };
@@ -106,19 +103,15 @@ export function Focusable(
   );
 }
 
-export function wasInsideFocusable(ev: Event, focusable: string): boolean {
+export function wasInsideFocusable(ev: Event, focusable: Section): boolean {
   return findParent(
     ev.target as HTMLElement,
     (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) === focusable
   );
 }
 
-export function getFocusableAttribute(element: HTMLElement): string | null {
-  return findParent<string | null>(
-    element,
-    (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE),
-    {
-      matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE),
-    }
-  );
+export function getFocusableAttribute(element: HTMLElement): Section | null {
+  return findParent(element, (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE), {
+    matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) as Section | null,
+  });
 }

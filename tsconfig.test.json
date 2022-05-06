@@ -18,9 +18,10 @@
         "node_modules/*"
       ]
     },
-    "rootDir": "test"
+    "rootDir": "."
   },
   "include": [
-    "../src/**/*",
+    "src",
+    "test"
   ]
 }

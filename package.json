@@ -78,7 +78,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
-    "@testing-library/react-hooks": "^7.0.2",
+    "@testing-library/react": "^12.1.5",
     "@types/dompurify": "^2.3.3",
     "@types/jest": "^27.0.2",
     "@types/lodash": "^4.14.176",
@@ -126,6 +126,7 @@
     "sass": "^1.43.4",
     "sass-loader": "^12.3.0",
     "styled-components": "^5.3.3",
+    "uninstall": "0.0.0",
     "yup": "^0.32.11"
   }
 }

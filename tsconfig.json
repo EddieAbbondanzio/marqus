@@ -20,9 +20,6 @@
     }
   },
   "include": [
-    "src/**/*", "tsconfig.json"
+    "src", "tsconfig.json"
   ],
-  "exclude": [
-    "test/**/*"
-  ]
 }
