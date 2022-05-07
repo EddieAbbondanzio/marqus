@@ -34,7 +34,7 @@ case $INCREMENT in
 esac
 
 Build it
-npm run-script publish || exit 1
+npx electron-forge publish || exit 1
 
 # Make the new output directory
 VERSION=$(grep version package.json | awk -F \" '{print $4}')
