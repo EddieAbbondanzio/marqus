@@ -12,6 +12,7 @@ const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
     enabled: false,
   },
   contextmenu: false,
+  quickSuggestions: false,
 };
 
 export interface MonacoProps {
