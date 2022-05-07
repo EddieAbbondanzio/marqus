@@ -21,7 +21,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
     }
 
     return marked.parse(props.content);
-  }, [props.content]);
+  }, [props.content, props.store.state.ui.editor.noteId]);
 
   return (
     <div
