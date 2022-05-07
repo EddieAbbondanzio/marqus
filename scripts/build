@@ -33,7 +33,7 @@ case $INCREMENT in
     exit 1
 esac
 
-Build it
+#Build it
 npx electron-forge publish || exit 1
 
 # Make the new output directory
