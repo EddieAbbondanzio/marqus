@@ -19,7 +19,9 @@ export function Editor({ store }: EditorProps): JSX.Element {
   if (store.state.ui.editor.isEditting) {
     content = <Monaco store={store} />;
   } else {
-    content = <Markdown content={store.state.ui.editor.content ?? ""} />;
+    content = (
+      <Markdown store={store} content={store.state.ui.editor.content ?? ""} />
+    );
   }
 
   useEffect(() => {

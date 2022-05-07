@@ -9,7 +9,7 @@
     "REPL": "node",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "publish": "./scripts/build",
     "publish-demo": "npx webpack-cli --config webpack.demo.config.js -mode production",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest ./test --config=jest.config.js"

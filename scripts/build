@@ -1,6 +1,12 @@
 #!/bin/sh
 
+# Handy-dandy little build script with the ability to update the package version
+# prior to building. Will also copy out .rpm, and .deb files aftewards.
+
 set -e
+
+# Ensure it passes unit tests first
+npm run test || echo 1
 
 # Increment version?
 echo "Increment version? (patch/minor/major)"
