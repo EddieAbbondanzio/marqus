@@ -1,9 +1,14 @@
 import { clamp, debounce } from "lodash";
+import OpenColor from "open-color";
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
+import { mh100, w100 } from "../../css";
+
+const SCROLL_DEBOUNCE_INTERVAL = 100; // ms
 
 export interface ScrollableProps {
   className?: string;
+  height?: string;
   scroll?: number;
   onScroll?: (scrollPos: number) => void;
 }
@@ -18,7 +23,7 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
           props.onScroll(newPos);
         }
       },
-      100,
+      SCROLL_DEBOUNCE_INTERVAL,
       { trailing: true }
     ),
     [props.onScroll]
@@ -40,15 +45,37 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
   });
 
   return (
-    <StyledDiv className={props.className} onScroll={onScroll} ref={wrapper}>
+    <StyledDiv
+      className={props.className}
+      onScroll={onScroll}
+      height={props.height ?? "100%"}
+      ref={wrapper}
+    >
       {props.children}
     </StyledDiv>
   );
 }
 
-const StyledDiv = styled.div`
-  display: flex;
-  flex-grow: 1;
+// We need to pass height otherwise the div will automatically grow to the size
+// of it's content and it'll never show a scroll bar.
+const StyledDiv = styled.div<{ height: string }>`
   overflow-y: auto;
-  overlow-x: visible;
+  ${w100}
+  height: ${(p) => p.height};
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${OpenColor.gray[7]};
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${OpenColor.gray[8]};
+  }
 `;

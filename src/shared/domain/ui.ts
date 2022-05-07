@@ -29,6 +29,7 @@ export interface Editor {
   isEditting: boolean;
   content?: string;
   noteId?: string;
+  scroll: number;
 }
 
 export type Menu = ParentMenu | MenuWithEvent | MenuWithRole | MenuSeperator;
@@ -113,6 +114,7 @@ export interface UIEvents {
   "editor.toggleView": void;
   "editor.setContent": string;
   "editor.loadNote": string;
+  "editor.updateScroll": number;
 
   // Focus Tracker
   "focus.push": Section | Section[];

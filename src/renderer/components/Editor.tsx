@@ -20,7 +20,14 @@ export function Editor({ store }: EditorProps): JSX.Element {
     content = <Monaco store={store} />;
   } else {
     content = (
-      <Markdown store={store} content={store.state.ui.editor.content ?? ""} />
+      <Markdown
+        store={store}
+        content={store.state.ui.editor.content ?? ""}
+        scroll={store.state.ui.editor.scroll}
+        onScroll={(newVal) =>
+          void store.dispatch("editor.updateScroll", newVal)
+        }
+      />
     );
   }
 
@@ -29,12 +36,14 @@ export function Editor({ store }: EditorProps): JSX.Element {
     store.on("editor.save", save);
     store.on("editor.toggleView", toggleView);
     store.on("editor.loadNote", loadNote);
+    store.on("editor.updateScroll", updateScroll);
 
     return () => {
       store.off("editor.setContent", setContent);
       store.off("editor.save", save);
       store.off("editor.toggleView", toggleView);
       store.off("editor.loadNote", loadNote);
+      store.off("editor.updateScroll", updateScroll);
     };
   }, [store]);
 
@@ -46,7 +55,7 @@ export function Editor({ store }: EditorProps): JSX.Element {
 }
 
 const StyledFocusable = styled(Focusable)`
-  ${w100}
+  display: flex;
 `;
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL) as Ipc;
@@ -119,6 +128,21 @@ const save: Listener<"editor.save"> = (_, ctx) => {
   ctx.setUI({
     editor: {
       isEditting: false,
+    },
+  });
+};
+
+export const updateScroll: Listener<"editor.updateScroll"> = (
+  { value: scroll },
+  ctx
+) => {
+  if (scroll == null) {
+    throw Error();
+  }
+
+  ctx.setUI({
+    editor: {
+      scroll,
     },
   });
 };

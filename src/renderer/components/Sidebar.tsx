@@ -5,7 +5,7 @@ import { Focusable } from "./shared/Focusable";
 import { isResourceId } from "../../shared/domain";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, THEME, w100 } from "../css";
+import { h100, mh100, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
 import {
   Note,
@@ -160,33 +160,25 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       width={store.state.ui.sidebar.width}
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
-      <StyledFocusable store={store} name="sidebar">
-        <StyledScrollable
+      <Focusable store={store} name="sidebar">
+        <SidebarSearch store={store} />
+
+        <Scrollable
+          height="calc(100% - 52px)"
           scroll={store.state.ui.sidebar.scroll}
           onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
         >
-          <SidebarSearch store={store} />
           {menus}
-        </StyledScrollable>
-      </StyledFocusable>
+        </Scrollable>
+      </Focusable>
     </StyledResizable>
   );
 }
 
 const StyledResizable = styled(Resizable)`
-  user-select: none;
   background-color: ${THEME.sidebar.background};
-`;
-
-const StyledFocusable = styled(Focusable)`
-  ${w100}
+  user-select: none;
   ${h100}
-`;
-
-const StyledScrollable = styled(Scrollable)`
-  display: flex;
-  flex-direction: column;
-  ${h100};
 `;
 
 export function applySearchString(

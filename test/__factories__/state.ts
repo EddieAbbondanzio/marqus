@@ -15,6 +15,7 @@ export function createState(partial?: DeepPartial<State>): State {
       },
       editor: {
         isEditting: false,
+        scroll: 0,
       },
     },
   };

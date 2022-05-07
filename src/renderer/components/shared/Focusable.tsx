@@ -5,8 +5,10 @@ import React, {
   useEffect,
   useRef,
 } from "react";
+import styled from "styled-components";
 import { Section } from "../../../shared/domain/ui";
 import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
+import { w100 } from "../../css";
 import { Store } from "../../store";
 import { findParent } from "../../utils/findParent";
 
@@ -98,16 +100,20 @@ export function Focusable(
   });
 
   return (
-    <div
+    <Container
       ref={containerRef}
       className={props.className}
       tabIndex={props.tabIndex ?? -1}
       {...{ [FOCUSABLE_ATTRIBUTE]: props.name }}
     >
       {props.children}
-    </div>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  ${w100}
+`;
 
 export function wasInsideFocusable(ev: Event, focusable: Section): boolean {
   return findParent(

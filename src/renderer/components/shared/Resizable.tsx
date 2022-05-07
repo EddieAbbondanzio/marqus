@@ -2,6 +2,7 @@
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { getPx, isPx, px } from "../../../shared/dom";
+import { mh100 } from "../../css";
 import { resetCursor, setCursor, useMouseDrag } from "../../io/mouse";
 
 export interface ResizableProps {
@@ -56,8 +57,11 @@ export function Resizable(
     { cursor: "ew-resize" }
   );
 
+  // Prob not the best solution. Styled Components doesn't work good here
+  // because we do a lot of re-renders as the div is dragged to a new width.
+  // Explore some alternative options
   const style = {
-    height: "100%",
+    minHeight: "100%",
     minWidth: props.minWidth,
     display: "flex",
     flex: `0 0 ${width}`,

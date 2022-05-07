@@ -41,6 +41,9 @@ export const w100 = css`
 export const h100 = css`
   height: 100%;
 `;
+export const mh100 = css`
+  min-height: 100%;
+`;
 
 export const SPACERS = ["0.25rem", "0.5rem", "1rem", "2rem"];
 

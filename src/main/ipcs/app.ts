@@ -133,6 +133,7 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
         },
         editor: {
           isEditting: false,
+          scroll: 0,
         },
         focused: [],
       },

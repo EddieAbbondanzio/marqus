@@ -16,6 +16,7 @@ import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
+import { h100, w100 } from "./css";
 
 const { ipc } = window;
 async function main() {
@@ -92,8 +93,8 @@ export function App(props: AppProps): JSX.Element {
 }
 
 const Container = styled.div`
-  height: 100%;
-  width: 100%;
+  ${h100};
+  ${w100}
   display: flex;
   flex-direction: row;
 `;
