@@ -1,3 +1,5 @@
+import { string } from "yup";
+
 export function caseInsensitiveCompare(): (a: string, b: string) => number;
 export function caseInsensitiveCompare<T>(
   mapper: (v: T) => string
@@ -47,4 +49,8 @@ export function sleep(milliseconds: number): Promise<void> {
   return new Promise((res) => {
     setTimeout(res, milliseconds);
   });
+}
+
+export function alphanumericSort(a: string, b: string): number {
+  return a.localeCompare(b, undefined, { numeric: true });
 }

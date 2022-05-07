@@ -25,6 +25,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
+import { alphanumericSort } from "../../shared/utils";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -263,9 +264,10 @@ export function renderMenus(
     flatIds.push(note.id);
 
     if (hasChildren && isExpanded) {
-      orderBy(note.children!, ["name"]).forEach((n) =>
-        recursive(n, currDepth + 1)
+      note.children = note.children?.sort((a, b) =>
+        alphanumericSort(a.name, b.name)
       );
+      note.children?.forEach((n) => recursive(n, currDepth + 1));
     }
 
     // When creating a new value input is always added to end of list
@@ -280,7 +282,10 @@ export function renderMenus(
       );
     }
   };
-  orderBy(notes, ["name"]).forEach((n) => recursive(n));
+
+  notes = notes?.sort((a, b) => alphanumericSort(a.name, b.name));
+  notes.forEach((n) => recursive(n));
+
   if (input != null && input.parentId == null && input.id == null) {
     menus.push(
       <SidebarInput store={store} key="sidebarInput" value={input} depth={0} />
