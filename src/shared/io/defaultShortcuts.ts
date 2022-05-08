@@ -28,6 +28,11 @@ const shortcuts: Shortcut[] = [
     event: "app.toggleFullScreen",
     keys: [KeyCode.F11],
   },
+  {
+    name: "notes.create",
+    event: "sidebar.createNote",
+    keys: [KeyCode.Control, KeyCode.LetterN],
+  },
 
   // Sidebar
   {

@@ -1,5 +1,5 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/promisedInput";
 import { px } from "../../shared/dom";
@@ -172,6 +172,14 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
         return cancel();
     }
   };
+
+  useEffect(() => {
+    // Check if input is on screen.
+    // if it is, stop.
+    // if above scroll up
+    // if below scroll down
+  
+  }, []);
 
   return (
     <Indented style={{ paddingLeft }}>

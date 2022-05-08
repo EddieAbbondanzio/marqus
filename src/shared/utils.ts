@@ -1,5 +1,3 @@
-import { string } from "yup";
-
 export function caseInsensitiveCompare(): (a: string, b: string) => number;
 export function caseInsensitiveCompare<T>(
   mapper: (v: T) => string
@@ -9,10 +7,14 @@ export function caseInsensitiveCompare<T>(
 ): (a: any, b: any) => number {
   if (mapper != null) {
     return (a: T, b: T) =>
-      mapper(a).toLowerCase().localeCompare(mapper(b).toLowerCase());
+      mapper(a)
+        .toLowerCase()
+        .localeCompare(mapper(b).toLowerCase(), undefined, { numeric: true });
   } else {
     return (a: string, b: string) =>
-      a.toLowerCase().localeCompare(b.toLowerCase());
+      a
+        .toLowerCase()
+        .localeCompare(b.toLowerCase(), undefined, { numeric: true });
   }
 }
 
@@ -49,8 +51,4 @@ export function sleep(milliseconds: number): Promise<void> {
   return new Promise((res) => {
     setTimeout(res, milliseconds);
   });
-}
-
-export function alphanumericSort(a: string, b: string): number {
-  return a.localeCompare(b, undefined, { numeric: true });
 }

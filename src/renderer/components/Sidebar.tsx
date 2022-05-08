@@ -25,11 +25,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
-import { alphanumericSort } from "../../shared/utils";
+import { caseInsensitiveCompare } from "../../shared/utils";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
 const MIN_WIDTH = px(300);
+
+const NOTE_SORTER = caseInsensitiveCompare<Note>((n) => n.name);
 
 export interface SidebarProps {
   store: Store;
@@ -170,6 +172,9 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
           onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
         >
           {menus}
+
+          {/* Empty space for right clicking to create new notes */}
+          <EmptySpace />
         </Scrollable>
       </Focusable>
     </StyledResizable>
@@ -180,6 +185,10 @@ const StyledResizable = styled(Resizable)`
   background-color: ${THEME.sidebar.background};
   user-select: none;
   ${h100}
+`;
+
+const EmptySpace = styled.div`
+  padding-bottom: ${px(SIDEBAR_MENU_HEIGHT)};
 `;
 
 export function applySearchString(
@@ -264,9 +273,7 @@ export function renderMenus(
     flatIds.push(note.id);
 
     if (hasChildren && isExpanded) {
-      note.children = note.children?.sort((a, b) =>
-        alphanumericSort(a.name, b.name)
-      );
+      note.children = note.children?.sort(NOTE_SORTER);
       note.children?.forEach((n) => recursive(n, currDepth + 1));
     }
 
@@ -283,7 +290,7 @@ export function renderMenus(
     }
   };
 
-  notes = notes?.sort((a, b) => alphanumericSort(a.name, b.name));
+  notes = notes?.sort(NOTE_SORTER);
   notes.forEach((n) => recursive(n));
 
   if (input != null && input.parentId == null && input.id == null) {
