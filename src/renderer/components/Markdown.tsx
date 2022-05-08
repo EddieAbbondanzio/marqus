@@ -8,7 +8,7 @@ import { Scrollable } from "./shared/Scrollable";
 
 marked.setOptions({
   gfm: true,
-  sanitizer: DOMPurify.sanitize,
+  // Don't pass sanitize or sanitizer they are deprecated and don't work!
 });
 
 export interface MarkdownProps {
@@ -24,7 +24,8 @@ export function Markdown(props: MarkdownProps): JSX.Element {
       return "";
     }
 
-    return marked.parse(props.content);
+    const rendered = marked.parse(props.content);
+    return DOMPurify.sanitize(rendered);
   }, [props.content, props.store.state.ui.editor.noteId]);
 
   return (
