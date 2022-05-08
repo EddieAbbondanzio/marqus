@@ -216,6 +216,7 @@ export function renderMenus(
 ): [JSX.Element[], string[]] {
   const menus: JSX.Element[] = [];
   const flatIds: string[] = [];
+
   const recursive = (note: Note, depth?: number) => {
     const isExpanded = expandedLookup[note.id];
     const isSelected = selectedLookup[note.id] != null;

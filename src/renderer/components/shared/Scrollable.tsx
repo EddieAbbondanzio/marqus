@@ -42,7 +42,7 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
         props.onScroll?.(clamped);
       }
     }
-  });
+  }, [props.scroll]);
 
   return (
     <StyledDiv
