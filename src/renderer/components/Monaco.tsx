@@ -6,6 +6,7 @@ import * as monaco from "monaco-editor";
 const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   language: "markdown",
   lineNumbers: "off",
+  wordWrap: "on",
   overviewRulerBorder: false,
   overviewRulerLanes: 0,
   minimap: {
@@ -145,5 +146,7 @@ export function Monaco({ store }: MonacoProps): JSX.Element {
 
 const StyledEditor = styled.div`
   height: 100%;
-  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
 `;
