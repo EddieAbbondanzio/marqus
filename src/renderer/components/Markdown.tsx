@@ -3,11 +3,16 @@ import { isEmpty, unescape } from "lodash";
 import { Lexer, marked, Tokenizer } from "marked";
 import React, { useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
-import { InvalidOpError } from "../../shared/errors";
+import {
+  InvalidOpError,
+  NotImplementedError,
+  NotSupportedError,
+} from "../../shared/errors";
 import { Store } from "../store";
 import { Scrollable } from "./shared/Scrollable";
 import { customAlphabet } from "nanoid";
 import { ID_ALPHABET } from "../../shared/constants";
+import { Narrow } from "../../shared/types";
 
 const ID_LENGTH = 6;
 const generateTokenId = customAlphabet(ID_ALPHABET, ID_LENGTH);
@@ -31,183 +36,200 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 
   const content = useMemo(() => {
     const tokens = lexer.lex(props.content);
-    return render(tokens);
+    return <>{tokens.map((t) => renderToken(t))}</>;
   }, [props.content, lexer]);
 
   return (
     <Scrollable scroll={props.scroll} onScroll={props.onScroll}>
-      {/* <div dangerouslySetInnerHTML={{ __html: renderedMarkdown }} />; */}
       {content}
     </Scrollable>
   );
 }
 
-export function render(tokens: marked.TokensList): JSX.Element {
-  const rendered: (JSX.Element | string)[] = [];
+// Markdown Specs: https://daringfireball.net/projects/markdown/syntax
 
-  for (const token of tokens) {
-    // Hack, but good enough. Randomly generating keys for children components
-    // will come at a penalty cost of react being forced to do a complete render
-    // but we can re-visit this later on. It should be safe since we are using
-    // useMemo so we render when changes occur.
-    const key = generateTokenId();
+export function renderToken(
+  token: marked.Token
+): JSX.Element | string | undefined {
+  switch (token.type) {
+    case "blockquote":
+      return blockquote(token);
+    case "code":
+      return code(token);
+    case "heading":
+      return heading(token);
+    case "hr":
+      return hr(token);
+    case "link":
+      return link(token);
+    case "paragraph":
+      return paragraph(token);
+    case "table":
+      return table(token);
+    case "text":
+      return textOrEscape(token);
+    case "list":
+      return list(token);
 
-    switch (token.type) {
-      case "space":
-        // Nothing to do...
-        break;
+    // We aren't going to support html
+    case "html":
+    case "space":
+      return undefined;
 
-      case "paragraph":
-        rendered.push(
-          <Paragraph key={key}>{renderInlines(token.tokens)}</Paragraph>
-        );
-        break;
-
-      case "text":
-        // TODO: Is this good?
-        const content = token.hasOwnProperty("tokens")
-          ? renderInlines((token as any).tokens)
-          : unescape(token.text);
-        rendered.push(<Text key={key}>{content}</Text>);
-        break;
-
-      case "blockquote":
-        const quote = renderInlines(token.tokens);
-        rendered.push(<Blockquote key={key}>{quote}</Blockquote>);
-        break;
-
-      case "code":
-        rendered.push(
-          <Pre key={key}>
-            <CodeSpan>{unescape(token.text)}</CodeSpan>
-          </Pre>
-        );
-        break;
-
-      case "html":
-        // TODO: Does this work?
-        rendered.push(token.text);
-        break;
-
-      case "hr":
-        rendered.push(<Hr key={key} />);
-        break;
-
-      case "link":
-        // TODO: Add rel image support
-        rendered.push(
-          <Link key={key} href={token.href} title={token.title} target="_blank">
-            {unescape(token.text)}
-          </Link>
-        );
-        break;
-
-      case "heading":
-        const header = renderInlines(token.tokens);
-        switch (token.depth) {
-          case 1:
-            rendered.push(<H1 key={key}>{header}</H1>);
-            break;
-          case 2:
-            rendered.push(<H2 key={key}>{header}</H2>);
-            break;
-          case 3:
-            rendered.push(<H3 key={key}>{header}</H3>);
-            break;
-          case 4:
-            rendered.push(<H4 key={key}>{header}</H4>);
-            break;
-          case 5:
-            rendered.push(<H5 key={key}>{header}</H5>);
-            break;
-          case 6:
-            rendered.push(<H6 key={key}>{header}</H6>);
-            break;
-
-          default:
-            throw new InvalidOpError(`Invalid header depth ${token.depth}`);
-        }
-        break;
-
-      case "list":
-      case "table":
-        // TODO: Add support
-        console.log("Add support for ", token.type);
-        break;
-
-      default:
-        throw new InvalidOpError(`Invalid token ${token.type}`);
-    }
+    default:
+      throw new InvalidOpError(`Invalid token type ${token.type}`);
   }
-
-  return <>{rendered}</>;
 }
 
-export function renderInlines(tokens: marked.Token[]): JSX.Element {
-  const rendered: (JSX.Element | string)[] = [];
+export function renderInlineToken(
+  token: marked.Token
+): JSX.Element | string | undefined {
+  switch (token.type) {
+    case "br":
+      return br(token);
+    case "codespan":
+      return codespan(token);
+    case "del":
+      return strikethrough(token);
+    case "em":
+      return italics(token);
+    case "image":
+      return image(token);
+    case "link":
+      return link(token);
+    case "paragraph":
+      return paragraph(token);
+    case "strong":
+      return bold(token);
+    case "escape":
+    case "text":
+      return textOrEscape(token);
 
-  for (const token of tokens) {
-    // See comment above about key
-    const key = generateTokenId();
+    // We aren't going to support html
+    case "html":
+      return undefined;
 
-    switch (token.type) {
-      case "br":
-        rendered.push(<Br key={key} />);
-        break;
-
-      case "codespan":
-        rendered.push(<CodeSpan key={key}>{unescape(token.text)}</CodeSpan>);
-        break;
-
-      case "del":
-        rendered.push(<Del key={key}>{unescape(token.text)}</Del>);
-        break;
-
-      case "escape":
-      case "text":
-        rendered.push(<Text key={key}>{unescape(token.text)}</Text>);
-        break;
-
-      case "em":
-        rendered.push(<Em key={key}>{unescape(token.text)}</Em>);
-        break;
-
-      case "html":
-        // TODO: Does this work?
-        rendered.push(token.text);
-        break;
-
-      case "image":
-        // TODO: Add rel image support
-        rendered.push(<Image key={key} href={token.href} />);
-        break;
-
-      case "link":
-        // TODO: Add rel image support
-        rendered.push(
-          <Link key={key} href={token.href} title={token.title} target="_blank">
-            {unescape(token.text)}
-          </Link>
-        );
-        break;
-
-      case "strong":
-        rendered.push(<Strong key={key}>{unescape(token.text)}</Strong>);
-        break;
-
-      case "paragraph":
-        rendered.push(
-          <Paragraph key={key}>{renderInlines(token.tokens)}</Paragraph>
-        );
-        break;
-
-      default:
-        throw new InvalidOpError(`Invalid inline token ${token.type}`);
-    }
+    default:
+      throw new InvalidOpError(`Invalid inline token type ${token.type}`);
   }
-
-  return <>{rendered}</>;
 }
+
+const blockquote = (t: marked.Tokens.Blockquote) => {
+  const key = generateTokenId();
+  const content = t.tokens.map((t) => renderInlineToken(t));
+  return <Blockquote key={key}>{content}</Blockquote>;
+};
+
+const code = (t: marked.Tokens.Code) => {
+  const key = generateTokenId();
+
+  // TODO: Add lang support here from token.lang
+  return (
+    <Pre key={key}>
+      <CodeSpan>{unescape(t.text)}</CodeSpan>
+    </Pre>
+  );
+};
+
+const heading = (t: marked.Tokens.Heading) => {
+  const key = generateTokenId();
+  const content = t.tokens.map((t) => renderInlineToken(t));
+  switch (t.depth) {
+    case 1:
+      return <H1 key={key}>{content}</H1>;
+    case 2:
+      return <H2 key={key}>{content}</H2>;
+    case 3:
+      return <H3 key={key}>{content}</H3>;
+    case 4:
+      return <H4 key={key}>{content}</H4>;
+    case 5:
+      return <H5 key={key}>{content}</H5>;
+    case 6:
+      return <H6 key={key}>{content}</H6>;
+
+    default:
+      throw new InvalidOpError(`Invalid header depth ${t.depth}`);
+  }
+};
+
+const hr = (t: marked.Tokens.Hr) => {
+  const key = generateTokenId();
+  return <Hr key={key} />;
+};
+
+const paragraph = (t: marked.Tokens.Paragraph) => {
+  const key = generateTokenId();
+  const content = t.tokens.map((t) => renderInlineToken(t));
+  return <Paragraph key={key}>{content}</Paragraph>;
+};
+
+export const link = (t: marked.Tokens.Link) => {
+  const key = generateTokenId();
+  const onClick = () => window.ipc("app.openInWebBrowser", t.href);
+
+  // Links will default to href="#" because we open them externally in the users
+  // preferred browser.
+  return (
+    <Link key={key} href="#" title={t.title} onClick={onClick}>
+      {unescape(t.text)}
+    </Link>
+  );
+};
+
+const textOrEscape = (
+  t:
+    | marked.Tokens.Text
+    | marked.Tokens.Escape
+    | marked.Tokens.HTML
+    | marked.Tokens.Tag
+) => {
+  const key = generateTokenId();
+  const content = t.hasOwnProperty("tokens")
+    ? (t as any).tokens.map((t: any) => renderInlineToken(t))
+    : unescape(t.text);
+  return <Text key={key}>{content}</Text>;
+};
+
+const list = (t: marked.Tokens.List) => {
+  // TODO: Implement!
+  throw new NotImplementedError();
+};
+
+const table = (t: marked.Tokens.Table) => {
+  // TODO: Implement!
+  throw new NotImplementedError();
+};
+
+const br = (t: marked.Tokens.Br) => {
+  const key = generateTokenId();
+  return <Br key={key} />;
+};
+
+const codespan = (t: marked.Tokens.Codespan) => {
+  const key = generateTokenId();
+  return <CodeSpan key={key}>{unescape(t.text)}</CodeSpan>;
+};
+
+const strikethrough = (t: marked.Tokens.Del) => {
+  const key = generateTokenId();
+  return <Del key={key}>{unescape(t.text)}</Del>;
+};
+
+const bold = (t: marked.Tokens.Strong) => {
+  const key = generateTokenId();
+  return <Strong key={key}>{unescape(t.text)}</Strong>;
+};
+
+const italics = (t: marked.Tokens.Em) => {
+  const key = generateTokenId();
+  return <Em key={key}>{unescape(t.text)}</Em>;
+};
+
+const image = (t: marked.Tokens.Image) => {
+  const key = generateTokenId();
+  return <Image key={key} href={t.href} />;
+};
 
 // TODO: Add styling
 

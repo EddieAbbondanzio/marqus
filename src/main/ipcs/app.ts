@@ -3,6 +3,7 @@ import {
   dialog,
   Menu,
   MenuItemConstructorOptions,
+  shell,
 } from "electron";
 import {
   Menu as MenuType,
@@ -101,6 +102,13 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle("app.loadPreviousUIState", () => getUIFileHandler(config).load());
   ipc.handle("app.saveUIState", async (app) => {
     await getUIFileHandler(config).save(app);
+  });
+
+  ipc.handle("app.openInWebBrowser", async (url) => {
+    if (!url.startsWith("http")) {
+      url = `http://${url}`;
+    }
+    shell.openExternal(url);
   });
 };
 

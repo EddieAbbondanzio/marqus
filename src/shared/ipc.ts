@@ -18,6 +18,7 @@ export interface IpcSchema {
   "app.quit"(): Promise<void>;
   "app.loadPreviousUIState"(): Promise<UI>;
   "app.saveUIState"(ui: UI): Promise<void>;
+  "app.openInWebBrowser"(url: string): Promise<void>;
 
   // Shortcuts
   "shortcuts.getAll"(): Promise<Shortcut[]>;
