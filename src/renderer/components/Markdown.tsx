@@ -228,7 +228,7 @@ const italics = (t: marked.Tokens.Em) => {
 
 const image = (t: marked.Tokens.Image) => {
   const key = generateTokenId();
-  return <Image key={key} href={t.href} />;
+  return <Image key={key} src={t.href} />;
 };
 
 // TODO: Add styling
@@ -295,7 +295,7 @@ const Pre = styled.pre``;
 const CodeSpan = styled.code``;
 
 const Text = styled.span``;
-const Image = styled.image``;
+const Image = styled.img``;
 const Link = styled.a``;
 const Hr = styled.hr``;
 const Br = styled.br``;

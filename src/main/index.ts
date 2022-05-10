@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { app, BrowserWindow, ipcMain, Menu } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { Config } from "../shared/domain/config";
 import { getProcessType, isDevelopment } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
@@ -53,6 +53,19 @@ async function main() {
   }
 
   const createWindow = async (): Promise<void> => {
+    // Only allow external images
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: Object.assign(
+          {
+            ...details.responseHeaders,
+            "Content-Security-Policy": ["img-src '*'"],
+          },
+          details.responseHeaders
+        ),
+      });
+    });
+
     mainWindow = new BrowserWindow({
       height: config.windowHeight,
       width: config.windowWidth,

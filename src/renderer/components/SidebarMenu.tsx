@@ -227,7 +227,6 @@ const StyledInput = styled.input`
   ${py1};
 `;
 
-// Sampled: https://www.florin-pop.com/blog/2019/05/pure-css-tooltip/
 const ErrorMessage = styled.div`
   background-color: ${THEME.sidebar.error.background};
   color: ${THEME.sidebar.error.font};

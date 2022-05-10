@@ -25,9 +25,6 @@ export function Monaco({ store }: MonacoProps): JSX.Element {
     ui: { editor },
   } = store.state;
 
-  // Heavily sampled: https://github.com/react-monaco-editor/react-monaco-editor
-  // but also refactored it to be a function component.
-
   // Monaco and onChangeSub are stored as refs because we don't want the
   // component to re-render if either of them change.
   const containerElement = useRef<HTMLDivElement | null>(null);

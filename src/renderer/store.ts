@@ -68,7 +68,6 @@ export type ListenerLookup = {
 };
 
 export function useStore(initialState: State): Store {
-  // Sampled: https://github.com/dai-shi/use-reducer-async/blob/main/src/index.ts
   const [state, setState] = useState(initialState);
   const listeners = useRef<ListenerLookup>({});
   const lastState = useRef(state as Readonly<State>);
