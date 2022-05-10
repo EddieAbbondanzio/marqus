@@ -233,22 +233,78 @@ const image = (t: marked.Tokens.Image) => {
 
 // TODO: Add styling
 
+const H1 = styled.h1`
+  font-size: 2em;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+
+  &:not(:first-child) {
+    margin-top: 1.2rem;
+  }
+`;
+const H2 = styled.h2`
+  font-size: 1.5em;
+  font-weight: 600;
+  margin-bottom: 1rem;
+
+  &:not(:first-child) {
+    margin-top: 1.2rem;
+  }
+`;
+const H3 = styled.h3`
+  font-size: 1.333em;
+  font-weight: 600;
+  margin-bottom: 1rem;
+
+  &:not(:first-child) {
+    margin-top: 1.2rem;
+  }
+`;
+const H4 = styled.h4`
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-bottom: 1rem;
+
+  &:not(:first-child) {
+    margin-top: 1.2rem;
+  }
+`;
+const H5 = styled.h5`
+  font-size: 1.125em;
+  font-weight: 600;
+  margin-bottom: 1rem;
+
+  &:not(:first-child) {
+    margin-top: 1.2rem;
+  }
+`;
+const H6 = styled.h6`
+  font-size: 1em;
+  font-weight: 600;
+  margin-bottom: 1rem;
+
+  &:not(:first-child) {
+    margin-top: 1.2rem;
+  }
+`;
+
 const Paragraph = styled.p``;
 const Blockquote = styled.blockquote``;
-const Hr = styled.hr``;
-const H1 = styled.h1``;
-const H2 = styled.h2``;
-const H3 = styled.h3``;
-const H4 = styled.h4``;
-const H5 = styled.h5``;
-const H6 = styled.h6``;
 const Pre = styled.pre``;
 
-const Br = styled.br``;
 const CodeSpan = styled.code``;
-const Del = styled.del``;
-const Em = styled.em``;
+
 const Text = styled.span``;
 const Image = styled.image``;
 const Link = styled.a``;
-const Strong = styled.strong``;
+const Hr = styled.hr``;
+const Br = styled.br``;
+const Strong = styled.strong`
+  font-weight: bold;
+`;
+const Del = styled.del`
+  text-decoration: line-through;
+`;
+const Em = styled.em`
+  font-style: italic;
+`;
