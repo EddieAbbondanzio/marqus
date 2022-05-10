@@ -295,7 +295,11 @@ const Pre = styled.pre``;
 const CodeSpan = styled.code``;
 
 const Text = styled.span``;
-const Image = styled.img``;
+const Image = styled.img`
+  max-width: 100%;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+`;
 const Link = styled.a``;
 const Hr = styled.hr``;
 const Br = styled.br``;
