@@ -1,4 +1,6 @@
 import { useEffect, useMemo } from "react";
+import { Menu } from "../../shared/domain/ui";
+import { isDevelopment } from "../../shared/env";
 import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";
 
@@ -13,6 +15,20 @@ export function useApplicationMenu(store: Store): void {
   const isEditting = store.state.ui.editor.isEditting;
 
   useEffect(() => {
+    const optionals: Menu[] = [];
+    if (isDevelopment()) {
+      optionals.push({
+        label: "&Developer",
+        children: [
+          {
+            label: "Open dev tools",
+            shortcut: shortcutLabels["app.openDevTools"],
+            event: "app.openDevTools",
+          },
+        ],
+      });
+    }
+
     void window.ipc("app.setApplicationMenu", [
       {
         label: "&File",
@@ -96,6 +112,7 @@ export function useApplicationMenu(store: Store): void {
           },
         ],
       },
+      ...optionals,
     ]);
   }, [focused, selected, shortcutLabels, isEditting]);
 
