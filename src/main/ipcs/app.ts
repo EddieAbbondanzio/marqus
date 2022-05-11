@@ -23,6 +23,7 @@ import {
 import { Config } from "../../shared/domain/config";
 import { IpcChannels, IpcPlugin } from "../../shared/ipc";
 import { isEmpty } from "lodash";
+import { InvalidOpError } from "../../shared/errors";
 
 export const UI_FILE = "ui.json";
 
@@ -93,9 +94,14 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
   });
 
   ipc.handle("app.inspectElement", async (coord) => {
+    if (coord == null) {
+      throw new InvalidOpError("Element to inspect was null.");
+    }
+
     BrowserWindow.getFocusedWindow()?.webContents.inspectElement(
-      coord.x,
-      coord.y
+      // Coords can come over as floats
+      Math.round(coord.x),
+      Math.round(coord.y)
     );
   });
 

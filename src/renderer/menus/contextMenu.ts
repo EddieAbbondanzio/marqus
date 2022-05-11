@@ -53,13 +53,17 @@ export function useContextMenu(store: Store): void {
       }
 
       if (isDevelopment()) {
+        const { x, y } = (ev.target as HTMLElement).getBoundingClientRect();
+
+        console.log("x ", x, " y ", y);
+
         items.push({
           type: "separator",
         });
         items.push({
           label: "Inspect element",
           event: "app.inspectElement",
-          eventInput: sidebarMenu,
+          eventInput: { x, y },
           shortcut: shortcutLabels["app.inspectElement"],
         });
         items.push({
