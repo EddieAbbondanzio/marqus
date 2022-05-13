@@ -36,7 +36,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 
   const content = useMemo(() => {
     const tokens = lexer.lex(props.content);
-    return <>{tokens.map((t) => renderToken(t))}</>;
+    return <div className="content">{tokens.map((t) => renderToken(t))}</div>;
   }, [props.content, lexer]);
 
   return (
@@ -192,8 +192,36 @@ const textOrEscape = (
 };
 
 const list = (t: marked.Tokens.List) => {
-  // TODO: Implement!
-  throw new NotImplementedError();
+  const items = t.items.map((i) => {
+    if (i.task) {
+      return (
+        <TodoListItem key={generateTokenId()}>
+          <input type="checkbox" checked={i.checked} />
+          {i.tokens?.map((t) => renderToken(t)) ?? i.text}
+        </TodoListItem>
+      );
+    } else {
+      if (t.ordered) {
+        return (
+          <OrderedListItem key={generateTokenId()}>
+            {i.tokens.map((t) => renderToken(t))}
+          </OrderedListItem>
+        );
+      } else {
+        return (
+          <UnorderedListItem key={generateTokenId()}>
+            {i.tokens.map((t) => renderToken(t))}
+          </UnorderedListItem>
+        );
+      }
+    }
+  });
+
+  if (t.ordered) {
+    return <OrderedList key={generateTokenId()}>{items}</OrderedList>;
+  } else {
+    return <UnorderedList key={generateTokenId()}>{items}</UnorderedList>;
+  }
 };
 
 const table = (t: marked.Tokens.Table) => {
@@ -230,8 +258,6 @@ const image = (t: marked.Tokens.Image) => {
   const key = generateTokenId();
   return <Image key={key} src={t.href} />;
 };
-
-// TODO: Add styling
 
 const H1 = styled.h1`
   font-size: 2em;
@@ -311,4 +337,38 @@ const Del = styled.del`
 `;
 const Em = styled.em`
   font-style: italic;
+`;
+
+const UnorderedList = styled.ul`
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const UnorderedListItem = styled.li`
+  list-style-position: outside;
+  margin-left: 0.5rem;
+
+  list-style-type: disc;
+
+  ul > li {
+    list-style-type: circle;
+  }
+
+  ul > li > ul > li {
+    list-style-type: square;
+  }
+`;
+
+const OrderedList = styled.ol`
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const OrderedListItem = styled.li`
+  margin-left: 1rem;
+  list-style-position: outside;
+  list-style-type: decimal;
+`;
+const TodoListItem = styled.li`
+  margin-left: 1rem;
 `;
