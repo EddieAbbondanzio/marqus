@@ -31,18 +31,11 @@ interface TaskListItem extends marked.Tokens.ListItem {
 const TASK_ITEM_REGEX = /-\s\[[ xX]\]/g;
 
 export function Markdown(props: MarkdownProps): JSX.Element {
-  // Re-use same instance for every render
-  const lexer = useMemo(
-    () =>
-      new Lexer({
-        gfm: true,
-        // Don't pass sanitize or sanitizer they are deprecated and don't work!
-      }),
-    []
-  );
-
   const content = useMemo(() => {
-    const tokens = lexer.lex(props.content);
+    const tokens = new Lexer({
+      gfm: true,
+      // Don't pass sanitize or sanitizer they are deprecated and don't work!
+    }).lex(props.content);
     let count = 0;
 
     const toggleNth = (index: number, wasChecked: boolean) => {
@@ -62,13 +55,11 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         (wasChecked ? " " : "x") +
         props.content.substring(toggleIndex + 1);
 
-      console.log("updated: ", updatedContent);
       props.store.dispatch("editor.setContent", updatedContent);
     };
 
     // Allow tasks to be toggled.
     marked.walkTokens(tokens, (t) => {
-      t.type;
       if (t.type === "list_item" && t.task) {
         const current = count;
 
@@ -79,9 +70,12 @@ export function Markdown(props: MarkdownProps): JSX.Element {
       }
     });
 
-    console.log("Content: ", props.content);
-    return <div className="content">{tokens.map((t) => renderToken(t))}</div>;
-  }, [props.content, lexer]);
+    return (
+      <div className="content" key="content">
+        {tokens.map((t) => renderToken(t))}
+      </div>
+    );
+  }, [props.content]);
 
   return (
     <Scrollable scroll={props.scroll} onScroll={props.onScroll}>
