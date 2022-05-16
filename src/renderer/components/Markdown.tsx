@@ -23,6 +23,13 @@ export interface MarkdownProps {
   onScroll: (newVal: number) => void;
 }
 
+interface TaskListItem extends marked.Tokens.ListItem {
+  taskIndex?: number;
+  onChange?: (value: boolean) => void;
+}
+
+const TASK_ITEM_REGEX = /-\s\[[ xX]\]/g;
+
 export function Markdown(props: MarkdownProps): JSX.Element {
   // Re-use same instance for every render
   const lexer = useMemo(
@@ -36,6 +43,43 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 
   const content = useMemo(() => {
     const tokens = lexer.lex(props.content);
+    let count = 0;
+
+    const toggleNth = (index: number, wasChecked: boolean) => {
+      const matches = Array.from(props.content.matchAll(TASK_ITEM_REGEX));
+      const match = matches[index];
+
+      if (match == null) {
+        throw new InvalidOpError(
+          `No task item match found at match index ${index}`
+        );
+      }
+
+      const toggleIndex = match.index! + 3;
+
+      const updatedContent =
+        props.content.substring(0, toggleIndex) +
+        (wasChecked ? " " : "x") +
+        props.content.substring(toggleIndex + 1);
+
+      console.log("updated: ", updatedContent);
+      props.store.dispatch("editor.setContent", updatedContent);
+    };
+
+    // Allow tasks to be toggled.
+    marked.walkTokens(tokens, (t) => {
+      t.type;
+      if (t.type === "list_item" && t.task) {
+        const current = count;
+
+        (t as TaskListItem).taskIndex = current;
+        (t as TaskListItem).onChange = () =>
+          toggleNth(current, t.checked ?? false);
+        count += 1;
+      }
+    });
+
+    console.log("Content: ", props.content);
     return <div className="content">{tokens.map((t) => renderToken(t))}</div>;
   }, [props.content, lexer]);
 
@@ -71,7 +115,7 @@ export function renderToken(
     case "list":
       return list(token);
 
-    // We aren't going to support html
+    // TODO: We aren't going to support html?
     case "html":
     case "space":
       return undefined;
@@ -194,9 +238,15 @@ const textOrEscape = (
 const list = (t: marked.Tokens.List) => {
   const items = t.items.map((i) => {
     if (i.task) {
+      const { taskIndex, onChange } = i as TaskListItem;
+
       return (
         <TodoListItem key={generateTokenId()}>
-          <input type="checkbox" checked={i.checked} />
+          <input
+            type="checkbox"
+            checked={i.checked}
+            onChange={(ev) => onChange?.(ev.target.checked)}
+          />
           {i.tokens?.map((t) => renderToken(t)) ?? i.text}
         </TodoListItem>
       );
