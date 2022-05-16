@@ -1,5 +1,5 @@
 import { marked } from "marked";
-import { link } from "../../../src/renderer/components/Markdown";
+import { link, toggleTask } from "../../../src/renderer/components/Markdown";
 import { fireEvent, render } from "@testing-library/react";
 
 test("link", async () => {
@@ -17,4 +17,31 @@ test("link", async () => {
   expect(rendered.tagName).toBe("A");
   expect(rendered.title).toBe("Navigate to Google.com");
   expect((rendered as HTMLAnchorElement).href).toBe("http://localhost/#");
+});
+
+test("toggleTask", async () => {
+  const content = `
+    # Foo List
+    - [ ] foo
+    - [x] bar
+  `;
+
+  // Throws if no matching task
+  expect(() => toggleTask(content, 3, false)).toThrow();
+
+  // sets [ ] to [x]
+  const newlyChecked = toggleTask(content, 0, false);
+  expect(newlyChecked).toBe(`
+    # Foo List
+    - [x] foo
+    - [x] bar
+  `);
+
+  // sets [x] to [ ]
+  const newlyUnchecked = toggleTask(content, 1, true);
+  expect(newlyUnchecked).toBe(`
+    # Foo List
+    - [ ] foo
+    - [ ] bar
+  `);
 });

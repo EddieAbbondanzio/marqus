@@ -28,8 +28,6 @@ interface TaskListItem extends marked.Tokens.ListItem {
   onChange?: (value: boolean) => void;
 }
 
-const TASK_ITEM_REGEX = /-\s\[[ xX]\]/g;
-
 export function Markdown(props: MarkdownProps): JSX.Element {
   const content = useMemo(() => {
     const tokens = new Lexer({
@@ -38,34 +36,20 @@ export function Markdown(props: MarkdownProps): JSX.Element {
     }).lex(props.content);
     let count = 0;
 
-    const toggleNth = (index: number, wasChecked: boolean) => {
-      const matches = Array.from(props.content.matchAll(TASK_ITEM_REGEX));
-      const match = matches[index];
-
-      if (match == null) {
-        throw new InvalidOpError(
-          `No task item match found at match index ${index}`
-        );
-      }
-
-      const toggleIndex = match.index! + 3;
-
-      const updatedContent =
-        props.content.substring(0, toggleIndex) +
-        (wasChecked ? " " : "x") +
-        props.content.substring(toggleIndex + 1);
-
-      props.store.dispatch("editor.setContent", updatedContent);
-    };
-
     // Allow tasks to be toggled.
     marked.walkTokens(tokens, (t) => {
       if (t.type === "list_item" && t.task) {
         const current = count;
 
         (t as TaskListItem).taskIndex = current;
-        (t as TaskListItem).onChange = () =>
-          toggleNth(current, t.checked ?? false);
+        (t as TaskListItem).onChange = () => {
+          const newContent = toggleTask(
+            props.content,
+            current,
+            t.checked ?? false
+          );
+          props.store.dispatch("editor.setContent", newContent);
+        };
         count += 1;
       }
     });
@@ -81,6 +65,34 @@ export function Markdown(props: MarkdownProps): JSX.Element {
     <Scrollable scroll={props.scroll} onScroll={props.onScroll}>
       {content}
     </Scrollable>
+  );
+}
+
+const TASK_ITEM_REGEX = /-\s\[[ xX]\]/g;
+export function toggleTask(
+  content: string,
+  taskIndex: number,
+  wasChecked: boolean
+): string {
+  const matches = Array.from(content.matchAll(TASK_ITEM_REGEX));
+  const match = matches[taskIndex];
+
+  if (match == null) {
+    throw new InvalidOpError(
+      `No task item match found at match index ${taskIndex}`
+    );
+  }
+
+  // Match will start at - [ ]
+  //                     ^
+  // but we need to get between the brackets [ ] so we add 3
+  //                                          ^
+  const toggleIndex = match.index! + 3;
+
+  return (
+    content.substring(0, toggleIndex) +
+    (wasChecked ? " " : "x") +
+    content.substring(toggleIndex + 1)
   );
 }
 
@@ -232,7 +244,7 @@ const textOrEscape = (
 const list = (t: marked.Tokens.List) => {
   const items = t.items.map((i) => {
     if (i.task) {
-      const { taskIndex, onChange } = i as TaskListItem;
+      const { onChange } = i as TaskListItem;
 
       return (
         <TodoListItem key={generateTokenId()}>
