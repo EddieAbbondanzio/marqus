@@ -13,6 +13,8 @@ import { Scrollable } from "./shared/Scrollable";
 import { customAlphabet } from "nanoid";
 import { ID_ALPHABET } from "../../shared/constants";
 import { Narrow } from "../../shared/types";
+import OpenColor from "open-color";
+import { px } from "../../shared/dom";
 
 const ID_LENGTH = 6;
 const generateTokenId = customAlphabet(ID_ALPHABET, ID_LENGTH);
@@ -395,36 +397,41 @@ const Em = styled.em`
   font-style: italic;
 `;
 
+const LIST_ITEM_MARKER_WIDTH = 16;
+const LIST_INDENT = 8;
+
 const UnorderedList = styled.ul`
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-left: ${px(LIST_INDENT)};
 `;
 
 const UnorderedListItem = styled.li`
-  list-style-position: outside;
-  margin-left: 0.5rem;
-
-  list-style-type: disc;
-
-  ul > li {
-    list-style-type: circle;
-  }
-
-  ul > li > ul > li {
-    list-style-type: square;
+  &:before {
+    content: "•";
+    color: ${OpenColor.black};
+    width: ${px(LIST_ITEM_MARKER_WIDTH)};
+    display: inline-flex;
+    justify-content: center;
   }
 `;
 
 const OrderedList = styled.ol`
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-left: ${px(LIST_INDENT)};
+  counter-reset: section;
 `;
 
 const OrderedListItem = styled.li`
-  margin-left: 1rem;
-  list-style-position: outside;
-  list-style-type: decimal;
+  counter-increment: section;
+
+  &:before {
+    width: ${px(LIST_ITEM_MARKER_WIDTH)};
+    content: counter(section) ".";
+    display: inline-flex;
+    justify-content: center;
+  }
 `;
 const TodoListItem = styled.li`
-  margin-left: 1rem;
+  input[type="checkbox"] {
+    width: ${px(LIST_ITEM_MARKER_WIDTH)};
+    margin: 0;
+  }
 `;
