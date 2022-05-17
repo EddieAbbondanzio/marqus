@@ -373,7 +373,19 @@ const H6 = styled.h6`
 `;
 
 const Paragraph = styled.p``;
-const Blockquote = styled.blockquote``;
+const Blockquote = styled.blockquote`
+  display: flex;
+  color: ${OpenColor.gray[7]};
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  &:before {
+    width: 4px;
+    background-color: ${OpenColor.gray[6]}!important;
+    content: " ";
+    margin-right: 1rem;
+  }
+`;
 const Pre = styled.pre``;
 
 const CodeSpan = styled.code``;
