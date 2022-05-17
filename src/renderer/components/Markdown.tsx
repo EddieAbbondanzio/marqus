@@ -176,11 +176,7 @@ const code = (t: marked.Tokens.Code) => {
   const key = generateTokenId();
 
   // TODO: Add lang support here from token.lang
-  return (
-    <Pre key={key}>
-      <CodeSpan>{unescape(t.text)}</CodeSpan>
-    </Pre>
-  );
+  return <CodeBlock key={key}>{unescape(t.text)}</CodeBlock>;
 };
 
 const heading = (t: marked.Tokens.Heading) => {
@@ -386,9 +382,22 @@ const Blockquote = styled.blockquote`
     margin-right: 1rem;
   }
 `;
-const Pre = styled.pre``;
 
-const CodeSpan = styled.code``;
+const CodeBlock = styled.code`
+  font-family: monospace;
+  background-color: ${OpenColor.gray[3]}!important;
+  border-radius: 2px;
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+`;
+
+const CodeSpan = styled.code`
+  font-family: monospace;
+  background-color: ${OpenColor.gray[3]}!important;
+  border-radius: 2px;
+`;
 
 const Text = styled.span``;
 const Image = styled.img`
