@@ -24,6 +24,7 @@ import { Config } from "../../shared/domain/config";
 import { IpcChannels, IpcPlugin } from "../../shared/ipc";
 import { isEmpty } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
+import { openInBrowser } from "../utils";
 
 export const UI_FILE = "ui.json";
 
@@ -110,12 +111,7 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
     await getUIFileHandler(config).save(app);
   });
 
-  ipc.handle("app.openInWebBrowser", async (url) => {
-    if (!url.startsWith("http")) {
-      url = `http://${url}`;
-    }
-    shell.openExternal(url);
-  });
+  ipc.handle("app.openInWebBrowser", openInBrowser);
 };
 
 export function getUIFileHandler(config: Config): FileHandler<UI> {

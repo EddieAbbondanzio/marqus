@@ -40,8 +40,6 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 
     // Allow tasks to be toggled.
     marked.walkTokens(tokens, (t) => {
-      console.log(t);
-
       if (t.type === "list_item" && t.task) {
         const current = count;
 
@@ -216,12 +214,9 @@ const paragraph = (t: marked.Tokens.Paragraph) => {
 
 export const link = (t: marked.Tokens.Link) => {
   const key = generateTokenId();
-  const onClick = () => window.ipc("app.openInWebBrowser", t.href);
 
-  // Links will default to href="#" because we open them externally in the users
-  // preferred browser.
   return (
-    <Link key={key} href="#" title={t.title} onClick={onClick}>
+    <Link key={key} href={t.href} title={t.title} target="_blank">
       {unescape(t.text)}
     </Link>
   );

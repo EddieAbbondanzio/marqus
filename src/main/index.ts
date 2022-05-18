@@ -12,6 +12,7 @@ import {
 import { useNoteIpcs } from "./ipcs/notes";
 import { useShortcutIpcs } from "./ipcs/shortcuts";
 import { useTagIpcs } from "./ipcs/tags";
+import { openInBrowser } from "./utils";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -89,6 +90,11 @@ async function main() {
       config.windowHeight = height;
       config.windowWidth = width;
       await saveConfig(config);
+    });
+
+    mainWindow.webContents.setWindowOpenHandler((dets) => {
+      openInBrowser(dets.url);
+      return { action: "deny" };
     });
 
     // We set a non-functional application menu at first so we can make things

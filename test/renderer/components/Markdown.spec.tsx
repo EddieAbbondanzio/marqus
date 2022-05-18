@@ -4,7 +4,7 @@ import { fireEvent, render } from "@testing-library/react";
 
 test("link", async () => {
   const token: marked.Tokens.Link = {
-    href: "google.com",
+    href: "http://google.com",
     text: "Click me!",
     title: "Navigate to Google.com",
     type: "link",
@@ -16,7 +16,8 @@ test("link", async () => {
   const rendered = await r.findByText("Click me!");
   expect(rendered.tagName).toBe("A");
   expect(rendered.title).toBe("Navigate to Google.com");
-  expect((rendered as HTMLAnchorElement).href).toBe("http://localhost/#");
+  expect((rendered as HTMLAnchorElement).href).toBe("http://google.com/");
+  expect((rendered as HTMLAnchorElement).target).toBe("_blank");
 });
 
 test("toggleTask", async () => {
