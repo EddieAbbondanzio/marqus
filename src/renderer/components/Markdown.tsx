@@ -40,6 +40,8 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 
     // Allow tasks to be toggled.
     marked.walkTokens(tokens, (t) => {
+      console.log(t);
+
       if (t.type === "list_item" && t.task) {
         const current = count;
 
