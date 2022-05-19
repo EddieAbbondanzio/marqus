@@ -31,37 +31,113 @@ interface TaskListItem extends marked.Tokens.ListItem {
 }
 
 export function Markdown(props: MarkdownProps): JSX.Element {
-  const content = useMemo(() => {
+  const [content, tokens] = useMemo(() => {
     const tokens = new Lexer({
       gfm: true,
       // Don't pass sanitize or sanitizer they are deprecated and don't work!
     }).lex(props.content);
-    let count = 0;
+
+    // let count = 0;
 
     // Allow tasks to be toggled.
-    marked.walkTokens(tokens, (t) => {
-      if (t.type === "list_item" && t.task) {
-        const current = count;
+    // marked.walkTokens(tokens, (t) => {
+    //   if (t.type === "list_item" && t.task) {
+    //     console.log("TASK ITEM!");
+    //     const current = count;
 
-        (t as TaskListItem).taskIndex = current;
-        (t as TaskListItem).onChange = () => {
-          const newContent = toggleTask(
-            props.content,
-            current,
-            t.checked ?? false
-          );
-          props.store.dispatch("editor.setContent", newContent);
-        };
-        count += 1;
-      }
-    });
+    //     (t as TaskListItem).taskIndex = current;
+    //     (t as TaskListItem).onChange = () => {
+    //       const newContent = toggleTask(
+    //         props.content,
+    //         current,
+    //         t.checked ?? false
+    //       );
+    //       props.store.dispatch("editor.setContent", newContent);
+    //     };
+    //     count += 1;
+    //   }
+    // });
+    // console.log("COUNT:", count);
 
-    return (
+    return [
       <div className="content" key="content">
         {tokens.map((t) => renderToken(t))}
-      </div>
-    );
+      </div>,
+      tokens,
+    ];
   }, [props.content]);
+
+  // Allow toggling tasks by clicking on them
+  useEffect(() => {
+    // walkTokens() doesn't go in the right order for us so we roll our own.
+
+    const recursiveStep = (t: marked.Token, customRaw?: string): string => {
+      console.log("step: ", t);
+      const { items, tokens: nestedTokens } = t as {
+        tokens?: marked.Token[];
+        items?: marked.Tokens.ListItem[];
+      };
+
+      if (t.type === "list_item") {
+        if (nestedTokens != null && nestedTokens.length > 1) {
+          const nestedList = nestedTokens.find(
+            (t) => t.type === "list"
+          ) as marked.Tokens.List;
+
+          const split = t.raw.split("\n");
+          return [
+            split[0],
+            ...split
+              .slice(1)
+              .map((_, i) => recursiveStep(nestedList.items[i], split[i + 1])),
+          ].join("\n");
+        }
+
+        return customRaw ?? t.raw;
+      }
+
+      if (nestedTokens) {
+        return nestedTokens.map((t) => recursiveStep(t)).join("");
+      } else if (items) {
+        return items.map((t) => recursiveStep(t)).join("");
+      } else {
+        return customRaw ?? t.raw;
+      }
+    };
+
+    console.log("raw: ", props.content);
+    console.log("rebuilt: ", tokens.map((t) => recursiveStep(t)).join(""));
+    console.log(tokens);
+
+    // const rebuildContent = (t: marked.Token) => {
+    //   const { items, tokens } = t as {
+    //     tokens?: marked.Token[];
+    //     items?: marked.Tokens.ListItem[];
+    //   };
+
+    //   // Nothing more to do here since walkTokens will iterate over these.
+    //   if (tokens) {
+    //     return;
+    //   }
+
+    //   console.log("Going to add: ", t.raw);
+    //   contentSoFar = `${contentSoFar}${t.raw}`;
+
+    //   // if (items) {
+    //   //   items.forEach(rebuildContent);
+    //   // }
+
+    //   // if (items) {
+    //   //   contentSoFar = `${contentSoFar}${recursiveStep(items)}`
+    //   // }
+    // };
+
+    // marked.walkTokens(tokens, rebuildContent);
+
+    // console.log("Rebuilt: ", contentSoFar);
+
+    // console.log("DONE: ", contentSoFar);
+  }, [content]);
 
   return (
     <Scrollable scroll={props.scroll} onScroll={props.onScroll}>

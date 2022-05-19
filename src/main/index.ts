@@ -92,6 +92,8 @@ async function main() {
       await saveConfig(config);
     });
 
+    // Override how all links are open so we can send them off to the user's
+    // web browser instead of opening them in the electron app.
     mainWindow.webContents.setWindowOpenHandler((dets) => {
       openInBrowser(dets.url);
       return { action: "deny" };
