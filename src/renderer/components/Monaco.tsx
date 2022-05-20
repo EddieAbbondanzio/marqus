@@ -5,7 +5,13 @@ import * as monaco from "monaco-editor";
 
 const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   language: "markdown",
+
+  // Hide line numbers
   lineNumbers: "off",
+  folding: false,
+  lineDecorationsWidth: 0,
+  lineNumbersMinChars: 0,
+
   wordWrap: "on",
   overviewRulerBorder: false,
   overviewRulerLanes: 0,

@@ -28,6 +28,37 @@ export function Markdown(props: MarkdownProps): JSX.Element {
   const [reactContent, setMarkdownSource] = useRemark({
     remarkPlugins: [remarkGfm],
     remarkToRehypeOptions: { allowDangerousHtml: false },
+    rehypeReactOptions: {
+      components: {
+        h1: H1,
+        h2: H2,
+        h3: H3,
+        h4: H4,
+        h5: H5,
+        h6: H6,
+        p: Paragraph,
+        blockquote: Blockquote,
+        pre: CodeBlock,
+        code: CodeSpan,
+        span: Text,
+        image: Image,
+        link: Link,
+        hr: Hr,
+        br: Br,
+        del: Del,
+        strong: Strong,
+        em: Em,
+        ul: UnorderedList,
+        ol: OrderedList,
+        li: (p: any) => {
+          if (p.className === "task-list-item") {
+            return <li className="task">{p.children}</li>;
+          } else {
+            return <li>{p.children}</li>;
+          }
+        },
+      },
+    },
   });
 
   useEffect(() => {
@@ -35,14 +66,18 @@ export function Markdown(props: MarkdownProps): JSX.Element {
   }, [props.content]);
 
   return (
-    <Scrollable scroll={props.scroll} onScroll={props.onScroll}>
+    <Scrollable
+      scroll={props.scroll}
+      onScroll={props.onScroll}
+      className="markdown"
+    >
       {reactContent}
     </Scrollable>
   );
 }
 
 const H1 = styled.h1`
-  font-size: 2em;
+  font-size: 2rem;
   font-weight: 600;
   margin-bottom: 1.2rem;
 
@@ -51,7 +86,7 @@ const H1 = styled.h1`
   }
 `;
 const H2 = styled.h2`
-  font-size: 1.5em;
+  font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
@@ -60,7 +95,7 @@ const H2 = styled.h2`
   }
 `;
 const H3 = styled.h3`
-  font-size: 1.333em;
+  font-size: 1.333rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
@@ -69,7 +104,7 @@ const H3 = styled.h3`
   }
 `;
 const H4 = styled.h4`
-  font-size: 1.25em;
+  font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
@@ -78,7 +113,7 @@ const H4 = styled.h4`
   }
 `;
 const H5 = styled.h5`
-  font-size: 1.125em;
+  font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
@@ -87,7 +122,7 @@ const H5 = styled.h5`
   }
 `;
 const H6 = styled.h6`
-  font-size: 1em;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
@@ -111,11 +146,10 @@ const Blockquote = styled.blockquote`
   }
 `;
 
-const CodeBlock = styled.code`
+const CodeBlock = styled.pre`
   font-family: monospace;
   background-color: ${OpenColor.gray[3]}!important;
   border-radius: 2px;
-  display: block;
   margin-top: 1rem;
   margin-bottom: 1rem;
   padding: 0.5rem;
@@ -151,36 +185,35 @@ const LIST_INDENT = 8;
 
 const UnorderedList = styled.ul`
   margin-left: ${px(LIST_INDENT)};
-`;
 
-const UnorderedListItem = styled.li`
-  &:before {
+  li:not(.task):before {
     content: "•";
     color: ${OpenColor.black};
     width: ${px(LIST_ITEM_MARKER_WIDTH)};
     display: inline-flex;
     justify-content: center;
   }
+
+  li.task {
+    input[type="checkbox"] {
+      width: ${px(LIST_ITEM_MARKER_WIDTH)};
+      margin: 0;
+    }
+  }
 `;
 
 const OrderedList = styled.ol`
   margin-left: ${px(LIST_INDENT)};
   counter-reset: section;
-`;
 
-const OrderedListItem = styled.li`
-  counter-increment: section;
+  li {
+    display: flex;
 
-  &:before {
-    width: ${px(LIST_ITEM_MARKER_WIDTH)};
-    content: counter(section) ".";
-    display: inline-flex;
-    justify-content: center;
-  }
-`;
-const TodoListItem = styled.li`
-  input[type="checkbox"] {
-    width: ${px(LIST_ITEM_MARKER_WIDTH)};
-    margin: 0;
+    &:before {
+      counter-increment: section;
+      width: ${px(LIST_ITEM_MARKER_WIDTH)};
+      content: counter(section) ".";
+      justify-content: center;
+    }
   }
 `;

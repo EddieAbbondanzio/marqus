@@ -2,7 +2,7 @@ import { debounce } from "lodash";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Ipc } from "../../shared/ipc";
-import { w100, p2 } from "../css";
+import { w100, p2, m2 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { Monaco } from "./Monaco";
@@ -56,6 +56,7 @@ export function Editor({ store }: EditorProps): JSX.Element {
 
 const StyledFocusable = styled(Focusable)`
   display: flex;
+  ${m2}
 `;
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL) as Ipc;
