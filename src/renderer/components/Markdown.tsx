@@ -205,7 +205,7 @@ const UnorderedList = styled.ul`
 
 const OrderedList = styled.ol`
   margin-left: ${px(LIST_INDENT)};
-  counter-reset: section;
+  counter-reset: section ${(p) => (p.start != null ? p.start - 1 : undefined)};
 
   li {
     display: flex;
