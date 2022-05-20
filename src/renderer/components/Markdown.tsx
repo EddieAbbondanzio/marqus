@@ -36,7 +36,11 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         code: CodeSpan,
         span: Text,
         image: Image,
-        link: Link,
+        a: (p: any) => (
+          <Link target="_blank" href={p.href}>
+            {p.children}
+          </Link>
+        ),
         hr: Hr,
         br: Br,
         del: Del,
@@ -128,15 +132,18 @@ const H6 = styled.h6`
 const Paragraph = styled.p``;
 const Blockquote = styled.blockquote`
   display: flex;
+  flex-direction: column;
   color: ${OpenColor.gray[7]};
-  margin-top: 1rem;
-  margin-bottom: 1rem;
 
-  &:before {
-    width: 4px;
-    background-color: ${OpenColor.gray[6]}!important;
-    content: " ";
-    margin-right: 1rem;
+  border-left: 4px solid ${OpenColor.gray[6]};
+  margin-top: 1rem;
+
+  p {
+    margin-left: 1rem;
+  }
+
+  > blockquote {
+    margin-left: 1rem;
   }
 `;
 
