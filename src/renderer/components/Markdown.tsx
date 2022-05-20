@@ -1,20 +1,14 @@
-import DOMPurify from "dompurify";
-import { isEmpty, unescape } from "lodash";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
-import {
-  InvalidOpError,
-  NotImplementedError,
-  NotSupportedError,
-} from "../../shared/errors";
 import { Store } from "../store";
 import { Scrollable } from "./shared/Scrollable";
-import { Narrow } from "../../shared/types";
 import OpenColor from "open-color";
 import { px } from "../../shared/dom";
 import remarkGfm from "remark-gfm";
-import { Remark, useRemark } from "react-remark";
+import { useRemark } from "react-remark";
 
+// No types in older version...
+const emoji = require("remark-emoji");
 export interface MarkdownProps {
   store: Store;
   content: string;
@@ -26,7 +20,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
   // Check for update so we can migrate to newer versions of remarkGFM
   // https://github.com/remarkjs/react-remark/issues/50
   const [reactContent, setMarkdownSource] = useRemark({
-    remarkPlugins: [remarkGfm],
+    remarkPlugins: [remarkGfm, emoji],
     remarkToRehypeOptions: { allowDangerousHtml: false },
     rehypeReactOptions: {
       components: {
