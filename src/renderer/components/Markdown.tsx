@@ -37,7 +37,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         span: Text,
         image: Image,
         a: (p: any) => (
-          <Link target="_blank" href={p.href}>
+          <Link target="_blank" href={p.href} title={p.href}>
             {p.children}
           </Link>
         ),
@@ -50,9 +50,9 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         ol: OrderedList,
         li: (p: any) => {
           if (p.className === "task-list-item") {
-            return <li className="task">{p.children}</li>;
+            return <Li className="task">{p.children}</Li>;
           } else {
-            return <li>{p.children}</li>;
+            return <Li>{p.children}</Li>;
           }
         },
         table: Table,
@@ -136,7 +136,7 @@ const Blockquote = styled.blockquote`
   flex-direction: column;
   color: ${OpenColor.gray[7]};
 
-  border-left: 4px solid ${OpenColor.gray[6]};
+  border-left: 4px solid ${OpenColor.gray[5]};
   margin-top: 1rem;
 
   p {
@@ -155,12 +155,17 @@ const CodeBlock = styled.pre`
   margin-top: 1rem;
   margin-bottom: 1rem;
   padding: 0.5rem;
+
+  > code {
+    padding: 0 !important ;
+  }
 `;
 
 const CodeSpan = styled.code`
   font-family: monospace;
   background-color: ${OpenColor.gray[3]}!important;
   border-radius: 2px;
+  padding: 2px 4px;
 `;
 
 const Text = styled.span``;
@@ -169,7 +174,15 @@ const Image = styled.img`
   margin-top: 1rem;
   margin-bottom: 1rem;
 `;
-const Link = styled.a``;
+const Link = styled.a`
+  text-decoration: none;
+  color: ${OpenColor.blue[9]};
+
+  &:active {
+    color: ${OpenColor.blue[5]};
+  }
+`;
+
 const Hr = styled.hr`
   border: none;
   border-radius: 2px;
@@ -238,6 +251,17 @@ const OrderedList = styled.ol`
       text-align: end;
     }
   }
+`;
+
+const Li = styled.li`
+  margin-top: 4px;
+  margin-bottom: 4px;
+
+  &:before {
+    color: ${OpenColor.black};
+  }
+
+  color: ${OpenColor.gray[9]};
 `;
 
 const Table = styled.table`
