@@ -55,6 +55,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
             return <li>{p.children}</li>;
           }
         },
+        table: Table,
       },
     },
   });
@@ -169,7 +170,11 @@ const Image = styled.img`
   margin-bottom: 1rem;
 `;
 const Link = styled.a``;
-const Hr = styled.hr``;
+const Hr = styled.hr`
+  border: none;
+  border-radius: 2px;
+  border-top: 1px solid ${OpenColor.gray[5]};
+`;
 const Br = styled.br``;
 const Strong = styled.strong`
   font-weight: bold;
@@ -232,5 +237,52 @@ const OrderedList = styled.ol`
       margin-right: 4px;
       text-align: end;
     }
+  }
+`;
+
+const Table = styled.table`
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  td,
+  th {
+    padding: 8px;
+  }
+
+  tr:last-of-type {
+    th:first-of-type {
+      border-top-left-radius: 4px;
+    }
+
+    th:last-of-type {
+      border-top-right-radius: 4px;
+    }
+  }
+
+  tr:last-of-type {
+    td:first-of-type {
+      border-bottom-left-radius: 4px;
+    }
+
+    td:last-of-type {
+      border-bottom-right-radius: 4px;
+    }
+  }
+
+  tbody {
+    tr:not(:last-of-type) {
+      border-bottom: 1px solid ${OpenColor.gray[5]};
+    }
+  }
+
+  th {
+    font-weight: 500;
+    background-color: ${OpenColor.gray[7]};
+    color: ${OpenColor.white};
+  }
+
+  td {
+    background-color: ${OpenColor.gray[3]};
+    color: ${OpenColor.gray[7]};
   }
 `;
