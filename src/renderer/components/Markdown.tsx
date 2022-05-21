@@ -181,18 +181,31 @@ const Em = styled.em`
   font-style: italic;
 `;
 
-const LIST_ITEM_MARKER_WIDTH = 16;
+const LIST_ITEM_MARKER_WIDTH = 32;
 const LIST_INDENT = 8;
 
 const UnorderedList = styled.ul`
   margin-left: ${px(LIST_INDENT)};
 
-  li:not(.task):before {
-    content: "•";
-    color: ${OpenColor.black};
-    width: ${px(LIST_ITEM_MARKER_WIDTH)};
-    display: inline-flex;
-    justify-content: center;
+  li:not(.task) {
+    &:before {
+      content: "•";
+      color: ${OpenColor.black};
+      width: ${px(LIST_ITEM_MARKER_WIDTH)};
+      display: inline-flex;
+      justify-content: center;
+      text-align: end;
+      margin-right: 4px;
+    }
+    ul > li {
+      &:before {
+        content: "◦";
+      }
+
+      ul > li:before {
+        content: "🞍";
+      }
+    }
   }
 
   li.task {
@@ -209,12 +222,15 @@ const OrderedList = styled.ol`
 
   li {
     display: flex;
+    position: relative;
 
     &:before {
       counter-increment: section;
       width: ${px(LIST_ITEM_MARKER_WIDTH)};
       content: counter(section) ".";
       justify-content: center;
+      margin-right: 4px;
+      text-align: end;
     }
   }
 `;
