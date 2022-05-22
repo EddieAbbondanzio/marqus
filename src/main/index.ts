@@ -60,7 +60,7 @@ async function main() {
         responseHeaders: Object.assign(
           {
             ...details.responseHeaders,
-            "Content-Security-Policy": ["img-src '*'"],
+            "Content-Security-Policy": ["img-src *"],
           },
           details.responseHeaders
         ),
