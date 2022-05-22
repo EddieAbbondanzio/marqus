@@ -129,6 +129,7 @@
     "sass": "^1.43.4",
     "sass-loader": "^12.3.0",
     "styled-components": "^5.3.3",
+    "unist-util-visit": "^2.0.3",
     "yup": "^0.32.11"
   }
 }

@@ -7,7 +7,8 @@ import { px } from "../../shared/dom";
 import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
 
-// No types in older version...
+// TODO: Add types, or update react-remark.
+const visit = require("unist-util-visit");
 const emoji = require("remark-emoji");
 export interface MarkdownProps {
   store: Store;
