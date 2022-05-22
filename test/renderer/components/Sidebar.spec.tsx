@@ -5,20 +5,14 @@ import {
 } from "../../../src/renderer/components/Sidebar";
 import { act, fireEvent, render, RenderResult } from "@testing-library/react";
 import React, { ReactNode } from "react";
-import { Store, useStore } from "../../../src/renderer/store";
+import { State, Store, useStore } from "../../../src/renderer/store";
 import { App, AppProps } from "../../../src/renderer/App";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, RenderHookResult } from "@testing-library/react-hooks";
 import { createNote } from "../../../src/shared/domain/note";
-
-function init(props: SidebarProps): RenderResult {
-  return render(<Sidebar {...props} />);
-}
 
 test("sidebar.createNote confirm", async () => {
   const { result: store } = renderHook(() => useStore(createState()));
-  const res = init({
-    store: store.current,
-  });
+  const res = render(<Sidebar store={store.current} />);
 
   // Start
   let dispatchPromise: Promise<unknown>;
@@ -64,8 +58,51 @@ test("sidebar.createNote confirm", async () => {
   );
 });
 
-test("sidebar.createNote expands parent", async () => {});
+test("sidebar.createNote expands parent", async () => {
+  const { result: store } = renderHook(() =>
+    useStore(
+      createState({
+        notes: [createNote({ id: "parent-note", name: "parent" })],
+      })
+    )
+  );
+  const res = render(<Sidebar store={store.current} />);
 
-test("sidebar.createNote cancel", async () => {
-  // Just test it clears out.
+  act(() => {
+    store.current.dispatch("sidebar.createNote", "parent-note");
+  });
+
+  const { state } = store.current;
+  expect(state.ui.focused).toEqual(["sidebarInput"]);
+  console.log({ state });
+  expect(state.ui.sidebar.expanded).toContain("parent-note");
+});
+
+test("sidebar.createNote escape cancels", async () => {
+  const { result: store } = renderHook(() => useStore(createState()));
+  const res = render(<Sidebar store={store.current} />);
+
+  // Start
+  let dispatchPromise: Promise<unknown>;
+  act(() => {
+    dispatchPromise = store.current.dispatch("sidebar.createNote", null);
+  });
+  expect(store.current.state.ui.focused).toEqual(["sidebarInput"]);
+
+  // Populate input
+  res.rerender(<Sidebar store={store.current} />);
+  fireEvent.change(res.getByTestId("sidebar-input"), {
+    target: { value: "foo" },
+  });
+  expect(store.current.state.ui.sidebar.input?.value).toBe("foo");
+
+  // Trigger cancel
+  await act(async () => {
+    fireEvent.keyDown(res.getByTestId("sidebar-input"), { code: "Escape" });
+    await dispatchPromise;
+  });
+
+  const { state } = store.current;
+  expect(state.notes).toHaveLength(0);
+  expect(state.ui.sidebar.input).toBe(undefined);
 });

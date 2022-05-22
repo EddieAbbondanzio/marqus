@@ -373,7 +373,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
   { value: parentId },
   ctx
 ) => {
-  const {
+  let {
     ui: {
       sidebar: { expanded },
     },
@@ -389,8 +389,11 @@ export const createNote: Listener<"sidebar.createNote"> = async (
     setExplorerInput(ctx)
   );
 
-  // Expand parent if it isn't already.
-  if (parentId != null && expanded?.every((id) => id !== parentId)) {
+  if (
+    parentId != null &&
+    (expanded == null || expanded?.every((id) => id !== parentId))
+  ) {
+    expanded ??= [];
     expanded.push(parentId);
   }
 
