@@ -1,5 +1,7 @@
 import { Point } from "electron";
+import { keyBy, isEmpty } from "lodash";
 import { PromisedInput } from "../promisedInput";
+import { Note } from "./note";
 
 export interface UI {
   sidebar: Sidebar;
@@ -104,6 +106,8 @@ export interface UIEvents {
   "sidebar.moveNoteToTrash": string;
   "sidebar.setSelection": string[];
   "sidebar.clearSelection": void;
+
+  "sidebar.deleteSelectedNote": void;
   "sidebar.toggleItemExpanded": string;
   "sidebar.moveSelectionUp": void;
   "sidebar.moveSelectionDown": void;
@@ -113,8 +117,9 @@ export interface UIEvents {
   "editor.save": void;
   "editor.toggleView": void;
   "editor.setContent": string;
-  "editor.loadNote": string;
   "editor.updateScroll": number;
+  "editor.loadNote": string;
+  "editor.loadSelectedNote": void;
 
   // Focus Tracker
   "focus.push": Section | Section[];
@@ -128,3 +133,35 @@ export interface UIEvents {
 }
 export type UIEventType = keyof UIEvents;
 export type UIEventInput<Ev extends UIEventType> = UIEvents[Ev];
+
+// If a note was deleted but was referenced elsewhere in the ui state we need to
+// clear out all references to it otherwise things will bork.
+export function filterOutStaleNoteIds(ui: UI, notes: Note[]): UI {
+  const noteIds = keyBy(notes, (n) => n.id);
+
+  // Remove any expanded sidebar items that were deleted.
+  if (!isEmpty(ui.sidebar.expanded)) {
+    ui.sidebar.expanded = ui.sidebar.expanded?.filter(
+      (e) => noteIds[e] != null
+    );
+  }
+
+  // Remove any sidebar items that were selected.
+  if (!isEmpty(ui.sidebar.selected)) {
+    ui.sidebar.selected = ui.sidebar.selected?.filter(
+      (s) => noteIds[s] != null
+    );
+  }
+
+  // Clear out the editor if the note was loaded.
+  if (ui.editor.noteId != null && !noteIds[ui.editor.noteId]) {
+    ui.editor = {
+      isEditting: false,
+      scroll: 0,
+      content: undefined,
+      noteId: undefined,
+    };
+  }
+
+  return ui;
+}

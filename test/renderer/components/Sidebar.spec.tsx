@@ -1,13 +1,9 @@
 import { createState } from "../../__factories__/state";
-import {
-  Sidebar,
-  SidebarProps,
-} from "../../../src/renderer/components/Sidebar";
-import { act, fireEvent, render, RenderResult } from "@testing-library/react";
-import React, { ReactNode } from "react";
-import { State, Store, useStore } from "../../../src/renderer/store";
-import { App, AppProps } from "../../../src/renderer/App";
-import { renderHook, RenderHookResult } from "@testing-library/react-hooks";
+import { Sidebar } from "../../../src/renderer/components/Sidebar";
+import { act, fireEvent, render } from "@testing-library/react";
+import React from "react";
+import { useStore } from "../../../src/renderer/store";
+import { renderHook } from "@testing-library/react-hooks";
 import { createNote } from "../../../src/shared/domain/note";
 
 test("sidebar.createNote confirm", async () => {

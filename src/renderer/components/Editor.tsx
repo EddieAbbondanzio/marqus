@@ -1,6 +1,7 @@
-import { debounce } from "lodash";
+import { debounce, head, isEmpty } from "lodash";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
+import { InvalidOpError } from "../../shared/errors";
 import { Ipc } from "../../shared/ipc";
 import { w100, p2, m2 } from "../css";
 import { Listener, Store } from "../store";
@@ -35,7 +36,7 @@ export function Editor({ store }: EditorProps): JSX.Element {
     store.on("editor.setContent", setContent);
     store.on("editor.save", save);
     store.on("editor.toggleView", toggleView);
-    store.on("editor.loadNote", loadNote);
+    store.on(["editor.loadNote", "editor.loadSelectedNote"], loadNote);
     store.on("editor.updateScroll", updateScroll);
 
     return () => {
@@ -61,11 +62,36 @@ const StyledFocusable = styled(Focusable)`
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL) as Ipc;
 
-const loadNote: Listener<"editor.loadNote"> = async (
-  { value: noteId },
-  ctx
-) => {
+const loadNote: Listener<
+  "editor.loadNote" | "editor.loadSelectedNote"
+> = async (ev, ctx) => {
   const state = ctx.getState();
+  let noteId: string;
+
+  switch (ev.type) {
+    case "editor.loadNote":
+      if (ev.value == null) {
+        throw new Error("No note id to load.");
+      }
+
+      noteId = ev.value;
+      break;
+
+    case "editor.loadSelectedNote":
+      // User could accidentally press delete when nothing is selected so we
+      // don't throw here.
+      const { selected } = state.ui.sidebar;
+      if (isEmpty(selected)) {
+        return;
+      }
+
+      noteId = head(selected)!;
+      break;
+
+    default:
+      throw new InvalidOpError(`Invalid event type ${ev.type}`);
+  }
+
   if (noteId === state.ui.editor.noteId) {
     return;
   }
@@ -77,6 +103,10 @@ const loadNote: Listener<"editor.loadNote"> = async (
       noteId,
     },
   });
+
+  if (ev.type === "editor.loadSelectedNote") {
+    ctx.focus(["editor"], { overwrite: true });
+  }
 };
 
 const setContent: Listener<"editor.setContent"> = async (

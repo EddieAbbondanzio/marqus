@@ -19,7 +19,7 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterI],
   },
   {
-    name: "app.relaod",
+    name: "app.reload",
     event: "app.reload",
     keys: [KeyCode.Control, KeyCode.LetterR],
   },
@@ -79,6 +79,18 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.ArrowDown],
     when: "sidebar",
     repeat: true,
+  },
+  {
+    name: "editor.loadSelectedNote",
+    event: "editor.loadSelectedNote",
+    keys: [KeyCode.Enter],
+    when: "sidebar",
+  },
+  {
+    name: "sidebar.deleteSelectedNote",
+    event: "sidebar.deleteSelectedNote",
+    keys: [KeyCode.Delete],
+    when: "sidebar",
   },
   {
     name: "sidebar.clearSelection",

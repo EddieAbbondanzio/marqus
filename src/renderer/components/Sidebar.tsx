@@ -14,7 +14,7 @@ import {
   flatten,
 } from "../../shared/domain/note";
 import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
-import { NotFoundError } from "../../shared/errors";
+import { InvalidOpError, NotFoundError } from "../../shared/errors";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
@@ -26,6 +26,7 @@ import {
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
 import { caseInsensitiveCompare } from "../../shared/utils";
+import { filterOutStaleNoteIds } from "../../shared/domain/ui";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -128,7 +129,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
     );
     store.on("sidebar.createNote", createNote);
     store.on("sidebar.renameNote", renameNote);
-    store.on("sidebar.deleteNote", deleteNote);
+    store.on(["sidebar.deleteNote", "sidebar.deleteSelectedNote"], deleteNote);
     store.on("sidebar.dragNote", dragNote);
     store.on("sidebar.moveNoteToTrash", moveNoteToTrash);
     store.on("sidebar.setSearchString", setSearchString);
@@ -150,7 +151,10 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       );
       store.off("sidebar.createNote", createNote);
       store.off("sidebar.renameNote", renameNote);
-      store.off("sidebar.deleteNote", deleteNote);
+      store.off(
+        ["sidebar.deleteNote", "sidebar.deleteSelectedNote"],
+        deleteNote
+      );
       store.off("sidebar.dragNote", dragNote);
       store.off("sidebar.moveNoteToTrash", moveNoteToTrash);
       store.off("sidebar.setSearchString", setSearchString);
@@ -397,7 +401,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
     expanded.push(parentId);
   }
 
-  ctx.focus(["sidebarInput"], true);
+  ctx.focus(["sidebarInput"], { overwrite: true });
   ctx.setUI({
     sidebar: {
       input,
@@ -426,7 +430,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
         }
       });
 
-      ctx.focus(["editor"], true);
+      ctx.focus(["editor"], { overwrite: true });
       ctx.setUI({
         sidebar: {
           selected: [note.id],
@@ -504,12 +508,36 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
   });
 };
 
-export const deleteNote: Listener<"sidebar.deleteNote"> = async (
-  { value: id },
-  ctx
-) => {
-  const { notes } = ctx.getState();
-  const note = getNoteById(notes, id!);
+export const deleteNote: Listener<
+  "sidebar.deleteNote" | "sidebar.deleteSelectedNote"
+> = async (ev, ctx) => {
+  const { ui, notes } = ctx.getState();
+  let id;
+
+  switch (ev.type) {
+    case "sidebar.deleteNote":
+      if (ev.value == null) {
+        throw new Error("No note to delete.");
+      }
+
+      id = ev.value;
+      break;
+    case "sidebar.deleteSelectedNote":
+      const { selected } = ui.sidebar;
+      // User could accidentally press delete when nothing is selected so we
+      // don't throw here.
+      if (isEmpty(selected)) {
+        return;
+      }
+
+      id = head(selected)!;
+      break;
+
+    default:
+      throw new InvalidOpError(`Invalid event type ${ev.type}`);
+  }
+
+  const note = getNoteById(notes, id);
   const confirmed = await promptConfirmAction("delete", `note ${note.name}`);
   if (confirmed) {
     await window.ipc("notes.delete", note.id);
@@ -522,6 +550,8 @@ export const deleteNote: Listener<"sidebar.deleteNote"> = async (
       parent.children = parent.children!.filter((t) => t.id !== note.id);
       return notes;
     });
+
+    ctx.setUI((ui) => filterOutStaleNoteIds(ui, notes));
   }
 };
 

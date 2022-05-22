@@ -42,7 +42,10 @@ export type Listener<ET extends UIEventType> = (
   s: StoreContext
 ) => Promise<void> | void;
 
-export type Focus = (section: Section[], overwrite?: boolean) => void;
+export type Focus = (
+  section: Section[],
+  opts?: { overwrite?: boolean }
+) => void;
 
 export interface StoreContext {
   setUI: SetUI;
@@ -131,7 +134,7 @@ export function useStore(initialState: State): Store {
   };
 
   const focus: Focus = useCallback(
-    (sections, overwrite = false) => {
+    (sections, opts = { overwrite: false }) => {
       if (new Set(sections).size !== sections.length) {
         throw new InvalidOpError(`Sections to focus must be unique`);
       }
@@ -145,9 +148,11 @@ export function useStore(initialState: State): Store {
       }
 
       setUI((s) => {
+        // TODO: Clean this up. It's getting messy.
+
         // If only 1 new section move it to top of stack.
         if (sections.length === 1) {
-          if (s.focused[0] == null || overwrite) {
+          if (s.focused[0] == null || opts.overwrite) {
             return {
               focused: sections,
             };

@@ -4,7 +4,7 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { UI } from "../shared/domain/ui";
+import { filterOutStaleNoteIds, UI } from "../shared/domain/ui";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
@@ -113,13 +113,13 @@ async function loadInitialState(): Promise<State> {
     ipc("notes.getAll"),
   ]);
 
+  ui = filterOutStaleNoteIds(ui, notes);
+
   // Pull in note
   if (ui.editor.noteId != null) {
     ui.editor.content =
       (await ipc("notes.loadContent", ui.editor.noteId)) ?? undefined;
   }
-
-  ui = filterOutStaleIds(notes, ui);
 
   return {
     ui,
@@ -127,22 +127,6 @@ async function loadInitialState(): Promise<State> {
     tags,
     notes,
   };
-}
-
-function filterOutStaleIds(notes: Note[], ui: UI): UI {
-  const noteIds = keyBy(notes, (n) => n.id);
-  const expanded = [];
-
-  if (ui.sidebar.expanded != null) {
-    for (const e of ui.sidebar.expanded) {
-      if (noteIds[e] != null) {
-        expanded.push(e);
-      }
-    }
-    ui.sidebar.expanded = expanded;
-  }
-
-  return ui;
 }
 
 /*
