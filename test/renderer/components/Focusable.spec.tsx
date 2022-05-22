@@ -1,45 +1,43 @@
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, RenderResult } from "@testing-library/react";
 import {
   Focusable,
+  FocusableProps,
   FOCUSABLE_ATTRIBUTE,
   getFocusableAttribute,
   wasInsideFocusable,
 } from "../../../src/renderer/components/shared/Focusable";
 import { App } from "../../../src/renderer/App";
 import { createState } from "../../__factories__/state";
-import React from "react";
+import React, { ReactNode } from "react";
 import * as store from "../../../src/renderer/store";
 import { createStore } from "../../__factories__/store";
 
-const dispatch = jest.fn();
-jest.spyOn(store, "useStore").mockImplementation(() => ({
-  on: jest.fn(),
-  off: jest.fn(),
-  dispatch,
-  state: createState(),
-}));
+function init(
+  props: FocusableProps,
+  content: ReactNode = undefined
+): RenderResult {
+  jest.spyOn(store, "useStore").mockImplementation(() => props.store);
+  return render(<Focusable {...props}>{content}</Focusable>);
+}
 
 test("useFocusTracking detects clicks in focusables", async () => {
-  const initialState = createState();
-  const res = render(
-    <App initialState={initialState} needDataDirectory={false} />
-  );
+  const s = createStore();
+  jest.spyOn(store, "useStore").mockImplementation(() => s);
+
+  const res = render(<App initialState={s.state} needDataDirectory={false} />);
 
   // Simulate a click within the sidebar search.
   const searchbar = await res.findByPlaceholderText("Type to search...");
   fireEvent.click(searchbar);
 
-  expect(dispatch).toBeCalledWith("focus.push", "sidebarSearch");
+  expect(s.dispatch).toBeCalledWith("focus.push", "sidebarSearch");
 });
 
 test("focusable sets attribute", () => {
-  const store = createStore();
-  const res = render(
-    <Focusable name="sidebar" store={store}>
-      Hello World!
-    </Focusable>
-  );
+  const s = createStore();
+  const res = init({ name: "sidebar", store: s }, "Hello World!");
   const div = res.getByText("Hello World!");
+
   expect(div.getAttribute(FOCUSABLE_ATTRIBUTE)).toBe("sidebar");
 });
 
@@ -49,16 +47,16 @@ test.each([undefined, false, true])(
     const store = createStore({ state: { ui: { focused: ["sidebar"] } } });
     const el = { current: { focus: jest.fn() } } as React.MutableRefObject<any>;
     const onFocus = jest.fn();
-    const res = render(
-      <Focusable
-        name="sidebar"
-        store={store}
-        focusOnRender={focusOnRender}
-        elementRef={el}
-        onFocus={onFocus}
-      >
-        Hello World!
-      </Focusable>
+
+    init(
+      {
+        name: "sidebar",
+        store: store,
+        focusOnRender,
+        elementRef: el,
+        onFocus,
+      },
+      "Hello World!"
     );
 
     if (focusOnRender === undefined || focusOnRender === true) {
@@ -77,17 +75,14 @@ test.each([false, true])(
     const store = createStore({ state: { ui: { focused: ["editor"] } } });
     const el = { current: { blur: jest.fn() } } as React.MutableRefObject<any>;
     const onBlur = jest.fn();
-    const res = render(
-      <Focusable
-        name="sidebar"
-        store={store}
-        focusOnRender={focusOnRender}
-        elementRef={el}
-        onBlur={onBlur}
-      >
-        Hello World!
-      </Focusable>
-    );
+
+    const res = init({
+      name: "sidebar",
+      store,
+      focusOnRender,
+      elementRef: el,
+      onBlur,
+    });
 
     if (focusOnRender === undefined || focusOnRender === true) {
       expect(el.current.blur).toHaveBeenCalled();
@@ -102,11 +97,11 @@ test.each([false, true])(
 test("focusable only blurs when current has changed", async () => {
   const store = createStore({ state: { ui: { focused: ["editor"] } } });
   const onBlur = jest.fn();
-  const res = render(
-    <Focusable name="sidebar" store={store} onBlur={onBlur}>
-      Hello World!
-    </Focusable>
-  );
+  const res = init({
+    name: "sidebar",
+    store,
+    onBlur,
+  });
   expect(onBlur).toBeCalled();
 
   onBlur.mockReset();
@@ -121,21 +116,23 @@ test("focusable only blurs when current has changed", async () => {
 test.each([false, true])(
   "focusable blurs on escape (blurOnEsc: %s)",
   async (blurOnEsc) => {
-    const dispatch = jest.fn();
-    const store = createStore({ dispatch });
-    const res = render(
-      <Focusable name="sidebar" store={store} blurOnEsc={blurOnEsc}>
-        <input title="random-title"></input>
-      </Focusable>
+    const store = createStore();
+    const res = init(
+      {
+        name: "sidebar",
+        store,
+        blurOnEsc,
+      },
+      <input title="random-title"></input>
     );
 
     const input = res.getByTitle("random-title");
     fireEvent.keyDown(input, { code: "Escape" });
 
     if (blurOnEsc) {
-      expect(dispatch).toBeCalledWith("focus.pop");
+      expect(store.dispatch).toBeCalledWith("focus.pop");
     } else {
-      expect(dispatch).not.toBeCalled();
+      expect(store.dispatch).not.toBeCalled();
     }
   }
 );

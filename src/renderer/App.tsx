@@ -44,7 +44,7 @@ if (!isTest()) {
   void main();
 }
 
-interface AppProps {
+export interface AppProps {
   initialState: State;
   needDataDirectory: boolean;
 }

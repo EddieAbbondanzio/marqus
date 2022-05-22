@@ -422,6 +422,18 @@ export const createNote: Listener<"sidebar.createNote"> = async (
           return notes;
         }
       });
+
+      ctx.focus("editor");
+      ctx.setUI({
+        sidebar: {
+          selected: [note.id],
+        },
+        editor: {
+          isEditting: true,
+          noteId: note.id,
+          content: "",
+        },
+      });
     } catch (e) {
       promptError(e.message);
     }

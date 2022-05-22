@@ -188,6 +188,7 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
             value={props.value.value}
             onChange={onChange}
             onKeyDown={keyDown}
+            data-testid="sidebar-input"
           />
         </StyledDiv>
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
