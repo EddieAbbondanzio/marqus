@@ -397,7 +397,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
     expanded.push(parentId);
   }
 
-  ctx.focus("sidebarInput");
+  ctx.focus(["sidebarInput"], true);
   ctx.setUI({
     sidebar: {
       input,
@@ -426,7 +426,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
         }
       });
 
-      ctx.focus("editor");
+      ctx.focus(["editor"], true);
       ctx.setUI({
         sidebar: {
           selected: [note.id],
@@ -465,7 +465,7 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
     },
     setExplorerInput(ctx)
   );
-  ctx.focus("sidebarInput");
+  ctx.focus(["sidebarInput"]);
   ctx.setUI({
     sidebar: {
       input,

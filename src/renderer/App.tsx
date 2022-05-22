@@ -172,7 +172,7 @@ export const inspectElement: Listener<"app.inspectElement"> = ({
 
 export const push: Listener<"focus.push"> = ({ value: next }, ctx) => {
   const arr = Array.isArray(next) ? next : [next];
-  ctx.focus(...arr);
+  ctx.focus(arr);
 };
 
 export const pop: Listener<"focus.pop"> = (_, ctx) => {

@@ -48,6 +48,7 @@ test("sidebar.createNote confirm", async () => {
       name: "foo",
     })
   );
+  expect(state.ui.focused).toEqual(["editor"]);
   expect(state.ui.sidebar.selected).toEqual([note.id]);
   expect(state.ui.editor).toEqual(
     expect.objectContaining({
@@ -74,7 +75,6 @@ test("sidebar.createNote expands parent", async () => {
 
   const { state } = store.current;
   expect(state.ui.focused).toEqual(["sidebarInput"]);
-  console.log({ state });
   expect(state.ui.sidebar.expanded).toContain("parent-note");
 });
 
