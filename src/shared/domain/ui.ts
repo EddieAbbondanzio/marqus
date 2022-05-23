@@ -106,6 +106,8 @@ export interface UIEvents {
   "sidebar.moveNoteToTrash": string;
   "sidebar.setSelection": string[];
   "sidebar.clearSelection": void;
+  "sidebar.collapseAll": void;
+  "sidebar.expandAll": void;
 
   "sidebar.deleteSelectedNote": void;
   "sidebar.toggleItemExpanded": string;

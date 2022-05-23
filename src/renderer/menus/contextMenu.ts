@@ -50,6 +50,20 @@ export function useContextMenu(store: Store): void {
             }
           );
         }
+
+        items.push({
+          type: "separator",
+        });
+        items.push({
+          label: "Collapse all",
+          event: "sidebar.collapseAll",
+          shortcut: shortcutLabels["sidebar.collapseAll"],
+        });
+        items.push({
+          label: "Expand all",
+          event: "sidebar.expandAll",
+          shortcut: shortcutLabels["sidebar.expandAll"],
+        });
       }
 
       if (isDevelopment()) {

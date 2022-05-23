@@ -4,7 +4,7 @@ import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { useStore } from "../../../src/renderer/store";
 import { renderHook } from "@testing-library/react-hooks";
-import { createNote } from "../../../src/shared/domain/note";
+import { createNote, flatten } from "../../../src/shared/domain/note";
 
 test("sidebar.createNote confirm", async () => {
   const { result: store } = renderHook(() => useStore(createState()));
@@ -101,4 +101,85 @@ test("sidebar.createNote escape cancels", async () => {
   const { state } = store.current;
   expect(state.notes).toHaveLength(0);
   expect(state.ui.sidebar.input).toBe(undefined);
+});
+
+test("sidebar.collapseAll", async () => {
+  const notes = [
+    createNote({
+      id: "1",
+      name: "bar",
+      children: [
+        createNote({
+          id: "2",
+          name: "baz",
+          children: [createNote({ id: "3", name: "nested-2" })],
+        }),
+      ],
+    }),
+    createNote({ id: "4", name: "foo" }),
+  ];
+
+  const { result: store } = renderHook(() =>
+    useStore(
+      createState({
+        notes,
+        ui: {
+          sidebar: {
+            expanded: ["1", "2"],
+          },
+          editor: {},
+          focused: [],
+        },
+      })
+    )
+  );
+
+  const res = render(<Sidebar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("sidebar.collapseAll");
+  });
+
+  const { state } = store.current;
+
+  expect(state.ui.sidebar.expanded).toEqual([]);
+});
+
+test("sidebar.expandAll", async () => {
+  const notes = [
+    createNote({
+      name: "bar",
+      children: [
+        createNote({
+          name: "baz",
+          children: [createNote({ name: "nested-2" })],
+        }),
+      ],
+    }),
+    createNote({ name: "foo" }),
+  ];
+
+  const { result: store } = renderHook(() =>
+    useStore(
+      createState({
+        notes,
+        ui: {
+          sidebar: {
+            expanded: [],
+          },
+          editor: {},
+          focused: [],
+        },
+      })
+    )
+  );
+
+  const res = render(<Sidebar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("sidebar.expandAll");
+  });
+
+  const { state } = store.current;
+  const expanded = [notes[0]!.id, notes?.[0].children?.[0].id];
+
+  expect(state.ui.sidebar.expanded).toEqual(expanded);
 });

@@ -133,6 +133,8 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
     store.on("sidebar.dragNote", dragNote);
     store.on("sidebar.moveNoteToTrash", moveNoteToTrash);
     store.on("sidebar.setSearchString", setSearchString);
+    store.on("sidebar.collapseAll", collapseAll);
+    store.on("sidebar.expandAll", expandAll);
 
     return () => {
       store.off("sidebar.resizeWidth", resizeWidth);
@@ -158,6 +160,8 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       store.off("sidebar.dragNote", dragNote);
       store.off("sidebar.moveNoteToTrash", moveNoteToTrash);
       store.off("sidebar.setSearchString", setSearchString);
+      store.off("sidebar.collapseAll", collapseAll);
+      store.off("sidebar.expandAll", expandAll);
     };
   }, [itemIds, sidebar, store]);
 
@@ -650,6 +654,24 @@ export const setSearchString: Listener<"sidebar.setSearchString"> = async (
   ctx.setUI({
     sidebar: {
       searchString,
+    },
+  });
+};
+
+export const expandAll: Listener<"sidebar.expandAll"> = async (_, ctx) => {
+  const { notes } = ctx.getState();
+  const flattened = flatten(notes);
+  ctx.setUI({
+    sidebar: {
+      expanded: flattened.filter((n) => !isEmpty(n.children)).map((n) => n.id),
+    },
+  });
+};
+
+export const collapseAll: Listener<"sidebar.collapseAll"> = async (_, ctx) => {
+  ctx.setUI({
+    sidebar: {
+      expanded: [],
     },
   });
 };
