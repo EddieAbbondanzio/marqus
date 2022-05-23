@@ -138,7 +138,6 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
   };
 
   const onBlur = () => {
-    console.log("BLUR DETECTED!");
     if (isBlank(props.value.value)) {
       cancel();
     } else {

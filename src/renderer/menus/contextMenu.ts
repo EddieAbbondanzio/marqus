@@ -55,8 +55,6 @@ export function useContextMenu(store: Store): void {
       if (isDevelopment()) {
         const { x, y } = (ev.target as HTMLElement).getBoundingClientRect();
 
-        console.log("x ", x, " y ", y);
-
         items.push({
           type: "separator",
         });
