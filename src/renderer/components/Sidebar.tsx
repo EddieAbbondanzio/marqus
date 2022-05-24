@@ -22,11 +22,14 @@ import { SIDEBAR_MENU_HEIGHT, SidebarMenu, SidebarInput } from "./SidebarMenu";
 import {
   faChevronDown,
   faChevronRight,
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
 import { caseInsensitiveCompare } from "../../shared/utils";
 import { filterOutStaleNoteIds } from "../../shared/domain/ui";
+import { Icon } from "./shared/Icon";
+import { SidebarControls } from "./SidebarControls";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -173,6 +176,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
     >
       <Focusable store={store} name="sidebar">
         <SidebarSearch store={store} />
+        <SidebarControls store={store} />
 
         <Scrollable
           height="calc(100% - 52px)"

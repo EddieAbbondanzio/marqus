@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { px } from "../../shared/dom";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
-import { px1, px3, THEME, w100 } from "../css";
+import { m1, mx1, px1, px3, THEME, w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -66,13 +66,13 @@ const StyledFocusable = styled(Focusable)`
 const SearchIcon = styled(Icon)`
   position: absolute;
   color: ${THEME.sidebar.search.icon};
-  left: 16px;
+  left: 0.5rem;
 `;
 
 const DeleteIcon = styled(Icon)`
   position: absolute;
   color: ${THEME.sidebar.search.deleteIcon};
-  right: 16px;
+  right: 0.5rem;
   cursor: pointer;
 `;
 
@@ -84,5 +84,5 @@ const SearchInput = styled(BorderlessInput)`
   padding-left: 32px;
   padding-right: 32px;
   border-radius: 4px;
-  margin: 8px;
+  ${m1}
 `;
