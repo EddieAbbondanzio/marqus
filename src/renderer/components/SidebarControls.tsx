@@ -54,8 +54,14 @@ interface SidebarButtonProps {
 }
 
 export function SidebarButton(props: SidebarButtonProps) {
+  const onClick = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+    // Stop prop otherwise we'll mess up switching focus
+    ev.stopPropagation();
+    props.onClick();
+  };
+
   return (
-    <a title={props.title} onClick={props.onClick}>
+    <a title={props.title} onClick={onClick}>
       <StyledIcon icon={props.icon} />
     </a>
   );

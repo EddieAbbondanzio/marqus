@@ -7,7 +7,7 @@ import {
   touch,
   writeFile,
 } from "../fileSystem";
-import { NotFoundError } from "../../shared/errors";
+import { InvalidOpError, NotFoundError } from "../../shared/errors";
 import {
   createNote,
   getNoteById,
@@ -40,12 +40,7 @@ export async function loadNotes(config: Config): Promise<Note[]> {
       continue;
     }
 
-    const metadataPath = getPathInDataDirectory(
-      config,
-      NOTES_DIRECTORY,
-      entry.name,
-      METADATA_FILE_NAME
-    );
+    const metadataPath = buildNotePath(config, entry.name, "metadata");
     const meta = await readFile(metadataPath, "json");
 
     const note = createNote({
@@ -58,7 +53,8 @@ export async function loadNotes(config: Config): Promise<Note[]> {
       note.dateUpdated = moment(meta.dateUpdated).toDate();
     }
 
-    // Don't build tree until end. We might not have loaded parent yet.
+    // We don't add children until every note has been loaded because there's a
+    // chance children will be loaded before their parent.
     notes.push(note);
   }
 
@@ -106,12 +102,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle("notes.updateMetadata", async (id, props) => {
     await assertNoteExists(config, id);
 
-    const metadataPath = getPathInDataDirectory(
-      config,
-      NOTES_DIRECTORY,
-      id,
-      METADATA_FILE_NAME
-    );
+    const metadataPath = buildNotePath(config, id, "metadata");
     const meta = await readFile(metadataPath, "json");
 
     if (props.name != null) {
@@ -156,8 +147,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, n.id);
-
+      const notePath = buildNotePath(config, note.id);
       await deleteDirectory(notePath);
 
       for (const child of n.children ?? []) {
@@ -172,8 +162,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = getPathInDataDirectory(config, NOTES_DIRECTORY, n.id);
-
+      const notePath = buildNotePath(config, note.id);
       await shell.trashItem(notePath);
 
       for (const child of n.children ?? []) {
@@ -209,18 +198,9 @@ export async function saveToFileSystem(
     await createDirectory(dirPath);
   }
 
-  const metadataPath = getPathInDataDirectory(
-    config,
-    NOTES_DIRECTORY,
-    note.id,
-    METADATA_FILE_NAME
-  );
-  const markdownPath = getPathInDataDirectory(
-    config,
-    NOTES_DIRECTORY,
-    note.id,
-    MARKDOWN_FILE_NAME
-  );
+  const metadataPath = buildNotePath(config, note.id, "metadata");
+  const markdownPath = buildNotePath(config, note.id, "markdown");
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { type, ...metadata } = note;
 
@@ -232,12 +212,7 @@ export async function loadMarkdown(
   config: Config,
   noteId: string
 ): Promise<string | null> {
-  const markdownPath = getPathInDataDirectory(
-    config,
-    NOTES_DIRECTORY,
-    noteId,
-    MARKDOWN_FILE_NAME
-  );
+  const markdownPath = buildNotePath(config, noteId, "markdown");
   return (await readFile(markdownPath, "text")) ?? "";
 }
 export async function saveMarkdown(
@@ -245,12 +220,36 @@ export async function saveMarkdown(
   noteId: string,
   content: string
 ): Promise<void> {
-  const markdownPath = getPathInDataDirectory(
-    config,
-    NOTES_DIRECTORY,
-    noteId,
-    MARKDOWN_FILE_NAME
-  );
-
+  const markdownPath = buildNotePath(config, noteId, "markdown");
   return await writeFile(markdownPath, content, "text");
+}
+
+export function buildNotePath(
+  config: Config,
+  noteId: string,
+  file?: "markdown" | "metadata"
+): string {
+  if (file == null) {
+    return getPathInDataDirectory(config, NOTES_DIRECTORY, noteId);
+  }
+
+  switch (file) {
+    case "markdown":
+      return getPathInDataDirectory(
+        config,
+        NOTES_DIRECTORY,
+        noteId,
+        MARKDOWN_FILE_NAME
+      );
+    case "metadata":
+      return getPathInDataDirectory(
+        config,
+        NOTES_DIRECTORY,
+        noteId,
+        METADATA_FILE_NAME
+      );
+
+    default:
+      throw new InvalidOpError(`Can't build path for ${file}`);
+  }
 }

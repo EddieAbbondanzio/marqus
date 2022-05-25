@@ -4,19 +4,22 @@ import { idSchema, Resource, resourceId } from ".";
 import { isBlank } from "../utils";
 import { chain, isEmpty } from "lodash";
 
-export enum NoteFlag {
-  None,
-  Favorited = 1 << 1,
-  Trashed = 1 << 2,
-  UnsavedChanges = 1 << 3,
+export enum NoteSortingAlgo {
+  Alphanumeric = "alphanumeric",
+  AlphanumericReversed = "alphanumericReversed",
+  DateCreated = "dateCreated",
+  DateCreatedReversed = "dateCreatedReversed",
+  DateModified = "dateModified",
+  DateModifiedReversed = "dateModifiedReversed",
+  Manual = "manual",
 }
 
 export interface Note extends Resource<"note"> {
   name: string;
   tags?: string[];
-  flags?: NoteFlag;
   parent?: string;
   children?: Note[];
+  sort?: NoteSortingAlgo;
 }
 
 export function createNote(props: Partial<Note> & { name: string }): Note {
@@ -57,6 +60,7 @@ export function getNoteSchema(): yup.SchemaOf<Note> {
       flags: yup.number(),
       dateCreated: yup.date().required(),
       dateUpdated: yup.date().optional(),
+      sort: yup.mixed().optional().oneOf(Object.values(NoteSortingAlgo)),
     })
     .defined();
 }

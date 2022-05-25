@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { px } from "../../shared/dom";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
-import { m1, mx1, px1, px3, THEME, w100 } from "../css";
+import { m1, mt1, mx1, px1, px3, THEME, w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -61,6 +61,7 @@ const StyledFocusable = styled(Focusable)`
   flex-direction: row;
   align-items: center;
   position: relative;
+  ${mt1}
 `;
 
 const SearchIcon = styled(Icon)`
