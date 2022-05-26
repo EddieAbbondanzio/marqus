@@ -1,4 +1,5 @@
 import { Shortcut } from "../domain/shortcut";
+import { Section } from "../domain/ui";
 import { KeyCode, sortKeyCodes } from "./keyCode";
 
 export const COMMON_KEY_COMBOS = {
@@ -38,7 +39,7 @@ const shortcuts: Shortcut[] = [
   {
     name: "sidebar.focus",
     event: "focus.push",
-    eventInput: "sidebar",
+    eventInput: Section.Sidebar,
     keys: [KeyCode.Control, KeyCode.Digit1],
   },
   {
@@ -49,60 +50,60 @@ const shortcuts: Shortcut[] = [
   {
     name: "sidebar.focusSearch",
     event: "focus.push",
-    eventInput: ["sidebarSearch", "sidebar"],
+    eventInput: [Section.SidebarSearch, Section.Sidebar],
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterF],
   },
   {
     name: "sidebar.scrollDown",
     event: "sidebar.scrollDown",
     keys: COMMON_KEY_COMBOS.scrollDown,
-    when: "sidebar",
+    when: Section.Sidebar,
     repeat: true,
   },
   {
     name: "sidebar.scrollUp",
     event: "sidebar.scrollUp",
     keys: COMMON_KEY_COMBOS.scrollUp,
-    when: "sidebar",
+    when: Section.Sidebar,
     repeat: true,
   },
   {
     name: "sidebar.moveSelectionUp",
     event: "sidebar.moveSelectionUp",
     keys: [KeyCode.ArrowUp],
-    when: "sidebar",
+    when: Section.Sidebar,
     repeat: true,
   },
   {
     name: "sidebar.moveSelectionDown",
     event: "sidebar.moveSelectionDown",
     keys: [KeyCode.ArrowDown],
-    when: "sidebar",
+    when: Section.Sidebar,
     repeat: true,
   },
   {
     name: "editor.loadSelectedNote",
     event: "editor.loadSelectedNote",
     keys: [KeyCode.Enter],
-    when: "sidebar",
+    when: Section.Sidebar,
   },
   {
     name: "sidebar.deleteSelectedNote",
     event: "sidebar.deleteSelectedNote",
     keys: [KeyCode.Delete],
-    when: "sidebar",
+    when: Section.Sidebar,
   },
   {
     name: "sidebar.clearSelection",
     event: "sidebar.clearSelection",
     keys: [KeyCode.Escape],
-    when: "sidebar",
+    when: Section.Sidebar,
   },
   {
     name: "sidebar.toggleItemExpanded",
     event: "sidebar.toggleItemExpanded",
     keys: [KeyCode.Space],
-    when: "sidebar",
+    when: Section.Sidebar,
   },
 
   // Editor

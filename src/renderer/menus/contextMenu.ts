@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { NoteSort } from "../../shared/domain/note";
 import { Menu } from "../../shared/domain/ui";
 import { isDevelopment } from "../../shared/env";
 import { getFocusableAttribute } from "../components/shared/Focusable";
@@ -49,6 +50,40 @@ export function useContextMenu(store: Store): void {
               shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
             }
           );
+        }
+
+        if (sidebarMenu == null) {
+          items.push({
+            label: "Sort notes by",
+            children: [
+              {
+                label: "A - Z",
+                event: "sidebar.sortNotes",
+                type: "radio",
+                checked: true,
+                eventInput: { sort: NoteSort.Alphanumeric },
+              },
+              { label: "Z - A", event: "app.reload" },
+              { label: "Newest", event: "app.reload" },
+              { label: "Oldest", event: "app.reload" },
+              { label: "Last Modified", event: "app.reload" },
+              { label: "First Modified", event: "app.reload" },
+              { label: "Manual", event: "app.reload" },
+            ],
+          });
+        } else {
+          items.push({
+            label: "Sort children by",
+            children: [
+              { label: "Alphanumeric", event: "app.reload" },
+              { label: "Alphanumeric reversed", event: "app.reload" },
+              { label: "Date created", event: "app.reload" },
+              { label: "Date created reversed", event: "app.reload" },
+              { label: "Date updated", event: "app.reload" },
+              { label: "Date updated reversed", event: "app.reload" },
+              { label: "Manual", event: "app.reload" },
+            ],
+          });
         }
 
         items.push({

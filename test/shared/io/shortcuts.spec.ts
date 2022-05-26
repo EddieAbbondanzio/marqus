@@ -5,7 +5,7 @@ import {
   useShortcuts,
 } from "../../../src/renderer/io/shortcuts";
 import { Shortcut } from "../../../src/shared/domain/shortcut";
-import { UI } from "../../../src/shared/domain/ui";
+import { Section, UI } from "../../../src/shared/domain/ui";
 import { KeyCode } from "../../../src/shared/io/keyCode";
 import * as Utils from "../../../src/shared/utils";
 import { createStore } from "../../__factories__/store";
@@ -37,7 +37,7 @@ test("useShortcuts dispatches shortcut", () => {
   expect(dispatch).not.toBeCalledWith("app.toggleSidebar");
 });
 
-test.each([undefined, ["sidebar"]])(
+test.each([undefined, [Section.Sidebar]])(
   "shouldExecute global (current focused: (%s)",
   (focused: any) => {
     const ui = {
@@ -48,10 +48,10 @@ test.each([undefined, ["sidebar"]])(
 );
 test("shouldExecute contextual", () => {
   const ui = {
-    focused: ["sidebar"],
+    focused: [Section.Sidebar],
   } as unknown as UI;
-  expect(shouldExecute(ui, "sidebar")).toBe(true);
-  expect(shouldExecute(ui, "editor")).toBe(false);
+  expect(shouldExecute(ui, Section.Sidebar)).toBe(true);
+  expect(shouldExecute(ui, Section.Editor)).toBe(false);
 });
 
 jest.useRealTimers();

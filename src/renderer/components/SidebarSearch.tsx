@@ -4,6 +4,7 @@ import OpenColor from "open-color";
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { px } from "../../shared/dom";
+import { Section } from "../../shared/domain/ui";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { m1, mt1, mx1, px1, px3, THEME, w100 } from "../css";
 import { Store } from "../store";
@@ -38,7 +39,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   return (
     <StyledFocusable
       store={props.store}
-      name="sidebarSearch"
+      name={Section.SidebarSearch}
       elementRef={inputRef}
       blurOnEsc={true}
     >

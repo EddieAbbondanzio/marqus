@@ -11,6 +11,7 @@ import { createState } from "../../__factories__/state";
 import React, { ReactNode } from "react";
 import * as store from "../../../src/renderer/store";
 import { createStore } from "../../__factories__/store";
+import { Section } from "../../../src/shared/domain/ui";
 
 function init(
   props: FocusableProps,
@@ -30,27 +31,29 @@ test("useFocusTracking detects clicks in focusables", async () => {
   const searchbar = await res.findByPlaceholderText("Type to search...");
   fireEvent.click(searchbar);
 
-  expect(s.dispatch).toBeCalledWith("focus.push", "sidebarSearch");
+  expect(s.dispatch).toBeCalledWith("focus.push", Section.SidebarSearch);
 });
 
 test("focusable sets attribute", () => {
   const s = createStore();
-  const res = init({ name: "sidebar", store: s }, "Hello World!");
+  const res = init({ name: Section.Sidebar, store: s }, "Hello World!");
   const div = res.getByText("Hello World!");
 
-  expect(div.getAttribute(FOCUSABLE_ATTRIBUTE)).toBe("sidebar");
+  expect(div.getAttribute(FOCUSABLE_ATTRIBUTE)).toBe(Section.Sidebar);
 });
 
 test.each([undefined, false, true])(
   "focusable focuses (focusOnRender %s)",
   (focusOnRender) => {
-    const store = createStore({ state: { ui: { focused: ["sidebar"] } } });
+    const store = createStore({
+      state: { ui: { focused: [Section.Sidebar] } },
+    });
     const el = { current: { focus: jest.fn() } } as React.MutableRefObject<any>;
     const onFocus = jest.fn();
 
     init(
       {
-        name: "sidebar",
+        name: Section.Sidebar,
         store: store,
         focusOnRender,
         elementRef: el,
@@ -72,12 +75,12 @@ test.each([undefined, false, true])(
 test.each([false, true])(
   "focusable blurs (focusOnRender %s)",
   (focusOnRender) => {
-    const store = createStore({ state: { ui: { focused: ["editor"] } } });
+    const store = createStore({ state: { ui: { focused: [Section.Editor] } } });
     const el = { current: { blur: jest.fn() } } as React.MutableRefObject<any>;
     const onBlur = jest.fn();
 
     const res = init({
-      name: "sidebar",
+      name: Section.Sidebar,
       store,
       focusOnRender,
       elementRef: el,
@@ -95,10 +98,10 @@ test.each([false, true])(
 );
 
 test("focusable only blurs when current has changed", async () => {
-  const store = createStore({ state: { ui: { focused: ["editor"] } } });
+  const store = createStore({ state: { ui: { focused: [Section.Editor] } } });
   const onBlur = jest.fn();
   const res = init({
-    name: "sidebar",
+    name: Section.Sidebar,
     store,
     onBlur,
   });
@@ -106,7 +109,7 @@ test("focusable only blurs when current has changed", async () => {
 
   onBlur.mockReset();
   res.rerender(
-    <Focusable name="sidebar" store={store} onBlur={onBlur}>
+    <Focusable name={Section.Sidebar} store={store} onBlur={onBlur}>
       Hello World!
     </Focusable>
   );
@@ -119,7 +122,7 @@ test.each([false, true])(
     const store = createStore();
     const res = init(
       {
-        name: "sidebar",
+        name: Section.Sidebar,
         store,
         blurOnEsc,
       },
@@ -141,32 +144,32 @@ test("wasInsideFocusable true", () => {
   const child = document.createElement("div");
   const focusable = document.createElement("div");
   focusable.appendChild(child);
-  focusable.setAttribute(FOCUSABLE_ATTRIBUTE, "sidebar");
+  focusable.setAttribute(FOCUSABLE_ATTRIBUTE, Section.Sidebar);
 
   const ev = { target: focusable } as unknown as Event;
-  expect(wasInsideFocusable(ev, "sidebar")).toBe(true);
+  expect(wasInsideFocusable(ev, Section.Sidebar)).toBe(true);
 });
 
 test("wasInsideFocusable false", () => {
   const other = document.createElement("div");
   const focusable = document.createElement("div");
-  focusable.setAttribute(FOCUSABLE_ATTRIBUTE, "sidebar");
+  focusable.setAttribute(FOCUSABLE_ATTRIBUTE, Section.Sidebar);
 
   const ev = { target: other } as unknown as Event;
-  expect(wasInsideFocusable(ev, "sidebar")).toBe(false);
+  expect(wasInsideFocusable(ev, Section.Sidebar)).toBe(false);
 });
 
 test("getFocusableAttribute", () => {
   const focusable = document.createElement("div");
-  focusable.setAttribute(FOCUSABLE_ATTRIBUTE, "sidebar");
-  expect(getFocusableAttribute(focusable)).toBe("sidebar");
+  focusable.setAttribute(FOCUSABLE_ATTRIBUTE, Section.Sidebar);
+  expect(getFocusableAttribute(focusable)).toBe(Section.Sidebar);
 });
 
 test("getFocusableAttribute parent", () => {
   const child = document.createElement("div");
   const focusable = document.createElement("div");
   focusable.appendChild(child);
-  focusable.setAttribute(FOCUSABLE_ATTRIBUTE, "sidebar");
+  focusable.setAttribute(FOCUSABLE_ATTRIBUTE, Section.Sidebar);
 
-  expect(getFocusableAttribute(child)).toBe("sidebar");
+  expect(getFocusableAttribute(child)).toBe(Section.Sidebar);
 });

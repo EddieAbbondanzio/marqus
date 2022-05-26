@@ -29,7 +29,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
-import { filterOutStaleNoteIds } from "../../shared/domain/ui";
+import { filterOutStaleNoteIds, Section } from "../../shared/domain/ui";
 import { Icon } from "./shared/Icon";
 import { SidebarControls } from "./SidebarControls";
 
@@ -173,7 +173,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       width={store.state.ui.sidebar.width}
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
-      <Focusable store={store} name="sidebar">
+      <Focusable store={store} name={Section.Sidebar}>
         <SidebarSearch store={store} />
         <SidebarControls store={store} />
 
@@ -419,7 +419,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
     expanded.push(parentId);
   }
 
-  ctx.focus(["sidebarInput"], { overwrite: true });
+  ctx.focus([Section.SidebarInput], { overwrite: true });
   ctx.setUI({
     sidebar: {
       input,
@@ -448,7 +448,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
         }
       });
 
-      ctx.focus(["editor"], { overwrite: true });
+      ctx.focus([Section.Editor], { overwrite: true });
       ctx.setUI({
         sidebar: {
           selected: [note.id],
@@ -487,7 +487,7 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
     },
     setExplorerInput(ctx)
   );
-  ctx.focus(["sidebarInput"]);
+  ctx.focus([Section.SidebarInput]);
   ctx.setUI({
     sidebar: {
       input,

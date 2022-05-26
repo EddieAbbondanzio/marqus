@@ -12,6 +12,7 @@ import {
   menuHasEvent,
   menuHasRole,
   UI,
+  isRadio,
 } from "../../shared/domain/ui";
 import * as yup from "yup";
 import { px } from "../../shared/dom";
@@ -37,6 +38,7 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
     );
     const menu = Menu.buildFromTemplate(template);
     menu.popup();
+    ``;
   });
 
   ipc.handle("app.setApplicationMenu", async (menus) => {
@@ -174,8 +176,11 @@ export function buildMenus(
     let t: MenuItemConstructorOptions;
     if (isSeperator(menu)) {
       t = { type: menu.type };
+    } else if (isRadio(menu)) {
+      t = { type: menu.type, checked: menu.checked, label: menu.label };
     } else {
       t = {
+        type: menuHasChildren(menu) ? "submenu" : "normal",
         label: menu.label,
         enabled: !(menu.disabled ?? false),
       };

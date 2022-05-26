@@ -1,5 +1,5 @@
 import { KeyCode } from "../io/keyCode";
-import { ALL_SECTIONS, UIEventType, UIEventInput, Section } from "./ui";
+import { UIEventType, UIEventInput, Section } from "./ui";
 import * as yup from "yup";
 
 /*
@@ -26,7 +26,7 @@ export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
   eventInput: yup.mixed().optional(),
   keys: yup.array(),
   disabled: yup.boolean().optional(),
-  when: yup.mixed().optional().oneOf(ALL_SECTIONS),
+  when: yup.mixed().optional().oneOf(Object.values(Section)),
   repeat: yup.bool().optional(),
   userDefined: yup.bool().optional(),
 });

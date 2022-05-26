@@ -9,13 +9,12 @@ export interface UI {
   focused: Section[];
 }
 
-export const ALL_SECTIONS = [
-  "sidebar",
-  "sidebarInput",
-  "sidebarSearch",
-  "editor",
-] as const;
-export type Section = typeof ALL_SECTIONS[number];
+export enum Section {
+  Sidebar = "sidebar",
+  SidebarInput = "sidebarInput",
+  SidebarSearch = "sidebarSearch",
+  Editor = "editor",
+}
 
 export interface Sidebar {
   searchString?: string;
@@ -35,7 +34,12 @@ export interface Editor {
   scroll: number;
 }
 
-export type Menu = ParentMenu | MenuWithEvent | MenuWithRole | MenuSeperator;
+export type Menu =
+  | ParentMenu
+  | MenuWithEvent
+  | MenuSeperator
+  | MenuWithRole
+  | RadioMenu;
 interface BaseMenu {
   label: string;
   disabled?: boolean;
@@ -49,8 +53,18 @@ export interface ParentMenu extends BaseMenu {
 export interface MenuWithRole extends BaseMenu {
   role: Electron.MenuItem["role"];
 }
+
 export interface MenuSeperator {
   type: "separator";
+}
+
+export interface RadioMenu<UIEvent extends UIEventType = UIEventType>
+  extends BaseMenu {
+  type: "radio";
+  checked?: boolean;
+  shortcut?: string;
+  event: UIEvent;
+  eventInput?: UIEventInput<UIEvent>;
 }
 
 export interface MenuWithEvent<UIEvent extends UIEventType = UIEventType>
@@ -68,6 +82,10 @@ export function isSeperator(m: Menu): m is MenuSeperator {
 export function menuHasChildren(menu: Menu): menu is ParentMenu {
   // eslint-disable-next-line no-prototype-builtins
   return menu.hasOwnProperty("children");
+}
+
+export function isRadio(m: Menu): m is RadioMenu {
+  return m.hasOwnProperty("type") && (m as any).type === "radio";
 }
 
 export function menuHasRole(menu: Menu): menu is MenuWithRole {
@@ -109,6 +127,7 @@ export interface UIEvents {
   "sidebar.clearSelection": void;
   "sidebar.collapseAll": void;
   "sidebar.expandAll": void;
+  "sidebar.sortNotes": { sort: NoteSort; parent?: string };
 
   "sidebar.deleteSelectedNote": void;
   "sidebar.toggleItemExpanded": string;

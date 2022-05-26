@@ -11,6 +11,7 @@ import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import { useMouseDrag } from "../io/mouse";
 import { findParent } from "../utils/findParent";
+import { Section } from "../../shared/domain/ui";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
 export const SIDEBAR_MENU_HEIGHT = 24;
@@ -51,7 +52,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
           props.onDrag(newParent);
         }
         // Drags that end outside of the sidebar should be considered cancels.
-        else if (wasInsideFocusable(drag.event, "sidebar")) {
+        else if (wasInsideFocusable(drag.event, Section.Sidebar)) {
           props.onDrag();
         }
       }
@@ -177,7 +178,7 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
     <Indented style={{ paddingLeft }}>
       <StyledFocusable
         store={props.store}
-        name="sidebarInput"
+        name={Section.SidebarInput}
         elementRef={inputRef}
         onBlur={onBlur}
       >

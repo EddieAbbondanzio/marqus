@@ -23,6 +23,16 @@ export enum NoteSort {
   Manual = "manual",
 }
 
+export const NOTE_SORT_LABELS: Record<NoteSort, string> = {
+  [NoteSort.Alphanumeric]: "A - Z",
+  [NoteSort.AlphanumericReversed]: "Z - A",
+  [NoteSort.DateCreated]: "Newest",
+  [NoteSort.DateCreatedReversed]: "Oldest",
+  [NoteSort.DateUpdated]: "Last Modified",
+  [NoteSort.DateUpdatedReversed]: "First Modified",
+  [NoteSort.Manual]: "Manual",
+};
+
 export const DEFAULT_NOTE_SORTING_ALGORITHM = NoteSort.Alphanumeric;
 
 /**

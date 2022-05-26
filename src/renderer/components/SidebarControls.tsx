@@ -41,8 +41,6 @@ export function SidebarControls(props: PropsWithChildren<SidebarControlProps>) {
         title="Collapse all"
         onClick={() => props.store.dispatch("sidebar.collapseAll")}
       />
-
-      <StyledIcon icon={faSort} title="Sort by" />
     </Container>
   );
 }

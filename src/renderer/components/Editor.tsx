@@ -1,6 +1,7 @@
 import { debounce, head, isEmpty } from "lodash";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
+import { Section } from "../../shared/domain/ui";
 import { InvalidOpError } from "../../shared/errors";
 import { Ipc } from "../../shared/ipc";
 import { w100, p2, m2 } from "../css";
@@ -49,7 +50,7 @@ export function Editor({ store }: EditorProps): JSX.Element {
   }, [store]);
 
   return (
-    <StyledFocusable store={store} name="editor" focusOnRender={false}>
+    <StyledFocusable store={store} name={Section.Editor} focusOnRender={false}>
       {content}
     </StyledFocusable>
   );
@@ -105,7 +106,7 @@ const loadNote: Listener<
   });
 
   if (ev.type === "editor.loadSelectedNote") {
-    ctx.focus(["editor"], { overwrite: true });
+    ctx.focus([Section.Editor], { overwrite: true });
   }
 };
 
