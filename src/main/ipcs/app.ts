@@ -25,6 +25,7 @@ import { IpcChannels, IpcPlugin } from "../../shared/ipc";
 import { isEmpty } from "lodash";
 import { InvalidOpError } from "../../shared/errors";
 import { openInBrowser } from "../utils";
+import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../shared/domain/note";
 
 export const UI_FILE = "ui.json";
 
@@ -140,6 +141,7 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
           hidden: false,
           width: px(300),
           scroll: 0,
+          sort: DEFAULT_NOTE_SORTING_ALGORITHM,
         },
         editor: {
           isEditting: false,

@@ -4,7 +4,11 @@ import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { useStore } from "../../../src/renderer/store";
 import { renderHook } from "@testing-library/react-hooks";
-import { createNote, flatten } from "../../../src/shared/domain/note";
+import {
+  createNote,
+  DEFAULT_NOTE_SORTING_ALGORITHM,
+  flatten,
+} from "../../../src/shared/domain/note";
 
 test("sidebar.createNote confirm", async () => {
   const { result: store } = renderHook(() => useStore(createState()));
@@ -126,6 +130,7 @@ test("sidebar.collapseAll", async () => {
         ui: {
           sidebar: {
             expanded: ["1", "2"],
+            sort: DEFAULT_NOTE_SORTING_ALGORITHM,
           },
           editor: {},
           focused: [],
@@ -165,6 +170,7 @@ test("sidebar.expandAll", async () => {
         ui: {
           sidebar: {
             expanded: [],
+            sort: DEFAULT_NOTE_SORTING_ALGORITHM,
           },
           editor: {},
           focused: [],

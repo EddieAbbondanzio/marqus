@@ -1,6 +1,7 @@
 import { DeepPartial } from "tsdef";
 import { State } from "../../src/renderer/store";
 import { px } from "../../src/shared/dom";
+import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../src/shared/domain/note";
 
 export function createState(partial?: DeepPartial<State>): State {
   const defaults: State = {
@@ -12,6 +13,7 @@ export function createState(partial?: DeepPartial<State>): State {
       sidebar: {
         scroll: 0,
         width: px(300),
+        sort: DEFAULT_NOTE_SORTING_ALGORITHM,
       },
       editor: {
         isEditting: false,

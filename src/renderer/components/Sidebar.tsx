@@ -12,6 +12,9 @@ import {
   getNoteById,
   getNoteSchema,
   flatten,
+  sortNotes,
+  DEFAULT_NOTE_SORTING_ALGORITHM,
+  getParents,
 } from "../../shared/domain/note";
 import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
 import { InvalidOpError, NotFoundError } from "../../shared/errors";
@@ -26,7 +29,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
-import { caseInsensitiveCompare } from "../../shared/utils";
 import { filterOutStaleNoteIds } from "../../shared/domain/ui";
 import { Icon } from "./shared/Icon";
 import { SidebarControls } from "./SidebarControls";
@@ -34,9 +36,6 @@ import { SidebarControls } from "./SidebarControls";
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
 const MIN_WIDTH = px(300);
-
-const NOTE_SORTER = caseInsensitiveCompare<Note>((n) => n.name);
-
 export interface SidebarProps {
   store: Store;
 }
@@ -286,7 +285,18 @@ export function renderMenus(
     flatIds.push(note.id);
 
     if (hasChildren && isExpanded) {
-      note.children = note.children?.sort(NOTE_SORTER);
+      // Use note.sort for children. If non defined, use next parent. Climb
+      // parent tree until we hit route then default to using global sort.
+      let sortToUse = note.sort;
+      const parents = getParents(note, notes);
+      for (const p of parents) {
+        sortToUse = p.sort;
+        if (sortToUse != null) {
+          break;
+        }
+      }
+
+      note.children = sortNotes(note.children!, DEFAULT_NOTE_SORTING_ALGORITHM);
       note.children?.forEach((n) => recursive(n, currDepth + 1));
     }
 
@@ -303,7 +313,7 @@ export function renderMenus(
     }
   };
 
-  notes = notes?.sort(NOTE_SORTER);
+  notes = sortNotes(notes, store.state.ui.sidebar.sort);
   notes.forEach((n) => recursive(n));
 
   if (input != null && input.parentId == null && input.id == null) {

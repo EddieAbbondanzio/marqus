@@ -1,7 +1,7 @@
 import { Point } from "electron";
 import { keyBy, isEmpty } from "lodash";
 import { PromisedInput } from "../promisedInput";
-import { Note } from "./note";
+import { Note, NoteSort } from "./note";
 
 export interface UI {
   sidebar: Sidebar;
@@ -25,6 +25,7 @@ export interface Sidebar {
   input?: PromisedInput;
   selected?: string[];
   expanded?: string[];
+  sort: NoteSort;
 }
 
 export interface Editor {

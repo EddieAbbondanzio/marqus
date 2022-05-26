@@ -14,13 +14,13 @@ import {
   getNoteSchema,
   Note,
 } from "../../shared/domain/note";
-import moment from "moment";
 import { UUID_REGEX } from "../../shared/domain";
 import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
 import { keyBy, partition } from "lodash";
 import { IpcPlugin } from "../../shared/ipc";
 import { shell } from "electron";
+import { parseJSON } from "date-fns";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
@@ -44,13 +44,13 @@ export async function loadNotes(config: Config): Promise<Note[]> {
     const meta = await readFile(metadataPath, "json");
 
     const note = createNote({
-      dateCreated: moment(meta.dateCreated).toDate(),
+      dateCreated: parseJSON(meta.dateCreated),
       ...meta,
     });
     await getNoteSchema().validate(note);
 
     if (meta.dateUpdated != null) {
-      note.dateUpdated = moment(meta.dateUpdated).toDate();
+      note.dateUpdated = parseJSON(meta.dateUpdated);
     }
 
     // We don't add children until every note has been loaded because there's a

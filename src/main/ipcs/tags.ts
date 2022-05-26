@@ -5,9 +5,9 @@ import {
 } from "../fileHandler";
 import * as yup from "yup";
 import { createTag, getTagSchema, Tag } from "../../shared/domain/tag";
-import moment from "moment";
 import { Config } from "../../shared/domain/config";
 import { IpcPlugin } from "../../shared/ipc";
+import { parseJSON } from "date-fns";
 
 const TAG_FILE = "tags.json";
 
@@ -79,9 +79,9 @@ export function getTagFileHandler(config: Config): FileHandler<Tag[]> {
         ...props,
       } as Tag;
 
-      tag.dateCreated = moment(dateCreated).toDate();
+      tag.dateCreated = parseJSON(dateCreated);
       if (dateUpdated != null) {
-        tag.dateUpdated = moment(dateUpdated).toDate();
+        tag.dateUpdated = parseJSON(dateUpdated);
       }
 
       return tag;

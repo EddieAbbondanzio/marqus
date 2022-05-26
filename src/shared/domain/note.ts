@@ -2,24 +2,71 @@ import { InvalidOpError, NotFoundError } from "../errors";
 import * as yup from "yup";
 import { idSchema, Resource, resourceId } from ".";
 import { isBlank } from "../utils";
-import { chain, isEmpty } from "lodash";
-
-export enum NoteSortingAlgo {
-  Alphanumeric = "alphanumeric",
-  AlphanumericReversed = "alphanumericReversed",
-  DateCreated = "dateCreated",
-  DateCreatedReversed = "dateCreatedReversed",
-  DateModified = "dateModified",
-  DateModifiedReversed = "dateModifiedReversed",
-  Manual = "manual",
-}
+import { chain, isEmpty, orderBy, sortBy } from "lodash";
 
 export interface Note extends Resource<"note"> {
   name: string;
   tags?: string[];
   parent?: string;
   children?: Note[];
-  sort?: NoteSortingAlgo;
+  sort?: NoteSort;
+  sortIndex?: number;
+}
+
+export enum NoteSort {
+  Alphanumeric = "alphanumeric",
+  AlphanumericReversed = "alphanumericReversed",
+  DateCreated = "dateCreated",
+  DateCreatedReversed = "dateCreatedReversed",
+  DateUpdated = "dateModified",
+  DateUpdatedReversed = "dateUpdatedReversed",
+  Manual = "manual",
+}
+
+export const DEFAULT_NOTE_SORTING_ALGORITHM = NoteSort.Alphanumeric;
+
+/**
+ * Sort notes based on one of the sorting algorithms. Does not work recursively.
+ * @param notes The notes to sort.
+ * @param sort The algorithm to use.
+ * @returns The sorted notes.
+ */
+export function sortNotes(notes: Note[], sort: NoteSort): Note[] {
+  switch (sort) {
+    case NoteSort.Alphanumeric:
+      return notes.sort((a, b) =>
+        a.name
+          .toLowerCase()
+          .localeCompare(b.name.toLowerCase(), undefined, { numeric: true })
+      );
+
+    case NoteSort.AlphanumericReversed:
+      return notes.sort((a, b) =>
+        b.name
+          .toLowerCase()
+          .localeCompare(a.name.toLowerCase(), undefined, { numeric: true })
+      );
+
+    case NoteSort.DateCreated:
+      return orderBy(notes, ["dateCreated"], ["asc"]);
+
+    case NoteSort.DateCreatedReversed:
+      return orderBy(notes, ["dateCreated"], ["desc"]);
+
+    case NoteSort.DateUpdated:
+      // Use created date as tie breaker
+      return orderBy(notes, ["dateUpdated", "dateCreated"], ["asc", "asc"]);
+
+    case NoteSort.DateUpdatedReversed:
+      // Use created date as tie breaker
+      return orderBy(notes, ["dateUpdated", "dateCreated"], ["desc", "desc"]);
+
+    case NoteSort.Manual:
+      return orderBy(notes, ["sortIndex"]);
+
+    default:
+      throw new InvalidOpError(`Invalid note sorting algorithm: ${sort}`);
+  }
 }
 
 export function createNote(props: Partial<Note> & { name: string }): Note {
@@ -60,11 +107,17 @@ export function getNoteSchema(): yup.SchemaOf<Note> {
       flags: yup.number(),
       dateCreated: yup.date().required(),
       dateUpdated: yup.date().optional(),
-      sort: yup.mixed().optional().oneOf(Object.values(NoteSortingAlgo)),
+      sort: yup.mixed().optional().oneOf(Object.values(NoteSort)),
     })
     .defined();
 }
 
+/**
+ * Recursively search for a note based on it's id.
+ * @param notes The notes to look through.
+ * @param id The id of the note to find.
+ * @param required If we expect to find the note and should error otherwise.
+ */
 export function getNoteById(notes: Note[], id: string, required?: true): Note;
 export function getNoteById(
   notes: Note[],
@@ -96,6 +149,11 @@ export function getNoteById(
   }
 }
 
+/**
+ * Flatten a hierarchy of notes into a 1d array.
+ * @param notes Tree of notes
+ * @returns All of the notes flattened into one array.
+ */
 export function flatten(notes: Note[]): Note[] {
   const flatNotes = [];
 
@@ -116,4 +174,36 @@ export function flatten(notes: Note[]): Note[] {
   }
 
   return flatNotes;
+}
+
+/**
+ * Generate an array containing every parent of a note in order from closest ->
+ * furthest.
+ * @param note The note to get parents for.
+ * @param notes Collection of every note.
+ * @returns An array of all the parents.
+ */
+export function getParents(note: Note, notes: Note[]): Note[] {
+  const flat = flatten(notes);
+  const parents = [];
+  const next = [note];
+  for (let i = 0; i < next.length; i++) {
+    const n = next[i];
+    let p;
+
+    if (n.parent != null) {
+      p = flat.find((p) => p.id === n.parent);
+
+      if (p == null) {
+        throw new NotFoundError(
+          `Could not find parent note with id ${n.parent}.`
+        );
+      }
+
+      next.push(p);
+      parents.push(p);
+    }
+  }
+
+  return parents;
 }
