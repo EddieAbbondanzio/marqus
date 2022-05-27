@@ -62,7 +62,7 @@ export interface IpcMainTS {
 
 export type IpcPlugin = (ipc: IpcMainTS, config: Config) => void;
 
-export enum IpcChannels {
+export enum IpcChannel {
   ApplicationMenuClick = "applicationmenuclick",
   ContextMenuClick = "contextmenuclick",
 }

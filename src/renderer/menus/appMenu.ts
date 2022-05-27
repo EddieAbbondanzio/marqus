@@ -19,9 +19,11 @@ export function useApplicationMenu(store: Store): void {
     if (isDevelopment()) {
       optionals.push({
         label: "&Developer",
+        type: "submenu",
         children: [
           {
             label: "Open dev tools",
+            type: "normal",
             shortcut: shortcutLabels["app.openDevTools"],
             event: "app.openDevTools",
           },
@@ -32,14 +34,17 @@ export function useApplicationMenu(store: Store): void {
     void window.ipc("app.setApplicationMenu", [
       {
         label: "&File",
+        type: "submenu",
         children: [
           {
             label: isEditting ? "Stop editting" : "Edit",
+            type: "normal",
             shortcut: shortcutLabels["editor.toggleView"],
             event: "editor.toggleView",
           },
           {
             label: "Delete note",
+            type: "normal",
             shortcut: shortcutLabels["sidebar.deleteNote"],
             event: "sidebar.deleteNote",
             eventInput: selected,
@@ -47,6 +52,7 @@ export function useApplicationMenu(store: Store): void {
           },
           {
             label: "Move note to trash",
+            type: "normal",
             shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
             event: "sidebar.moveNoteToTrash",
             eventInput: selected,
@@ -54,11 +60,13 @@ export function useApplicationMenu(store: Store): void {
           },
           {
             label: "Open data directory",
+            type: "normal",
             shortcut: shortcutLabels["app.openDataDirectory"],
             event: "app.openDataDirectory",
           },
           {
             label: "Change data directory",
+            type: "normal",
             shortcut: shortcutLabels["app.selectDataDirectory"],
             event: "app.selectDataDirectory",
           },
@@ -67,11 +75,13 @@ export function useApplicationMenu(store: Store): void {
           },
           {
             label: "Reload",
+            type: "normal",
             shortcut: shortcutLabels["app.reload"],
             event: "app.reload",
           },
           {
             label: "Quit",
+            type: "normal",
             shortcut: shortcutLabels["app.quit"],
             event: "app.quit",
           },
@@ -79,19 +89,23 @@ export function useApplicationMenu(store: Store): void {
       },
       {
         label: "&Edit",
+        type: "submenu",
         children: [
           {
             label: "Cut",
+            type: "normal",
             role: "cut",
             disabled: focused !== "editor",
           },
           {
             label: "Copy",
+            type: "normal",
             role: "copy",
             disabled: focused !== "editor",
           },
           {
             label: "Paste",
+            type: "normal",
             role: "paste",
             disabled: focused !== "editor",
           },
@@ -99,14 +113,17 @@ export function useApplicationMenu(store: Store): void {
       },
       {
         label: "&View",
+        type: "submenu",
         children: [
           {
             label: "Fullscreen",
+            type: "normal",
             shortcut: shortcutLabels["app.toggleFullScreen"],
             event: "app.toggleFullScreen",
           },
           {
             label: "Toggle sidebar",
+            type: "normal",
             shortcut: shortcutLabels["app.toggleSidebar"],
             event: "app.toggleSidebar",
           },

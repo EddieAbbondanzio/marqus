@@ -2,17 +2,16 @@ import {
   BrowserWindow,
   dialog,
   Menu,
+  MenuItem,
   MenuItemConstructorOptions,
   shell,
 } from "electron";
 import {
+  isRoleMenu,
   Menu as MenuType,
-  isSeperator,
-  menuHasChildren,
-  menuHasEvent,
-  menuHasRole,
   UI,
-  isRadio,
+  UIEventInput,
+  UIEventType,
 } from "../../shared/domain/ui";
 import * as yup from "yup";
 import { px } from "../../shared/dom";
@@ -22,8 +21,7 @@ import {
   getPathInDataDirectory,
 } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
-import { IpcChannels, IpcPlugin } from "../../shared/ipc";
-import { isEmpty } from "lodash";
+import { IpcChannel, IpcPlugin } from "../../shared/ipc";
 import { InvalidOpError } from "../../shared/errors";
 import { openInBrowser } from "../utils";
 import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../shared/domain/note";
@@ -34,7 +32,7 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle("app.showContextMenu", async (menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
-      IpcChannels.ContextMenuClick
+      IpcChannel.ContextMenuClick
     );
     const menu = Menu.buildFromTemplate(template);
     menu.popup();
@@ -44,7 +42,7 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle("app.setApplicationMenu", async (menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
-      IpcChannels.ApplicationMenuClick
+      IpcChannel.ApplicationMenuClick
     );
     const bw = BrowserWindow.getFocusedWindow();
     const menu = Menu.buildFromTemplate(template);
@@ -168,49 +166,61 @@ const appSchema = yup.object().shape({
 
 export function buildMenus(
   menus: MenuType[],
-  channel: IpcChannels
+  channel: IpcChannel
 ): MenuItemConstructorOptions[] {
+  // We don't listen for shortcuts in the application menu because we
+  // already listen for them in the renderer thread and this will cause
+  // them to fire twice.
+  const registerAccelerator = channel !== IpcChannel.ApplicationMenuClick;
+
   const template: MenuItemConstructorOptions[] = [];
 
   const recursive = (menu: MenuType, parent?: MenuItemConstructorOptions) => {
     let t: MenuItemConstructorOptions;
-    if (isSeperator(menu)) {
-      t = { type: menu.type };
-    } else if (isRadio(menu)) {
-      t = { type: menu.type, checked: menu.checked, label: menu.label };
-    } else {
-      t = {
-        type: menuHasChildren(menu) ? "submenu" : "normal",
-        label: menu.label,
-        enabled: !(menu.disabled ?? false),
-      };
-    }
 
-    if (menuHasRole(menu)) {
-      t.role = menu.role;
-      // shortcut will be defaulted from device settings.
-    }
+    switch (menu.type) {
+      case "separator":
+        t = { type: "separator" };
+        break;
 
-    // eslint-disable-next-line no-prototype-builtins
-    if (!menuHasChildren(menu) && menuHasEvent(menu)) {
-      t.click = (item, browserWindow, event) => {
-        // We don't listen for shortcuts in the application menu because we
-        // already listen for them in the renderer thread and this will cause
-        // them to fire twice.
-        if (
-          event.triggeredByAccelerator &&
-          channel === IpcChannels.ApplicationMenuClick
-        ) {
-          return;
+      case "normal":
+        t = {
+          label: menu.label,
+          type: "normal",
+          accelerator: menu.shortcut,
+          enabled: !menu.disabled,
+          registerAccelerator,
+        };
+
+        if (isRoleMenu(menu)) {
+          t.role = menu.role;
+        } else {
+          t.click = buildClickHandler(menu.event, menu.eventInput, channel);
+        }
+        break;
+
+      case "radio":
+        t = {
+          label: menu.label,
+          type: "radio",
+          accelerator: menu.shortcut,
+          enabled: !menu.disabled,
+          checked: menu.checked,
+          registerAccelerator,
+        };
+
+        if (!menu.checked) {
+          t.click = buildClickHandler(menu.event, menu.eventInput, channel);
         }
 
-        const bw = BrowserWindow.getFocusedWindow();
-        bw?.webContents.send(channel, {
-          event: menu.event,
-          eventInput: menu.eventInput,
-        });
-      };
-      t.accelerator = menu.shortcut;
+        break;
+
+      case "submenu":
+        t = {
+          label: menu.label,
+          type: "submenu",
+        };
+        break;
     }
 
     if (parent != null) {
@@ -220,7 +230,7 @@ export function buildMenus(
       template.push(t);
     }
 
-    if (menuHasChildren(menu) && !isEmpty(menu.children)) {
+    if (menu.type === "submenu") {
       for (const child of menu.children) {
         if ("hidden" in child && child.hidden) {
           continue;
@@ -239,4 +249,17 @@ export function buildMenus(
   }
 
   return template;
+}
+
+export function buildClickHandler<Ev extends UIEventType>(
+  event: Ev,
+  eventInput: UIEventInput<Ev>,
+  channel: IpcChannel
+): MenuItemConstructorOptions["click"] {
+  return (_, browserWindow) => {
+    browserWindow?.webContents.send(channel, {
+      event,
+      eventInput,
+    });
+  };
 }

@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { getProcessType, isDevelopment } from "../shared/env";
-import { Ipc, IpcChannels } from "../shared/ipc";
+import { Ipc, IpcChannel } from "../shared/ipc";
 
 if (getProcessType() === "main") {
   throw Error(
@@ -24,14 +24,14 @@ if (isDevelopment()) {
 }
 
 // Dispatch custom event to notify of application menu clicks
-ipcRenderer.on(IpcChannels.ApplicationMenuClick, (_, val: any) => {
+ipcRenderer.on(IpcChannel.ApplicationMenuClick, (_, val: any) => {
   const ev = new CustomEvent("applicationmenuclick", {
     detail: val,
   });
   window.dispatchEvent(ev);
 });
 
-ipcRenderer.on(IpcChannels.ContextMenuClick, (_, val: any) => {
+ipcRenderer.on(IpcChannel.ContextMenuClick, (_, val: any) => {
   const ev = new CustomEvent("contextmenuclick", {
     detail: val,
   });

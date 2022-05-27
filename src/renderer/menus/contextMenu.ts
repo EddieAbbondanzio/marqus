@@ -1,6 +1,13 @@
 import { useEffect, useMemo } from "react";
-import { NoteSort } from "../../shared/domain/note";
-import { Menu } from "../../shared/domain/ui";
+import { Note, NoteSort, NOTE_SORT_LABELS } from "../../shared/domain/note";
+import {
+  EventMenu,
+  Menu,
+  RadioMenu,
+  SubMenu,
+  UIEventInput,
+  UIEventType,
+} from "../../shared/domain/ui";
 import { isDevelopment } from "../../shared/env";
 import { getFocusableAttribute } from "../components/shared/Focusable";
 import { getSidebarMenuAttribute } from "../components/SidebarMenu";
@@ -13,7 +20,6 @@ export function useContextMenu(store: Store): void {
     () => getShortcutLabels(store.state.shortcuts),
     [store.state.shortcuts]
   );
-  const selected = store.state.ui.sidebar.selected?.[0];
   useEffect(() => {
     const showMenu = (ev: MouseEvent) => {
       // Right clicking won't trigger a focus change so we need to manually
@@ -25,6 +31,7 @@ export function useContextMenu(store: Store): void {
       if (focusable === "sidebar") {
         items.push({
           label: "New note",
+          type: "normal",
           event: "sidebar.createNote",
           eventInput: sidebarMenu,
         });
@@ -33,18 +40,21 @@ export function useContextMenu(store: Store): void {
           items.push(
             {
               label: "Rename note",
+              type: "normal",
               event: "sidebar.renameNote",
               eventInput: sidebarMenu,
               shortcut: shortcutLabels["sidebar.renameNote"],
             },
             {
               label: "Permanently delete",
+              type: "normal",
               event: "sidebar.deleteNote",
               eventInput: sidebarMenu,
               shortcut: shortcutLabels["sidebar.deleteNote"],
             },
             {
               label: "Move to trash",
+              type: "normal",
               event: "sidebar.moveNoteToTrash",
               eventInput: sidebarMenu,
               shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
@@ -52,50 +62,25 @@ export function useContextMenu(store: Store): void {
           );
         }
 
-        if (sidebarMenu == null) {
-          items.push({
-            label: "Sort notes by",
-            children: [
-              {
-                label: "A - Z",
-                event: "sidebar.sortNotes",
-                type: "radio",
-                checked: true,
-                eventInput: { sort: NoteSort.Alphanumeric },
-              },
-              { label: "Z - A", event: "app.reload" },
-              { label: "Newest", event: "app.reload" },
-              { label: "Oldest", event: "app.reload" },
-              { label: "Last Modified", event: "app.reload" },
-              { label: "First Modified", event: "app.reload" },
-              { label: "Manual", event: "app.reload" },
-            ],
-          });
-        } else {
-          items.push({
-            label: "Sort children by",
-            children: [
-              { label: "Alphanumeric", event: "app.reload" },
-              { label: "Alphanumeric reversed", event: "app.reload" },
-              { label: "Date created", event: "app.reload" },
-              { label: "Date created reversed", event: "app.reload" },
-              { label: "Date updated", event: "app.reload" },
-              { label: "Date updated reversed", event: "app.reload" },
-              { label: "Manual", event: "app.reload" },
-            ],
-          });
-        }
+        items.push(
+          buildSortSubMenu(
+            store.state.ui.sidebar.sort,
+            sidebarMenu ?? undefined
+          )
+        );
 
         items.push({
           type: "separator",
         });
         items.push({
           label: "Collapse all",
+          type: "normal",
           event: "sidebar.collapseAll",
           shortcut: shortcutLabels["sidebar.collapseAll"],
         });
         items.push({
           label: "Expand all",
+          type: "normal",
           event: "sidebar.expandAll",
           shortcut: shortcutLabels["sidebar.expandAll"],
         });
@@ -109,12 +94,14 @@ export function useContextMenu(store: Store): void {
         });
         items.push({
           label: "Inspect element",
+          type: "normal",
           event: "app.inspectElement",
           eventInput: { x, y },
           shortcut: shortcutLabels["app.inspectElement"],
         });
         items.push({
           label: "Open dev tools",
+          type: "normal",
           event: "app.openDevTools",
           shortcut: shortcutLabels["app.openDevTools"],
         });
@@ -127,7 +114,7 @@ export function useContextMenu(store: Store): void {
     return () => {
       window.removeEventListener("contextmenu", showMenu);
     };
-  }, [selected, shortcutLabels]);
+  }, [shortcutLabels, store.state]);
 
   useEffect(() => {
     const onClick = (ev: CustomEvent) => {
@@ -140,4 +127,24 @@ export function useContextMenu(store: Store): void {
       window.removeEventListener("contextmenuclick", onClick);
     };
   }, [store]);
+}
+
+function buildSortSubMenu(activeSort: NoteSort, note?: string): SubMenu {
+  const label = note ? "Sort children by" : "Sort notes by";
+
+  const children: RadioMenu<UIEventType>[] = Object.values(NoteSort).map(
+    (sort) => ({
+      label: NOTE_SORT_LABELS[sort],
+      type: "radio",
+      checked: activeSort === sort,
+      event: "sidebar.setNoteSort",
+      eventInput: { sort, note },
+    })
+  );
+
+  return {
+    label,
+    type: "submenu",
+    children,
+  };
 }

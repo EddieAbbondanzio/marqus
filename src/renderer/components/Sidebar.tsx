@@ -137,6 +137,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
     store.on("sidebar.setSearchString", setSearchString);
     store.on("sidebar.collapseAll", collapseAll);
     store.on("sidebar.expandAll", expandAll);
+    store.on("sidebar.setNoteSort", setNoteSort);
 
     return () => {
       store.off("sidebar.resizeWidth", resizeWidth);
@@ -164,6 +165,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       store.off("sidebar.setSearchString", setSearchString);
       store.off("sidebar.collapseAll", collapseAll);
       store.off("sidebar.expandAll", expandAll);
+      store.off("sidebar.setNoteSort", setNoteSort);
     };
   }, [itemIds, sidebar, store]);
 
@@ -688,6 +690,22 @@ export const collapseAll: Listener<"sidebar.collapseAll"> = async (_, ctx) => {
       expanded: [],
     },
   });
+};
+
+export const setNoteSort: Listener<"sidebar.setNoteSort"> = async (ev, ctx) => {
+  if (ev.value.note == null) {
+    ctx.setUI({
+      sidebar: {
+        sort: ev.value.sort ?? DEFAULT_NOTE_SORTING_ALGORITHM,
+      },
+    });
+  } else {
+    ctx.setNotes((notes) => {
+      const note = getNoteById(notes, ev.value.note!, true);
+      note.sort = ev.value.sort;
+      return [...notes];
+    });
+  }
 };
 
 function toggleExpanded(ctx: StoreContext, noteId: string): void {

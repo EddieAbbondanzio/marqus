@@ -35,68 +35,62 @@ export interface Editor {
 }
 
 export type Menu =
-  | ParentMenu
-  | MenuWithEvent
-  | MenuSeperator
-  | MenuWithRole
-  | RadioMenu;
-interface BaseMenu {
-  label: string;
-  disabled?: boolean;
-  hidden?: boolean;
-}
+  | Seperator
+  | SubMenu
+  | RoleMenu
+  | EventMenu<UIEventType>
+  | RadioMenu<UIEventType>;
 
-export interface ParentMenu extends BaseMenu {
-  children: Menu[];
-}
-
-export interface MenuWithRole extends BaseMenu {
-  role: Electron.MenuItem["role"];
-}
-
-export interface MenuSeperator {
+export interface Seperator extends BaseMenu {
   type: "separator";
 }
 
-export interface RadioMenu<UIEvent extends UIEventType = UIEventType>
-  extends BaseMenu {
+export interface SubMenu extends BaseMenu {
+  label: string;
+  type: "submenu";
+  children: Menu[];
+}
+
+export interface RoleMenu extends BaseMenu {
+  label: string;
+  type: "normal";
+  shortcut?: string;
+  disabled?: boolean;
+  role: Electron.MenuItem["role"];
+}
+
+export interface EventMenu<Ev extends UIEventType> extends BaseMenu {
+  label: string;
+  type: "normal";
+  shortcut?: string;
+  disabled?: boolean;
+  event: Ev;
+  eventInput?: UIEventInput<Ev>;
+}
+
+export interface RadioMenu<Ev extends UIEventType> extends BaseMenu {
+  label: string;
   type: "radio";
+  shortcut?: string;
   checked?: boolean;
-  shortcut?: string;
-  event: UIEvent;
-  eventInput?: UIEventInput<UIEvent>;
+  disabled?: boolean;
+  event: Ev;
+  eventInput?: UIEventInput<Ev>;
 }
 
-export interface MenuWithEvent<UIEvent extends UIEventType = UIEventType>
-  extends BaseMenu {
-  shortcut?: string;
-  event: UIEvent;
-  eventInput?: UIEventInput<UIEvent>;
+export interface BaseMenu {
+  type: Electron.MenuItem["type"];
+  hidden?: boolean;
 }
 
-export function isSeperator(m: Menu): m is MenuSeperator {
-  // eslint-disable-next-line no-prototype-builtins
-  return m.hasOwnProperty("type") && (m as any).type === "separator";
+export function isRoleMenu(m: Menu): m is RoleMenu {
+  if (m.type === "normal" && "role" in m) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
-export function menuHasChildren(menu: Menu): menu is ParentMenu {
-  // eslint-disable-next-line no-prototype-builtins
-  return menu.hasOwnProperty("children");
-}
-
-export function isRadio(m: Menu): m is RadioMenu {
-  return m.hasOwnProperty("type") && (m as any).type === "radio";
-}
-
-export function menuHasRole(menu: Menu): menu is MenuWithRole {
-  // eslint-disable-next-line no-prototype-builtins
-  return menu.hasOwnProperty("role");
-}
-
-export function menuHasEvent(menu: Menu): menu is MenuWithEvent {
-  // eslint-disable-next-line no-prototype-builtins
-  return menu.hasOwnProperty("event");
-}
 /*
  * Events are defined in shared so we can keep shortcuts and application menus
  * type safe.
@@ -127,7 +121,7 @@ export interface UIEvents {
   "sidebar.clearSelection": void;
   "sidebar.collapseAll": void;
   "sidebar.expandAll": void;
-  "sidebar.sortNotes": { sort: NoteSort; parent?: string };
+  "sidebar.setNoteSort": { sort: NoteSort; note?: string };
 
   "sidebar.deleteSelectedNote": void;
   "sidebar.toggleItemExpanded": string;
