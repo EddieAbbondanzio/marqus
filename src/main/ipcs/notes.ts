@@ -202,9 +202,8 @@ export async function saveToFileSystem(
   const markdownPath = buildNotePath(config, note.id, "markdown");
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { type, ...metadata } = note;
 
-  await writeFile(metadataPath, metadata, "json");
+  await writeFile(metadataPath, note, "json");
   await touch(markdownPath);
 }
 

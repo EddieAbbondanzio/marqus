@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from "react";
 import { px } from "../../shared/dom";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
-import { isResourceId } from "../../shared/domain";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, mh100, THEME, w100 } from "../css";
@@ -55,15 +54,6 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
     [notes, store, input, expandedLookup, selectedLookup]
   );
-
-  // Sanity check
-  if (input != null && input.parentId != null) {
-    if (!isResourceId(input.parentId)) {
-      throw new Error(
-        `Explorer input parent id must be a global id. Instead '${input.parentId}' was passed.`
-      );
-    }
-  }
 
   useEffect(() => {
     const getNext = (increment: number) => {
@@ -408,7 +398,6 @@ export const createNote: Listener<"sidebar.createNote"> = async (
     {
       schema,
       parentId: parentId ?? undefined,
-      resourceType: "note",
     },
     setExplorerInput(ctx)
   );
@@ -485,7 +474,6 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
       id,
       value,
       schema,
-      resourceType: "note",
     },
     setExplorerInput(ctx)
   );

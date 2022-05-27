@@ -1,10 +1,10 @@
 import { InvalidOpError, NotFoundError } from "../errors";
 import * as yup from "yup";
-import { idSchema, Resource, resourceId } from ".";
+import { uuidSchema, Resource, uuid } from ".";
 import { isBlank } from "../utils";
 import { chain, isEmpty, orderBy, sortBy } from "lodash";
 
-export interface Note extends Resource<"note"> {
+export interface Note extends Resource {
   name: string;
   tags?: string[];
   parent?: string;
@@ -88,8 +88,7 @@ export function createNote(props: Partial<Note> & { name: string }): Note {
     throw new InvalidOpError("Name is required.");
   }
 
-  note.id ??= resourceId("note");
-  note.type ??= "note";
+  note.id ??= uuid();
   note.dateCreated ??= new Date();
 
   if (!isEmpty(note.children)) {
@@ -105,8 +104,7 @@ export function getNoteSchema(): yup.SchemaOf<Note> {
   return yup
     .object()
     .shape({
-      id: idSchema,
-      type: yup.string().required().equals(["note"]),
+      id: uuidSchema,
       name: yup
         .string()
         .required("Name is required.")

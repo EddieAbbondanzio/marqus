@@ -70,12 +70,9 @@ export const useTagIpcs: IpcPlugin = (ipc, config) => {
 };
 
 export function getTagFileHandler(config: Config): FileHandler<Tag[]> {
-  const serialize = (c: Tag[]) => c.map(({ type, ...t }) => t);
-
   const deserialize = (c?: Omit<Tag, "type">[]) =>
     (c ?? []).map(({ dateCreated, dateUpdated, ...props }) => {
       const tag = {
-        type: "tag",
         ...props,
       } as Tag;
 
@@ -92,7 +89,6 @@ export function getTagFileHandler(config: Config): FileHandler<Tag[]> {
     yup.array(getTagSchema()).optional(),
     {
       defaultValue: [],
-      serialize,
       deserialize,
     }
   );

@@ -1,9 +1,9 @@
 import { InvalidOpError, NotFoundError } from "../errors";
 import * as yup from "yup";
-import { idSchema, Resource, resourceId } from ".";
+import { uuidSchema, Resource, uuid } from ".";
 import { isBlank } from "../utils";
 
-export interface Tag extends Resource<"tag"> {
+export interface Tag extends Resource {
   name: string;
 }
 
@@ -16,8 +16,7 @@ export function createTag(props: Partial<Tag>): Tag {
     throw new InvalidOpError("Name is required.");
   }
 
-  tag.id ??= resourceId("tag");
-  tag.type ??= "tag";
+  tag.id ??= uuid();
   tag.dateCreated ??= new Date();
 
   return tag;
@@ -27,8 +26,7 @@ export function getTagSchema(tags: Tag[] = []): yup.SchemaOf<Tag> {
   return yup
     .object()
     .shape({
-      id: idSchema,
-      type: yup.string().required().equals(["tag"]),
+      id: uuidSchema,
       name: yup
         .string()
         .required("Tag is required")
