@@ -29,7 +29,14 @@ export const THEME = {
   },
 };
 
-export const HEADER_SIZES = ["2.5rem", "2rem", "1.5rem", "1rem", "0.5rem"];
+export const HEADER_SIZES = [
+  "2.5rem",
+  "2rem",
+  "1.5rem",
+  "1.33rem",
+  "1.25rem",
+  "1rem",
+];
 
 export const rounded = css`
   border-radius: 0.2rem;

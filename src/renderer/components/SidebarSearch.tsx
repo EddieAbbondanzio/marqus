@@ -5,11 +5,10 @@ import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/domain/ui";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
-import { m1, mt1, mx1, px1, px3, THEME, w100 } from "../css";
+import { m1, mt1, mx1, pl0, px1, px3, py1, THEME, w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
-import { BorderlessInput } from "./shared/styled";
 import { SIDEBAR_MENU_HEIGHT } from "./SidebarMenu";
 
 export interface SidebarSearchProps {
@@ -77,7 +76,14 @@ const DeleteIcon = styled(Icon)`
   cursor: pointer;
 `;
 
-const SearchInput = styled(BorderlessInput)`
+const SearchInput = styled.input`
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  height: 20px;
+  font-size: 0.8rem;
+  ${pl0}
+  ${py1}
   ${w100};
   height: ${SIDEBAR_MENU_HEIGHT + 4}px;
   background-color: ${THEME.sidebar.search.background};

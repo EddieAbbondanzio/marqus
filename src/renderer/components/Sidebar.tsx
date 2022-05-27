@@ -3,7 +3,7 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, mh100, THEME, w100 } from "../css";
+import { h100, mh100, pl0, py1, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
 import {
   Note,

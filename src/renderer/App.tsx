@@ -16,7 +16,7 @@ import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
-import { h100, w100 } from "./css";
+import { h100, HEADER_SIZES, mb2, w100 } from "./css";
 
 const { ipc } = window;
 async function main() {
@@ -93,10 +93,43 @@ export function App(props: AppProps): JSX.Element {
 }
 
 const Container = styled.div`
-  ${h100};
+  ${h100}
   ${w100}
   display: flex;
   flex-direction: row;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    ${mb2}
+  }
+
+  h1 {
+    font-size: ${HEADER_SIZES[0]};
+  }
+
+  h2 {
+    font-size: ${HEADER_SIZES[1]};
+  }
+
+  h3 {
+    font-size: ${HEADER_SIZES[2]};
+  }
+
+  h4 {
+    font-size: ${HEADER_SIZES[3]};
+  }
+
+  h5 {
+    font-size: ${HEADER_SIZES[4]};
+  }
+
+  h6 {
+    font-size: ${HEADER_SIZES[5]};
+  }
 `;
 
 async function loadInitialState(): Promise<State> {

@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { mb3 } from "../css";
 import { Store } from "../store";
 import { Button } from "./shared/Button";
-import { Header } from "./shared/Header";
 import { Modal } from "./shared/Modal";
 
 export interface DataDirectoryModalProps {
@@ -17,7 +16,7 @@ export function DataDirectoryModal({
   return (
     <Modal>
       <Content>
-        <Header size={1}>Welcome!</Header>
+        <h1>Welcome!</h1>
         <StyledP>
           Please select where you'd like to save your notes to get started
         </StyledP>
