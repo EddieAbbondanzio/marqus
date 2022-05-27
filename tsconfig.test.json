@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
+    "target": "es2015",
     "allowJs": true,
-    "target": "es5", // Don't change or else it will break things
     "jsx": "react",
     "module": "commonjs",
     "skipLibCheck": true,

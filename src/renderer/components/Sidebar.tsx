@@ -558,7 +558,8 @@ export const deleteNote: Listener<
       return notes;
     });
 
-    ctx.setUI((ui) => filterOutStaleNoteIds(ui, notes));
+    const updatedNotes = ctx.getState().notes;
+    ctx.setUI((ui) => filterOutStaleNoteIds(ui, updatedNotes));
   }
 };
 

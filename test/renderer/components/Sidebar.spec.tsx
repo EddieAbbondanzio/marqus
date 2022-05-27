@@ -7,8 +7,11 @@ import { renderHook } from "@testing-library/react-hooks";
 import {
   createNote,
   DEFAULT_NOTE_SORTING_ALGORITHM,
-  flatten,
 } from "../../../src/shared/domain/note";
+import * as prompt from "../../../src/renderer/utils/prompt";
+import { Section } from "../../../src/shared/domain/ui";
+
+const promptConfirmAction = jest.spyOn(prompt, "promptConfirmAction");
 
 test("sidebar.createNote confirm", async () => {
   const { result: store } = renderHook(() => useStore(createState()));
@@ -105,6 +108,88 @@ test("sidebar.createNote escape cancels", async () => {
   const { state } = store.current;
   expect(state.notes).toHaveLength(0);
   expect(state.ui.sidebar.input).toBe(undefined);
+});
+
+test("sidebar.deleteNote", async () => {
+  const { result: store } = renderHook(() =>
+    useStore(
+      createState({
+        notes: [
+          createNote({ id: "a", name: "A" }),
+          createNote({ id: "b", name: "B" }),
+          createNote({ id: "c", name: "C" }),
+        ],
+        ui: {
+          sidebar: {
+            selected: ["b"],
+            sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+          },
+          editor: {
+            noteId: "a",
+          },
+          focused: [Section.Editor],
+        },
+      })
+    )
+  );
+  const res = render(<Sidebar store={store.current} />);
+
+  // Does not remove if cancelled
+  promptConfirmAction.mockResolvedValueOnce(false);
+  await act(async () => {
+    await store.current.dispatch("sidebar.deleteNote", "a");
+    expect(store.current.state.notes).toHaveLength(3);
+    expect(store.current.state.ui.sidebar.selected).toEqual(["b"]);
+  });
+
+  // Removes deleted note once confirmed
+  promptConfirmAction.mockResolvedValueOnce(true);
+  await act(async () => {
+    await store.current.dispatch("sidebar.deleteNote", "a");
+    expect(store.current.state.notes).toHaveLength(2);
+    expect(store.current.state.ui.sidebar.selected).toEqual(["b"]);
+  });
+});
+
+test("sidebar.deleteSelectedNote", async () => {
+  const { result: store } = renderHook(() =>
+    useStore(
+      createState({
+        notes: [
+          createNote({ id: "a", name: "A" }),
+          createNote({ id: "b", name: "B" }),
+          createNote({ id: "c", name: "C" }),
+        ],
+        ui: {
+          sidebar: {
+            selected: ["b"],
+            sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+          },
+          editor: {
+            noteId: "a",
+          },
+          focused: [Section.Editor],
+        },
+      })
+    )
+  );
+  const res = render(<Sidebar store={store.current} />);
+
+  // Does not remove if cancelled
+  promptConfirmAction.mockResolvedValueOnce(false);
+  await act(async () => {
+    await store.current.dispatch("sidebar.deleteSelectedNote");
+    expect(store.current.state.notes).toHaveLength(3);
+    expect(store.current.state.ui.sidebar.selected).toEqual(["b"]);
+  });
+
+  // Removes deleted note once confirmed
+  promptConfirmAction.mockResolvedValueOnce(true);
+  await act(async () => {
+    await store.current.dispatch("sidebar.deleteSelectedNote");
+    expect(store.current.state.notes).toHaveLength(2);
+    expect(store.current.state.ui.sidebar.selected).toEqual([]);
+  });
 });
 
 test("sidebar.collapseAll", async () => {
