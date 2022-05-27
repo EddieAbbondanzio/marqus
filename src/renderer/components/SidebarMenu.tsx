@@ -123,7 +123,7 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
     props.depth * SIDEBAR_MENU_INDENT +
     // Adjust by 8 to account for real size of icon width (28px).
     (props.icon == null ? SIDEBAR_ICON_WIDTH + 8 : 0)
-  }`;
+  }px`;
   const inputRef = useRef(null! as HTMLInputElement);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
