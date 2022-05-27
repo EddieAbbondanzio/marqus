@@ -14,7 +14,6 @@ import {
   UIEventType,
 } from "../../shared/domain/ui";
 import * as yup from "yup";
-import { px } from "../../shared/dom";
 import {
   createFileHandler,
   FileHandler,
@@ -139,7 +138,7 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
       defaultValue: {
         sidebar: {
           hidden: false,
-          width: px(300),
+          width: "300px",
           scroll: 0,
           sort: DEFAULT_NOTE_SORTING_ALGORITHM,
         },

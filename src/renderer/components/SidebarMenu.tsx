@@ -2,7 +2,6 @@ import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/promisedInput";
-import { px } from "../../shared/dom";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
@@ -33,7 +32,7 @@ interface SidebarMenuProps {
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   const { value, icon, isSelected, onClick } = props;
   const iconOffset = icon ? 0 : 8;
-  const paddingLeft = px(props.depth * SIDEBAR_MENU_INDENT + iconOffset);
+  const paddingLeft = `${props.depth * SIDEBAR_MENU_INDENT + iconOffset}px`;
 
   let backgroundColor;
   if (isSelected) {
@@ -80,7 +79,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         />
       )}
       <StyledMenuText
-        style={{ paddingLeft: !icon ? px(SIDEBAR_ICON_WIDTH) : undefined }}
+        style={{ paddingLeft: !icon ? `${SIDEBAR_ICON_WIDTH}px` : undefined }}
       >
         {value}
       </StyledMenuText>
@@ -92,7 +91,7 @@ const StyledMenu = styled.a`
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: ${px(SIDEBAR_MENU_HEIGHT)};
+  height: ${SIDEBAR_MENU_HEIGHT}px;
   padding-top: 2px;
   padding-bottom: 2px;
   &:hover {
@@ -102,7 +101,7 @@ const StyledMenu = styled.a`
 
 const StyledMenuIcon = styled(Icon)`
   color: ${THEME.sidebar.font};
-  width: ${px(SIDEBAR_ICON_WIDTH)};
+  width: ${SIDEBAR_ICON_WIDTH}px;
   padding: 0;
   text-align: center;
 `;
@@ -120,11 +119,11 @@ export interface SidebarInputProps {
 }
 
 export function SidebarInput(props: SidebarInputProps): JSX.Element {
-  const paddingLeft = px(
+  const paddingLeft = `${
     props.depth * SIDEBAR_MENU_INDENT +
-      // Adjust by 8 to account for real size of icon width (28px).
-      (props.icon == null ? SIDEBAR_ICON_WIDTH + 8 : 0)
-  );
+    // Adjust by 8 to account for real size of icon width (28px).
+    (props.icon == null ? SIDEBAR_ICON_WIDTH + 8 : 0)
+  }`;
   const inputRef = useRef(null! as HTMLInputElement);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined

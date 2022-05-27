@@ -1,9 +1,11 @@
 /* eslint-disable no-case-declarations */
+import { stripUnit } from "polished";
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { getPx, isPx, px } from "../../../shared/dom";
 import { mh100 } from "../../css";
 import { resetCursor, setCursor, useMouseDrag } from "../../io/mouse";
+
+const PX_REGEX = /^\d+px$/;
 
 export interface ResizableProps {
   className?: string;
@@ -21,7 +23,7 @@ export interface ResizableState {
 export function Resizable(
   props: PropsWithChildren<ResizableProps>
 ): JSX.Element {
-  if (props.width != null && !isPx(props.width)) {
+  if (props.width != null && !PX_REGEX.test(props.width)) {
     throw Error("Invalid width format. Expected pixels");
   }
 
@@ -34,9 +36,12 @@ export function Resizable(
       if (drag != null) {
         switch (drag.state) {
           case "dragging":
-            const minWidth = props.minWidth ?? px(100);
-            const minWidthInt = getPx(minWidth);
-            const newWidth = px(Math.max(minWidthInt, drag.event.clientX));
+            let minWidth;
+            let newWidth = `${drag.event.clientX}px`;
+            if (props.minWidth) {
+              const minWidthInt = stripUnit(props.minWidth) as number;
+              newWidth = `${Math.max(minWidthInt, drag.event.clientX)}px`;
+            }
 
             if (newWidth !== width) {
               setWidth(newWidth);

@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from "react";
-import { px } from "../../shared/dom";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
@@ -34,7 +33,7 @@ import { SidebarControls } from "./SidebarControls";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
-const MIN_WIDTH = px(300);
+const MIN_WIDTH = "300px";
 export interface SidebarProps {
   store: Store;
 }
@@ -191,7 +190,7 @@ const StyledResizable = styled(Resizable)`
 `;
 
 const EmptySpace = styled.div`
-  padding-bottom: ${px(SIDEBAR_MENU_HEIGHT)};
+  padding-bottom: ${SIDEBAR_MENU_HEIGHT}px;
 `;
 
 export function applySearchString(

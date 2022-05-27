@@ -10,12 +10,11 @@ import OpenColor from "open-color";
 import React from "react";
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
-import { px } from "../../shared/dom";
 import { m1, mx1, mx2, p1 } from "../css";
 import { Store } from "../store";
 import { Icon } from "./shared/Icon";
 
-const HEIGHT = px(16);
+const HEIGHT = `16px`;
 
 export interface SidebarControlProps {
   store: Store;

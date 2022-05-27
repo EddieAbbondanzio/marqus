@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Store } from "../store";
 import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
-import { px } from "../../shared/dom";
 import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
 
@@ -204,13 +203,13 @@ const LIST_ITEM_MARKER_WIDTH = 32;
 const LIST_INDENT = 8;
 
 const UnorderedList = styled.ul`
-  margin-left: ${px(LIST_INDENT)};
+  margin-left: ${LIST_INDENT}px;
 
   li:not(.task) {
     &:before {
       content: "•";
       color: ${OpenColor.black};
-      width: ${px(LIST_ITEM_MARKER_WIDTH)};
+      width: ${LIST_ITEM_MARKER_WIDTH}px;
       display: inline-flex;
       justify-content: center;
       text-align: end;
@@ -229,14 +228,14 @@ const UnorderedList = styled.ul`
 
   li.task {
     input[type="checkbox"] {
-      width: ${px(LIST_ITEM_MARKER_WIDTH)};
+      width: ${LIST_ITEM_MARKER_WIDTH}px;
       margin: 0;
     }
   }
 `;
 
 const OrderedList = styled.ol`
-  margin-left: ${px(LIST_INDENT)};
+  margin-left: ${LIST_INDENT}px;
   counter-reset: section ${(p) => (p.start != null ? p.start - 1 : undefined)};
 
   li {
@@ -245,7 +244,7 @@ const OrderedList = styled.ol`
 
     &:before {
       counter-increment: section;
-      width: ${px(LIST_ITEM_MARKER_WIDTH)};
+      width: ${LIST_ITEM_MARKER_WIDTH}px;
       content: counter(section) ".";
       justify-content: center;
       margin-right: 4px;

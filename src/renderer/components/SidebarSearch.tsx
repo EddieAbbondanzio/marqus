@@ -3,7 +3,6 @@ import { isEmpty } from "lodash";
 import OpenColor from "open-color";
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { px } from "../../shared/dom";
 import { Section } from "../../shared/domain/ui";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { m1, mt1, mx1, px1, px3, THEME, w100 } from "../css";
@@ -80,7 +79,7 @@ const DeleteIcon = styled(Icon)`
 
 const SearchInput = styled(BorderlessInput)`
   ${w100};
-  height: ${px(SIDEBAR_MENU_HEIGHT + 4)};
+  height: ${SIDEBAR_MENU_HEIGHT + 4}px;
   background-color: ${THEME.sidebar.search.background};
   color: ${THEME.sidebar.search.font};
   padding-left: 32px;

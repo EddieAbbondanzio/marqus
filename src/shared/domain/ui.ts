@@ -84,11 +84,7 @@ export interface BaseMenu {
 }
 
 export function isRoleMenu(m: Menu): m is RoleMenu {
-  if (m.type === "normal" && "role" in m) {
-    return true;
-  } else {
-    return false;
-  }
+  return m.type === "normal" && "role" in m;
 }
 
 /*

@@ -3,7 +3,7 @@ import { UIEventType, UIEventInput, Section } from "./ui";
 import * as yup from "yup";
 
 /*
- * Shortcuts are not entities because they are considered equal by value.
+ * Shortcuts are not resources because they are considered equal by value.
  * We only test for event and keys for equality.
  */
 export interface Shortcut<EType extends UIEventType = UIEventType> {

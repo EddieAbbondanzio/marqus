@@ -1,9 +1,9 @@
 import OpenColor from "open-color";
+import { transparentize } from "polished";
 import React from "react";
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
 import { p2, rounded } from "../../css";
-import { hexToRgba } from "../../../shared/dom";
 
 export function Modal({ children }: PropsWithChildren<{}>): JSX.Element {
   return (
@@ -20,7 +20,7 @@ export const Background = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: ${hexToRgba(OpenColor.gray[9], 0.6)};
+  background-color: ${transparentize(0.6, OpenColor.gray[9])};
   display: flex;
   align-items: center;
   justify-content: center;
