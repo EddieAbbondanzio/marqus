@@ -1,5 +1,10 @@
 import { useEffect, useMemo } from "react";
-import { Note, NoteSort, NOTE_SORT_LABELS } from "../../shared/domain/note";
+import {
+  getNoteById,
+  Note,
+  NoteSort,
+  NOTE_SORT_LABELS,
+} from "../../shared/domain/note";
 import {
   EventMenu,
   Menu,
@@ -25,7 +30,7 @@ export function useContextMenu(store: Store): void {
       // Right clicking won't trigger a focus change so we need to manually
       // determine what focusable the click occured in.
       const focusable = getFocusableAttribute(ev.target as HTMLElement);
-      const sidebarMenu = getSidebarMenuAttribute(ev.target as HTMLElement);
+      const noteId = getSidebarMenuAttribute(ev.target as HTMLElement);
 
       const items: Menu[] = [];
       if (focusable === "sidebar") {
@@ -33,41 +38,49 @@ export function useContextMenu(store: Store): void {
           label: "New note",
           type: "normal",
           event: "sidebar.createNote",
-          eventInput: sidebarMenu,
+          eventInput: noteId,
         });
 
-        if (sidebarMenu != null) {
+        if (noteId != null) {
           items.push(
             {
               label: "Rename note",
               type: "normal",
               event: "sidebar.renameNote",
-              eventInput: sidebarMenu,
+              eventInput: noteId,
               shortcut: shortcutLabels["sidebar.renameNote"],
             },
             {
               label: "Permanently delete",
               type: "normal",
               event: "sidebar.deleteNote",
-              eventInput: sidebarMenu,
+              eventInput: noteId,
               shortcut: shortcutLabels["sidebar.deleteNote"],
             },
             {
               label: "Move to trash",
               type: "normal",
               event: "sidebar.moveNoteToTrash",
-              eventInput: sidebarMenu,
+              eventInput: noteId,
               shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
             }
           );
         }
 
-        items.push(
-          buildSortSubMenu(
-            store.state.ui.sidebar.sort,
-            sidebarMenu ?? undefined
-          )
-        );
+        let note: Note | undefined;
+        if (noteId != null) {
+          note = getNoteById(store.state.notes, noteId);
+        }
+
+        // Only show sort menu for notes if they have children.
+        if (note == null || note?.children) {
+          items.push(
+            buildSortSubMenu(
+              note?.sort ?? store.state.ui.sidebar.sort,
+              note?.id
+            )
+          );
+        }
 
         items.push({
           type: "separator",
@@ -114,7 +127,7 @@ export function useContextMenu(store: Store): void {
     return () => {
       window.removeEventListener("contextmenu", showMenu);
     };
-  }, [shortcutLabels, store.state]);
+  }, [shortcutLabels, store]);
 
   useEffect(() => {
     const onClick = (ev: CustomEvent) => {
@@ -129,8 +142,9 @@ export function useContextMenu(store: Store): void {
   }, [store]);
 }
 
-function buildSortSubMenu(activeSort: NoteSort, note?: string): SubMenu {
-  const label = note ? "Sort children by" : "Sort notes by";
+function buildSortSubMenu(activeSort: NoteSort, noteId?: string): SubMenu {
+  const label = noteId ? "Sort children by" : "Sort notes by";
+  console.log({ activeSort });
 
   const children: RadioMenu<UIEventType>[] = Object.values(NoteSort).map(
     (sort) => ({
@@ -138,7 +152,7 @@ function buildSortSubMenu(activeSort: NoteSort, note?: string): SubMenu {
       type: "radio",
       checked: activeSort === sort,
       event: "sidebar.setNoteSort",
-      eventInput: { sort, note },
+      eventInput: { sort, note: noteId },
     })
   );
 

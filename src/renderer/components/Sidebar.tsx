@@ -694,7 +694,9 @@ export const setNoteSort: Listener<"sidebar.setNoteSort"> = async (ev, ctx) => {
     });
 
     ctx.setNotes((notes) => {
-      note.sort = ev.value.sort;
+      const index = notes.findIndex((n) => n.id === note.id);
+      notes[index].sort = note.sort;
+
       return [...notes];
     });
   }
