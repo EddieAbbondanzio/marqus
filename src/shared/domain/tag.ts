@@ -1,4 +1,3 @@
-import { InvalidOpError, NotFoundError } from "../errors";
 import * as yup from "yup";
 import { uuidSchema, Resource, uuid } from ".";
 import { isBlank } from "../utils";
@@ -13,7 +12,7 @@ export function createTag(props: Partial<Tag>): Tag {
   } as Tag;
 
   if (isBlank(tag.name)) {
-    throw new InvalidOpError("Name is required.");
+    throw new Error("Name is required.");
   }
 
   tag.id ??= uuid();
@@ -45,7 +44,7 @@ export function getTagSchema(tags: Tag[] = []): yup.SchemaOf<Tag> {
 export function getTagById(tags: Tag[], id: string): Tag {
   const tag = tags.find((t) => t.id === id);
   if (tag == null) {
-    throw new NotFoundError(`No tag with id ${id} found.`);
+    throw new Error(`No tag with id ${id} found.`);
   }
 
   return tag;

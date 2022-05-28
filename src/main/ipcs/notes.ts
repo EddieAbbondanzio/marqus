@@ -7,7 +7,6 @@ import {
   touch,
   writeFile,
 } from "../fileSystem";
-import { InvalidOpError, NotFoundError } from "../../shared/errors";
 import {
   createNote,
   getNoteById,
@@ -185,7 +184,7 @@ export async function assertNoteExists(
 
   const fullPath = getPathInDataDirectory(config, NOTES_DIRECTORY, id);
   if (!exists(fullPath)) {
-    throw new NotFoundError(`Note ${id} was not found in the file system.`);
+    throw new Error(`Note ${id} was not found in the file system.`);
   }
 }
 
@@ -249,6 +248,6 @@ export function buildNotePath(
       );
 
     default:
-      throw new InvalidOpError(`Can't build path for ${file}`);
+      throw new Error(`Can't build path for ${file}`);
   }
 }

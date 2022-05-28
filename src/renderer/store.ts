@@ -6,7 +6,6 @@ import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Tag } from "../shared/domain/tag";
-import { InvalidOpError } from "../shared/errors";
 
 export interface Store {
   state: State;
@@ -136,7 +135,7 @@ export function useStore(initialState: State): Store {
   const focus: Focus = useCallback(
     (sections, opts = { overwrite: false }) => {
       if (new Set(sections).size !== sections.length) {
-        throw new InvalidOpError(`Sections to focus must be unique`);
+        throw new Error(`Sections to focus must be unique`);
       }
 
       // Don't push new section if new first is the same.
@@ -220,9 +219,7 @@ export function useStore(initialState: State): Store {
     for (const ev of events) {
       const index = listeners.current[ev]!.findIndex((l) => l === listener);
       if (index === -1) {
-        throw new InvalidOpError(
-          `No matching listener found on ${ev} for ${listener}`
-        );
+        throw new Error(`No matching listener found on ${ev} for ${listener}`);
       }
 
       listeners.current[ev]?.splice(index, 1);

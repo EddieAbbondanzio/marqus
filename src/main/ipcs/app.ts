@@ -21,7 +21,6 @@ import {
 } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
 import { IpcChannel, IpcPlugin } from "../../shared/ipc";
-import { InvalidOpError } from "../../shared/errors";
 import { openInBrowser } from "../utils";
 import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../shared/domain/note";
 
@@ -96,7 +95,7 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
 
   ipc.handle("app.inspectElement", async (coord) => {
     if (coord == null) {
-      throw new InvalidOpError("Element to inspect was null.");
+      throw new Error("Element to inspect was null.");
     }
 
     BrowserWindow.getFocusedWindow()?.webContents.inspectElement(

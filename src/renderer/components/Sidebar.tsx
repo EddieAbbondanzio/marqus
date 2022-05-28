@@ -15,7 +15,6 @@ import {
   getParents,
 } from "../../shared/domain/note";
 import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
-import { InvalidOpError, NotFoundError } from "../../shared/errors";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import * as yup from "yup";
@@ -64,7 +63,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       const firstSelected = head(sidebar.selected)!;
       curr = itemIds.findIndex((s) => s === firstSelected);
       if (curr === -1) {
-        throw new NotFoundError(`No selectable ${firstSelected} found`);
+        throw new Error(`No selectable ${firstSelected} found`);
       }
 
       next = clamp(curr + increment, 0, itemIds.length - 1);
@@ -540,7 +539,7 @@ export const deleteNote: Listener<
       break;
 
     default:
-      throw new InvalidOpError(`Invalid event type ${ev.type}`);
+      throw new Error(`Invalid event type ${ev.type}`);
   }
 
   const note = getNoteById(notes, id);

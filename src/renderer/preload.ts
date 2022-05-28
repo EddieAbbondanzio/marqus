@@ -25,14 +25,14 @@ if (isDevelopment()) {
 
 // Dispatch custom event to notify of application menu clicks
 ipcRenderer.on(IpcChannel.ApplicationMenuClick, (_, val: any) => {
-  const ev = new CustomEvent("applicationmenuclick", {
+  const ev = new CustomEvent(IpcChannel.ApplicationMenuClick, {
     detail: val,
   });
   window.dispatchEvent(ev);
 });
 
 ipcRenderer.on(IpcChannel.ContextMenuClick, (_, val: any) => {
-  const ev = new CustomEvent("contextmenuclick", {
+  const ev = new CustomEvent(IpcChannel.ContextMenuClick, {
     detail: val,
   });
   window.dispatchEvent(ev);

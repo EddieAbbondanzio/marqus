@@ -1,4 +1,4 @@
-import { InvalidOpError, MissingDataDirectoryError } from "../../shared/errors";
+import { MissingDataDirectoryError } from "../../shared/errors";
 import { createDirectory, exists, readFile, writeFile } from "../fileSystem";
 import { Config, DEFAULT_CONFIG } from "../../shared/domain/config";
 import { app, BrowserWindow, dialog, shell } from "electron";
@@ -18,7 +18,7 @@ export const useConfigIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle("config.selectDataDirectory", async () => {
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow == null) {
-      throw new InvalidOpError();
+      throw new Error();
     }
 
     const { filePaths } = await dialog.showOpenDialog(focusedWindow, {

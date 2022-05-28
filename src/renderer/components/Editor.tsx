@@ -2,7 +2,6 @@ import { debounce, head, isEmpty } from "lodash";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/domain/ui";
-import { InvalidOpError } from "../../shared/errors";
 import { Ipc } from "../../shared/ipc";
 import { w100, p2, m2 } from "../css";
 import { Listener, Store } from "../store";
@@ -90,7 +89,7 @@ const loadNote: Listener<
       break;
 
     default:
-      throw new InvalidOpError(`Invalid event type ${ev.type}`);
+      throw new Error(`Invalid event type ${ev.type}`);
   }
 
   if (noteId === state.ui.editor.noteId) {

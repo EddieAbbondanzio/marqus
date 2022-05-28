@@ -11,7 +11,7 @@ export interface PromisedInput {
   confirm: () => void;
   cancel: () => void;
   validate: (value: string) => ValidateOutcome;
-  completed: Promise<[value: string, action: AwaitableOutcome]>;
+  completed: Promise<[value: string, action: PromisedOutcome]>;
   parentId?: string;
 }
 type ValidateOutcome = { valid: true } | { valid: false; errors: string[] };
@@ -22,7 +22,7 @@ export type PromisedInputParams = {
   schema: yup.StringSchema;
   parentId?: string;
 };
-export type AwaitableOutcome = "confirm" | "cancel";
+export type PromisedOutcome = "confirm" | "cancel";
 
 export function createPromisedInput(
   params: PromisedInputParams,

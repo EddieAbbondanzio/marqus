@@ -145,7 +145,7 @@ test("sortNotes works recursively", () => {
   expect(sorted[1].name).toBe("beta");
   expect(sorted[2].name).toBe("charlie");
 
-  // Used beta's custom sort
+  // Ensure it used beta's custom sort
   const beta = sorted[1]!;
   expect(beta.children![0]?.name).toBe("echo");
   expect(beta.children![1]?.name).toBe("delta");

@@ -1,5 +1,4 @@
 import { RefObject, useEffect, useState } from "react";
-import { InvalidOpError } from "../../shared/errors";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
 
 export const DEFAULT_CURSOR = "auto";
@@ -103,7 +102,7 @@ export function useMouseDrag(
         drag.state !== "dragCancelled" &&
         drag.state !== "dragEnded"
       ) {
-        throw new InvalidOpError(`Mouse is already dragging. Can't restart.`);
+        throw new Error(`Mouse is already dragging. Can't restart.`);
       }
 
       const newDrag: MouseDrag = {

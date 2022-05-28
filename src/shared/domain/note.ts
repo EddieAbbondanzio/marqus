@@ -1,4 +1,3 @@
-import { InvalidOpError, NotFoundError } from "../errors";
 import * as yup from "yup";
 import { uuidSchema, Resource, uuid } from ".";
 import { isBlank } from "../utils";
@@ -84,7 +83,7 @@ export function sortNotes(notes: Note[], sort: NoteSort): Note[] {
         return orderBy(notes, ["sortIndex"]);
 
       default:
-        throw new InvalidOpError(`Invalid note sorting algorithm: ${sort}`);
+        throw new Error(`Invalid note sorting algorithm: ${sort}`);
     }
   };
 
@@ -97,7 +96,7 @@ export function createNote(props: Partial<Note> & { name: string }): Note {
   } as Note;
 
   if (isBlank(note.name)) {
-    throw new InvalidOpError("Name is required.");
+    throw new Error("Name is required.");
   }
 
   note.id ??= uuid();
@@ -164,7 +163,7 @@ export function getNoteById(
   }
 
   if (required) {
-    throw new NotFoundError(`No note with id ${id} found.`);
+    throw new Error(`No note with id ${id} found.`);
   } else {
     return null;
   }
@@ -210,9 +209,7 @@ export function getParents(note: Note, notes: Note[]): Note[] {
       p = flat.find((p) => p.id === n.parent);
 
       if (p == null) {
-        throw new NotFoundError(
-          `Could not find parent note with id ${n.parent}.`
-        );
+        throw new Error(`Could not find parent note with id ${n.parent}.`);
       }
 
       next.push(p);
