@@ -59,7 +59,8 @@ export interface RoleMenu extends BaseMenu {
   role: Electron.MenuItem["role"];
 }
 
-export interface EventMenu<Ev extends UIEventType> extends BaseMenu {
+export interface EventMenu<Ev extends UIEventType = UIEventType>
+  extends BaseMenu {
   label: string;
   type: "normal";
   shortcut?: string;
@@ -68,7 +69,8 @@ export interface EventMenu<Ev extends UIEventType> extends BaseMenu {
   eventInput?: UIEventInput<Ev>;
 }
 
-export interface RadioMenu<Ev extends UIEventType> extends BaseMenu {
+export interface RadioMenu<Ev extends UIEventType = UIEventType>
+  extends BaseMenu {
   label: string;
   type: "radio";
   shortcut?: string;

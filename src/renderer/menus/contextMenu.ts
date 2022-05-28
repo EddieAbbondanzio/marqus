@@ -73,7 +73,7 @@ export function useContextMenu(store: Store): void {
 
         // Only show sort menu for notes if they have children.
         if (note == null || note?.children) {
-          items.push(buildSortSubMenu(store.state.ui.sidebar.sort, note));
+          items.push(buildNoteSortMenu(store.state.ui.sidebar.sort, note));
         }
 
         items.push({
@@ -136,7 +136,7 @@ export function useContextMenu(store: Store): void {
   }, [store]);
 }
 
-function buildSortSubMenu(globalSort: NoteSort, note?: Note): SubMenu {
+export function buildNoteSortMenu(globalSort: NoteSort, note?: Note): SubMenu {
   const label = note ? "Sort children by" : "Sort notes by";
   const currentSort = note?.sort ?? globalSort;
 
@@ -148,7 +148,7 @@ function buildSortSubMenu(globalSort: NoteSort, note?: Note): SubMenu {
     eventInput: { sort, note: note?.id },
   }));
 
-  // Allow custom note sort to be cleared out
+  // Give the user an easy way to clear out the custom sort for children.
   if (note?.sort) {
     children.push({
       label: "Reset sort",
