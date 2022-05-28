@@ -1,8 +1,4 @@
-import {
-  createFileHandler,
-  FileHandler,
-  getPathInDataDirectory,
-} from "../fileHandler";
+import { createFileHandler, FileHandler } from "../fileHandler";
 import * as yup from "yup";
 import { createTag, getTagSchema, Tag } from "../../shared/domain/tag";
 import { Config } from "../../shared/domain/config";
@@ -85,7 +81,7 @@ export function getTagFileHandler(config: Config): FileHandler<Tag[]> {
     });
 
   return createFileHandler<Tag[]>(
-    getPathInDataDirectory(config, TAG_FILE),
+    config.getPath(TAG_FILE),
     yup.array(getTagSchema()).optional(),
     {
       defaultValue: [],

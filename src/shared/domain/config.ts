@@ -1,14 +1,20 @@
-export interface Config {
-  dataDirectory?: string;
-  windowHeight: number;
-  windowWidth: number;
-}
+import { MissingDataDirectoryError } from "../errors";
+import * as path from "path";
 
-export interface ConfigWithDataDirectory extends Config {
-  dataDirectory: string;
-}
+// Config isn't sent across IPC so it's safe to be a class.
 
-export const DEFAULT_CONFIG: Config = {
-  windowHeight: 600,
-  windowWidth: 800,
-};
+export class Config {
+  constructor(
+    public windowHeight: number,
+    public windowWidth: number,
+    public dataDirectory?: string
+  ) {}
+
+  getPath(...parts: string[]): string {
+    if (this.dataDirectory == null) {
+      throw new MissingDataDirectoryError();
+    }
+
+    return path.join(this.dataDirectory, ...parts);
+  }
+}

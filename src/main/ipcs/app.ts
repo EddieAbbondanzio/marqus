@@ -14,11 +14,7 @@ import {
   UIEventType,
 } from "../../shared/domain/ui";
 import * as yup from "yup";
-import {
-  createFileHandler,
-  FileHandler,
-  getPathInDataDirectory,
-} from "../fileHandler";
+import { createFileHandler, FileHandler } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
 import { IpcChannel, IpcPlugin } from "../../shared/ipc";
 import { openInBrowser } from "../utils";
@@ -114,41 +110,37 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
 };
 
 export function getUIFileHandler(config: Config): FileHandler<UI> {
-  return createFileHandler<UI>(
-    getPathInDataDirectory(config, UI_FILE),
-    appSchema,
-    {
-      serialize: (ui) => {
-        // Nuke out stuff we don't want to persist.
-        ui.sidebar.input = undefined;
-        ui.focused = undefined!;
+  return createFileHandler<UI>(config.getPath(UI_FILE), appSchema, {
+    serialize: (ui) => {
+      // Nuke out stuff we don't want to persist.
+      ui.sidebar.input = undefined;
+      ui.focused = undefined!;
 
-        return ui;
-      },
-      deserialize: (ui) => {
-        if (ui == null) {
-          return;
-        }
+      return ui;
+    },
+    deserialize: (ui) => {
+      if (ui == null) {
+        return;
+      }
 
-        ui.sidebar.input = undefined;
-        ui.focused = [];
-        return ui;
+      ui.sidebar.input = undefined;
+      ui.focused = [];
+      return ui;
+    },
+    defaultValue: {
+      sidebar: {
+        hidden: false,
+        width: "300px",
+        scroll: 0,
+        sort: DEFAULT_NOTE_SORTING_ALGORITHM,
       },
-      defaultValue: {
-        sidebar: {
-          hidden: false,
-          width: "300px",
-          scroll: 0,
-          sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-        },
-        editor: {
-          isEditting: false,
-          scroll: 0,
-        },
-        focused: [],
+      editor: {
+        isEditting: false,
+        scroll: 0,
       },
-    }
-  );
+      focused: [],
+    },
+  });
 }
 
 const appSchema = yup.object().shape({

@@ -110,14 +110,3 @@ export function createFileHandler<Content>(
     load,
   };
 }
-
-export function getPathInDataDirectory(
-  config: Config,
-  ...paths: string[]
-): string {
-  if (config.dataDirectory == null) {
-    throw new MissingDataDirectoryError();
-  }
-
-  return path.join(config.dataDirectory, ...paths);
-}

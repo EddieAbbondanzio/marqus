@@ -14,7 +14,6 @@ import {
   Note,
 } from "../../shared/domain/note";
 import { UUID_REGEX } from "../../shared/domain";
-import { getPathInDataDirectory } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
 import { keyBy, partition } from "lodash";
 import { IpcPlugin } from "../../shared/ipc";
@@ -27,7 +26,7 @@ export const MARKDOWN_FILE_NAME = "index.md";
 
 // Move this down somewhere better
 export async function loadNotes(config: Config): Promise<Note[]> {
-  const noteDirPath = getPathInDataDirectory(config, NOTES_DIRECTORY);
+  const noteDirPath = config.getPath(NOTES_DIRECTORY);
   if (!exists(noteDirPath)) {
     await createDirectory(noteDirPath);
   }
@@ -74,7 +73,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
      * renderer. Then we can do our filtering on the front end.
      */
 
-    const noteDirPath = getPathInDataDirectory(config, NOTES_DIRECTORY);
+    const noteDirPath = config.getPath(NOTES_DIRECTORY);
     if (!exists(noteDirPath)) {
       await createDirectory(noteDirPath);
     }
@@ -83,7 +82,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   });
 
   ipc.handle("notes.create", async (name, parent) => {
-    const dirPath = getPathInDataDirectory(config, NOTES_DIRECTORY);
+    const dirPath = config.getPath(NOTES_DIRECTORY);
     if (!exists(dirPath)) {
       await createDirectory(dirPath);
     }
@@ -177,12 +176,12 @@ export async function assertNoteExists(
   config: Config,
   id: string
 ): Promise<void> {
-  const dirPath = getPathInDataDirectory(config, NOTES_DIRECTORY);
+  const dirPath = config.getPath(NOTES_DIRECTORY);
   if (!exists(dirPath)) {
     await createDirectory(dirPath);
   }
 
-  const fullPath = getPathInDataDirectory(config, NOTES_DIRECTORY, id);
+  const fullPath = config.getPath(NOTES_DIRECTORY, id);
   if (!exists(fullPath)) {
     throw new Error(`Note ${id} was not found in the file system.`);
   }
@@ -192,7 +191,7 @@ export async function saveToFileSystem(
   config: Config,
   note: Note
 ): Promise<void> {
-  const dirPath = getPathInDataDirectory(config, NOTES_DIRECTORY, note.id);
+  const dirPath = config.getPath(NOTES_DIRECTORY, note.id);
   if (!exists(dirPath)) {
     await createDirectory(dirPath);
   }
@@ -228,24 +227,14 @@ export function buildNotePath(
   file?: "markdown" | "metadata"
 ): string {
   if (file == null) {
-    return getPathInDataDirectory(config, NOTES_DIRECTORY, noteId);
+    return config.getPath(NOTES_DIRECTORY, noteId);
   }
 
   switch (file) {
     case "markdown":
-      return getPathInDataDirectory(
-        config,
-        NOTES_DIRECTORY,
-        noteId,
-        MARKDOWN_FILE_NAME
-      );
+      return config.getPath(NOTES_DIRECTORY, noteId, MARKDOWN_FILE_NAME);
     case "metadata":
-      return getPathInDataDirectory(
-        config,
-        NOTES_DIRECTORY,
-        noteId,
-        METADATA_FILE_NAME
-      );
+      return config.getPath(NOTES_DIRECTORY, noteId, METADATA_FILE_NAME);
 
     default:
       throw new Error(`Can't build path for ${file}`);

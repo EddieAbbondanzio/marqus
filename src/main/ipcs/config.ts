@@ -1,6 +1,6 @@
 import { MissingDataDirectoryError } from "../../shared/errors";
 import { createDirectory, exists, readFile, writeFile } from "../fileSystem";
-import { Config, DEFAULT_CONFIG } from "../../shared/domain/config";
+import { Config } from "../../shared/domain/config";
 import { app, BrowserWindow, dialog, shell } from "electron";
 import * as path from "path";
 import { isDevelopment, isProduction } from "../../shared/env";
@@ -43,26 +43,27 @@ export const useConfigIpcs: IpcPlugin = (ipc, config) => {
 };
 
 export async function loadConfig(): Promise<Config> {
-  let config: Config = await readFile(getConfigPath(), "json");
-  config ??= DEFAULT_CONFIG;
-  if (isDevelopment()) {
-    config.dataDirectory = DEFAULT_DEV_DATA_DIRECTORY;
+  let data = await readFile(getConfigPath(), "json");
+  data ??= new Config(600, 800);
 
-    if (!exists(config.dataDirectory)) {
-      await createDirectory(config.dataDirectory);
+  if (isDevelopment()) {
+    data.dataDirectory = DEFAULT_DEV_DATA_DIRECTORY;
+
+    if (!exists(data.dataDirectory)) {
+      await createDirectory(data.dataDirectory);
     }
   }
 
   // Sanity check
   if (
     isProduction() &&
-    config.dataDirectory != null &&
-    !(await exists(config.dataDirectory))
+    data.dataDirectory != null &&
+    !(await exists(data.dataDirectory))
   ) {
     throw new MissingDataDirectoryError();
   }
 
-  return config;
+  return new Config(data.windowHeight, data.windowWidth, data.dataDirectory);
 }
 
 export async function saveConfig(config: Config): Promise<void> {

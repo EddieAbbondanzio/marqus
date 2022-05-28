@@ -2,11 +2,7 @@ import { UIEventType, Section } from "../../shared/domain/ui";
 import { Shortcut, shortcutSchema } from "../../shared/domain/shortcut";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { keyCodesToString, parseKeyCodes } from "../../shared/io/keyCode";
-import {
-  createFileHandler,
-  FileHandler,
-  getPathInDataDirectory,
-} from "../fileHandler";
+import { createFileHandler, FileHandler } from "../fileHandler";
 import * as yup from "yup";
 import { Config } from "../../shared/domain/config";
 import { IpcPlugin } from "../../shared/ipc";
@@ -30,7 +26,7 @@ export function getShortcutsFileHandler(
   config: Config
 ): FileHandler<Shortcut[]> {
   return createFileHandler<Shortcut[]>(
-    getPathInDataDirectory(config, SHORTCUTS_FILE),
+    config.getPath(SHORTCUTS_FILE),
     yup.array(shortcutSchema).optional(),
     {
       defaultValue: DEFAULT_SHORTCUTS,
