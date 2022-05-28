@@ -31,6 +31,10 @@ export function useContextMenu(store: Store): void {
       // determine what focusable the click occured in.
       const focusable = getFocusableAttribute(ev.target as HTMLElement);
       const noteId = getSidebarMenuAttribute(ev.target as HTMLElement);
+      let note: Note | undefined;
+      if (noteId != null) {
+        note = getNoteById(store.state.notes, noteId);
+      }
 
       const items: Menu[] = [];
       if (focusable === "sidebar") {
@@ -67,19 +71,9 @@ export function useContextMenu(store: Store): void {
           );
         }
 
-        let note: Note | undefined;
-        if (noteId != null) {
-          note = getNoteById(store.state.notes, noteId);
-        }
-
         // Only show sort menu for notes if they have children.
         if (note == null || note?.children) {
-          items.push(
-            buildSortSubMenu(
-              note?.sort ?? store.state.ui.sidebar.sort,
-              note?.id
-            )
-          );
+          items.push(buildSortSubMenu(store.state.ui.sidebar.sort, note));
         }
 
         items.push({
@@ -142,19 +136,27 @@ export function useContextMenu(store: Store): void {
   }, [store]);
 }
 
-function buildSortSubMenu(activeSort: NoteSort, noteId?: string): SubMenu {
-  const label = noteId ? "Sort children by" : "Sort notes by";
-  console.log({ activeSort });
+function buildSortSubMenu(globalSort: NoteSort, note?: Note): SubMenu {
+  const label = note ? "Sort children by" : "Sort notes by";
+  const currentSort = note?.sort ?? globalSort;
 
-  const children: RadioMenu<UIEventType>[] = Object.values(NoteSort).map(
-    (sort) => ({
-      label: NOTE_SORT_LABELS[sort],
-      type: "radio",
-      checked: activeSort === sort,
+  const children: Menu[] = Object.values(NoteSort).map((sort) => ({
+    label: NOTE_SORT_LABELS[sort],
+    type: "radio",
+    checked: currentSort === sort,
+    event: "sidebar.setNoteSort",
+    eventInput: { sort, note: note?.id },
+  }));
+
+  // Allow custom note sort to be cleared out
+  if (note?.sort) {
+    children.push({
+      label: "Reset sort",
+      type: "normal",
       event: "sidebar.setNoteSort",
-      eventInput: { sort, note: noteId },
-    })
-  );
+      eventInput: { sort: undefined, note: note?.id },
+    });
+  }
 
   return {
     label,
