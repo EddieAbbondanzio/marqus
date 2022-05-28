@@ -163,24 +163,20 @@ export function getNoteById(
  * @returns All of the notes flattened into one array.
  */
 export function flatten(notes: Note[]): Note[] {
-  const flatNotes = [];
+  // Order is important here. We use this for moving the sidebars selection up
+  // and down so by going in a breadth first fashion we can easily support
+  // moving the selection without any complex math.
 
-  const recursivelyFlatten = (note: Note): void =>
-    void chain(note.children)
-      .forEach((c) => {
-        flatNotes.push(c);
-      })
-      .forEach((c) => {
-        recursivelyFlatten(c);
-      })
-      .attempt()
-      .value();
+  const flatNotes: Note[] = [];
+  const r = (note: Note) => {
+    flatNotes.push(note);
 
-  for (const root of notes) {
-    flatNotes.push(root);
-    recursivelyFlatten(root);
-  }
+    if (note.children?.length) {
+      note.children.forEach(r);
+    }
+  };
 
+  notes.forEach(r);
   return flatNotes;
 }
 

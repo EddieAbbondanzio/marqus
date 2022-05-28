@@ -1,6 +1,7 @@
 import { addDays } from "date-fns";
 import {
   createNote,
+  flatten,
   getParents,
   NoteSort,
   sortNotes,
@@ -126,6 +127,17 @@ test("sortNotes manual", () => {
 
   const sorted = sortNotes(notes, NoteSort.Manual);
   expect(sorted.map((n) => n.name)).toEqual(["1", "2", "3", "4", "5", "6"]);
+});
+
+test("flatten", () => {
+  const nested1 = createNote({ name: "Nested 1" });
+  const nested2 = createNote({ name: "Nested 2" });
+  const middle = createNote({ name: "Middle", children: [nested1, nested2] });
+  const outer1 = createNote({ name: "Outer 1", children: [middle] });
+  const outer2 = createNote({ name: "Outer 2" });
+
+  const flat = flatten([outer1, outer2]);
+  expect(flat).toEqual([outer1, middle, nested1, nested2, outer2]);
 });
 
 test("getParents", () => {
