@@ -287,7 +287,6 @@ export function renderMenus(
         }
       }
 
-      note.children = sortNotes(note.children!, DEFAULT_NOTE_SORTING_ALGORITHM);
       note.children?.forEach((n) => recursive(n, currDepth + 1));
     }
 

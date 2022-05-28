@@ -129,6 +129,28 @@ test("sortNotes manual", () => {
   expect(sorted.map((n) => n.name)).toEqual(["1", "2", "3", "4", "5", "6"]);
 });
 
+test("sortNotes works recursively", () => {
+  const notes = [
+    createNote({ name: "alpha" }),
+    createNote({ name: "charlie" }),
+    createNote({
+      name: "beta",
+      sort: NoteSort.AlphanumericReversed,
+      children: [createNote({ name: "delta" }), createNote({ name: "echo" })],
+    }),
+  ];
+
+  const sorted = sortNotes(notes, NoteSort.Alphanumeric);
+  expect(sorted[0].name).toBe("alpha");
+  expect(sorted[1].name).toBe("beta");
+  expect(sorted[2].name).toBe("charlie");
+
+  // Used beta's custom sort
+  const beta = sorted[1]!;
+  expect(beta.children![0]?.name).toBe("echo");
+  expect(beta.children![1]?.name).toBe("delta");
+});
+
 test("flatten", () => {
   const nested1 = createNote({ name: "Nested 1" });
   const nested2 = createNote({ name: "Nested 2" });

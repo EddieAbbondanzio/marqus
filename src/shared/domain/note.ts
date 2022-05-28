@@ -36,47 +36,59 @@ export const NOTE_SORT_LABELS: Record<NoteSort, string> = {
 export const DEFAULT_NOTE_SORTING_ALGORITHM = NoteSort.Alphanumeric;
 
 /**
- * Sort notes based on one of the sorting algorithms. Does not work recursively.
+ * Sort notes based on one of the sorting algorithms. Works recursively.
  * @param notes The notes to sort.
  * @param sort The algorithm to use.
  * @returns The sorted notes.
  */
 export function sortNotes(notes: Note[], sort: NoteSort): Note[] {
-  switch (sort) {
-    case NoteSort.Alphanumeric:
-      return notes.sort((a, b) =>
-        a.name
-          .toLowerCase()
-          .localeCompare(b.name.toLowerCase(), undefined, { numeric: true })
-      );
+  const r = (notes: Note[], sort: NoteSort) => {
+    for (const n of notes) {
+      if (n.children) {
+        // Parent notebook sort takes precedence, otherwise we'll use the last
+        // sort method (global, or a higher parent's sort).
+        r(n.children, n.sort ?? sort);
+      }
+    }
 
-    case NoteSort.AlphanumericReversed:
-      return notes.sort((a, b) =>
-        b.name
-          .toLowerCase()
-          .localeCompare(a.name.toLowerCase(), undefined, { numeric: true })
-      );
+    switch (sort) {
+      case NoteSort.Alphanumeric:
+        return notes.sort((a, b) =>
+          a.name
+            .toLowerCase()
+            .localeCompare(b.name.toLowerCase(), undefined, { numeric: true })
+        );
 
-    case NoteSort.DateCreated:
-      return orderBy(notes, ["dateCreated"], ["asc"]);
+      case NoteSort.AlphanumericReversed:
+        return notes.sort((a, b) =>
+          b.name
+            .toLowerCase()
+            .localeCompare(a.name.toLowerCase(), undefined, { numeric: true })
+        );
 
-    case NoteSort.DateCreatedReversed:
-      return orderBy(notes, ["dateCreated"], ["desc"]);
+      case NoteSort.DateCreated:
+        return orderBy(notes, ["dateCreated"], ["asc"]);
 
-    case NoteSort.DateUpdated:
-      // Use created date as tie breaker
-      return orderBy(notes, ["dateUpdated", "dateCreated"], ["asc", "asc"]);
+      case NoteSort.DateCreatedReversed:
+        return orderBy(notes, ["dateCreated"], ["desc"]);
 
-    case NoteSort.DateUpdatedReversed:
-      // Use created date as tie breaker
-      return orderBy(notes, ["dateUpdated", "dateCreated"], ["desc", "desc"]);
+      case NoteSort.DateUpdated:
+        // Use created date as tie breaker
+        return orderBy(notes, ["dateUpdated", "dateCreated"], ["asc", "asc"]);
 
-    case NoteSort.Manual:
-      return orderBy(notes, ["sortIndex"]);
+      case NoteSort.DateUpdatedReversed:
+        // Use created date as tie breaker
+        return orderBy(notes, ["dateUpdated", "dateCreated"], ["desc", "desc"]);
 
-    default:
-      throw new InvalidOpError(`Invalid note sorting algorithm: ${sort}`);
-  }
+      case NoteSort.Manual:
+        return orderBy(notes, ["sortIndex"]);
+
+      default:
+        throw new InvalidOpError(`Invalid note sorting algorithm: ${sort}`);
+    }
+  };
+
+  return r(notes, sort);
 }
 
 export function createNote(props: Partial<Note> & { name: string }): Note {
@@ -105,12 +117,13 @@ export function getNoteSchema(): yup.SchemaOf<Note> {
     .object()
     .shape({
       id: uuidSchema,
+      // Name is not unique because it's difficult to enforce uniqueness when
+      // notes can change parents. There's no real harm in having duplicates.
       name: yup
         .string()
         .required("Name is required.")
         .min(1, "Note name must be atleast 1 character.")
         .max(64, "Note name cannot be more than 64 characters."),
-      // Note names don't need to be unique
       tags: yup.array().of(yup.string()).optional(),
       flags: yup.number(),
       dateCreated: yup.date().required(),
@@ -158,7 +171,7 @@ export function getNoteById(
 }
 
 /**
- * Flatten a hierarchy of notes into a 1d array.
+ * Flatten nested notes into a 1d array.
  * @param notes Tree of notes
  * @returns All of the notes flattened into one array.
  */
@@ -168,15 +181,13 @@ export function flatten(notes: Note[]): Note[] {
   // moving the selection without any complex math.
 
   const flatNotes: Note[] = [];
+
   const r = (note: Note) => {
     flatNotes.push(note);
-
-    if (note.children?.length) {
-      note.children.forEach(r);
-    }
+    note.children?.forEach(r);
   };
-
   notes.forEach(r);
+
   return flatNotes;
 }
 
