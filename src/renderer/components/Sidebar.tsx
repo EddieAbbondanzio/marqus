@@ -484,19 +484,22 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
   const [name, action] = await input.completed;
   if (action === "confirm") {
     try {
-      const note = getNoteById(notes, id!);
       const updatedNote = await window.ipc("notes.updateMetadata", id, {
         name,
       });
 
       ctx.setNotes((notes) => {
         if (updatedNote.parent == null) {
-          const index = notes.findIndex((n) => n.id === note.id);
+          const index = notes.findIndex((n) => n.id === id);
           notes.splice(index, 1, updatedNote);
           return notes;
         } else {
           const parent = getNoteById(notes, updatedNote.parent);
-          const index = notes.findIndex((n) => n.id === note.id);
+          const index = parent.children!.findIndex((n) => n.id === id);
+          if (index === -1) {
+            throw new Error(`Could not find child note with id ${id}`);
+          }
+
           parent.children!.splice(index, 1, updatedNote);
           return notes;
         }
@@ -686,8 +689,11 @@ export const setNoteSort: Listener<"sidebar.setNoteSort"> = async (ev, ctx) => {
       },
     });
   } else {
+    const note = await window.ipc("notes.updateMetadata", ev.value.note, {
+      sort: ev.value.sort,
+    });
+
     ctx.setNotes((notes) => {
-      const note = getNoteById(notes, ev.value.note!, true);
       note.sort = ev.value.sort;
       return [...notes];
     });

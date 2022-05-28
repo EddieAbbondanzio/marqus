@@ -103,16 +103,20 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     const metadataPath = buildNotePath(config, id, "metadata");
     const meta = await readFile(metadataPath, "json");
 
-    if (props.name != null) {
-      meta.name = props.name;
+    const { name, parent, sort, ...others } = props;
+
+    if (name != null) {
+      meta.name = name;
     }
     // Allow unsetting parent
-    // eslint-disable-next-line no-prototype-builtins
-    if (props.hasOwnProperty("parent")) {
-      meta.parent = props.parent;
+    if ("parent" in props) {
+      meta.parent = parent;
     }
 
-    const { name, parent, ...others } = props;
+    // Allow unsetting sort
+    if ("sort" in props) {
+      meta.sort = props.sort;
+    }
 
     // Sanity check to ensure no extra props were passed
     if (Object.keys(others).length > 0) {
