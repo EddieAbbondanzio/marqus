@@ -9,7 +9,6 @@ export interface Note extends Resource {
   parent?: string;
   children?: Note[];
   sort?: NoteSort;
-  sortIndex?: number;
 }
 
 export enum NoteSort {
@@ -19,7 +18,6 @@ export enum NoteSort {
   DateCreatedReversed = "dateCreatedReversed",
   DateUpdated = "dateModified",
   DateUpdatedReversed = "dateUpdatedReversed",
-  Manual = "manual",
 }
 
 export const NOTE_SORT_LABELS: Record<NoteSort, string> = {
@@ -29,7 +27,6 @@ export const NOTE_SORT_LABELS: Record<NoteSort, string> = {
   [NoteSort.DateCreatedReversed]: "Oldest",
   [NoteSort.DateUpdated]: "Last Modified",
   [NoteSort.DateUpdatedReversed]: "First Modified",
-  [NoteSort.Manual]: "Manual",
 };
 
 export const DEFAULT_NOTE_SORTING_ALGORITHM = NoteSort.Alphanumeric;
@@ -78,9 +75,6 @@ export function sortNotes(notes: Note[], sort: NoteSort): Note[] {
       case NoteSort.DateUpdatedReversed:
         // Use created date as tie breaker
         return orderBy(notes, ["dateUpdated", "dateCreated"], ["desc", "desc"]);
-
-      case NoteSort.Manual:
-        return orderBy(notes, ["sortIndex"]);
 
       default:
         throw new Error(`Invalid note sorting algorithm: ${sort}`);
