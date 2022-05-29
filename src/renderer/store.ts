@@ -1,4 +1,3 @@
-import { UIEventType, UIEventInput, UI, Section } from "../shared/domain/ui";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cloneDeep, isEmpty } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
@@ -6,6 +5,8 @@ import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Tag } from "../shared/domain/tag";
+import { UIEventType, UIEventInput } from "../shared/domain/ui/events";
+import { UI, Section } from "../shared/domain/ui/sections";
 
 export interface Store {
   state: State;

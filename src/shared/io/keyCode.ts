@@ -434,7 +434,7 @@ export function isAction(key: KeyCode): boolean {
   }
 }
 
-// Catch all for random keys not included in other groups.
+// Catch all for random keys not included in other groups. Sloppy but it works.
 export function isMisc(key: KeyCode): boolean {
   switch (key) {
     case KeyCode.Backquote:

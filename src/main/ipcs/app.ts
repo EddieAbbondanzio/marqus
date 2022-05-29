@@ -6,19 +6,15 @@ import {
   MenuItemConstructorOptions,
   shell,
 } from "electron";
-import {
-  isRoleMenu,
-  Menu as MenuType,
-  UI,
-  UIEventInput,
-  UIEventType,
-} from "../../shared/domain/ui";
+import { isRoleMenu, Menu as MenuType } from "../../shared/domain/ui/menu";
 import * as yup from "yup";
 import { createFileHandler, FileHandler } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
 import { IpcChannel, IpcPlugin } from "../../shared/ipc";
 import { openInBrowser } from "../utils";
 import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../shared/domain/note";
+import { UIEventType, UIEventInput } from "../../shared/domain/ui/events";
+import { UI } from "../../shared/domain/ui/sections";
 
 export const UI_FILE = "ui.json";
 

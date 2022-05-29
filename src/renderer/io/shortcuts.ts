@@ -6,11 +6,12 @@ import {
   parseKeyCode,
   sortKeyCodes,
 } from "../../shared/io/keyCode";
-import { UIEventType, Section, UI } from "../../shared/domain/ui";
 import { Store } from "../store";
 import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
 import { isTest } from "../../shared/env";
+import { UIEventType } from "../../shared/domain/ui/events";
+import { UI, Section } from "../../shared/domain/ui/sections";
 
 const INITIAL_DELAY = 250; // ms
 const REPEAT_DELAY = 125; // ms

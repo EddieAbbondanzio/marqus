@@ -1,4 +1,3 @@
-import { UIEventType, Section } from "../../shared/domain/ui";
 import { Shortcut, shortcutSchema } from "../../shared/domain/shortcut";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { keyCodesToString, parseKeyCodes } from "../../shared/io/keyCode";
@@ -6,6 +5,8 @@ import { createFileHandler, FileHandler } from "../fileHandler";
 import * as yup from "yup";
 import { Config } from "../../shared/domain/config";
 import { IpcPlugin } from "../../shared/ipc";
+import { UIEventType } from "../../shared/domain/ui/events";
+import { Section } from "../../shared/domain/ui/sections";
 
 export const SHORTCUTS_FILE = "shortcuts.json";
 

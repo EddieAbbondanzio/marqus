@@ -7,9 +7,11 @@ import { renderHook } from "@testing-library/react-hooks";
 import {
   createNote,
   DEFAULT_NOTE_SORTING_ALGORITHM,
+  getNoteById,
 } from "../../../src/shared/domain/note";
 import * as prompt from "../../../src/renderer/utils/prompt";
-import { Section } from "../../../src/shared/domain/ui";
+import { Section } from "../../../src/shared/domain/ui/sections";
+import { when } from "jest-when";
 
 const promptConfirmAction = jest.spyOn(prompt, "promptConfirmAction");
 
@@ -264,7 +266,7 @@ test("sidebar.expandAll", async () => {
     )
   );
 
-  const res = render(<Sidebar store={store.current} />);
+  render(<Sidebar store={store.current} />);
   await act(async () => {
     await store.current.dispatch("sidebar.expandAll");
   });
@@ -273,4 +275,130 @@ test("sidebar.expandAll", async () => {
   const expanded = [notes[0]!.id, notes?.[0].children?.[0].id];
 
   expect(state.ui.sidebar.expanded).toEqual(expanded);
+});
+
+test("sidebar.dragNote", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({
+      id: "2",
+      name: "bar",
+      children: [
+        createNote({
+          id: "3",
+          name: "baz",
+          children: [createNote({ id: "4", name: "nested-2" })],
+        }),
+      ],
+    }),
+  ];
+
+  const { result: store } = renderHook(() =>
+    useStore(
+      createState({
+        notes,
+        ui: {
+          sidebar: {
+            expanded: [],
+            sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+          },
+          editor: {},
+          focused: [],
+        },
+      })
+    )
+  );
+
+  render(<Sidebar store={store.current} />);
+
+  // Notes can't be their own parent.
+  const foo = store.current.state.notes.find((n) => n.name === "foo")!;
+  await act(async () => {
+    await store.current.dispatch("sidebar.dragNote", {
+      note: foo.id,
+      newParent: foo.id,
+    });
+  });
+  expect(foo.parent).toBe(undefined);
+
+  // Dont allow infinite loops
+  const bar = store.current.state.notes.find((n) => n.name === "bar")!;
+  await act(async () => {
+    await store.current.dispatch("sidebar.dragNote", {
+      note: bar.id,
+      newParent: bar.children![0].id,
+    });
+  });
+  expect(bar.parent).toBe(undefined);
+
+  // Don't update parent if it's the same (nested note)
+  const baz = bar.children![0];
+  await act(async () => {
+    await store.current.dispatch("sidebar.dragNote", {
+      note: baz.id,
+      newParent: baz.parent,
+    });
+  });
+  expect((window as any).ipc).not.toBeCalledWith(
+    "notes.updateMetadata",
+    baz.id,
+    {
+      parent: baz.parent!,
+    }
+  );
+
+  // Don't update parent if it's the same (root note)
+  await act(async () => {
+    await store.current.dispatch("sidebar.dragNote", {
+      note: foo.id,
+      newParent: undefined,
+    });
+  });
+  expect((window as any).ipc).not.toBeCalledWith(
+    "notes.updateMetadata",
+    foo.id,
+    {
+      parent: undefined,
+    }
+  );
+
+  // Move from root to nested
+  when((window as any).ipc)
+    .calledWith("notes.updateMetadata", "1", {
+      parent: "2",
+    })
+    .mockReturnValueOnce({ ...foo, parent: "2" });
+
+  await act(async () => {
+    await store.current.dispatch("sidebar.dragNote", {
+      note: "1",
+      newParent: "2",
+    });
+  });
+  const updatedFoo = getNoteById(store.current.state.notes, "1");
+  expect(updatedFoo.parent).toBe("2");
+  expect(bar.children).toContainEqual(expect.objectContaining({ id: "1" }));
+  expect(store.current.state.notes).not.toContainEqual(
+    expect.objectContaining({ id: "1" })
+  );
+
+  // Move from nested to root
+  when((window as any).ipc)
+    .calledWith("notes.updateMetadata", "1", {
+      parent: undefined,
+    })
+    .mockReturnValueOnce({ ...updatedFoo, parent: undefined });
+
+  await act(async () => {
+    await store.current.dispatch("sidebar.dragNote", {
+      note: "1",
+      newParent: undefined,
+    });
+  });
+  const updatedFoo2 = getNoteById(store.current.state.notes, "1");
+  expect(updatedFoo2.parent).toBe(undefined);
+  expect(bar.children).not.toContainEqual(expect.objectContaining({ id: "1" }));
+  expect(store.current.state.notes).toContainEqual(
+    expect.objectContaining({ id: "1" })
+  );
 });

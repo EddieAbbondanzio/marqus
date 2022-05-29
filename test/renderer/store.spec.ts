@@ -1,7 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { DeepPartial } from "tsdef";
 import { Listener, State, useStore } from "../../src/renderer/store";
-import { Section } from "../../src/shared/domain/ui";
 import { createState } from "../__factories__/state";
 
 test("useStore listeners are added and removed", async () => {

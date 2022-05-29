@@ -1,7 +1,7 @@
 import { debounce, head, isEmpty } from "lodash";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { Section } from "../../shared/domain/ui";
+import { Section } from "../../shared/domain/ui/sections";
 import { Ipc } from "../../shared/ipc";
 import { w100, p2, m2 } from "../css";
 import { Listener, Store } from "../store";

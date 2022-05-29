@@ -10,7 +10,7 @@ import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import { useMouseDrag } from "../io/mouse";
 import { findParent } from "../utils/findParent";
-import { Section } from "../../shared/domain/ui";
+import { Section } from "../../shared/domain/ui/sections";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
 export const SIDEBAR_MENU_HEIGHT = 24;

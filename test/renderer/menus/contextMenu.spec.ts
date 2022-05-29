@@ -4,7 +4,7 @@ import {
   NoteSort,
   NOTE_SORT_LABELS,
 } from "../../../src/shared/domain/note";
-import { RadioMenu } from "../../../src/shared/domain/ui";
+import { RadioMenu } from "../../../src/shared/domain/ui/menu";
 
 test("buildNoteSortMenu global sort", () => {
   const menu = buildNoteSortMenu(NoteSort.AlphanumericReversed);

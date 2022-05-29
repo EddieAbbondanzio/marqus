@@ -11,7 +11,7 @@ import { createState } from "../../__factories__/state";
 import React, { ReactNode } from "react";
 import * as store from "../../../src/renderer/store";
 import { createStore } from "../../__factories__/store";
-import { Section } from "../../../src/shared/domain/ui";
+import { Section } from "../../../src/shared/domain/ui/sections";
 
 function init(
   props: FocusableProps,

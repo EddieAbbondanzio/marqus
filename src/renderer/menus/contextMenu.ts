@@ -5,14 +5,8 @@ import {
   NoteSort,
   NOTE_SORT_LABELS,
 } from "../../shared/domain/note";
-import {
-  EventMenu,
-  Menu,
-  RadioMenu,
-  SubMenu,
-  UIEventInput,
-  UIEventType,
-} from "../../shared/domain/ui";
+import { Menu, SubMenu } from "../../shared/domain/ui/menu";
+
 import { isDevelopment } from "../../shared/env";
 import { getFocusableAttribute } from "../components/shared/Focusable";
 import { getSidebarMenuAttribute } from "../components/SidebarMenu";

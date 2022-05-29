@@ -1,10 +1,11 @@
-import { PromptButton, PromptOptions } from "./prompt";
-import { Menu, UI } from "./domain/ui";
+import { PromptButton, PromptOptions } from "./domain/ui/prompt";
 import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
 import { Tag } from "./domain/tag";
 import { Config } from "./domain/config";
 import { Point } from "electron";
+import { Menu } from "./domain/ui/menu";
+import { UI } from "./domain/ui/sections";
 
 export interface IpcSchema {
   // App

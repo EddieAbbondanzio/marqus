@@ -1,6 +1,6 @@
-import { createNote } from "../../../src/shared/domain/note";
-import { filterOutStaleNoteIds } from "../../../src/shared/domain/ui";
-import { createState } from "../../__factories__/state";
+import { createNote } from "../../../../src/shared/domain/note";
+import { filterOutStaleNoteIds } from "../../../../src/shared/domain/ui/sections";
+import { createState } from "../../../__factories__/state";
 
 test("filterOutStateNoteIds", () => {
   const deleted = createNote({ name: "foo" });

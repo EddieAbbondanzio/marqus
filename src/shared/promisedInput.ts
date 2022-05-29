@@ -1,6 +1,8 @@
 import { Nullable } from "tsdef";
 import * as yup from "yup";
 
+// TODO: Can we find a better spot for this? The file feels out of place.
+
 export type InputMode = "create" | "update";
 
 export interface PromisedInput {
