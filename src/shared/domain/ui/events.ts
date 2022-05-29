@@ -39,6 +39,7 @@ export interface UIEvents {
   "sidebar.moveSelectionUp": void;
   "sidebar.moveSelectionDown": void;
   "sidebar.setSearchString": string;
+  "sidebar.focusSearch": void;
 
   // Editor
   "editor.save": void;

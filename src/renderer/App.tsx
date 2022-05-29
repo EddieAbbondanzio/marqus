@@ -4,7 +4,7 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { filterOutStaleNoteIds } from "../shared/domain/ui/sections";
+import { filterOutStaleNoteIds, Section } from "../shared/domain/ui/sections";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
@@ -64,6 +64,7 @@ export function App(props: AppProps): JSX.Element {
     store.on("app.toggleFullScreen", toggleFullScreen);
     store.on("app.openDataDirectory", openDataDirectory);
     store.on("app.selectDataDirectory", selectDataDirectory);
+    store.on("sidebar.focusSearch", globalSearch);
 
     store.on("focus.push", push);
     store.on("focus.pop", pop);
@@ -76,6 +77,7 @@ export function App(props: AppProps): JSX.Element {
       store.off("app.toggleFullScreen", toggleFullScreen);
       store.off("app.openDataDirectory", openDataDirectory);
       store.off("app.selectDataDirectory", selectDataDirectory);
+      store.off("sidebar.focusSearch", globalSearch);
 
       store.off("focus.push", push);
       store.off("focus.pop", pop);
@@ -202,5 +204,18 @@ export const pop: Listener<"focus.pop"> = (_, ctx) => {
     return {
       focused: tail(s.focused),
     };
+  });
+};
+
+// We need to listen for this even when the sidebar isn't being rendered so we
+// put it here.
+export const globalSearch: Listener<"sidebar.focusSearch"> = (_, ctx) => {
+  ctx.focus([Section.SidebarSearch, Section.Sidebar]);
+
+  // Sidebar could be hidden
+  ctx.setUI({
+    sidebar: {
+      hidden: false,
+    },
   });
 };
