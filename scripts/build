@@ -9,7 +9,7 @@ set -e
 npm run test || echo 1
 
 # Increment version?
-echo "Increment version? (patch/minor/major)"
+echo "Increment version? (patch/minor/major/no)"
 read INCREMENT
 
 case $INCREMENT in
@@ -26,6 +26,10 @@ case $INCREMENT in
   major)
     echo "MAJOR"
     npm version major
+  ;;
+
+  no)
+  echo "NO VERSION CHANGE"
   ;;
 
   *)
