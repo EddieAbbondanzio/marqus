@@ -1,26 +1,18 @@
 {
-  "extends": "./node_modules/electron-webpack/tsconfig-base.json",
   "compilerOptions": {
-  //   "target": "es2015",
-  //   "allowJs": true,
+    "target": "es2015",
+    "allowJs": true,
     "jsx": "react",
-  //   "module": "commonjs",
-  //   "skipLibCheck": true,
-  //   "esModuleInterop": true,
-  //   "noImplicitAny": true,
-  //   "sourceMap": true,
-  //   "baseUrl": ".",
-  //   "outDir": "dist",
-  //   "moduleResolution": "node",
-  //   "resolveJsonModule": true,
-  //   "strictNullChecks": true,
-  //   "paths": {
-  //     "*": [
-  //       "node_modules/*"
-  //     ]
-  //   }
+    "noUnusedLocals": false,
+    "module": "commonjs",
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "strictNullChecks": true,
   },
-  // "include": [
-  //   "src", "tsconfig.json"
-  // ],
+  "include": ["src", "webpack.config.js"],
+  "exclude": ["test", "dist", "out", "node_modules"]
 }

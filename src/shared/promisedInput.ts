@@ -13,7 +13,7 @@ export interface PromisedInput {
   confirm: () => void;
   cancel: () => void;
   validate: (value: string) => ValidateOutcome;
-  completed: Promise<[value: string, action: PromisedOutcome]>;
+  completed: Promise<[string, PromisedOutcome]>;
   parentId?: string;
 }
 type ValidateOutcome = { valid: true } | { valid: false; errors: string[] };
@@ -36,15 +36,14 @@ export function createPromisedInput(
   let outcome: Nullable<string>;
   let value = params.value ?? "";
 
-  const confirmPromise: Promise<[value: string, action: "confirm"]> =
-    new Promise(
-      (res) =>
-        (confirm = () => {
-          outcome = "confirm";
-          res([value, "confirm"]);
-        })
-    );
-  const cancelPromise: Promise<[value: string, action: "cancel"]> = new Promise(
+  const confirmPromise: Promise<[string, "confirm"]> = new Promise(
+    (res) =>
+      (confirm = () => {
+        outcome = "confirm";
+        res([value, "confirm"]);
+      })
+  );
+  const cancelPromise: Promise<[string, "cancel"]> = new Promise(
     (res) =>
       (cancel = () => {
         outcome = "cancel";

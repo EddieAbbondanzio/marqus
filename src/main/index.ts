@@ -1,19 +1,19 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+// /* eslint-disable react-hooks/rules-of-hooks */
 import { app, BrowserWindow, Menu, session } from "electron";
-import { getProcessType, isDevelopment } from "../shared/env";
-import { openInBrowser } from "./utils";
+// import { getProcessType, isDevelopment } from "../shared/env";
+// import { openInBrowser } from "./utils";
 
-if (getProcessType() !== "main") {
-  throw Error(
-    "ipcMain is null. Did you accidentally import main.ts in the renderer thread?"
-  );
-}
+// if (getProcessType() !== "main") {
+//   throw Error(
+//     "ipcMain is null. Did you accidentally import main.ts in the renderer thread?"
+//   );
+// }
 
-const DEFAULT_APPLICATION_MENU = Menu.buildFromTemplate([
-  { label: "File", enabled: false },
-  { label: "Edit", enabled: false },
-  { label: "View", enabled: false },
-]);
+// const DEFAULT_APPLICATION_MENU = Menu.buildFromTemplate([
+//   { label: "File", enabled: false },
+//   { label: "Edit", enabled: false },
+//   { label: "View", enabled: false },
+// ]);
 
 let mainWindow: BrowserWindow;
 
@@ -40,17 +40,17 @@ async function main() {
 
   const createWindow = async (): Promise<void> => {
     // Only allow external images
-    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      callback({
-        responseHeaders: Object.assign(
-          {
-            ...details.responseHeaders,
-            "Content-Security-Policy": ["img-src *"],
-          },
-          details.responseHeaders
-        ),
-      });
-    });
+    // session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    //   callback({
+    //     responseHeaders: Object.assign(
+    //       {
+    //         ...details.responseHeaders,
+    //         "Content-Security-Policy": ["img-src *"],
+    //       },
+    //       details.responseHeaders
+    //     ),
+    //   });
+    // });
 
     mainWindow = new BrowserWindow({
       height: 600,
@@ -69,9 +69,9 @@ async function main() {
     // and load the index.html of the app.
     // mainWindow.loadURL("../index.html");
 
-    if (isDevelopment()) {
-      mainWindow.webContents.openDevTools();
-    }
+    // if (isDevelopment()) {
+    //   mainWindow.webContents.openDevTools();
+    // }
 
     // mainWindow.on("resize", async () => {
     //   const [width, height] = mainWindow.getSize();
@@ -82,15 +82,15 @@ async function main() {
 
     // Override how all links are open so we can send them off to the user's
     // web browser instead of opening them in the electron app.
-    mainWindow.webContents.setWindowOpenHandler((dets) => {
-      openInBrowser(dets.url);
-      return { action: "deny" };
-    });
+    // mainWindow.webContents.setWindowOpenHandler((dets) => {
+    //   openInBrowser(dets.url);
+    //   return { action: "deny" };
+    // });
 
     // We set a non-functional application menu at first so we can make things
     // appear to load smoother visually. Once renderer has started we'll
     // populate it with an actual menu.
-    mainWindow.setMenu(DEFAULT_APPLICATION_MENU);
+    // mainWindow.setMenu(DEFAULT_APPLICATION_MENU);
   };
 
   // Quit when all windows are closed, except on macOS. There, it's common
