@@ -85,7 +85,7 @@ export async function readFile<
             const json = JSON.parse(data);
             res(json);
           } catch (e) {
-            const { message } = e;
+            const { message } = e as Error;
             (e as Error).message = `Cannot load file ${path}:\n${message}`;
             rej(e);
           }

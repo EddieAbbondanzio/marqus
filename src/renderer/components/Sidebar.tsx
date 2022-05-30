@@ -3,8 +3,8 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, mh100, pl0, py1, THEME, w100 } from "../css";
-import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
+import { h100, THEME } from "../css";
+import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
   getNoteById,
@@ -22,12 +22,10 @@ import { SIDEBAR_MENU_HEIGHT, SidebarMenu, SidebarInput } from "./SidebarMenu";
 import {
   faChevronDown,
   faChevronRight,
-  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
 import { filterOutStaleNoteIds } from "../../shared/domain/ui/sections";
-import { Icon } from "./shared/Icon";
 import { SidebarControls } from "./SidebarControls";
 import { Section } from "../../shared/domain/ui/sections";
 

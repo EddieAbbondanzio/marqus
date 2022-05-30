@@ -11,7 +11,5 @@
  *
  * https://electronjs.org/docs/tutorial/security
  */
-import "../../styles/reset.sass";
-import "../../styles/styles.sass";
 
-import "./App";
+console.log("RENDERER!");

@@ -1,16 +1,14 @@
 import {
   faAngleDoubleDown,
   faAngleDoubleUp,
-  faEllipsisV,
   faPlus,
-  faSort,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import OpenColor from "open-color";
 import React from "react";
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
-import { m1, mx1, mx2, p1 } from "../css";
+import { m1 } from "../css";
 import { Store } from "../store";
 import { Icon } from "./shared/Icon";
 

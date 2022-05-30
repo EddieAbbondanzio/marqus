@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from "electron";
 import { getProcessType, isDevelopment } from "../shared/env";
 import { Ipc, IpcChannel } from "../shared/ipc";
 
+console.log("STARTING PRELOAD");
+
 if (getProcessType() === "main") {
   throw Error(
     "ipcRenderer is null. Did you accidentally import 'preload.ts' into a main process file?"
