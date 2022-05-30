@@ -17,58 +17,6 @@
     "name": "Ed Abbondanzio",
     "email": "me@eddieabbondanz.io"
   },
-  "license": "MIT",
-  "config": {
-    "forge": {
-      "packagerConfig": {
-        "icon": "./assets/icon.png"
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "Marker"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ],
-      "plugins": [
-        [
-          "@electron-forge/plugin-webpack",
-          {
-            "devContentSecurityPolicy": "default-src ws://localhost:3000 http://localhost:3000 self; style-src 'unsafe-inline'; img-src *; script-src-elem 'self' 'unsafe-eval'; script-src 'self' 'unsafe-eval';",
-            "mainConfig": "./webpack.main.config.js",
-            "renderer": {
-              "config": "./webpack.renderer.config.js",
-              "entryPoints": [
-                {
-                  "html": "./src/index.html",
-                  "js": "./src/renderer/index.ts",
-                  "name": "main_window",
-                  "preload": {
-                    "js": "./src/renderer/preload.ts"
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      ]
-    }
-  },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.61",
     "@electron-forge/maker-deb": "^6.0.0-beta.61",
@@ -93,6 +41,7 @@
     "@typescript-eslint/parser": "^4.0.1",
     "@vercel/webpack-asset-relocator-loader": "1.7.0",
     "babel-jest": "^27.3.1",
+    "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^6.0.0",
     "electron": "15.3.0",
     "eslint": "^7.6.0",

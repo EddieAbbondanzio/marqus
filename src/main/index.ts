@@ -36,6 +36,9 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 let mainWindow: BrowserWindow;
 
 async function main() {
+  console.log("ICON!!!!!!");
+  console.log({ icon: path.join(__dirname, "assets/icon.png") });
+
   const config: Config = await loadConfig();
   const typeSafeIpc: IpcMainTS = {
     handle: (ipc, handler) => {
@@ -71,7 +74,7 @@ async function main() {
     mainWindow = new BrowserWindow({
       height: config.windowHeight,
       width: config.windowWidth,
-      icon: path.resolve(__dirname, "assets/icon.png"),
+      icon: path.join(__dirname, "assets/icon.png"),
       webPreferences: {
         preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
         // Do not change these. They are for security purposes.
