@@ -24,7 +24,7 @@ pnpm-debug.log*
 
 .webpack
 
-# Eletron forge build dir.
+# Eletron build dir.
 /out
 
 
