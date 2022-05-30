@@ -33,9 +33,9 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: "static/",
-          to: "assets/",
-        },
+          from: "static",
+          to: "static",
+        }, 
       ],
     }),
   ],
