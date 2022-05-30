@@ -1,6 +1,6 @@
 # Marker
 
-![alt text](https://github.com/EddieAbbondanzio/marker/blob/master/static/icon.png?raw=true)
+<img align="center" width="256" height="256" src="https://github.com/EddieAbbondanzio/marker/blob/master/static/icon_600.png?raw=true">
 
 A note taking app shouldn't get in your way. I wrote Marker because I wanted a markdown note taking app that would make me more productive while at the same time giving me full control control over my notes.
 
