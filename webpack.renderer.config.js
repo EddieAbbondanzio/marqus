@@ -1,4 +1,3 @@
-const path = require("path");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 

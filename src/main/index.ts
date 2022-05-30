@@ -13,6 +13,7 @@ import { useNoteIpcs } from "./ipcs/notes";
 import { useShortcutIpcs } from "./ipcs/shortcuts";
 import { useTagIpcs } from "./ipcs/tags";
 import { openInBrowser } from "./utils";
+import * as path from "path";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -70,6 +71,7 @@ async function main() {
     mainWindow = new BrowserWindow({
       height: config.windowHeight,
       width: config.windowWidth,
+      icon: path.resolve(__dirname, "assets/icon.png"),
       webPreferences: {
         preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
         // Do not change these. They are for security purposes.
