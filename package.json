@@ -17,6 +17,7 @@
     "name": "Ed Abbondanzio",
     "email": "me@eddieabbondanz.io"
   },
+  "license": "GPL-3.0",
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.61",
     "@electron-forge/maker-deb": "^6.0.0-beta.61",
