@@ -75,7 +75,7 @@ async function main() {
     mainWindow = new BrowserWindow({
       height: config.windowHeight,
       width: config.windowWidth,
-      icon: path.join(__dirname, "static/icon.png"),
+      icon: "static/icon.png",
       webPreferences: {
         preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
         // Do not change these. They are for security purposes.
