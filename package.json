@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron-forge start --inspect-electron",
     "REPL": "node",
-    "package": "electron-forge package",
+    "publish-no-build": "electron-forge publish",
     "make": "electron-forge make",
     "publish": "./scripts/build",
     "lint": "eslint --ext .ts,.tsx .",

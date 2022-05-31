@@ -70,6 +70,8 @@ async function main() {
       });
     });
 
+    console.log("ICON PATH: ", path.join(__dirname, "static/icon.png"));
+
     mainWindow = new BrowserWindow({
       height: config.windowHeight,
       width: config.windowWidth,
