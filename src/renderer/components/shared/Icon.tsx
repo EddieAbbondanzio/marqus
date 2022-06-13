@@ -13,6 +13,7 @@ export interface IconProps {
   title?: string;
   size?: FontAwesomeIconProps["size"];
   onClick?: MouseEventHandler;
+  transform?: FontAwesomeIconProps["transform"];
 }
 
 export function Icon(props: IconProps): JSX.Element {
@@ -22,6 +23,7 @@ export function Icon(props: IconProps): JSX.Element {
         icon={props.icon}
         title={props.title}
         size={props.size}
+        transform={props.transform}
       />
     </StyledI>
   );

@@ -1,11 +1,9 @@
 import { faCross, faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { isEmpty } from "lodash";
-import OpenColor from "open-color";
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/domain/ui/sections";
-import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
-import { m1, mt1, mx1, pl0, px1, px3, py1, THEME, w100 } from "../css";
+import { m1, my2, pl0, py1, THEME, w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -60,7 +58,7 @@ const StyledFocusable = styled(Focusable)`
   flex-direction: row;
   align-items: center;
   position: relative;
-  ${mt1}
+  ${my2}
 `;
 
 const SearchIcon = styled(Icon)`
