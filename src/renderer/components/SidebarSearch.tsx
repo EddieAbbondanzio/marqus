@@ -3,7 +3,7 @@ import { isEmpty } from "lodash";
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/domain/ui/sections";
-import { m1, my2, pl0, py1, THEME, w100 } from "../css";
+import { m1, my2, pb2, pl0, py1, THEME, w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -58,13 +58,14 @@ const StyledFocusable = styled(Focusable)`
   flex-direction: row;
   align-items: center;
   position: relative;
-  ${my2}
+  ${pb2}
 `;
 
 const SearchIcon = styled(Icon)`
   position: absolute;
   color: ${THEME.sidebar.search.icon};
   left: 0.5rem;
+  font-size: 1.6rem;
 `;
 
 const DeleteIcon = styled(Icon)`
@@ -78,8 +79,8 @@ const SearchInput = styled.input`
   border: none;
   outline: none;
   -webkit-appearance: none;
-  height: 20px;
-  font-size: 0.8rem;
+  height: 2ren;
+  font-size: 1.4rem;
   ${pl0}
   ${py1}
   ${w100};
@@ -89,5 +90,4 @@ const SearchInput = styled.input`
   padding-left: 32px;
   padding-right: 32px;
   border-radius: 4px;
-  ${m1}
 `;

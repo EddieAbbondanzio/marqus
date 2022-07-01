@@ -3,7 +3,7 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, mh100, pl0, py1, THEME, w100 } from "../css";
+import { h100, mh100, p1, p2, pl0, px1, py1, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
 import {
   Note,
@@ -28,7 +28,7 @@ import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
 import { filterOutStaleNoteIds } from "../../shared/domain/ui/sections";
 import { Icon } from "./shared/Icon";
-import { SidebarControls } from "./SidebarControls";
+import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/domain/ui/sections";
 
 const EXPANDED_ICON = faChevronDown;
@@ -164,9 +164,11 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       width={store.state.ui.sidebar.width}
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
-      <Focusable store={store} name={Section.Sidebar}>
-        <SidebarSearch store={store} />
-        <SidebarControls store={store} />
+      <StyledFocusable store={store} name={Section.Sidebar}>
+        <Controls id="controls">
+          <SidebarSearch store={store} />
+          <SidebarNewNoteButton store={store} />
+        </Controls>
 
         <Scrollable
           height="calc(100% - 52px)"
@@ -178,7 +180,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
           {/* Empty space for right clicking to create new notes */}
           <EmptySpace />
         </Scrollable>
-      </Focusable>
+      </StyledFocusable>
     </StyledResizable>
   );
 }
@@ -186,7 +188,15 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
 const StyledResizable = styled(Resizable)`
   background-color: ${THEME.sidebar.background};
   user-select: none;
-  ${h100}
+  ${h100};
+`;
+
+const StyledFocusable = styled(Focusable)`
+  ${p2}
+`;
+
+const Controls = styled.div`
+  ${p2}
 `;
 
 const EmptySpace = styled.div`

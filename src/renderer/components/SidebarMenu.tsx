@@ -92,8 +92,8 @@ const StyledMenu = styled.a`
   flex-direction: row;
   align-items: center;
   height: ${SIDEBAR_MENU_HEIGHT}px;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
   &:hover {
     background-color: ${THEME.sidebar.hover};
   }
@@ -104,11 +104,12 @@ const StyledMenuIcon = styled(Icon)`
   width: ${SIDEBAR_ICON_WIDTH}px;
   padding: 0;
   text-align: center;
+  font-size: 1.2rem;
 `;
 
 const StyledMenuText = styled.div`
   color: ${THEME.sidebar.font};
-  font-size: 0.8rem;
+  font-size: 1.2rem;
 `;
 
 export interface SidebarInputProps {
@@ -220,8 +221,8 @@ const StyledInput = styled.input`
   border: none;
   outline: none;
   -webkit-appearance: none;
-  height: 20px;
-  font-size: 0.8rem;
+  height: 2rem;
+  font-size: 1.4rem;
   padding-left: 0;
   background-color: ${THEME.sidebar.input.background};
   color: ${THEME.sidebar.input.font};
@@ -231,8 +232,8 @@ const StyledInput = styled.input`
 const ErrorMessage = styled.div`
   background-color: ${THEME.sidebar.error.background};
   color: ${THEME.sidebar.error.font};
-  font-size: 0.8rem;
-  border-radius: 4px;
+  font-size: 1.2rem;
+  border-radius: 0.4rem;
   position: relative;
   ${mt1}
   ${p2}
