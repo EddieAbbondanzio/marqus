@@ -63,10 +63,10 @@ export function sortNotes(notes: Note[], sort: NoteSort): Note[] {
         );
 
       case NoteSort.DateCreated:
-        return orderBy(notes, ["dateCreated"], ["asc"]);
+        return orderBy(notes, ["dateCreated"], ["desc"]);
 
       case NoteSort.DateCreatedReversed:
-        return orderBy(notes, ["dateCreated"], ["desc"]);
+        return orderBy(notes, ["dateCreated"], ["asc"]);
 
       case NoteSort.DateUpdated:
         // Use created date as tie breaker

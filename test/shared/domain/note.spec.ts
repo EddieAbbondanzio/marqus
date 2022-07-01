@@ -70,21 +70,21 @@ test("sortNotes date created", () => {
   ];
 
   const sorted = sortNotes(notes, NoteSort.DateCreated);
-  expect(sorted.map((n) => n.name)).toEqual(["1", "2", "3", "4", "5", "6"]);
+  expect(sorted.map((n) => n.name)).toEqual(["6", "5", "4", "3", "2", "1"]);
 });
 
 test("sortNotes date created reversed", () => {
   const notes = [
+    createNote({ name: "4", dateCreated: addDays(new Date(), 4) }),
     createNote({ name: "5", dateCreated: addDays(new Date(), 5) }),
     createNote({ name: "1", dateCreated: addDays(new Date(), 1) }),
     createNote({ name: "3", dateCreated: addDays(new Date(), 3) }),
     createNote({ name: "6", dateCreated: addDays(new Date(), 6) }),
     createNote({ name: "2", dateCreated: addDays(new Date(), 2) }),
-    createNote({ name: "4", dateCreated: addDays(new Date(), 4) }),
   ];
 
   const sorted = sortNotes(notes, NoteSort.DateCreatedReversed);
-  expect(sorted.map((n) => n.name)).toEqual(["6", "5", "4", "3", "2", "1"]);
+  expect(sorted.map((n) => n.name)).toEqual(["1", "2", "3", "4", "5", "6"]);
 });
 
 test("sortNotes date updated", () => {

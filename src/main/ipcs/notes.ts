@@ -41,15 +41,14 @@ export async function loadNotes(config: Config): Promise<Note[]> {
     const metadataPath = buildNotePath(config, entry.name, "metadata");
     const meta = await readFile(metadataPath, "json");
 
+    const { dateCreated, dateUpdated, ...remainder } = meta;
+
     const note = createNote({
-      dateCreated: parseJSON(meta.dateCreated),
-      ...meta,
+      dateCreated: parseJSON(dateCreated),
+      dateUpdated: dateUpdated != null ? parseJSON(dateUpdated) : undefined,
+      ...remainder,
     });
     await getNoteSchema().validate(note);
-
-    if (meta.dateUpdated != null) {
-      note.dateUpdated = parseJSON(meta.dateUpdated);
-    }
 
     // We don't add children until every note has been loaded because there's a
     // chance children will be loaded before their parent.
