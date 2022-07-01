@@ -30,12 +30,12 @@ export const THEME = {
 };
 
 export const HEADER_SIZES = [
-  "2.5rem",
+  "4rem",
+  "3.2rem",
+  "2.4rem",
   "2rem",
-  "1.5rem",
-  "1.33rem",
-  "1.25rem",
-  "1rem",
+  "1.6rem",
+  "1.4rem",
 ];
 
 export const rounded = css`

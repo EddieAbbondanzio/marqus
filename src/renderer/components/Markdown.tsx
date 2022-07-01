@@ -76,7 +76,6 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 }
 
 const H1 = styled.h1`
-  font-size: 2rem;
   font-weight: 600;
   margin-bottom: 1.2rem;
 
@@ -85,7 +84,6 @@ const H1 = styled.h1`
   }
 `;
 const H2 = styled.h2`
-  font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
@@ -94,7 +92,6 @@ const H2 = styled.h2`
   }
 `;
 const H3 = styled.h3`
-  font-size: 1.333rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
@@ -103,7 +100,6 @@ const H3 = styled.h3`
   }
 `;
 const H4 = styled.h4`
-  font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
@@ -112,7 +108,6 @@ const H4 = styled.h4`
   }
 `;
 const H5 = styled.h5`
-  font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
@@ -121,7 +116,6 @@ const H5 = styled.h5`
   }
 `;
 const H6 = styled.h6`
-  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 1rem;
 
