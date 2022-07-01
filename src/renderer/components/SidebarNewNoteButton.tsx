@@ -24,14 +24,15 @@ export interface SidebarNewNoteButton {
 export function SidebarNewNoteButton(
   props: PropsWithChildren<SidebarNewNoteButton>
 ) {
-  const onClick = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  const onClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
     // Stop prop otherwise we'll mess up switching focus
     ev.stopPropagation();
+    props.store.dispatch("sidebar.createNote", null);
   };
 
   return (
     <Container>
-      <GreenButton title="Create new note...">
+      <GreenButton title="Create new note..." onClick={onClick}>
         {/* https://fontawesome.com/v5/docs/web/use-with/react */}
         <span className="fa-layers fa-fw">
           <Icon icon={faFile} />
@@ -61,6 +62,8 @@ const GreenButton = styled.button`
   .plus {
     color: ${OpenColor.green[9]};
   }
+
+  cursor: pointer;
 `;
 
 const NotesHeader = styled.p`
