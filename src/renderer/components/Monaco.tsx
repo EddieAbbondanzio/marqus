@@ -31,8 +31,8 @@ export function Monaco({ store }: MonacoProps): JSX.Element {
     ui: { editor },
   } = store.state;
 
-  // Monaco and onChangeSub are stored as refs because we don't want the
-  // component to re-render if either of them change.
+  // These are stored as refs because we don't want the component to re-render
+  // if any of them change.
   const containerElement = useRef<HTMLDivElement | null>(null);
   const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const onChangeSub = useRef<monaco.IDisposable | null>(null);
@@ -58,12 +58,8 @@ export function Monaco({ store }: MonacoProps): JSX.Element {
         ...MONACO_SETTINGS,
       });
 
-      if (el == null) {
-        return;
-      }
-
-      // Monaco requires us to listen for changes in container size and manually
-      // trigger re-render
+      // Monaco doesn't automically resize when it's container element does so
+      // we need to listen for changes and trigger the refresh ourselves.
       resizeObserver = new ResizeObserver(() => {
         if (monacoEditor.current != null) {
           monacoEditor.current.layout();
@@ -88,11 +84,11 @@ export function Monaco({ store }: MonacoProps): JSX.Element {
         onChangeSub.current.dispose();
       }
     };
-    // No dependencies so this hook only runs once.
+    // No dependencies because we want this hook to only run once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onChange = useCallback(() => {
+  const onContentChange = useCallback(() => {
     if (monacoEditor.current == null) {
       return;
     }
@@ -113,10 +109,10 @@ export function Monaco({ store }: MonacoProps): JSX.Element {
     onChangeSub.current?.dispose();
 
     onChangeSub.current =
-      monacoEditor.current.onDidChangeModelContent(onChange);
-  }, [onChange]);
+      monacoEditor.current.onDidChangeModelContent(onContentChange);
+  }, [onContentChange]);
 
-  // Update monaco editor
+  // Listen for changing the actively displayed note.
   useEffect(() => {
     if (monacoEditor.current == null) {
       return;
@@ -127,20 +123,22 @@ export function Monaco({ store }: MonacoProps): JSX.Element {
       throw new Error("Editor model was null");
     }
 
+    // This doesn't seem right. I suspect this is exactly why we lost our notes!
     if (editor.noteId != null && editor.noteId !== loadedNoteId) {
-      monacoEditor.current.pushUndoStop();
-      // @ts-expect-error lol
-      model.pushEditOperations(
-        [],
-        [
-          {
-            range: model.getFullModelRange(),
-            text: editor.content,
-          },
-        ]
-      );
-      monacoEditor.current.pushUndoStop();
-      setloadedNoteId(editor.noteId);
+      console.log("CHANGE NOTES!", editor.noteId);
+      //   monacoEditor.current.pushUndoStop();
+      //   // @ts-expect-error lol
+      //   model.pushEditOperations(
+      //     [],
+      //     [
+      //       {
+      //         range: model.getFullModelRange(),
+      //         text: editor.content,
+      //       },
+      //     ]
+      //   );
+      //   monacoEditor.current.pushUndoStop();
+      //   setloadedNoteId(editor.noteId);
     }
   }, [editor, loadedNoteId, setloadedNoteId]);
 

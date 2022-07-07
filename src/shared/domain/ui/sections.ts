@@ -1,6 +1,7 @@
 import { keyBy, isEmpty } from "lodash";
 import { PromisedInput } from "../../promisedInput";
 import { Note, NoteSort } from "../note";
+import * as monaco from "monaco-editor";
 
 export interface UI {
   sidebar: Sidebar;
@@ -31,6 +32,14 @@ export interface Editor {
   content?: string;
   noteId?: string;
   scroll: number;
+  tabs?: EditorTab[];
+}
+
+export interface EditorTab {
+  noteId: string;
+  // These can be null because they aren't serialized.
+  viewState?: monaco.editor.IViewState;
+  model?: monaco.editor.ITextModel;
 }
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to

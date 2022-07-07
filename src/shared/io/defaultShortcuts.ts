@@ -81,8 +81,8 @@ const shortcuts: Shortcut[] = [
     repeat: true,
   },
   {
-    name: "editor.loadSelectedNote",
-    event: "editor.loadSelectedNote",
+    name: "editor.loadNote",
+    event: "editor.loadNote",
     keys: [KeyCode.Enter],
     when: Section.Sidebar,
   },

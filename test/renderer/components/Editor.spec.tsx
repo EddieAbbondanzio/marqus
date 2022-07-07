@@ -10,13 +10,6 @@ test("editor.loadNote", async () => {
   const { result: store } = renderHook(() => useStore(createState()));
   const res = render(<Editor store={store.current} />);
 
-  // Throws if no id passed
-  act(() => {
-    expect(store.current.dispatch("editor.loadNote", null!)).rejects.toThrow(
-      /No note id to load/
-    );
-  });
-
   when((window as any).ipc)
     .calledWith("notes.loadContent", "foo")
     .mockReturnValue("fake note content");
@@ -30,7 +23,7 @@ test("editor.loadNote", async () => {
   expect(state.ui.editor.content).toBe("fake note content");
 });
 
-test("editor.loadSelectedNote", async () => {
+test("editor.loadNote", async () => {
   const { result: store } = renderHook(() =>
     useStore(
       createState({
@@ -51,7 +44,7 @@ test("editor.loadSelectedNote", async () => {
     .mockReturnValue("fake note content");
 
   await act(async () => {
-    await store.current.dispatch("editor.loadSelectedNote");
+    await store.current.dispatch("editor.loadNote", null);
   });
 
   const { state } = store.current;

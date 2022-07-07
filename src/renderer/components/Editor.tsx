@@ -9,7 +9,7 @@ import { Markdown } from "./Markdown";
 import { Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
 
-const NOTE_SAVE_INTERVAL = 500; // ms
+const NOTE_SAVE_INTERVAL_MS = 500;
 
 interface EditorProps {
   store: Store;
@@ -36,7 +36,7 @@ export function Editor({ store }: EditorProps): JSX.Element {
     store.on("editor.setContent", setContent);
     store.on("editor.save", save);
     store.on("editor.toggleView", toggleView);
-    store.on(["editor.loadNote", "editor.loadSelectedNote"], loadNote);
+    store.on("editor.loadNote", loadNote);
     store.on("editor.updateScroll", updateScroll);
 
     return () => {
@@ -60,36 +60,24 @@ const StyledFocusable = styled(Focusable)`
   ${m2}
 `;
 
-const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL) as Ipc;
+const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL_MS) as Ipc;
 
-const loadNote: Listener<
-  "editor.loadNote" | "editor.loadSelectedNote"
-> = async (ev, ctx) => {
+const loadNote: Listener<"editor.loadNote"> = async (ev, ctx) => {
   const state = ctx.getState();
   let noteId: string;
 
-  switch (ev.type) {
-    case "editor.loadNote":
-      if (ev.value == null) {
-        throw new Error("No note id to load.");
-      }
+  // If no note was passed, attempt to load the selected note
+  if (ev.value == null) {
+    // User could accidentally press delete when nothing is selected so we
+    // don't throw here.
+    const { selected } = state.ui.sidebar;
+    if (isEmpty(selected)) {
+      return;
+    }
 
-      noteId = ev.value;
-      break;
-
-    case "editor.loadSelectedNote":
-      // User could accidentally press delete when nothing is selected so we
-      // don't throw here.
-      const { selected } = state.ui.sidebar;
-      if (isEmpty(selected)) {
-        return;
-      }
-
-      noteId = head(selected)!;
-      break;
-
-    default:
-      throw new Error(`Invalid event type ${ev.type}`);
+    noteId = head(selected)!;
+  } else {
+    noteId = ev.value;
   }
 
   if (noteId === state.ui.editor.noteId) {
@@ -104,7 +92,8 @@ const loadNote: Listener<
     },
   });
 
-  if (ev.type === "editor.loadSelectedNote") {
+  // Opened selected note, gotta override!
+  if (ev.value == null) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
 };
