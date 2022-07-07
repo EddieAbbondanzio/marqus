@@ -1,12 +1,12 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { cloneDeep, isEmpty } from "lodash";
+import { cloneDeep, isEmpty, pick } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Tag } from "../shared/domain/tag";
 import { UIEventType, UIEventInput } from "../shared/domain/ui/events";
-import { UI, Section } from "../shared/domain/ui/sections";
+import { Section, Editor, Sidebar, UI } from "../shared/domain/ui/sections";
 
 export interface Store {
   state: State;
@@ -15,8 +15,7 @@ export interface Store {
   dispatch: Dispatch;
 }
 
-export interface State {
-  ui: UI;
+export interface State extends UI {
   tags: Tag[];
   notes: Note[];
   shortcuts: Shortcut[];
@@ -60,6 +59,7 @@ export interface StoreContext {
 export type SetUI = (
   t: Transformer<UI, DeepPartial<UI>> | DeepPartial<UI>
 ) => void;
+
 export type SetTags = (t: Transformer<Tag[]>) => void;
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
 export type SetNotes = (t: Transformer<Note[]>) => void;
@@ -82,26 +82,29 @@ export function useStore(initialState: State): Store {
 
   const setUI: SetUI = useCallback((transformer) => {
     setState((prevState) => {
-      const updates =
-        typeof transformer === "function"
-          ? transformer(prevState.ui)
-          : transformer;
+      const prevUI = pick(prevState, "editor", "sidebar", "focused");
 
-      const ui = deepUpdate(prevState.ui, updates);
+      const updates =
+        typeof transformer === "function" ? transformer(prevUI) : transformer;
+
+      const ui = deepUpdate(prevUI, updates);
       const newState = {
         ...prevState,
-        ui,
+        ...ui,
       };
 
       // We need to delete some values before sending them over to the main
       // thread otherwise electron will throw an error.
-      const clonedUI = cloneDeep(newState.ui);
+      const newUI = pick(newState, "editor", "sidebar", "focused");
+      const clonedUI = cloneDeep(newUI);
       if (clonedUI?.sidebar != null) {
         delete clonedUI.sidebar.input;
         delete clonedUI.sidebar.searchString;
       }
-      if (clonedUI?.editor != null) {
-        delete clonedUI.editor.content;
+      if (clonedUI?.editor != null && clonedUI.editor.tabs != null) {
+        for (const tab of clonedUI.editor.tabs) {
+          tab.noteContent = null;
+        }
       }
 
       void window.ipc("app.saveUIState", clonedUI);
@@ -141,8 +144,8 @@ export function useStore(initialState: State): Store {
 
       // Don't push new section if new first is the same.
       const { current: state } = lastState;
-      if (!isEmpty(state.ui.focused)) {
-        if (state.ui.focused[0] === sections[0]) {
+      if (!isEmpty(state.focused)) {
+        if (state.focused[0] === sections[0]) {
           return;
         }
       }

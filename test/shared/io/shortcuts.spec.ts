@@ -40,18 +40,12 @@ test("useShortcuts dispatches shortcut", () => {
 test.each([undefined, [Section.Sidebar]])(
   "shouldExecute global (current focused: (%s)",
   (focused: any) => {
-    const ui = {
-      focused,
-    } as unknown as UI;
-    expect(shouldExecute(ui)).toBe(true);
+    expect(shouldExecute(focused)).toBe(true);
   }
 );
 test("shouldExecute contextual", () => {
-  const ui = {
-    focused: [Section.Sidebar],
-  } as unknown as UI;
-  expect(shouldExecute(ui, Section.Sidebar)).toBe(true);
-  expect(shouldExecute(ui, Section.Editor)).toBe(false);
+  expect(shouldExecute([Section.Sidebar], Section.Sidebar)).toBe(true);
+  expect(shouldExecute([Section.Sidebar], Section.Editor)).toBe(false);
 });
 
 jest.useRealTimers();

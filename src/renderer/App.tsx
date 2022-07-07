@@ -52,6 +52,8 @@ export interface AppProps {
 
 export function App(props: AppProps): JSX.Element {
   const store = useStore(props.initialState);
+  const { state } = store;
+
   useShortcuts(store);
   useApplicationMenu(store);
   useContextMenu(store);
@@ -88,7 +90,7 @@ export function App(props: AppProps): JSX.Element {
 
   return (
     <Container>
-      {!(store.state.ui.sidebar.hidden ?? false) && <Sidebar store={store} />}
+      {!(state.sidebar.hidden ?? false) && <Sidebar store={store} />}
       <Editor store={store} />
       {props.needDataDirectory && <DataDirectoryModal store={store} />}
     </Container>
@@ -152,13 +154,13 @@ async function loadInitialState(): Promise<State> {
   ui = filterOutStaleNoteIds(ui, notes);
 
   // Pull in note
-  if (ui.editor.noteId != null) {
-    ui.editor.content =
-      (await ipc("notes.loadContent", ui.editor.noteId)) ?? undefined;
-  }
+  // if (ui.editor.noteId != null) {
+  //   ui.editor.content =
+  //     (await ipc("notes.loadContent", ui.editor.noteId)) ?? undefined;
+  // }
 
   return {
-    ui,
+    ...ui,
     shortcuts,
     tags,
     notes,

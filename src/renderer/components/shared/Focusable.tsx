@@ -21,11 +21,12 @@ export const useFocusTracking = (store: Store): void => {
    * handles every event we can ensure we don't accidentally push new focusables
    * as the event propagates up due to how events naturally like to bubble.
    */
+  const { state } = store;
 
   const onClick = (ev: MouseEvent) => {
     const focusable = getFocusableAttribute(ev.target as HTMLElement);
     if (focusable != null) {
-      const current = head(store.state.ui.focused);
+      const current = head(state.focused);
       if (current != null && focusable === current) {
         return;
       }
@@ -56,8 +57,10 @@ export interface FocusableProps {
 export function Focusable(
   props: PropsWithChildren<FocusableProps>
 ): JSX.Element {
+  const { store } = props;
+  const { state } = store;
   const containerRef = useRef(null as HTMLDivElement | null);
-  const [current] = props.store.state.ui.focused;
+  const [current] = state.focused;
   const lastCurrent = useRef(null as Section | null);
 
   useEffect(() => {
@@ -89,7 +92,7 @@ export function Focusable(
     const { current: el } = containerRef;
     const blur = (ev: KeyboardEvent) => {
       if (parseKeyCode(ev.code) === KeyCode.Escape) {
-        props.store.dispatch("focus.pop");
+        store.dispatch("focus.pop");
       }
     };
 

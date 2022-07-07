@@ -15,16 +15,19 @@ interface EditorProps {
   store: Store;
 }
 
-export function Editor({ store }: EditorProps): JSX.Element {
+export function Editor(props: EditorProps): JSX.Element {
+  const { store } = props;
+  const { state } = store;
+
   let content;
-  if (store.state.ui.editor.isEditting) {
+  if (state.editor.isEditting) {
     content = <Monaco store={store} />;
   } else {
     content = (
       <Markdown
         store={store}
-        content={store.state.ui.editor.content ?? ""}
-        scroll={store.state.ui.editor.scroll}
+        content={""}
+        scroll={state.editor.scroll}
         onScroll={(newVal) =>
           void store.dispatch("editor.updateScroll", newVal)
         }
@@ -36,20 +39,21 @@ export function Editor({ store }: EditorProps): JSX.Element {
     store.on("editor.setContent", setContent);
     store.on("editor.save", save);
     store.on("editor.toggleView", toggleView);
-    store.on("editor.loadNote", loadNote);
+    store.on("editor.openTab", openTab);
     store.on("editor.updateScroll", updateScroll);
 
     return () => {
       store.off("editor.setContent", setContent);
       store.off("editor.save", save);
       store.off("editor.toggleView", toggleView);
-      store.off("editor.loadNote", loadNote);
+      store.off("editor.openTab", openTab);
       store.off("editor.updateScroll", updateScroll);
     };
   }, [store]);
 
   return (
     <StyledFocusable store={store} name={Section.Editor} focusOnRender={false}>
+      {state.editor.tabs}
       {content}
     </StyledFocusable>
   );
@@ -62,15 +66,15 @@ const StyledFocusable = styled(Focusable)`
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL_MS) as Ipc;
 
-const loadNote: Listener<"editor.loadNote"> = async (ev, ctx) => {
-  const state = ctx.getState();
+const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
+  const { sidebar } = ctx.getState();
   let noteId: string;
 
   // If no note was passed, attempt to load the selected note
   if (ev.value == null) {
     // User could accidentally press delete when nothing is selected so we
     // don't throw here.
-    const { selected } = state.ui.sidebar;
+    const { selected } = sidebar;
     if (isEmpty(selected)) {
       return;
     }
@@ -80,17 +84,17 @@ const loadNote: Listener<"editor.loadNote"> = async (ev, ctx) => {
     noteId = ev.value;
   }
 
-  if (noteId === state.ui.editor.noteId) {
-    return;
-  }
+  // if (noteId === state.ui.editor.noteId) {
+  //   return;
+  // }
 
-  const content = (await window.ipc("notes.loadContent", noteId)) ?? undefined;
-  ctx.setUI({
-    editor: {
-      content,
-      noteId,
-    },
-  });
+  // const content = await window.ipc("notes.loadContent", noteId);
+  // ctx.setUI({
+  //   editor: {
+  //     content,
+  //     noteId,
+  //   },
+  // });
 
   // Opened selected note, gotta override!
   if (ev.value == null) {
@@ -102,25 +106,23 @@ const setContent: Listener<"editor.setContent"> = async (
   { value: content },
   ctx
 ) => {
-  const {
-    ui: { editor },
-  } = ctx.getState();
-  if (editor.noteId != null) {
-    ctx.setUI({
-      editor: {
-        content,
-      },
-    });
+  const { editor } = ctx.getState();
+  console.log("editor.setContent isn't hooked up!");
+  // if (editor.noteId != null) {
+  //   ctx.setUI({
+  //     editor: {
+  //       content,
+  //     },
+  //   });
 
-    await debouncedInvoker("notes.saveContent", editor.noteId, content);
-  }
+  //   await debouncedInvoker("notes.saveContent", editor.noteId, content);
+  // }
 };
 
 const toggleView: Listener<"editor.toggleView"> = (_, ctx) => {
-  const {
-    ui: { editor },
-  } = ctx.getState();
-  if (editor.noteId == null) {
+  const { editor } = ctx.getState();
+
+  if (editor.tabs == null || editor.tabs.length === 0) {
     return;
   }
 
@@ -132,11 +134,9 @@ const toggleView: Listener<"editor.toggleView"> = (_, ctx) => {
 };
 
 const save: Listener<"editor.save"> = (_, ctx) => {
-  const {
-    ui: { editor },
-  } = ctx.getState();
+  const { editor } = ctx.getState();
 
-  if (!editor.isEditting || editor.noteId == null) {
+  if (!editor.isEditting) {
     return;
   }
 

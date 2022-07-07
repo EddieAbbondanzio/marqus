@@ -29,14 +29,14 @@ export interface Sidebar {
 
 export interface Editor {
   isEditting: boolean;
-  content?: string;
-  noteId?: string;
   scroll: number;
   tabs?: EditorTab[];
+  activeTab?: number;
 }
 
 export interface EditorTab {
   noteId: string;
+  noteContent: string | null;
   // These can be null because they aren't serialized.
   viewState?: monaco.editor.IViewState;
   model?: monaco.editor.ITextModel;
@@ -45,30 +45,26 @@ export interface EditorTab {
 // If a note was deleted but was referenced elsewhere in the ui state we need to
 // clear out all references to it otherwise things will bork.
 export function filterOutStaleNoteIds(ui: UI, notes: Note[]): UI {
-  const noteIds = keyBy(notes, (n) => n.id);
+  const currentNoteIds = keyBy(notes, (n) => n.id);
 
   // Remove any expanded sidebar items that were deleted.
   if (!isEmpty(ui.sidebar.expanded)) {
     ui.sidebar.expanded = ui.sidebar.expanded?.filter(
-      (e) => noteIds[e] != null
+      (e) => currentNoteIds[e] != null
     );
   }
 
   // Remove any sidebar items that were selected.
   if (!isEmpty(ui.sidebar.selected)) {
     ui.sidebar.selected = ui.sidebar.selected?.filter(
-      (s) => noteIds[s] != null
+      (s) => currentNoteIds[s] != null
     );
   }
 
-  // Clear out the editor if the note was loaded.
-  if (ui.editor.noteId != null && !noteIds[ui.editor.noteId]) {
-    ui.editor = {
-      isEditting: false,
-      scroll: 0,
-      content: undefined,
-      noteId: undefined,
-    };
+  if (ui.editor.tabs != null) {
+    ui.editor.tabs = ui.editor.tabs.filter(
+      (t) => currentNoteIds[t.noteId] != null
+    );
   }
 
   return ui;

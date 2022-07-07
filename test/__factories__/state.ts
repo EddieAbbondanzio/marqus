@@ -7,17 +7,15 @@ export function createState(partial?: DeepPartial<State>): State {
     notes: [],
     shortcuts: [],
     tags: [],
-    ui: {
-      focused: [],
-      sidebar: {
-        scroll: 0,
-        width: "300px",
-        sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-      },
-      editor: {
-        isEditting: false,
-        scroll: 0,
-      },
+    focused: [],
+    sidebar: {
+      scroll: 0,
+      width: "300px",
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    editor: {
+      isEditting: false,
+      scroll: 0,
     },
   };
 

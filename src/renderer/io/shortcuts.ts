@@ -17,8 +17,8 @@ const INITIAL_DELAY = 250; // ms
 const REPEAT_DELAY = 125; // ms
 
 export function useShortcuts(store: Store): void {
-  const { dispatch } = store;
-  const { shortcuts, ui } = store.state;
+  const { dispatch, state } = store;
+  const { shortcuts } = state;
   const activeKeys = useRef<Record<string, boolean | undefined>>({});
   const interval = useRef<NodeJS.Timer>();
 
@@ -41,7 +41,7 @@ export function useShortcuts(store: Store): void {
       (s) =>
         !s.disabled &&
         isEqual(s.keys, toKeyArray(activeKeys.current)) &&
-        shouldExecute(ui, s.when)
+        shouldExecute(state.focused, s.when)
     );
 
     if (shortcut != null) {
@@ -104,13 +104,13 @@ export function useShortcuts(store: Store): void {
   }, [interval, shortcuts, dispatch]);
 }
 
-export function shouldExecute(ui: UI, when?: Section): boolean {
-  if (ui.focused == null || ui.focused[0] == null) {
+export function shouldExecute(focused?: Section[], when?: Section): boolean {
+  if (focused == null || focused[0] == null) {
     return when == null;
   } else if (when == null) {
     return true;
   } else {
-    const [curr] = ui.focused;
+    const [curr] = focused;
     return when === curr;
   }
 }

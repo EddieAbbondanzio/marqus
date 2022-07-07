@@ -112,6 +112,13 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
       ui.sidebar.input = undefined;
       ui.focused = undefined!;
 
+      if (ui.editor.tabs != null) {
+        for (const tab of ui.editor.tabs) {
+          tab.model = undefined;
+          tab.viewState = undefined;
+        }
+      }
+
       return ui;
     },
     deserialize: (ui) => {

@@ -46,7 +46,7 @@ test.each([undefined, false, true])(
   "focusable focuses (focusOnRender %s)",
   (focusOnRender) => {
     const store = createStore({
-      state: { ui: { focused: [Section.Sidebar] } },
+      state: { focused: [Section.Sidebar] },
     });
     const el = { current: { focus: jest.fn() } } as React.MutableRefObject<any>;
     const onFocus = jest.fn();
@@ -75,7 +75,7 @@ test.each([undefined, false, true])(
 test.each([false, true])(
   "focusable blurs (focusOnRender %s)",
   (focusOnRender) => {
-    const store = createStore({ state: { ui: { focused: [Section.Editor] } } });
+    const store = createStore({ state: { focused: [Section.Editor] } });
     const el = { current: { blur: jest.fn() } } as React.MutableRefObject<any>;
     const onBlur = jest.fn();
 
@@ -98,7 +98,7 @@ test.each([false, true])(
 );
 
 test("focusable only blurs when current has changed", async () => {
-  const store = createStore({ state: { ui: { focused: [Section.Editor] } } });
+  const store = createStore({ state: { focused: [Section.Editor] } });
   const onBlur = jest.fn();
   const res = init({
     name: Section.Sidebar,

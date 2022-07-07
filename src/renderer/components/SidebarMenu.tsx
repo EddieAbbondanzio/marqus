@@ -30,7 +30,9 @@ interface SidebarMenuProps {
 }
 
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
-  const { value, icon, isSelected, onClick } = props;
+  const { value, icon, isSelected, onClick, store } = props;
+  const { state } = store;
+
   const iconOffset = icon ? 0 : 8;
   const paddingLeft = `${props.depth * SIDEBAR_MENU_INDENT + iconOffset}px`;
 
@@ -61,7 +63,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
 
   useMouseDrag(menuRef, onDrag, {
     cursor: "grabbing",
-    disabled: props.store.state.ui.sidebar.input != null,
+    disabled: state.sidebar.input != null,
   });
 
   return (

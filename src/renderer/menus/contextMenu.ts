@@ -14,11 +14,14 @@ import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";
 
 export function useContextMenu(store: Store): void {
+  const { state } = store;
+
   // useMemo prevents unneccessary renders
   const shortcutLabels = useMemo(
-    () => getShortcutLabels(store.state.shortcuts),
-    [store.state.shortcuts]
+    () => getShortcutLabels(state.shortcuts),
+    [state.shortcuts]
   );
+
   useEffect(() => {
     const showMenu = (ev: MouseEvent) => {
       // Right clicking won't trigger a focus change so we need to manually
@@ -27,7 +30,7 @@ export function useContextMenu(store: Store): void {
       const noteId = getSidebarMenuAttribute(ev.target as HTMLElement);
       let note: Note | undefined;
       if (noteId != null) {
-        note = getNoteById(store.state.notes, noteId);
+        note = getNoteById(state.notes, noteId);
       }
 
       const items: Menu[] = [];
@@ -67,7 +70,7 @@ export function useContextMenu(store: Store): void {
 
         // Only show sort menu for notes if they have children.
         if (note == null || note?.children) {
-          items.push(buildNoteSortMenu(store.state.ui.sidebar.sort, note));
+          items.push(buildNoteSortMenu(state.sidebar.sort, note));
         }
 
         items.push({

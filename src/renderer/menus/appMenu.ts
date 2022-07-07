@@ -5,14 +5,16 @@ import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";
 
 export function useApplicationMenu(store: Store): void {
+  const { state } = store;
+
   // useMemo prevents unneccessary renders
   const shortcutLabels = useMemo(
     () => getShortcutLabels(store.state.shortcuts),
     [store.state.shortcuts]
   );
-  const focused = store.state.ui.focused[0];
-  const selected = store.state.ui.sidebar.selected?.[0];
-  const isEditting = store.state.ui.editor.isEditting;
+  const focused = state.focused[0];
+  const selected = state.sidebar.selected?.[0];
+  const isEditting = state.editor.isEditting;
 
   useEffect(() => {
     const optionals: Menu[] = [];

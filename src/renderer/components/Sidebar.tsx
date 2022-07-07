@@ -38,16 +38,17 @@ export interface SidebarProps {
   store: Store;
 }
 
-export function Sidebar({ store }: SidebarProps): JSX.Element {
-  const { sidebar } = store.state.ui;
-  const { input } = sidebar;
-  const expandedLookup = keyBy(sidebar.expanded, (e) => e);
-  const selectedLookup = keyBy(sidebar.selected, (s) => s);
+export function Sidebar(props: SidebarProps): JSX.Element {
+  const { store } = props;
+  const { state } = store;
+  const { input } = state.sidebar;
+  const expandedLookup = keyBy(state.sidebar.expanded, (e) => e);
+  const selectedLookup = keyBy(state.sidebar.selected, (s) => s);
 
-  const searchString = store.state.ui.sidebar.searchString;
+  const searchString = state.sidebar.searchString;
   const notes = useMemo(
-    () => applySearchString(store.state.notes, searchString),
-    [searchString, store.state.notes]
+    () => applySearchString(state.notes, searchString),
+    [searchString, state.notes]
   );
   const [menus, itemIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
@@ -56,12 +57,12 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
 
   useEffect(() => {
     const getNext = (increment: number) => {
-      if (isEmpty(sidebar.selected)) {
+      if (isEmpty(state.sidebar.selected)) {
         return take(itemIds, 1);
       }
       let next = 0;
       let curr = 0;
-      const firstSelected = head(sidebar.selected)!;
+      const firstSelected = head(state.sidebar.selected)!;
       curr = itemIds.findIndex((s) => s === firstSelected);
       if (curr === -1) {
         throw new Error(`No selectable ${firstSelected} found`);
@@ -156,12 +157,12 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
       store.off("sidebar.expandAll", expandAll);
       store.off("sidebar.setNoteSort", setNoteSort);
     };
-  }, [itemIds, sidebar, store]);
+  }, [itemIds, state.sidebar, store]);
 
   return (
     <StyledResizable
       minWidth={MIN_WIDTH}
-      width={store.state.ui.sidebar.width}
+      width={store.state.sidebar.width}
       onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
     >
       <StyledFocusable store={store} name={Section.Sidebar}>
@@ -172,7 +173,7 @@ export function Sidebar({ store }: SidebarProps): JSX.Element {
 
         <Scrollable
           height="calc(100% - 52px)"
-          scroll={store.state.ui.sidebar.scroll}
+          scroll={store.state.sidebar.scroll}
           onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
         >
           {menus}
@@ -226,6 +227,7 @@ export function renderMenus(
   expandedLookup: Dictionary<string>,
   selectedLookup: Dictionary<string>
 ): [JSX.Element[], string[]] {
+  const { state } = store;
   const menus: JSX.Element[] = [];
   const flatIds: string[] = [];
 
@@ -242,7 +244,7 @@ export function renderMenus(
         store.dispatch("sidebar.toggleItemExpanded", note.id);
       }
       store.dispatch("sidebar.setSelection", [note.id]);
-      store.dispatch("editor.loadNote", note.id);
+      store.dispatch("editor.openTab", note.id);
     };
 
     let icon;
@@ -313,7 +315,7 @@ export function renderMenus(
     }
   };
 
-  notes = sortNotes(notes, store.state.ui.sidebar.sort);
+  notes = sortNotes(notes, state.sidebar.sort);
   notes.forEach((n) => recursive(n));
 
   if (input != null && input.parentId == null && input.id == null) {
@@ -382,12 +384,12 @@ export const toggleItemExpanded: Listener<"sidebar.toggleItemExpanded"> = (
   { value: id },
   ctx
 ) => {
-  const state = ctx.getState();
-  if (state.ui.sidebar.input) {
+  const { sidebar } = ctx.getState();
+  if (sidebar.input) {
     ctx.setUI({ sidebar: { input: undefined } });
   }
 
-  const { selected } = ctx.getState().ui.sidebar;
+  const { selected } = ctx.getState().sidebar;
   toggleExpanded(ctx, id ?? head(selected));
 };
 
@@ -396,9 +398,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
   ctx
 ) => {
   let {
-    ui: {
-      sidebar: { expanded },
-    },
+    sidebar: { expanded },
   } = ctx.getState();
 
   const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
@@ -454,10 +454,10 @@ export const createNote: Listener<"sidebar.createNote"> = async (
         },
         editor: {
           isEditting: true,
-          noteId: note.id,
-          content: "",
         },
       });
+
+      console.log("TODO: Open tab in editor for new note (sidebar.createNote)");
     } catch (e) {
       promptError(e.message);
     }
@@ -530,7 +530,7 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
 export const deleteNote: Listener<
   "sidebar.deleteNote" | "sidebar.deleteSelectedNote"
 > = async (ev, ctx) => {
-  const { ui, notes } = ctx.getState();
+  const { sidebar, notes } = ctx.getState();
   let id;
 
   switch (ev.type) {
@@ -542,7 +542,7 @@ export const deleteNote: Listener<
       id = ev.value;
       break;
     case "sidebar.deleteSelectedNote":
-      const { selected } = ui.sidebar;
+      const { selected } = sidebar;
       // User could accidentally press delete when nothing is selected so we
       // don't throw here.
       if (isEmpty(selected)) {
@@ -600,7 +600,7 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
   { value },
   ctx
 ) => {
-  const { notes, ui } = ctx.getState();
+  const { notes, sidebar } = ctx.getState();
   const note = getNoteById(notes, value.note);
   let newParent;
   if (value.newParent != null) {
@@ -657,7 +657,7 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
   const newParentId = newParent?.id;
   if (
     newParent != null &&
-    !ui.sidebar.expanded?.some((id) => id === newParentId)
+    !sidebar.expanded?.some((id) => id === newParentId)
   ) {
     toggleExpanded(ctx, newParent.id);
   }

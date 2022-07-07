@@ -46,7 +46,7 @@ export interface UIEvents {
   "editor.toggleView": void;
   "editor.setContent": string;
   "editor.updateScroll": number;
-  "editor.loadNote": string | null;
+  "editor.openTab": string | null;
 
   // Focus Tracker
   "focus.push": Section | Section[];

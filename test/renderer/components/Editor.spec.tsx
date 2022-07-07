@@ -6,7 +6,7 @@ import { createState } from "../../__factories__/state";
 import React from "react";
 import { when } from "jest-when";
 
-test("editor.loadNote", async () => {
+test("editor.openTab", async () => {
   const { result: store } = renderHook(() => useStore(createState()));
   const res = render(<Editor store={store.current} />);
 
@@ -15,25 +15,23 @@ test("editor.loadNote", async () => {
     .mockReturnValue("fake note content");
 
   await act(async () => {
-    await store.current.dispatch("editor.loadNote", "foo");
+    await store.current.dispatch("editor.openTab", "foo");
   });
 
   const { state } = store.current;
-  expect(state.ui.editor.noteId).toBe("foo");
-  expect(state.ui.editor.content).toBe("fake note content");
+  // expect(state.editor.noteId).toBe("foo");
+  // expect(state.editor.content).toBe("fake note content");
 });
 
-test("editor.loadNote", async () => {
+test("editor.openTab", async () => {
   const { result: store } = renderHook(() =>
     useStore(
       createState({
-        ui: {
-          sidebar: {
-            selected: ["foo"],
-          },
-          editor: {},
-          focused: [],
+        sidebar: {
+          selected: ["foo"],
         },
+        editor: {},
+        focused: [],
       })
     )
   );
@@ -44,13 +42,13 @@ test("editor.loadNote", async () => {
     .mockReturnValue("fake note content");
 
   await act(async () => {
-    await store.current.dispatch("editor.loadNote", null);
+    await store.current.dispatch("editor.openTab", null);
   });
 
   const { state } = store.current;
-  expect(state.ui.editor.noteId).toBe("foo");
-  expect(state.ui.editor.content).toBe("fake note content");
+  // expect(state.editor.noteId).toBe("foo");
+  // expect(state.editor.content).toBe("fake note content");
 
   // Enter moves focus
-  expect(state.ui.focused).toEqual(["editor"]);
+  expect(state.focused).toEqual(["editor"]);
 });

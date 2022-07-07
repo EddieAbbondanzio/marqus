@@ -14,27 +14,30 @@ export interface SidebarSearchProps {
 }
 
 export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
+  const { store } = props;
+  const { state } = store;
+
   const inputRef = useRef(null as HTMLInputElement | null);
 
   const onInput = useCallback(
     (ev: React.FormEvent) => {
-      props.store.dispatch(
+      store.dispatch(
         "sidebar.setSearchString",
         (ev.target as HTMLInputElement).value
       );
     },
-    [props.store]
+    [store]
   );
 
   const onClear = useCallback(() => {
-    props.store.dispatch("sidebar.setSearchString", "");
-  }, [props.store]);
+    store.dispatch("sidebar.setSearchString", "");
+  }, [store]);
 
-  const { searchString = "" } = props.store.state.ui.sidebar;
+  const { searchString = "" } = state.sidebar;
 
   return (
     <StyledFocusable
-      store={props.store}
+      store={store}
       name={Section.SidebarSearch}
       elementRef={inputRef}
       blurOnEsc={true}
