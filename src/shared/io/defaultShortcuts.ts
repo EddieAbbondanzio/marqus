@@ -118,9 +118,15 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.LetterS],
   },
   {
-    name: "Editor.toggleView",
+    name: "editor.toggleView",
     event: "editor.toggleView",
     keys: [KeyCode.Control, KeyCode.LetterE],
+  },
+  {
+    name: "editor.closeTab",
+    event: "editor.closeTab",
+    keys: [KeyCode.Control, KeyCode.LetterW],
+    when: Section.Editor,
   },
 ];
 

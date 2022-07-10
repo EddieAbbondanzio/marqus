@@ -99,7 +99,6 @@ export function App(props: AppProps): JSX.Element {
 
     if (tabsToLoad.length > 0) {
       store.dispatch("editor.openTab", tabsToLoad);
-      console.log("OPen tabs: ", tabsToLoad);
     }
   }, [editor.tabs]);
 

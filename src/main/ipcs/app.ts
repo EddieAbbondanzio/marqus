@@ -14,7 +14,7 @@ import { IpcChannel, IpcPlugin } from "../../shared/ipc";
 import { openInBrowser } from "../utils";
 import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../shared/domain/note";
 import { UIEventType, UIEventInput } from "../../shared/ui/events";
-import { UI } from "../../shared/ui/app";
+import { EditorTab, UI } from "../../shared/ui/app";
 
 export const UI_FILE = "ui.json";
 
@@ -133,6 +133,16 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
       for (const tab of ui.editor.tabs) {
         tab.model = undefined;
         tab.viewState = undefined;
+      }
+
+      // Check if active tab is stale.
+      if (
+        ui.editor.activeTabNoteId != null &&
+        ui.editor.tabs.every(
+          (t: EditorTab) => t.noteId != ui.editor.activeTabNoteId
+        )
+      ) {
+        ui.editor.activeTabNoteId = undefined;
       }
 
       return ui;

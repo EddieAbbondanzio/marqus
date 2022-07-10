@@ -142,25 +142,30 @@ export function Monaco(props: MonacoProps): JSX.Element {
     }
 
     // Load new tab
-    const newTab = editor.tabs.find((t) => t.noteId === editor.activeTabNoteId);
-    if (newTab == null) {
-      throw new Error(`Active tab ${lastActiveTabNoteId} was not found.`);
+    if (editor.activeTabNoteId != null) {
+      const newTab = editor.tabs.find(
+        (t) => t.noteId === editor.activeTabNoteId
+      );
+      if (newTab == null) {
+        throw new Error(`Active tab ${editor.activeTabNoteId} was not found.`);
+      }
+
+      let model = modelsCache[newTab.noteId];
+
+      // First load, gotta create the model.
+      if (model == null) {
+        model = monaco.editor.createModel(newTab.noteContent);
+      }
+
+      monacoEditor.current.setModel(model);
+      if (viewStatesCache[newTab.noteId] != null) {
+        monacoEditor.current.restoreViewState(
+          viewStates.current[newTab.noteId]!
+        );
+      }
+
+      activeNoteId.current = newTab.noteId;
     }
-
-    let model = modelsCache[newTab.noteId];
-
-    // First load, gotta create the model.
-    if (model == null) {
-      model = monaco.editor.createModel(newTab.noteContent);
-    }
-
-    monacoEditor.current.setModel(model);
-    if (viewStatesCache[newTab.noteId] != null) {
-      monacoEditor.current.restoreViewState(viewStates.current[newTab.noteId]!);
-    }
-
-    activeNoteId.current = newTab.noteId;
-    console.log("LOADED TAB: ", activeNoteId.current);
   }, [editor.activeTabNoteId, editor.tabs]);
 
   return (

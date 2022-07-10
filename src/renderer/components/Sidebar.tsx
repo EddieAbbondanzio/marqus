@@ -26,7 +26,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
-import { filterOutStaleNoteIds } from "../../shared/ui/app";
+import { EditorTab, filterOutStaleNoteIds } from "../../shared/ui/app";
 import { Icon } from "./shared/Icon";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
@@ -398,6 +398,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
   ctx
 ) => {
   let {
+    editor,
     sidebar: { expanded },
   } = ctx.getState();
 
@@ -456,8 +457,6 @@ export const createNote: Listener<"sidebar.createNote"> = async (
           isEditting: true,
         },
       });
-
-      console.log("TODO: Open tab in editor for new note (sidebar.createNote)");
     } catch (e) {
       promptError(e.message);
     }

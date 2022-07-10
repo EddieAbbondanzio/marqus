@@ -158,8 +158,16 @@ const closeTab: Listener<"editor.closeTab"> = async (
   { value: noteId },
   ctx
 ) => {
+  // If no note id was passed assume we want to close active tab
   if (noteId == null) {
-    return;
+    const {
+      editor: { activeTabNoteId },
+    } = ctx.getState();
+    if (activeTabNoteId == null) {
+      return;
+    }
+
+    noteId = activeTabNoteId;
   }
 
   const { editor } = ctx.getState();
