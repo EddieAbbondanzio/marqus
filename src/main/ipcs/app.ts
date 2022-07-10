@@ -6,15 +6,15 @@ import {
   MenuItemConstructorOptions,
   shell,
 } from "electron";
-import { isRoleMenu, Menu as MenuType } from "../../shared/domain/ui/menu";
+import { isRoleMenu, Menu as MenuType } from "../../shared/ui/menu";
 import * as yup from "yup";
 import { createFileHandler, FileHandler } from "../fileHandler";
 import { Config } from "../../shared/domain/config";
 import { IpcChannel, IpcPlugin } from "../../shared/ipc";
 import { openInBrowser } from "../utils";
 import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../shared/domain/note";
-import { UIEventType, UIEventInput } from "../../shared/domain/ui/events";
-import { UI } from "../../shared/domain/ui/sections";
+import { UIEventType, UIEventInput } from "../../shared/ui/events";
+import { UI } from "../../shared/ui/app";
 
 export const UI_FILE = "ui.json";
 
@@ -128,6 +128,10 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
 
       ui.sidebar.input = undefined;
       ui.focused = [];
+
+      ui.editor ??= {};
+      ui.editor.tabs ??= [];
+
       return ui;
     },
     defaultValue: {
@@ -138,6 +142,7 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
         sort: DEFAULT_NOTE_SORTING_ALGORITHM,
       },
       editor: {
+        tabs: [],
         isEditting: false,
         scroll: 0,
       },

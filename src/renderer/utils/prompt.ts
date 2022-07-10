@@ -1,4 +1,4 @@
-import { PromptOptions } from "../../shared/domain/ui/prompt";
+import { PromptOptions } from "../../shared/ui/prompt";
 
 const { ipc } = window;
 

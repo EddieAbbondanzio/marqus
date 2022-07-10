@@ -1,12 +1,15 @@
 import { Point } from "electron";
-import { NoteSort } from "../note";
-import { Section } from "./sections";
+import { Note, NoteSort } from "../domain/note";
+import { Section } from "./app";
 
 /*
  * Events are defined in shared so we can keep shortcuts and application menus
  * type safe.
  */
 export interface UIEvents {
+  // N.B. Don't send state objects as event parameters! The data could be stale
+  // so we'd have to call ctx.getState() to get the latest version anyways.
+
   // Global
   "app.quit": void;
   "app.openDataDirectory": void;

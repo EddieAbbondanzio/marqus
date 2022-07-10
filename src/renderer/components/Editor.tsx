@@ -1,13 +1,14 @@
 import { debounce, head, isEmpty } from "lodash";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { Section } from "../../shared/domain/ui/sections";
+import { EditorTab, Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
 import { w100, p2, m2 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
+import { getNoteById, Note } from "../../shared/domain/note";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
 
@@ -51,9 +52,13 @@ export function Editor(props: EditorProps): JSX.Element {
     };
   }, [store]);
 
+  const tabs = state.editor.tabs.map((t) => (
+    <StyledTab key={t.noteId}>{t.noteName}</StyledTab>
+  ));
+
   return (
     <StyledFocusable store={store} name={Section.Editor} focusOnRender={false}>
-      {state.editor.tabs}
+      {tabs}
       {content}
     </StyledFocusable>
   );
@@ -64,13 +69,18 @@ const StyledFocusable = styled(Focusable)`
   ${m2}
 `;
 
+const StyledTab = styled.div`
+  display: inline-flex;
+  ${m2}
+`;
+
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL_MS) as Ipc;
 
 const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
-  const { sidebar } = ctx.getState();
-  let noteId: string;
+  const { sidebar, editor, notes } = ctx.getState();
 
-  // If no note was passed, attempt to load the selected note
+  // If no note id was passed, we'll attempt to open the sidebar's selected note.
+  let noteId: string;
   if (ev.value == null) {
     // User could accidentally press delete when nothing is selected so we
     // don't throw here.
@@ -84,17 +94,26 @@ const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
     noteId = ev.value;
   }
 
-  // if (noteId === state.ui.editor.noteId) {
-  //   return;
-  // }
-
-  // const content = await window.ipc("notes.loadContent", noteId);
-  // ctx.setUI({
-  //   editor: {
-  //     content,
-  //     noteId,
-  //   },
-  // });
+  const existingTab = editor.tabs.find((t) => t.noteId === noteId);
+  if (existingTab != null) {
+    ctx.setUI({
+      editor: {
+        activeTabNoteId: existingTab.noteId,
+      },
+    });
+  } else {
+    const note = getNoteById(ctx.getState().notes, noteId);
+    const newTab: EditorTab = {
+      noteId: noteId,
+      noteName: note.name,
+    };
+    ctx.setUI(({ editor }) => ({
+      editor: {
+        activeTabNoteId: note.id,
+        tabs: [...editor.tabs, newTab],
+      },
+    }));
+  }
 
   // Opened selected note, gotta override!
   if (ev.value == null) {

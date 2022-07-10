@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { Menu } from "../../shared/domain/ui/menu";
+import { Menu } from "../../shared/ui/menu";
 import { isDevelopment } from "../../shared/env";
 import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";

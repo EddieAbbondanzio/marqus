@@ -1,7 +1,7 @@
 import { KeyCode } from "../io/keyCode";
 import * as yup from "yup";
-import { UIEventInput, UIEventType } from "./ui/events";
-import { Section } from "./ui/sections";
+import { UIEventInput, UIEventType } from "../ui/events";
+import { Section } from "../ui/app";
 
 /*
  * Shortcuts are not resources because they are considered equal by value.

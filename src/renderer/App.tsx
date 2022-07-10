@@ -4,7 +4,7 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { filterOutStaleNoteIds, Section } from "../shared/domain/ui/sections";
+import { filterOutStaleNoteIds, Section } from "../shared/ui/app";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
@@ -17,7 +17,7 @@ import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
-import { UI } from "../shared/domain/ui/sections";
+import { UI } from "../shared/ui/app";
 
 const { ipc } = window;
 async function main() {

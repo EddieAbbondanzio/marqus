@@ -10,8 +10,8 @@ import {
   getNoteById,
 } from "../../../src/shared/domain/note";
 import * as prompt from "../../../src/renderer/utils/prompt";
-import { Section } from "../../../src/shared/domain/ui/sections";
 import { when } from "jest-when";
+import { Section } from "../../../src/shared/ui/app";
 
 const promptConfirmAction = jest.spyOn(prompt, "promptConfirmAction");
 

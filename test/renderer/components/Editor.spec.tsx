@@ -5,32 +5,34 @@ import { useStore } from "../../../src/renderer/store";
 import { createState } from "../../__factories__/state";
 import React from "react";
 import { when } from "jest-when";
+import { createNote } from "../../../src/shared/domain/note";
 
-test("editor.openTab", async () => {
-  const { result: store } = renderHook(() => useStore(createState()));
-  const res = render(<Editor store={store.current} />);
+// test("editor.openTab", async () => {
+//   const { result: store } = renderHook(() => useStore(createState()));
+//   const res = render(<Editor store={store.current} />);
 
-  when((window as any).ipc)
-    .calledWith("notes.loadContent", "foo")
-    .mockReturnValue("fake note content");
+//   when((window as any).ipc)
+//     .calledWith("notes.loadContent", "foo")
+//     .mockReturnValue("fake note content");
 
-  await act(async () => {
-    await store.current.dispatch("editor.openTab", "foo");
-  });
+//   await act(async () => {
+//     await store.current.dispatch("editor.openTab", "foo");
+//   });
 
-  const { state } = store.current;
-  // expect(state.editor.noteId).toBe("foo");
-  // expect(state.editor.content).toBe("fake note content");
-});
+//   const { state } = store.current;
+//   // expect(state.editor.noteId).toBe("foo");
+//   // expect(state.editor.content).toBe("fake note content");
+// });
 
 test("editor.openTab", async () => {
   const { result: store } = renderHook(() =>
     useStore(
       createState({
+        notes: [createNote({ id: "foo", name: "foood" })],
         sidebar: {
           selected: ["foo"],
         },
-        editor: {},
+        editor: { tabs: [] },
         focused: [],
       })
     )

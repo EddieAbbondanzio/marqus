@@ -5,8 +5,8 @@ import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Tag } from "../shared/domain/tag";
-import { UIEventType, UIEventInput } from "../shared/domain/ui/events";
-import { Section, Editor, Sidebar, UI } from "../shared/domain/ui/sections";
+import { UIEventType, UIEventInput } from "../shared/ui/events";
+import { Section, Editor, Sidebar, UI } from "../shared/ui/app";
 
 export interface Store {
   state: State;
@@ -103,7 +103,8 @@ export function useStore(initialState: State): Store {
       }
       if (clonedUI?.editor != null && clonedUI.editor.tabs != null) {
         for (const tab of clonedUI.editor.tabs) {
-          tab.noteContent = null;
+          tab.viewState = undefined;
+          tab.model = undefined;
         }
       }
 

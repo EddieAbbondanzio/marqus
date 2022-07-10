@@ -26,10 +26,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
-import { filterOutStaleNoteIds } from "../../shared/domain/ui/sections";
+import { filterOutStaleNoteIds } from "../../shared/ui/app";
 import { Icon } from "./shared/Icon";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
-import { Section } from "../../shared/domain/ui/sections";
+import { Section } from "../../shared/ui/app";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;

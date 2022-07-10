@@ -1,6 +1,6 @@
 import { keyBy, isEmpty } from "lodash";
-import { PromisedInput } from "../../promisedInput";
-import { Note, NoteSort } from "../note";
+import { PromisedInput } from "../promisedInput";
+import { Note, NoteSort } from "../domain/note";
 import * as monaco from "monaco-editor";
 
 export interface UI {
@@ -30,14 +30,14 @@ export interface Sidebar {
 export interface Editor {
   isEditting: boolean;
   scroll: number;
-  tabs?: EditorTab[];
-  activeTab?: number;
+  tabs: EditorTab[];
+  activeTabNoteId?: string;
 }
 
 export interface EditorTab {
+  noteName: string;
   noteId: string;
-  noteContent: string | null;
-  // These can be null because they aren't serialized.
+  // viewState and model can be null because they aren't serialized.
   viewState?: monaco.editor.IViewState;
   model?: monaco.editor.ITextModel;
 }

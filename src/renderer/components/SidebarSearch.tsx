@@ -2,7 +2,7 @@ import { faCross, faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { isEmpty } from "lodash";
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { Section } from "../../shared/domain/ui/sections";
+import { Section } from "../../shared/ui/app";
 import { m1, my2, pb2, pl0, py1, THEME, w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";

@@ -5,8 +5,8 @@ import {
   useShortcuts,
 } from "../../../src/renderer/io/shortcuts";
 import { Shortcut } from "../../../src/shared/domain/shortcut";
-import { Section, UI } from "../../../src/shared/domain/ui/sections";
 import { KeyCode } from "../../../src/shared/io/keyCode";
+import { Section } from "../../../src/shared/ui/app";
 import * as Utils from "../../../src/shared/utils";
 import { createStore } from "../../__factories__/store";
 
