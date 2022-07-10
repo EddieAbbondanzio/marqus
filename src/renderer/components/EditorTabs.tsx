@@ -1,11 +1,12 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import OpenColor from "open-color";
-import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
+import React, { useEffect, useMemo } from "react";
+import styled from "styled-components";
 import { getNoteById } from "../../shared/domain/note";
-import { ml1, ml2, mx2, p1, p2, pl2, px2, px3 } from "../css";
+import { ml2, p2, px3 } from "../css";
 import { Store } from "../store";
 import { Icon } from "./shared/Icon";
+import * as monaco from "monaco-editor";
 
 export interface EditorTabsProps {
   store: Store;
@@ -70,10 +71,11 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
   const onDeleteClick = (ev: React.MouseEvent<HTMLElement>) => {
     // Need to stop prop otherwise it'll trigger on click of tab.
     ev.stopPropagation();
-
     props.onClose(noteId);
   };
 
+  // TODO: Is there a cleaner way to do this? Feels silly with how similar
+  // StyledSelectedTab and StyledTab are.
   if (active) {
     return (
       <StyledSelectedTab

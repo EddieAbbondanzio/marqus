@@ -96,6 +96,7 @@ const StyledMenu = styled.a`
   height: ${SIDEBAR_MENU_HEIGHT}px;
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
+  cursor: pointer;
   &:hover {
     background-color: ${THEME.sidebar.hover};
   }

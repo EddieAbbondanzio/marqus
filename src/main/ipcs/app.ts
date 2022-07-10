@@ -114,8 +114,7 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
 
       if (ui.editor.tabs != null) {
         for (const tab of ui.editor.tabs) {
-          tab.model = undefined;
-          tab.viewState = undefined;
+          tab.noteContent = undefined!;
         }
       }
 
@@ -131,6 +130,10 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
 
       ui.editor ??= {};
       ui.editor.tabs ??= [];
+      for (const tab of ui.editor.tabs) {
+        tab.model = undefined;
+        tab.viewState = undefined;
+      }
 
       return ui;
     },

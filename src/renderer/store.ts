@@ -103,8 +103,7 @@ export function useStore(initialState: State): Store {
       }
       if (clonedUI?.editor != null && clonedUI.editor.tabs != null) {
         for (const tab of clonedUI.editor.tabs) {
-          tab.viewState = undefined;
-          tab.model = undefined;
+          tab.noteContent = undefined!;
         }
       }
 

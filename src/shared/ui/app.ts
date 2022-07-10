@@ -36,9 +36,7 @@ export interface Editor {
 
 export interface EditorTab {
   noteId: string;
-  // viewState and model can be null because they aren't serialized.
-  viewState?: monaco.editor.IViewState;
-  model?: monaco.editor.ITextModel;
+  noteContent: string;
 }
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to

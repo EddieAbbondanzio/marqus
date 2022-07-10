@@ -1,18 +1,16 @@
-import { debounce, head, isEmpty } from "lodash";
-import React, { useEffect, useRef } from "react";
+import { debounce, head, isEmpty, last, tail } from "lodash";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { EditorTab, Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
-import { w100, p2, m2, p1, px2, pl2 } from "../css";
+import { m2 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
-import { getNoteById, Note } from "../../shared/domain/note";
-import OpenColor from "open-color";
-import { faCross, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { Icon } from "./shared/Icon";
-import { EditorTabs as EditorTabComp, EditorTabs } from "./EditorTabs";
+import { getNoteById } from "../../shared/domain/note";
+import { EditorTabs } from "./EditorTabs";
+import * as monaco from "monaco-editor";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
 
@@ -23,6 +21,12 @@ interface EditorProps {
 export function Editor(props: EditorProps): JSX.Element {
   const { store } = props;
   const { state } = store;
+  const { editor } = state;
+
+  let activeTab;
+  if (editor.activeTabNoteId != null) {
+    activeTab = editor.tabs.find((t) => t.noteId === editor.activeTabNoteId);
+  }
 
   let content;
   if (state.editor.isEditting) {
@@ -31,7 +35,7 @@ export function Editor(props: EditorProps): JSX.Element {
     content = (
       <Markdown
         store={store}
-        content={""}
+        content={activeTab?.noteContent ?? ""}
         scroll={state.editor.scroll}
         onScroll={(newVal) =>
           void store.dispatch("editor.updateScroll", newVal)
@@ -69,16 +73,19 @@ export function Editor(props: EditorProps): JSX.Element {
 }
 
 const StyledContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   ${m2}
 `;
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL_MS) as Ipc;
 
 const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
-  const { sidebar, editor, notes } = ctx.getState();
+  const { sidebar, editor } = ctx.getState();
 
   // If no note id was passed, we'll attempt to open the sidebar's selected note.
-  let noteId: string;
+  let noteIds: string[];
   if (ev.value == null) {
     // User could accidentally press delete when nothing is selected so we
     // don't throw here.
@@ -87,32 +94,41 @@ const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
       return;
     }
 
-    noteId = head(selected)!;
+    noteIds = selected ?? [];
   } else {
-    noteId = ev.value;
+    noteIds = Array.isArray(ev.value) ? ev.value : [ev.value];
   }
 
-  const existingTab = editor.tabs.find((t) => t.noteId === noteId);
-  if (existingTab != null) {
-    ctx.setUI({
-      editor: {
-        activeTabNoteId: existingTab.noteId,
-      },
-    });
-  } else {
-    const note = getNoteById(ctx.getState().notes, noteId);
-    const newTab: EditorTab = {
+  if (noteIds.length === 0) {
+    return;
+  }
+
+  let tabs = [...editor.tabs];
+
+  for (const noteId of noteIds) {
+    const tab: EditorTab = editor.tabs.find((t) => t.noteId === noteId) ?? {
       noteId,
+      noteContent: undefined!,
     };
-    ctx.setUI(({ editor }) => ({
-      editor: {
-        activeTabNoteId: note.id,
-        tabs: [...editor.tabs, newTab],
-      },
-    }));
+
+    if (tab.noteContent == null) {
+      tab.noteContent = (await window.ipc("notes.loadContent", noteId)) ?? "";
+    }
+
+    if (tabs.findIndex((t) => t.noteId === noteId) === -1) {
+      tabs.push(tab);
+    }
   }
 
-  // Opened selected note, gotta override!
+  ctx.setUI({
+    editor: {
+      activeTabNoteId: last(noteIds),
+      tabs,
+    },
+  });
+
+  // When the selected note is opened we need to change focus to the editor
+  // because it means the user wants to start editting the note.
   if (ev.value == null) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
@@ -157,7 +173,7 @@ const closeTab: Listener<"editor.closeTab"> = async (
     // Check if it was active tab
     if (activeTabNoteId != null && activeTabNoteId === noteId) {
       // TODO: Track tab changes as history so we can tab between them.
-      activeTabNoteId = prev.editor.tabs[0]?.noteId;
+      activeTabNoteId = prev.editor.tabs[0]?.noteId ?? null;
     }
 
     return {
@@ -171,20 +187,24 @@ const closeTab: Listener<"editor.closeTab"> = async (
 };
 
 const setContent: Listener<"editor.setContent"> = async (
-  { value: content },
+  { value: { noteId, content } },
   ctx
 ) => {
-  const { editor } = ctx.getState();
-  console.log("editor.setContent isn't hooked up!");
-  // if (editor.noteId != null) {
-  //   ctx.setUI({
-  //     editor: {
-  //       content,
-  //     },
-  //   });
+  ctx.setUI((prev) => {
+    const index = prev.editor.tabs.findIndex(
+      (t) => t.noteId === prev.editor.activeTabNoteId
+    );
+    // Update local cache for renderer
+    prev.editor.tabs[index].noteContent = content;
 
-  //   await debouncedInvoker("notes.saveContent", editor.noteId, content);
-  // }
+    return {
+      editor: {
+        tabs: [...prev.editor.tabs],
+      },
+    };
+  });
+
+  await debouncedInvoker("notes.saveContent", noteId, content);
 };
 
 const toggleView: Listener<"editor.toggleView"> = (_, ctx) => {

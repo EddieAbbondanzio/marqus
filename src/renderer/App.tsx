@@ -4,7 +4,7 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { filterOutStaleNoteIds, Section } from "../shared/ui/app";
+import { EditorTab, filterOutStaleNoteIds, Section } from "../shared/ui/app";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
@@ -53,6 +53,7 @@ export interface AppProps {
 export function App(props: AppProps): JSX.Element {
   const store = useStore(props.initialState);
   const { state } = store;
+  const { editor } = state;
 
   useShortcuts(store);
   useApplicationMenu(store);
@@ -66,6 +67,7 @@ export function App(props: AppProps): JSX.Element {
     store.on("app.toggleFullScreen", toggleFullScreen);
     store.on("app.openDataDirectory", openDataDirectory);
     store.on("app.selectDataDirectory", selectDataDirectory);
+
     store.on("sidebar.focusSearch", globalSearch);
 
     store.on("focus.push", push);
@@ -79,6 +81,7 @@ export function App(props: AppProps): JSX.Element {
       store.off("app.toggleFullScreen", toggleFullScreen);
       store.off("app.openDataDirectory", openDataDirectory);
       store.off("app.selectDataDirectory", selectDataDirectory);
+
       store.off("sidebar.focusSearch", globalSearch);
 
       store.off("focus.push", push);
@@ -87,6 +90,18 @@ export function App(props: AppProps): JSX.Element {
   }, [store]);
 
   useFocusTracking(store);
+
+  // Load the content of any notes that were previously open.
+  useEffect(() => {
+    const tabsToLoad = editor.tabs
+      .filter((t) => t.noteContent == null)
+      .map((t) => t.noteId);
+
+    if (tabsToLoad.length > 0) {
+      store.dispatch("editor.openTab", tabsToLoad);
+      console.log("OPen tabs: ", tabsToLoad);
+    }
+  }, [editor.tabs]);
 
   return (
     <Container>
@@ -153,11 +168,7 @@ async function loadInitialState(): Promise<State> {
 
   ui = filterOutStaleNoteIds(ui, notes);
 
-  // Pull in note
-  // if (ui.editor.noteId != null) {
-  //   ui.editor.content =
-  //     (await ipc("notes.loadContent", ui.editor.noteId)) ?? undefined;
-  // }
+  // How do we load tab content?
 
   return {
     ...ui,

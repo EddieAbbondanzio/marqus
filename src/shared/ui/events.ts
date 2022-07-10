@@ -47,9 +47,9 @@ export interface UIEvents {
   // Editor
   "editor.save": void;
   "editor.toggleView": void;
-  "editor.setContent": string;
+  "editor.setContent": { noteId: string; content: string };
   "editor.updateScroll": number;
-  "editor.openTab": string | null;
+  "editor.openTab": string | string[] | null;
   "editor.setActiveTab": string;
   "editor.closeTab": string;
 

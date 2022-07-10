@@ -29,14 +29,18 @@ export interface MonacoProps {
 export function Monaco(props: MonacoProps): JSX.Element {
   const { store } = props;
   const { state } = store;
+  const { editor } = state;
 
   // These are stored as refs because we don't want the component to re-render
   // if any of them change.
   const containerElement = useRef<HTMLDivElement | null>(null);
   const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const onChangeSub = useRef<monaco.IDisposable | null>(null);
-
-  const [loadedNoteId, setloadedNoteId] = useState<string | null>(null);
+  const activeNoteId = useRef<string | null>(null);
+  const viewStates = useRef<
+    Record<string, monaco.editor.ICodeEditorViewState | null>
+  >({});
+  const models = useRef<Record<string, monaco.editor.IModel | null>>({});
 
   // A bit of a hack. But we need this to refocus the editor on each render.
   const focused = state.focused[0];
@@ -52,10 +56,10 @@ export function Monaco(props: MonacoProps): JSX.Element {
     let resizeObserver: ResizeObserver | null = null;
 
     if (el != null) {
-      // monacoEditor.current = monaco.editor.create(el, {
-      //   value: editor.content ?? "",
-      //   ...MONACO_SETTINGS,
-      // });
+      monacoEditor.current = monaco.editor.create(el, {
+        value: "",
+        ...MONACO_SETTINGS,
+      });
 
       // Monaco doesn't automically resize when it's container element does so
       // we need to listen for changes and trigger the refresh ourselves.
@@ -72,11 +76,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
       if (monacoEditor.current != null) {
         monacoEditor.current.dispose();
-
-        const model = monacoEditor.current.getModel();
-        if (model != null) {
-          model.dispose();
-        }
       }
 
       if (onChangeSub.current != null) {
@@ -87,12 +86,89 @@ export function Monaco(props: MonacoProps): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <StyledEditor ref={containerElement}></StyledEditor>;
+  const onChange = useCallback(() => {
+    if (monacoEditor.current == null) {
+      return;
+    }
+    const value = monacoEditor.current.getModel()?.getValue();
+    if (value == null) {
+      return;
+    }
+
+    store.dispatch("editor.setContent", {
+      content: value,
+      noteId: activeNoteId.current!,
+    });
+  }, [store]);
+
+  useEffect(() => {
+    if (monacoEditor.current == null) {
+      return;
+    }
+
+    // Prevent memory leak
+    onChangeSub.current?.dispose();
+
+    onChangeSub.current =
+      monacoEditor.current.onDidChangeModelContent(onChange);
+  }, [onChange]);
+
+  // Active tab change
+  useEffect(() => {
+    const modelsCache = models.current;
+    const viewStatesCache = viewStates.current;
+    const lastActiveTabNoteId = activeNoteId.current;
+
+    if (monacoEditor.current == null) {
+      return;
+    }
+
+    // Cache off old state so we can restore it when tab is opened later on.
+    if (lastActiveTabNoteId != null) {
+      const oldTab = editor.tabs.find((t) => t.noteId === activeNoteId.current);
+
+      // If old tab wasn't found, it means the tab was closed and we shouldn't
+      // bother saving off view state / model.
+      if (oldTab != null) {
+        const viewState = monacoEditor.current.saveViewState();
+        viewStatesCache[oldTab.noteId] = viewState;
+
+        const model = monacoEditor.current.getModel();
+        modelsCache[oldTab.noteId] = model;
+      } else {
+        modelsCache[lastActiveTabNoteId] = null;
+        viewStatesCache[lastActiveTabNoteId] = null;
+      }
+    }
+
+    // Load new tab
+    const newTab = editor.tabs.find((t) => t.noteId === editor.activeTabNoteId);
+    if (newTab == null) {
+      throw new Error(`Active tab ${lastActiveTabNoteId} was not found.`);
+    }
+
+    let model = modelsCache[newTab.noteId];
+
+    // First load, gotta create the model.
+    if (model == null) {
+      model = monaco.editor.createModel(newTab.noteContent);
+    }
+
+    monacoEditor.current.setModel(model);
+    if (viewStatesCache[newTab.noteId] != null) {
+      monacoEditor.current.restoreViewState(viewStates.current[newTab.noteId]!);
+    }
+
+    activeNoteId.current = newTab.noteId;
+    console.log("LOADED TAB: ", activeNoteId.current);
+  }, [editor.activeTabNoteId, editor.tabs]);
+
+  return (
+    <StyledEditor id="monaco-container" ref={containerElement}></StyledEditor>
+  );
 }
 
 const StyledEditor = styled.div`
   height: 100%;
-  display: flex;
-  flex-direction: row;
   flex-grow: 1;
 `;
