@@ -3,12 +3,16 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { EditorTab, Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
-import { w100, p2, m2 } from "../css";
+import { w100, p2, m2, p1, px2, pl2 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
 import { getNoteById, Note } from "../../shared/domain/note";
+import OpenColor from "open-color";
+import { faCross, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { Icon } from "./shared/Icon";
+import { EditorTabs as EditorTabComp, EditorTabs } from "./EditorTabs";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
 
@@ -42,6 +46,8 @@ export function Editor(props: EditorProps): JSX.Element {
     store.on("editor.toggleView", toggleView);
     store.on("editor.openTab", openTab);
     store.on("editor.updateScroll", updateScroll);
+    store.on("editor.setActiveTab", setActiveTab);
+    store.on("editor.closeTab", closeTab);
 
     return () => {
       store.off("editor.setContent", setContent);
@@ -49,28 +55,20 @@ export function Editor(props: EditorProps): JSX.Element {
       store.off("editor.toggleView", toggleView);
       store.off("editor.openTab", openTab);
       store.off("editor.updateScroll", updateScroll);
+      store.off("editor.setActiveTab", setActiveTab);
+      store.off("editor.closeTab", closeTab);
     };
   }, [store]);
 
-  const tabs = state.editor.tabs.map((t) => (
-    <StyledTab key={t.noteId}>{t.noteName}</StyledTab>
-  ));
-
   return (
-    <StyledFocusable store={store} name={Section.Editor} focusOnRender={false}>
-      {tabs}
-      {content}
-    </StyledFocusable>
+    <Focusable store={store} name={Section.Editor} focusOnRender={false}>
+      <EditorTabs store={store} />
+      <StyledContent>{content}</StyledContent>
+    </Focusable>
   );
 }
 
-const StyledFocusable = styled(Focusable)`
-  display: flex;
-  ${m2}
-`;
-
-const StyledTab = styled.div`
-  display: inline-flex;
+const StyledContent = styled.div`
   ${m2}
 `;
 
@@ -104,8 +102,7 @@ const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   } else {
     const note = getNoteById(ctx.getState().notes, noteId);
     const newTab: EditorTab = {
-      noteId: noteId,
-      noteName: note.name,
+      noteId,
     };
     ctx.setUI(({ editor }) => ({
       editor: {
@@ -119,6 +116,58 @@ const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   if (ev.value == null) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
+};
+
+const setActiveTab: Listener<"editor.setActiveTab"> = async (
+  { value: noteId },
+  ctx
+) => {
+  if (noteId == null) {
+    return;
+  }
+
+  const { editor } = ctx.getState();
+  if (editor.activeTabNoteId === noteId) {
+    return;
+  }
+
+  ctx.setUI({
+    editor: {
+      activeTabNoteId: noteId,
+    },
+  });
+};
+
+const closeTab: Listener<"editor.closeTab"> = async (
+  { value: noteId },
+  ctx
+) => {
+  if (noteId == null) {
+    return;
+  }
+
+  const { editor } = ctx.getState();
+  if (editor.tabs.every((t) => t.noteId !== noteId)) {
+    throw new Error(`No tab for note ${noteId} found.`);
+  }
+
+  ctx.setUI((prev) => {
+    let activeTabNoteId = prev.editor.activeTabNoteId;
+
+    // Check if it was active tab
+    if (activeTabNoteId != null && activeTabNoteId === noteId) {
+      // TODO: Track tab changes as history so we can tab between them.
+      activeTabNoteId = prev.editor.tabs[0]?.noteId;
+    }
+
+    return {
+      ...prev,
+      editor: {
+        activeTabNoteId,
+        tabs: prev.editor.tabs.filter((t) => t.noteId !== noteId),
+      },
+    };
+  });
 };
 
 const setContent: Listener<"editor.setContent"> = async (

@@ -50,6 +50,8 @@ export interface UIEvents {
   "editor.setContent": string;
   "editor.updateScroll": number;
   "editor.openTab": string | null;
+  "editor.setActiveTab": string;
+  "editor.closeTab": string;
 
   // Focus Tracker
   "focus.push": Section | Section[];

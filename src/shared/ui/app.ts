@@ -35,7 +35,6 @@ export interface Editor {
 }
 
 export interface EditorTab {
-  noteName: string;
   noteId: string;
   // viewState and model can be null because they aren't serialized.
   viewState?: monaco.editor.IViewState;
