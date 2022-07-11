@@ -37,6 +37,7 @@ export interface Editor {
 export interface EditorTab {
   noteId: string;
   noteContent: string;
+  lastActive: Date;
 }
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to

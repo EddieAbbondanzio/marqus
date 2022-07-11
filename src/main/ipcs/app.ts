@@ -15,6 +15,7 @@ import { openInBrowser } from "../utils";
 import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../shared/domain/note";
 import { UIEventType, UIEventInput } from "../../shared/ui/events";
 import { EditorTab, UI } from "../../shared/ui/app";
+import { parseJSON } from "date-fns";
 
 export const UI_FILE = "ui.json";
 
@@ -133,6 +134,7 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
       for (const tab of ui.editor.tabs) {
         tab.model = undefined;
         tab.viewState = undefined;
+        tab.lastActive = parseJSON(tab.lastActive);
       }
 
       // Check if active tab is stale.

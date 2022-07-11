@@ -128,6 +128,16 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.LetterW],
     when: Section.Editor,
   },
+  {
+    name: "editor.previousTab",
+    event: "editor.previousTab",
+    keys: [KeyCode.Control, KeyCode.Shift, KeyCode.Tab],
+  },
+  {
+    name: "editor.nextTab",
+    event: "editor.nextTab",
+    keys: [KeyCode.Control, KeyCode.Tab],
+  },
 ];
 
 export const DEFAULT_SHORTCUTS = shortcuts.map((s) => ({
