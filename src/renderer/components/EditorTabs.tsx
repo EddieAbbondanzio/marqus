@@ -240,7 +240,7 @@ const StyledDelete = styled(Icon)`
   }
 `;
 
-const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
+export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   const { sidebar, editor } = ctx.getState();
 
   // If no note id was passed, we'll attempt to open the sidebar's selected note.
@@ -295,7 +295,7 @@ const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   }
 };
 
-const closeTab: Listener<"editor.closeTab"> = async (
+export const closeTab: Listener<"editor.closeTab"> = async (
   { value: noteId },
   ctx
 ) => {
@@ -335,7 +335,7 @@ const closeTab: Listener<"editor.closeTab"> = async (
   });
 };
 
-const setActiveTab: Listener<"editor.setActiveTab"> = async (
+export const setActiveTab: Listener<"editor.setActiveTab"> = async (
   { value: noteId },
   ctx
 ) => {

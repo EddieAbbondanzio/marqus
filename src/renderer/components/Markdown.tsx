@@ -124,7 +124,10 @@ const H6 = styled.h6`
   }
 `;
 
-const Paragraph = styled.p``;
+const Paragraph = styled.p`
+  font-size: 1.6rem;
+`;
+
 const Blockquote = styled.blockquote`
   display: flex;
   flex-direction: column;
@@ -143,6 +146,7 @@ const Blockquote = styled.blockquote`
 `;
 
 const CodeBlock = styled.pre`
+  font-size: 1.6rem;
   font-family: monospace;
   background-color: ${OpenColor.gray[3]}!important;
   border-radius: 2px;
@@ -157,6 +161,7 @@ const CodeBlock = styled.pre`
 
 const CodeSpan = styled.code`
   font-family: monospace;
+  font-size: 1.6rem;
   background-color: ${OpenColor.gray[3]}!important;
   border-radius: 2px;
   padding: 2px 4px;
