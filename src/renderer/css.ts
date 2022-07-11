@@ -27,6 +27,17 @@ export const THEME = {
       background: OpenColor.gray[8],
     },
   },
+  editor: {
+    tabs: {
+      background: OpenColor.gray[1],
+      border: OpenColor.gray[5],
+      hoveredTabBackground: OpenColor.gray[5],
+      activeTabBackground: OpenColor.white,
+      activeTabFont: OpenColor.gray[7],
+      deleteColor: OpenColor.red[7],
+      deleteHoverBackground: OpenColor.gray[3],
+    },
+  },
 };
 
 export const HEADER_SIZES = [

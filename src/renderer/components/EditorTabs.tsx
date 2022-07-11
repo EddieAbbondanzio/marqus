@@ -1,15 +1,15 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import OpenColor from "open-color";
 import React, { useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { getNoteById } from "../../shared/domain/note";
-import { ml2, p2, px3 } from "../css";
+import { m0, p2, px2, py2, THEME } from "../css";
 import { Listener, Store } from "../store";
 import { Icon } from "./shared/Icon";
-import { isEmpty, last, orderBy, wrap } from "lodash";
+import { isEmpty, last, orderBy } from "lodash";
 import { Section } from "../../shared/ui/app";
-import { isAfter } from "date-fns";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
+
+export const TABS_HEIGHT = "4.3rem";
 
 export interface EditorTabsProps {
   store: Store;
@@ -131,7 +131,9 @@ const StyledContainer = styled.div`
   display: flex;
   flex-direction: row;
   height: 3.2rem;
-  background-color: ${OpenColor.gray[2]};
+  background-color: ${THEME.editor.tabs.background};
+  ${py2}
+  border-bottom: 1px solid ${THEME.editor.tabs.border};
 `;
 
 export interface EditorTabProps {
@@ -160,9 +162,12 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         title={noteName}
         onClick={() => props.onClick(noteId)}
       >
-        <StyledIndicator />
         <StyledText>{noteName}</StyledText>
-        <StyledDelete icon={faTimes} onClick={onDeleteClick} />
+        <StyledDelete
+          icon={faTimes}
+          onClick={onDeleteClick}
+          className="delete"
+        />
       </StyledSelectedTab>
     );
   } else {
@@ -173,7 +178,11 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         onClick={() => props.onClick(noteId)}
       >
         <StyledText>{noteName}</StyledText>
-        <StyledDelete icon={faTimes} onClick={onDeleteClick} />
+        <StyledDelete
+          icon={faTimes}
+          onClick={onDeleteClick}
+          className="delete"
+        />
       </StyledTab>
     );
   }
@@ -183,23 +192,32 @@ const StyledTab = styled.a`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 8rem;
+  width: 12rem;
   cursor: pointer;
-  ${px3}
+  ${px2}
+  border-radius: 0.4rem;
+  margin-right: 0.4rem;
+
+  .delete {
+    display: none;
+  }
+
+  &:hover {
+    background-color: ${THEME.editor.tabs.hoveredTabBackground};
+
+    .delete {
+      display: block;
+    }
+  }
 `;
 
 const StyledSelectedTab = styled(StyledTab)`
-  background-color: ${OpenColor.white};
-  position: relative;
-`;
+  background-color: ${THEME.editor.tabs.activeTabBackground};
+  color: ${THEME.editor.tabs.activeTabFont};
 
-const StyledIndicator = styled.div`
-  background-color: ${OpenColor.orange[3]};
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 0.2rem;
+  .delete {
+    display: block;
+  }
 `;
 
 const StyledText = styled.div`
@@ -211,14 +229,14 @@ const StyledText = styled.div`
 `;
 
 const StyledDelete = styled(Icon)`
-  color: ${OpenColor.red[7]};
+  color: ${THEME.editor.tabs.deleteColor};
   border-radius: 0.4rem;
   ${p2}
-  ${ml2}
+  ${m0}
 
   &:hover {
     cursor: pointer;
-    background-color: ${OpenColor.gray[3]};
+    background-color: ${THEME.editor.tabs.deleteHoverBackground};
   }
 `;
 

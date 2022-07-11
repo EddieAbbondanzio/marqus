@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Store } from "../store";
 import * as monaco from "monaco-editor";
+import { TABS_HEIGHT } from "./EditorTabs";
 
 const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   language: "markdown",
@@ -168,12 +169,10 @@ export function Monaco(props: MonacoProps): JSX.Element {
     }
   }, [editor.activeTabNoteId, editor.tabs]);
 
-  return (
-    <StyledEditor id="monaco-container" ref={containerElement}></StyledEditor>
-  );
+  return <StyledEditor ref={containerElement}></StyledEditor>;
 }
 
 const StyledEditor = styled.div`
-  height: 100%;
   flex-grow: 1;
+  height: calc(100% - ${TABS_HEIGHT});
 `;

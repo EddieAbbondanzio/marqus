@@ -9,7 +9,7 @@ import { Markdown } from "./Markdown";
 import { Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
 import { getNoteById } from "../../shared/domain/note";
-import { EditorTabs } from "./EditorTabs";
+import { EditorTabs, TABS_HEIGHT } from "./EditorTabs";
 import * as monaco from "monaco-editor";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
@@ -69,7 +69,7 @@ export function Editor(props: EditorProps): JSX.Element {
 const StyledContent = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100% - ${TABS_HEIGHT});
   ${m2}
 `;
 
