@@ -59,18 +59,24 @@ export function Editor(props: EditorProps): JSX.Element {
   }, [store]);
 
   return (
-    <Focusable store={store} name={Section.Editor} focusOnRender={false}>
+    <StyledFocusable store={store} name={Section.Editor} focusOnRender={false}>
       <EditorTabs store={store} />
       <StyledContent>{content}</StyledContent>
-    </Focusable>
+    </StyledFocusable>
   );
 }
+
+const StyledFocusable = styled(Focusable)`
+  flex-grow: 1;
+  overflow-y: hidden;
+`;
 
 const StyledContent = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - ${TABS_HEIGHT});
   ${m2}
+  overflow: hidden;
 `;
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL_MS) as Ipc;

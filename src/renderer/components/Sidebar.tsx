@@ -172,7 +172,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         </Controls>
 
         <Scrollable
-          height="calc(100% - 52px)"
+          height="calc(100% - 100px)"
           scroll={store.state.sidebar.scroll}
           onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
         >
@@ -194,6 +194,7 @@ const StyledResizable = styled(Resizable)`
 
 const StyledFocusable = styled(Focusable)`
   ${p2}
+  ${w100}
 `;
 
 const Controls = styled.div`

@@ -2,12 +2,14 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import React, { useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { getNoteById } from "../../shared/domain/note";
-import { m0, p2, px2, py2, THEME } from "../css";
+import { m0, p2, pt2, px2, py2, THEME } from "../css";
 import { Listener, Store } from "../store";
 import { Icon } from "./shared/Icon";
 import { isEmpty, last, orderBy } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
+import { Scrollable } from "./shared/Scrollable";
+import OpenColor from "open-color";
 
 export const TABS_HEIGHT = "4.3rem";
 
@@ -114,6 +116,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     store.on("editor.closeTab", closeTab);
     store.on("editor.nextTab", nextTab);
     store.on("editor.previousTab", previousTab);
+    store.on("editor.updateTabsScroll", updateTabsScroll);
 
     return () => {
       store.off("editor.openTab", openTab);
@@ -121,19 +124,31 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
       store.off("editor.closeTab", closeTab);
       store.off("editor.nextTab", nextTab);
       store.off("editor.previousTab", previousTab);
+      store.off("editor.updateTabsScroll", updateTabsScroll);
     };
   }, [store]);
 
-  return <StyledContainer>{tabs}</StyledContainer>;
+  return (
+    <StyledScrollable
+      orientation="horizontal"
+      scroll={editor.tabsScroll}
+      onScroll={(s) => store.dispatch("editor.updateTabsScroll", s)}
+    >
+      {tabs}
+    </StyledScrollable>
+  );
 }
 
-const StyledContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  height: 3.2rem;
+const StyledScrollable = styled(Scrollable)`
+  height: 3.6rem;
+  white-space: nowrap;
   background-color: ${THEME.editor.tabs.background};
-  ${py2}
   border-bottom: 1px solid ${THEME.editor.tabs.border};
+  ${pt2}
+
+  ::-webkit-scrollbar-thumb {
+    background: ${THEME.editor.tabs.scrollbarColor};
+  }
 `;
 
 export interface EditorTabProps {
@@ -189,12 +204,13 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
 }
 
 const StyledTab = styled.a`
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: space-between;
   width: 12rem;
   cursor: pointer;
   ${px2}
+  ${py2}
   border-radius: 0.4rem;
   margin-right: 0.4rem;
 
@@ -358,5 +374,20 @@ export const setActiveTab: Listener<"editor.setActiveTab"> = async (
         tabs: [...prev.editor.tabs],
       },
     };
+  });
+};
+
+export const updateTabsScroll: Listener<"editor.updateTabsScroll"> = async (
+  { value: tabsScroll },
+  ctx
+) => {
+  if (tabsScroll == null) {
+    return;
+  }
+  console.log(tabsScroll);
+  ctx.setUI({
+    editor: {
+      tabsScroll,
+    },
   });
 };

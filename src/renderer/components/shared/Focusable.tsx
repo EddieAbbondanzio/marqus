@@ -103,20 +103,16 @@ export function Focusable(
   });
 
   return (
-    <Container
+    <div
       ref={containerRef}
       className={props.className}
       tabIndex={props.tabIndex ?? -1}
       {...{ [FOCUSABLE_ATTRIBUTE]: props.name }}
     >
       {props.children}
-    </Container>
+    </div>
   );
 }
-
-const Container = styled.div`
-  ${w100}
-`;
 
 export function wasInsideFocusable(ev: Event, focusable: Section): boolean {
   return findParent(

@@ -31,6 +31,7 @@ export interface Editor {
   isEditting: boolean;
   scroll: number;
   tabs: EditorTab[];
+  tabsScroll: number;
   activeTabNoteId?: string;
 }
 

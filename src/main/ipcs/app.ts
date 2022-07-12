@@ -158,6 +158,7 @@ export function getUIFileHandler(config: Config): FileHandler<UI> {
       },
       editor: {
         tabs: [],
+        tabsScroll: 0,
         isEditting: false,
         scroll: 0,
       },

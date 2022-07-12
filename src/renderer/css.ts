@@ -36,6 +36,7 @@ export const THEME = {
       activeTabFont: OpenColor.gray[7],
       deleteColor: OpenColor.red[7],
       deleteHoverBackground: OpenColor.gray[3],
+      scrollbarColor: OpenColor.gray[5],
     },
   },
 };

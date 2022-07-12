@@ -54,6 +54,7 @@ export interface UIEvents {
   "editor.previousTab": void;
   "editor.nextTab": void;
   "editor.setActiveTab": string;
+  "editor.updateTabsScroll": number;
 
   // Focus Tracker
   "focus.push": Section | Section[];
