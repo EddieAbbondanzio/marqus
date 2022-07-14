@@ -1,15 +1,13 @@
+import {
+  renderHook,
+  RenderHookResult,
+  RenderResult,
+} from "@testing-library/react-hooks";
 import { DeepPartial } from "tsdef";
-import { Store, State } from "../../src/renderer/store";
+import { State, Store, useStore } from "../../src/renderer/store";
 import { createState } from "./state";
 
-type CreateStore = Partial<Omit<Store, "state">> & {
-  state?: DeepPartial<State>;
-};
-export function createStore(partial?: CreateStore): Store {
-  return {
-    on: partial?.on ?? jest.fn(),
-    off: partial?.off ?? jest.fn(),
-    dispatch: partial?.dispatch ?? jest.fn(),
-    state: createState(partial?.state),
-  };
+export function createStore(state?: DeepPartial<State>): RenderResult<Store> {
+  const rendered = renderHook(() => useStore(createState(state)));
+  return rendered.result;
 }

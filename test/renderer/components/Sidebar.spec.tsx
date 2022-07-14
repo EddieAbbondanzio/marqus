@@ -3,7 +3,6 @@ import { Sidebar } from "../../../src/renderer/components/Sidebar";
 import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { useStore } from "../../../src/renderer/store";
-import { renderHook } from "@testing-library/react-hooks";
 import {
   createNote,
   DEFAULT_NOTE_SORTING_ALGORITHM,
@@ -12,11 +11,12 @@ import {
 import * as prompt from "../../../src/renderer/utils/prompt";
 import { when } from "jest-when";
 import { Section } from "../../../src/shared/ui/app";
+import { createStore } from "../../__factories__/store";
 
 const promptConfirmAction = jest.spyOn(prompt, "promptConfirmAction");
 
 test("sidebar.createNote confirm", async () => {
-  const { result: store } = renderHook(() => useStore(createState()));
+  const store = createStore();
   const res = render(<Sidebar store={store.current} />);
 
   // Start
@@ -65,14 +65,10 @@ test("sidebar.createNote confirm", async () => {
 });
 
 test("sidebar.createNote expands parent", async () => {
-  const { result: store } = renderHook(() =>
-    useStore(
-      createState({
-        notes: [createNote({ id: "parent-note", name: "parent" })],
-      })
-    )
-  );
-  const res = render(<Sidebar store={store.current} />);
+  const store = createStore({
+    notes: [createNote({ id: "parent-note", name: "parent" })],
+  });
+  render(<Sidebar store={store.current} />);
 
   act(() => {
     store.current.dispatch("sidebar.createNote", "parent-note");
@@ -84,7 +80,7 @@ test("sidebar.createNote expands parent", async () => {
 });
 
 test("sidebar.createNote escape cancels", async () => {
-  const { result: store } = renderHook(() => useStore(createState()));
+  const store = createStore();
   const res = render(<Sidebar store={store.current} />);
 
   // Start
@@ -113,24 +109,21 @@ test("sidebar.createNote escape cancels", async () => {
 });
 
 test("sidebar.deleteNote", async () => {
-  const { result: store } = renderHook(() =>
-    useStore(
-      createState({
-        notes: [
-          createNote({ id: "a", name: "A" }),
-          createNote({ id: "b", name: "B" }),
-          createNote({ id: "c", name: "C" }),
-        ],
-        sidebar: {
-          selected: ["b"],
-          sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-        },
-        editor: {},
-        focused: [Section.Editor],
-      })
-    )
-  );
-  const res = render(<Sidebar store={store.current} />);
+  const store = createStore({
+    notes: [
+      createNote({ id: "a", name: "A" }),
+      createNote({ id: "b", name: "B" }),
+      createNote({ id: "c", name: "C" }),
+    ],
+    sidebar: {
+      selected: ["b"],
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    editor: {},
+    focused: [Section.Editor],
+  });
+
+  render(<Sidebar store={store.current} />);
 
   // Does not remove if cancelled
   promptConfirmAction.mockResolvedValueOnce(false);
@@ -150,23 +143,19 @@ test("sidebar.deleteNote", async () => {
 });
 
 test("sidebar.deleteSelectedNote", async () => {
-  const { result: store } = renderHook(() =>
-    useStore(
-      createState({
-        notes: [
-          createNote({ id: "a", name: "A" }),
-          createNote({ id: "b", name: "B" }),
-          createNote({ id: "c", name: "C" }),
-        ],
-        sidebar: {
-          selected: ["b"],
-          sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-        },
-        editor: {},
-        focused: [Section.Editor],
-      })
-    )
-  );
+  const store = createStore({
+    notes: [
+      createNote({ id: "a", name: "A" }),
+      createNote({ id: "b", name: "B" }),
+      createNote({ id: "c", name: "C" }),
+    ],
+    sidebar: {
+      selected: ["b"],
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    editor: {},
+    focused: [Section.Editor],
+  });
   const res = render(<Sidebar store={store.current} />);
 
   // Does not remove if cancelled
@@ -202,19 +191,15 @@ test("sidebar.collapseAll", async () => {
     createNote({ id: "4", name: "foo" }),
   ];
 
-  const { result: store } = renderHook(() =>
-    useStore(
-      createState({
-        notes,
-        sidebar: {
-          expanded: ["1", "2"],
-          sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-        },
-        editor: {},
-        focused: [],
-      })
-    )
-  );
+  const store = createStore({
+    notes,
+    sidebar: {
+      expanded: ["1", "2"],
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    editor: {},
+    focused: [],
+  });
 
   const res = render(<Sidebar store={store.current} />);
   await act(async () => {
@@ -240,19 +225,15 @@ test("sidebar.expandAll", async () => {
     createNote({ name: "foo" }),
   ];
 
-  const { result: store } = renderHook(() =>
-    useStore(
-      createState({
-        notes,
-        sidebar: {
-          expanded: [],
-          sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-        },
-        editor: {},
-        focused: [],
-      })
-    )
-  );
+  const store = createStore({
+    notes,
+    sidebar: {
+      expanded: [],
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    editor: {},
+    focused: [],
+  });
 
   render(<Sidebar store={store.current} />);
   await act(async () => {
@@ -281,19 +262,15 @@ test("sidebar.dragNote", async () => {
     }),
   ];
 
-  const { result: store } = renderHook(() =>
-    useStore(
-      createState({
-        notes,
-        sidebar: {
-          expanded: [],
-          sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-        },
-        editor: {},
-        focused: [],
-      })
-    )
-  );
+  const store = createStore({
+    notes,
+    sidebar: {
+      expanded: [],
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    editor: {},
+    focused: [],
+  });
 
   render(<Sidebar store={store.current} />);
 

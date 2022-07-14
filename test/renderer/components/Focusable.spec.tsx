@@ -10,7 +10,7 @@ import { App } from "../../../src/renderer/App";
 import { createState } from "../../__factories__/state";
 import React, { ReactNode } from "react";
 import * as store from "../../../src/renderer/store";
-import { createStore } from "../../__factories__/store";
+import { mockStore } from "../../__mocks__/store";
 import { Section } from "../../../src/shared/ui/app";
 
 function init(
@@ -22,7 +22,7 @@ function init(
 }
 
 test("useFocusTracking detects clicks in focusables", async () => {
-  const s = createStore();
+  const s = mockStore();
   jest.spyOn(store, "useStore").mockImplementation(() => s);
 
   const res = render(<App initialState={s.state} needDataDirectory={false} />);
@@ -35,7 +35,7 @@ test("useFocusTracking detects clicks in focusables", async () => {
 });
 
 test("focusable sets attribute", () => {
-  const s = createStore();
+  const s = mockStore();
   const res = init({ name: Section.Sidebar, store: s }, "Hello World!");
   const div = res.getByText("Hello World!");
 
@@ -45,7 +45,7 @@ test("focusable sets attribute", () => {
 test.each([undefined, false, true])(
   "focusable focuses (focusOnRender %s)",
   (focusOnRender) => {
-    const store = createStore({
+    const store = mockStore({
       state: { focused: [Section.Sidebar] },
     });
     const el = { current: { focus: jest.fn() } } as React.MutableRefObject<any>;
@@ -75,7 +75,7 @@ test.each([undefined, false, true])(
 test.each([false, true])(
   "focusable blurs (focusOnRender %s)",
   (focusOnRender) => {
-    const store = createStore({ state: { focused: [Section.Editor] } });
+    const store = mockStore({ state: { focused: [Section.Editor] } });
     const el = { current: { blur: jest.fn() } } as React.MutableRefObject<any>;
     const onBlur = jest.fn();
 
@@ -98,7 +98,7 @@ test.each([false, true])(
 );
 
 test("focusable only blurs when current has changed", async () => {
-  const store = createStore({ state: { focused: [Section.Editor] } });
+  const store = mockStore({ state: { focused: [Section.Editor] } });
   const onBlur = jest.fn();
   const res = init({
     name: Section.Sidebar,
@@ -119,7 +119,7 @@ test("focusable only blurs when current has changed", async () => {
 test.each([false, true])(
   "focusable blurs on escape (blurOnEsc: %s)",
   async (blurOnEsc) => {
-    const store = createStore();
+    const store = mockStore();
     const res = init(
       {
         name: Section.Sidebar,

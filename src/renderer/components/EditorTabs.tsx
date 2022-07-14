@@ -9,7 +9,6 @@ import { isEmpty, last, orderBy } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { Scrollable } from "./shared/Scrollable";
-import OpenColor from "open-color";
 
 export const TABS_HEIGHT = "4.3rem";
 

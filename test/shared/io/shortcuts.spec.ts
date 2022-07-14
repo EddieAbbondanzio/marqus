@@ -8,7 +8,7 @@ import { Shortcut } from "../../../src/shared/domain/shortcut";
 import { KeyCode } from "../../../src/shared/io/keyCode";
 import { Section } from "../../../src/shared/ui/app";
 import * as Utils from "../../../src/shared/utils";
-import { createStore } from "../../__factories__/store";
+import { mockStore } from "../../__mocks__/store";
 
 jest.useFakeTimers();
 
@@ -22,7 +22,7 @@ test("useShortcuts dispatches shortcut", () => {
     keys: [KeyCode.Control, KeyCode.LetterB],
   };
   const dispatch = jest.fn();
-  const store = createStore({ dispatch, state: { shortcuts: [shortcut] } });
+  const store = mockStore({ dispatch, state: { shortcuts: [shortcut] } });
   const res = renderHook(() => useShortcuts(store));
 
   fireEvent.keyDown(window, { code: "ControlLeft" });
