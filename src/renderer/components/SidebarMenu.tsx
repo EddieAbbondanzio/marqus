@@ -16,6 +16,7 @@ export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
 export const SIDEBAR_MENU_HEIGHT = 24;
 export const SIDEBAR_MENU_INDENT = 10;
 export const SIDEBAR_ICON_WIDTH = 20;
+export const SIDEBAR_MENU_FONT_SIZE = "1.2rem";
 
 interface SidebarMenuProps {
   icon?: IconDefinition;
@@ -107,12 +108,12 @@ const StyledMenuIcon = styled(Icon)`
   width: ${SIDEBAR_ICON_WIDTH}px;
   padding: 0;
   text-align: center;
-  font-size: 1.2rem;
+  font-size: ${SIDEBAR_MENU_FONT_SIZE};
 `;
 
 const StyledMenuText = styled.div`
   color: ${THEME.sidebar.font};
-  font-size: 1.2rem;
+  font-size: ${SIDEBAR_MENU_FONT_SIZE};
 `;
 
 export interface SidebarInputProps {
@@ -225,7 +226,7 @@ const StyledInput = styled.input`
   outline: none;
   -webkit-appearance: none;
   height: 2rem;
-  font-size: 1.4rem;
+  font-size: ${SIDEBAR_MENU_FONT_SIZE};
   padding-left: 0;
   background-color: ${THEME.sidebar.input.background};
   color: ${THEME.sidebar.input.font};
@@ -235,7 +236,7 @@ const StyledInput = styled.input`
 const ErrorMessage = styled.div`
   background-color: ${THEME.sidebar.error.background};
   color: ${THEME.sidebar.error.font};
-  font-size: 1.2rem;
+  font-size: ${SIDEBAR_MENU_FONT_SIZE};
   border-radius: 0.4rem;
   position: relative;
   ${mt1}
