@@ -49,7 +49,7 @@ export interface UIEvents {
   "editor.toggleView": void;
   "editor.setContent": { noteId: string; content: string };
   "editor.updateScroll": number;
-  "editor.openTab": string | string[] | null;
+  "editor.openTab": { note: string | string[]; active?: string };
   "editor.closeTab": string;
   "editor.previousTab": void;
   "editor.nextTab": void;

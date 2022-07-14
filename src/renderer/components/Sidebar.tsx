@@ -245,7 +245,7 @@ export function renderMenus(
         store.dispatch("sidebar.toggleItemExpanded", note.id);
       }
       store.dispatch("sidebar.setSelection", [note.id]);
-      store.dispatch("editor.openTab", note.id);
+      store.dispatch("editor.openTab", { note: note.id, active: note.id });
     };
 
     let icon;

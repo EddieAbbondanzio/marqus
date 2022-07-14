@@ -10,7 +10,7 @@ import { Note } from "../shared/domain/note";
 import { Tag } from "../shared/domain/tag";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
-import { isEmpty, keyBy, tail } from "lodash";
+import { first, isEmpty, keyBy, tail } from "lodash";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
@@ -53,7 +53,7 @@ export interface AppProps {
 export function App(props: AppProps): JSX.Element {
   const store = useStore(props.initialState);
   const { state } = store;
-  const { editor } = state;
+  const { sidebar, editor } = state;
 
   useShortcuts(store);
   useApplicationMenu(store);
@@ -97,8 +97,13 @@ export function App(props: AppProps): JSX.Element {
       .filter((t) => t.noteContent == null)
       .map((t) => t.noteId);
 
+    const activeTab = first(sidebar.selected);
+
     if (tabsToLoad.length > 0) {
-      store.dispatch("editor.openTab", tabsToLoad);
+      store.dispatch("editor.openTab", {
+        note: tabsToLoad,
+        active: activeTab,
+      });
     }
   }, [editor.tabs]);
 

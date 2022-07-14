@@ -272,7 +272,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
 
     noteIds = selected ?? [];
   } else {
-    noteIds = Array.isArray(ev.value) ? ev.value : [ev.value];
+    noteIds = Array.isArray(ev.value.note) ? ev.value.note : [ev.value.note];
   }
 
   if (noteIds.length === 0) {
@@ -300,7 +300,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
 
   ctx.setUI({
     editor: {
-      activeTabNoteId: last(noteIds),
+      activeTabNoteId: ev.value.active ?? last(noteIds),
       tabs,
     },
   });
