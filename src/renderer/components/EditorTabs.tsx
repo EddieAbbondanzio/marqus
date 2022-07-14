@@ -80,6 +80,9 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     };
   }, []);
 
+  // We could probably write nextTab, and previousTab cleaner if we switched to
+  // a useMemo() for ordered but I'm feeling lazy and gonna leave it like this.
+
   const nextTab: Listener<"editor.nextTab"> = (_, ctx) => {
     if (controlIsDown.current) {
       offset.current += 1;
@@ -168,8 +171,6 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
     props.onClose(noteId);
   };
 
-  // TODO: Is there a cleaner way to do this? Feels silly with how similar
-  // StyledSelectedTab and StyledTab are.
   if (active) {
     return (
       <StyledSelectedTab
@@ -381,13 +382,11 @@ export const updateTabsScroll: Listener<"editor.updateTabsScroll"> = async (
   { value: tabsScroll },
   ctx
 ) => {
-  if (tabsScroll == null) {
-    return;
+  if (tabsScroll != null) {
+    ctx.setUI({
+      editor: {
+        tabsScroll,
+      },
+    });
   }
-  console.log(tabsScroll);
-  ctx.setUI({
-    editor: {
-      tabsScroll,
-    },
-  });
 };

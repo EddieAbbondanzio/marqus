@@ -65,15 +65,25 @@ export function Markdown(props: MarkdownProps): JSX.Element {
   }, [props.content]);
 
   return (
-    <Scrollable
-      scroll={props.scroll}
-      onScroll={props.onScroll}
-      className="markdown"
-    >
+    <StyledScrollable scroll={props.scroll} onScroll={props.onScroll}>
       {reactContent}
-    </Scrollable>
+    </StyledScrollable>
   );
 }
+
+const StyledScrollable = styled(Scrollable)`
+  overflow-x: hidden !important;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    word-break: break-word;
+  }
+`;
 
 const H1 = styled.h1`
   font-weight: 600;
