@@ -155,7 +155,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
       // First load, gotta create the model.
       if (model == null) {
-        model = monaco.editor.createModel(newTab.noteContent);
+        model = monaco.editor.createModel(newTab.noteContent ?? "");
       }
 
       monacoEditor.current.setModel(model);

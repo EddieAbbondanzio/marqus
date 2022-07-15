@@ -49,11 +49,10 @@ export interface UIEvents {
   "editor.toggleView": void;
   "editor.setContent": { noteId: string; content: string };
   "editor.updateScroll": number;
-  "editor.openTab": { note: string | string[]; active?: string };
+  "editor.openTab": { note: string | string[]; active?: string } | undefined;
   "editor.closeTab": string;
   "editor.previousTab": void;
   "editor.nextTab": void;
-  "editor.setActiveTab": string;
   "editor.updateTabsScroll": number;
 
   // Focus Tracker

@@ -5,7 +5,7 @@ import { getNoteById } from "../../shared/domain/note";
 import { m0, p2, pt2, px2, py2, THEME } from "../css";
 import { Listener, Store } from "../store";
 import { Icon } from "./shared/Icon";
-import { isEmpty, last, orderBy } from "lodash";
+import { first, isEmpty, last, orderBy } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { Scrollable } from "./shared/Scrollable";
@@ -26,7 +26,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     const { activeTabNoteId } = editor;
 
     const onClick = (noteId: string) => {
-      store.dispatch("editor.setActiveTab", noteId);
+      store.dispatch("editor.openTab", { note: noteId, active: noteId });
     };
 
     const onClose = (noteId: string) => {
@@ -114,7 +114,6 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
   useEffect(() => {
     store.on("editor.openTab", openTab);
-    store.on("editor.setActiveTab", setActiveTab);
     store.on("editor.closeTab", closeTab);
     store.on("editor.nextTab", nextTab);
     store.on("editor.previousTab", previousTab);
@@ -122,7 +121,6 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
     return () => {
       store.off("editor.openTab", openTab);
-      store.off("editor.setActiveTab", setActiveTab);
       store.off("editor.closeTab", closeTab);
       store.off("editor.nextTab", nextTab);
       store.off("editor.previousTab", previousTab);
@@ -259,19 +257,21 @@ const StyledDelete = styled(Icon)`
 export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   const { sidebar, editor } = ctx.getState();
 
-  // If no note id was passed, we'll attempt to open the sidebar's selected note.
   let noteIds: string[];
-  if (ev.value == null) {
-    // User could accidentally press delete when nothing is selected so we
-    // don't throw here.
-    const { selected } = sidebar;
-    if (isEmpty(selected)) {
-      return;
-    }
+  let activeTabNoteId;
 
-    noteIds = selected ?? [];
+  let input;
+  if (ev.value != null) {
+    input = ev.value;
+  }
+
+  // Determine tabs to open
+  if (input == null) {
+    noteIds = sidebar.selected ?? [];
+    activeTabNoteId = first(sidebar.selected);
   } else {
-    noteIds = Array.isArray(ev.value.note) ? ev.value.note : [ev.value.note];
+    noteIds = Array.isArray(input.note) ? input.note : [input.note];
+    activeTabNoteId = input.active ?? last(noteIds);
   }
 
   if (noteIds.length === 0) {
@@ -281,26 +281,28 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   let tabs = [...editor.tabs];
 
   for (const noteId of noteIds) {
+    let newTab = false;
     let tab = editor.tabs.find((t) => t.noteId === noteId);
+
     if (tab == null) {
-      tab = {
-        noteId,
-        noteContent: undefined!,
-        lastActive: new Date(),
-      };
+      newTab = true;
+      tab = { noteId };
     }
 
-    tab.noteContent = (await window.ipc("notes.loadContent", noteId)) ?? "";
+    if (tab.noteContent == null) {
+      tab.noteContent = (await window.ipc("notes.loadContent", noteId)) ?? "";
+    }
+    tab.lastActive = new Date();
 
-    if (tabs.findIndex((t) => t.noteId === noteId) === -1) {
+    if (newTab) {
       tabs.push(tab);
     }
   }
 
   ctx.setUI({
     editor: {
-      activeTabNoteId: ev.value.active ?? last(noteIds),
       tabs,
+      activeTabNoteId,
     },
   });
 
@@ -346,32 +348,6 @@ export const closeTab: Listener<"editor.closeTab"> = async (
       editor: {
         activeTabNoteId,
         tabs: prev.editor.tabs.filter((t) => t.noteId !== noteId),
-      },
-    };
-  });
-};
-
-export const setActiveTab: Listener<"editor.setActiveTab"> = async (
-  { value: noteId },
-  ctx
-) => {
-  if (noteId == null) {
-    return;
-  }
-
-  const { editor } = ctx.getState();
-  if (editor.activeTabNoteId === noteId) {
-    return;
-  }
-
-  ctx.setUI((prev) => {
-    const tab = prev.editor.tabs.find((t) => t.noteId === noteId);
-    tab!.lastActive = new Date();
-
-    return {
-      editor: {
-        activeTabNoteId: noteId,
-        tabs: [...prev.editor.tabs],
       },
     };
   });

@@ -97,12 +97,10 @@ export function App(props: AppProps): JSX.Element {
       .filter((t) => t.noteContent == null)
       .map((t) => t.noteId);
 
-    const activeTab = first(sidebar.selected);
-
     if (tabsToLoad.length > 0) {
       store.dispatch("editor.openTab", {
         note: tabsToLoad,
-        active: activeTab,
+        active: first(sidebar.selected),
       });
     }
   }, [editor.tabs]);
