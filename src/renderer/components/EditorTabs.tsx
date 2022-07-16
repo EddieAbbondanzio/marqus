@@ -71,6 +71,10 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
   }, [editor.tabs]);
 
   const switchToNextTab: Listener<"editor.nextTab"> = (_, ctx) => {
+    if (nextTab == null) {
+      return;
+    }
+
     ctx.setUI({
       editor: {
         activeTabNoteId: nextTab?.noteId,
@@ -79,10 +83,53 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
   };
 
   const switchToPreviousTab: Listener<"editor.previousTab"> = (_, ctx) => {
+    if (previousTab == null) {
+      return;
+    }
+
     ctx.setUI({
       editor: {
         activeTabNoteId: previousTab?.noteId,
       },
+    });
+  };
+
+  const closeTab: Listener<"editor.closeTab"> = async (
+    { value: noteId },
+    ctx
+  ) => {
+    // If no note id was passed assume we want to close active tab
+    if (noteId == null) {
+      const {
+        editor: { activeTabNoteId },
+      } = ctx.getState();
+      if (activeTabNoteId == null) {
+        return;
+      }
+
+      noteId = activeTabNoteId;
+    }
+
+    const { editor } = ctx.getState();
+    if (editor.tabs.every((t) => t.noteId !== noteId)) {
+      throw new Error(`No tab for note ${noteId} found.`);
+    }
+
+    ctx.setUI((prev) => {
+      let activeTabNoteId = prev.editor.activeTabNoteId;
+
+      // Check if it was active tab
+      if (activeTabNoteId != null && activeTabNoteId === noteId) {
+        activeTabNoteId = previousTab?.noteId;
+      }
+
+      return {
+        ...prev,
+        editor: {
+          activeTabNoteId,
+          tabs: prev.editor.tabs.filter((t) => t.noteId !== noteId),
+        },
+      };
     });
   };
 
@@ -285,46 +332,6 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   if (ev.value == null) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
-};
-
-export const closeTab: Listener<"editor.closeTab"> = async (
-  { value: noteId },
-  ctx
-) => {
-  // If no note id was passed assume we want to close active tab
-  if (noteId == null) {
-    const {
-      editor: { activeTabNoteId },
-    } = ctx.getState();
-    if (activeTabNoteId == null) {
-      return;
-    }
-
-    noteId = activeTabNoteId;
-  }
-
-  const { editor } = ctx.getState();
-  if (editor.tabs.every((t) => t.noteId !== noteId)) {
-    throw new Error(`No tab for note ${noteId} found.`);
-  }
-
-  ctx.setUI((prev) => {
-    let activeTabNoteId = prev.editor.activeTabNoteId;
-
-    // Check if it was active tab
-    if (activeTabNoteId != null && activeTabNoteId === noteId) {
-      const lastActiveTab = orderBy(prev.editor.tabs, ["lastActive"], ["desc"]);
-      activeTabNoteId = lastActiveTab[1]?.noteId;
-    }
-
-    return {
-      ...prev,
-      editor: {
-        activeTabNoteId,
-        tabs: prev.editor.tabs.filter((t) => t.noteId !== noteId),
-      },
-    };
-  });
 };
 
 export const updateTabsScroll: Listener<"editor.updateTabsScroll"> = async (

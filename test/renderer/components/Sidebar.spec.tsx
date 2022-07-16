@@ -13,6 +13,9 @@ import { when } from "jest-when";
 import { Section } from "../../../src/shared/ui/app";
 import { createStore } from "../../__factories__/store";
 
+// TODO: Rewrite these test to use fireEvent to be more like how the code is
+// actually ran.
+
 const promptConfirmAction = jest.spyOn(prompt, "promptConfirmAction");
 
 test("sidebar.createNote confirm", async () => {
