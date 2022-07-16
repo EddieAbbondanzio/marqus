@@ -3,6 +3,8 @@ import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { createStore } from "../../__factories__/store";
 import { createNote } from "../../../src/shared/domain/note";
+import { createTab } from "../../__factories__/editor";
+import { subHours } from "date-fns";
 
 jest.useFakeTimers();
 
@@ -63,20 +65,157 @@ test("openTab opens tabs passed", async () => {
 });
 
 test("closeTab closes active tab by default", async () => {
-  // Test it changes active note to second last note by history
+  const store = createStore({
+    notes: [
+      createNote({ id: "1", name: "foo" }),
+      createNote({ id: "2", name: "bar" }),
+      createNote({ id: "3", name: "baz" }),
+    ],
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          noteId: "1",
+          noteContent: "",
+          lastActive: subHours(new Date(), 1),
+        }),
+        createTab({
+          noteId: "2",
+          noteContent: "",
+          lastActive: subHours(new Date(), 2),
+        }),
+        createTab({
+          noteId: "3",
+          noteContent: "",
+          lastActive: subHours(new Date(), 3),
+        }),
+      ],
+    },
+  });
+
+  const r = render(<EditorTabs store={store.current} />);
+  await act(async () => {
+    // Default behavior is to close active tab
+    store.current.dispatch("editor.closeTab", undefined!);
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs).toHaveLength(2);
+  expect(editor.activeTabNoteId).toBe("2");
 });
 
 test("closeTab closes tab passed", async () => {
-  // Test it changes active note by history
+  const store = createStore({
+    notes: [
+      createNote({ id: "1", name: "foo" }),
+      createNote({ id: "2", name: "bar" }),
+      createNote({ id: "3", name: "baz" }),
+    ],
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          noteId: "1",
+          noteContent: "",
+          lastActive: subHours(new Date(), 1),
+        }),
+        createTab({
+          noteId: "2",
+          noteContent: "",
+          lastActive: subHours(new Date(), 2),
+        }),
+        createTab({
+          noteId: "3",
+          noteContent: "",
+          lastActive: subHours(new Date(), 3),
+        }),
+      ],
+    },
+  });
+
+  const r = render(<EditorTabs store={store.current} />);
+  await act(async () => {
+    // Default behavior is to close active tab
+    store.current.dispatch("editor.closeTab", undefined!);
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.activeTabNoteId).toBe("2");
 });
 
 test("nextTab", async () => {
-  // Works off historical data
-  // Holding shift allows us to chain
+  const store = createStore({
+    notes: [
+      createNote({ id: "1", name: "foo" }),
+      createNote({ id: "2", name: "bar" }),
+      createNote({ id: "3", name: "baz" }),
+    ],
+    editor: {
+      activeTabNoteId: "2",
+      tabs: [
+        createTab({
+          noteId: "1",
+          noteContent: "",
+          lastActive: subHours(new Date(), 1),
+        }),
+        createTab({
+          noteId: "2",
+          noteContent: "",
+          lastActive: subHours(new Date(), 2),
+        }),
+        createTab({
+          noteId: "3",
+          noteContent: "",
+          lastActive: subHours(new Date(), 3),
+        }),
+      ],
+    },
+  });
+
+  const r = render(<EditorTabs store={store.current} />);
+  await act(async () => {
+    store.current.dispatch("editor.nextTab", undefined!);
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.activeTabNoteId).toBe("3");
 });
 test("previousTab", async () => {
-  // Works off historical data
-  // Holding shift allows us to chain
+  const store = createStore({
+    notes: [
+      createNote({ id: "1", name: "foo" }),
+      createNote({ id: "2", name: "bar" }),
+      createNote({ id: "3", name: "baz" }),
+    ],
+    editor: {
+      activeTabNoteId: "2",
+      tabs: [
+        createTab({
+          noteId: "1",
+          noteContent: "",
+          lastActive: subHours(new Date(), 1),
+        }),
+        createTab({
+          noteId: "2",
+          noteContent: "",
+          lastActive: subHours(new Date(), 2),
+        }),
+        createTab({
+          noteId: "3",
+          noteContent: "",
+          lastActive: subHours(new Date(), 3),
+        }),
+      ],
+    },
+  });
+
+  const r = render(<EditorTabs store={store.current} />);
+  await act(async () => {
+    store.current.dispatch("editor.previousTab", undefined!);
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.activeTabNoteId).toBe("1");
 });
 
 test("updateTabsScroll scrolls tabs", async () => {

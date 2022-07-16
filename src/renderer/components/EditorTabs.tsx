@@ -51,63 +51,37 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     return rendered;
   }, [notes, editor.tabs]);
 
-  // Track control key being down to allow users to tab through their tab history
-  // Chain will continue until the user releases control.
-  const controlIsDown = useRef(false);
-  const offset = useRef(0);
-  const onKeyDown = (ev: KeyboardEvent) => {
-    const key = parseKeyCode(ev.code);
-    if (key === KeyCode.Control) {
-      controlIsDown.current = true;
-    }
-  };
-  const onKeyUp = (ev: KeyboardEvent) => {
-    const key = parseKeyCode(ev.code);
-    if (key === KeyCode.Control) {
-      controlIsDown.current = false;
-      offset.current = 0;
-    }
-  };
+  const [previousTab, nextTab] = useMemo(() => {
+    const tabsByLastActive = orderBy(editor.tabs, ["lastActive"], ["desc"]);
 
-  useEffect(() => {
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-    };
-  }, []);
-
-  // We could probably write nextTab, and previousTab cleaner if we switched to
-  // a useMemo() for ordered but I'm feeling lazy and gonna leave it like this.
-
-  const nextTab: Listener<"editor.nextTab"> = (_, ctx) => {
-    if (controlIsDown.current) {
-      offset.current += 1;
+    if (editor.activeTabNoteId == null) {
+      return [null, null];
     }
 
-    const ordered = orderBy(editor.tabs, ["lastActive"], ["desc"]);
-    const wrappedOffset = Math.abs(offset.current % ordered.length);
+    const currentIndex = tabsByLastActive.findIndex(
+      (t) => t.noteId === editor.activeTabNoteId
+    );
 
+    const previousIndex = Math.abs(
+      (currentIndex - 1) % tabsByLastActive.length
+    );
+    const nextIndex = Math.abs((currentIndex + 1) % tabsByLastActive.length);
+
+    return [tabsByLastActive[previousIndex], tabsByLastActive[nextIndex]];
+  }, [editor.tabs]);
+
+  const switchToNextTab: Listener<"editor.nextTab"> = (_, ctx) => {
     ctx.setUI({
       editor: {
-        activeTabNoteId: ordered[wrappedOffset].noteId,
+        activeTabNoteId: nextTab?.noteId,
       },
     });
   };
 
-  const previousTab: Listener<"editor.previousTab"> = (_, ctx) => {
-    if (controlIsDown.current) {
-      offset.current -= 1;
-    }
-
-    const ordered = orderBy(editor.tabs, ["lastActive"], ["desc"]);
-    const wrappedOffset = Math.abs(offset.current % ordered.length);
-
+  const switchToPreviousTab: Listener<"editor.previousTab"> = (_, ctx) => {
     ctx.setUI({
       editor: {
-        activeTabNoteId: ordered[wrappedOffset].noteId,
+        activeTabNoteId: previousTab?.noteId,
       },
     });
   };
@@ -115,15 +89,15 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
   useEffect(() => {
     store.on("editor.openTab", openTab);
     store.on("editor.closeTab", closeTab);
-    store.on("editor.nextTab", nextTab);
-    store.on("editor.previousTab", previousTab);
+    store.on("editor.nextTab", switchToNextTab);
+    store.on("editor.previousTab", switchToPreviousTab);
     store.on("editor.updateTabsScroll", updateTabsScroll);
 
     return () => {
       store.off("editor.openTab", openTab);
       store.off("editor.closeTab", closeTab);
-      store.off("editor.nextTab", nextTab);
-      store.off("editor.previousTab", previousTab);
+      store.off("editor.nextTab", switchToNextTab);
+      store.off("editor.previousTab", switchToPreviousTab);
       store.off("editor.updateTabsScroll", updateTabsScroll);
     };
   }, [store]);
