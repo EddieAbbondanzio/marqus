@@ -123,11 +123,14 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
         activeTabNoteId = previousTab?.noteId;
       }
 
+      const newTabs = prev.editor.tabs.filter((t) => t.noteId !== noteId);
+
       return {
         ...prev,
         editor: {
           activeTabNoteId,
-          tabs: prev.editor.tabs.filter((t) => t.noteId !== noteId),
+          tabs: newTabs,
+          isEditting: newTabs.length > 0,
         },
       };
     });
