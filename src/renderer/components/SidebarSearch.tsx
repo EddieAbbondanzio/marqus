@@ -3,7 +3,20 @@ import { isEmpty } from "lodash";
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
-import { m1, my2, pb2, pl0, py1, THEME, w100 } from "../css";
+import {
+  m1,
+  mb0,
+  mb2,
+  mb3,
+  my2,
+  p0,
+  pb0,
+  pb2,
+  pl0,
+  py1,
+  THEME,
+  w100,
+} from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -61,7 +74,8 @@ const StyledFocusable = styled(Focusable)`
   flex-direction: row;
   align-items: center;
   position: relative;
-  ${pb2}
+  ${mb3}
+  ${pb0}
 `;
 
 const SearchIcon = styled(Icon)`
@@ -79,18 +93,15 @@ const DeleteIcon = styled(Icon)`
 `;
 
 const SearchInput = styled.input`
+  height: 3.2rem !important; // Keep in sync with height of new note button
+  ${w100};
+  padding: 0 3.2rem;
+  ${mb0};
   border: none;
   outline: none;
   -webkit-appearance: none;
-  height: 2ren;
-  font-size: 1.4rem;
-  ${pl0}
-  ${py1}
-  ${w100};
-  height: ${SIDEBAR_MENU_HEIGHT + 4}px;
+  border-radius: 4px;
   background-color: ${THEME.sidebar.search.background};
   color: ${THEME.sidebar.search.font};
-  padding-left: 32px;
-  padding-right: 32px;
-  border-radius: 4px;
+  font-size: 1.4rem;
 `;

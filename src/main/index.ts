@@ -36,8 +36,6 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 let mainWindow: BrowserWindow;
 
 async function main() {
-  console.log("ICON!!!!!!");
-
   const config: Config = await loadConfig();
   const typeSafeIpc: IpcMainTS = {
     handle: (ipc, handler) => {

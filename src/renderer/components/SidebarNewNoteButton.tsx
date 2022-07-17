@@ -56,8 +56,7 @@ const GreenButton = styled.button`
   font-weight: 500;
   font-size: 1.4rem;
   flex-grow: 1;
-  height: 3.2rem;
-  ${mt2}
+  height: 3.2rem; // Keep in sync with searchbar
 
   .plus {
     color: ${OpenColor.green[9]};
