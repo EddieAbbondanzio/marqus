@@ -164,11 +164,10 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 }
 
 const StyledScrollable = styled(Scrollable)`
-  height: 3.6rem;
+  height: 4.2rem;
   white-space: nowrap;
   background-color: ${THEME.editor.tabs.background};
   border-bottom: 1px solid ${THEME.editor.tabs.border};
-  ${pt2}
 
   ::-webkit-scrollbar-thumb {
     background: ${THEME.editor.tabs.scrollbarColor};
@@ -232,9 +231,11 @@ const StyledTab = styled.a`
   width: 12rem;
   cursor: pointer;
   ${px2}
-  ${py2}
-  border-radius: 0.4rem;
-  margin-right: 0.4rem;
+
+  border-top-left-radius: 0.4rem;
+  border-top-right-radius: 0.4rem;
+  margin-top: 0.5rem;
+  height: 3.7rem;
 
   .delete {
     display: none;
