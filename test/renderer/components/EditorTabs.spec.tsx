@@ -136,11 +136,11 @@ test("closeTab closes tab passed", async () => {
   const r = render(<EditorTabs store={store.current} />);
   await act(async () => {
     // Default behavior is to close active tab
-    store.current.dispatch("editor.closeTab", undefined!);
+    store.current.dispatch("editor.closeTab", "2");
   });
 
   const { editor } = store.current.state;
-  expect(editor.activeTabNoteId).toBe("2");
+  expect(editor.activeTabNoteId).toBe("1");
 });
 
 test("nextTab", async () => {

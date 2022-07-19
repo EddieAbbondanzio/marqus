@@ -63,13 +63,16 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
       (t) => t.noteId === editor.activeTabNoteId
     );
 
-    const previousIndex = Math.abs(
-      (currentIndex - 1) % tabsByLastActive.length
-    );
-    const nextIndex = Math.abs((currentIndex + 1) % tabsByLastActive.length);
+    let previousIndex = (currentIndex - 1) % tabsByLastActive.length;
 
+    // Need to wrap it around
+    if (previousIndex < 0) {
+      previousIndex = tabsByLastActive.length + previousIndex;
+    }
+
+    const nextIndex = Math.abs((currentIndex + 1) % tabsByLastActive.length);
     return [tabsByLastActive[previousIndex], tabsByLastActive[nextIndex]];
-  }, [editor.tabs]);
+  }, [editor.tabs, editor.activeTabNoteId]);
 
   const switchToNextTab: Listener<"editor.nextTab"> = (_, ctx) => {
     if (nextTab == null) {
@@ -121,7 +124,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
       // Check if it was active tab
       if (activeTabNoteId != null && activeTabNoteId === noteId) {
-        activeTabNoteId = previousTab?.noteId;
+        activeTabNoteId = nextTab?.noteId;
       }
 
       const newTabs = prev.editor.tabs.filter((t) => t.noteId !== noteId);
@@ -328,6 +331,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
     if (tab.noteContent == null) {
       tab.noteContent = (await window.ipc("notes.loadContent", noteId)) ?? "";
     }
+
     tab.lastActive = new Date();
 
     if (newTab) {
