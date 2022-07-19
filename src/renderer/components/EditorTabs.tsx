@@ -9,6 +9,7 @@ import { first, isEmpty, last, orderBy } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { Scrollable } from "./shared/Scrollable";
+import OpenColor from "open-color";
 
 export const TABS_HEIGHT = "4.3rem";
 
@@ -165,6 +166,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
 const StyledScrollable = styled(Scrollable)`
   ${px2}
+  width: calc(100% - 1rem)!important;
   height: 4.2rem;
   white-space: nowrap;
   background-color: ${THEME.editor.tabs.background};
@@ -199,7 +201,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         title={noteName}
         onClick={() => props.onClick(noteId)}
       >
-        <StyledText>{noteName}</StyledText>
+        <StyledSelectedText>{noteName}</StyledSelectedText>
         <StyledDelete
           icon={faTimes}
           onClick={onDeleteClick}
@@ -253,7 +255,6 @@ const StyledTab = styled.a`
 
 const StyledSelectedTab = styled(StyledTab)`
   background-color: ${THEME.editor.tabs.activeTabBackground};
-  color: ${THEME.editor.tabs.activeTabFont};
 
   .delete {
     display: block;
@@ -263,6 +264,15 @@ const StyledSelectedTab = styled(StyledTab)`
 const StyledText = styled.div`
   font-size: 1.2rem;
   font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+`;
+
+const StyledSelectedText = styled(StyledText)`
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: ${THEME.editor.tabs.activeTabFont};
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
