@@ -3,7 +3,7 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, mh100, p1, p2, pl0, px1, py1, THEME, w100 } from "../css";
+import { h100, mh100, p1, p2, pl0, px1, px2, py1, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
 import {
   Note,
@@ -198,7 +198,7 @@ const StyledFocusable = styled(Focusable)`
 `;
 
 const Controls = styled.div`
-  ${p2}
+  ${px2}
 `;
 
 const EmptySpace = styled.div`

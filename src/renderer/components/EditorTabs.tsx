@@ -2,7 +2,7 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import React, { useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { getNoteById } from "../../shared/domain/note";
-import { m0, p2, pt2, px2, py2, THEME } from "../css";
+import { m0, mb2, mr2, mt3, my2, p2, pt2, px2, py2, THEME } from "../css";
 import { Listener, Store } from "../store";
 import { Icon } from "./shared/Icon";
 import { first, isEmpty, last, orderBy } from "lodash";
@@ -164,6 +164,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 }
 
 const StyledScrollable = styled(Scrollable)`
+  ${px2}
   height: 4.2rem;
   white-space: nowrap;
   background-color: ${THEME.editor.tabs.background};
@@ -231,11 +232,11 @@ const StyledTab = styled.a`
   width: 12rem;
   cursor: pointer;
   ${px2}
+  ${my2}
+  ${mr2}
 
-  border-top-left-radius: 0.4rem;
-  border-top-right-radius: 0.4rem;
-  margin-top: 0.5rem;
-  height: 3.7rem;
+  border-radius: 0.4rem;
+  height: 3.2rem;
 
   .delete {
     display: none;
