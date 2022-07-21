@@ -213,6 +213,7 @@ const LIST_INDENT = 8;
 
 const UnorderedList = styled.ul`
   margin-left: ${LIST_INDENT}px;
+  font-size: 1.6rem;
 
   li:not(.task) {
     &:before {
@@ -246,6 +247,7 @@ const UnorderedList = styled.ul`
 const OrderedList = styled.ol`
   margin-left: ${LIST_INDENT}px;
   counter-reset: section ${(p) => (p.start != null ? p.start - 1 : undefined)};
+  font-size: 1.6rem;
 
   li {
     display: flex;
@@ -265,6 +267,7 @@ const OrderedList = styled.ol`
 const Li = styled.li`
   margin-top: 4px;
   margin-bottom: 4px;
+  font-size: 1.6rem;
 
   &:before {
     color: ${OpenColor.black};
