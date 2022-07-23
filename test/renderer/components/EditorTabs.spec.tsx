@@ -104,6 +104,32 @@ test("closeTab closes active tab by default", async () => {
   expect(editor.activeTabNoteId).toBe("2");
 });
 
+test("closeTab clears out active tab", async () => {
+  const store = createStore({
+    notes: [createNote({ id: "1", name: "foo" })],
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          noteId: "1",
+          noteContent: "",
+          lastActive: subHours(new Date(), 1),
+        }),
+      ],
+    },
+  });
+
+  const r = render(<EditorTabs store={store.current} />);
+  await act(async () => {
+    // Default behavior is to close active tab
+    store.current.dispatch("editor.closeTab", undefined!);
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs).toHaveLength(0);
+  expect(editor.activeTabNoteId).toBe(undefined);
+});
+
 test("closeTab closes tab passed", async () => {
   const store = createStore({
     notes: [
@@ -223,7 +249,7 @@ test("updateTabsScroll scrolls tabs", async () => {
   const r = render(<EditorTabs store={store.current} />);
 
   await act(async () => {
-    const scrollable = r.container.querySelector("div div")!;
+    const scrollable = r.container.querySelector("div div div")!;
     fireEvent.scroll(scrollable, { target: { scrollLeft: 10 } });
 
     // scrollable uses debounce so we need to time travel to get it to invoke.

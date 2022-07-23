@@ -10,7 +10,10 @@ import { Section } from "../../shared/ui/app";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
+import { Focusable } from "./shared/Focusable";
+import { findParent } from "../utils/findParent";
 
+export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
 export const TABS_HEIGHT = "4.3rem";
 
 export interface EditorTabsProps {
@@ -53,6 +56,12 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
   }, [notes, editor.tabs]);
 
   const [previousTab, nextTab] = useMemo(() => {
+    // There's no sense in allowing a user to tab between tabs if there's no tabs
+    // or only 1 tab.
+    if (editor.tabs.length <= 1) {
+      return [null, null];
+    }
+
     const tabsByLastActive = orderBy(editor.tabs, ["lastActive"], ["desc"]);
 
     if (editor.activeTabNoteId == null) {
@@ -98,43 +107,44 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     });
   };
 
-  const closeTab: Listener<"editor.closeTab"> = async (
-    { value: noteId },
-    ctx
-  ) => {
-    // If no note id was passed assume we want to close active tab
-    if (noteId == null) {
-      const {
-        editor: { activeTabNoteId },
-      } = ctx.getState();
-      if (activeTabNoteId == null) {
-        return;
-      }
+  const closeTab: Listener<"editor.closeTab"> = async ({ value }, ctx) => {
+    const { editor } = ctx.getState();
+    let noteId: string | undefined;
 
-      noteId = activeTabNoteId;
+    // If no note id was passed assume we want to close active tab
+    if (value == null) {
+      noteId = editor.activeTabNoteId;
+    } else {
+      noteId = value;
     }
 
-    const { editor } = ctx.getState();
+    if (noteId == null) {
+      return;
+    }
+
     if (editor.tabs.every((t) => t.noteId !== noteId)) {
       throw new Error(`No tab for note ${noteId} found.`);
     }
 
     ctx.setUI((prev) => {
-      let activeTabNoteId = prev.editor.activeTabNoteId;
+      const tabs = prev.editor.tabs.filter((t) => t.noteId !== noteId);
 
-      // Check if it was active tab
-      if (activeTabNoteId != null && activeTabNoteId === noteId) {
+      let activeTabNoteId = prev.editor.activeTabNoteId;
+      if (prev.editor.activeTabNoteId === noteId) {
         activeTabNoteId = nextTab?.noteId;
       }
 
-      const newTabs = prev.editor.tabs.filter((t) => t.noteId !== noteId);
+      let isEditting = prev.editor.isEditting;
+      if (tabs.length === 0) {
+        isEditting = false;
+      }
 
       return {
         ...prev,
         editor: {
           activeTabNoteId,
-          tabs: newTabs,
-          isEditting: newTabs.length > 0,
+          tabs,
+          isEditting,
         },
       };
     });
@@ -157,13 +167,15 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
   }, [store]);
 
   return (
-    <StyledScrollable
-      orientation="horizontal"
-      scroll={editor.tabsScroll}
-      onScroll={(s) => store.dispatch("editor.updateTabsScroll", s)}
-    >
-      {tabs}
-    </StyledScrollable>
+    <Focusable name={Section.EditorTabs} store={store}>
+      <StyledScrollable
+        orientation="horizontal"
+        scroll={editor.tabsScroll}
+        onScroll={(s) => store.dispatch("editor.updateTabsScroll", s)}
+      >
+        {tabs}
+      </StyledScrollable>
+    </Focusable>
   );
 }
 
@@ -203,6 +215,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         key={noteId}
         title={noteName}
         onClick={() => props.onClick(noteId)}
+        {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
       >
         <StyledSelectedText>{noteName}</StyledSelectedText>
         <StyledDelete
@@ -218,6 +231,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         key={noteId}
         title={noteName}
         onClick={() => props.onClick(noteId)}
+        {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
       >
         <StyledText>{noteName}</StyledText>
         <StyledDelete
@@ -365,3 +379,9 @@ export const updateTabsScroll: Listener<"editor.updateTabsScroll"> = async (
     });
   }
 };
+
+export function getEditorTabAttribute(element: HTMLElement): string | null {
+  return findParent(element, (el) => el.hasAttribute(EDITOR_TAB_ATTRIBUTE), {
+    matchValue: (el) => el.getAttribute(EDITOR_TAB_ATTRIBUTE),
+  });
+}

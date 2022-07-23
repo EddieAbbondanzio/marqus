@@ -12,6 +12,8 @@ import { getFocusableAttribute } from "../components/shared/Focusable";
 import { getSidebarMenuAttribute } from "../components/SidebarMenu";
 import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";
+import { Section } from "../../shared/ui/app";
+import { getEditorTabAttribute } from "../components/EditorTabs";
 
 export function useContextMenu(store: Store): void {
   const { state } = store;
@@ -27,67 +29,83 @@ export function useContextMenu(store: Store): void {
       // Right clicking won't trigger a focus change so we need to manually
       // determine what focusable the click occured in.
       const focusable = getFocusableAttribute(ev.target as HTMLElement);
-      const noteId = getSidebarMenuAttribute(ev.target as HTMLElement);
-      let note: Note | undefined;
-      if (noteId != null) {
-        note = getNoteById(state.notes, noteId);
-      }
 
       const items: Menu[] = [];
-      if (focusable === "sidebar") {
-        items.push({
-          label: "New note",
-          type: "normal",
-          event: "sidebar.createNote",
-          eventInput: noteId,
-        });
+      switch (focusable) {
+        case Section.Sidebar:
+          const noteId = getSidebarMenuAttribute(ev.target as HTMLElement);
+          let note: Note | undefined;
+          if (noteId != null) {
+            note = getNoteById(state.notes, noteId);
+          }
 
-        if (noteId != null) {
-          items.push(
-            {
-              label: "Rename note",
-              type: "normal",
-              event: "sidebar.renameNote",
-              eventInput: noteId,
-              shortcut: shortcutLabels["sidebar.renameNote"],
-            },
-            {
-              label: "Permanently delete",
-              type: "normal",
-              event: "sidebar.deleteNote",
-              eventInput: noteId,
-              shortcut: shortcutLabels["sidebar.deleteNote"],
-            },
-            {
-              label: "Move to trash",
-              type: "normal",
-              event: "sidebar.moveNoteToTrash",
-              eventInput: noteId,
-              shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
+          items.push({
+            label: "New note",
+            type: "normal",
+            event: "sidebar.createNote",
+            eventInput: noteId,
+          });
+
+          if (noteId != null) {
+            items.push(
+              {
+                label: "Rename note",
+                type: "normal",
+                event: "sidebar.renameNote",
+                eventInput: noteId,
+                shortcut: shortcutLabels["sidebar.renameNote"],
+              },
+              {
+                label: "Permanently delete",
+                type: "normal",
+                event: "sidebar.deleteNote",
+                eventInput: noteId,
+                shortcut: shortcutLabels["sidebar.deleteNote"],
+              },
+              {
+                label: "Move to trash",
+                type: "normal",
+                event: "sidebar.moveNoteToTrash",
+                eventInput: noteId,
+                shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
+              }
+            );
+
+            // Only show sort menu for notes if they have children.
+            if (note == null || note?.children) {
+              items.push(buildNoteSortMenu(state.sidebar.sort, note));
             }
-          );
-        }
+          }
 
-        // Only show sort menu for notes if they have children.
-        if (note == null || note?.children) {
-          items.push(buildNoteSortMenu(state.sidebar.sort, note));
-        }
+          items.push({
+            type: "separator",
+          });
+          items.push({
+            label: "Collapse all",
+            type: "normal",
+            event: "sidebar.collapseAll",
+            shortcut: shortcutLabels["sidebar.collapseAll"],
+          });
+          items.push({
+            label: "Expand all",
+            type: "normal",
+            event: "sidebar.expandAll",
+            shortcut: shortcutLabels["sidebar.expandAll"],
+          });
+          break;
 
-        items.push({
-          type: "separator",
-        });
-        items.push({
-          label: "Collapse all",
-          type: "normal",
-          event: "sidebar.collapseAll",
-          shortcut: shortcutLabels["sidebar.collapseAll"],
-        });
-        items.push({
-          label: "Expand all",
-          type: "normal",
-          event: "sidebar.expandAll",
-          shortcut: shortcutLabels["sidebar.expandAll"],
-        });
+        case Section.EditorTabs:
+          const tabNoteId = getEditorTabAttribute(ev.target as HTMLElement);
+
+          if (tabNoteId != null) {
+            items.push({
+              label: "Close",
+              type: "normal",
+              event: "editor.closeTab",
+              eventInput: tabNoteId,
+            });
+          }
+          break;
       }
 
       if (isDevelopment()) {

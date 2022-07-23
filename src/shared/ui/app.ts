@@ -14,6 +14,7 @@ export enum Section {
   SidebarInput = "sidebarInput",
   SidebarSearch = "sidebarSearch",
   Editor = "editor",
+  EditorTabs = "editorTabs",
 }
 
 export interface Sidebar {
