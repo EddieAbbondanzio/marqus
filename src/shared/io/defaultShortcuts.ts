@@ -132,8 +132,8 @@ const shortcuts: Shortcut[] = [
     name: "editor.closeAllTabs",
     event: "editor.closeAllTabs",
     keys: [KeyCode.Control, KeyCode.Alt, KeyCode.LetterW],
-    when: Section.Editor
-  }
+    when: Section.Editor,
+  },
   {
     name: "editor.previousTab",
     event: "editor.previousTab",
