@@ -34,7 +34,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     };
 
     const onClose = (noteId: string) => {
-      store.dispatch("editor.closeTab", noteId);
+      store.dispatch("editor.closeTab", { noteId, action: "self" });
     };
 
     for (const tab of editor.tabs) {
@@ -109,29 +109,75 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
   const closeTab: Listener<"editor.closeTab"> = async ({ value }, ctx) => {
     const { editor } = ctx.getState();
-    let noteId: string | undefined;
 
-    // If no note id was passed assume we want to close active tab
     if (value == null) {
-      noteId = editor.activeTabNoteId;
-    } else {
-      noteId = value;
-    }
-
-    if (noteId == null) {
       return;
     }
 
-    if (editor.tabs.every((t) => t.noteId !== noteId)) {
-      throw new Error(`No tab for note ${noteId} found.`);
+    let noteIdsToClose: string[] = [];
+
+    switch (value.action) {
+      case "all":
+        noteIdsToClose = editor.tabs.map((t) => t.noteId);
+        break;
+
+      case "others":
+        noteIdsToClose = editor.tabs
+          .filter((t) => t.noteId !== value.noteId ?? editor.activeTabNoteId)
+          .map((t) => t.noteId);
+        break;
+
+      case "self":
+        if (value.noteId == null && editor.activeTabNoteId == null) {
+          return;
+        }
+
+        noteIdsToClose = [value.noteId ?? editor.activeTabNoteId!];
+        break;
+
+      case "toTheLeft":
+        const leftLimit = editor.tabs.findIndex(
+          (t) => t.noteId === value.noteId ?? editor.activeTabNoteId
+        );
+
+        noteIdsToClose = editor.tabs.slice(0, leftLimit).map((t) => t.noteId);
+        break;
+
+      case "toTheRight":
+        const rightLimit = editor.tabs.findIndex(
+          (t) => t.noteId === value.noteId ?? editor.activeTabNoteId
+        );
+
+        noteIdsToClose = editor.tabs.slice(rightLimit + 1).map((t) => t.noteId);
+        break;
+
+      default:
+        throw new Error(`Invalid action ${value}`);
     }
 
     ctx.setUI((prev) => {
-      const tabs = prev.editor.tabs.filter((t) => t.noteId !== noteId);
+      const tabs = prev.editor.tabs.filter(
+        (t) => !noteIdsToClose.includes(t.noteId)
+      );
 
-      let activeTabNoteId = prev.editor.activeTabNoteId;
-      if (prev.editor.activeTabNoteId === noteId) {
-        activeTabNoteId = nextTab?.noteId;
+      let activeTabNoteId: string | undefined;
+      switch (value.action) {
+        case "all":
+          activeTabNoteId = undefined;
+          break;
+
+        case "self":
+          const tabsByLastActive = orderBy(
+            editor.tabs.filter((t) => !noteIdsToClose.includes(t.noteId)),
+            ["lastActive"],
+            ["desc"]
+          );
+
+          activeTabNoteId = tabsByLastActive[0]?.noteId;
+          break;
+
+        default:
+          activeTabNoteId = prev.editor.activeTabNoteId;
       }
 
       let isEditting = prev.editor.isEditting;

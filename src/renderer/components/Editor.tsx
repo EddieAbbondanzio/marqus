@@ -81,10 +81,13 @@ const StyledContent = styled.div`
 
 const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL_MS) as Ipc;
 
-const setContent: Listener<"editor.setContent"> = async (
-  { value: { noteId, content } },
-  ctx
-) => {
+const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
+  if (value == null) {
+    return;
+  }
+
+  const { noteId, content } = value;
+
   ctx.setUI((prev) => {
     const index = prev.editor.tabs.findIndex(
       (t) => t.noteId === prev.editor.activeTabNoteId

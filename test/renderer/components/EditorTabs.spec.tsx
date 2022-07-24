@@ -64,7 +64,7 @@ test("openTab opens tabs passed", async () => {
   expect(editor.tabs).toHaveLength(3);
 });
 
-test("closeTab closes active tab by default", async () => {
+test("closeTab self closes active tab by default", async () => {
   const store = createStore({
     notes: [
       createNote({ id: "1", name: "foo" }),
@@ -95,8 +95,7 @@ test("closeTab closes active tab by default", async () => {
 
   const r = render(<EditorTabs store={store.current} />);
   await act(async () => {
-    // Default behavior is to close active tab
-    store.current.dispatch("editor.closeTab", undefined!);
+    store.current.dispatch("editor.closeTab", { action: "self" });
   });
 
   const { editor } = store.current.state;
@@ -104,7 +103,7 @@ test("closeTab closes active tab by default", async () => {
   expect(editor.activeTabNoteId).toBe("2");
 });
 
-test("closeTab clears out active tab", async () => {
+test("closeTab self clears out active tab", async () => {
   const store = createStore({
     notes: [createNote({ id: "1", name: "foo" })],
     editor: {
@@ -122,7 +121,7 @@ test("closeTab clears out active tab", async () => {
   const r = render(<EditorTabs store={store.current} />);
   await act(async () => {
     // Default behavior is to close active tab
-    store.current.dispatch("editor.closeTab", undefined!);
+    store.current.dispatch("editor.closeTab", { action: "self" });
   });
 
   const { editor } = store.current.state;
@@ -130,7 +129,8 @@ test("closeTab clears out active tab", async () => {
   expect(editor.activeTabNoteId).toBe(undefined);
 });
 
-test("closeTab closes tab passed", async () => {
+test("closeTab self closes tab passed", async () => {
+  console.log("CLOSE SELF!");
   const store = createStore({
     notes: [
       createNote({ id: "1", name: "foo" }),
@@ -162,11 +162,51 @@ test("closeTab closes tab passed", async () => {
   const r = render(<EditorTabs store={store.current} />);
   await act(async () => {
     // Default behavior is to close active tab
-    store.current.dispatch("editor.closeTab", "2");
+    store.current.dispatch("editor.closeTab", { action: "self", noteId: "2" });
   });
 
   const { editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe("1");
+});
+
+test("closeTab all", async () => {
+  const store = createStore({
+    notes: [
+      createNote({ id: "1", name: "foo" }),
+      createNote({ id: "2", name: "bar" }),
+      createNote({ id: "3", name: "baz" }),
+    ],
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          noteId: "1",
+          noteContent: "",
+          lastActive: subHours(new Date(), 1),
+        }),
+        createTab({
+          noteId: "2",
+          noteContent: "",
+          lastActive: subHours(new Date(), 2),
+        }),
+        createTab({
+          noteId: "3",
+          noteContent: "",
+          lastActive: subHours(new Date(), 3),
+        }),
+      ],
+    },
+  });
+
+  const r = render(<EditorTabs store={store.current} />);
+  await act(async () => {
+    // Default behavior is to close active tab
+    store.current.dispatch("editor.closeTab", { action: "all" });
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.activeTabNoteId).toBe(undefined);
+  expect(editor.tabs.length).toBe(0);
 });
 
 test("nextTab", async () => {

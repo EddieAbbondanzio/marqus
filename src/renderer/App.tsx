@@ -203,9 +203,13 @@ export const toggleFullScreen = (): Promise<void> =>
   ipc("app.toggleFullScreen");
 export const inspectElement: Listener<"app.inspectElement"> = ({
   value: coord,
-}) => ipc("app.inspectElement", coord);
+}) => ipc("app.inspectElement", coord!);
 
 export const push: Listener<"focus.push"> = ({ value: next }, ctx) => {
+  if (next == null) {
+    return;
+  }
+
   const arr = Array.isArray(next) ? next : [next];
   ctx.focus(arr);
 };

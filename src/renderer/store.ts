@@ -37,7 +37,7 @@ export type Off = <EType extends UIEventType>(
 ) => void;
 
 export type Listener<ET extends UIEventType> = (
-  ev: { type: ET; value: UIEventInput<ET> },
+  ev: { type: ET; value: UIEventInput<ET> | undefined },
   s: StoreContext
 ) => Promise<void> | void;
 

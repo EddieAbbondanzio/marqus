@@ -50,7 +50,7 @@ export interface UIEvents {
   "editor.setContent": { noteId: string; content: string };
   "editor.updateScroll": number;
   "editor.openTab": { note: string | string[]; active?: string } | undefined;
-  "editor.closeTab": string;
+  "editor.closeTab": CloseTabInput;
   "editor.previousTab": void;
   "editor.nextTab": void;
   "editor.updateTabsScroll": number;
@@ -67,3 +67,13 @@ export interface UIEvents {
 }
 export type UIEventType = keyof UIEvents;
 export type UIEventInput<Ev extends UIEventType> = UIEvents[Ev];
+
+type CloseTabInput =
+  | {
+      action: "toTheLeft" | "toTheRight" | "self" | "others";
+      // No id passed assumes we want to close the active tab.
+      noteId?: string;
+    }
+  | {
+      action: "all";
+    };

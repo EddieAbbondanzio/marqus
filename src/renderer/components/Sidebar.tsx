@@ -391,7 +391,7 @@ export const toggleItemExpanded: Listener<"sidebar.toggleItemExpanded"> = (
   }
 
   const { selected } = ctx.getState().sidebar;
-  toggleExpanded(ctx, id ?? head(selected));
+  toggleExpanded(ctx, id ?? head(selected)!);
 };
 
 export const createNote: Listener<"sidebar.createNote"> = async (
@@ -474,6 +474,10 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
   { value: id },
   ctx
 ) => {
+  if (id == null) {
+    return;
+  }
+
   const { notes } = ctx.getState();
   const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   const { name: value } = getNoteById(notes, id!);
@@ -600,6 +604,10 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
   { value },
   ctx
 ) => {
+  if (value == null) {
+    return;
+  }
+
   const { notes, sidebar } = ctx.getState();
   const note = getNoteById(notes, value.note);
   let newParent;
@@ -693,10 +701,10 @@ export const collapseAll: Listener<"sidebar.collapseAll"> = async (_, ctx) => {
 };
 
 export const setNoteSort: Listener<"sidebar.setNoteSort"> = async (ev, ctx) => {
-  if (ev.value.note == null) {
+  if (ev.value?.note == null) {
     ctx.setUI({
       sidebar: {
-        sort: ev.value.sort ?? DEFAULT_NOTE_SORTING_ALGORITHM,
+        sort: ev.value?.sort ?? DEFAULT_NOTE_SORTING_ALGORITHM,
       },
     });
   } else {
