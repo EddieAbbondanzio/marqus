@@ -34,7 +34,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     };
 
     const onClose = (noteId: string) => {
-      store.dispatch("editor.closeTab", { noteId, action: "self" });
+      store.dispatch("editor.closeTab", undefined!);
     };
 
     for (const tab of editor.tabs) {
@@ -107,45 +107,46 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     });
   };
 
-  const closeTab: Listener<"editor.closeTab"> = async ({ value }, ctx) => {
+  const closeTab: Listener<
+    | "editor.closeTab"
+    | "editor.closeAllTabs"
+    | "editor.closeOtherTabs"
+    | "editor.closeTabsToLeft"
+    | "editor.closeTabsToRight"
+  > = async ({ type, value }, ctx) => {
     const { editor } = ctx.getState();
-
-    if (value == null) {
-      return;
-    }
 
     let noteIdsToClose: string[] = [];
 
-    switch (value.action) {
-      case "all":
+    switch (type) {
+      case "editor.closeAllTabs":
         noteIdsToClose = editor.tabs.map((t) => t.noteId);
         break;
 
-      case "others":
+      case "editor.closeOtherTabs":
         noteIdsToClose = editor.tabs
-          .filter((t) => t.noteId !== value.noteId ?? editor.activeTabNoteId)
+          .filter((t) => t.noteId !== (value ?? editor.activeTabNoteId))
           .map((t) => t.noteId);
         break;
 
-      case "self":
-        if (value.noteId == null && editor.activeTabNoteId == null) {
+      case "editor.closeTab":
+        if (value == null && editor.activeTabNoteId == null) {
           return;
         }
 
-        noteIdsToClose = [value.noteId ?? editor.activeTabNoteId!];
+        noteIdsToClose = [value ?? editor.activeTabNoteId!];
         break;
 
-      case "toTheLeft":
+      case "editor.closeTabsToLeft":
         const leftLimit = editor.tabs.findIndex(
-          (t) => t.noteId === value.noteId ?? editor.activeTabNoteId
+          (t) => t.noteId === (value ?? editor.activeTabNoteId)
         );
-
         noteIdsToClose = editor.tabs.slice(0, leftLimit).map((t) => t.noteId);
         break;
 
-      case "toTheRight":
+      case "editor.closeTabsToRight":
         const rightLimit = editor.tabs.findIndex(
-          (t) => t.noteId === value.noteId ?? editor.activeTabNoteId
+          (t) => t.noteId === (value ?? editor.activeTabNoteId)
         );
 
         noteIdsToClose = editor.tabs.slice(rightLimit + 1).map((t) => t.noteId);
@@ -161,12 +162,12 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
       );
 
       let activeTabNoteId: string | undefined;
-      switch (value.action) {
-        case "all":
+      switch (type) {
+        case "editor.closeAllTabs":
           activeTabNoteId = undefined;
           break;
 
-        case "self":
+        case "editor.closeTab":
           const tabsByLastActive = orderBy(
             editor.tabs.filter((t) => !noteIdsToClose.includes(t.noteId)),
             ["lastActive"],
@@ -198,14 +199,32 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
   useEffect(() => {
     store.on("editor.openTab", openTab);
-    store.on("editor.closeTab", closeTab);
+    store.on(
+      [
+        "editor.closeTab",
+        "editor.closeAllTabs",
+        "editor.closeOtherTabs",
+        "editor.closeTabsToLeft",
+        "editor.closeTabsToRight",
+      ],
+      closeTab
+    );
     store.on("editor.nextTab", switchToNextTab);
     store.on("editor.previousTab", switchToPreviousTab);
     store.on("editor.updateTabsScroll", updateTabsScroll);
 
     return () => {
       store.off("editor.openTab", openTab);
-      store.off("editor.closeTab", closeTab);
+      store.off(
+        [
+          "editor.closeTab",
+          "editor.closeAllTabs",
+          "editor.closeOtherTabs",
+          "editor.closeTabsToLeft",
+          "editor.closeTabsToRight",
+        ],
+        closeTab
+      );
       store.off("editor.nextTab", switchToNextTab);
       store.off("editor.previousTab", switchToPreviousTab);
       store.off("editor.updateTabsScroll", updateTabsScroll);

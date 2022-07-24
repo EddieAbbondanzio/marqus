@@ -102,16 +102,39 @@ export function useContextMenu(store: Store): void {
               label: "Close",
               type: "normal",
               event: "editor.closeTab",
-              eventInput: { noteId: tabNoteId, action: "self" },
+              eventInput: tabNoteId,
               shortcut: shortcutLabels["editor.closeTab"],
+            });
+            items.push({
+              label: "Close others",
+              type: "normal",
+              event: "editor.closeOtherTabs",
+              eventInput: tabNoteId,
+              shortcut: shortcutLabels["editor.closeOtherTabs"],
             });
           }
 
           items.push({
             label: "Close all",
             type: "normal",
-            event: "editor.closeTab",
-            eventInput: { action: "all" },
+            event: "editor.closeAllTabs",
+            shortcut: shortcutLabels["editor.closeAllTabs"],
+          });
+
+          items.push({
+            label: "Close to right",
+            type: "normal",
+            event: "editor.closeTabsToRight",
+            eventInput: tabNoteId,
+            shortcut: shortcutLabels["editor.closeTabsToRight"],
+          });
+
+          items.push({
+            label: "Close to left",
+            type: "normal",
+            event: "editor.closeTabsToLeft",
+            eventInput: tabNoteId,
+            shortcut: shortcutLabels["editor.closeTabsToLeft"],
           });
           break;
       }
