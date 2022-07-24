@@ -36,7 +36,6 @@ export function Resizable(
       if (drag != null) {
         switch (drag.state) {
           case "dragging":
-            let minWidth;
             let newWidth = `${drag.event.clientX}px`;
             if (props.minWidth) {
               const minWidthInt = stripUnit(props.minWidth) as number;

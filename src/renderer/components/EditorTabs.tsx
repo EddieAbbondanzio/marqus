@@ -314,7 +314,6 @@ const StyledTab = styled.a`
   align-items: center;
   justify-content: space-between;
   width: 12rem;
-  cursor: pointer;
   ${px2}
   ${my2}
   ${mr2}
