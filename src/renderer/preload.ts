@@ -9,7 +9,12 @@ if (getProcessType() === "main") {
 }
 
 // Only thing that should be exposed.
-contextBridge.exposeInMainWorld("ipc", ipcRenderer.invoke);
+contextBridge.exposeInMainWorld("ipc", (channel: string, data: unknown) => {
+  // Be careful!
+  // See here for security concerns: https://stackoverflow.com/a/59814127
+
+  return ipcRenderer.invoke(channel, data);
+});
 
 declare global {
   interface Window {

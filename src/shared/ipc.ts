@@ -2,7 +2,7 @@ import { PromptButton, PromptOptions } from "./ui/prompt";
 import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
 import { Config } from "./domain/config";
-import { Point } from "electron";
+import { IpcMainInvokeEvent, Point } from "electron";
 import { Menu } from "./ui/menu";
 import { UI } from "./ui/app";
 
@@ -44,14 +44,16 @@ export type Ipc = <T extends IpcType, I extends Parameters<IpcSchema[T]>>(
   ...params: I extends void ? [] : I
 ) => ReturnType<IpcSchema[T]>;
 
-// Basic wrapper for intellisense and easy testing support
+// Wrapper to support testing and intellisense.
 export interface IpcMainTS {
   handle<Type extends IpcType>(
     type: Type,
     handler: (
+      event: IpcMainInvokeEvent,
       ...params: Parameters<IpcSchema[Type]>
     ) => ReturnType<IpcSchema[Type]>
   ): void;
+  on(event: "init", callback: () => Promise<void>): void;
 }
 
 export type IpcPlugin = (ipc: IpcMainTS, config: Config) => void;

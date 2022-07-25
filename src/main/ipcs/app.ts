@@ -20,7 +20,11 @@ import { parseJSON } from "date-fns";
 export const UI_FILE = "ui.json";
 
 export const useAppIpcs: IpcPlugin = (ipc, config) => {
-  ipc.handle("app.showContextMenu", async (menus) => {
+  ipc.on("init", async () => {
+    console.log("DO THE THING HERE LOL");
+  });
+
+  ipc.handle("app.showContextMenu", async (_, menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
       IpcChannel.ContextMenuClick
@@ -30,7 +34,7 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
     ``;
   });
 
-  ipc.handle("app.setApplicationMenu", async (menus) => {
+  ipc.handle("app.setApplicationMenu", async (_, menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
       IpcChannel.ApplicationMenuClick
@@ -40,7 +44,7 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
     bw?.setMenu(menu);
   });
 
-  ipc.handle("app.promptUser", async (opts) => {
+  ipc.handle("app.promptUser", async (_, opts) => {
     const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
     const defaultCount = opts.buttons.filter(
       (b) => b.role === "default"
@@ -86,7 +90,7 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
     BrowserWindow.getAllWindows().forEach((w) => w.close());
   });
 
-  ipc.handle("app.inspectElement", async (coord) => {
+  ipc.handle("app.inspectElement", async (_, coord) => {
     if (coord == null) {
       throw new Error("Element to inspect was null.");
     }
@@ -99,11 +103,11 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
   });
 
   ipc.handle("app.loadPreviousUIState", () => getUIFileHandler(config).load());
-  ipc.handle("app.saveUIState", async (app) => {
+  ipc.handle("app.saveUIState", async (_, app) => {
     await getUIFileHandler(config).save(app);
   });
 
-  ipc.handle("app.openInWebBrowser", openInBrowser);
+  ipc.handle("app.openInWebBrowser", (_, url) => openInBrowser(url));
 };
 
 export function getUIFileHandler(config: Config): FileHandler<UI> {

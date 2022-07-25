@@ -42,7 +42,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     return notes;
   });
 
-  ipc.handle("notes.create", async (name, parent) => {
+  ipc.handle("notes.create", async (_, name, parent) => {
     await getNotes(config);
 
     const note = createNote({
@@ -55,7 +55,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     return note;
   });
 
-  ipc.handle("notes.updateMetadata", async (id, props) => {
+  ipc.handle("notes.updateMetadata", async (_, id, props) => {
     await getNotes(config);
     await assertNoteExists(config, id);
 
@@ -91,7 +91,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     return getNoteById(notes, meta.id);
   });
 
-  ipc.handle("notes.loadContent", async (id) => {
+  ipc.handle("notes.loadContent", async (_, id) => {
     await getNotes(config);
     await assertNoteExists(config, id);
 
@@ -99,13 +99,13 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     return content;
   });
 
-  ipc.handle("notes.saveContent", async (id, content) => {
+  ipc.handle("notes.saveContent", async (_, id, content) => {
     await getNotes(config);
     await assertNoteExists(config, id);
     await saveMarkdown(config, id, content);
   });
 
-  ipc.handle("notes.delete", async (id) => {
+  ipc.handle("notes.delete", async (_, id) => {
     await getNotes(config);
     const note = getNoteById(notes, id);
 
@@ -120,7 +120,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     recursive(note);
   });
 
-  ipc.handle("notes.moveToTrash", async (id) => {
+  ipc.handle("notes.moveToTrash", async (_, id) => {
     await getNotes(config);
     const note = getNoteById(notes, id);
 

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { Config } from "../shared/domain/config";
 import { getProcessType, isDevelopment } from "../shared/env";
@@ -12,7 +11,6 @@ import {
 import { useNoteIpcs } from "./ipcs/notes";
 import { useShortcutIpcs } from "./ipcs/shortcuts";
 import { openInBrowser } from "./utils";
-import * as path from "path";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -20,7 +18,7 @@ if (getProcessType() !== "main") {
   );
 }
 
-const DEFAULT_APPLICATION_MENU = Menu.buildFromTemplate([
+const FAKE_APPLICATION_MENU = Menu.buildFromTemplate([
   { label: "File", enabled: false },
   { label: "Edit", enabled: false },
   { label: "View", enabled: false },
@@ -36,17 +34,15 @@ let mainWindow: BrowserWindow;
 
 async function main() {
   const config: Config = await loadConfig();
-
-  const typeSafeIpc: IpcMainTS = {
-    handle: (ipc, handler) => {
-      ipcMain.handle(ipc, (_, ...args) => handler.apply(handler, args));
-    },
-  };
+  const typeSafeIpc = ipcMain as IpcMainTS;
 
   useAppIpcs(typeSafeIpc, config);
   useConfigIpcs(typeSafeIpc, config);
   useShortcutIpcs(typeSafeIpc, config);
   useNoteIpcs(typeSafeIpc, config);
+
+  let initListeners = ipcMain.listeners("init");
+  let initPromise = Promise.all(initListeners.map((l) => l()));
 
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.
   if (require("electron-squirrel-startup")) {
@@ -54,6 +50,8 @@ async function main() {
   }
 
   const createWindow = async (): Promise<void> => {
+    await initPromise;
+
     // Only allow external images
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
       callback({
@@ -103,7 +101,7 @@ async function main() {
     // We set a non-functional application menu at first so we can make things
     // appear to load smoother visually. Once renderer has started we'll
     // populate it with an actual menu.
-    mainWindow.setMenu(DEFAULT_APPLICATION_MENU);
+    mainWindow.setMenu(FAKE_APPLICATION_MENU);
   };
 
   // Quit when all windows are closed, except on macOS. There, it's common
