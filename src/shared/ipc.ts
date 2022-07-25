@@ -2,11 +2,41 @@ import { PromptButton, PromptOptions } from "./ui/prompt";
 import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
 import { Config } from "./domain/config";
-import { IpcMainInvokeEvent, Point } from "electron";
+import { IpcMain, IpcMainInvokeEvent, Point } from "electron";
 import { Menu } from "./ui/menu";
 import { UI } from "./ui/app";
 
-export interface IpcSchema {
+export const IPCS = [
+  "app.setApplicationMenu",
+  "app.showContextMenu",
+  "app.promptUser",
+  "app.openDevTools",
+  "app.inspectElement",
+  "app.reload",
+  "app.toggleFullScreen",
+  "app.quit",
+  "app.loadPreviousUIState",
+  "app.saveUIState",
+  "app.openInWebBrowser",
+
+  "shortcuts.getAll",
+
+  "notes.getAll",
+  "notes.create",
+  "notes.updateMetadata",
+  "notes.loadContent",
+  "notes.saveContent",
+  "notes.delete",
+  "notes.moveToTrash",
+
+  "config.hasDataDirectory",
+  "config.selectDataDirectory",
+  "config.openDataDirectory",
+] as const;
+
+export type IpcType = typeof IPCS[number];
+
+export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   // App
   "app.setApplicationMenu"(menus: Menu[]): Promise<void>;
   "app.showContextMenu"(menus: Menu[]): Promise<void>;
@@ -38,14 +68,15 @@ export interface IpcSchema {
   "config.openDataDirectory"(): Promise<void>;
 }
 
-export type IpcType = keyof IpcSchema;
 export type Ipc = <T extends IpcType, I extends Parameters<IpcSchema[T]>>(
   type: T,
   ...params: I extends void ? [] : I
 ) => ReturnType<IpcSchema[T]>;
 
-// Wrapper to support testing and intellisense.
-export interface IpcMainTS {
+// Wrap IpcMain to add type safety + make it easy to test.
+// This comes off like a code smell but I like how hands off of an approach it is
+// and it also keeps the amount of boilerplate code low.
+export interface IpcMainTS extends Pick<IpcMain, "listeners"> {
   handle<Type extends IpcType>(
     type: Type,
     handler: (

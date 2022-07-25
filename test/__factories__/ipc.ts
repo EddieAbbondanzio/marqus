@@ -30,6 +30,11 @@ export class MockedIpcMainTS implements IpcMainTS {
   on(event: "init", callback: () => Promise<void>): void {
     // TODO: Implement this lol.
   }
+
+  listeners(eventName: string | symbol): Function[] {
+    // TODO: Implement this lol.
+    return [];
+  }
 }
 
 export function createIpcMainTS(): MockedIpcMainTS {

@@ -41,8 +41,7 @@ async function main() {
   useShortcutIpcs(typeSafeIpc, config);
   useNoteIpcs(typeSafeIpc, config);
 
-  let initListeners = ipcMain.listeners("init");
-  let initPromise = Promise.all(initListeners.map((l) => l()));
+  const initPluginsPromise = initPlugins(typeSafeIpc);
 
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.
   if (require("electron-squirrel-startup")) {
@@ -50,7 +49,7 @@ async function main() {
   }
 
   const createWindow = async (): Promise<void> => {
-    await initPromise;
+    await initPluginsPromise;
 
     // Only allow external images
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
@@ -131,3 +130,8 @@ async function main() {
   }
 }
 main();
+
+function initPlugins(typeSafeIpc: IpcMainTS) {
+  const initListeners = typeSafeIpc.listeners("init");
+  return Promise.all(initListeners.map((l) => l()));
+}
