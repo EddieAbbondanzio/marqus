@@ -5,7 +5,6 @@ import { chain, isEmpty, orderBy, sortBy } from "lodash";
 
 export interface Note extends Resource {
   name: string;
-  tags?: string[];
   parent?: string;
   children?: Note[];
   sort?: NoteSort;
@@ -117,7 +116,6 @@ export function getNoteSchema(): yup.SchemaOf<Note> {
         .required("Name is required.")
         .min(1, "Note name must be atleast 1 character.")
         .max(64, "Note name cannot be more than 64 characters."),
-      tags: yup.array().of(yup.string()).optional(),
       flags: yup.number(),
       dateCreated: yup.date().required(),
       dateUpdated: yup.date().optional(),

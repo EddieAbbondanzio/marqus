@@ -7,7 +7,6 @@ import { useFocusTracking } from "./components/shared/Focusable";
 import { EditorTab, filterOutStaleNoteIds, Section } from "../shared/ui/app";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
-import { Tag } from "../shared/domain/tag";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { first, isEmpty, keyBy, tail } from "lodash";
@@ -157,14 +156,12 @@ const Container = styled.div`
 async function loadInitialState(): Promise<State> {
   let ui: UI;
   let shortcuts: Shortcut[] = [];
-  let tags: Tag[] = [];
   let notes: Note[] = [];
 
   // eslint-disable-next-line prefer-const
-  [ui, shortcuts, tags, notes] = await Promise.all([
+  [ui, shortcuts, notes] = await Promise.all([
     ipc("app.loadPreviousUIState"),
     ipc("shortcuts.getAll"),
-    ipc("tags.getAll"),
     ipc("notes.getAll"),
   ]);
 
@@ -175,7 +172,6 @@ async function loadInitialState(): Promise<State> {
   return {
     ...ui,
     shortcuts,
-    tags,
     notes,
   };
 }

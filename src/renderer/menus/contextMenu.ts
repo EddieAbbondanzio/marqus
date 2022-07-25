@@ -70,11 +70,11 @@ export function useContextMenu(store: Store): void {
                 shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
               }
             );
+          }
 
-            // Only show sort menu for notes if they have children.
-            if (note == null || note?.children) {
-              items.push(buildNoteSortMenu(state.sidebar.sort, note));
-            }
+          // Only show sort menu for notes if they have children.
+          if (note == null || note?.children) {
+            items.push(buildNoteSortMenu(state.sidebar.sort, note));
           }
 
           items.push({

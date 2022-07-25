@@ -1,7 +1,6 @@
 import { PromptButton, PromptOptions } from "./ui/prompt";
 import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
-import { Tag } from "./domain/tag";
 import { Config } from "./domain/config";
 import { Point } from "electron";
 import { Menu } from "./ui/menu";
@@ -23,12 +22,6 @@ export interface IpcSchema {
 
   // Shortcuts
   "shortcuts.getAll"(): Promise<Shortcut[]>;
-
-  // Tags
-  "tags.getAll"(): Promise<Tag[]>;
-  "tags.create"(name: string): Promise<Tag>;
-  "tags.rename"(id: string, name: string): Promise<Tag>;
-  "tags.delete"(id: string): Promise<void>;
 
   // Notes
   "notes.getAll"(): Promise<Note[]>;

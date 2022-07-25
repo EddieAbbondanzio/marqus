@@ -1,7 +1,7 @@
 import {
   createDirectory,
   deleteDirectory,
-  exists as exists,
+  exists,
   readDirectory,
   readFile,
   touch,
@@ -24,67 +24,26 @@ export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
 
-// Move this down somewhere better
-export async function loadNotes(config: Config): Promise<Note[]> {
-  const noteDirPath = config.getPath(NOTES_DIRECTORY);
-  if (!exists(noteDirPath)) {
-    await createDirectory(noteDirPath);
-  }
-  const entries = await readDirectory(noteDirPath);
-  const notes: Note[] = [];
-
-  for (const entry of entries) {
-    if (!entry.isDirectory() || !UUID_REGEX.test(entry.name)) {
-      continue;
-    }
-
-    const metadataPath = buildNotePath(config, entry.name, "metadata");
-    const meta = await readFile(metadataPath, "json");
-
-    const { dateCreated, dateUpdated, ...remainder } = meta;
-
-    const note = createNote({
-      dateCreated: parseJSON(dateCreated),
-      dateUpdated: dateUpdated != null ? parseJSON(dateUpdated) : undefined,
-      ...remainder,
-    });
-    await getNoteSchema().validate(note);
-
-    // We don't add children until every note has been loaded because there's a
-    // chance children will be loaded before their parent.
-    notes.push(note);
-  }
-
-  const lookup = keyBy(notes, "id");
-  const [roots, children] = partition(notes, (n) => n.parent == null);
-  for (const child of children) {
-    (lookup[child.parent!].children ??= []).push(child);
-  }
-
-  return roots;
-}
-
 export const useNoteIpcs: IpcPlugin = (ipc, config) => {
-  ipc.handle("notes.getAll", async () => {
-    /*
-     * Since we can't perform async loads within components we'll build a
-     * map of every note we can find in the file system and send it over to the
-     * renderer. Then we can do our filtering on the front end.
-     */
+  let initialized = false;
+  let notes: Note[] = [];
 
-    const noteDirPath = config.getPath(NOTES_DIRECTORY);
-    if (!exists(noteDirPath)) {
-      await createDirectory(noteDirPath);
+  async function getNotes(config: Config): Promise<void> {
+    if (initialized) {
+      return;
     }
 
-    return loadNotes(config);
+    notes = await loadNotes(config);
+    initialized = true;
+  }
+
+  ipc.handle("notes.getAll", async () => {
+    await getNotes(config);
+    return notes;
   });
 
   ipc.handle("notes.create", async (name, parent) => {
-    const dirPath = config.getPath(NOTES_DIRECTORY);
-    if (!exists(dirPath)) {
-      await createDirectory(dirPath);
-    }
+    await getNotes(config);
 
     const note = createNote({
       name,
@@ -97,6 +56,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   });
 
   ipc.handle("notes.updateMetadata", async (id, props) => {
+    await getNotes(config);
     await assertNoteExists(config, id);
 
     const metadataPath = buildNotePath(config, id, "metadata");
@@ -128,10 +88,11 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     delete meta.children;
 
     await saveToFileSystem(config, meta);
-    return getNoteById(await loadNotes(config), meta.id);
+    return getNoteById(notes, meta.id);
   });
 
   ipc.handle("notes.loadContent", async (id) => {
+    await getNotes(config);
     await assertNoteExists(config, id);
 
     const content = await loadMarkdown(config, id);
@@ -139,16 +100,17 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   });
 
   ipc.handle("notes.saveContent", async (id, content) => {
+    await getNotes(config);
     await assertNoteExists(config, id);
     await saveMarkdown(config, id, content);
   });
 
   ipc.handle("notes.delete", async (id) => {
-    const notes = await loadNotes(config);
+    await getNotes(config);
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = buildNotePath(config, note.id);
+      const notePath = buildNotePath(config, n.id);
       await deleteDirectory(notePath);
 
       for (const child of n.children ?? []) {
@@ -159,11 +121,11 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   });
 
   ipc.handle("notes.moveToTrash", async (id) => {
-    const notes = await loadNotes(config);
+    await getNotes(config);
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = buildNotePath(config, note.id);
+      const notePath = buildNotePath(config, n.id);
       await shell.trashItem(notePath);
 
       for (const child of n.children ?? []) {
@@ -175,15 +137,62 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
   });
 };
 
+export async function loadNotes(config: Config): Promise<Note[]> {
+  const noteDirPath = config.getPath(NOTES_DIRECTORY);
+  if (!exists(noteDirPath)) {
+    await createDirectory(noteDirPath);
+
+    // No directory means no notes to return...
+    return [];
+  }
+
+  const entries = await readDirectory(noteDirPath);
+  const notes: Note[] = [];
+
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !UUID_REGEX.test(entry.name)) {
+      continue;
+    }
+
+    const metadataPath = buildNotePath(config, entry.name, "metadata");
+    const meta = await readFile(metadataPath, "json");
+
+    const { dateCreated, dateUpdated, ...remainder } = meta;
+
+    const note = createNote({
+      dateCreated: parseJSON(dateCreated),
+      dateUpdated: dateUpdated != null ? parseJSON(dateUpdated) : undefined,
+      ...remainder,
+    });
+    await getNoteSchema().validate(note);
+
+    // We don't add children until every note has been loaded because there's a
+    // chance children will be loaded before their parent.
+    notes.push(note);
+  }
+
+  const lookup = keyBy(notes, "id");
+  const [roots, children] = partition(notes, (n) => n.parent == null);
+  for (const child of children) {
+    const parent = lookup[child.parent!];
+    if (parent == null) {
+      console.warn(
+        `WARNING: Note ${child.id} is an orphan. No parent ${child.parent} found. Did you mean to delete it?`
+      );
+
+      continue;
+    }
+
+    (parent.children ??= []).push(child);
+  }
+
+  return roots;
+}
+
 export async function assertNoteExists(
   config: Config,
   id: string
 ): Promise<void> {
-  const dirPath = config.getPath(NOTES_DIRECTORY);
-  if (!exists(dirPath)) {
-    await createDirectory(dirPath);
-  }
-
   const fullPath = config.getPath(NOTES_DIRECTORY, id);
   if (!exists(fullPath)) {
     throw new Error(`Note ${id} was not found in the file system.`);

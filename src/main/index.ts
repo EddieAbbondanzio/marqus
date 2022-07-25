@@ -11,7 +11,6 @@ import {
 } from "./ipcs/config";
 import { useNoteIpcs } from "./ipcs/notes";
 import { useShortcutIpcs } from "./ipcs/shortcuts";
-import { useTagIpcs } from "./ipcs/tags";
 import { openInBrowser } from "./utils";
 import * as path from "path";
 
@@ -37,6 +36,7 @@ let mainWindow: BrowserWindow;
 
 async function main() {
   const config: Config = await loadConfig();
+
   const typeSafeIpc: IpcMainTS = {
     handle: (ipc, handler) => {
       ipcMain.handle(ipc, (_, ...args) => handler.apply(handler, args));
@@ -46,7 +46,6 @@ async function main() {
   useAppIpcs(typeSafeIpc, config);
   useConfigIpcs(typeSafeIpc, config);
   useShortcutIpcs(typeSafeIpc, config);
-  useTagIpcs(typeSafeIpc, config);
   useNoteIpcs(typeSafeIpc, config);
 
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -67,8 +66,6 @@ async function main() {
         ),
       });
     });
-
-    console.log("ICON PATH: ", path.join(__dirname, "static/icon.png"));
 
     mainWindow = new BrowserWindow({
       height: config.windowHeight,

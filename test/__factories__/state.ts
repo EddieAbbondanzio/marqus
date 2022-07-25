@@ -6,7 +6,6 @@ export function createState(partial?: DeepPartial<State>): State {
   const defaults: State = {
     notes: [],
     shortcuts: [],
-    tags: [],
     focused: [],
     sidebar: {
       scroll: 0,

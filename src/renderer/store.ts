@@ -4,7 +4,6 @@ import { deepUpdate } from "./utils/deepUpdate";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
-import { Tag } from "../shared/domain/tag";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
 import { Section, Editor, Sidebar, UI } from "../shared/ui/app";
 
@@ -16,7 +15,6 @@ export interface Store {
 }
 
 export interface State extends UI {
-  tags: Tag[];
   notes: Note[];
   shortcuts: Shortcut[];
 }
@@ -48,7 +46,6 @@ export type Focus = (
 
 export interface StoreContext {
   setUI: SetUI;
-  setTags: SetTags;
   setShortcuts: SetShortcuts;
   setNotes: SetNotes;
   focus: Focus;
@@ -60,7 +57,6 @@ export type SetUI = (
   t: Transformer<UI, DeepPartial<UI>> | DeepPartial<UI>
 ) => void;
 
-export type SetTags = (t: Transformer<Tag[]>) => void;
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
 export type SetNotes = (t: Transformer<Note[]>) => void;
 
@@ -117,12 +113,6 @@ export function useStore(initialState: State): Store {
    * data persistence is handled by the main thread.
    */
 
-  const setTags: SetTags = (transformer) => {
-    setState((prevState) => ({
-      ...prevState,
-      tags: transformer(prevState.tags),
-    }));
-  };
   const setShortcuts: SetShortcuts = (transformer) => {
     setState((prevState) => ({
       ...prevState,
@@ -179,7 +169,6 @@ export function useStore(initialState: State): Store {
   const ctx = useMemo(
     () => ({
       setUI,
-      setTags,
       setShortcuts,
       setNotes,
       focus,
