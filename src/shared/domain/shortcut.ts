@@ -21,7 +21,8 @@ export interface Shortcut<EType extends UIEventType = UIEventType> {
   userDefined?: boolean;
 }
 
-export const shortcutSchema: yup.SchemaOf<Shortcut> = yup.object().shape({
+// TODO: Replace with zod
+export const shortcutSchema = yup.object().shape({
   name: yup.string().required(),
   event: yup.string().required() as any,
   eventInput: yup.mixed().optional(),

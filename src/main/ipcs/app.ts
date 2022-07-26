@@ -8,20 +8,85 @@ import {
 } from "electron";
 import { isRoleMenu, Menu as MenuType } from "../../shared/ui/menu";
 import * as yup from "yup";
-import { createFileHandler, FileHandler } from "../fileHandler";
-import { Config } from "../../shared/domain/config";
 import { IpcChannel, IpcPlugin } from "../../shared/ipc";
 import { openInBrowser } from "../utils";
-import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../shared/domain/note";
+import {
+  DEFAULT_NOTE_SORTING_ALGORITHM,
+  NoteSort,
+} from "../../shared/domain/note";
 import { UIEventType, UIEventInput } from "../../shared/ui/events";
-import { EditorTab, UI } from "../../shared/ui/app";
+import {
+  DEFAULT_SIDEBAR_WIDTH,
+  EditorTab,
+  Sidebar,
+  UI,
+} from "../../shared/ui/app";
 import { parseJSON } from "date-fns";
+import { readFile, writeFile } from "../fileSystem";
 
 export const UI_FILE = "ui.json";
+export const DEFAULT_UI_STATE = {
+  sidebar: {
+    hidden: false,
+    width: DEFAULT_SIDEBAR_WIDTH,
+    scroll: 0,
+    sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+  },
+  editor: {
+    tabs: [],
+    tabsScroll: 0,
+    isEditting: false,
+    scroll: 0,
+  },
+  focused: [],
+};
+
+const sidebarSchema: yup.ObjectSchema<Sidebar> = yup.object({
+  hidden: yup.boolean().optional().default(undefined),
+  width: yup.string().default(DEFAULT_SIDEBAR_WIDTH),
+  scroll: yup.number().default(0).min(0),
+  sort: yup
+    .string<NoteSort>()
+    .default(DEFAULT_NOTE_SORTING_ALGORITHM)
+    .oneOf(Object.values(NoteSort))
+    .required(),
+});
 
 export const useAppIpcs: IpcPlugin = (ipc, config) => {
+  let cachedUI: UI = DEFAULT_UI_STATE;
+
   ipc.on("init", async () => {
-    console.log("DO THE THING HERE LOL");
+    const filePath = config.getPath(UI_FILE);
+    const ui = await readFile(filePath, "json");
+
+    if (ui == null) {
+      return;
+    }
+
+    await appSchema.validate(ui);
+
+    ui.sidebar.input = undefined;
+    ui.focused = [];
+
+    ui.editor ??= {};
+    ui.editor.tabs ??= [];
+    for (const tab of ui.editor.tabs) {
+      tab.model = undefined;
+      tab.viewState = undefined;
+      tab.lastActive = parseJSON(tab.lastActive);
+    }
+
+    // Check if active tab is stale.
+    if (
+      ui.editor.activeTabNoteId != null &&
+      ui.editor.tabs.every(
+        (t: EditorTab) => t.noteId != ui.editor.activeTabNoteId
+      )
+    ) {
+      ui.editor.activeTabNoteId = undefined;
+    }
+
+    cachedUI = ui;
   });
 
   ipc.handle("app.showContextMenu", async (_, menus) => {
@@ -102,74 +167,28 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
     );
   });
 
-  ipc.handle("app.loadPreviousUIState", () => getUIFileHandler(config).load());
-  ipc.handle("app.saveUIState", async (_, app) => {
-    await getUIFileHandler(config).save(app);
+  ipc.handle("app.loadPreviousUIState", async () => {
+    return cachedUI;
+  });
+  ipc.handle("app.saveUIState", async (_, ui) => {
+    // Nuke out stuff we don't want to persist.
+    ui.sidebar.input = undefined;
+    ui.focused = undefined!;
+
+    if (ui.editor.tabs != null) {
+      for (const tab of ui.editor.tabs) {
+        tab.noteContent = undefined!;
+      }
+    }
+
+    const filePath = config.getPath(UI_FILE);
+    await writeFile(filePath, ui, "json");
+
+    cachedUI = ui;
   });
 
   ipc.handle("app.openInWebBrowser", (_, url) => openInBrowser(url));
 };
-
-export function getUIFileHandler(config: Config): FileHandler<UI> {
-  return createFileHandler<UI>(config.getPath(UI_FILE), appSchema, {
-    serialize: (ui) => {
-      // Nuke out stuff we don't want to persist.
-      ui.sidebar.input = undefined;
-      ui.focused = undefined!;
-
-      if (ui.editor.tabs != null) {
-        for (const tab of ui.editor.tabs) {
-          tab.noteContent = undefined!;
-        }
-      }
-
-      return ui;
-    },
-    deserialize: (ui) => {
-      if (ui == null) {
-        return;
-      }
-
-      ui.sidebar.input = undefined;
-      ui.focused = [];
-
-      ui.editor ??= {};
-      ui.editor.tabs ??= [];
-      for (const tab of ui.editor.tabs) {
-        tab.model = undefined;
-        tab.viewState = undefined;
-        tab.lastActive = parseJSON(tab.lastActive);
-      }
-
-      // Check if active tab is stale.
-      if (
-        ui.editor.activeTabNoteId != null &&
-        ui.editor.tabs.every(
-          (t: EditorTab) => t.noteId != ui.editor.activeTabNoteId
-        )
-      ) {
-        ui.editor.activeTabNoteId = undefined;
-      }
-
-      return ui;
-    },
-    defaultValue: {
-      sidebar: {
-        hidden: false,
-        width: "300px",
-        scroll: 0,
-        sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-      },
-      editor: {
-        tabs: [],
-        tabsScroll: 0,
-        isEditting: false,
-        scroll: 0,
-      },
-      focused: [],
-    },
-  });
-}
 
 const appSchema = yup.object().shape({
   sidebar: yup.object().shape({

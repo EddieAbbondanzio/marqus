@@ -28,7 +28,7 @@ export function getShortcutsFileHandler(
 ): FileHandler<Shortcut[]> {
   return createFileHandler<Shortcut[]>(
     config.getPath(SHORTCUTS_FILE),
-    yup.array(shortcutSchema).optional(),
+    yup.array(shortcutSchema).optional() as any,
     {
       defaultValue: DEFAULT_SHORTCUTS,
       serialize: (shortcuts) =>

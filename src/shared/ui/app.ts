@@ -3,6 +3,8 @@ import { PromisedInput } from "../promisedInput";
 import { Note, NoteSort } from "../domain/note";
 import * as monaco from "monaco-editor";
 
+export const DEFAULT_SIDEBAR_WIDTH = "300px";
+
 export interface UI {
   sidebar: Sidebar;
   editor: Editor;

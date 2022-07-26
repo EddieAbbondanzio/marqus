@@ -104,7 +104,8 @@ export function createNote(props: Partial<Note> & { name: string }): Note {
   return note;
 }
 
-export function getNoteSchema(): yup.SchemaOf<Note> {
+// TODO: Replace with zod
+export function getNoteSchema(): any {
   return yup
     .object()
     .shape({
