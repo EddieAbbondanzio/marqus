@@ -1,5 +1,5 @@
 import { createConfig } from "../../__factories__/config";
-import { useAppIpcs } from "../../../src/main/ipcs/app";
+import { useAppIpcs } from "../../../src/main/app/appIpcs";
 import { createIpcMainTS } from "../../__factories__/ipc";
 
 const inspectElement = jest.fn();

@@ -16,7 +16,7 @@ import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
-import { UI } from "../shared/ui/app";
+import { AppState } from "../shared/ui/app";
 
 const { ipc } = window;
 async function main() {
@@ -154,7 +154,7 @@ const Container = styled.div`
 `;
 
 async function loadInitialState(): Promise<State> {
-  let ui: UI;
+  let ui: AppState;
   let shortcuts: Shortcut[] = [];
   let notes: Note[] = [];
 

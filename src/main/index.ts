@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { Config } from "../shared/domain/config";
 import { getProcessType, isDevelopment } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
-import { useAppIpcs } from "./ipcs/app";
+import { useAppIpcs } from "./app/appIpcs";
 import {
   loadConfig,
   saveConfig,

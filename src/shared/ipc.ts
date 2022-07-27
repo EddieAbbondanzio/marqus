@@ -4,7 +4,7 @@ import { Note } from "./domain/note";
 import { Config } from "./domain/config";
 import { IpcMain, IpcMainInvokeEvent, Point } from "electron";
 import { Menu } from "./ui/menu";
-import { UI } from "./ui/app";
+import { AppState } from "./ui/app";
 
 export const IPCS = [
   "app.setApplicationMenu",
@@ -46,8 +46,8 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "app.reload"(): Promise<void>;
   "app.toggleFullScreen"(): Promise<void>;
   "app.quit"(): Promise<void>;
-  "app.loadPreviousUIState"(): Promise<UI>;
-  "app.saveUIState"(ui: UI): Promise<void>;
+  "app.loadPreviousUIState"(): Promise<AppState>;
+  "app.saveUIState"(ui: AppState): Promise<void>;
   "app.openInWebBrowser"(url: string): Promise<void>;
 
   // Shortcuts

@@ -11,7 +11,7 @@ import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
 import { isTest } from "../../shared/env";
 import { UIEventType } from "../../shared/ui/events";
-import { UI, Section } from "../../shared/ui/app";
+import { AppState, Section } from "../../shared/ui/app";
 
 const INITIAL_DELAY = 250; // ms
 const REPEAT_DELAY = 125; // ms

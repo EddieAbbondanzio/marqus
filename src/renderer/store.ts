@@ -5,7 +5,7 @@ import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
-import { Section, Editor, Sidebar, UI } from "../shared/ui/app";
+import { Section, Editor, Sidebar, AppState } from "../shared/ui/app";
 
 export interface Store {
   state: State;
@@ -14,7 +14,7 @@ export interface Store {
   dispatch: Dispatch;
 }
 
-export interface State extends UI {
+export interface State extends AppState {
   notes: Note[];
   shortcuts: Shortcut[];
 }
@@ -54,7 +54,7 @@ export interface StoreContext {
 
 // UI supports partial updates since it's unlikely we'll want to do full updates
 export type SetUI = (
-  t: Transformer<UI, DeepPartial<UI>> | DeepPartial<UI>
+  t: Transformer<AppState, DeepPartial<AppState>> | DeepPartial<AppState>
 ) => void;
 
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;

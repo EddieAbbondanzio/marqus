@@ -1,11 +1,10 @@
 import { keyBy, isEmpty } from "lodash";
 import { PromisedInput } from "../promisedInput";
 import { Note, NoteSort } from "../domain/note";
-import * as monaco from "monaco-editor";
 
 export const DEFAULT_SIDEBAR_WIDTH = "300px";
 
-export interface UI {
+export interface AppState {
   sidebar: Sidebar;
   editor: Editor;
   focused: Section[];
@@ -46,7 +45,7 @@ export interface EditorTab {
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to
 // clear out all references to it otherwise things will bork.
-export function filterOutStaleNoteIds(ui: UI, notes: Note[]): UI {
+export function filterOutStaleNoteIds(ui: AppState, notes: Note[]): AppState {
   const currentNoteIds = keyBy(notes, (n) => n.id);
 
   // Remove any expanded sidebar items that were deleted.

@@ -29,24 +29,6 @@ export async function readDirectory(path: string): Promise<fs.Dirent[]> {
   });
 }
 
-export async function stat(path: string): Promise<fs.Stats> {
-  return new Promise((res, rej) => {
-    fs.stat(path, (err, stats) => {
-      if (err != null) {
-        rej(err);
-      } else {
-        return res(stats);
-      }
-    });
-  });
-}
-
-export async function deleteFile(path: string): Promise<void> {
-  return new Promise((res, rej) => {
-    fs.rm(path, (err) => (err != null ? rej(err) : res()));
-  });
-}
-
 export type ContentType = "json" | "text";
 export type ReadOpts = { required: boolean };
 export async function readFile<
