@@ -131,6 +131,7 @@ async function main() {
   }
 }
 
+// We don't want to run the app while testing.
 if (!isTest()) {
   main();
 }
