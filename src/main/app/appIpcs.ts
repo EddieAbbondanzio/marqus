@@ -11,7 +11,7 @@ import { UIEventType, UIEventInput } from "../../shared/ui/events";
 import { AppState } from "../../shared/ui/app";
 import { IAppStateRepo } from "./appStateRepo";
 
-export const useAppIpcs: IpcPlugin<IAppStateRepo> = (
+export const appIpcs: IpcPlugin<IAppStateRepo> = (
   ipc,
   config,
   repo: IAppStateRepo

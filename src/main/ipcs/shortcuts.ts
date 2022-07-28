@@ -19,7 +19,7 @@ export interface ShortcutOverride {
   repeat?: boolean;
 }
 
-export const useShortcutIpcs: IpcPlugin = (ipc, config) => {
+export const shortcutIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle("shortcuts.getAll", () => getShortcutsFileHandler(config).load());
 };
 

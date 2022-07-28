@@ -2,15 +2,11 @@ import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { Config } from "../shared/domain/config";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
-import { useAppIpcs as appIpcs } from "./app/appIpcs";
+import { appIpcs } from "./app/appIpcs";
 import { AppStateRepo } from "./app/appStateRepo";
-import {
-  loadConfig,
-  saveConfig,
-  useConfigIpcs as configIpcs,
-} from "./ipcs/config";
-import { useNoteIpcs as noteIpcs } from "./ipcs/notes";
-import { useShortcutIpcs as shortcutIpcs } from "./ipcs/shortcuts";
+import { loadConfig, saveConfig, configIpcs } from "./ipcs/config";
+import { noteIpcs } from "./ipcs/notes";
+import { shortcutIpcs } from "./ipcs/shortcuts";
 import { openInBrowser } from "./utils";
 
 if (getProcessType() !== "main") {

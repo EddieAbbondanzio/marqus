@@ -24,7 +24,7 @@ export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
 
-export const useNoteIpcs: IpcPlugin = (ipc, config) => {
+export const noteIpcs: IpcPlugin = (ipc, config) => {
   let initialized = false;
   let notes: Note[] = [];
 
@@ -51,6 +51,12 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     });
 
     await saveToFileSystem(config, note);
+
+    // TODO: Clean this up when we refactor to a repo.
+    // Bust the cache
+    notes = [];
+    initialized = false;
+    await getNotes(config);
 
     return note;
   });
@@ -119,6 +125,12 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
       }
     };
     recursive(note);
+
+    // TODO: Clean this up when we refactor to a repo.
+    // Bust the cache
+    notes = [];
+    initialized = false;
+    await getNotes(config);
   });
 
   ipc.handle("notes.moveToTrash", async (_, id) => {
@@ -135,6 +147,12 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     };
 
     recursive(note);
+
+    // TODO: Clean this up when we refactor to a repo.
+    // Bust the cache
+    notes = [];
+    initialized = false;
+    await getNotes(config);
   });
 };
 

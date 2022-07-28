@@ -9,7 +9,7 @@ import { IpcPlugin } from "../../shared/ipc";
 export const CONFIG_FILE = "config.json";
 export const DEFAULT_DEV_DATA_DIRECTORY = "data";
 
-export const useConfigIpcs: IpcPlugin = (ipc, config) => {
+export const configIpcs: IpcPlugin = (ipc, config) => {
   ipc.handle(
     "config.hasDataDirectory",
     async () => config.dataDirectory != null
@@ -67,7 +67,6 @@ export async function loadConfig(): Promise<Config> {
 }
 
 export async function saveConfig(config: Config): Promise<void> {
-  throw new Error("saveConfig");
   await writeFile(getConfigPath(), config, "json");
 }
 
