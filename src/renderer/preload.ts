@@ -8,7 +8,7 @@ if (getProcessType() === "main") {
   );
 }
 
-contextBridge.exposeInMainWorld("ipc", (channel: IpcType, data: unknown) => {
+contextBridge.exposeInMainWorld("ipc", (channel: IpcType, ...data: []) => {
   // We need to be really careful about what we expose in the renderer.
   // ipcRenderer shouldn't be directly exposed to the renderer and we also want
   // to perform some validation to ensure the action is a known one.
@@ -16,7 +16,7 @@ contextBridge.exposeInMainWorld("ipc", (channel: IpcType, data: unknown) => {
   // https://stackoverflow.com/questions/57807459/how-to-use-preload-js-properly-in-electron
 
   if (IPCS.includes(channel)) {
-    return ipcRenderer.invoke(channel, data);
+    return ipcRenderer.invoke(channel, ...data);
   }
 });
 
