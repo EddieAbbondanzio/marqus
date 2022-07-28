@@ -1,5 +1,5 @@
 import { Point } from "electron";
-import { Note, NoteSort } from "../domain/note";
+import { NoteSort } from "../domain/note";
 import { Section } from "./app";
 
 /*

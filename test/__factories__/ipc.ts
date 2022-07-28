@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { IpcMainInvokeEvent } from "electron";
-import { NotImplementedError } from "../../src/shared/errors";
 import { IpcEvent, IpcMainTS, IpcSchema, IpcType } from "../../src/shared/ipc";
 
 export class MockedIpcMainTS implements IpcMainTS {
   // Type safety is not a concern here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handlers: Partial<Record<IpcType, (...args: any[]) => any>> = {};
   _listeners: Partial<Record<IpcEvent, Function[]>> = {};
 

@@ -1,11 +1,11 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/promisedInput";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
-import { mt1, p1, p2, py1, THEME, w100 } from "../css";
+import { mt1, p2, py1, THEME, w100 } from "../css";
 import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import { useMouseDrag } from "../io/mouse";

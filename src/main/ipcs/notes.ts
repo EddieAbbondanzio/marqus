@@ -62,6 +62,7 @@ export const useNoteIpcs: IpcPlugin = (ipc, config) => {
     const metadataPath = buildNotePath(config, id, "metadata");
     const meta = await readFile(metadataPath, "json");
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { name, parent, sort, ...others } = props;
 
     if (name != null) {

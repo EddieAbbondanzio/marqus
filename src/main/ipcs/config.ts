@@ -3,7 +3,7 @@ import { createDirectory, exists, readFile, writeFile } from "../fileSystem";
 import { Config } from "../../shared/domain/config";
 import { app, BrowserWindow, dialog, shell } from "electron";
 import * as path from "path";
-import { isDevelopment, isProduction } from "../../shared/env";
+import { isDevelopment, isProduction, isTest } from "../../shared/env";
 import { IpcPlugin } from "../../shared/ipc";
 
 export const CONFIG_FILE = "config.json";
@@ -67,12 +67,15 @@ export async function loadConfig(): Promise<Config> {
 }
 
 export async function saveConfig(config: Config): Promise<void> {
+  throw new Error("saveConfig");
   await writeFile(getConfigPath(), config, "json");
 }
 
 export function getConfigPath(): string {
   if (isDevelopment()) {
     return path.join(process.cwd(), CONFIG_FILE);
+  } else if (isTest()) {
+    throw new Error("getConfigPath doesn't work in test.");
   } else {
     return path.join(app.getPath("userData"), CONFIG_FILE);
   }

@@ -2,7 +2,7 @@ import { clamp, debounce } from "lodash";
 import OpenColor from "open-color";
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { mh100, w100 } from "../../css";
+import { w100 } from "../../css";
 
 const SCROLL_DEBOUNCE_INTERVAL = 100; // ms
 
@@ -15,19 +15,23 @@ export interface ScrollableProps {
 }
 export type ScrollOrientation = "horizontal" | "vertical";
 
-export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
+export function Scrollable(
+  props: React.PropsWithChildren<ScrollableProps>
+): JSX.Element {
   const {
     scroll,
     className,
     height = "100%",
     orientation = "vertical",
+    onScroll,
   } = props;
 
   // Debounce it so we don't spam the event handler.
-  const onScroll = useCallback(
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onScrollHandler = useCallback(
     debounce(
       (ev: React.UIEvent<HTMLDivElement>) => {
-        if (props.onScroll != null) {
+        if (onScroll != null) {
           const target = ev.target as HTMLDivElement;
           let scrollPos;
 
@@ -42,13 +46,13 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
               throw new Error(`Invalid scrollable orientation ${orientation}`);
           }
 
-          props.onScroll(scrollPos);
+          onScroll(scrollPos);
         }
       },
       SCROLL_DEBOUNCE_INTERVAL,
       { trailing: true }
     ),
-    [props.onScroll]
+    [onScroll, orientation]
   );
 
   const wrapper = useRef(null as unknown as HTMLDivElement);
@@ -73,15 +77,15 @@ export function Scrollable(props: React.PropsWithChildren<ScrollableProps>) {
       }
 
       if (scroll != clamped) {
-        props.onScroll?.(clamped);
+        onScroll?.(clamped);
       }
     }
-  }, [props.scroll]);
+  }, [scroll, onScroll, orientation]);
 
   return (
     <StyledDiv
       className={className}
-      onScroll={onScroll}
+      onScroll={onScrollHandler}
       height={height}
       orientation={orientation}
       ref={wrapper}

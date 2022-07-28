@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type Match = (el: HTMLElement) => boolean;
 type Stop = (el: HTMLElement) => boolean;
 type MatchValue<T> = ((el: HTMLElement) => T) | T;

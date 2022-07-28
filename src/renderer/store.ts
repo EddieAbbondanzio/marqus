@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cloneDeep, isEmpty, pick } from "lodash";
 import { deepUpdate } from "./utils/deepUpdate";
@@ -5,7 +6,7 @@ import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
-import { Section, Editor, Sidebar, AppState } from "../shared/ui/app";
+import { Section, AppState } from "../shared/ui/app";
 
 export interface Store {
   state: State;

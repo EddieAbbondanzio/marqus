@@ -1,16 +1,16 @@
 import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { Config } from "../shared/domain/config";
-import { getProcessType, isDevelopment } from "../shared/env";
+import { getProcessType, isDevelopment, isTest } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
-import { useAppIpcs } from "./app/appIpcs";
+import { useAppIpcs as appIpcs } from "./app/appIpcs";
 import { AppStateRepo } from "./app/appStateRepo";
 import {
   loadConfig,
   saveConfig,
-  useConfigIpcs as useConfigIpcs,
+  useConfigIpcs as configIpcs,
 } from "./ipcs/config";
-import { useNoteIpcs } from "./ipcs/notes";
-import { useShortcutIpcs } from "./ipcs/shortcuts";
+import { useNoteIpcs as noteIpcs } from "./ipcs/notes";
+import { useShortcutIpcs as shortcutIpcs } from "./ipcs/shortcuts";
 import { openInBrowser } from "./utils";
 
 if (getProcessType() !== "main") {
@@ -31,10 +31,10 @@ async function main() {
   const config: Config = await loadConfig();
   const typeSafeIpc = ipcMain as IpcMainTS;
 
-  useAppIpcs(typeSafeIpc, config, new AppStateRepo(config));
-  useConfigIpcs(typeSafeIpc, config);
-  useShortcutIpcs(typeSafeIpc, config);
-  useNoteIpcs(typeSafeIpc, config);
+  appIpcs(typeSafeIpc, config, new AppStateRepo(config));
+  configIpcs(typeSafeIpc, config);
+  shortcutIpcs(typeSafeIpc, config);
+  noteIpcs(typeSafeIpc, config);
 
   const initPluginsPromise = initPlugins(typeSafeIpc);
 
@@ -130,9 +130,12 @@ async function main() {
     app.on("ready", createWindow);
   }
 }
-main();
 
-export function initPlugins(typeSafeIpc: IpcMainTS) {
+if (!isTest()) {
+  main();
+}
+
+export function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
   const initListeners = typeSafeIpc.listeners("init");
   return Promise.all(initListeners.map((l) => l()));
 }

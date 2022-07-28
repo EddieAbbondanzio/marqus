@@ -4,12 +4,12 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { EditorTab, filterOutStaleNoteIds, Section } from "../shared/ui/app";
+import { filterOutStaleNoteIds, Section } from "../shared/ui/app";
 import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
-import { first, isEmpty, keyBy, tail } from "lodash";
+import { first, isEmpty, tail } from "lodash";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
@@ -102,7 +102,7 @@ export function App(props: AppProps): JSX.Element {
         active: first(sidebar.selected),
       });
     }
-  }, [editor.tabs]);
+  }, [editor.tabs, store, sidebar.selected]);
 
   return (
     <Container>

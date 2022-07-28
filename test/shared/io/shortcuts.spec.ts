@@ -39,6 +39,7 @@ test("useShortcuts dispatches shortcut", () => {
 
 test.each([undefined, [Section.Sidebar]])(
   "shouldExecute global (current focused: (%s)",
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (focused: any) => {
     expect(shouldExecute(focused)).toBe(true);
   }

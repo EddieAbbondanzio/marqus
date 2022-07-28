@@ -7,7 +7,6 @@ import {
   wasInsideFocusable,
 } from "../../../src/renderer/components/shared/Focusable";
 import { App } from "../../../src/renderer/App";
-import { createState } from "../../__factories__/state";
 import React, { ReactNode } from "react";
 import * as store from "../../../src/renderer/store";
 import { mockStore } from "../../__mocks__/store";
@@ -48,6 +47,7 @@ test.each([undefined, false, true])(
     const store = mockStore({
       state: { focused: [Section.Sidebar] },
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const el = { current: { focus: jest.fn() } } as React.MutableRefObject<any>;
     const onFocus = jest.fn();
 
@@ -76,10 +76,11 @@ test.each([false, true])(
   "focusable blurs (focusOnRender %s)",
   (focusOnRender) => {
     const store = mockStore({ state: { focused: [Section.Editor] } });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const el = { current: { blur: jest.fn() } } as React.MutableRefObject<any>;
     const onBlur = jest.fn();
 
-    const res = init({
+    init({
       name: Section.Sidebar,
       store,
       focusOnRender,

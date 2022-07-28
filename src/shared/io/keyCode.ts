@@ -338,6 +338,7 @@ export function sortKeyCodes(keyCodes: KeyCode[]): KeyCode[] {
 
   // Map the values in the array into an object for that O(1) lookup.
   const modifierFlags = modifiers.reduce(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (accumulator: any, modifier: any) => ({ ...accumulator, [modifier]: true }),
     {}
   );

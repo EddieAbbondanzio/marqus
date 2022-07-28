@@ -1,6 +1,5 @@
-import React, { PropsWithChildren } from "react";
 import styled from "styled-components";
-import { p2, p3, rounded } from "../../css";
+import { p2, rounded } from "../../css";
 
 export type ButtonType = "submit" | "reset" | "button";
 

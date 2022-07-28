@@ -1,19 +1,9 @@
-import {
-  faAngleDoubleDown,
-  faAngleDoubleUp,
-  faEllipsisV,
-  faFile,
-  faPlus,
-  faPlusCircle,
-  faPlusSquare,
-  faSort,
-  IconDefinition,
-} from "@fortawesome/free-solid-svg-icons";
+import { faFile, faPlusSquare } from "@fortawesome/free-solid-svg-icons";
 import OpenColor from "open-color";
 import React from "react";
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
-import { m0, m1, mt2, mx1, mx2, p1, p2, pb2, pt1, pt2, py2 } from "../css";
+import { pb2 } from "../css";
 import { Store } from "../store";
 import { Icon } from "./shared/Icon";
 
@@ -23,7 +13,7 @@ export interface SidebarNewNoteButton {
 
 export function SidebarNewNoteButton(
   props: PropsWithChildren<SidebarNewNoteButton>
-) {
+): JSX.Element {
   const onClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
     // Stop prop otherwise we'll mess up switching focus
     ev.stopPropagation();
@@ -63,13 +53,6 @@ const GreenButton = styled.button`
   }
 
   cursor: pointer;
-`;
-
-const NotesHeader = styled.p`
-  font-weight: bold;
-  font-size: 0.75rem;
-  color: ${OpenColor.gray[6]};
-  text-transform: uppercase;
 `;
 
 const Container = styled.div`

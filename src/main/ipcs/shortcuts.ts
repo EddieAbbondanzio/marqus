@@ -28,6 +28,7 @@ export function getShortcutsFileHandler(
 ): FileHandler<Shortcut[]> {
   return createFileHandler<Shortcut[]>(
     config.getPath(SHORTCUTS_FILE),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     yup.array(shortcutSchema).optional() as any,
     {
       defaultValue: DEFAULT_SHORTCUTS,

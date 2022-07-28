@@ -1,7 +1,7 @@
 import * as yup from "yup";
 import { uuidSchema, Resource, uuid } from ".";
 import { isBlank } from "../utils";
-import { chain, isEmpty, orderBy, sortBy } from "lodash";
+import { isEmpty, orderBy } from "lodash";
 
 export interface Note extends Resource {
   name: string;
@@ -105,6 +105,7 @@ export function createNote(props: Partial<Note> & { name: string }): Note {
 }
 
 // TODO: Replace with zod
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getNoteSchema(): any {
   return yup
     .object()

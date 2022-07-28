@@ -22,7 +22,7 @@ jest.mock("electron", () => {
 });
 
 const loadAndMigrateJson = jest.spyOn(json, "loadAndMigrateJson");
-const writeFile = jest.spyOn(fileSystem, "writeFile");
+jest.spyOn(fileSystem, "writeFile");
 
 test("app.loadAppState sets default values", async () => {
   const ipc = createIpcMainTS();
@@ -67,6 +67,7 @@ test("app.loadAppState omits undesirable values", async () => {
     editor: {
       tabs: [{ noteId: "1", lastActive: new Date(), noteContent: "foo" }],
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 
   await initPlugins(ipc);

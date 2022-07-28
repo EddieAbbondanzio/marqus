@@ -39,7 +39,7 @@ test("useStore saves UI to file", async () => {
   } = r;
 
   const onToggle: Listener<"app.toggleSidebar"> = (ev, ctx) => {
-    ctx.setUI({
+    ctx.setUI({ 
       sidebar: {
         hidden: true,
       },
@@ -51,6 +51,7 @@ test("useStore saves UI to file", async () => {
     await store.dispatch("app.toggleSidebar");
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expect((window as any).ipc).toHaveBeenCalledWith(
     "app.saveAppState",
     expect.objectContaining({

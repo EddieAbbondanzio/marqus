@@ -3,8 +3,8 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, mh100, p1, p2, pl0, px1, px2, py1, THEME, w100 } from "../css";
-import { clamp, Dictionary, head, isEmpty, keyBy, orderBy, take } from "lodash";
+import { h100, p2, px2, THEME, w100 } from "../css";
+import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
   getNoteById,
@@ -22,12 +22,10 @@ import { SIDEBAR_MENU_HEIGHT, SidebarMenu, SidebarInput } from "./SidebarMenu";
 import {
   faChevronDown,
   faChevronRight,
-  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search } from "fast-fuzzy";
-import { EditorTab, filterOutStaleNoteIds } from "../../shared/ui/app";
-import { Icon } from "./shared/Icon";
+import { filterOutStaleNoteIds } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
 
@@ -398,10 +396,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
   { value: parentId },
   ctx
 ) => {
-  let {
-    editor,
-    sidebar: { expanded },
-  } = ctx.getState();
+  const { sidebar } = ctx.getState();
 
   const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   const input = createPromisedInput(
@@ -414,17 +409,18 @@ export const createNote: Listener<"sidebar.createNote"> = async (
 
   if (
     parentId != null &&
-    (expanded == null || expanded?.every((id) => id !== parentId))
+    (sidebar.expanded == null ||
+      sidebar.expanded?.every((id) => id !== parentId))
   ) {
-    expanded ??= [];
-    expanded.push(parentId);
+    sidebar.expanded ??= [];
+    sidebar.expanded.push(parentId);
   }
 
   ctx.focus([Section.SidebarInput], { overwrite: true });
   ctx.setUI({
     sidebar: {
       input,
-      expanded,
+      expanded: sidebar.expanded,
     },
   });
 
@@ -545,7 +541,7 @@ export const deleteNote: Listener<
 
       id = ev.value;
       break;
-    case "sidebar.deleteSelectedNote":
+    case "sidebar.deleteSelectedNote": {
       const { selected } = sidebar;
       // User could accidentally press delete when nothing is selected so we
       // don't throw here.
@@ -555,6 +551,7 @@ export const deleteNote: Listener<
 
       id = head(selected)!;
       break;
+    }
 
     default:
       throw new Error(`Invalid event type ${ev.type}`);

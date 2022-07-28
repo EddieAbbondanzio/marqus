@@ -32,7 +32,7 @@ export function useContextMenu(store: Store): void {
 
       const items: Menu[] = [];
       switch (focusable) {
-        case Section.Sidebar:
+        case Section.Sidebar: {
           const noteId = getSidebarMenuAttribute(ev.target as HTMLElement);
           let note: Note | undefined;
           if (noteId != null) {
@@ -93,8 +93,9 @@ export function useContextMenu(store: Store): void {
             shortcut: shortcutLabels["sidebar.expandAll"],
           });
           break;
+        }
 
-        case Section.EditorTabs:
+        case Section.EditorTabs: {
           const tabNoteId = getEditorTabAttribute(ev.target as HTMLElement);
 
           if (tabNoteId != null) {
@@ -137,6 +138,7 @@ export function useContextMenu(store: Store): void {
             shortcut: shortcutLabels["editor.closeTabsToLeft"],
           });
           break;
+        }
       }
 
       if (isDevelopment()) {
@@ -167,7 +169,7 @@ export function useContextMenu(store: Store): void {
     return () => {
       window.removeEventListener("contextmenu", showMenu);
     };
-  }, [shortcutLabels, store]);
+  }, [shortcutLabels, store, state.notes, state.sidebar.sort]);
 
   useEffect(() => {
     const onClick = (ev: CustomEvent) => {

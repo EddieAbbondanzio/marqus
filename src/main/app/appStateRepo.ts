@@ -7,7 +7,7 @@ import {
 } from "../../shared/domain/note";
 import { AppState, DEFAULT_SIDEBAR_WIDTH, Section } from "../../shared/ui/app";
 import { writeFile } from "../fileSystem";
-import { loadAndMigrateJson } from "../json";
+import { loadAndMigrateJson, Versioned } from "../json";
 import { APP_STATE_MIRGATIONS } from "./migrations";
 
 const APP_STATE_FILE = "ui.json";
@@ -70,7 +70,7 @@ export class AppStateRepo implements IAppStateRepo {
   constructor(private config: Config) {}
 
   async get(): Promise<AppState> {
-    let appState = await loadAndMigrateJson<AppState>(
+    let appState = await loadAndMigrateJson<Versioned<AppState>>(
       this.config.getPath(APP_STATE_FILE),
       APP_STATE_MIRGATIONS
     );

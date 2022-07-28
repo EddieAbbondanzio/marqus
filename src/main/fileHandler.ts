@@ -2,10 +2,7 @@
 import { debounce, cloneDeep } from "lodash";
 import { writeFile, readFile } from "./fileSystem";
 import * as yup from "yup";
-import * as path from "path";
 import { isDevelopment } from "../shared/env";
-import { Config } from "../shared/domain/config";
-import { MissingDataDirectoryError } from "../shared/errors";
 export interface FileHandlerOpts<Content> {
   defaultValue?: Content;
   serialize?: (c: Content) => unknown;

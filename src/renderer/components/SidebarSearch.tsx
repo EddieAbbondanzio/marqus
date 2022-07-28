@@ -1,26 +1,12 @@
-import { faCross, faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { isEmpty } from "lodash";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
-import {
-  m1,
-  mb0,
-  mb2,
-  mb3,
-  my2,
-  p0,
-  pb0,
-  pb2,
-  pl0,
-  py1,
-  THEME,
-  w100,
-} from "../css";
+import { mb0, mb3, pb0, THEME, w100 } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
-import { SIDEBAR_MENU_HEIGHT } from "./SidebarMenu";
 
 export interface SidebarSearchProps {
   store: Store;

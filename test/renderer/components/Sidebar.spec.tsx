@@ -1,8 +1,6 @@
-import { createState } from "../../__factories__/state";
 import { Sidebar } from "../../../src/renderer/components/Sidebar";
 import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
-import { useStore } from "../../../src/renderer/store";
 import {
   createNote,
   DEFAULT_NOTE_SORTING_ALGORITHM,
@@ -37,6 +35,7 @@ test("sidebar.createNote confirm", async () => {
   expect(store.current.state.sidebar.input?.value).toBe("foo");
 
   // Mock return value of window.ipc("notes.create", ...)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ((window as any).ipc as jest.Mock).mockReturnValue(
     createNote({
       name: "foo",
@@ -159,7 +158,7 @@ test("sidebar.deleteSelectedNote", async () => {
     editor: {},
     focused: [Section.Editor],
   });
-  const res = render(<Sidebar store={store.current} />);
+  render(<Sidebar store={store.current} />);
 
   // Does not remove if cancelled
   promptConfirmAction.mockResolvedValueOnce(false);
@@ -204,7 +203,7 @@ test("sidebar.collapseAll", async () => {
     focused: [],
   });
 
-  const res = render(<Sidebar store={store.current} />);
+  render(<Sidebar store={store.current} />);
   await act(async () => {
     await store.current.dispatch("sidebar.collapseAll");
   });
@@ -305,6 +304,7 @@ test("sidebar.dragNote", async () => {
       newParent: baz.parent,
     });
   });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expect((window as any).ipc).not.toBeCalledWith(
     "notes.updateMetadata",
     baz.id,
@@ -320,6 +320,7 @@ test("sidebar.dragNote", async () => {
       newParent: undefined,
     });
   });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expect((window as any).ipc).not.toBeCalledWith(
     "notes.updateMetadata",
     foo.id,
@@ -329,6 +330,7 @@ test("sidebar.dragNote", async () => {
   );
 
   // Move from root to nested
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   when((window as any).ipc)
     .calledWith("notes.updateMetadata", "1", {
       parent: "2",
@@ -349,6 +351,7 @@ test("sidebar.dragNote", async () => {
   );
 
   // Move from nested to root
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   when((window as any).ipc)
     .calledWith("notes.updateMetadata", "1", {
       parent: undefined,

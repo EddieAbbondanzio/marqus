@@ -8,8 +8,8 @@ jest.spyOn(fileSystem, "readFile").mockImplementation(readFile);
 test("loadAndMigrateJson throws on duplicate version numbers", async () => {
   expect(() =>
     loadAndMigrateJson("foo.json", [
-      { version: 1 } as JsonMigration<any, any>,
-      { version: 1 } as JsonMigration<any, any>,
+      { version: 1 } as JsonMigration<never, never>,
+      { version: 1 } as JsonMigration<never, never>,
     ])
   ).rejects.toThrow(/Duplicate migration numbers detected for foo.json/);
 });
@@ -17,8 +17,8 @@ test("loadAndMigrateJson throws on duplicate version numbers", async () => {
 test("loadAndMigrateJson throws if migrations are out of order", async () => {
   expect(() =>
     loadAndMigrateJson("foo.json", [
-      { version: 2 } as JsonMigration<any, any>,
-      { version: 1 } as JsonMigration<any, any>,
+      { version: 2 } as JsonMigration<never, never>,
+      { version: 1 } as JsonMigration<never, never>,
     ])
   ).rejects.toThrow(
     /Migration versions are out of order for foo.json. 2 comes before 1/
@@ -30,8 +30,8 @@ test("loadAndMigrateJson throws if content has newer version than latest migrati
 
   expect(() =>
     loadAndMigrateJson("foo.json", [
-      { version: 1 } as JsonMigration<any, any>,
-      { version: 2 } as JsonMigration<any, any>,
+      { version: 1 } as JsonMigration<never, never>,
+      { version: 2 } as JsonMigration<never, never>,
     ])
   ).rejects.toThrow(/Input version 10 is higher than latest migration 2/);
 });
@@ -41,14 +41,12 @@ test("loadAndMigrateJson handles null value", async () => {
 
   readFile.mockReturnValue(null);
 
-  let foo = await loadAndMigrateJson<FooV2>("foo.json", migrations);
+  const foo = await loadAndMigrateJson<FooV2>("foo.json", migrations);
 
   expect(foo.version).toBe(2);
   expect(foo.name).toBe("name");
   expect(foo.age).toBe(42);
 });
-
-test("loadAndMigrateJson brings content up to latest", async () => {});
 
 const fooV1 = z.object({
   version: z.literal(1),
@@ -61,10 +59,10 @@ const fooV2 = z.object({
   name: z.string().default("name"),
   age: z.number().default(42),
 });
-type FooV2 = z.infer<typeof fooV2>;
+type FooV2 = z.infer<typeof fooV2> & { version: number };
 
 class InitialDefinition extends JsonMigration<unknown, FooV1> {
-  version: number = 1;
+  version = 1;
 
   async validateInput(input: unknown): Promise<FooV1> {
     return await fooV1.parseAsync(input);
@@ -79,7 +77,7 @@ class InitialDefinition extends JsonMigration<unknown, FooV1> {
 }
 
 class AddAge extends JsonMigration<FooV1, FooV2> {
-  version: number = 2;
+  version = 2;
 
   async validateInput(input: unknown): Promise<FooV1> {
     return await fooV1.parseAsync(input);

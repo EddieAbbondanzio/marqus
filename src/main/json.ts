@@ -1,8 +1,7 @@
 import { cloneDeep, first, last, uniq } from "lodash";
-import { ZodObject } from "zod";
 import { readFile } from "./fileSystem";
 
-export type Versioned<T> = T & { version: number };
+export type Versioned<T = { version: number }> = T & { version: number };
 
 /**
  * Migration to assist in converting JSON content.
@@ -42,7 +41,7 @@ export abstract class JsonMigration<Input, Output> {
   }
 }
 
-export async function loadAndMigrateJson<Content extends {}>(
+export async function loadAndMigrateJson<Content extends Versioned>(
   filePath: string,
   migrations: JsonMigration<unknown, unknown>[]
 ): Promise<Versioned<Content>> {
@@ -62,14 +61,14 @@ export async function loadAndMigrateJson<Content extends {}>(
     }
   }
 
-  let start = first(migrations)!;
-  let content: unknown | null = await readFile(filePath, "json");
+  const start = first(migrations)!;
+  const content: unknown | null = await readFile(filePath, "json");
 
-  let versioned: Versioned<{}>;
+  let versioned: Versioned;
   if (content == null || typeof content !== "object") {
     versioned = { version: start.version };
   } else {
-    versioned = content as Versioned<{}>;
+    versioned = content as Versioned;
   }
 
   const migrated = await runMigrations(versioned, migrations);

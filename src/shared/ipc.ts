@@ -36,6 +36,7 @@ export const IPCS = [
 
 export type IpcType = typeof IPCS[number];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   // App
   "app.setApplicationMenu"(menus: Menu[]): Promise<void>;

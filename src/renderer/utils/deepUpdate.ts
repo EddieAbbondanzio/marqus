@@ -1,4 +1,7 @@
-import { cloneDeep, get, propertyOf, remove, set } from "lodash";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/ban-types */
+import { cloneDeep, get } from "lodash";
 import { DeepPartial } from "tsdef";
 import { isBlank } from "../../shared/utils";
 

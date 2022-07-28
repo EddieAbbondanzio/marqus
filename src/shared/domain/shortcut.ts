@@ -24,6 +24,7 @@ export interface Shortcut<EType extends UIEventType = UIEventType> {
 // TODO: Replace with zod
 export const shortcutSchema = yup.object().shape({
   name: yup.string().required(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   event: yup.string().required() as any,
   eventInput: yup.mixed().optional(),
   keys: yup.array(),

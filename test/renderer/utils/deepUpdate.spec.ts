@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { deepUpdate } from "../../../src/renderer/utils/deepUpdate";
 
 test("deepUpdate adds new props", () => {
@@ -10,6 +11,7 @@ test("deepUpdate adds new props", () => {
     c: 3,
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updated = deepUpdate(obj, upd as any);
   expect(updated).toHaveProperty("c", 3);
 });

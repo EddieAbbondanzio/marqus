@@ -7,14 +7,21 @@ import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
 
 // TODO: Add types, or update react-remark.
-const visit = require("unist-util-visit");
+// React-remark isn't currently up to date with the latest version of remark so
+// we are stuck using older plugins. remark-emoji never shipped types with this
+// version (2.1.0)
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const emoji = require("remark-emoji");
+
 export interface MarkdownProps {
   store: Store;
   content: string;
   scroll: number;
   onScroll: (newVal: number) => void;
 }
+
+// TODO: Get better typing on this.
+type Props = Record<string, never>;
 
 export function Markdown(props: MarkdownProps): JSX.Element {
   // Check for update so we can migrate to newer versions of remarkGFM
@@ -36,7 +43,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         code: CodeSpan,
         span: Text,
         image: Image,
-        a: (p: any) => (
+        a: (p: Props) => (
           <Link target="_blank" href={p.href} title={p.href}>
             {p.children}
           </Link>
@@ -48,7 +55,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         em: Em,
         ul: UnorderedList,
         ol: OrderedList,
-        li: (p: any) => {
+        li: (p: Props) => {
           if (p.className === "task-list-item") {
             return <Li className="task">{p.children}</Li>;
           } else {
@@ -62,7 +69,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 
   useEffect(() => {
     setMarkdownSource(props.content);
-  }, [props.content]);
+  }, [props.content, setMarkdownSource]);
 
   return (
     <StyledScrollable scroll={props.scroll} onScroll={props.onScroll}>

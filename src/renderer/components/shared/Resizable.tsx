@@ -1,9 +1,8 @@
 /* eslint-disable no-case-declarations */
 import { stripUnit } from "polished";
-import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
+import React, { PropsWithChildren, useRef, useState } from "react";
 import styled from "styled-components";
-import { mh100 } from "../../css";
-import { resetCursor, setCursor, useMouseDrag } from "../../io/mouse";
+import { useMouseDrag } from "../../io/mouse";
 
 const PX_REGEX = /^\d+px$/;
 
