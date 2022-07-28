@@ -87,7 +87,11 @@ export interface IpcMainTS extends Pick<IpcMain, "listeners"> {
   on(event: "init", callback: () => Promise<void>): void;
 }
 
-export type IpcPlugin = (ipc: IpcMainTS, config: Config) => void;
+export type IpcPlugin<Repo = undefined> = (
+  ipc: IpcMainTS,
+  config: Config,
+  repo?: Repo
+) => void;
 
 export enum IpcChannel {
   ApplicationMenuClick = "applicationmenuclick",

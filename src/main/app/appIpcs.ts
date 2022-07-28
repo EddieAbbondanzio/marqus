@@ -7,73 +7,19 @@ import {
 import { isRoleMenu, Menu as MenuType } from "../../shared/ui/menu";
 import { IpcChannel, IpcPlugin } from "../../shared/ipc";
 import { openInBrowser } from "../utils";
-import {
-  DEFAULT_NOTE_SORTING_ALGORITHM,
-  NoteSort,
-} from "../../shared/domain/note";
 import { UIEventType, UIEventInput } from "../../shared/ui/events";
-import { DEFAULT_SIDEBAR_WIDTH, AppState, Section } from "../../shared/ui/app";
-import { writeFile } from "../fileSystem";
-import { loadJson, Versioned } from "../json";
-import { APP_STATE_MIRGATIONS } from "./migrations";
-import { z, ZodObject } from "zod";
+import { AppState } from "../../shared/ui/app";
+import { IAppStateRepo } from "./appStateRepo";
 
-const APP_STATE_FILE = "ui.json";
-
-const appStateSchema = z
-  .object({
-    version: z.literal(1),
-    sidebar: z
-      .object({
-        width: z
-          .string()
-          .regex(/^\d+px$/)
-          .default(DEFAULT_SIDEBAR_WIDTH),
-        scroll: z.number().default(0),
-        hidden: z.boolean().optional(),
-        selected: z.array(z.string()).optional(),
-        expanded: z.array(z.string()).optional(),
-        sort: z.nativeEnum(NoteSort).default(DEFAULT_NOTE_SORTING_ALGORITHM),
-      })
-      .default({}),
-    editor: z
-      .object({
-        isEditting: z.boolean().default(false),
-        scroll: z.number().default(0),
-        tabs: z
-          .array(
-            z.object({
-              noteId: z.string(),
-              // Intentionally omitted noteContent
-              lastActive: z.date().optional(),
-            })
-          )
-          .default([]),
-        tabsScroll: z.number().default(0),
-        activeTabNoteId: z.string().optional(),
-      })
-      .default({}),
-    focused: z.array(z.nativeEnum(Section)).default([]),
-  })
-  .default({
-    version: 1,
-  });
-
-export const useAppIpcs: IpcPlugin = (ipc, config) => {
-  let cachedAppState: Versioned<AppState>;
+export const useAppIpcs: IpcPlugin<IAppStateRepo> = (
+  ipc,
+  config,
+  repo: IAppStateRepo
+) => {
+  let cachedAppState: AppState;
 
   ipc.on("init", async () => {
-    let appState = await loadJson<AppState>(
-      config.getPath(APP_STATE_FILE),
-      APP_STATE_MIRGATIONS
-    );
-
-    // We always want to run this because it'll apply defaults for any missing
-    // values, and in the event the json file has been modified to the point
-    // where it's unusuable, it'll throw an error instead of proceeding.
-    appState = await appStateSchema.parseAsync(appState);
-
-    cachedAppState = appState;
+    cachedAppState = await repo.get();
   });
 
   ipc.handle("app.loadPreviousUIState", async () => {
@@ -81,12 +27,8 @@ export const useAppIpcs: IpcPlugin = (ipc, config) => {
   });
 
   ipc.handle("app.saveUIState", async (_, appState) => {
-    const validated = await appStateSchema.parseAsync(appState);
-
-    const filePath = config.getPath(APP_STATE_FILE);
-    await writeFile(filePath, validated, "json");
-
-    cachedAppState = validated;
+    const updatedAppState = await repo.update(appState);
+    cachedAppState = updatedAppState;
   });
 
   ipc.handle("app.showContextMenu", async (_, menus) => {

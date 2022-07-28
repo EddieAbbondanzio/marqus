@@ -47,33 +47,11 @@ export class AppStateInitialDefinition extends JsonMigration<
 > {
   version = 1;
 
-  async validate(input: unknown): Promise<AppStateV1> {
+  async validateInput(input: unknown): Promise<AppStateV1> {
     return await appStateSchemaV1.parseAsync(input);
   }
 
-  protected async do(input: AppStateV1): Promise<AppState> {
-    // ui.sidebar.input = undefined;
-    // ui.focused = [];
-
-    // ui.editor ??= {};
-    // ui.editor.tabs ??= [];
-    // for (const tab of ui.editor.tabs) {
-    //   tab.model = undefined;
-    //   tab.viewState = undefined;
-    //   tab.lastActive = parseJSON(tab.lastActive);
-    // }
-
-    // // Check if active tab is stale.
-    // if (
-    //   ui.editor.activeTabNoteId != null &&
-    //   ui.editor.tabs.every(
-    //     (t: EditorTab) => t.noteId != ui.editor.activeTabNoteId
-    //   )
-    // ) {
-    //   ui.editor.activeTabNoteId = undefined;
-    // }
-
-    // Nothing to do here. We simply have this migration for a sanity check.
+  protected async migrate(input: AppStateV1): Promise<AppState> {
     return input;
   }
 }

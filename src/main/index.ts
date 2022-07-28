@@ -3,6 +3,7 @@ import { Config } from "../shared/domain/config";
 import { getProcessType, isDevelopment } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
 import { useAppIpcs } from "./app/appIpcs";
+import { AppStateRepo } from "./app/appStateRepo";
 import {
   loadConfig,
   saveConfig,
@@ -36,7 +37,7 @@ async function main() {
   const config: Config = await loadConfig();
   const typeSafeIpc = ipcMain as IpcMainTS;
 
-  useAppIpcs(typeSafeIpc, config);
+  useAppIpcs(typeSafeIpc, config, new AppStateRepo(config));
   useConfigIpcs(typeSafeIpc, config);
   useShortcutIpcs(typeSafeIpc, config);
   useNoteIpcs(typeSafeIpc, config);

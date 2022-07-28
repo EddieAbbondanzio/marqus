@@ -4,17 +4,36 @@ import { readFile } from "./fileSystem";
 
 export type Versioned<T> = T & { version: number };
 
+/**
+ * Migration to assist in converting JSON content.
+ */
 export abstract class JsonMigration<Input, Output> {
+  /**
+   * Json version of the input.
+   */
   abstract version: number;
 
-  // Throws if validation fails.
-  abstract validate(input: unknown): Promise<Input>;
+  /**
+   * Validate the input and ensure it's meant for this migration.
+   * Throws if invalid.
+   * @param input The original input to validate.
+   */
+  abstract validateInput(input: unknown): Promise<Input>;
 
-  protected abstract do(input: Input): Promise<Output>;
+  /**
+   * Migrate the JSON content and return it's updated version.
+   * @param input The input to migrate.
+   */
+  protected abstract migrate(input: Input): Promise<Output>;
 
+  /**
+   * Attempt to migrate the JSON. Throws if the input was invalid.
+   * @param input The JSON content to migrate.
+   * @returns The updated content.
+   */
   async run(input: unknown): Promise<Versioned<Output>> {
-    const validated = await this.validate(input);
-    const output = await this.do(validated);
+    const validated = await this.validateInput(input);
+    const output = await this.migrate(validated);
 
     return {
       version: this.version,
@@ -23,9 +42,9 @@ export abstract class JsonMigration<Input, Output> {
   }
 }
 
-export async function loadJson<Content extends {}>(
+export async function loadAndMigrateJson<Content extends {}>(
   filePath: string,
-  migrations: JsonMigration<unknown, Content>[]
+  migrations: JsonMigration<unknown, unknown>[]
 ): Promise<Versioned<Content>> {
   const migrationVersions = migrations.map((m) => m.version);
   if (uniq(migrationVersions).length !== migrationVersions.length) {
@@ -53,13 +72,13 @@ export async function loadJson<Content extends {}>(
     versioned = content as Versioned<{}>;
   }
 
-  const migrated = await _runMigrations(versioned, migrations);
+  const migrated = await runMigrations(versioned, migrations);
 
-  return migrated;
+  return migrated as Versioned<Content>;
 }
 
 // Should not be used outside of this file.
-export async function _runMigrations<Output>(
+async function runMigrations<Output>(
   input: { version: number },
   migrations: JsonMigration<unknown, Output>[]
 ): Promise<Versioned<Output>> {
