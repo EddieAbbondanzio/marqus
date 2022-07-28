@@ -15,8 +15,8 @@ export const IPCS = [
   "app.reload",
   "app.toggleFullScreen",
   "app.quit",
-  "app.loadPreviousUIState",
-  "app.saveUIState",
+  "app.loadAppState",
+  "app.saveAppState",
   "app.openInWebBrowser",
 
   "shortcuts.getAll",
@@ -46,8 +46,8 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "app.reload"(): Promise<void>;
   "app.toggleFullScreen"(): Promise<void>;
   "app.quit"(): Promise<void>;
-  "app.loadPreviousUIState"(): Promise<AppState>;
-  "app.saveUIState"(ui: AppState): Promise<void>;
+  "app.loadAppState"(): Promise<AppState>;
+  "app.saveAppState"(ui: AppState): Promise<void>;
   "app.openInWebBrowser"(url: string): Promise<void>;
 
   // Shortcuts
@@ -73,6 +73,8 @@ export type Ipc = <T extends IpcType, I extends Parameters<IpcSchema[T]>>(
   ...params: I extends void ? [] : I
 ) => ReturnType<IpcSchema[T]>;
 
+export type IpcEvent = "init";
+
 // Wrap IpcMain to add type safety + make it easy to test.
 // This comes off like a code smell but I like how hands off of an approach it is
 // and it also keeps the amount of boilerplate code low.
@@ -84,7 +86,7 @@ export interface IpcMainTS extends Pick<IpcMain, "listeners"> {
       ...params: Parameters<IpcSchema[Type]>
     ) => ReturnType<IpcSchema[Type]>
   ): void;
-  on(event: "init", callback: () => Promise<void>): void;
+  on(event: IpcEvent, callback: () => Promise<void>): void;
 }
 
 export type IpcPlugin<Repo = undefined> = (

@@ -52,7 +52,7 @@ test("useStore saves UI to file", async () => {
   });
 
   expect((window as any).ipc).toHaveBeenCalledWith(
-    "app.saveUIState",
+    "app.saveAppState",
     expect.objectContaining({
       sidebar: expect.objectContaining({
         hidden: true,

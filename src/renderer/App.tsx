@@ -160,7 +160,7 @@ async function loadInitialState(): Promise<State> {
 
   // eslint-disable-next-line prefer-const
   [ui, shortcuts, notes] = await Promise.all([
-    ipc("app.loadPreviousUIState"),
+    ipc("app.loadAppState"),
     ipc("shortcuts.getAll"),
     ipc("notes.getAll"),
   ]);

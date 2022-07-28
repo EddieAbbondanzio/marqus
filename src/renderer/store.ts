@@ -103,7 +103,7 @@ export function useStore(initialState: State): Store {
         }
       }
 
-      void window.ipc("app.saveUIState", clonedUI);
+      void window.ipc("app.saveAppState", clonedUI);
       return newState;
     });
   }, []);

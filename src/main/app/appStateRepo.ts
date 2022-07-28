@@ -1,3 +1,4 @@
+import { parseJSON } from "date-fns";
 import { z } from "zod";
 import { Config } from "../../shared/domain/config";
 import {
@@ -36,7 +37,16 @@ const appStateSchema = z
             z.object({
               noteId: z.string(),
               // Intentionally omitted noteContent
-              lastActive: z.date().optional(),
+              lastActive: z.preprocess((arg) => {
+                // If loaded from JSON dates will be a string
+                if (typeof arg === "string") {
+                  return parseJSON(arg);
+                }
+                // But if it was already in memory they'll be a date.
+                else if (arg instanceof Date) {
+                  return arg;
+                }
+              }, z.date().optional()),
             })
           )
           .default([]),
@@ -50,7 +60,7 @@ const appStateSchema = z
     version: 1,
   });
 
-// Interface is needed to support easy testing.
+// Interface is needed to support testing.
 export interface IAppStateRepo {
   get(): Promise<AppState>;
   update(appState: AppState): Promise<AppState>;
@@ -79,6 +89,6 @@ export class AppStateRepo implements IAppStateRepo {
     const filePath = this.config.getPath(APP_STATE_FILE);
     await writeFile(filePath, validated, "json");
 
-    throw new Error("Method not implemented.");
+    return validated;
   }
 }

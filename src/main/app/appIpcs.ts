@@ -22,11 +22,11 @@ export const useAppIpcs: IpcPlugin<IAppStateRepo> = (
     cachedAppState = await repo.get();
   });
 
-  ipc.handle("app.loadPreviousUIState", async () => {
+  ipc.handle("app.loadAppState", async () => {
     return cachedAppState;
   });
 
-  ipc.handle("app.saveUIState", async (_, appState) => {
+  ipc.handle("app.saveAppState", async (_, appState) => {
     const updatedAppState = await repo.update(appState);
     cachedAppState = updatedAppState;
   });

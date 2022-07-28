@@ -1,10 +1,11 @@
 import { IpcMainInvokeEvent } from "electron";
 import { NotImplementedError } from "../../src/shared/errors";
-import { IpcMainTS, IpcSchema, IpcType } from "../../src/shared/ipc";
+import { IpcEvent, IpcMainTS, IpcSchema, IpcType } from "../../src/shared/ipc";
 
 export class MockedIpcMainTS implements IpcMainTS {
   // Type safety is not a concern here.
   handlers: Partial<Record<IpcType, (...args: any[]) => any>> = {};
+  _listeners: Partial<Record<IpcEvent, Function[]>> = {};
 
   handle<Type extends IpcType>(
     type: Type,
@@ -27,13 +28,13 @@ export class MockedIpcMainTS implements IpcMainTS {
     return this.handlers[type]!(null, ...params);
   }
 
-  on(event: "init", callback: () => Promise<void>): void {
-    // TODO: Implement this lol.
+  on(event: IpcEvent, callback: () => Promise<void>): void {
+    this._listeners[event] ??= [];
+    this._listeners[event]!.push(callback);
   }
 
   listeners(eventName: string | symbol): Function[] {
-    // TODO: Implement this lol.
-    return [];
+    return this._listeners[eventName as unknown as IpcEvent] ?? [];
   }
 }
 
