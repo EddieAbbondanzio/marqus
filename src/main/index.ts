@@ -1,13 +1,21 @@
 import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { Config } from "../shared/domain/config";
-import { getProcessType, isDevelopment, isTest } from "../shared/env";
+import {
+  getProcessType,
+  isDevelopment,
+  isProduction,
+  isTest,
+} from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
 import { appIpcs } from "./app/appIpcs";
 import { AppStateRepo } from "./app/appStateRepo";
-import { loadConfig, saveConfig, configIpcs } from "./ipcs/config";
+import { configIpcs } from "./config/configIpcs";
 import { noteIpcs } from "./ipcs/notes";
 import { shortcutIpcs } from "./ipcs/shortcuts";
 import { openInBrowser } from "./utils";
+import * as path from "path";
+import { createDirectory, exists, readFile, writeFile } from "./fileSystem";
+import { MissingDataDirectoryError } from "../shared/errors";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -20,6 +28,9 @@ if (getProcessType() !== "main") {
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+
+export const CONFIG_FILE = "config.json";
+export const DEFAULT_DEV_DATA_DIRECTORY = "data";
 
 let mainWindow: BrowserWindow;
 
@@ -78,7 +89,9 @@ async function main() {
       const [width, height] = mainWindow.getSize();
       config.windowHeight = height;
       config.windowWidth = width;
-      await saveConfig(config);
+
+      const configPath = getConfigPath();
+      await writeFile(configPath, config, "json");
     });
 
     // Override how all links are open so we can send them off to the user's
@@ -135,4 +148,38 @@ if (!isTest()) {
 export function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
   const initListeners = typeSafeIpc.listeners("init");
   return Promise.all(initListeners.map((l) => l()));
+}
+
+export function getConfigPath(): string {
+  if (isDevelopment()) {
+    return path.join(process.cwd(), CONFIG_FILE);
+  } else if (isTest()) {
+    throw new Error("getConfigPath doesn't work in test.");
+  } else {
+    return path.join(app.getPath("userData"), CONFIG_FILE);
+  }
+}
+
+export async function loadConfig(): Promise<Config> {
+  let data = await readFile(getConfigPath(), "json");
+  data ??= new Config(600, 800);
+
+  if (isDevelopment()) {
+    data.dataDirectory = DEFAULT_DEV_DATA_DIRECTORY;
+
+    if (!exists(data.dataDirectory)) {
+      await createDirectory(data.dataDirectory);
+    }
+  }
+
+  // Sanity check
+  if (
+    isProduction() &&
+    data.dataDirectory != null &&
+    !(await exists(data.dataDirectory))
+  ) {
+    throw new MissingDataDirectoryError();
+  }
+
+  return new Config(data.windowHeight, data.windowWidth, data.dataDirectory);
 }
