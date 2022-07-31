@@ -4,9 +4,9 @@ import { keyCodesToString, parseKeyCodes } from "../../shared/io/keyCode";
 import { createFileHandler, FileHandler } from "../fileHandler";
 import * as yup from "yup";
 import { Config } from "../../shared/domain/config";
-import { IpcPlugin } from "../../shared/ipc";
 import { UIEventType } from "../../shared/ui/events";
 import { Section } from "../../shared/ui/app";
+import { IpcMainTS } from "../../shared/ipc";
 
 export const SHORTCUTS_FILE = "shortcuts.json";
 
@@ -19,9 +19,9 @@ export interface ShortcutOverride {
   repeat?: boolean;
 }
 
-export const shortcutIpcs: IpcPlugin = (ipc, config) => {
+export function shortcutIpcs(ipc: IpcMainTS, config: Config): void {
   ipc.handle("shortcuts.getAll", () => getShortcutsFileHandler(config).load());
-};
+}
 
 export function getShortcutsFileHandler(
   config: Config

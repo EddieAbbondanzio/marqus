@@ -11,7 +11,7 @@ import {
 import { JsonMigration } from "../../json";
 
 export const appStateSchemaV1 = z.object({
-  version: z.literal(1),
+  version: z.literal(1).optional().default(1),
   sidebar: z.object({
     width: z
       .string()

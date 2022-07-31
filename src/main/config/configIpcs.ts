@@ -1,9 +1,13 @@
-import { IpcPlugin } from "../../shared/ipc";
 import { BrowserWindow, dialog, shell } from "electron";
-import { writeFile } from "../fileSystem";
-import { getConfigPath } from "..";
+import { IpcMainTS } from "../../shared/ipc";
+import { ConfigRepo } from "./configRepo";
+import { Config } from "../../shared/domain/config";
 
-export const configIpcs: IpcPlugin = (ipc, config) => {
+export function configIpcs(
+  ipc: IpcMainTS,
+  config: Config,
+  repo: ConfigRepo
+): void {
   ipc.handle(
     "config.hasDataDirectory",
     async () => config.dataDirectory != null
@@ -32,7 +36,7 @@ export const configIpcs: IpcPlugin = (ipc, config) => {
 
     config.dataDirectory = filePaths[0];
 
-    await writeFile(getConfigPath(), config, "json");
+    await repo.update(config);
     focusedWindow.reload();
   });
-};
+}

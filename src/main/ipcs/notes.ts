@@ -16,15 +16,15 @@ import {
 import { UUID_REGEX } from "../../shared/domain";
 import { Config } from "../../shared/domain/config";
 import { keyBy, partition } from "lodash";
-import { IpcPlugin } from "../../shared/ipc";
 import { shell } from "electron";
 import { parseJSON } from "date-fns";
+import { IpcMainTS } from "../../shared/ipc";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
 
-export const noteIpcs: IpcPlugin = (ipc, config) => {
+export function noteIpcs(ipc: IpcMainTS, config: Config): void {
   let initialized = false;
   let notes: Note[] = [];
 
@@ -154,7 +154,7 @@ export const noteIpcs: IpcPlugin = (ipc, config) => {
     initialized = false;
     await getNotes(config);
   });
-};
+}
 
 export async function loadNotes(config: Config): Promise<Note[]> {
   const noteDirPath = config.getPath(NOTES_DIRECTORY);

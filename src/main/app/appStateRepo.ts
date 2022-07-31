@@ -1,6 +1,5 @@
 import { parseJSON } from "date-fns";
 import { z } from "zod";
-import { Config } from "../../shared/domain/config";
 import {
   NoteSort,
   DEFAULT_NOTE_SORTING_ALGORITHM,
@@ -10,7 +9,7 @@ import { writeFile } from "../fileSystem";
 import { loadAndMigrateJson, Versioned } from "../json";
 import { APP_STATE_MIRGATIONS } from "./migrations";
 
-const APP_STATE_FILE = "ui.json";
+export const APP_STATE_FILE = "ui.json";
 
 const appStateSchema = z
   .object({
@@ -67,11 +66,11 @@ export interface IAppStateRepo {
 }
 
 export class AppStateRepo implements IAppStateRepo {
-  constructor(private config: Config) {}
+  constructor(private path: string) {}
 
   async get(): Promise<AppState> {
     let appState = await loadAndMigrateJson<Versioned<AppState>>(
-      this.config.getPath(APP_STATE_FILE),
+      this.path,
       APP_STATE_MIRGATIONS
     );
 
@@ -86,9 +85,7 @@ export class AppStateRepo implements IAppStateRepo {
   async update(appState: AppState): Promise<AppState> {
     const validated = await appStateSchema.parseAsync(appState);
 
-    const filePath = this.config.getPath(APP_STATE_FILE);
-    await writeFile(filePath, validated, "json");
-
+    await writeFile(this.path, validated, "json");
     return validated;
   }
 }

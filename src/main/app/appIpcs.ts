@@ -5,17 +5,13 @@ import {
   MenuItemConstructorOptions,
 } from "electron";
 import { isRoleMenu, Menu as MenuType } from "../../shared/ui/menu";
-import { IpcChannel, IpcPlugin } from "../../shared/ipc";
+import { IpcChannel, IpcMainTS } from "../../shared/ipc";
 import { openInBrowser } from "../utils";
 import { UIEventType, UIEventInput } from "../../shared/ui/events";
 import { AppState } from "../../shared/ui/app";
 import { IAppStateRepo } from "./appStateRepo";
 
-export const appIpcs: IpcPlugin<IAppStateRepo> = (
-  ipc,
-  config,
-  repo: IAppStateRepo
-) => {
+export function appIpcs(ipc: IpcMainTS, repo: IAppStateRepo): void {
   let cachedAppState: AppState;
 
   ipc.on("init", async () => {
@@ -110,7 +106,7 @@ export const appIpcs: IpcPlugin<IAppStateRepo> = (
   });
 
   ipc.handle("app.openInWebBrowser", (_, url) => openInBrowser(url));
-};
+}
 
 export function buildMenus(
   menus: MenuType[],

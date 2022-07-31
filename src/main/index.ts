@@ -8,14 +8,14 @@ import {
 } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
 import { appIpcs } from "./app/appIpcs";
-import { AppStateRepo } from "./app/appStateRepo";
+import { AppStateRepo, APP_STATE_FILE } from "./app/appStateRepo";
 import { configIpcs } from "./config/configIpcs";
 import { noteIpcs } from "./ipcs/notes";
 import { shortcutIpcs } from "./ipcs/shortcuts";
 import { openInBrowser } from "./utils";
 import * as path from "path";
-import { createDirectory, exists, readFile, writeFile } from "./fileSystem";
-import { MissingDataDirectoryError } from "../shared/errors";
+import { createDirectory, exists, writeFile } from "./fileSystem";
+import { ConfigRepo } from "./config/configRepo";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -31,15 +31,28 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 export const CONFIG_FILE = "config.json";
 export const DEFAULT_DEV_DATA_DIRECTORY = "data";
+export const DEFAULT_WINDOW_HEIGHT = 600;
+export const DEFAULT_WINDOW_WIDTH = 800;
 
 let mainWindow: BrowserWindow;
 
 async function main() {
-  const config: Config = await loadConfig();
+  const configRepo = new ConfigRepo(getConfigPath());
+  let config: Config = await configRepo.get();
+
+  if (isDevelopment() && config.dataDirectory == null) {
+    config.dataDirectory = DEFAULT_DEV_DATA_DIRECTORY;
+    config = await configRepo.update(config);
+  }
+
+  if (config.dataDirectory != null && !exists(config.dataDirectory)) {
+    await createDirectory(config.dataDirectory);
+  }
+
   const typeSafeIpc = ipcMain as IpcMainTS;
 
-  appIpcs(typeSafeIpc, config, new AppStateRepo(config));
-  configIpcs(typeSafeIpc, config);
+  configIpcs(typeSafeIpc, config, configRepo);
+  appIpcs(typeSafeIpc, new AppStateRepo(config.getPath(APP_STATE_FILE)));
   shortcutIpcs(typeSafeIpc, config);
   noteIpcs(typeSafeIpc, config);
 
@@ -158,28 +171,4 @@ export function getConfigPath(): string {
   } else {
     return path.join(app.getPath("userData"), CONFIG_FILE);
   }
-}
-
-export async function loadConfig(): Promise<Config> {
-  let data = await readFile(getConfigPath(), "json");
-  data ??= new Config(600, 800);
-
-  if (isDevelopment()) {
-    data.dataDirectory = DEFAULT_DEV_DATA_DIRECTORY;
-
-    if (!exists(data.dataDirectory)) {
-      await createDirectory(data.dataDirectory);
-    }
-  }
-
-  // Sanity check
-  if (
-    isProduction() &&
-    data.dataDirectory != null &&
-    !(await exists(data.dataDirectory))
-  ) {
-    throw new MissingDataDirectoryError();
-  }
-
-  return new Config(data.windowHeight, data.windowWidth, data.dataDirectory);
 }

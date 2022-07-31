@@ -1,7 +1,6 @@
 import { PromptButton, PromptOptions } from "./ui/prompt";
 import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
-import { Config } from "./domain/config";
 import { IpcMain, IpcMainInvokeEvent, Point } from "electron";
 import { Menu } from "./ui/menu";
 import { AppState } from "./ui/app";
@@ -89,12 +88,6 @@ export interface IpcMainTS extends Pick<IpcMain, "listeners"> {
   ): void;
   on(event: IpcEvent, callback: () => Promise<void>): void;
 }
-
-export type IpcPlugin<Repo = undefined> = (
-  ipc: IpcMainTS,
-  config: Config,
-  repo?: Repo
-) => void;
 
 export enum IpcChannel {
   ApplicationMenuClick = "applicationmenuclick",
