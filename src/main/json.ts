@@ -1,5 +1,5 @@
 import { cloneDeep, first, last, uniq } from "lodash";
-import { readFile } from "./fileSystem";
+import * as fsp from "fs/promises";
 
 export type Versioned<T = { version: number }> = T & { version: number };
 
@@ -62,13 +62,14 @@ export async function loadAndMigrateJson<Content extends Versioned>(
   }
 
   const start = first(migrations)!;
-  const content: unknown | null = await readFile(filePath, "json");
+  const rawContent = await fsp.readFile(filePath, { encoding: "utf-8" });
+  const parsed = JSON.parse(rawContent);
 
   let versioned: Versioned;
-  if (content == null || typeof content !== "object") {
+  if (parsed == null || typeof parsed !== "object") {
     versioned = { version: start.version };
   } else {
-    versioned = content as Versioned;
+    versioned = parsed as Versioned;
   }
 
   const migrated = await runMigrations(versioned, migrations);

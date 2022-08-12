@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH } from "..";
 import { Config } from "../../shared/domain/config";
-import { writeFile } from "../fileSystem";
 import { loadAndMigrateJson, Versioned } from "../json";
 import { CONFIG_MIRGATIONS } from "./migrations";
+import * as fsp from "fs/promises";
 
 const configSchema = z
   .object({
@@ -45,8 +45,10 @@ export class ConfigRepo implements IConfigRepo {
 
   async update(config: Config): Promise<Config> {
     const validated = await configSchema.parseAsync(config);
+    await fsp.writeFile(this.path, JSON.stringify(validated), {
+      encoding: "utf-8",
+    });
 
-    await writeFile(this.path, validated, "json");
     return new Config(
       validated.windowHeight,
       validated.windowWidth,

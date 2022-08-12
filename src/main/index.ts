@@ -1,11 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { Config } from "../shared/domain/config";
-import {
-  getProcessType,
-  isDevelopment,
-  isProduction,
-  isTest,
-} from "../shared/env";
+import { getProcessType, isDevelopment, isTest } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
 import { appIpcs } from "./app/appIpcs";
 import { AppStateRepo, APP_STATE_FILE } from "./app/appStateRepo";
@@ -14,8 +9,9 @@ import { noteIpcs } from "./ipcs/notes";
 import { shortcutIpcs } from "./ipcs/shortcuts";
 import { openInBrowser } from "./utils";
 import * as path from "path";
-import { createDirectory, exists, writeFile } from "./fileSystem";
 import { ConfigRepo } from "./config/configRepo";
+import * as fs from "fs";
+import * as fsp from "fs/promises";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -45,8 +41,8 @@ async function main() {
     config = await configRepo.update(config);
   }
 
-  if (config.dataDirectory != null && !exists(config.dataDirectory)) {
-    await createDirectory(config.dataDirectory);
+  if (config.dataDirectory != null && !fs.existsSync(config.dataDirectory)) {
+    await fsp.mkdir(config.dataDirectory);
   }
 
   const typeSafeIpc = ipcMain as IpcMainTS;
@@ -104,7 +100,9 @@ async function main() {
       config.windowWidth = width;
 
       const configPath = getConfigPath();
-      await writeFile(configPath, config, "json");
+      await fsp.writeFile(configPath, JSON.stringify(config), {
+        encoding: "utf-8",
+      });
     });
 
     // Override how all links are open so we can send them off to the user's

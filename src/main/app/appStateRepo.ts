@@ -5,9 +5,9 @@ import {
   DEFAULT_NOTE_SORTING_ALGORITHM,
 } from "../../shared/domain/note";
 import { AppState, DEFAULT_SIDEBAR_WIDTH, Section } from "../../shared/ui/app";
-import { writeFile } from "../fileSystem";
 import { loadAndMigrateJson, Versioned } from "../json";
 import { APP_STATE_MIRGATIONS } from "./migrations";
+import * as fsp from "fs/promises";
 
 export const APP_STATE_FILE = "ui.json";
 
@@ -84,8 +84,9 @@ export class AppStateRepo implements IAppStateRepo {
 
   async update(appState: AppState): Promise<AppState> {
     const validated = await appStateSchema.parseAsync(appState);
+    const jsonString = JSON.stringify(validated);
+    await fsp.writeFile(this.path, jsonString, { encoding: "utf-8" });
 
-    await writeFile(this.path, validated, "json");
     return validated;
   }
 }

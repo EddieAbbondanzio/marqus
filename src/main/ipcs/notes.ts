@@ -1,13 +1,4 @@
 import {
-  createDirectory,
-  deleteDirectory,
-  exists,
-  readDirectory,
-  readFile,
-  touch,
-  writeFile,
-} from "../fileSystem";
-import {
   createNote,
   getNoteById,
   getNoteSchema,
@@ -19,6 +10,8 @@ import { keyBy, partition } from "lodash";
 import { shell } from "electron";
 import { parseJSON } from "date-fns";
 import { IpcMainTS } from "../../shared/ipc";
+import * as fs from "fs";
+import * as fsp from "fs/promises";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
@@ -66,7 +59,8 @@ export function noteIpcs(ipc: IpcMainTS, config: Config): void {
     await assertNoteExists(config, id);
 
     const metadataPath = buildNotePath(config, id, "metadata");
-    const meta = await readFile(metadataPath, "json");
+    const rawContent = await fsp.readFile(metadataPath, { encoding: "utf-8" });
+    const meta = JSON.parse(rawContent);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { name, parent, sort, ...others } = props;
@@ -118,7 +112,7 @@ export function noteIpcs(ipc: IpcMainTS, config: Config): void {
 
     const recursive = async (n: Note) => {
       const notePath = buildNotePath(config, n.id);
-      await deleteDirectory(notePath);
+      await fsp.rm(notePath, { recursive: true });
 
       for (const child of n.children ?? []) {
         await recursive(child);
@@ -158,14 +152,14 @@ export function noteIpcs(ipc: IpcMainTS, config: Config): void {
 
 export async function loadNotes(config: Config): Promise<Note[]> {
   const noteDirPath = config.getPath(NOTES_DIRECTORY);
-  if (!exists(noteDirPath)) {
-    await createDirectory(noteDirPath);
+  if (!fs.existsSync(noteDirPath)) {
+    await fsp.mkdir(noteDirPath);
 
     // No directory means no notes to return...
     return [];
   }
 
-  const entries = await readDirectory(noteDirPath);
+  const entries = await fsp.readdir(noteDirPath, { withFileTypes: true });
   const notes: Note[] = [];
 
   for (const entry of entries) {
@@ -174,7 +168,8 @@ export async function loadNotes(config: Config): Promise<Note[]> {
     }
 
     const metadataPath = buildNotePath(config, entry.name, "metadata");
-    const meta = await readFile(metadataPath, "json");
+    const rawContent = await fsp.readFile(metadataPath, { encoding: "utf-8" });
+    const meta = JSON.parse(rawContent);
 
     const { dateCreated, dateUpdated, ...remainder } = meta;
 
@@ -213,7 +208,7 @@ export async function assertNoteExists(
   id: string
 ): Promise<void> {
   const fullPath = config.getPath(NOTES_DIRECTORY, id);
-  if (!exists(fullPath)) {
+  if (!fs.existsSync(fullPath)) {
     throw new Error(`Note ${id} was not found in the file system.`);
   }
 }
@@ -223,17 +218,19 @@ export async function saveToFileSystem(
   note: Note
 ): Promise<void> {
   const dirPath = config.getPath(NOTES_DIRECTORY, note.id);
-  if (!exists(dirPath)) {
-    await createDirectory(dirPath);
+  if (!fs.existsSync(dirPath)) {
+    await fsp.mkdir(dirPath);
   }
 
   const metadataPath = buildNotePath(config, note.id, "metadata");
   const markdownPath = buildNotePath(config, note.id, "markdown");
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  await fsp.writeFile(metadataPath, JSON.stringify(note), {
+    encoding: "utf-8",
+  });
 
-  await writeFile(metadataPath, note, "json");
-  await touch(markdownPath);
+  const s = await fsp.open(markdownPath, "w");
+  await s.close();
 }
 
 export async function loadMarkdown(
@@ -241,7 +238,7 @@ export async function loadMarkdown(
   noteId: string
 ): Promise<string | null> {
   const markdownPath = buildNotePath(config, noteId, "markdown");
-  return (await readFile(markdownPath, "text")) ?? "";
+  return (await fsp.readFile(markdownPath, { encoding: "utf-8" })) ?? "";
 }
 export async function saveMarkdown(
   config: Config,
@@ -249,7 +246,7 @@ export async function saveMarkdown(
   content: string
 ): Promise<void> {
   const markdownPath = buildNotePath(config, noteId, "markdown");
-  return await writeFile(markdownPath, content, "text");
+  await fsp.writeFile(markdownPath, content, { encoding: "utf-8" });
 }
 
 export function buildNotePath(

@@ -1,9 +1,9 @@
 import { JsonMigration, loadAndMigrateJson } from "../../src/main/json";
-import * as fileSystem from "../../src/main/fileSystem";
 import { z } from "zod";
+import fsp from "fs/promises";
 
 const readFile = jest.fn();
-jest.spyOn(fileSystem, "readFile").mockImplementation(readFile);
+jest.spyOn(fsp, "readFile").mockImplementation(readFile);
 
 test("loadAndMigrateJson throws on duplicate version numbers", async () => {
   expect(() =>
@@ -26,7 +26,7 @@ test("loadAndMigrateJson throws if migrations are out of order", async () => {
 });
 
 test("loadAndMigrateJson throws if content has newer version than latest migration", async () => {
-  readFile.mockReturnValueOnce({ version: 10 });
+  readFile.mockReturnValueOnce('{ "version": 10 }');
 
   expect(() =>
     loadAndMigrateJson("foo.json", [

@@ -9,7 +9,6 @@ import {
 import { initPlugins } from "../../../src/main";
 import { DEFAULT_SIDEBAR_WIDTH } from "../../../src/shared/ui/app";
 import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../../src/shared/domain/note";
-import * as fileSystem from "../../../src/main/fileSystem";
 
 const inspectElement = jest.fn();
 jest.mock("electron", () => {
@@ -25,7 +24,6 @@ jest.mock("electron", () => {
 });
 
 const loadAndMigrateJson = jest.spyOn(json, "loadAndMigrateJson");
-jest.spyOn(fileSystem, "writeFile");
 
 test("app.loadAppState sets default values", async () => {
   const ipc = createIpcMainTS();

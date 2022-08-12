@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { debounce, cloneDeep } from "lodash";
-import { writeFile, readFile } from "./fileSystem";
 import * as yup from "yup";
 import { isDevelopment } from "../shared/env";
+import * as fsp from "fs/promises";
+
 export interface FileHandlerOpts<Content> {
   defaultValue?: Content;
   serialize?: (c: Content) => unknown;
@@ -58,7 +59,8 @@ export function createFileHandler<Content>(
       c = content;
     }
 
-    await writeFile(filePath, c, "json");
+    await fsp.writeFile(filePath, c, { encoding: "utf-8" });
+
     readCache = cloneDeep(content);
 
     return content;
@@ -70,7 +72,8 @@ export function createFileHandler<Content>(
       return readCache;
     }
 
-    const content = await readFile(filePath, "json");
+    const rawContent = await fsp.readFile(filePath, { encoding: "utf-8" });
+    const content = JSON.parse(rawContent);
 
     let c;
     if (opts?.deserialize != null) {
