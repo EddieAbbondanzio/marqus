@@ -2,7 +2,10 @@ import { createConfig } from "../../__factories__/config";
 import { appIpcs } from "../../../src/main/app/appIpcs";
 import { createIpcMainTS } from "../../__factories__/ipc";
 import * as json from "../../../src/main/json";
-import { AppStateRepo } from "../../../src/main/app/appStateRepo";
+import {
+  AppStateRepo,
+  APP_STATE_FILE,
+} from "../../../src/main/app/appStateRepo";
 import { initPlugins } from "../../../src/main";
 import { DEFAULT_SIDEBAR_WIDTH } from "../../../src/shared/ui/app";
 import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../../src/shared/domain/note";
@@ -27,7 +30,7 @@ jest.spyOn(fileSystem, "writeFile");
 test("app.loadAppState sets default values", async () => {
   const ipc = createIpcMainTS();
   const config = createConfig();
-  appIpcs(ipc, config, new AppStateRepo(config));
+  appIpcs(ipc, new AppStateRepo(config.getPath(APP_STATE_FILE)));
 
   // Rest of config will be defaulted.
   loadAndMigrateJson.mockResolvedValueOnce({
@@ -55,7 +58,8 @@ test("app.loadAppState sets default values", async () => {
 test("app.loadAppState omits undesirable values", async () => {
   const ipc = createIpcMainTS();
   const config = createConfig();
-  appIpcs(ipc, config, new AppStateRepo(config));
+  const appRepo = new AppStateRepo(config.getPath(APP_STATE_FILE));
+  appIpcs(ipc, appRepo);
 
   // Rest of config will be defaulted.
   loadAndMigrateJson.mockResolvedValueOnce({
@@ -81,7 +85,8 @@ test("app.loadAppState omits undesirable values", async () => {
 test("app.inspectElement rounds floats", async () => {
   const ipc = createIpcMainTS();
   const config = createConfig();
-  appIpcs(ipc, config);
+  const appRepo = new AppStateRepo(config.getPath(APP_STATE_FILE));
+  appIpcs(ipc, appRepo);
 
   await ipc.invoke("app.inspectElement", { x: 1.23, y: 2.67 });
   expect(inspectElement).toBeCalledWith(1, 3);
@@ -90,7 +95,8 @@ test("app.inspectElement rounds floats", async () => {
 test("app.inspectElement throws", async () => {
   const ipc = createIpcMainTS();
   const config = createConfig();
-  appIpcs(ipc, config);
+  const appRepo = new AppStateRepo(config.getPath(APP_STATE_FILE));
+  appIpcs(ipc, appRepo);
 
   expect(async () => {
     await ipc.invoke("app.inspectElement", undefined!);
