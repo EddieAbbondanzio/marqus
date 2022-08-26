@@ -181,9 +181,9 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
           activeTabNoteId = prev.editor.activeTabNoteId;
       }
 
-      let isEditting = prev.editor.isEditting;
+      let isEditing = prev.editor.isEditing;
       if (tabs.length === 0) {
-        isEditting = false;
+        isEditing = false;
       }
 
       return {
@@ -191,7 +191,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
         editor: {
           activeTabNoteId,
           tabs,
-          isEditting,
+          isEditing,
         },
       };
     });

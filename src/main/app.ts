@@ -4,27 +4,96 @@ import {
   Menu,
   MenuItemConstructorOptions,
 } from "electron";
-import { isRoleMenu, Menu as MenuType } from "../../shared/ui/menu";
-import { IpcChannel, IpcMainTS } from "../../shared/ipc";
-import { openInBrowser } from "../utils";
-import { UIEventType, UIEventInput } from "../../shared/ui/events";
-import { AppState } from "../../shared/ui/app";
-import { IAppStateRepo } from "./appStateRepo";
+import { isRoleMenu, Menu as MenuType } from "../shared/ui/menu";
+import { IpcChannel, IpcMainTS } from "../shared/ipc";
+import { openInBrowser } from "./utils";
+import { UIEventType, UIEventInput } from "../shared/ui/events";
+import { AppState, DEFAULT_SIDEBAR_WIDTH, Section } from "../shared/ui/app";
+import { parseJSON } from "date-fns";
+import { z } from "zod";
+import {
+  NoteSort,
+  DEFAULT_NOTE_SORTING_ALGORITHM,
+} from "../shared/domain/note";
+import { JsonFile, loadJsonFile } from "./json";
+import { Config } from "../shared/domain/config";
+import { APP_STATE_MIGRATIONS } from "./migrations/appState";
+import p from "path";
 
-export function appIpcs(ipc: IpcMainTS, repo: IAppStateRepo): void {
-  let cachedAppState: AppState;
+export const APP_STATE_PATH = "ui.json";
+
+export const APP_STATE_SCHEMA = z
+  .object({
+    version: z.literal(1).optional().default(1),
+    sidebar: z
+      .object({
+        width: z
+          .string()
+          .regex(/^\d+px$/)
+          .optional()
+          .default(DEFAULT_SIDEBAR_WIDTH),
+        scroll: z.number().optional().default(0),
+        hidden: z.boolean().optional(),
+        selected: z.array(z.string()).optional(),
+        expanded: z.array(z.string()).optional(),
+        sort: z
+          .nativeEnum(NoteSort)
+          .optional()
+          .default(DEFAULT_NOTE_SORTING_ALGORITHM),
+      })
+      .optional()
+      .default({}),
+    editor: z
+      .object({
+        isEditing: z.boolean().optional().default(false),
+        scroll: z.number().optional().default(0),
+        tabs: z
+          .array(
+            z.object({
+              noteId: z.string(),
+              // Intentionally omitted noteContent
+              lastActive: z.preprocess((arg) => {
+                // If loaded from JSON dates will be a string
+                if (typeof arg === "string") {
+                  return parseJSON(arg);
+                }
+                // But if it was already in memory they'll be a date.
+                else if (arg instanceof Date) {
+                  return arg;
+                }
+              }, z.date().optional()),
+            })
+          )
+          .default([]),
+        tabsScroll: z.number().optional().default(0),
+        activeTabNoteId: z.string().optional(),
+      })
+      .optional()
+      .default({}),
+    focused: z.array(z.nativeEnum(Section)).default([]),
+  })
+  .optional()
+  .default({
+    version: 1,
+  });
+
+export function appIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
+  let appStateFile: JsonFile<AppState>;
 
   ipc.on("init", async () => {
-    cachedAppState = await repo.get();
+    appStateFile = await loadJsonFile(
+      p.join(config.content.dataDirectory!, APP_STATE_PATH),
+      APP_STATE_SCHEMA,
+      APP_STATE_MIGRATIONS
+    );
   });
 
   ipc.handle("app.loadAppState", async () => {
-    return cachedAppState;
+    return appStateFile.content;
   });
 
   ipc.handle("app.saveAppState", async (_, appState) => {
-    const updatedAppState = await repo.update(appState);
-    cachedAppState = updatedAppState;
+    await appStateFile.update(appState);
   });
 
   ipc.handle("app.showContextMenu", async (_, menus) => {

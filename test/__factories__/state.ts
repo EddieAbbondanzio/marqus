@@ -13,7 +13,7 @@ export function createState(partial?: DeepPartial<State>): State {
       sort: DEFAULT_NOTE_SORTING_ALGORITHM,
     },
     editor: {
-      isEditting: false,
+      isEditing: false,
       scroll: 0,
       tabs: [],
       tabsScroll: 0,

@@ -11,9 +11,9 @@ export function createConfig(partial?: DeepPartial<Config>): Config {
     dataDirectory: "/data",
   };
 
-  return new Config(
-    partial?.windowHeight ?? defaults.windowHeight,
-    partial?.windowWidth ?? defaults.windowHeight,
-    partial?.dataDirectory ?? defaults.dataDirectory
-  );
+  return {
+    windowHeight: partial?.windowHeight ?? defaults.windowHeight,
+    windowWidth: partial?.windowWidth ?? defaults.windowHeight,
+    dataDirectory: partial?.dataDirectory ?? defaults.dataDirectory,
+  };
 }

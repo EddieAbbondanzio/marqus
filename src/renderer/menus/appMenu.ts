@@ -7,14 +7,14 @@ import { Store } from "../store";
 export function useApplicationMenu(store: Store): void {
   const { state } = store;
 
-  // useMemo prevents unneccessary renders
+  // useMemo prevents unnecessary renders
   const shortcutLabels = useMemo(
     () => getShortcutLabels(store.state.shortcuts),
     [store.state.shortcuts]
   );
   const focused = state.focused[0];
   const selected = state.sidebar.selected?.[0];
-  const isEditting = state.editor.isEditting;
+  const { isEditing } = state.editor;
 
   useEffect(() => {
     const optionals: Menu[] = [];
@@ -39,7 +39,7 @@ export function useApplicationMenu(store: Store): void {
         type: "submenu",
         children: [
           {
-            label: isEditting ? "Stop editting" : "Edit",
+            label: isEditing ? "Stop editing" : "Edit",
             type: "normal",
             shortcut: shortcutLabels["editor.toggleView"],
             event: "editor.toggleView",
@@ -133,7 +133,7 @@ export function useApplicationMenu(store: Store): void {
       },
       ...optionals,
     ]);
-  }, [focused, selected, shortcutLabels, isEditting]);
+  }, [focused, selected, shortcutLabels, isEditing]);
 
   useEffect(() => {
     const onClick = (ev: CustomEvent) => {

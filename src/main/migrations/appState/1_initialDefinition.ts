@@ -24,7 +24,7 @@ export const appStateSchemaV1 = z.object({
     sort: z.nativeEnum(NoteSort).default(DEFAULT_NOTE_SORTING_ALGORITHM),
   }),
   editor: z.object({
-    isEditting: z.boolean().default(false),
+    isEditing: z.boolean().default(false),
     scroll: z.number().default(0),
     tabs: z.array(
       z.object({

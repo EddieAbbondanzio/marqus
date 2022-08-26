@@ -1,17 +1,16 @@
 import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
-import { Config } from "../shared/domain/config";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
-import { appIpcs } from "./app/appIpcs";
-import { AppStateRepo, APP_STATE_FILE } from "./app/appStateRepo";
-import { configIpcs } from "./config/configIpcs";
-import { noteIpcs } from "./ipcs/notes";
-import { shortcutIpcs } from "./ipcs/shortcuts";
+import { appIpcs } from "./app";
+import { configIpcs, CONFIG_SCHEMA } from "./config";
+import { noteIpcs } from "./notes";
 import { openInBrowser } from "./utils";
 import * as path from "path";
-import { ConfigRepo } from "./config/configRepo";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
+import { loadJsonFile } from "./json";
+import { CONFIG_MIGRATIONS } from "./migrations/config";
+import { Config } from "../shared/domain/config";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -33,24 +32,28 @@ export const DEFAULT_WINDOW_WIDTH = 800;
 let mainWindow: BrowserWindow;
 
 async function main() {
-  const configRepo = new ConfigRepo(getConfigPath());
-  let config: Config = await configRepo.get();
+  const configFile = await loadJsonFile<Config>(
+    getConfigPath(),
+    CONFIG_SCHEMA,
+    CONFIG_MIGRATIONS
+  );
+  let { dataDirectory, windowHeight, windowWidth } = configFile.content;
 
-  if (isDevelopment() && config.dataDirectory == null) {
-    config.dataDirectory = DEFAULT_DEV_DATA_DIRECTORY;
-    config = await configRepo.update(config);
+  if (isDevelopment() && dataDirectory == null) {
+    dataDirectory = DEFAULT_DEV_DATA_DIRECTORY;
+    await configFile.update({ dataDirectory });
   }
 
-  if (config.dataDirectory != null && !fs.existsSync(config.dataDirectory)) {
-    await fsp.mkdir(config.dataDirectory);
+  if (dataDirectory != null && !fs.existsSync(dataDirectory)) {
+    await fsp.mkdir(dataDirectory);
   }
 
   const typeSafeIpc = ipcMain as IpcMainTS;
 
-  configIpcs(typeSafeIpc, config, configRepo);
-  appIpcs(typeSafeIpc, new AppStateRepo(config.getPath(APP_STATE_FILE)));
-  shortcutIpcs(typeSafeIpc, config);
-  noteIpcs(typeSafeIpc, config);
+  configIpcs(typeSafeIpc, configFile);
+  appIpcs(typeSafeIpc, configFile);
+  // shortcutIpcs(typeSafeIpc, config);
+  noteIpcs(typeSafeIpc, configFile);
 
   const initPluginsPromise = initPlugins(typeSafeIpc);
 
@@ -76,8 +79,8 @@ async function main() {
     });
 
     mainWindow = new BrowserWindow({
-      height: config.windowHeight,
-      width: config.windowWidth,
+      height: windowHeight,
+      width: windowWidth,
       icon: "static/icon.png",
       webPreferences: {
         preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -96,12 +99,12 @@ async function main() {
 
     mainWindow.on("resize", async () => {
       const [width, height] = mainWindow.getSize();
-      config.windowHeight = height;
-      config.windowWidth = width;
+      windowHeight = height;
+      windowWidth = width;
 
-      const configPath = getConfigPath();
-      await fsp.writeFile(configPath, JSON.stringify(config), {
-        encoding: "utf-8",
+      await configFile.update({
+        windowHeight,
+        windowWidth,
       });
     });
 

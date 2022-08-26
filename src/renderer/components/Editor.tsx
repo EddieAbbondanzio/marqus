@@ -29,7 +29,7 @@ export function Editor(props: EditorProps): JSX.Element {
   }
 
   let content;
-  if (state.editor.isEditting) {
+  if (state.editor.isEditing) {
     content = <Monaco store={store} />;
   } else {
     content = (
@@ -114,7 +114,7 @@ const toggleView: Listener<"editor.toggleView"> = (_, ctx) => {
 
   ctx.setUI({
     editor: {
-      isEditting: !editor.isEditting,
+      isEditing: !editor.isEditing,
     },
   });
 };
@@ -122,7 +122,7 @@ const toggleView: Listener<"editor.toggleView"> = (_, ctx) => {
 const save: Listener<"editor.save"> = (_, ctx) => {
   const { editor } = ctx.getState();
 
-  if (!editor.isEditting) {
+  if (!editor.isEditing) {
     return;
   }
 
@@ -133,7 +133,7 @@ const save: Listener<"editor.save"> = (_, ctx) => {
 
   ctx.setUI({
     editor: {
-      isEditting: false,
+      isEditing: false,
     },
   });
 };

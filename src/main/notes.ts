@@ -3,62 +3,65 @@ import {
   getNoteById,
   getNoteSchema,
   Note,
-} from "../../shared/domain/note";
-import { UUID_REGEX } from "../../shared/domain";
-import { Config } from "../../shared/domain/config";
+} from "../shared/domain/note";
+import { UUID_REGEX } from "../shared/domain";
+import { Config } from "../shared/domain/config";
 import { keyBy, partition } from "lodash";
 import { shell } from "electron";
 import { parseJSON } from "date-fns";
-import { IpcMainTS } from "../../shared/ipc";
+import { IpcMainTS } from "../shared/ipc";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
+import { JsonFile } from "./json";
+import * as p from "path";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
 
-export function noteIpcs(ipc: IpcMainTS, config: Config): void {
+export function noteIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
   let initialized = false;
   let notes: Note[] = [];
+  const dataDirectory = config.content.dataDirectory!;
 
-  async function getNotes(config: Config): Promise<void> {
+  async function getNotes(): Promise<void> {
     if (initialized) {
       return;
     }
 
-    notes = await loadNotes(config);
+    notes = await loadNotes(dataDirectory);
     initialized = true;
   }
 
   ipc.handle("notes.getAll", async () => {
-    await getNotes(config);
+    await getNotes();
     return notes;
   });
 
   ipc.handle("notes.create", async (_, name, parent) => {
-    await getNotes(config);
+    await getNotes();
 
     const note = createNote({
       name,
       parent,
     });
 
-    await saveToFileSystem(config, note);
+    await saveToFileSystem(dataDirectory, note);
 
     // TODO: Clean this up when we refactor to a repo.
     // Bust the cache
     notes = [];
     initialized = false;
-    await getNotes(config);
+    await getNotes();
 
     return note;
   });
 
   ipc.handle("notes.updateMetadata", async (_, id, props) => {
-    await getNotes(config);
-    await assertNoteExists(config, id);
+    await getNotes();
+    await assertNoteExists(dataDirectory, id);
 
-    const metadataPath = buildNotePath(config, id, "metadata");
+    const metadataPath = buildNotePath(dataDirectory, id, "metadata");
     const rawContent = await fsp.readFile(metadataPath, { encoding: "utf-8" });
     const meta = JSON.parse(rawContent);
 
@@ -88,30 +91,30 @@ export function noteIpcs(ipc: IpcMainTS, config: Config): void {
     meta.dateUpdated = new Date();
     delete meta.children;
 
-    await saveToFileSystem(config, meta);
+    await saveToFileSystem(dataDirectory, meta);
     return getNoteById(notes, meta.id);
   });
 
   ipc.handle("notes.loadContent", async (_, id) => {
-    await getNotes(config);
-    await assertNoteExists(config, id);
+    await getNotes();
+    await assertNoteExists(dataDirectory, id);
 
-    const content = await loadMarkdown(config, id);
+    const content = await loadMarkdown(dataDirectory, id);
     return content;
   });
 
   ipc.handle("notes.saveContent", async (_, id, content) => {
-    await getNotes(config);
-    await assertNoteExists(config, id);
-    await saveMarkdown(config, id, content);
+    await getNotes();
+    await assertNoteExists(dataDirectory, id);
+    await saveMarkdown(dataDirectory, id, content);
   });
 
   ipc.handle("notes.delete", async (_, id) => {
-    await getNotes(config);
+    await getNotes();
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = buildNotePath(config, n.id);
+      const notePath = buildNotePath(dataDirectory, n.id);
       await fsp.rm(notePath, { recursive: true });
 
       for (const child of n.children ?? []) {
@@ -124,15 +127,15 @@ export function noteIpcs(ipc: IpcMainTS, config: Config): void {
     // Bust the cache
     notes = [];
     initialized = false;
-    await getNotes(config);
+    await getNotes();
   });
 
   ipc.handle("notes.moveToTrash", async (_, id) => {
-    await getNotes(config);
+    await getNotes();
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = buildNotePath(config, n.id);
+      const notePath = buildNotePath(dataDirectory, n.id);
       await shell.trashItem(notePath);
 
       for (const child of n.children ?? []) {
@@ -146,12 +149,12 @@ export function noteIpcs(ipc: IpcMainTS, config: Config): void {
     // Bust the cache
     notes = [];
     initialized = false;
-    await getNotes(config);
+    await getNotes();
   });
 }
 
-export async function loadNotes(config: Config): Promise<Note[]> {
-  const noteDirPath = config.getPath(NOTES_DIRECTORY);
+export async function loadNotes(dataDirectory: string): Promise<Note[]> {
+  const noteDirPath = p.join(dataDirectory, NOTES_DIRECTORY);
   if (!fs.existsSync(noteDirPath)) {
     await fsp.mkdir(noteDirPath);
 
@@ -167,7 +170,7 @@ export async function loadNotes(config: Config): Promise<Note[]> {
       continue;
     }
 
-    const metadataPath = buildNotePath(config, entry.name, "metadata");
+    const metadataPath = buildNotePath(dataDirectory, entry.name, "metadata");
     const rawContent = await fsp.readFile(metadataPath, { encoding: "utf-8" });
     const meta = JSON.parse(rawContent);
 
@@ -204,26 +207,26 @@ export async function loadNotes(config: Config): Promise<Note[]> {
 }
 
 export async function assertNoteExists(
-  config: Config,
+  dataDirectory: string,
   id: string
 ): Promise<void> {
-  const fullPath = config.getPath(NOTES_DIRECTORY, id);
+  const fullPath = p.join(dataDirectory, NOTES_DIRECTORY, id);
   if (!fs.existsSync(fullPath)) {
     throw new Error(`Note ${id} was not found in the file system.`);
   }
 }
 
 export async function saveToFileSystem(
-  config: Config,
+  dataDirectory: string,
   note: Note
 ): Promise<void> {
-  const dirPath = config.getPath(NOTES_DIRECTORY, note.id);
+  const dirPath = p.join(dataDirectory, NOTES_DIRECTORY, note.id);
   if (!fs.existsSync(dirPath)) {
     await fsp.mkdir(dirPath);
   }
 
-  const metadataPath = buildNotePath(config, note.id, "metadata");
-  const markdownPath = buildNotePath(config, note.id, "markdown");
+  const metadataPath = buildNotePath(dataDirectory, note.id, "metadata");
+  const markdownPath = buildNotePath(dataDirectory, note.id, "markdown");
 
   await fsp.writeFile(metadataPath, JSON.stringify(note), {
     encoding: "utf-8",
@@ -234,35 +237,35 @@ export async function saveToFileSystem(
 }
 
 export async function loadMarkdown(
-  config: Config,
+  dataDirectory: string,
   noteId: string
 ): Promise<string | null> {
-  const markdownPath = buildNotePath(config, noteId, "markdown");
+  const markdownPath = buildNotePath(dataDirectory, noteId, "markdown");
   return (await fsp.readFile(markdownPath, { encoding: "utf-8" })) ?? "";
 }
 export async function saveMarkdown(
-  config: Config,
+  dataDirectory: string,
   noteId: string,
   content: string
 ): Promise<void> {
-  const markdownPath = buildNotePath(config, noteId, "markdown");
+  const markdownPath = buildNotePath(dataDirectory, noteId, "markdown");
   await fsp.writeFile(markdownPath, content, { encoding: "utf-8" });
 }
 
 export function buildNotePath(
-  config: Config,
+  dataDirectory: string,
   noteId: string,
   file?: "markdown" | "metadata"
 ): string {
   if (file == null) {
-    return config.getPath(NOTES_DIRECTORY, noteId);
+    return p.join(dataDirectory, NOTES_DIRECTORY, noteId);
   }
 
   switch (file) {
     case "markdown":
-      return config.getPath(NOTES_DIRECTORY, noteId, MARKDOWN_FILE_NAME);
+      return p.join(dataDirectory, NOTES_DIRECTORY, noteId, MARKDOWN_FILE_NAME);
     case "metadata":
-      return config.getPath(NOTES_DIRECTORY, noteId, METADATA_FILE_NAME);
+      return p.join(dataDirectory, NOTES_DIRECTORY, noteId, METADATA_FILE_NAME);
 
     default:
       throw new Error(`Can't build path for ${file}`);

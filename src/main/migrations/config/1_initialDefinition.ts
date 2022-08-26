@@ -20,10 +20,10 @@ export class ConfigInitialDefinition extends JsonMigration<ConfigV1, Config> {
   }
 
   protected async migrate(input: ConfigV1): Promise<Config> {
-    return new Config(
-      input.windowHeight,
-      input.windowWidth,
-      input.dataDirectory
-    );
+    return {
+      windowHeight: input.windowHeight,
+      windowWidth: input.windowWidth,
+      dataDirectory: input.dataDirectory,
+    };
   }
 }

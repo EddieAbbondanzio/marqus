@@ -59,7 +59,7 @@ test("sidebar.createNote confirm", async () => {
   expect(state.sidebar.selected).toEqual([note.id]);
   // expect(state.editor).toEqual(
   //   expect.objectContaining({
-  //     isEditting: true,
+  //     isEditing: true,
   //     noteId: note.id,
   //     content: "",
   //   })

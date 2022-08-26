@@ -3,9 +3,3 @@ export class NotImplementedError extends Error {
     super(message);
   }
 }
-
-export class MissingDataDirectoryError extends Error {
-  constructor(public message = "Data directoy was not found") {
-    super(message);
-  }
-}

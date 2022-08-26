@@ -1,7 +1,14 @@
 import { cloneDeep, first, last, uniq } from "lodash";
 import * as fsp from "fs/promises";
+import { ZodTypeAny } from "zod";
 
-export type Versioned<T = { version: number }> = T & { version: number };
+type Versioned<T = { version: number }> = T & { version: number };
+
+export interface JsonFile<T> {
+  // Makes it easy to send off over IPC if it's in it's own prop.
+  content: Readonly<T>;
+  update(partial: Partial<T>): Promise<void>;
+}
 
 /**
  * Migration to assist in converting JSON content.
@@ -41,10 +48,11 @@ export abstract class JsonMigration<Input, Output> {
   }
 }
 
-export async function loadAndMigrateJson<Content extends Versioned>(
+export async function loadJsonFile<Content>(
   filePath: string,
-  migrations: JsonMigration<unknown, unknown>[]
-): Promise<Versioned<Content>> {
+  schema: ZodTypeAny,
+  migrations: JsonMigration<unknown, Omit<Content, "version">>[]
+): Promise<JsonFile<Content>> {
   const migrationVersions = migrations.map((m) => m.version);
   if (uniq(migrationVersions).length !== migrationVersions.length) {
     throw new Error(`Duplicate migration numbers detected for ${filePath}`);
@@ -72,15 +80,30 @@ export async function loadAndMigrateJson<Content extends Versioned>(
     versioned = parsed as Versioned;
   }
 
-  const migrated = await runMigrations(versioned, migrations);
+  const content = await runMigrations<Content>(versioned, migrations);
 
-  return migrated as Versioned<Content>;
+  // We always want to run this because it'll apply defaults for any missing
+  // values, and in the event the json file has been modified to the point
+  // where it's unusuable, it'll throw an error instead of proceeding.
+  let validatedContent = await schema.parseAsync(content);
+
+  const update = async (partial: Partial<Content>) => {
+    const validated = await schema.parseAsync(partial);
+    const jsonString = JSON.stringify(validated);
+    await fsp.writeFile(filePath, jsonString, { encoding: "utf-8" });
+    validatedContent = validated;
+  };
+
+  return {
+    content: validatedContent,
+    update,
+  };
 }
 
 // Should not be used outside of this file.
 async function runMigrations<Output>(
   input: { version: number },
-  migrations: JsonMigration<unknown, Output>[]
+  migrations: JsonMigration<unknown, Omit<Output, "version">>[]
 ): Promise<Versioned<Output>> {
   const latestMigration = last(migrations)!;
 

@@ -1,14 +1,10 @@
-import { createConfig } from "../../__factories__/config";
-import { appIpcs } from "../../../src/main/app/appIpcs";
-import { createIpcMainTS } from "../../__factories__/ipc";
-import * as json from "../../../src/main/json";
-import {
-  AppStateRepo,
-  APP_STATE_FILE,
-} from "../../../src/main/app/appStateRepo";
-import { initPlugins } from "../../../src/main";
-import { DEFAULT_SIDEBAR_WIDTH } from "../../../src/shared/ui/app";
-import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../../src/shared/domain/note";
+import { createConfig } from "../__factories__/config";
+import { createIpcMainTS } from "../__factories__/ipc";
+import * as json from "../../src/main/json";
+import { initPlugins } from "../../src/main";
+import { DEFAULT_SIDEBAR_WIDTH } from "../../src/shared/ui/app";
+import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../src/shared/domain/note";
+import { appIpcs } from "../../src/main/app";
 
 const inspectElement = jest.fn();
 jest.mock("electron", () => {
@@ -23,15 +19,15 @@ jest.mock("electron", () => {
   };
 });
 
-const loadAndMigrateJson = jest.spyOn(json, "loadAndMigrateJson");
+const loadJsonFile = jest.spyOn(json, "loadJsonFile");
 
 test("app.loadAppState sets default values", async () => {
   const ipc = createIpcMainTS();
   const config = createConfig();
-  appIpcs(ipc, new AppStateRepo(config.getPath(APP_STATE_FILE)));
+  appIpcs(ipc, config);
 
   // Rest of config will be defaulted.
-  loadAndMigrateJson.mockResolvedValueOnce({
+  loadJsonFile.mockResolvedValueOnce({
     version: 1,
   });
 
@@ -45,7 +41,7 @@ test("app.loadAppState sets default values", async () => {
     sort: DEFAULT_NOTE_SORTING_ALGORITHM,
   });
   expect(appState.editor).toEqual({
-    isEditting: false,
+    isEditing: false,
     scroll: 0,
     tabs: [],
     tabsScroll: 0,
@@ -60,7 +56,7 @@ test("app.loadAppState omits undesirable values", async () => {
   appIpcs(ipc, appRepo);
 
   // Rest of config will be defaulted.
-  loadAndMigrateJson.mockResolvedValueOnce({
+  loadJsonFile.mockResolvedValueOnce({
     version: 1,
     sidebar: {
       searchString: "foo",

@@ -30,7 +30,7 @@ export interface Sidebar {
 }
 
 export interface Editor {
-  isEditting: boolean;
+  isEditing: boolean;
   scroll: number;
   tabs: EditorTab[];
   tabsScroll: number;

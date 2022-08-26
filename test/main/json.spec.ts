@@ -1,13 +1,19 @@
-import { JsonMigration, loadAndMigrateJson } from "../../src/main/json";
+import { JsonMigration, loadJsonFile } from "../../src/main/json";
 import { z } from "zod";
 import fsp from "fs/promises";
+
+const mockSchema = z.object({
+  version: z.number(),
+  name: z.string(),
+  age: z.number(),
+});
 
 const readFile = jest.fn();
 jest.spyOn(fsp, "readFile").mockImplementation(readFile);
 
 test("loadAndMigrateJson throws on duplicate version numbers", async () => {
   expect(() =>
-    loadAndMigrateJson("foo.json", [
+    loadJsonFile("foo.json", mockSchema, [
       { version: 1 } as JsonMigration<never, never>,
       { version: 1 } as JsonMigration<never, never>,
     ])
@@ -16,7 +22,7 @@ test("loadAndMigrateJson throws on duplicate version numbers", async () => {
 
 test("loadAndMigrateJson throws if migrations are out of order", async () => {
   expect(() =>
-    loadAndMigrateJson("foo.json", [
+    loadJsonFile("foo.json", mockSchema, [
       { version: 2 } as JsonMigration<never, never>,
       { version: 1 } as JsonMigration<never, never>,
     ])
@@ -29,7 +35,7 @@ test("loadAndMigrateJson throws if content has newer version than latest migrati
   readFile.mockReturnValueOnce('{ "version": 10 }');
 
   expect(() =>
-    loadAndMigrateJson("foo.json", [
+    loadJsonFile("foo.json", mockSchema, [
       { version: 1 } as JsonMigration<never, never>,
       { version: 2 } as JsonMigration<never, never>,
     ])
@@ -41,11 +47,13 @@ test("loadAndMigrateJson handles null value", async () => {
 
   readFile.mockReturnValue(null);
 
-  const foo = await loadAndMigrateJson<FooV2>("foo.json", migrations);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const foo = await loadJsonFile<FooV2>("foo.json", mockSchema, migrations);
 
-  expect(foo.version).toBe(2);
-  expect(foo.name).toBe("name");
-  expect(foo.age).toBe(42);
+  expect(foo.content.version).toBe(2);
+  expect(foo.content.name).toBe("name");
+  expect(foo.content.age).toBe(42);
 });
 
 const fooV1 = z.object({

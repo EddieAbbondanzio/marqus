@@ -451,7 +451,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
           selected: [note.id],
         },
         editor: {
-          isEditting: true,
+          isEditing: true,
         },
       });
     } catch (e) {
