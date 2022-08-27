@@ -1,10 +1,7 @@
 import { createConfig } from "../__factories__/config";
 import { createIpcMainTS } from "../__factories__/ipc";
-import * as json from "../../src/main/json";
-import { initPlugins } from "../../src/main";
-import { DEFAULT_SIDEBAR_WIDTH } from "../../src/shared/ui/app";
-import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../src/shared/domain/note";
 import { appIpcs } from "../../src/main/app";
+import { createJsonFile } from "../__factories__/jsonFile";
 
 const inspectElement = jest.fn();
 jest.mock("electron", () => {
@@ -19,68 +16,10 @@ jest.mock("electron", () => {
   };
 });
 
-const loadJsonFile = jest.spyOn(json, "loadJsonFile");
-
-test("app.loadAppState sets default values", async () => {
-  const ipc = createIpcMainTS();
-  const config = createConfig();
-  appIpcs(ipc, config);
-
-  // Rest of config will be defaulted.
-  loadJsonFile.mockResolvedValueOnce({
-    version: 1,
-  });
-
-  await initPlugins(ipc);
-
-  const appState = await ipc.invoke("app.loadAppState");
-
-  expect(appState.sidebar).toEqual({
-    width: DEFAULT_SIDEBAR_WIDTH,
-    scroll: 0,
-    sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-  });
-  expect(appState.editor).toEqual({
-    isEditing: false,
-    scroll: 0,
-    tabs: [],
-    tabsScroll: 0,
-  });
-  expect(appState.focused).toEqual([]);
-});
-
-test("app.loadAppState omits undesirable values", async () => {
-  const ipc = createIpcMainTS();
-  const config = createConfig();
-  const appRepo = new AppStateRepo(config.getPath(APP_STATE_FILE));
-  appIpcs(ipc, appRepo);
-
-  // Rest of config will be defaulted.
-  loadJsonFile.mockResolvedValueOnce({
-    version: 1,
-    sidebar: {
-      searchString: "foo",
-      input: {},
-    },
-    editor: {
-      tabs: [{ noteId: "1", lastActive: new Date(), noteContent: "foo" }],
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any);
-
-  await initPlugins(ipc);
-
-  const appState = await ipc.invoke("app.loadAppState");
-  expect(appState.sidebar.searchString).toBe(undefined);
-  expect(appState.sidebar.input).toBe(undefined);
-  expect(appState.editor.tabs[0].noteContent).toBe(undefined);
-});
-
 test("app.inspectElement rounds floats", async () => {
   const ipc = createIpcMainTS();
-  const config = createConfig();
-  const appRepo = new AppStateRepo(config.getPath(APP_STATE_FILE));
-  appIpcs(ipc, appRepo);
+  const config = createJsonFile(createConfig());
+  appIpcs(ipc, config);
 
   await ipc.invoke("app.inspectElement", { x: 1.23, y: 2.67 });
   expect(inspectElement).toBeCalledWith(1, 3);
@@ -88,9 +27,8 @@ test("app.inspectElement rounds floats", async () => {
 
 test("app.inspectElement throws", async () => {
   const ipc = createIpcMainTS();
-  const config = createConfig();
-  const appRepo = new AppStateRepo(config.getPath(APP_STATE_FILE));
-  appIpcs(ipc, appRepo);
+  const config = createJsonFile(createConfig());
+  appIpcs(ipc, config);
 
   expect(async () => {
     await ipc.invoke("app.inspectElement", undefined!);

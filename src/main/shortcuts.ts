@@ -1,33 +1,57 @@
-// import { Shortcut, shortcutSchema } from "../../shared/domain/shortcut";
-// import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
-// import { keyCodesToString, parseKeyCodes } from "../../shared/io/keyCode";
-// import { createFileHandler, FileHandler } from "../fileHandler";
-// import * as yup from "yup";
-// import { Config } from "../../shared/domain/config";
-// import { UIEventType } from "../../shared/ui/events";
-// import { Section } from "../../shared/ui/app";
-// import { IpcMainTS } from "../../shared/ipc";
+import { z } from "zod";
+import { Config } from "../shared/domain/config";
+import { Shortcut, shortcutSchema } from "../shared/domain/shortcut";
+import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
+import { keyCodesToString, parseKeyCodes } from "../shared/io/keyCode";
+import { IpcMainTS } from "../shared/ipc";
+import { Section } from "../shared/ui/app";
+import { UIEventType } from "../shared/ui/events";
+import { JsonFile, loadJsonFile } from "./json";
+import p from "path";
 
-// export const SHORTCUTS_FILE = "shortcuts.json";
+/*
+ * Custom shortcut uses cases:
+ * - Disable an existing shortcut
+ * - Modify the keys of an existing shortcut
+ * - Modify the "when" of an existing shortcut
+ * - Create a new custom shortcut
+ */
 
-// export interface ShortcutOverride {
-//   name: string;
-//   event: UIEventType;
-//   keys?: string;
-//   disabled?: boolean;
-//   when?: string;
-//   repeat?: boolean;
-// }
+export const SHORTCUT_FILE_PATH = "shortcuts.json";
 
-// export function shortcutIpcs(ipc: IpcMainTS, config: Config): void {
-//   ipc.handle("shortcuts.getAll", () => getShortcutsFileHandler(config).load());
-// }
+export const SHORTCUT_FILE_SCHEMA = z.object({
+  version: z.literal(1).optional().default(1),
+  shortcuts: z.array(shortcutSchema),
+});
+
+export interface ShortcutOverride {
+  name: string;
+  event: UIEventType;
+  keys?: string;
+  disabled?: boolean;
+  when?: string;
+  repeat?: boolean;
+}
+
+export function shortcutIpcs(ipc: IpcMainTS, config: Config): void {\
+  let shortcutFile: JsonFile<{ shortcuts: ShortcutOverride[] }>;
+
+  ipc.on("init", async () => {
+    shortcutFile = await loadJsonFile(
+      p.join(config.dataDirectory!, SHORTCUT_FILE_PATH),
+      SHORTCUT_FILE_SCHEMA,
+      []
+    )
+  });
+
+  ipc.handle("shortcuts.getAll", async () => []);
+}
 
 // export function getShortcutsFileHandler(
 //   config: Config
 // ): FileHandler<Shortcut[]> {
 //   return createFileHandler<Shortcut[]>(
-//     config.getPath(SHORTCUTS_FILE),
+//     config.getPath(SHORTCUT_FILE_PATH),
 //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
 //     yup.array(shortcutSchema).optional() as any,
 //     {
@@ -54,14 +78,6 @@
 //           );
 //           throw Error(`Duplicate shortcuts for keys ${duplicates[0].keys}`);
 //         }
-
-//         /*
-//          * Custom shortcut uses cases:
-//          * - Disable an existing shortcut
-//          * - Modify the keys of an existing shortcut
-//          * - Modify the "when" of an existing shortuct
-//          * - Create a new custom shortcut
-//          */
 
 //         const values = [];
 //         for (const defaultShortcut of DEFAULT_SHORTCUTS) {

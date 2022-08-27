@@ -71,5 +71,7 @@ export interface UIEvents {
   "contextMenu.moveSelectionUp": void;
   "contextMenu.moveSelectionDown": void;
 }
+
+// TODO: Should we switch this to an enum?
 export type UIEventType = keyof UIEvents;
 export type UIEventInput<Ev extends UIEventType> = UIEvents[Ev];

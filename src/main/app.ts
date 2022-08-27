@@ -19,6 +19,7 @@ import { JsonFile, loadJsonFile } from "./json";
 import { Config } from "../shared/domain/config";
 import { APP_STATE_MIGRATIONS } from "./migrations/appState";
 import p from "path";
+import { MissingDataDirectoryError } from "../shared/errors";
 
 export const APP_STATE_PATH = "ui.json";
 
@@ -81,8 +82,12 @@ export function appIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
   let appStateFile: JsonFile<AppState>;
 
   ipc.on("init", async () => {
+    if (config.content.dataDirectory == null) {
+      throw new MissingDataDirectoryError();
+    }
+
     appStateFile = await loadJsonFile(
-      p.join(config.content.dataDirectory!, APP_STATE_PATH),
+      p.join(config.content.dataDirectory, APP_STATE_PATH),
       APP_STATE_SCHEMA,
       APP_STATE_MIGRATIONS
     );

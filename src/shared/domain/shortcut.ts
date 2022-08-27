@@ -1,7 +1,7 @@
 import { KeyCode } from "../io/keyCode";
-import * as yup from "yup";
 import { UIEventInput, UIEventType } from "../ui/events";
 import { Section } from "../ui/app";
+import { z } from "zod";
 
 /*
  * Shortcuts are not resources because they are considered equal by value.
@@ -21,15 +21,13 @@ export interface Shortcut<EType extends UIEventType = UIEventType> {
   userDefined?: boolean;
 }
 
-// TODO: Replace with zod
-export const shortcutSchema = yup.object().shape({
-  name: yup.string().required(),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  event: yup.string().required() as any,
-  eventInput: yup.mixed().optional(),
-  keys: yup.array(),
-  disabled: yup.boolean().optional(),
-  when: yup.mixed().optional().oneOf(Object.values(Section)),
-  repeat: yup.bool().optional(),
-  userDefined: yup.bool().optional(),
+export const shortcutSchema = z.object({
+  name: z.string().min(1),
+  event: z.string(), // TODO: Add better validation here!
+  eventInput: z.any().optional(),
+  keys: z.array(z.nativeEnum(KeyCode)),
+  disable: z.boolean().optional(),
+  when: z.nativeEnum(Section).optional(),
+  repeat: z.boolean().optional(),
+  userDefined: z.boolean().optional(),
 });
