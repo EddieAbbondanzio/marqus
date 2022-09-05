@@ -10,4 +10,11 @@ module.exports = {
   moduleNameMapper: {
     "monaco-editor": "<rootDir>/test/__mocks__/monaco.ts",
   },
+  globals: {
+    "ts-jest": {
+      // ts-jest configuration goes here
+      diagnostics: false,
+      isolatedModules: true,
+    },
+  },
 };

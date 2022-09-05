@@ -24,6 +24,13 @@ export function noteIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
   let notes: Note[] = [];
   const dataDirectory = config.content.dataDirectory!;
 
+  ipc.on("init", async () => {
+    const noteDirPath = p.join(dataDirectory, NOTES_DIRECTORY);
+    if (!fs.existsSync(noteDirPath)) {
+      await fsp.mkdir(noteDirPath);
+    }
+  });
+
   async function getNotes(): Promise<void> {
     if (initialized) {
       return;

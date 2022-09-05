@@ -1,6 +1,7 @@
 import { JsonMigration, loadJsonFile } from "../../src/main/json";
 import { z } from "zod";
 import fsp from "fs/promises";
+import fs from "fs";
 
 const mockSchema = z.object({
   version: z.number(),
@@ -32,6 +33,7 @@ test("loadAndMigrateJson throws if migrations are out of order", async () => {
 });
 
 test("loadAndMigrateJson throws if content has newer version than latest migration", async () => {
+  jest.spyOn(fs, "existsSync").mockReturnValue(true);
   readFile.mockReturnValueOnce('{ "version": 10 }');
 
   expect(() =>
@@ -47,8 +49,6 @@ test("loadAndMigrateJson handles null value", async () => {
 
   readFile.mockReturnValue(null);
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   const foo = await loadJsonFile<FooV2>("foo.json", mockSchema, migrations);
 
   expect(foo.content.version).toBe(2);

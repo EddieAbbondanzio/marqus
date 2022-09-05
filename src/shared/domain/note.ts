@@ -116,7 +116,7 @@ export function getNoteSchema(): any {
       name: yup
         .string()
         .required("Name is required.")
-        .min(1, "Note name must be atleast 1 character.")
+        .min(1, "Note name must be at least 1 character.")
         .max(64, "Note name cannot be more than 64 characters."),
       flags: yup.number(),
       dateCreated: yup.date().required(),

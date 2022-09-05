@@ -37,15 +37,15 @@ async function main() {
     CONFIG_SCHEMA,
     CONFIG_MIGRATIONS
   );
-  let { dataDirectory, windowHeight, windowWidth } = configFile.content;
 
-  if (isDevelopment() && dataDirectory == null) {
-    dataDirectory = DEFAULT_DEV_DATA_DIRECTORY;
-    await configFile.update({ dataDirectory });
+  if (isDevelopment() && configFile.content.dataDirectory == null) {
+    await configFile.update({ dataDirectory: DEFAULT_DEV_DATA_DIRECTORY });
   }
 
-  if (dataDirectory != null && !fs.existsSync(dataDirectory)) {
-    await fsp.mkdir(dataDirectory);
+  // Always check if we need to recreate the data directory on start. It may have
+  // been deleted to clear out notes.
+  if (!fs.existsSync(DEFAULT_DEV_DATA_DIRECTORY)) {
+    await fsp.mkdir(DEFAULT_DEV_DATA_DIRECTORY);
   }
 
   const typeSafeIpc = ipcMain as IpcMainTS;
@@ -55,15 +55,13 @@ async function main() {
   // shortcutIpcs(typeSafeIpc, config);
   noteIpcs(typeSafeIpc, configFile);
 
-  const initPluginsPromise = initPlugins(typeSafeIpc);
-
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.
   if (require("electron-squirrel-startup")) {
     app.quit();
   }
 
   const createWindow = async (): Promise<void> => {
-    await initPluginsPromise;
+    await initPlugins(typeSafeIpc);
 
     // Only allow external images
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
@@ -78,6 +76,7 @@ async function main() {
       });
     });
 
+    let { windowHeight, windowWidth } = configFile.content;
     mainWindow = new BrowserWindow({
       height: windowHeight,
       width: windowWidth,
@@ -110,8 +109,8 @@ async function main() {
 
     // Override how all links are open so we can send them off to the user's
     // web browser instead of opening them in the electron app.
-    mainWindow.webContents.setWindowOpenHandler((dets) => {
-      openInBrowser(dets.url);
+    mainWindow.webContents.setWindowOpenHandler((details) => {
+      openInBrowser(details.url);
       return { action: "deny" };
     });
 
@@ -166,10 +165,18 @@ export function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
 
 export function getConfigPath(): string {
   if (isDevelopment()) {
+    console.log(
+      "getConfigPath(): DEV!: ",
+      path.join(process.cwd(), CONFIG_FILE)
+    );
     return path.join(process.cwd(), CONFIG_FILE);
   } else if (isTest()) {
     throw new Error("getConfigPath doesn't work in test.");
   } else {
+    console.log(
+      "getConfigPath(): Prod: ",
+      path.join(app.getPath("userData"), CONFIG_FILE)
+    );
     return path.join(app.getPath("userData"), CONFIG_FILE);
   }
 }

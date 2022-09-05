@@ -1,5 +1,6 @@
-import { cloneDeep, first, last, uniq } from "lodash";
+import { cloneDeep, last, uniq } from "lodash";
 import * as fsp from "fs/promises";
+import * as fs from "fs";
 import { ZodTypeAny } from "zod";
 
 type Versioned<T = { version: number }> = T & { version: number };
@@ -69,22 +70,24 @@ export async function loadJsonFile<Content>(
     }
   }
 
-  const start = first(migrations)!;
-  const rawContent = await fsp.readFile(filePath, { encoding: "utf-8" });
-  const parsed = JSON.parse(rawContent);
+  let originalContent;
+  if (fs.existsSync(filePath)) {
+    const raw = await fsp.readFile(filePath, { encoding: "utf-8" });
+    originalContent = JSON.parse(raw);
+  }
 
   let versioned: Versioned;
-  if (parsed == null || typeof parsed !== "object") {
-    versioned = { version: start.version };
+  if (originalContent == null || typeof originalContent !== "object") {
+    versioned = { version: migrations[0].version };
   } else {
-    versioned = parsed as Versioned;
+    versioned = originalContent as Versioned;
   }
 
   const content = await runMigrations<Content>(versioned, migrations);
 
   // We always want to run this because it'll apply defaults for any missing
   // values, and in the event the json file has been modified to the point
-  // where it's unusuable, it'll throw an error instead of proceeding.
+  // where it's unusable, it'll throw an error instead of proceeding.
   let validatedContent = await schema.parseAsync(content);
 
   const update = async (partial: Partial<Content>) => {
