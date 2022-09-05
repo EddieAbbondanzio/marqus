@@ -31,7 +31,7 @@ export const DEFAULT_WINDOW_WIDTH = 800;
 
 let mainWindow: BrowserWindow;
 
-async function main() {
+export async function main(): Promise<void> {
   const configFile = await loadJsonFile<Config>(
     getConfigPath(),
     CONFIG_SCHEMA,
@@ -44,8 +44,11 @@ async function main() {
 
   // Always check if we need to recreate the data directory on start. It may have
   // been deleted to clear out notes.
-  if (!fs.existsSync(DEFAULT_DEV_DATA_DIRECTORY)) {
-    await fsp.mkdir(DEFAULT_DEV_DATA_DIRECTORY);
+  if (
+    configFile.content.dataDirectory != null &&
+    !fs.existsSync(configFile.content.dataDirectory)
+  ) {
+    await fsp.mkdir(configFile.content.dataDirectory);
   }
 
   const typeSafeIpc = ipcMain as IpcMainTS;
@@ -165,18 +168,10 @@ export function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
 
 export function getConfigPath(): string {
   if (isDevelopment()) {
-    console.log(
-      "getConfigPath(): DEV!: ",
-      path.join(process.cwd(), CONFIG_FILE)
-    );
     return path.join(process.cwd(), CONFIG_FILE);
   } else if (isTest()) {
-    throw new Error("getConfigPath doesn't work in test.");
+    return "";
   } else {
-    console.log(
-      "getConfigPath(): Prod: ",
-      path.join(app.getPath("userData"), CONFIG_FILE)
-    );
     return path.join(app.getPath("userData"), CONFIG_FILE);
   }
 }
