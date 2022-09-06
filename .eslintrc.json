@@ -16,6 +16,7 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:react-hooks/recommended"
   ],
+  "ignorePatterns": ["jest.config.js", "webpack.*.js"],
   "parser": "@typescript-eslint/parser",
   "root": true,
   "plugins": ["react", "@typescript-eslint"],

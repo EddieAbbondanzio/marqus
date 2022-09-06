@@ -1,5 +1,3 @@
-// This file is ignored by prettier (see .prettierignore)
-
 // TODO: Leave this here for now. It'll function as the default theme. Once
 // we're ready to support user defined themes we'll pull it down to main.
 
