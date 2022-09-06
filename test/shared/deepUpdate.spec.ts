@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { deepUpdate } from "../../../src/renderer/utils/deepUpdate";
+import { deepUpdate } from "../../src/shared/deepUpdate";
 
 test("deepUpdate adds new props", () => {
   const obj = {

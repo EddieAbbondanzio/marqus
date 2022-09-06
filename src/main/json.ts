@@ -2,13 +2,15 @@ import { cloneDeep, last, uniq } from "lodash";
 import * as fsp from "fs/promises";
 import * as fs from "fs";
 import { ZodTypeAny } from "zod";
+import { deepUpdate } from "../shared/deepUpdate";
+import { DeepPartial } from "tsdef";
 
 type Versioned<T = { version: number }> = T & { version: number };
 
 export interface JsonFile<T> {
   // Makes it easy to send off over IPC if it's in it's own prop.
   content: Readonly<T>;
-  update(partial: Partial<T>): Promise<void>;
+  update(partial: DeepPartial<T>): Promise<void>;
 }
 
 /**
@@ -83,24 +85,28 @@ export async function loadJsonFile<Content>(
     versioned = originalContent as Versioned;
   }
 
-  const content = await runMigrations<Content>(versioned, migrations);
+  const migratedContent = await runMigrations<Content>(versioned, migrations);
 
   // We always want to run this because it'll apply defaults for any missing
   // values, and in the event the json file has been modified to the point
   // where it's unusable, it'll throw an error instead of proceeding.
-  let validatedContent = await schema.parseAsync(content);
+  const content = await schema.parseAsync(migratedContent);
 
-  const update = async (partial: Partial<Content>) => {
-    const validated = await schema.parseAsync(partial);
-    const jsonString = JSON.stringify(validated);
+  const update = async (partial: DeepPartial<Content>) => {
+    const updated = deepUpdate(content, partial);
+    const validated = await schema.parseAsync(updated);
+
+    const jsonString = JSON.stringify(updated);
+    obj.content = validated;
     await fsp.writeFile(filePath, jsonString, { encoding: "utf-8" });
-    validatedContent = validated;
   };
 
-  return {
-    content: validatedContent,
+  const obj = {
+    content,
     update,
   };
+
+  return obj;
 }
 
 // Should not be used outside of this file.

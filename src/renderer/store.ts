@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cloneDeep, isEmpty, pick } from "lodash";
-import { deepUpdate } from "./utils/deepUpdate";
+import { deepUpdate } from "../shared/deepUpdate";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";

@@ -31,7 +31,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
       store.dispatch("editor.openTab", { note: noteId, active: noteId });
     };
 
-    const onClose = (noteId: string) => {
+    const onClose = () => {
       store.dispatch("editor.closeTab", undefined!);
     };
 
@@ -51,7 +51,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     }
 
     return rendered;
-  }, [notes, editor.tabs]);
+  }, [notes, editor, store]);
 
   const [previousTab, nextTab] = useMemo(() => {
     // There's no sense in allowing a user to tab between tabs if there's no tabs

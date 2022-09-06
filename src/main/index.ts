@@ -161,9 +161,9 @@ if (!isTest()) {
   main();
 }
 
-export function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
+export async function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
   const initListeners = typeSafeIpc.listeners("init");
-  return Promise.all(initListeners.map((l) => l()));
+  return await Promise.all(initListeners.map((l) => l()));
 }
 
 export function getConfigPath(): string {

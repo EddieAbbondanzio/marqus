@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { cloneDeep, get } from "lodash";
 import { DeepPartial } from "tsdef";
-import { isBlank } from "../../shared/utils";
+import { isBlank } from "./utils";
 
 /**
  * Recursive partial updater that applies property updates.

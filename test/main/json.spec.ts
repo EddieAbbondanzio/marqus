@@ -12,7 +12,7 @@ const mockSchema = z.object({
   age: z.number(),
 });
 
-test("loadAndMigrateJson throws on duplicate version numbers", async () => {
+test("loadJsonFile throws on duplicate version numbers", async () => {
   expect(() =>
     loadJsonFile("foo.json", mockSchema, [
       { version: 1 } as JsonMigration<never, never>,
@@ -21,7 +21,7 @@ test("loadAndMigrateJson throws on duplicate version numbers", async () => {
   ).rejects.toThrow(/Duplicate migration numbers detected for foo.json/);
 });
 
-test("loadAndMigrateJson throws if migrations are out of order", async () => {
+test("loadJsonFile throws if migrations are out of order", async () => {
   expect(() =>
     loadJsonFile("foo.json", mockSchema, [
       { version: 2 } as JsonMigration<never, never>,
@@ -32,7 +32,7 @@ test("loadAndMigrateJson throws if migrations are out of order", async () => {
   );
 });
 
-test("loadAndMigrateJson throws if content has newer version than latest migration", async () => {
+test("loadJsonFile throws if content has newer version than latest migration", async () => {
   (fs.existsSync as jest.Mock).mockReturnValueOnce(true);
   (fsp.readFile as jest.Mock).mockResolvedValueOnce('{ "version": 10 }');
 
@@ -44,7 +44,7 @@ test("loadAndMigrateJson throws if content has newer version than latest migrati
   ).rejects.toThrow(/Input version 10 is higher than latest migration 2/);
 });
 
-test("loadAndMigrateJson handles null value", async () => {
+test("loadJsonFile handles null value", async () => {
   const migrations = [new InitialDefinition(), new AddAge()];
 
   (fs.existsSync as jest.Mock).mockReturnValueOnce(true);
@@ -55,6 +55,25 @@ test("loadAndMigrateJson handles null value", async () => {
   expect(foo.content.version).toBe(2);
   expect(foo.content.name).toBe("name");
   expect(foo.content.age).toBe(42);
+});
+
+test("loadJsonFile update partial update", async () => {
+  const migrations = [new InitialDefinition(), new AddAge()];
+
+  (fs.existsSync as jest.Mock).mockReturnValueOnce(true);
+  (fsp.readFile as jest.Mock).mockResolvedValueOnce(null);
+
+  const foo = await loadJsonFile<FooV2>("foo.json", mockSchema, migrations);
+
+  await foo.update({
+    age: 23,
+  });
+
+  expect(foo.content).toEqual({
+    version: 2,
+    age: 23,
+    name: "name",
+  });
 });
 
 const fooV1 = z.object({

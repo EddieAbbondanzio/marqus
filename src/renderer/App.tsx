@@ -173,8 +173,6 @@ async function loadInitialState(): Promise<State> {
 
   ui = filterOutStaleNoteIds(ui, notes);
 
-  // How do we load tab content?
-
   return {
     ...ui,
     shortcuts,
