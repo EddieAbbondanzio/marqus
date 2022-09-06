@@ -12,3 +12,7 @@ export const app = {
   getPath: jest.fn(),
   isReady: jest.fn(),
 };
+
+export const BrowserWindow = {
+  getFocusedWindow: jest.fn(),
+};

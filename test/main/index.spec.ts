@@ -3,14 +3,16 @@ import { DEFAULT_DEV_DATA_DIRECTORY, main } from "../../src/main/index";
 import fsp from "fs/promises";
 import fs from "fs";
 import * as env from "../../src/shared/env";
+import { loadJsonFile } from "../../src/main/json";
 
 jest.mock("fs/promises");
 jest.mock("fs");
+jest.mock("../../src/main/json");
 
 test("main defaults data directory in development", async () => {
   const update = jest.fn();
 
-  jest.spyOn(json, "loadJsonFile").mockResolvedValueOnce({
+  (loadJsonFile as jest.Mock).mockResolvedValueOnce({
     content: {
       dataDirectory: null,
       windowHeight: 800,
@@ -18,6 +20,9 @@ test("main defaults data directory in development", async () => {
     },
     update,
   });
+
+  // We use spyOn instead of mocking entire module because we need getProcessType
+  // to function normal.
   jest.spyOn(env, "isDevelopment").mockReturnValue(true);
 
   await main();

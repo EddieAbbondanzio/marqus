@@ -3,14 +3,14 @@ import { z } from "zod";
 import fsp from "fs/promises";
 import fs from "fs";
 
+jest.mock("fs");
+jest.mock("fs/promises");
+
 const mockSchema = z.object({
   version: z.number(),
   name: z.string(),
   age: z.number(),
 });
-
-const readFile = jest.fn();
-jest.spyOn(fsp, "readFile").mockImplementation(readFile);
 
 test("loadAndMigrateJson throws on duplicate version numbers", async () => {
   expect(() =>
@@ -33,8 +33,8 @@ test("loadAndMigrateJson throws if migrations are out of order", async () => {
 });
 
 test("loadAndMigrateJson throws if content has newer version than latest migration", async () => {
-  jest.spyOn(fs, "existsSync").mockReturnValue(true);
-  readFile.mockReturnValueOnce('{ "version": 10 }');
+  (fs.existsSync as jest.Mock).mockReturnValueOnce(true);
+  (fsp.readFile as jest.Mock).mockResolvedValueOnce('{ "version": 10 }');
 
   expect(() =>
     loadJsonFile("foo.json", mockSchema, [
@@ -47,7 +47,8 @@ test("loadAndMigrateJson throws if content has newer version than latest migrati
 test("loadAndMigrateJson handles null value", async () => {
   const migrations = [new InitialDefinition(), new AddAge()];
 
-  readFile.mockReturnValue(null);
+  (fs.existsSync as jest.Mock).mockReturnValueOnce(true);
+  (fsp.readFile as jest.Mock).mockResolvedValueOnce(null);
 
   const foo = await loadJsonFile<FooV2>("foo.json", mockSchema, migrations);
 
