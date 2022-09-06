@@ -1,5 +1,5 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { getNoteById } from "../../shared/domain/note";
 import { m0, mr2, my2, p2, px2, THEME } from "../css";
@@ -81,29 +81,35 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     return [tabsByLastActive[previousIndex], tabsByLastActive[nextIndex]];
   }, [editor.tabs, editor.activeTabNoteId]);
 
-  const switchToNextTab: Listener<"editor.nextTab"> = (_, ctx) => {
-    if (nextTab == null) {
-      return;
-    }
+  const switchToNextTab: Listener<"editor.nextTab"> = useCallback(
+    (_, ctx) => {
+      if (nextTab == null) {
+        return;
+      }
 
-    ctx.setUI({
-      editor: {
-        activeTabNoteId: nextTab?.noteId,
-      },
-    });
-  };
+      ctx.setUI({
+        editor: {
+          activeTabNoteId: nextTab?.noteId,
+        },
+      });
+    },
+    [nextTab]
+  );
 
-  const switchToPreviousTab: Listener<"editor.previousTab"> = (_, ctx) => {
-    if (previousTab == null) {
-      return;
-    }
+  const switchToPreviousTab: Listener<"editor.previousTab"> = useCallback(
+    (_, ctx) => {
+      if (previousTab == null) {
+        return;
+      }
 
-    ctx.setUI({
-      editor: {
-        activeTabNoteId: previousTab?.noteId,
-      },
-    });
-  };
+      ctx.setUI({
+        editor: {
+          activeTabNoteId: previousTab?.noteId,
+        },
+      });
+    },
+    [previousTab]
+  );
 
   const closeTab: Listener<
     | "editor.closeTab"
@@ -135,20 +141,22 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
         noteIdsToClose = [value ?? editor.activeTabNoteId!];
         break;
 
-      case "editor.closeTabsToLeft":
+      case "editor.closeTabsToLeft": {
         const leftLimit = editor.tabs.findIndex(
           (t) => t.noteId === (value ?? editor.activeTabNoteId)
         );
         noteIdsToClose = editor.tabs.slice(0, leftLimit).map((t) => t.noteId);
         break;
+      }
 
-      case "editor.closeTabsToRight":
+      case "editor.closeTabsToRight": {
         const rightLimit = editor.tabs.findIndex(
           (t) => t.noteId === (value ?? editor.activeTabNoteId)
         );
 
         noteIdsToClose = editor.tabs.slice(rightLimit + 1).map((t) => t.noteId);
         break;
+      }
 
       default:
         throw new Error(`Invalid action ${value}`);
@@ -165,7 +173,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
           activeTabNoteId = undefined;
           break;
 
-        case "editor.closeTab":
+        case "editor.closeTab": {
           const tabsByLastActive = orderBy(
             editor.tabs.filter((t) => !noteIdsToClose.includes(t.noteId)),
             ["lastActive"],
@@ -174,6 +182,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
           activeTabNoteId = tabsByLastActive[0]?.noteId;
           break;
+        }
 
         default:
           activeTabNoteId = prev.editor.activeTabNoteId;
