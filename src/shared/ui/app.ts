@@ -68,5 +68,12 @@ export function filterOutStaleNoteIds(ui: AppState, notes: Note[]): AppState {
     );
   }
 
+  if (
+    ui.editor.activeTabNoteId != null &&
+    currentNoteIds[ui.editor.activeTabNoteId] == null
+  ) {
+    ui.editor.activeTabNoteId = undefined;
+  }
+
   return ui;
 }

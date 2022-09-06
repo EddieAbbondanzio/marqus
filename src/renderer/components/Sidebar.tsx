@@ -564,6 +564,10 @@ export const deleteNote: Listener<
   const confirmed = await promptConfirmAction("delete", `note ${note.name}`);
   if (confirmed) {
     await window.ipc("notes.delete", note.id);
+
+    const otherNotes = flatten(notes).filter((n) => n.id !== note.id);
+    ctx.setUI((ui) => filterOutStaleNoteIds(ui, otherNotes));
+
     ctx.setNotes((notes) => {
       if (note.parent == null) {
         return notes.filter((t) => t.id !== note.id);
@@ -573,9 +577,6 @@ export const deleteNote: Listener<
       parent.children = parent.children!.filter((t) => t.id !== note.id);
       return notes;
     });
-
-    const updatedNotes = ctx.getState().notes;
-    ctx.setUI((ui) => filterOutStaleNoteIds(ui, updatedNotes));
   }
 };
 
@@ -588,6 +589,10 @@ export const moveNoteToTrash: Listener<"sidebar.moveNoteToTrash"> = async (
   const confirmed = await promptConfirmAction("trash", `note ${note.name}`);
   if (confirmed) {
     await window.ipc("notes.moveToTrash", note.id);
+
+    const otherNotes = flatten(notes).filter((n) => n.id !== note.id);
+    ctx.setUI((ui) => filterOutStaleNoteIds(ui, otherNotes));
+
     ctx.setNotes((notes) => {
       if (note.parent == null) {
         return notes.filter((t) => t.id !== note.id);
