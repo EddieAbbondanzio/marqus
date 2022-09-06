@@ -1,15 +1,13 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { getNoteById } from "../../shared/domain/note";
-import { m0, mb2, mr2, mt3, my2, p2, pt2, px2, py2, THEME } from "../css";
+import { m0, mr2, my2, p2, px2, THEME } from "../css";
 import { Listener, Store } from "../store";
 import { Icon } from "./shared/Icon";
-import { first, isEmpty, last, orderBy } from "lodash";
+import { first, last, orderBy } from "lodash";
 import { Section } from "../../shared/ui/app";
-import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { Scrollable } from "./shared/Scrollable";
-import OpenColor from "open-color";
 import { Focusable } from "./shared/Focusable";
 import { findParent } from "../utils/findParent";
 
@@ -229,7 +227,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
       store.off("editor.previousTab", switchToPreviousTab);
       store.off("editor.updateTabsScroll", updateTabsScroll);
     };
-  }, [store]);
+  }, [store, switchToNextTab, switchToPreviousTab]);
 
   return (
     <Focusable name={Section.EditorTabs} store={store}>
@@ -395,7 +393,10 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
     return;
   }
 
-  let tabs = [...editor.tabs];
+  const tabs = [...editor.tabs];
+
+  // If tab creation logic gets changed, don't forget to update it in Sidebar.tsx
+  // newNote().
 
   for (const noteId of noteIds) {
     let newTab = false;

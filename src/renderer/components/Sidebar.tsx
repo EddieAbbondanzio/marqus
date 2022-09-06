@@ -446,14 +446,17 @@ export const createNote: Listener<"sidebar.createNote"> = async (
       });
 
       ctx.focus([Section.Editor], { overwrite: true });
-      ctx.setUI({
+      ctx.setUI((prev) => ({
         sidebar: {
           selected: [note.id],
         },
         editor: {
           isEditing: true,
+          activeTabNoteId: note.id,
+          // Keep in sync with openTab in EditorTabs.tsx
+          tabs: [...prev.editor.tabs, { noteId: note.id, content: "" }],
         },
-      });
+      }));
     } catch (e) {
       promptError(e.message);
     }

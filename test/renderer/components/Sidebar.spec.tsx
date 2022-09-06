@@ -57,13 +57,18 @@ test("sidebar.createNote confirm", async () => {
   );
   expect(state.focused).toEqual(["editor"]);
   expect(state.sidebar.selected).toEqual([note.id]);
-  // expect(state.editor).toEqual(
-  //   expect.objectContaining({
-  //     isEditing: true,
-  //     noteId: note.id,
-  //     content: "",
-  //   })
-  // );
+  expect(state.editor).toEqual(
+    expect.objectContaining({
+      isEditing: true,
+      activeTabNoteId: note.id,
+      tabs: expect.arrayContaining([
+        expect.objectContaining({
+          noteId: note.id,
+          content: "",
+        }),
+      ]),
+    })
+  );
 });
 
 test("sidebar.createNote expands parent", async () => {
