@@ -56,6 +56,12 @@ export async function loadJsonFile<Content>(
   schema: ZodTypeAny,
   migrations: JsonMigration<unknown, Omit<Content, "version">>[]
 ): Promise<JsonFile<Content>> {
+  if (migrations.length === 0) {
+    throw new Error(
+      `Expected a least 1 migration. Otherwise we can't validate the content at all.`
+    );
+  }
+
   const migrationVersions = migrations.map((m) => m.version);
   if (uniq(migrationVersions).length !== migrationVersions.length) {
     throw new Error(`Duplicate migration numbers detected for ${filePath}`);

@@ -72,6 +72,66 @@ export interface UIEvents {
   "contextMenu.moveSelectionDown": void;
 }
 
-// TODO: Should we switch this to an enum?
 export type UIEventType = keyof UIEvents;
 export type UIEventInput<Ev extends UIEventType> = UIEvents[Ev];
+
+// Needed for validating user input. Kinda smelly but no easier way to get a list
+// of the events at runtime.
+export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
+  "app.quit",
+  "app.openDataDirectory",
+  "app.selectDataDirectory",
+  "app.openDevTools",
+  "app.reload",
+  "app.toggleFullScreen",
+  "app.inspectElement",
+  "app.toggleSidebar",
+
+  // Sidebar
+  "sidebar.updateScroll",
+  "sidebar.scrollDown",
+  "sidebar.scrollUp",
+  "sidebar.resizeWidth",
+  "sidebar.toggleFilter",
+  "sidebar.createNote",
+  "sidebar.renameNote",
+  "sidebar.dragNote",
+  "sidebar.deleteNote",
+  "sidebar.moveNoteToTrash",
+  "sidebar.setSelection",
+  "sidebar.clearSelection",
+  "sidebar.collapseAll",
+  "sidebar.expandAll",
+  "sidebar.setNoteSort",
+  "sidebar.deleteSelectedNote",
+  "sidebar.toggleItemExpanded",
+  "sidebar.moveSelectionUp",
+  "sidebar.moveSelectionDown",
+  "sidebar.setSearchString",
+  "sidebar.focusSearch",
+
+  // Editor
+  "editor.save",
+  "editor.toggleView",
+  "editor.setContent",
+  "editor.updateScroll",
+  "editor.openTab",
+  "editor.closeTab",
+  "editor.closeAllTabs",
+  "editor.closeTabsToLeft",
+  "editor.closeTabsToRight",
+  "editor.closeOtherTabs",
+  "editor.previousTab",
+  "editor.nextTab",
+  "editor.updateTabsScroll",
+
+  // Focus Tracker
+  "focus.push",
+  "focus.pop",
+
+  // Context Menu
+  "contextMenu.blur",
+  "contextMenu.run",
+  "contextMenu.moveSelectionUp",
+  "contextMenu.moveSelectionDown",
+];

@@ -11,6 +11,7 @@ import * as fsp from "fs/promises";
 import { loadJsonFile } from "./json";
 import { CONFIG_MIGRATIONS } from "./migrations/config";
 import { Config } from "../shared/domain/config";
+import { shortcutIpcs } from "./shortcuts";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -55,7 +56,7 @@ export async function main(): Promise<void> {
 
   configIpcs(typeSafeIpc, configFile);
   appIpcs(typeSafeIpc, configFile);
-  // shortcutIpcs(typeSafeIpc, config);
+  shortcutIpcs(typeSafeIpc, configFile);
   noteIpcs(typeSafeIpc, configFile);
 
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.
