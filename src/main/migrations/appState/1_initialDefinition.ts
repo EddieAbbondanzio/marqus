@@ -1,4 +1,6 @@
+import { parseJSON } from "date-fns";
 import { z } from "zod";
+import { DATE_OR_STRING_SCHEMA } from "../../../shared/domain";
 import {
   DEFAULT_NOTE_SORTING_ALGORITHM,
   NoteSort,
@@ -30,7 +32,7 @@ export const appStateSchemaV1 = z.object({
       z.object({
         noteId: z.string(),
         // Intentionally omitted noteContent
-        lastActive: z.date().optional(),
+        lastActive: DATE_OR_STRING_SCHEMA.optional(),
       })
     ),
     tabsScroll: z.number().default(0),

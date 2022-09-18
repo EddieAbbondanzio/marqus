@@ -1,7 +1,8 @@
-import { UUID_SCHEMA, Resource, uuid } from ".";
+import { UUID_SCHEMA, Resource, uuid, DATE_OR_STRING_SCHEMA } from ".";
 import { isBlank } from "../utils";
 import { isEmpty, orderBy } from "lodash";
 import { z } from "zod";
+import { parseJSON } from "date-fns";
 
 export interface Note extends Resource {
   name: string;
@@ -113,8 +114,8 @@ export const NOTE_SCHEMA = z.object({
     .min(1, "Name must be at least 1 char long")
     .max(64, "Name must be 64 chars or less."),
   flags: z.number().optional(),
-  dateCreated: z.date(),
-  dateUpdated: z.date().optional(),
+  dateCreated: DATE_OR_STRING_SCHEMA,
+  dateUpdated: DATE_OR_STRING_SCHEMA.optional(),
   sort: z.nativeEnum(NoteSort).optional(),
 });
 

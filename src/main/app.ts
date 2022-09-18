@@ -20,6 +20,7 @@ import { Config } from "../shared/domain/config";
 import { APP_STATE_MIGRATIONS } from "./migrations/appState";
 import p from "path";
 import { MissingDataDirectoryError } from "../shared/errors";
+import { DATE_OR_STRING_SCHEMA } from "../shared/domain";
 
 export const APP_STATE_PATH = "ui.json";
 
@@ -53,16 +54,7 @@ export const APP_STATE_SCHEMA = z
             z.object({
               noteId: z.string(),
               // Intentionally omitted noteContent
-              lastActive: z.preprocess((arg) => {
-                // If loaded from JSON dates will be a string
-                if (typeof arg === "string") {
-                  return parseJSON(arg);
-                }
-                // But if it was already in memory they'll be a date.
-                else if (arg instanceof Date) {
-                  return arg;
-                }
-              }, z.date().optional()),
+              lastActive: DATE_OR_STRING_SCHEMA.optional(),
             })
           )
           .default([]),
