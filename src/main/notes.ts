@@ -1,8 +1,8 @@
 import {
   createNote,
   getNoteById,
-  getNoteSchema,
   Note,
+  NOTE_SCHEMA,
 } from "../shared/domain/note";
 import { UUID_REGEX } from "../shared/domain";
 import { Config } from "../shared/domain/config";
@@ -188,7 +188,7 @@ export async function loadNotes(dataDirectory: string): Promise<Note[]> {
       dateUpdated: dateUpdated != null ? parseJSON(dateUpdated) : undefined,
       ...remainder,
     });
-    await getNoteSchema().validate(note);
+    await NOTE_SCHEMA.parseAsync(note);
 
     // We don't add children until every note has been loaded because there's a
     // chance children will be loaded before their parent.

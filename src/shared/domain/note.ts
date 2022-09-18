@@ -1,7 +1,7 @@
-import * as yup from "yup";
-import { uuidSchema, Resource, uuid } from ".";
+import { UUID_SCHEMA, Resource, uuid } from ".";
 import { isBlank } from "../utils";
 import { isEmpty, orderBy } from "lodash";
+import { z } from "zod";
 
 export interface Note extends Resource {
   name: string;
@@ -104,27 +104,19 @@ export function createNote(props: Partial<Note> & { name: string }): Note {
   return note;
 }
 
-// TODO: Replace with zod
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getNoteSchema(): any {
-  return yup
-    .object()
-    .shape({
-      id: uuidSchema,
-      // Name is not unique because it's difficult to enforce uniqueness when
-      // notes can change parents. There's no real harm in having duplicates.
-      name: yup
-        .string()
-        .required("Name is required.")
-        .min(1, "Note name must be at least 1 character.")
-        .max(64, "Note name cannot be more than 64 characters."),
-      flags: yup.number(),
-      dateCreated: yup.date().required(),
-      dateUpdated: yup.date().optional(),
-      sort: yup.mixed().optional().oneOf(Object.values(NoteSort)),
-    })
-    .defined();
-}
+export const NOTE_SCHEMA = z.object({
+  id: UUID_SCHEMA,
+  // Name is not unique because it's difficult to enforce uniqueness when
+  // notes can change parents. There's no real harm in having duplicates.
+  name: z
+    .string()
+    .min(1, "Name must be at least 1 char long")
+    .max(64, "Name must be 64 chars or less."),
+  flags: z.number().optional(),
+  dateCreated: z.date(),
+  dateUpdated: z.date().optional(),
+  sort: z.nativeEnum(NoteSort).optional(),
+});
 
 /**
  * Recursively search for a note based on it's id.

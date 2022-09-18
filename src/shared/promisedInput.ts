@@ -1,5 +1,6 @@
+import { isEmpty } from "lodash";
 import { Nullable } from "tsdef";
-import * as yup from "yup";
+import { z, ZodError } from "zod";
 
 // TODO: Can we find a better spot for this? The file feels out of place.
 
@@ -21,7 +22,7 @@ type ValidateOutcome = { valid: true } | { valid: false; errors: string[] };
 export type PromisedInputParams = {
   value?: string;
   id?: string;
-  schema: yup.StringSchema;
+  schema: z.ZodString | z.ZodNumber;
   parentId?: string;
 };
 export type PromisedOutcome = "confirm" | "cancel";
@@ -40,6 +41,10 @@ export function createPromisedInput(
     new Promise(
       (res) =>
         (confirm = () => {
+          if (isEmpty(value)) {
+            return;
+          }
+
           outcome = "confirm";
           res([value, "confirm"]);
         })
@@ -64,11 +69,13 @@ export function createPromisedInput(
   const promise = Promise.race([confirmPromise, cancelPromise]);
   const validate = (value: string): ValidateOutcome => {
     try {
-      params.schema.validateSync(value);
+      params.schema.parse(value);
       return { valid: true };
     } catch (e) {
-      const { errors } = e as yup.ValidationError;
-      return { valid: false, errors };
+      return {
+        valid: false,
+        errors: (e as ZodError).issues.map((i) => i.message),
+      };
     }
   };
 

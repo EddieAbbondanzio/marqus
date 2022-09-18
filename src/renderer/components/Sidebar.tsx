@@ -8,16 +8,15 @@ import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
   getNoteById,
-  getNoteSchema,
   flatten,
   sortNotes,
   DEFAULT_NOTE_SORTING_ALGORITHM,
   getParents,
+  NOTE_SCHEMA,
 } from "../../shared/domain/note";
 import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
 import { promptError, promptConfirmAction } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
-import * as yup from "yup";
 import { SIDEBAR_MENU_HEIGHT, SidebarMenu, SidebarInput } from "./SidebarMenu";
 import {
   faChevronDown,
@@ -28,6 +27,7 @@ import { search } from "fast-fuzzy";
 import { filterOutStaleNoteIds } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
+import { z } from "zod";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -398,10 +398,9 @@ export const createNote: Listener<"sidebar.createNote"> = async (
 ) => {
   const { sidebar } = ctx.getState();
 
-  const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   const input = createPromisedInput(
     {
-      schema,
+      schema: NOTE_SCHEMA.shape.name,
       parentId: parentId ?? undefined,
     },
     setExplorerInput(ctx)
@@ -478,13 +477,12 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
   }
 
   const { notes } = ctx.getState();
-  const schema: yup.StringSchema = yup.reach(getNoteSchema(), "name");
   const { name: value } = getNoteById(notes, id!);
   const input = createPromisedInput(
     {
       id,
       value,
-      schema,
+      schema: NOTE_SCHEMA.shape.name,
     },
     setExplorerInput(ctx)
   );
