@@ -34,8 +34,8 @@ export class MockedIpcMainTS implements IpcMainTS {
     this._listeners[event]!.push(callback);
   }
 
-  trigger(event: IpcEvent): void {
-    this._listeners[event].forEach((l) => l());
+  async trigger(event: IpcEvent): Promise<void> {
+    await Promise.all(this._listeners[event].map((l) => l()));
   }
 
   listeners(eventName: string | symbol): Function[] {

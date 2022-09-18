@@ -156,18 +156,13 @@ const Container = styled.div`
 
 async function loadInitialState(): Promise<State> {
   let ui: AppState;
-  const shortcuts: Shortcut[] = DEFAULT_SHORTCUTS;
-  console.log("TODO: Re-enable custom shortcuts");
+  let shortcuts: Shortcut[];
   let notes: Note[] = [];
 
   // eslint-disable-next-line prefer-const
-  [
-    ui,
-    // shortcuts,
-    notes,
-  ] = await Promise.all([
+  [ui, shortcuts, notes] = await Promise.all([
     ipc("app.loadAppState"),
-    // ipc("shortcuts.getAll"),
+    ipc("shortcuts.getAll"),
     ipc("notes.getAll"),
   ]);
 

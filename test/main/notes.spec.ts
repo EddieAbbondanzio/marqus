@@ -16,7 +16,7 @@ test("init note directory is created if missing in file system.", async () => {
   (fs.existsSync as jest.Mock).mockReturnValueOnce(false);
 
   noteIpcs(ipc, config);
-  ipc.trigger("init");
+  await ipc.trigger("init");
 
   const noteDirPath = path.join("foo", NOTES_DIRECTORY);
   expect(fsp.mkdir).toHaveBeenCalledWith(noteDirPath);

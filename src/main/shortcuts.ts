@@ -1,14 +1,15 @@
 import { z } from "zod";
 import { Config } from "../shared/domain/config";
-import { Shortcut, shortcutSchema } from "../shared/domain/shortcut";
+import { Shortcut } from "../shared/domain/shortcut";
 import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
 import { parseKeyCodes } from "../shared/io/keyCode";
 import { IpcMainTS } from "../shared/ipc";
 import { Section } from "../shared/ui/app";
-import { UIEventType } from "../shared/ui/events";
+import { UIEventInput, UIEventType } from "../shared/ui/events";
 import { JsonFile, loadJsonFile } from "./json";
 import p from "path";
 import { SHORTCUT_FILE_MIGRATIONS } from "./migrations/shortcuts";
+import { OVERRIDE_SCHEMA } from "./migrations/shortcuts/1_initialDefinition";
 
 export interface Shortcuts {
   version: number;
@@ -27,22 +28,21 @@ export const SHORTCUT_FILE_PATH = "shortcuts.json";
 
 export const SHORTCUT_FILE_SCHEMA = z.object({
   version: z.literal(1).optional().default(1),
-  shortcuts: z.array(shortcutSchema).optional(),
+  shortcuts: z.array(OVERRIDE_SCHEMA).optional(),
 });
 
-// TODO: Improve typing here
-
 export interface ShortcutOverride {
-  name?: string;
-  event: UIEventType;
+  name: string;
+  event?: UIEventType;
+  eventInput?: UIEventInput<UIEventType>;
   keys?: string;
-  disabled?: boolean;
-  when?: string;
+  when?: Section;
   repeat?: boolean;
+  disabled?: boolean;
 }
 
 export function shortcutIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
-  let shortcuts: Shortcut[] = [];
+  const shortcuts: Shortcut[] = DEFAULT_SHORTCUTS;
 
   ipc.on("init", async () => {
     const shortcutFile = await loadJsonFile<Shortcuts>(
@@ -51,52 +51,54 @@ export function shortcutIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
       SHORTCUT_FILE_MIGRATIONS
     );
 
-    const raw = shortcutFile.content.shortcuts ?? [];
+    const overrides = shortcutFile.content.shortcuts ?? [];
 
-    // Is there any redundant keys?
-    const duplicates = raw.filter(
-      (item, index) => raw.findIndex((i) => i.keys === item.keys) != index
-    );
+    for (const override of overrides) {
+      const existing = shortcuts.find((s) => s.name === override.name);
 
-    if (duplicates.length > 0) {
-      console.error(
-        "Error: Complete list of duplicate shortcuts: ",
-        duplicates
-      );
-      throw Error(`Duplicate shortcuts for keys ${duplicates[0].keys}`);
-    }
-
-    shortcuts = [];
-    for (const defaultShortcut of DEFAULT_SHORTCUTS) {
-      const userOverride = raw.find((s) => s.name === defaultShortcut.name);
-
-      let shortcut: Shortcut;
-
-      if (userOverride == null) {
-        shortcut = Object.assign({}, defaultShortcut);
-      } else {
-        // Validate it has keys if it's new.
-        if (userOverride.keys == null) {
-          throw Error(
-            `User defined shortcut for ${userOverride.event} does not have any keys specified`
+      // Add new shortcut
+      if (existing == null) {
+        if (override.keys == null) {
+          throw new Error(
+            `Cannot add new shortcut ${override.name} without any keys.`
           );
         }
 
-        shortcut = Object.assign(
-          {},
-          {
-            ...userOverride,
-            name: userOverride.name!,
-            type: "shortcut",
-            keys: parseKeyCodes(userOverride.keys),
-            when: userOverride.when as Section,
-          }
-        );
+        const shortcut = {
+          name: override.name,
+          event: override.event as UIEventType,
+          eventInput: override.eventInput,
+          keys: parseKeyCodes(override.keys),
+          when: override.when,
+          repeat: override.repeat,
+        };
+        shortcuts.push(shortcut);
       }
-
-      shortcuts.push(shortcut);
+      // Update existing
+      else {
+        if (override.disabled != null) {
+          existing.disabled = override.disabled;
+        }
+        if (override.event != null) {
+          existing.event = override.event;
+        }
+        if (override.eventInput != null) {
+          existing.eventInput = override.eventInput;
+        }
+        if (override.keys != null) {
+          existing.keys = parseKeyCodes(override.keys);
+        }
+        if (override.repeat != null) {
+          existing.repeat = override.repeat;
+        }
+        if (override.when != null) {
+          existing.when = override.when;
+        }
+      }
     }
   });
 
-  ipc.handle("shortcuts.getAll", async () => shortcuts);
+  ipc.handle("shortcuts.getAll", async () => {
+    return shortcuts;
+  });
 }
