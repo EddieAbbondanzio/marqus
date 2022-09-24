@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { getProcessType, isDevelopment } from "../shared/env";
-import { Ipc, IpcChannel, IPCS, IpcSchema, IpcType } from "../shared/ipc";
+import { Ipc, IpcChannel, IPCS, IpcType } from "../shared/ipc";
 
 if (getProcessType() === "main") {
   throw Error(
@@ -8,15 +8,15 @@ if (getProcessType() === "main") {
   );
 }
 
-contextBridge.exposeInMainWorld("ipc", (channel: IpcType, ...data: []) => {
+contextBridge.exposeInMainWorld("ipc", (ipcType: IpcType, ...data: []) => {
   // We need to be really careful about what we expose in the renderer.
   // ipcRenderer shouldn't be directly exposed to the renderer and we also want
   // to perform some validation to ensure the action is a known one.
   // See for more info:
   // https://stackoverflow.com/questions/57807459/how-to-use-preload-js-properly-in-electron
 
-  if (IPCS.includes(channel)) {
-    return ipcRenderer.invoke(channel, ...data);
+  if (IPCS.includes(ipcType)) {
+    return ipcRenderer.invoke(ipcType, ...data);
   }
 });
 

@@ -17,7 +17,6 @@ import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
 import { AppState } from "../shared/ui/app";
-import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
 
 const { ipc } = window;
 async function main() {
@@ -72,6 +71,7 @@ export function App(props: AppProps): JSX.Element {
 
     store.on("focus.push", push);
     store.on("focus.pop", pop);
+
     return () => {
       store.off("app.quit", quit);
       store.off("app.toggleSidebar", toggleSidebar);

@@ -80,6 +80,7 @@
     "sass": "^1.43.4",
     "sass-loader": "^12.3.0",
     "styled-components": "^5.3.3",
+    "tozod": "^3.0.0",
     "unist-util-visit": "^2.0.3",
     "zod": "^3.17.10"
   }

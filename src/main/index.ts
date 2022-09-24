@@ -2,16 +2,17 @@ import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
 import { appIpcs } from "./app";
-import { configIpcs, CONFIG_SCHEMA } from "./config";
+import { configIpcs } from "./config";
 import { noteIpcs } from "./notes";
 import { openInBrowser } from "./utils";
 import * as path from "path";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
-import { loadJsonFile } from "./json";
-import { CONFIG_MIGRATIONS } from "./migrations/config";
+import { loadJsonFile2 } from "./json";
+import { CONFIG_SCHEMAS } from "./schemas/config";
 import { Config } from "../shared/domain/config";
 import { shortcutIpcs } from "./shortcuts";
+import { logIpcs } from "./log";
 
 if (getProcessType() !== "main") {
   throw Error(
@@ -33,10 +34,9 @@ export const DEFAULT_WINDOW_WIDTH = 800;
 let mainWindow: BrowserWindow;
 
 export async function main(): Promise<void> {
-  const configFile = await loadJsonFile<Config>(
+  const configFile = await loadJsonFile2<Config>(
     getConfigPath(),
-    CONFIG_SCHEMA,
-    CONFIG_MIGRATIONS
+    CONFIG_SCHEMAS
   );
 
   if (isDevelopment() && configFile.content.dataDirectory == null) {
@@ -55,6 +55,7 @@ export async function main(): Promise<void> {
   const typeSafeIpc = ipcMain as IpcMainTS;
 
   configIpcs(typeSafeIpc, configFile);
+  logIpcs(typeSafeIpc, configFile);
   appIpcs(typeSafeIpc, configFile);
   shortcutIpcs(typeSafeIpc, configFile);
   noteIpcs(typeSafeIpc, configFile);

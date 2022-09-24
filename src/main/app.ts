@@ -9,7 +9,6 @@ import { IpcChannel, IpcMainTS } from "../shared/ipc";
 import { openInBrowser } from "./utils";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
 import { AppState, DEFAULT_SIDEBAR_WIDTH, Section } from "../shared/ui/app";
-import { parseJSON } from "date-fns";
 import { z } from "zod";
 import {
   NoteSort,
@@ -17,10 +16,10 @@ import {
 } from "../shared/domain/note";
 import { JsonFile, loadJsonFile } from "./json";
 import { Config } from "../shared/domain/config";
-import { APP_STATE_MIGRATIONS } from "./migrations/appState";
 import p from "path";
 import { MissingDataDirectoryError } from "../shared/errors";
 import { DATE_OR_STRING_SCHEMA } from "../shared/domain";
+import { APP_STATE_MIGRATIONS } from "./schemas/appState";
 
 export const APP_STATE_PATH = "ui.json";
 
@@ -78,9 +77,10 @@ export function appIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
       throw new MissingDataDirectoryError();
     }
 
-    appStateFile = await loadJsonFile(
+    appStateFile = await loadJsonFile<AppState>(
       p.join(config.content.dataDirectory, APP_STATE_PATH),
-      APP_STATE_SCHEMA,
+      // APP_STATE_SCHEMA,
+      // [appStateSchemaV1]
       APP_STATE_MIGRATIONS
     );
   });

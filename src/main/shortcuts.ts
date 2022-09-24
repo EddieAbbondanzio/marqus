@@ -8,8 +8,8 @@ import { Section } from "../shared/ui/app";
 import { UIEventInput, UIEventType } from "../shared/ui/events";
 import { JsonFile, loadJsonFile } from "./json";
 import p from "path";
-import { SHORTCUT_FILE_MIGRATIONS } from "./migrations/shortcuts";
-import { OVERRIDE_SCHEMA } from "./migrations/shortcuts/1_initialDefinition";
+import { SHORTCUT_FILE_MIGRATIONS } from "./schemas/shortcuts";
+import { OVERRIDE_SCHEMA } from "./schemas/shortcuts/1_initialDefinition";
 
 export interface Shortcuts {
   version: number;

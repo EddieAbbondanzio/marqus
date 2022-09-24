@@ -1,21 +1,8 @@
 import { BrowserWindow, dialog, shell } from "electron";
 import { IpcMainTS } from "../shared/ipc";
-import { DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH } from ".";
 import { Config } from "../shared/domain/config";
-import { z } from "zod";
 import { JsonFile } from "./json";
 
-export const CONFIG_SCHEMA = z
-  .object({
-    version: z.literal(1).optional().default(1),
-    windowHeight: z.number().min(1).optional().default(DEFAULT_WINDOW_HEIGHT),
-    windowWidth: z.number().min(1).optional().default(DEFAULT_WINDOW_WIDTH),
-    dataDirectory: z.string().optional(),
-  })
-  .default({
-    version: 1,
-  });
- 
 export function configIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
   ipc.handle(
     "config.hasDataDirectory",
