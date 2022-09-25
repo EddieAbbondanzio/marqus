@@ -36,7 +36,7 @@ export interface ShortcutOverride {
 }
 
 export function shortcutIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
-  const shortcuts: Shortcut[] = DEFAULT_SHORTCUTS;
+  const shortcuts = [...DEFAULT_SHORTCUTS];
 
   ipc.on("init", async () => {
     const shortcutFile = await loadJsonFile<Shortcuts>(

@@ -15,17 +15,6 @@ export async function loadJsonFile<Content extends { version: number }>(
   schemas: Record<number, ZodSchema>,
   defaultContent: Content
 ): Promise<JsonFile<Content>> {
-  const schemaArray = Object.entries(schemas)
-    .map<[number, ZodSchema]>(([version, schema]) => [
-      Number.parseInt(version, 10),
-      schema,
-    ])
-    .sort(([a], [b]) => (a > b ? 1 : -1));
-
-  if (schemaArray.length === 0) {
-    throw new Error(`Expected at least 1 schema in order to validate content.`);
-  }
-
   let originalContent: Content | undefined;
   if (fs.existsSync(filePath)) {
     const raw = await fsp.readFile(filePath, { encoding: "utf-8" });
@@ -41,32 +30,15 @@ export async function loadJsonFile<Content extends { version: number }>(
     originalContent = defaultContent;
   }
 
-  // Always include current version schema so we can validate against it.
-  const relevantSchemas = schemaArray.filter(
-    ([version]) => originalContent!.version <= version
+  const { content, latestSchema, wasUpdated } = await runSchemas(
+    schemas,
+    originalContent
   );
-  if (relevantSchemas.length === 0) {
-    throw new Error(
-      `File ${filePath} has no schemas to run. Loaded content version was: ${originalContent.version}`
-    );
-  }
-
-  let content = cloneDeep(originalContent);
-  for (const [, schema] of relevantSchemas) {
-    content = await schema.parseAsync(content);
-  }
 
   // Save changes to file if any were made while migrating to latest.
-  if (content.version !== originalContent.version) {
+  if (wasUpdated) {
     const jsonContent = JSON.stringify(content);
     await fsp.writeFile(filePath, jsonContent, { encoding: "utf-8" });
-  }
-
-  const [latestVersion, latestSchema] = last(relevantSchemas)!;
-  if (defaultContent.version !== latestVersion) {
-    throw new Error(
-      `Default content doesn't match latest version ${latestVersion}. Did you mean to update the default?`
-    );
   }
 
   const update = async (partial: DeepPartial<Content>) => {
@@ -85,4 +57,43 @@ export async function loadJsonFile<Content extends { version: number }>(
     update,
   };
   return fileHandler;
+}
+
+export async function runSchemas<Content extends { version: number }>(
+  schemas: Record<number, ZodSchema>,
+  content: Content
+): Promise<{ content: Content; latestSchema: ZodSchema; wasUpdated: boolean }> {
+  const schemaArray = Object.entries(schemas)
+    .map<[number, ZodSchema]>(([version, schema]) => [
+      Number.parseInt(version, 10),
+      schema,
+    ])
+    .sort(([a], [b]) => (a > b ? 1 : -1));
+
+  if (schemaArray.length === 0) {
+    throw new Error(`Expected at least 1 schema in order to validate content.`);
+  }
+
+  // Always include current version schema so we can validate against it.
+  const relevantSchemas = schemaArray.filter(
+    ([version]) => content!.version <= version
+  );
+  const [, latestSchema] = last(relevantSchemas)!;
+
+  if (relevantSchemas.length === 0) {
+    throw new Error(
+      `No schema to run. Loaded content version was: ${content.version} but last schema had version: ${latestSchema}`
+    );
+  }
+
+  let validatedContent = cloneDeep(content);
+  for (const [, schema] of relevantSchemas) {
+    validatedContent = await schema.parseAsync(content);
+  }
+
+  return {
+    content: validatedContent,
+    latestSchema,
+    wasUpdated: content.version !== validatedContent.version,
+  };
 }

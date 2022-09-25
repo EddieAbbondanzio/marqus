@@ -1,6 +1,5 @@
 import { app } from "electron";
 import { z } from "zod";
-import { DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH } from "../..";
 import { ConfigV1 } from "./1_initialDefinition";
 
 export interface ConfigV2 {
@@ -11,7 +10,7 @@ export interface ConfigV2 {
   logDirectory?: string;
 }
 
-export const configSchemaV2 = z.preprocess(
+export const configSchemaV2: z.Schema<ConfigV2> = z.preprocess(
   (obj) => {
     const config = obj as ConfigV1 | ConfigV2;
 
@@ -27,8 +26,8 @@ export const configSchemaV2 = z.preprocess(
   },
   z.object({
     version: z.literal(2),
-    windowHeight: z.number().min(1).default(DEFAULT_WINDOW_HEIGHT),
-    windowWidth: z.number().min(1).default(DEFAULT_WINDOW_WIDTH),
+    windowHeight: z.number().min(1),
+    windowWidth: z.number().min(1),
     dataDirectory: z.string().optional(),
     logDirectory: z.string(),
   })
