@@ -3,74 +3,29 @@ import {
   dialog,
   Menu,
   MenuItemConstructorOptions,
+  shell,
 } from "electron";
 import { isRoleMenu, Menu as MenuType } from "../shared/ui/menu";
 import { IpcChannel, IpcMainTS } from "../shared/ipc";
 import { openInBrowser } from "./utils";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
-import { AppState, DEFAULT_SIDEBAR_WIDTH, Section } from "../shared/ui/app";
-import { parseJSON } from "date-fns";
-import { z } from "zod";
-import {
-  NoteSort,
-  DEFAULT_NOTE_SORTING_ALGORITHM,
-} from "../shared/domain/note";
+import { AppState, DEFAULT_SIDEBAR_WIDTH } from "../shared/ui/app";
+
 import { JsonFile, loadJsonFile } from "./json";
 import { Config } from "../shared/domain/config";
-import { APP_STATE_MIGRATIONS } from "./migrations/appState";
 import p from "path";
 import { MissingDataDirectoryError } from "../shared/errors";
-import { DATE_OR_STRING_SCHEMA } from "../shared/domain";
+import { NoteSort } from "../shared/domain/note";
+import { APP_STATE_SCHEMAS } from "./schemas/appState";
+import { Logger } from "../shared/logger";
 
 export const APP_STATE_PATH = "ui.json";
 
-export const APP_STATE_SCHEMA = z
-  .object({
-    version: z.literal(1).optional().default(1),
-    sidebar: z
-      .object({
-        width: z
-          .string()
-          .regex(/^\d+px$/)
-          .optional()
-          .default(DEFAULT_SIDEBAR_WIDTH),
-        scroll: z.number().optional().default(0),
-        hidden: z.boolean().optional(),
-        selected: z.array(z.string()).optional(),
-        expanded: z.array(z.string()).optional(),
-        sort: z
-          .nativeEnum(NoteSort)
-          .optional()
-          .default(DEFAULT_NOTE_SORTING_ALGORITHM),
-      })
-      .optional()
-      .default({}),
-    editor: z
-      .object({
-        isEditing: z.boolean().optional().default(false),
-        scroll: z.number().optional().default(0),
-        tabs: z
-          .array(
-            z.object({
-              noteId: z.string(),
-              // Intentionally omitted noteContent
-              lastActive: DATE_OR_STRING_SCHEMA.optional(),
-            })
-          )
-          .default([]),
-        tabsScroll: z.number().optional().default(0),
-        activeTabNoteId: z.string().optional(),
-      })
-      .optional()
-      .default({}),
-    focused: z.array(z.nativeEnum(Section)).default([]),
-  })
-  .optional()
-  .default({
-    version: 1,
-  });
-
-export function appIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
+export function appIpcs(
+  ipc: IpcMainTS,
+  config: JsonFile<Config>,
+  log: Logger
+): void {
   let appStateFile: JsonFile<AppState>;
 
   ipc.on("init", async () => {
@@ -78,10 +33,24 @@ export function appIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
       throw new MissingDataDirectoryError();
     }
 
-    appStateFile = await loadJsonFile(
+    appStateFile = await loadJsonFile<AppState>(
       p.join(config.content.dataDirectory, APP_STATE_PATH),
-      APP_STATE_SCHEMA,
-      APP_STATE_MIGRATIONS
+      APP_STATE_SCHEMAS,
+      {
+        version: 1,
+        sidebar: {
+          scroll: 0,
+          sort: NoteSort.Alphanumeric,
+          width: DEFAULT_SIDEBAR_WIDTH,
+        },
+        editor: {
+          isEditing: false,
+          scroll: 0,
+          tabs: [],
+          tabsScroll: 0,
+        },
+        focused: [],
+      }
     );
   });
 
@@ -172,6 +141,10 @@ export function appIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
   });
 
   ipc.handle("app.openInWebBrowser", (_, url) => openInBrowser(url));
+
+  ipc.handle("app.openLogDirectory", async () => {
+    await shell.openPath(config.content.logDirectory);
+  });
 }
 
 export function buildMenus(

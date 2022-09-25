@@ -79,7 +79,10 @@ const StyledContent = styled.div`
   overflow: hidden;
 `;
 
-const debouncedInvoker = debounce(window.ipc, NOTE_SAVE_INTERVAL_MS) as Ipc;
+const debouncedInvoker = debounce(
+  window.ipc,
+  NOTE_SAVE_INTERVAL_MS
+) as unknown as Ipc;
 
 const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
   if (value == null) {

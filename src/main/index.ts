@@ -2,18 +2,14 @@ import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
 import { appIpcs } from "./app";
-import { configIpcs, CONFIG_SCHEMA } from "./config";
+import { configIpcs, getConfig } from "./config";
 import { noteIpcs } from "./notes";
 import { openInBrowser } from "./utils";
-import * as path from "path";
-import * as fs from "fs";
-import * as fsp from "fs/promises";
-import { loadJsonFile } from "./json";
-import { CONFIG_MIGRATIONS } from "./migrations/config";
-import { Config } from "../shared/domain/config";
-import { shortcutIpcs } from "./shortcuts";
 
-if (getProcessType() !== "main") {
+import { shortcutIpcs } from "./shortcuts";
+import { getLogger, logIpcs } from "./log";
+
+if (!isTest() && getProcessType() !== "main") {
   throw Error(
     "ipcMain is null. Did you accidentally import main.ts in the renderer thread?"
   );
@@ -25,39 +21,18 @@ if (getProcessType() !== "main") {
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-export const CONFIG_FILE = "config.json";
-export const DEFAULT_DEV_DATA_DIRECTORY = "data";
-export const DEFAULT_WINDOW_HEIGHT = 600;
-export const DEFAULT_WINDOW_WIDTH = 800;
-
 let mainWindow: BrowserWindow;
 
 export async function main(): Promise<void> {
-  const configFile = await loadJsonFile<Config>(
-    getConfigPath(),
-    CONFIG_SCHEMA,
-    CONFIG_MIGRATIONS
-  );
-
-  if (isDevelopment() && configFile.content.dataDirectory == null) {
-    await configFile.update({ dataDirectory: DEFAULT_DEV_DATA_DIRECTORY });
-  }
-
-  // Always check if we need to recreate the data directory on start. It may have
-  // been deleted to clear out notes.
-  if (
-    configFile.content.dataDirectory != null &&
-    !fs.existsSync(configFile.content.dataDirectory)
-  ) {
-    await fsp.mkdir(configFile.content.dataDirectory);
-  }
+  const configFile = await getConfig();
+  const log = await getLogger(configFile, console);
 
   const typeSafeIpc = ipcMain as IpcMainTS;
-
-  configIpcs(typeSafeIpc, configFile);
-  appIpcs(typeSafeIpc, configFile);
-  shortcutIpcs(typeSafeIpc, configFile);
-  noteIpcs(typeSafeIpc, configFile);
+  logIpcs(typeSafeIpc, configFile, log);
+  configIpcs(typeSafeIpc, configFile, log);
+  appIpcs(typeSafeIpc, configFile, log);
+  shortcutIpcs(typeSafeIpc, configFile, log);
+  noteIpcs(typeSafeIpc, configFile, log);
 
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.
   if (require("electron-squirrel-startup")) {
@@ -147,6 +122,14 @@ export async function main(): Promise<void> {
     }
   });
 
+  app.on("quit", () => {
+    log.close();
+
+    // Use console.log() over log.info to avoid appending this to the log file
+    // eslint-disable-next-line no-console
+    console.log(`Shutting down. Log saved to: ${log.filePath}`);
+  });
+
   // Ready event might fire before we finish loading our config file causing us
   // to miss it.
   // Source: https://github.com/electron/electron/issues/12557
@@ -165,14 +148,4 @@ if (!isTest()) {
 export async function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
   const initListeners = typeSafeIpc.listeners("init");
   return await Promise.all(initListeners.map((l) => l()));
-}
-
-export function getConfigPath(): string {
-  if (isDevelopment()) {
-    return path.join(process.cwd(), CONFIG_FILE);
-  } else if (isTest()) {
-    return "";
-  } else {
-    return path.join(app.getPath("userData"), CONFIG_FILE);
-  }
 }

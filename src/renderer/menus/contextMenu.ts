@@ -14,11 +14,12 @@ import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";
 import { Section } from "../../shared/ui/app";
 import { getEditorTabAttribute } from "../components/EditorTabs";
+import { IpcChannel } from "../../shared/ipc";
 
 export function useContextMenu(store: Store): void {
   const { state } = store;
 
-  // useMemo prevents unneccessary renders
+  // useMemo prevents unnecessary renders
   const shortcutLabels = useMemo(
     () => getShortcutLabels(state.shortcuts),
     [state.shortcuts]
@@ -177,9 +178,9 @@ export function useContextMenu(store: Store): void {
       store.dispatch(event, eventInput);
     };
 
-    window.addEventListener("contextmenuclick", onClick);
+    window.addEventListener(IpcChannel.ContextMenuClick, onClick);
     return () => {
-      window.removeEventListener("contextmenuclick", onClick);
+      window.removeEventListener(IpcChannel.ContextMenuClick, onClick);
     };
   }, [store]);
 }

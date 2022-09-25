@@ -17,7 +17,7 @@ import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
 import { AppState } from "../shared/ui/app";
-import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
+import { log } from "./logger";
 
 const { ipc } = window;
 async function main() {
@@ -67,11 +67,13 @@ export function App(props: AppProps): JSX.Element {
     store.on("app.toggleFullScreen", toggleFullScreen);
     store.on("app.openDataDirectory", openDataDirectory);
     store.on("app.selectDataDirectory", selectDataDirectory);
+    store.on("app.openLogDirectory", openLogs);
 
     store.on("sidebar.focusSearch", globalSearch);
 
     store.on("focus.push", push);
     store.on("focus.pop", pop);
+
     return () => {
       store.off("app.quit", quit);
       store.off("app.toggleSidebar", toggleSidebar);
@@ -81,6 +83,7 @@ export function App(props: AppProps): JSX.Element {
       store.off("app.toggleFullScreen", toggleFullScreen);
       store.off("app.openDataDirectory", openDataDirectory);
       store.off("app.selectDataDirectory", selectDataDirectory);
+      store.off("app.openLogDirectory", openLogs);
 
       store.off("sidebar.focusSearch", globalSearch);
 
@@ -233,3 +236,6 @@ export const globalSearch: Listener<"sidebar.focusSearch"> = (_, ctx) => {
     },
   });
 };
+
+export const openLogs: Listener<"app.openLogDirectory"> = () =>
+  ipc("app.openLogDirectory");

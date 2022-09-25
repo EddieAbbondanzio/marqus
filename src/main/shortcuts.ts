@@ -8,8 +8,8 @@ import { Section } from "../shared/ui/app";
 import { UIEventInput, UIEventType } from "../shared/ui/events";
 import { JsonFile, loadJsonFile } from "./json";
 import p from "path";
-import { SHORTCUT_FILE_MIGRATIONS } from "./migrations/shortcuts";
-import { OVERRIDE_SCHEMA } from "./migrations/shortcuts/1_initialDefinition";
+import { SHORTCUTS_SCHEMAS } from "./schemas/shortcuts";
+import { Logger } from "../shared/logger";
 
 export interface Shortcuts {
   version: number;
@@ -26,11 +26,6 @@ export interface Shortcuts {
 
 export const SHORTCUT_FILE_PATH = "shortcuts.json";
 
-export const SHORTCUT_FILE_SCHEMA = z.object({
-  version: z.literal(1).optional().default(1),
-  shortcuts: z.array(OVERRIDE_SCHEMA).optional(),
-});
-
 export interface ShortcutOverride {
   name: string;
   event?: UIEventType;
@@ -41,14 +36,18 @@ export interface ShortcutOverride {
   disabled?: boolean;
 }
 
-export function shortcutIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
-  const shortcuts: Shortcut[] = DEFAULT_SHORTCUTS;
+export function shortcutIpcs(
+  ipc: IpcMainTS,
+  config: JsonFile<Config>,
+  log: Logger
+): void {
+  const shortcuts = [...DEFAULT_SHORTCUTS];
 
   ipc.on("init", async () => {
     const shortcutFile = await loadJsonFile<Shortcuts>(
       p.join(config.content.dataDirectory!, SHORTCUT_FILE_PATH),
-      SHORTCUT_FILE_SCHEMA,
-      SHORTCUT_FILE_MIGRATIONS
+      SHORTCUTS_SCHEMAS,
+      { version: 1, shortcuts: [] }
     );
 
     const overrides = shortcutFile.content.shortcuts ?? [];

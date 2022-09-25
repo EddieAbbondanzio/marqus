@@ -17,6 +17,7 @@ export const IPCS = [
   "app.loadAppState",
   "app.saveAppState",
   "app.openInWebBrowser",
+  "app.openLogDirectory",
 
   "shortcuts.getAll",
 
@@ -31,6 +32,11 @@ export const IPCS = [
   "config.hasDataDirectory",
   "config.selectDataDirectory",
   "config.openDataDirectory",
+
+  "log.info",
+  "log.debug",
+  "log.warn",
+  "log.error",
 ] as const;
 
 export type IpcType = typeof IPCS[number];
@@ -49,6 +55,7 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "app.loadAppState"(): Promise<AppState>;
   "app.saveAppState"(ui: AppState): Promise<void>;
   "app.openInWebBrowser"(url: string): Promise<void>;
+  "app.openLogDirectory"(): Promise<void>;
 
   // Shortcuts
   "shortcuts.getAll"(): Promise<Shortcut[]>;
@@ -66,6 +73,12 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "config.hasDataDirectory"(): Promise<boolean>;
   "config.selectDataDirectory"(): Promise<void>;
   "config.openDataDirectory"(): Promise<void>;
+
+  // Logging
+  "log.info"(message: string): Promise<void>;
+  "log.debug"(message: string): Promise<void>;
+  "log.warn"(message: string): Promise<void>;
+  "log.error"(message: string): Promise<void>;
 }
 
 export type Ipc = <T extends IpcType, I extends Parameters<IpcSchema[T]>>(

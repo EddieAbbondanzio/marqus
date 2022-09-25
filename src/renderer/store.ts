@@ -7,6 +7,7 @@ import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
 import { Section, AppState } from "../shared/ui/app";
+import { log } from "./logger";
 
 export interface Store {
   state: State;
@@ -79,7 +80,7 @@ export function useStore(initialState: State): Store {
 
   const setUI: SetUI = useCallback((transformer) => {
     setState((prevState) => {
-      const prevUI = pick(prevState, "editor", "sidebar", "focused");
+      const prevUI = pick(prevState, "version", "editor", "sidebar", "focused");
 
       const updates =
         typeof transformer === "function" ? transformer(prevUI) : transformer;
@@ -92,7 +93,7 @@ export function useStore(initialState: State): Store {
 
       // We need to delete some values before sending them over to the main
       // thread otherwise electron will throw an error.
-      const newUI = pick(newState, "editor", "sidebar", "focused");
+      const newUI = pick(newState, "version", "editor", "sidebar", "focused");
       const clonedUI = cloneDeep(newUI);
       if (clonedUI?.sidebar != null) {
         delete clonedUI.sidebar.input;
@@ -182,6 +183,7 @@ export function useStore(initialState: State): Store {
     async (event, value: any) => {
       const eventListeners: any = listeners.current[event];
       if (eventListeners == null || eventListeners.length === 0) {
+        log.debug(`No store listener found for ${event}.`);
         return;
       }
 
@@ -192,7 +194,7 @@ export function useStore(initialState: State): Store {
       }
     },
     [ctx]
-  );
+  ) as Dispatch;
 
   const on: On = <ET extends UIEventType>(
     event: ET | ET[],

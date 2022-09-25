@@ -1,145 +1,112 @@
-import { cloneDeep, last, uniq } from "lodash";
+import { cloneDeep, last } from "lodash";
 import * as fsp from "fs/promises";
 import * as fs from "fs";
-import { ZodTypeAny } from "zod";
-import { deepUpdate } from "../shared/deepUpdate";
+import { ZodSchema } from "zod";
 import { DeepPartial } from "tsdef";
-
-type Versioned<T = { version: number }> = T & { version: number };
+import { deepUpdate } from "../shared/deepUpdate";
 
 export interface JsonFile<T> {
-  // Makes it easy to send off over IPC if it's in it's own prop.
   content: Readonly<T>;
   update(partial: DeepPartial<T>): Promise<void>;
 }
 
-/**
- * Migration to assist in converting JSON content.
- */
-export abstract class JsonMigration<Input, Output> {
-  /**
-   * Json version of the input.
-   */
-  abstract version: number;
-
-  /**
-   * Validate the input and ensure it's meant for this migration.
-   * Throws if invalid.
-   * @param input The original input to validate.
-   */
-  abstract validateInput(input: unknown): Promise<Input>;
-
-  /**
-   * Migrate the JSON content and return it's updated version.
-   * @param input The input to migrate.
-   */
-  protected abstract migrate(input: Input): Promise<Output>;
-
-  /**
-   * Attempt to migrate the JSON. Throws if the input was invalid.
-   * @param input The JSON content to migrate.
-   * @returns The updated content.
-   */
-  async run(input: unknown): Promise<Versioned<Output>> {
-    const validated = await this.validateInput(input);
-    const output = await this.migrate(validated);
-
-    return {
-      version: this.version,
-      ...cloneDeep(output),
-    };
-  }
-}
-
-export async function loadJsonFile<Content>(
+export async function loadJsonFile<Content extends { version: number }>(
   filePath: string,
-  schema: ZodTypeAny,
-  migrations: JsonMigration<unknown, Omit<Content, "version">>[]
+  schemas: Record<number, ZodSchema>,
+  defaultContent: Content,
+  opts: { prettyPrint?: boolean } = { prettyPrint: true }
 ): Promise<JsonFile<Content>> {
-  if (migrations.length === 0) {
-    throw new Error(
-      `Expected a least 1 migration. Otherwise we can't validate the content at all.`
-    );
-  }
-
-  const migrationVersions = migrations.map((m) => m.version);
-  if (uniq(migrationVersions).length !== migrationVersions.length) {
-    throw new Error(`Duplicate migration numbers detected for ${filePath}`);
-  }
-
-  for (let i = 1; i < migrations.length; i++) {
-    const prev = migrations[i - 1];
-    const curr = migrations[i];
-
-    if (prev.version > curr.version) {
-      throw new Error(
-        `Migration versions are out of order for ${filePath}. ${prev.version} comes before ${curr.version}`
-      );
-    }
-  }
-
-  let originalContent;
+  let originalContent: Content | undefined;
   if (fs.existsSync(filePath)) {
     const raw = await fsp.readFile(filePath, { encoding: "utf-8" });
     originalContent = JSON.parse(raw);
   }
 
-  let versioned: Versioned;
-  if (originalContent == null || typeof originalContent !== "object") {
-    versioned = { version: migrations[0].version };
-  } else {
-    versioned = originalContent as Versioned;
+  // Apply default content if no content found, or if it had no versioning.
+  if (
+    originalContent == null ||
+    !originalContent.hasOwnProperty("version") ||
+    typeof originalContent.version !== "number"
+  ) {
+    originalContent = defaultContent;
   }
 
-  const migratedContent = await runMigrations<Content>(versioned, migrations);
+  const { content, latestSchema, wasUpdated } = await runSchemas(
+    schemas,
+    originalContent
+  );
 
-  // We always want to run this because it'll apply defaults for any missing
-  // values, and in the event the json file has been modified to the point
-  // where it's unusable, it'll throw an error instead of proceeding.
-  const content = await schema.parseAsync(migratedContent);
+  // Save changes to file if any were made while migrating to latest.
+  if (wasUpdated) {
+    let jsonContent;
+    if (opts.prettyPrint) {
+      jsonContent = JSON.stringify(content, null, 2);
+    } else {
+      jsonContent = JSON.stringify(content);
+    }
+
+    await fsp.writeFile(filePath, jsonContent, { encoding: "utf-8" });
+  }
 
   const update = async (partial: DeepPartial<Content>) => {
     const updated = deepUpdate(content, partial);
-    const validated = await schema.parseAsync(updated);
 
-    const jsonString = JSON.stringify(updated);
-    obj.content = validated;
+    // Validate against latest schema when saving to ensure we have valid content.
+    const validated = await latestSchema.parseAsync(updated);
+
+    let jsonString;
+    if (opts.prettyPrint) {
+      jsonString = JSON.stringify(updated, null, 2);
+    } else {
+      jsonString = JSON.stringify(updated);
+    }
+
+    fileHandler.content = validated;
     await fsp.writeFile(filePath, jsonString, { encoding: "utf-8" });
   };
 
-  const obj = {
+  const fileHandler = {
     content,
     update,
   };
-
-  return obj;
+  return fileHandler;
 }
 
-// Should not be used outside of this file.
-async function runMigrations<Output>(
-  input: { version: number },
-  migrations: JsonMigration<unknown, Omit<Output, "version">>[]
-): Promise<Versioned<Output>> {
-  const latestMigration = last(migrations)!;
+export async function runSchemas<Content extends { version: number }>(
+  schemas: Record<number, ZodSchema>,
+  content: Content
+): Promise<{ content: Content; latestSchema: ZodSchema; wasUpdated: boolean }> {
+  const schemaArray = Object.entries(schemas)
+    .map<[number, ZodSchema]>(([version, schema]) => [
+      Number.parseInt(version, 10),
+      schema,
+    ])
+    .sort(([a], [b]) => (a > b ? 1 : -1));
 
-  if (input.version > latestMigration.version) {
+  if (schemaArray.length === 0) {
+    throw new Error(`Expected at least 1 schema in order to validate content.`);
+  }
+
+  // Always include current version schema so we can validate against it.
+  const relevantSchemas = schemaArray.filter(
+    ([version]) => content!.version <= version
+  );
+  const [, latestSchema] = last(relevantSchemas)!;
+
+  if (relevantSchemas.length === 0) {
     throw new Error(
-      `Input version ${input.version} is higher than latest migration ${latestMigration.version}`
+      `No schema(s) to run. Loaded content version was: ${content.version} but last schema had version: ${latestSchema}`
     );
   }
 
-  if (input.version === latestMigration.version) {
-    return input as Versioned<Output>;
+  let validatedContent = cloneDeep(content);
+  for (const [, schema] of relevantSchemas) {
+    validatedContent = await schema.parseAsync(content);
   }
 
-  let current = input;
-  for (let i = 0; i < migrations.length; i++) {
-    if (current.version > migrations[i].version) {
-      continue;
-    }
-
-    current = await migrations[i].run(current);
-  }
-
-  return current as Versioned<Output>;
+  return {
+    content: validatedContent,
+    latestSchema,
+    wasUpdated: validatedContent.version > content.version,
+  };
 }

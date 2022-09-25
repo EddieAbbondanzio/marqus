@@ -20,9 +20,6 @@ export interface MarkdownProps {
   onScroll: (newVal: number) => void;
 }
 
-// TODO: Get better typing on this.
-type Props = Record<string, never>;
-
 export function Markdown(props: MarkdownProps): JSX.Element {
   // Check for update so we can migrate to newer versions of remarkGFM
   // https://github.com/remarkjs/react-remark/issues/50
@@ -43,7 +40,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         code: CodeSpan,
         span: Text,
         image: Image,
-        a: (p: Props) => (
+        a: (p: any) => (
           <Link target="_blank" href={p.href} title={p.href}>
             {p.children}
           </Link>
@@ -55,7 +52,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         em: Em,
         ul: UnorderedList,
         ol: OrderedList,
-        li: (p: Props) => {
+        li: (p: any) => {
           if (p.className === "task-list-item") {
             return <Li className="task">{p.children}</Li>;
           } else {
