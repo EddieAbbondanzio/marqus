@@ -106,3 +106,32 @@ test("getLogger logs to file", async () => {
     expect.stringMatching(/.* \(ERROR\): something went wrong!/)
   );
 });
+
+test("getLogger close deletes empty log files", async () => {
+  (fs.createWriteStream as jest.Mock).mockReturnValue({
+    write: jest.fn(),
+    close: jest.fn(),
+  });
+  (fsp.readdir as jest.Mock).mockResolvedValueOnce([]);
+
+  const configFile = createJsonFile<Config>({
+    logDirectory: "logs",
+  } as Config);
+  const log = await getLogger(configFile, {
+    log: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  } as unknown as Console);
+
+  (fs.statSync as jest.Mock).mockReturnValueOnce({
+    size: 10,
+  });
+  log.close();
+  expect(fs.unlinkSync).not.toBeCalledWith(log.filePath);
+
+  (fs.statSync as jest.Mock).mockReturnValueOnce({
+    size: 0,
+  });
+  log.close();
+  expect(fs.unlinkSync).toBeCalledWith(log.filePath);
+});

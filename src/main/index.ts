@@ -123,6 +123,8 @@ export async function main(): Promise<void> {
   });
 
   app.on("quit", () => {
+    log.close();
+
     // Use console.log() over log.info to avoid appending this to the log file
     // eslint-disable-next-line no-console
     console.log(`Shutting down. Log saved to: ${log.filePath}`);

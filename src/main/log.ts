@@ -45,7 +45,7 @@ export function logIpcs(
 export async function getLogger(
   config: JsonFile<Config>,
   c: Console
-): Promise<Logger & { filePath: string }> {
+): Promise<Logger & { filePath: string; close: () => void }> {
   const { logDirectory } = config.content;
   if (logDirectory != null && !fs.existsSync(logDirectory)) {
     await fsp.mkdir(logDirectory);
@@ -102,7 +102,17 @@ export async function getLogger(
     },
   };
 
-  return { ...log, filePath: currFilePath };
+  // Cannot be async, otherwise app stops running before empty log is deleted.
+  const close = () => {
+    fileStream.close();
+
+    // Delete empty log files to avoid spamming file system.
+    if (fs.statSync(currFilePath).size === 0) {
+      fs.unlinkSync(currFilePath);
+    }
+  };
+
+  return { ...log, filePath: currFilePath, close };
 }
 
 export function getTimeStamp(): string {
