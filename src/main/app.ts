@@ -3,6 +3,7 @@ import {
   dialog,
   Menu,
   MenuItemConstructorOptions,
+  shell,
 } from "electron";
 import { isRoleMenu, Menu as MenuType } from "../shared/ui/menu";
 import { IpcChannel, IpcMainTS } from "../shared/ipc";
@@ -140,6 +141,10 @@ export function appIpcs(
   });
 
   ipc.handle("app.openInWebBrowser", (_, url) => openInBrowser(url));
+
+  ipc.handle("app.openLogDirectory", async () => {
+    await shell.openPath(config.content.logDirectory);
+  });
 }
 
 export function buildMenus(

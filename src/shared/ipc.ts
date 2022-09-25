@@ -17,6 +17,7 @@ export const IPCS = [
   "app.loadAppState",
   "app.saveAppState",
   "app.openInWebBrowser",
+  "app.openLogDirectory",
 
   "shortcuts.getAll",
 
@@ -54,6 +55,7 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "app.loadAppState"(): Promise<AppState>;
   "app.saveAppState"(ui: AppState): Promise<void>;
   "app.openInWebBrowser"(url: string): Promise<void>;
+  "app.openLogDirectory"(): Promise<void>;
 
   // Shortcuts
   "shortcuts.getAll"(): Promise<Shortcut[]>;

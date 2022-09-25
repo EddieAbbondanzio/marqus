@@ -19,6 +19,7 @@ export interface UIEvents {
   "app.toggleFullScreen": void;
   "app.inspectElement": Point;
   "app.toggleSidebar": void;
+  "app.openLogDirectory": void;
 
   // Sidebar
   "sidebar.updateScroll": number;
@@ -86,6 +87,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "app.toggleFullScreen",
   "app.inspectElement",
   "app.toggleSidebar",
+  "app.openLogDirectory",
 
   // Sidebar
   "sidebar.updateScroll",

@@ -122,6 +122,12 @@ export async function main(): Promise<void> {
     }
   });
 
+  app.on("quit", () => {
+    // Use console.log() over log.info to avoid appending this to the log file
+    // eslint-disable-next-line no-console
+    console.log(`Shutting down. Log saved to: ${log.filePath}`);
+  });
+
   // Ready event might fire before we finish loading our config file causing us
   // to miss it.
   // Source: https://github.com/electron/electron/issues/12557

@@ -30,6 +30,12 @@ export function useApplicationMenu(store: Store): void {
             shortcut: shortcutLabels["app.openDevTools"],
             event: "app.openDevTools",
           },
+          {
+            label: "Open logs",
+            type: "normal",
+            shortcut: shortcutLabels["app.openLogDirectory"],
+            event: "app.openLogDirectory",
+          },
         ],
       });
     }

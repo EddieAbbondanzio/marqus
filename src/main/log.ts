@@ -45,7 +45,7 @@ export function logIpcs(
 export async function getLogger(
   config: JsonFile<Config>,
   c: Console
-): Promise<Logger> {
+): Promise<Logger & { filePath: string }> {
   const { logDirectory } = config.content;
   if (logDirectory != null && !fs.existsSync(logDirectory)) {
     await fsp.mkdir(logDirectory);
@@ -70,7 +70,8 @@ export async function getLogger(
   }
 
   const currLogFile = getLogFileName(new Date());
-  const fileStream = fs.createWriteStream(p.join(logDirectory, currLogFile), {
+  const currFilePath = p.join(logDirectory, currLogFile);
+  const fileStream = fs.createWriteStream(currFilePath, {
     flags: "a",
   });
 
@@ -101,7 +102,7 @@ export async function getLogger(
     },
   };
 
-  return log;
+  return { ...log, filePath: currFilePath };
 }
 
 export function getTimeStamp(): string {
