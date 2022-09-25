@@ -4,7 +4,7 @@ import React from "react";
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
 import { pb2 } from "../css";
-import { logger } from "../logger";
+import { log } from "../logger";
 import { Store } from "../store";
 import { Icon } from "./shared/Icon";
 
@@ -16,7 +16,7 @@ export function SidebarNewNoteButton(
   props: PropsWithChildren<SidebarNewNoteButton>
 ): JSX.Element {
   const onClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
-    logger.info("HI");
+    log.info("HI");
     // Stop prop otherwise we'll mess up switching focus
     ev.stopPropagation();
     props.store.dispatch("sidebar.createNote", null);

@@ -1,6 +1,13 @@
+import { getProcessType, isTest } from "../shared/env";
 import { Logger } from "../shared/logger";
 
-export const logger: Logger = {
+if (!isTest() && getProcessType() !== "renderer") {
+  throw Error(
+    "window.ipc is null. Did you accidentally import logger.ts in the main thread?"
+  );
+}
+
+export const log: Logger = {
   info: async (message) => {
     console.log(message);
     window.ipc("log.info", message);

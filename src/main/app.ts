@@ -19,7 +19,11 @@ import { APP_STATE_SCHEMAS } from "./schemas/appState";
 
 export const APP_STATE_PATH = "ui.json";
 
-export function appIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
+export function appIpcs(
+  ipc: IpcMainTS,
+  config: JsonFile<Config>,
+  log: Logger
+): void {
   let appStateFile: JsonFile<AppState>;
 
   ipc.on("init", async () => {

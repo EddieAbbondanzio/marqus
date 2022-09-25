@@ -35,7 +35,11 @@ export interface ShortcutOverride {
   disabled?: boolean;
 }
 
-export function shortcutIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
+export function shortcutIpcs(
+  ipc: IpcMainTS,
+  config: JsonFile<Config>,
+  log: Logger
+): void {
   const shortcuts = [...DEFAULT_SHORTCUTS];
 
   ipc.on("init", async () => {

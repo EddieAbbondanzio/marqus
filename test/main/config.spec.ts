@@ -1,4 +1,8 @@
-import { DEFAULT_DEV_DATA_DIRECTORY, main } from "../../src/main/index";
+import {
+  DEFAULT_DEV_DATA_DIRECTORY,
+  DEFAULT_DEV_LOG_DIRECTORY,
+  getConfig,
+} from "../../src/main/config";
 import fsp from "fs/promises";
 import fs from "fs";
 import * as env from "../../src/shared/env";
@@ -8,7 +12,7 @@ jest.mock("fs/promises");
 jest.mock("fs");
 jest.mock("../../src/main/json");
 
-test("main defaults data directory in development", async () => {
+test("getConfig defaults data / log directory in development", async () => {
   const update = jest.fn();
 
   (loadJsonFile as jest.Mock).mockResolvedValueOnce({
@@ -24,13 +28,14 @@ test("main defaults data directory in development", async () => {
   // to function normal.
   jest.spyOn(env, "isDevelopment").mockReturnValue(true);
 
-  await main();
+  await getConfig();
   expect(update).toHaveBeenCalledWith({
     dataDirectory: DEFAULT_DEV_DATA_DIRECTORY,
+    logDirectory: DEFAULT_DEV_LOG_DIRECTORY,
   });
 });
 
-test("main creates data directory if directory is missing.", async () => {
+test("getConfig creates data directory if directory is missing.", async () => {
   (loadJsonFile as jest.Mock).mockResolvedValueOnce({
     content: {
       dataDirectory: "foo",
@@ -44,6 +49,6 @@ test("main creates data directory if directory is missing.", async () => {
   (fsp.mkdir as jest.Mock).mockImplementation(mkdir);
   (fs.existsSync as jest.Mock).mockReturnValue(false);
 
-  await main();
+  await getConfig();
   expect(mkdir).toHaveBeenCalledWith("foo");
 });

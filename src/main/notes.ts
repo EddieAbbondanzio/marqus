@@ -19,7 +19,11 @@ export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
 
-export function noteIpcs(ipc: IpcMainTS, config: JsonFile<Config>): void {
+export function noteIpcs(
+  ipc: IpcMainTS,
+  config: JsonFile<Config>,
+  log: Logger
+): void {
   let initialized = false;
   let notes: Note[] = [];
   const dataDirectory = config.content.dataDirectory!;
