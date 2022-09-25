@@ -47,7 +47,9 @@ const fooV2: z.Schema<FooV2> = z.preprocess(
 
 test("loadJsonFile throws if no migrations passed", async () => {
   await expect(async () => {
-    await loadJsonFile("fake-file-path.json", {}, null!);
+    await loadJsonFile("fake-file-path.json", {}, null!, {
+      prettyPrint: false,
+    });
   }).rejects.toThrow(/Expected at least 1 schema/);
 });
 
@@ -64,7 +66,8 @@ test("loadJsonFile loads default content if no file found", async () => {
       version: 2,
       foo: "cat",
       bar: 42,
-    }
+    },
+    { prettyPrint: false }
   );
   expect(content).toEqual({
     version: 2,
@@ -104,7 +107,8 @@ test("loadJsonFile loads content and validates it", async () => {
       version: 2,
       foo: "cat",
       bar: 42,
-    }
+    },
+    { prettyPrint: false }
   );
 
   expect(content).toEqual({
@@ -147,7 +151,8 @@ test("loadJsonFile update validates content before saving to file.", async () =>
       version: 2,
       foo: "cat",
       bar: 42,
-    }
+    },
+    { prettyPrint: false }
   );
 
   expect(fsp.writeFile).not.toBeCalled();
@@ -199,7 +204,8 @@ test("loadJsonFile migrates when loading older content", async () => {
       version: 2,
       foo: "cat",
       bar: 42,
-    }
+    },
+    { prettyPrint: false }
   );
 
   expect(fileHandler.content).toEqual({

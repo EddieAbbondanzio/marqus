@@ -13,7 +13,8 @@ export interface JsonFile<T> {
 export async function loadJsonFile<Content extends { version: number }>(
   filePath: string,
   schemas: Record<number, ZodSchema>,
-  defaultContent: Content
+  defaultContent: Content,
+  opts: { prettyPrint?: boolean } = { prettyPrint: true }
 ): Promise<JsonFile<Content>> {
   let originalContent: Content | undefined;
   if (fs.existsSync(filePath)) {
@@ -37,7 +38,13 @@ export async function loadJsonFile<Content extends { version: number }>(
 
   // Save changes to file if any were made while migrating to latest.
   if (wasUpdated) {
-    const jsonContent = JSON.stringify(content);
+    let jsonContent;
+    if (opts.prettyPrint) {
+      jsonContent = JSON.stringify(content, null, 2);
+    } else {
+      jsonContent = JSON.stringify(content);
+    }
+
     await fsp.writeFile(filePath, jsonContent, { encoding: "utf-8" });
   }
 
@@ -47,7 +54,13 @@ export async function loadJsonFile<Content extends { version: number }>(
     // Validate against latest schema when saving to ensure we have valid content.
     const validated = await latestSchema.parseAsync(updated);
 
-    const jsonString = JSON.stringify(updated);
+    let jsonString;
+    if (opts.prettyPrint) {
+      jsonString = JSON.stringify(updated, null, 2);
+    } else {
+      jsonString = JSON.stringify(updated);
+    }
+
     fileHandler.content = validated;
     await fsp.writeFile(filePath, jsonString, { encoding: "utf-8" });
   };
@@ -82,7 +95,7 @@ export async function runSchemas<Content extends { version: number }>(
 
   if (relevantSchemas.length === 0) {
     throw new Error(
-      `No schema to run. Loaded content version was: ${content.version} but last schema had version: ${latestSchema}`
+      `No schema(s) to run. Loaded content version was: ${content.version} but last schema had version: ${latestSchema}`
     );
   }
 
@@ -94,6 +107,6 @@ export async function runSchemas<Content extends { version: number }>(
   return {
     content: validatedContent,
     latestSchema,
-    wasUpdated: content.version !== validatedContent.version,
+    wasUpdated: validatedContent.version > content.version,
   };
 }
