@@ -9,18 +9,22 @@ if (!isTest() && getProcessType() !== "renderer") {
 
 export const log: Logger = {
   info: async (message) => {
+    // eslint-disable-next-line no-console
     console.log(message);
     window.ipc("log.info", message);
   },
   warn: async (message) => {
+    // eslint-disable-next-line no-console
     console.warn(message);
     window.ipc("log.warn", message);
   },
   error: async (message) => {
+    // eslint-disable-next-line no-console
     console.error(message);
     window.ipc("log.error", message);
   },
   debug: async (message) => {
+    // eslint-disable-next-line no-console
     console.log(message);
     window.ipc("log.debug", message);
   },
