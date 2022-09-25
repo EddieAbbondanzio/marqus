@@ -14,6 +14,7 @@ import * as fs from "fs";
 import * as fsp from "fs/promises";
 import { JsonFile } from "./json";
 import * as p from "path";
+import { Logger } from "../shared/logger";
 
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";

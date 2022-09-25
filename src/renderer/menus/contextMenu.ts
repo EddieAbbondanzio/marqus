@@ -19,7 +19,7 @@ import { IpcChannel } from "../../shared/ipc";
 export function useContextMenu(store: Store): void {
   const { state } = store;
 
-  // useMemo prevents unneccessary renders
+  // useMemo prevents unnecessary renders
   const shortcutLabels = useMemo(
     () => getShortcutLabels(state.shortcuts),
     [state.shortcuts]

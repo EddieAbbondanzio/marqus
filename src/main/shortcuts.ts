@@ -9,6 +9,7 @@ import { UIEventInput, UIEventType } from "../shared/ui/events";
 import { JsonFile, loadJsonFile } from "./json";
 import p from "path";
 import { SHORTCUTS_SCHEMAS } from "./schemas/shortcuts";
+import { Logger } from "../shared/logger";
 
 export interface Shortcuts {
   version: number;

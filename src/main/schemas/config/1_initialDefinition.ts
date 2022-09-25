@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH } from "../..";
+import { DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH } from "../../config";
 
 export interface ConfigV1 {
   version: number;

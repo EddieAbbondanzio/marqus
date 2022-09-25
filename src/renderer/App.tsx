@@ -17,6 +17,7 @@ import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
 import { AppState } from "../shared/ui/app";
+import { log } from "./logger";
 
 const { ipc } = window;
 async function main() {

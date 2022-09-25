@@ -16,6 +16,7 @@ import p from "path";
 import { MissingDataDirectoryError } from "../shared/errors";
 import { NoteSort } from "../shared/domain/note";
 import { APP_STATE_SCHEMAS } from "./schemas/appState";
+import { Logger } from "../shared/logger";
 
 export const APP_STATE_PATH = "ui.json";
 

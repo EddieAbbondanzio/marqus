@@ -1,1 +1,1 @@
-window.ipc = jest.fn();
+(window as any).ipc = jest.fn();

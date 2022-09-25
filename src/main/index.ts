@@ -25,7 +25,7 @@ let mainWindow: BrowserWindow;
 
 export async function main(): Promise<void> {
   const configFile = await getConfig();
-  const log = await getLogger(configFile);
+  const log = await getLogger(configFile, console);
 
   const typeSafeIpc = ipcMain as IpcMainTS;
   logIpcs(typeSafeIpc, configFile, log);
