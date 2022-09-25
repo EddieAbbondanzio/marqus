@@ -181,12 +181,12 @@ export function useMouseDrag(
       }
     };
 
-    el.addEventListener("mousedown", onMouseDown);
+    (el as HTMLElement).addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("keyup", onKeyUp);
     return () => {
-      el.removeEventListener("mousedown", onMouseDown);
+      (el as HTMLElement).removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("keyup", onKeyUp);

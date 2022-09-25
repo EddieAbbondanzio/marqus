@@ -457,7 +457,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
         },
       }));
     } catch (e) {
-      promptError(e.message);
+      promptError((e as Error).message);
     }
   }
 
@@ -517,7 +517,7 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
         }
       });
     } catch (e) {
-      promptError(e.message);
+      promptError((e as Error).message);
     }
   }
 

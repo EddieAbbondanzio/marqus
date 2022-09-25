@@ -8,7 +8,7 @@ import { openInBrowser } from "./utils";
 import * as path from "path";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
-import { loadJsonFile2 } from "./json";
+import { loadJsonFile } from "./json";
 import { CONFIG_SCHEMAS } from "./schemas/config";
 import { Config } from "../shared/domain/config";
 import { shortcutIpcs } from "./shortcuts";
@@ -34,9 +34,15 @@ export const DEFAULT_WINDOW_WIDTH = 800;
 let mainWindow: BrowserWindow;
 
 export async function main(): Promise<void> {
-  const configFile = await loadJsonFile2<Config>(
+  const configFile = await loadJsonFile<Config>(
     getConfigPath(),
-    CONFIG_SCHEMAS
+    CONFIG_SCHEMAS,
+    {
+      version: 2,
+      windowHeight: DEFAULT_WINDOW_HEIGHT,
+      windowWidth: DEFAULT_WINDOW_WIDTH,
+      logDirectory: app.getPath("logs"),
+    }
   );
 
   if (isDevelopment() && configFile.content.dataDirectory == null) {

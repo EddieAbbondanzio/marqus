@@ -18,13 +18,13 @@ interface FooV2 {
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore foo!
+//@ts-ignore ts-jest doesn't like running in strict mode for some reason?
 const fooV1: z.Schema<FooV1> = z.object({
   version: z.literal(1),
   foo: z.string(),
 });
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore foo!
+//@ts-ignore ts-jest doesn't like running in strict mode for some reason?
 const fooV2: z.Schema<FooV2> = z.preprocess(
   (obj) => {
     const foo = obj as FooV1 | FooV2;

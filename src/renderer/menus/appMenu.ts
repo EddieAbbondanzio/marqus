@@ -3,6 +3,7 @@ import { Menu } from "../../shared/ui/menu";
 import { isDevelopment } from "../../shared/env";
 import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";
+import { IpcChannel } from "../../shared/ipc";
 
 export function useApplicationMenu(store: Store): void {
   const { state } = store;
@@ -141,9 +142,9 @@ export function useApplicationMenu(store: Store): void {
       store.dispatch(event, eventInput);
     };
 
-    window.addEventListener("applicationmenuclick", onClick);
+    window.addEventListener(IpcChannel.ApplicationMenuClick, onClick);
     return () => {
-      window.removeEventListener("applicationmenuclick", onClick);
+      window.removeEventListener(IpcChannel.ApplicationMenuClick, onClick);
     };
   }, [store]);
 }

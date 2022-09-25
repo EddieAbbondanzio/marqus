@@ -18,6 +18,7 @@ export const configSchemaV2 = z.preprocess(
     if (config.version === 1) {
       return {
         ...config,
+        version: 2,
         logDirectory: app.getPath("logs"),
       };
     }
@@ -25,7 +26,7 @@ export const configSchemaV2 = z.preprocess(
     return config;
   },
   z.object({
-    version: z.literal(1).transform(() => 2),
+    version: z.literal(2),
     windowHeight: z.number().min(1).default(DEFAULT_WINDOW_HEIGHT),
     windowWidth: z.number().min(1).default(DEFAULT_WINDOW_WIDTH),
     dataDirectory: z.string().optional(),

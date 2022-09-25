@@ -1,7 +1,3 @@
-import { JsonMigration } from "../../json";
-import { Shortcuts } from "../../shortcuts";
-import { ShortcutsInitialDefinition } from "./1_initialDefinition";
+import { shortcutsV1 } from "./1_initialDefinition";
 
-export const SHORTCUT_FILE_MIGRATIONS: JsonMigration<unknown, Shortcuts>[] = [
-  new ShortcutsInitialDefinition(),
-];
+export const SHORTCUTS_SCHEMAS = { 1: shortcutsV1 };

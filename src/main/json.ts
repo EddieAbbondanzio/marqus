@@ -12,9 +12,7 @@ export interface JsonFile<T> {
 
 export async function loadJsonFile<Content extends { version: number }>(
   filePath: string,
-  schemas: {
-    [version: number]: ZodSchema;
-  },
+  schemas: Record<number, ZodSchema>,
   defaultContent: Content
 ): Promise<JsonFile<Content>> {
   const schemaArray = Object.entries(schemas)
@@ -47,6 +45,11 @@ export async function loadJsonFile<Content extends { version: number }>(
   const relevantSchemas = schemaArray.filter(
     ([version]) => originalContent!.version <= version
   );
+  if (relevantSchemas.length === 0) {
+    throw new Error(
+      `File ${filePath} has no schemas to run. Loaded content version was: ${originalContent.version}`
+    );
+  }
 
   let content = cloneDeep(originalContent);
   for (const [, schema] of relevantSchemas) {

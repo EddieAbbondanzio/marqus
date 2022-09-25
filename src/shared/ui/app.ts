@@ -5,6 +5,7 @@ import { Note, NoteSort } from "../domain/note";
 export const DEFAULT_SIDEBAR_WIDTH = "300px";
 
 export interface AppState {
+  version: number;
   sidebar: Sidebar;
   editor: Editor;
   focused: Section[];
