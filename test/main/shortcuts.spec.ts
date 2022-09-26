@@ -1,10 +1,11 @@
 import { createConfig } from "../__factories__/config";
 import { createIpcMainTS } from "../__factories__/ipc";
-import { createJsonFile } from "../__factories__/jsonFile";
+import { createJsonFile } from "../__factories__/json";
 import { shortcutIpcs } from "../../src/main/shortcuts";
 import { loadJsonFile } from "../../src/main/json";
 import { Section } from "../../src/shared/ui/app";
 import { parseKeyCodes } from "../../src/shared/io/keyCode";
+import { createLogger } from "../__factories__/logger";
 
 jest.mock("fs");
 jest.mock("fs/promises");
@@ -55,7 +56,7 @@ test("shortcutIpcs init", async () => {
     update: jest.fn(),
   });
 
-  shortcutIpcs(ipc, config);
+  shortcutIpcs(ipc, config, createLogger());
   await ipc.trigger("init");
 
   const shortcuts = await ipc.invoke("shortcuts.getAll");
