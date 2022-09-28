@@ -2,9 +2,9 @@ import { UUID_SCHEMA, Resource, uuid, DATE_OR_STRING_SCHEMA } from ".";
 import { isBlank } from "../utils";
 import { isEmpty, orderBy } from "lodash";
 import { z } from "zod";
-import { parseJSON } from "date-fns";
 
 export interface Note extends Resource {
+  version: number;
   name: string;
   parent?: string;
   children?: Note[];

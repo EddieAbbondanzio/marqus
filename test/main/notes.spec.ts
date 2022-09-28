@@ -10,15 +10,15 @@ import * as path from "path";
 jest.mock("fs");
 jest.mock("fs/promises");
 
-test("init note directory is created if missing in file system.", async () => {
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(createConfig({ dataDirectory: "foo" }));
+// test("init note directory is created if missing in file system.", async () => {
+//   const ipc = createIpcMainTS();
+//   const config = createJsonFile(createConfig({ dataDirectory: "foo" }));
 
-  (fs.existsSync as jest.Mock).mockReturnValueOnce(false);
+//   (fs.existsSync as jest.Mock).mockReturnValueOnce(false);
 
-  noteIpcs(ipc, config, createLogger());
-  await ipc.trigger("init");
+//   noteIpcs(ipc, config, createLogger());
+//   await ipc.trigger("init");
 
-  const noteDirPath = path.join("foo", NOTES_DIRECTORY);
-  expect(fsp.mkdir).toHaveBeenCalledWith(noteDirPath);
-});
+//   const noteDirPath = path.join("foo", NOTES_DIRECTORY);
+//   expect(fsp.mkdir).toHaveBeenCalledWith(noteDirPath);
+// });

@@ -12,7 +12,7 @@ import { parseJSON } from "date-fns";
 import { IpcMainTS } from "../shared/ipc";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
-import { JsonFile } from "./json";
+import { JsonFile, loadJson } from "./json";
 import * as p from "path";
 import { Logger } from "../shared/logger";
 
@@ -25,55 +25,87 @@ export function noteIpcs(
   config: JsonFile<Config>,
   log: Logger
 ): void {
-  let initialized = false;
   let notes: Note[] = [];
-  const dataDirectory = config.content.dataDirectory!;
 
   ipc.on("init", async () => {
-    const noteDirPath = p.join(dataDirectory, NOTES_DIRECTORY);
-    if (!fs.existsSync(noteDirPath)) {
-      await fsp.mkdir(noteDirPath);
+    const noteDirectory = p.join(
+      config.content.dataDirectory!,
+      NOTES_DIRECTORY
+    );
+    if (!fs.existsSync(noteDirectory)) {
+      await fsp.mkdir(noteDirectory);
     }
+
+    const entries = await fsp.readdir(noteDirectory, { withFileTypes: true });
+    const everyNote: Note[] = [];
+
+    for (const entry of entries) {
+      if (!entry.isDirectory() || !UUID_REGEX.test(entry.name)) {
+        continue;
+      }
+
+      const path = p.join(noteDirectory, entry.name, METADATA_FILE_NAME);
+      const json = await loadJson<Note>(path, {});
+
+      // The order notes are loaded in is not guaranteed so we store them in a flat
+      // array until we've loaded every last one before we start to rebuild their
+      // family trees.
+      everyNote.push(json);
+    }
+
+    const lookup = keyBy(everyNote, "id");
+    const [roots, children] = partition(everyNote, (n) => n.parent == null);
+    for (const child of children) {
+      const parent = lookup[child.parent!];
+      if (parent == null) {
+        log.warn(
+          `WARNING: Note ${child.id} is an orphan. No parent ${child.parent} found. Did you mean to delete it?`
+        );
+
+        continue;
+      }
+
+      parent.children ??= [];
+      parent.children.push(child);
+    }
+
+    notes = roots;
   });
 
-  async function getNotes(): Promise<void> {
-    if (initialized) {
-      return;
-    }
-
-    notes = await loadNotes(dataDirectory);
-    initialized = true;
-  }
-
   ipc.handle("notes.getAll", async () => {
-    await getNotes();
     return notes;
   });
 
-  ipc.handle("notes.create", async (_, name, parent) => {
-    await getNotes();
-
+  ipc.handle("notes.create", async (_, name, parentId) => {
     const note = createNote({
       name,
-      parent,
+      parent: parentId,
     });
 
-    await saveToFileSystem(dataDirectory, note);
+    await saveToFileSystem(config.content.dataDirectory!, note);
 
     // TODO: Clean this up when we refactor to a repo.
     // Bust the cache
-    notes = [];
-    initialized = false;
-    await getNotes();
+
+    if (parentId == null) {
+      notes.push(note);
+    } else {
+      const parentNote = getNoteById(notes, parentId);
+      parentNote.children ??= [];
+      parentNote.children.push(parentNote);
+    }
 
     return note;
   });
 
   ipc.handle("notes.updateMetadata", async (_, id, props) => {
-    await getNotes();
-    await assertNoteExists(dataDirectory, id);
+    await assertNoteExists(config.content.dataDirectory!, id);
 
-    const metadataPath = buildNotePath(dataDirectory, id, "metadata");
+    const metadataPath = buildNotePath(
+      config.content.dataDirectory!,
+      id,
+      "metadata"
+    );
     const rawContent = await fsp.readFile(metadataPath, { encoding: "utf-8" });
     const meta = JSON.parse(rawContent);
 
@@ -103,30 +135,27 @@ export function noteIpcs(
     meta.dateUpdated = new Date();
     delete meta.children;
 
-    await saveToFileSystem(dataDirectory, meta);
+    await saveToFileSystem(config.content.dataDirectory!, meta);
     return getNoteById(notes, meta.id);
   });
 
   ipc.handle("notes.loadContent", async (_, id) => {
-    await getNotes();
-    await assertNoteExists(dataDirectory, id);
+    await assertNoteExists(config.content.dataDirectory!, id);
 
-    const content = await loadMarkdown(dataDirectory, id);
+    const content = await loadMarkdown(config.content.dataDirectory!, id);
     return content;
   });
 
   ipc.handle("notes.saveContent", async (_, id, content) => {
-    await getNotes();
-    await assertNoteExists(dataDirectory, id);
-    await saveMarkdown(dataDirectory, id, content);
+    await assertNoteExists(config.content.dataDirectory!, id);
+    await saveMarkdown(config.content.dataDirectory!, id, content);
   });
 
   ipc.handle("notes.delete", async (_, id) => {
-    await getNotes();
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = buildNotePath(dataDirectory, n.id);
+      const notePath = buildNotePath(config.content.dataDirectory!, n.id);
       await fsp.rm(notePath, { recursive: true });
 
       for (const child of n.children ?? []) {
@@ -135,19 +164,23 @@ export function noteIpcs(
     };
     recursive(note);
 
-    // TODO: Clean this up when we refactor to a repo.
-    // Bust the cache
-    notes = [];
-    initialized = false;
-    await getNotes();
+    if (note.parent == null) {
+      notes = notes.filter((n) => n.id !== note.id);
+    } else {
+      const parentNote = getNoteById(notes, note.parent);
+      if (parentNote != null && parentNote.children != null) {
+        parentNote.children = parentNote.children.filter(
+          (c) => c.id !== note.id
+        );
+      }
+    }
   });
 
   ipc.handle("notes.moveToTrash", async (_, id) => {
-    await getNotes();
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = buildNotePath(dataDirectory, n.id);
+      const notePath = buildNotePath(config.content.dataDirectory!, n.id);
       await shell.trashItem(notePath);
 
       for (const child of n.children ?? []) {
@@ -157,11 +190,16 @@ export function noteIpcs(
 
     recursive(note);
 
-    // TODO: Clean this up when we refactor to a repo.
-    // Bust the cache
-    notes = [];
-    initialized = false;
-    await getNotes();
+    if (note.parent == null) {
+      notes = notes.filter((n) => n.id !== note.id);
+    } else {
+      const parentNote = getNoteById(notes, note.parent);
+      if (parentNote != null && parentNote.children != null) {
+        parentNote.children = parentNote.children.filter(
+          (c) => c.id !== note.id
+        );
+      }
+    }
   });
 }
 
@@ -170,7 +208,7 @@ export async function loadNotes(dataDirectory: string): Promise<Note[]> {
   if (!fs.existsSync(noteDirPath)) {
     await fsp.mkdir(noteDirPath);
 
-    // No directory means no notes to return...
+    // No directory means no notes
     return [];
   }
 

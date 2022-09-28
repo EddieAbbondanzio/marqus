@@ -47,9 +47,11 @@ const fooV2: z.Schema<FooV2> = z.preprocess(
 
 test("loadJsonFile throws if no migrations passed", async () => {
   await expect(async () => {
-    await loadJsonFile("fake-file-path.json", {}, null!, {
-      prettyPrint: false,
-    });
+    await loadJsonFile(
+      "fake-file-path.json",
+      {},
+      { defaultContent: { version: 1, foo: 1 } }
+    );
   }).rejects.toThrow(/Expected at least 1 schema/);
 });
 
@@ -62,12 +64,14 @@ test("loadJsonFile loads default content if no file found", async () => {
       1: fooV1,
       2: fooV2,
     },
+
     {
-      version: 2,
-      foo: "cat",
-      bar: 42,
-    },
-    { prettyPrint: false }
+      defaultContent: {
+        version: 2,
+        foo: "cat",
+        bar: 42,
+      },
+    }
   );
   expect(content).toEqual({
     version: 2,
@@ -104,11 +108,12 @@ test("loadJsonFile loads content and validates it", async () => {
       2: schema2,
     },
     {
-      version: 2,
-      foo: "cat",
-      bar: 42,
-    },
-    { prettyPrint: false }
+      defaultContent: {
+        version: 2,
+        foo: "cat",
+        bar: 42,
+      },
+    }
   );
 
   expect(content).toEqual({
@@ -119,105 +124,4 @@ test("loadJsonFile loads content and validates it", async () => {
   expect(schema1.parseAsync).not.toBeCalled();
   expect(schema2.parseAsync).toBeCalled();
   expect(fsp.writeFile).not.toBeCalled();
-});
-
-test("loadJsonFile update validates content before saving to file.", async () => {
-  (fs.existsSync as jest.Mock).mockReturnValueOnce(true);
-  (fsp.readFile as jest.Mock).mockResolvedValueOnce(
-    `
-    {
-      "version": 2,
-      "foo": "dog",
-      "bar": 24
-    }
-  `
-  );
-
-  const schema2 = {
-    parseAsync: jest.fn().mockResolvedValue({
-      version: 2,
-      foo: "horse",
-      bar: 24,
-    }),
-  } as unknown as ZodSchema;
-
-  const fileHandler = await loadJsonFile<FooV2>(
-    "fake-file-path.json",
-    {
-      1: fooV1,
-      2: schema2,
-    },
-    {
-      version: 2,
-      foo: "cat",
-      bar: 42,
-    },
-    { prettyPrint: false }
-  );
-
-  expect(fsp.writeFile).not.toBeCalled();
-
-  await fileHandler.update({
-    foo: "horse",
-  });
-
-  expect(fileHandler.content.foo).toBe("horse");
-  expect(fsp.writeFile).toBeCalledWith(
-    "fake-file-path.json",
-    `{"version":2,"foo":"horse","bar":24}`,
-    { encoding: "utf-8" }
-  );
-  expect(schema2.parseAsync).toBeCalledWith({
-    version: 2,
-    foo: "horse",
-    bar: 24,
-  });
-});
-
-test("loadJsonFile migrates when loading older content", async () => {
-  (fs.existsSync as jest.Mock).mockReturnValueOnce(true);
-  (fsp.readFile as jest.Mock).mockResolvedValueOnce(
-    `{"version": 1,"foo": "dog"}`
-  );
-
-  const schema1 = {
-    parseAsync: jest.fn().mockResolvedValue({
-      version: 1,
-      foo: "dog",
-    }),
-  } as unknown as ZodSchema;
-  const schema2 = {
-    parseAsync: jest.fn().mockResolvedValue({
-      version: 2,
-      foo: "dog",
-      bar: 24,
-    }),
-  } as unknown as ZodSchema;
-
-  const fileHandler = await loadJsonFile<FooV2>(
-    "fake-file-path.json",
-    {
-      1: schema1,
-      2: schema2,
-    },
-    {
-      version: 2,
-      foo: "cat",
-      bar: 42,
-    },
-    { prettyPrint: false }
-  );
-
-  expect(fileHandler.content).toEqual({
-    version: 2,
-    foo: "dog",
-    bar: 24,
-  });
-  expect(schema1.parseAsync).toBeCalled();
-  expect(schema2.parseAsync).toBeCalled();
-  expect(fsp.writeFile).toBeCalledWith(
-    "fake-file-path.json",
-    `{"version":2,"foo":"dog","bar":24}`,
-    { encoding: "utf-8" }
-  );
 });
