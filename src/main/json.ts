@@ -1,4 +1,4 @@
-import { cloneDeep, isEmpty, isEqual, last } from "lodash";
+import { cloneDeep, isEqual, last } from "lodash";
 import * as fsp from "fs/promises";
 import * as fs from "fs";
 import { ZodSchema } from "zod";
@@ -13,6 +13,23 @@ export interface JsonOptions<T> {
   defaultContent?: T;
 }
 
+export async function writeJson<Content extends Versioned>(
+  filePath: string,
+  schemas: Record<number, ZodSchema>,
+  content: Content
+): Promise<void> {
+  const [version, schema] = getLatestSchema(schemas);
+
+  if (content.version == null) {
+    content.version = version;
+  }
+
+  await schema.parseAsync(content);
+
+  const serialized = JSON.stringify(content, null, 2);
+  await fsp.writeFile(filePath, serialized, { encoding: "utf-8" });
+}
+
 export async function loadJson<Content extends Versioned>(
   filePath: string,
   schemas: Record<number, ZodSchema>,
@@ -24,12 +41,7 @@ export async function loadJson<Content extends Versioned>(
     originalContent = JSON.parse(raw);
   }
 
-  // Apply default content if no content found, or if it had no versioning.
-  if (
-    originalContent == null ||
-    !originalContent.hasOwnProperty("version") ||
-    typeof originalContent.version !== "number"
-  ) {
+  if (originalContent == null) {
     originalContent = opts?.defaultContent;
 
     if (originalContent == null) {
@@ -37,6 +49,13 @@ export async function loadJson<Content extends Versioned>(
         `No json was found for ${filePath} and no default was provided.`
       );
     }
+  }
+
+  if (
+    !originalContent.hasOwnProperty("version") ||
+    typeof originalContent.version !== "number"
+  ) {
+    throw new Error(`No version found in json for ${filePath}`);
   }
 
   const { content, wasUpdated } = await runSchemas(schemas, originalContent);
@@ -153,4 +172,17 @@ export async function runSchemas<Content extends Versioned>(
     latestSchema,
     wasUpdated: validatedContent.version > content.version,
   };
+}
+
+export function getLatestSchema(
+  schemas: Record<number, ZodSchema>
+): [number, ZodSchema] {
+  const schemaArray = Object.entries(schemas)
+    .map<[number, ZodSchema]>(([version, schema]) => [
+      Number.parseInt(version, 10),
+      schema,
+    ])
+    .sort(([a], [b]) => (a > b ? 1 : -1));
+
+  return last(schemaArray)!;
 }

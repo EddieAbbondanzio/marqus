@@ -1,4 +1,4 @@
-import { UUID_SCHEMA, Resource, uuid, DATE_OR_STRING_SCHEMA } from ".";
+import { Resource, uuid } from ".";
 import { isBlank } from "../utils";
 import { isEmpty, orderBy } from "lodash";
 import { z } from "zod";
@@ -105,19 +105,10 @@ export function createNote(props: Partial<Note> & { name: string }): Note {
   return note;
 }
 
-export const NOTE_SCHEMA = z.object({
-  id: UUID_SCHEMA,
-  // Name is not unique because it's difficult to enforce uniqueness when
-  // notes can change parents. There's no real harm in having duplicates.
-  name: z
-    .string()
-    .min(1, "Name must be at least 1 char long")
-    .max(64, "Name must be 64 chars or less."),
-  flags: z.number().optional(),
-  dateCreated: DATE_OR_STRING_SCHEMA,
-  dateUpdated: DATE_OR_STRING_SCHEMA.optional(),
-  sort: z.nativeEnum(NoteSort).optional(),
-});
+export const NOTE_NAME_SCHEMA = z
+  .string()
+  .min(1, "Name must be at least 1 char long")
+  .max(64, "Name must be 64 chars or less.");
 
 /**
  * Recursively search for a note based on it's id.

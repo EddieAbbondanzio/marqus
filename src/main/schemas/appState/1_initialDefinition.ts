@@ -9,7 +9,7 @@ interface AppStateV1 {
   focused: Section[];
 }
 
-export interface Sidebar {
+interface Sidebar {
   searchString?: string;
   hidden?: boolean;
   width: string;
@@ -19,7 +19,7 @@ export interface Sidebar {
   sort: NoteSort;
 }
 
-export interface Editor {
+interface Editor {
   isEditing: boolean;
   scroll: number;
   tabs: EditorTab[];
@@ -27,7 +27,7 @@ export interface Editor {
   activeTabNoteId?: string;
 }
 
-export interface EditorTab {
+interface EditorTab {
   noteId: string;
   noteContent?: string;
   lastActive?: Date | string;
