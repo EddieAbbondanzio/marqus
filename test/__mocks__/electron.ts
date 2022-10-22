@@ -16,3 +16,7 @@ export const app = {
 export const BrowserWindow = {
   getFocusedWindow: jest.fn(),
 };
+
+export const shell = {
+  trashItem: jest.fn(),
+};

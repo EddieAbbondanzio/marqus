@@ -18,14 +18,16 @@ export const MARKDOWN_FILE_NAME = "index.md";
 export function noteIpcs(
   ipc: IpcMainTS,
   config: JsonFile<Config>,
-  log: Logger
+  log: Logger,
+  // Only use this for testing.
+  _notes: Note[] = []
 ): void {
   const { dataDirectory } = config.content;
   if (dataDirectory == null) {
     return;
   }
 
-  let notes: Note[] = [];
+  let notes: Note[] = _notes;
 
   ipc.on("init", async () => {
     const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
@@ -160,8 +162,23 @@ export function noteIpcs(
   });
 
   ipc.handle("notes.saveContent", async (_, id, content) => {
-    const path = p.join(dataDirectory, NOTES_DIRECTORY, id, MARKDOWN_FILE_NAME);
-    await fsp.writeFile(path, content, { encoding: "utf-8" });
+    const markdownPath = p.join(
+      dataDirectory,
+      NOTES_DIRECTORY,
+      id,
+      MARKDOWN_FILE_NAME
+    );
+    await fsp.writeFile(markdownPath, content, { encoding: "utf-8" });
+
+    const note = getNoteById(notes, id);
+    note.dateUpdated = new Date();
+    const metaDataPath = p.join(
+      dataDirectory,
+      NOTES_DIRECTORY,
+      id,
+      METADATA_FILE_NAME
+    );
+    writeJson(metaDataPath, NOTE_SCHEMAS, note);
   });
 
   ipc.handle("notes.delete", async (_, id) => {
@@ -169,13 +186,14 @@ export function noteIpcs(
 
     const recursive = async (n: Note) => {
       const notePath = p.join(dataDirectory, NOTES_DIRECTORY, n.id);
-      await fsp.rm(notePath, { recursive: true });
+      // N.B. fsp.rm doesn't exist in 14.10 but typings include it.
+      await fsp.rmdir(notePath, { recursive: true });
 
       for (const child of n.children ?? []) {
         await recursive(child);
       }
     };
-    recursive(note);
+    await recursive(note);
 
     if (note.parent == null) {
       notes = notes.filter((n) => n.id !== note.id);
@@ -201,7 +219,7 @@ export function noteIpcs(
       }
     };
 
-    recursive(note);
+    await recursive(note);
 
     if (note.parent == null) {
       notes = notes.filter((n) => n.id !== note.id);

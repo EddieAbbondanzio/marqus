@@ -140,7 +140,7 @@ export async function runSchemas<Content extends Versioned>(
   };
 }
 
-function sortSchemas(
+export function sortSchemas(
   schemas: Record<number, ZodSchema>
 ): [number, ZodSchema][] {
   return Object.entries(schemas)
