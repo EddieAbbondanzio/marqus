@@ -12,7 +12,7 @@ import {
   sortNotes,
   DEFAULT_NOTE_SORTING_ALGORITHM,
   getParents,
-  NOTE_SCHEMA,
+  NOTE_NAME_SCHEMA,
 } from "../../shared/domain/note";
 import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
 import { promptError, promptConfirmAction } from "../utils/prompt";
@@ -27,7 +27,6 @@ import { search } from "fast-fuzzy";
 import { filterOutStaleNoteIds } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
-import { z } from "zod";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -400,7 +399,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
 
   const input = createPromisedInput(
     {
-      schema: NOTE_SCHEMA.shape.name,
+      schema: NOTE_NAME_SCHEMA,
       parentId: parentId ?? undefined,
     },
     setExplorerInput(ctx)
@@ -482,7 +481,7 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
     {
       id,
       value,
-      schema: NOTE_SCHEMA.shape.name,
+      schema: NOTE_NAME_SCHEMA,
     },
     setExplorerInput(ctx)
   );

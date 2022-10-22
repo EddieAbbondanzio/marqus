@@ -3,7 +3,7 @@ import * as fsp from "fs/promises";
 import * as p from "path";
 import { subDays, subMonths, subWeeks } from "date-fns";
 import { getLogFileName, getLogger } from "../../src/main/log";
-import { createJsonFile } from "../__factories__/jsonFile";
+import { createJsonFile } from "../__factories__/json";
 import { Config } from "../../src/shared/domain/config";
 
 jest.mock("fs/promises");

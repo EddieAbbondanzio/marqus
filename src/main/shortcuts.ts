@@ -47,7 +47,7 @@ export function shortcutIpcs(
     const shortcutFile = await loadJsonFile<Shortcuts>(
       p.join(config.content.dataDirectory!, SHORTCUT_FILE_PATH),
       SHORTCUTS_SCHEMAS,
-      { version: 1, shortcuts: [] }
+      { defaultContent: { version: 1, shortcuts: [] } }
     );
 
     const overrides = shortcutFile.content.shortcuts ?? [];

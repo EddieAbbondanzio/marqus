@@ -37,19 +37,21 @@ export function appIpcs(
       p.join(config.content.dataDirectory, APP_STATE_PATH),
       APP_STATE_SCHEMAS,
       {
-        version: 1,
-        sidebar: {
-          scroll: 0,
-          sort: NoteSort.Alphanumeric,
-          width: DEFAULT_SIDEBAR_WIDTH,
+        defaultContent: {
+          version: 1,
+          sidebar: {
+            scroll: 0,
+            sort: NoteSort.Alphanumeric,
+            width: DEFAULT_SIDEBAR_WIDTH,
+          },
+          editor: {
+            isEditing: false,
+            scroll: 0,
+            tabs: [],
+            tabsScroll: 0,
+          },
+          focused: [],
         },
-        editor: {
-          isEditing: false,
-          scroll: 0,
-          tabs: [],
-          tabsScroll: 0,
-        },
-        focused: [],
       }
     );
   });

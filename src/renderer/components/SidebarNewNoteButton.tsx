@@ -16,7 +16,6 @@ export function SidebarNewNoteButton(
   props: PropsWithChildren<SidebarNewNoteButton>
 ): JSX.Element {
   const onClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
-    log.info("HI");
     // Stop prop otherwise we'll mess up switching focus
     ev.stopPropagation();
     props.store.dispatch("sidebar.createNote", null);

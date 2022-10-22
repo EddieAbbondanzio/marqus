@@ -56,10 +56,12 @@ export async function getConfig(): Promise<JsonFile<Config>> {
     getConfigPath(),
     CONFIG_SCHEMAS,
     {
-      version: 2,
-      windowHeight: DEFAULT_WINDOW_HEIGHT,
-      windowWidth: DEFAULT_WINDOW_WIDTH,
-      logDirectory: app.getPath("logs"),
+      defaultContent: {
+        version: 2,
+        windowHeight: DEFAULT_WINDOW_HEIGHT,
+        windowWidth: DEFAULT_WINDOW_WIDTH,
+        logDirectory: app.getPath("logs"),
+      },
     }
   );
 
