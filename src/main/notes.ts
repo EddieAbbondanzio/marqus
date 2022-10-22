@@ -20,13 +20,15 @@ export function noteIpcs(
   config: JsonFile<Config>,
   log: Logger
 ): void {
+  const { dataDirectory } = config.content;
+  if (dataDirectory == null) {
+    return;
+  }
+
   let notes: Note[] = [];
 
   ipc.on("init", async () => {
-    const noteDirectory = p.join(
-      config.content.dataDirectory!,
-      NOTES_DIRECTORY
-    );
+    const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
     if (!fs.existsSync(noteDirectory)) {
       await fsp.mkdir(noteDirectory);
     }
@@ -77,26 +79,25 @@ export function noteIpcs(
       parent: parentId,
     });
 
-    const { dataDirectory } = config.content;
-    const dirPath = p.join(dataDirectory!, NOTES_DIRECTORY, note.id);
+    const dirPath = p.join(dataDirectory, NOTES_DIRECTORY, note.id);
     if (!fs.existsSync(dirPath)) {
       await fsp.mkdir(dirPath);
     }
 
     const metadataPath = p.join(
-      dataDirectory!,
+      dataDirectory,
       NOTES_DIRECTORY,
       note.id,
       METADATA_FILE_NAME
     );
     const markdownPath = p.join(
-      dataDirectory!,
+      dataDirectory,
       NOTES_DIRECTORY,
       note.id,
       MARKDOWN_FILE_NAME
     );
 
-    writeJson(metadataPath, NOTE_SCHEMAS, note);
+    await writeJson(metadataPath, NOTE_SCHEMAS, note);
 
     const s = await fsp.open(markdownPath, "w");
     await s.close();
@@ -115,8 +116,6 @@ export function noteIpcs(
   });
 
   ipc.handle("notes.updateMetadata", async (_, id, props) => {
-    // TODO, update this to use cache
-
     const note = getNoteById(notes, id);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -143,24 +142,16 @@ export function noteIpcs(
     }
 
     note.dateUpdated = new Date();
-    const { dataDirectory } = config.content;
-
     const meta = omit(note, "children");
-    const path = p.join(
-      dataDirectory!,
-      NOTES_DIRECTORY,
-      id,
-      METADATA_FILE_NAME
-    );
+    const path = p.join(dataDirectory, NOTES_DIRECTORY, id, METADATA_FILE_NAME);
     writeJson(path, NOTE_SCHEMAS, meta);
 
     return note;
   });
 
   ipc.handle("notes.loadContent", async (_, id) => {
-    const { dataDirectory } = config.content;
     const markdownPath = p.join(
-      dataDirectory!,
+      dataDirectory,
       NOTES_DIRECTORY,
       id,
       MARKDOWN_FILE_NAME
@@ -169,13 +160,7 @@ export function noteIpcs(
   });
 
   ipc.handle("notes.saveContent", async (_, id, content) => {
-    const { dataDirectory } = config.content;
-    const path = p.join(
-      dataDirectory!,
-      NOTES_DIRECTORY,
-      id,
-      MARKDOWN_FILE_NAME
-    );
+    const path = p.join(dataDirectory, NOTES_DIRECTORY, id, MARKDOWN_FILE_NAME);
     await fsp.writeFile(path, content, { encoding: "utf-8" });
   });
 
@@ -183,11 +168,7 @@ export function noteIpcs(
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = p.join(
-        config.content.dataDirectory!,
-        NOTES_DIRECTORY,
-        n.id
-      );
+      const notePath = p.join(dataDirectory, NOTES_DIRECTORY, n.id);
       await fsp.rm(notePath, { recursive: true });
 
       for (const child of n.children ?? []) {
@@ -212,11 +193,7 @@ export function noteIpcs(
     const note = getNoteById(notes, id);
 
     const recursive = async (n: Note) => {
-      const notePath = p.join(
-        config.content.dataDirectory!,
-        NOTES_DIRECTORY,
-        n.id
-      );
+      const notePath = p.join(dataDirectory, NOTES_DIRECTORY, n.id);
       await shell.trashItem(notePath);
 
       for (const child of n.children ?? []) {
