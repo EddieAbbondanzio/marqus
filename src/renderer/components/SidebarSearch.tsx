@@ -20,16 +20,13 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
 
   const onInput = useCallback(
     (ev: React.FormEvent) => {
-      store.dispatch(
-        "sidebar.setSearchString",
-        (ev.target as HTMLInputElement).value
-      );
+      store.dispatch("sidebar.search", (ev.target as HTMLInputElement).value);
     },
     [store]
   );
 
   const onClear = useCallback(() => {
-    store.dispatch("sidebar.setSearchString", "");
+    store.dispatch("sidebar.search", "");
   }, [store]);
 
   const { searchString = "" } = state.sidebar;
