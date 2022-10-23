@@ -103,10 +103,10 @@ export function App(props: AppProps): JSX.Element {
     if (tabsToLoad.length > 0) {
       store.dispatch("editor.openTab", {
         note: tabsToLoad,
-        active: first(sidebar.selected),
+        active: editor.activeTabNoteId ?? first(sidebar.selected),
       });
     }
-  }, [editor.tabs, store, sidebar.selected]);
+  }, [editor.tabs, editor.activeTabNoteId, store, sidebar.selected]);
 
   return (
     <Container>
@@ -178,10 +178,9 @@ async function loadInitialState(): Promise<State> {
   };
 }
 
-/*
- * Don't move these to be in Sidebar.tsx. Otherwise the listener will only work
- * when the sidebar is being rendered.
- */
+// N.B. app.toggleSidebar listener must be keep here because if we move it to
+// Sidebar.tsx the listener won't work when the sidebar is hidden because the
+// component isn't being rendered.
 export const toggleSidebar: Listener<"app.toggleSidebar"> = (_, ctx) => {
   ctx.setUI((prev) => ({
     sidebar: {
