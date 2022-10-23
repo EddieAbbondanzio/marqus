@@ -42,7 +42,7 @@ export interface UIEvents {
   "sidebar.toggleItemExpanded": string;
   "sidebar.moveSelectionUp": void;
   "sidebar.moveSelectionDown": void;
-  "sidebar.setSearchString": string;
+  "sidebar.search": string;
   "sidebar.focusSearch": void;
 
   // Editor
@@ -109,7 +109,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "sidebar.toggleItemExpanded",
   "sidebar.moveSelectionUp",
   "sidebar.moveSelectionDown",
-  "sidebar.setSearchString",
+  "sidebar.search",
   "sidebar.focusSearch",
 
   // Editor

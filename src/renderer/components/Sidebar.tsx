@@ -23,7 +23,7 @@ import {
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
-import { search } from "fast-fuzzy";
+import { search as searchFuzzy } from "fast-fuzzy";
 import { filterOutStaleNoteIds } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
@@ -121,7 +121,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on(["sidebar.deleteNote", "sidebar.deleteSelectedNote"], deleteNote);
     store.on("sidebar.dragNote", dragNote);
     store.on("sidebar.moveNoteToTrash", moveNoteToTrash);
-    store.on("sidebar.setSearchString", setSearchString);
+    store.on("sidebar.search", search);
     store.on("sidebar.collapseAll", collapseAll);
     store.on("sidebar.expandAll", expandAll);
     store.on("sidebar.setNoteSort", setNoteSort);
@@ -149,7 +149,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       );
       store.off("sidebar.dragNote", dragNote);
       store.off("sidebar.moveNoteToTrash", moveNoteToTrash);
-      store.off("sidebar.setSearchString", setSearchString);
+      store.off("sidebar.search", search);
       store.off("sidebar.collapseAll", collapseAll);
       store.off("sidebar.expandAll", expandAll);
       store.off("sidebar.setNoteSort", setNoteSort);
@@ -211,7 +211,7 @@ export function applySearchString(
   }
 
   const flatNotes = flatten(notes);
-  const matches = search(searchString!, flatNotes, {
+  const matches = searchFuzzy(searchString!, flatNotes, {
     keySelector: (n) => n.name,
   });
 
@@ -673,7 +673,7 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
   }
 };
 
-export const setSearchString: Listener<"sidebar.setSearchString"> = async (
+export const search: Listener<"sidebar.search"> = async (
   { value: searchString },
   ctx
 ) => {
