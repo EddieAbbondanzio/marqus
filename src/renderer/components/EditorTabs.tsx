@@ -435,7 +435,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   });
 
   // When the selected note is opened we need to change focus to the editor
-  // because it means the user wants to start editting the note.
+  // because it means the user wants to start editing the note.
   if (ev.value == null) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
