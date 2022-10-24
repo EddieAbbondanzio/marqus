@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Store } from "../store";
 import * as monaco from "monaco-editor";
 import { TABS_HEIGHT } from "./EditorTabs";
+import { Section } from "../../shared/ui/app";
 
 const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   language: "markdown",
@@ -43,13 +44,25 @@ export function Monaco(props: MonacoProps): JSX.Element {
   >({});
   const models = useRef<Record<string, monaco.editor.IModel | null>>({});
 
-  // A bit of a hack. But we need this to refocus the editor on each render.
-  const focused = state.focused[0];
+  // N.B. We need to manually focus the Monaco HTMLElement when the user switches
+  // focus to the editor. We also need to make sure we don't re-apply focus once
+  // already focused otherwise the ctrl+f popup breaks.
+  const { focused } = state;
+  const wasFocused = useRef<boolean>(false);
   useEffect(() => {
-    if (focused === "editor") {
-      monacoEditor.current?.focus();
+    if (focused.length === 0) {
+      return;
     }
-  });
+
+    if (focused[0] === Section.Editor) {
+      if (!wasFocused.current) {
+        monacoEditor.current?.focus();
+        wasFocused.current = true;
+      }
+    } else {
+      wasFocused.current = false;
+    }
+  }, [focused]);
 
   // Mount / Unmount
   useEffect(() => {
@@ -126,7 +139,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
     // Cache off old state so we can restore it when tab is opened later on.
     if (lastActiveTabNoteId != null) {
-      const oldTab = editor.tabs.find((t) => t.noteId === activeNoteId.current);
+      const oldTab = editor.tabs.find(t => t.noteId === activeNoteId.current);
 
       // If old tab wasn't found, it means the tab was closed and we shouldn't
       // bother saving off view state / model.
@@ -144,9 +157,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
     // Load new tab
     if (editor.activeTabNoteId != null) {
-      const newTab = editor.tabs.find(
-        (t) => t.noteId === editor.activeTabNoteId
-      );
+      const newTab = editor.tabs.find(t => t.noteId === editor.activeTabNoteId);
       if (newTab == null) {
         throw new Error(`Active tab ${editor.activeTabNoteId} was not found.`);
       }
@@ -161,7 +172,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
       monacoEditor.current.setModel(model);
       if (viewStatesCache[newTab.noteId] != null) {
         monacoEditor.current.restoreViewState(
-          viewStates.current[newTab.noteId]!
+          viewStates.current[newTab.noteId]!,
         );
       }
 

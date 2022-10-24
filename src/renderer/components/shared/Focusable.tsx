@@ -1,4 +1,4 @@
- import { head } from "lodash";
+import { head } from "lodash";
 import React, {
   MutableRefObject,
   PropsWithChildren,
@@ -53,7 +53,7 @@ export interface FocusableProps {
 }
 
 export function Focusable(
-  props: PropsWithChildren<FocusableProps>
+  props: PropsWithChildren<FocusableProps>,
 ): JSX.Element {
   const { store } = props;
   const { state } = store;
@@ -115,12 +115,12 @@ export function Focusable(
 export function wasInsideFocusable(ev: Event, focusable: Section): boolean {
   return findParent(
     ev.target as HTMLElement,
-    (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) === focusable
+    el => el.getAttribute(FOCUSABLE_ATTRIBUTE) === focusable,
   );
 }
 
 export function getFocusableAttribute(element: HTMLElement): Section | null {
-  return findParent(element, (el) => el.hasAttribute(FOCUSABLE_ATTRIBUTE), {
-    matchValue: (el) => el.getAttribute(FOCUSABLE_ATTRIBUTE) as Section | null,
+  return findParent(element, el => el.hasAttribute(FOCUSABLE_ATTRIBUTE), {
+    matchValue: el => el.getAttribute(FOCUSABLE_ATTRIBUTE) as Section | null,
   });
 }
