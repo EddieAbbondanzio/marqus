@@ -52,14 +52,14 @@ export function sortNotes(notes: Note[], sort: NoteSort): Note[] {
         return notes.sort((a, b) =>
           a.name
             .toLowerCase()
-            .localeCompare(b.name.toLowerCase(), undefined, { numeric: true })
+            .localeCompare(b.name.toLowerCase(), undefined, { numeric: true }),
         );
 
       case NoteSort.AlphanumericReversed:
         return notes.sort((a, b) =>
           b.name
             .toLowerCase()
-            .localeCompare(a.name.toLowerCase(), undefined, { numeric: true })
+            .localeCompare(a.name.toLowerCase(), undefined, { numeric: true }),
         );
 
       case NoteSort.DateCreated:
@@ -120,12 +120,12 @@ export function getNoteById(notes: Note[], id: string, required?: true): Note;
 export function getNoteById(
   notes: Note[],
   id: string,
-  required: false
+  required: false,
 ): Note | null;
 export function getNoteById(
   notes: Note[],
   id: string,
-  required = true
+  required = true,
 ): Note | null {
   const toVisit = [...notes];
 
@@ -184,7 +184,7 @@ export function getParents(note: Note, notes: Note[]): Note[] {
     let p;
 
     if (n.parent != null) {
-      p = flat.find((p) => p.id === n.parent);
+      p = flat.find(p => p.id === n.parent);
 
       if (p == null) {
         throw new Error(`Could not find parent note with id ${n.parent}.`);

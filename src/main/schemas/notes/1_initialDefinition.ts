@@ -23,4 +23,5 @@ export const noteSchemaV1 = z.object({
   dateCreated: DATE_OR_STRING_SCHEMA,
   dateUpdated: DATE_OR_STRING_SCHEMA.optional(),
   sort: z.nativeEnum(NoteSort).optional(),
+  parent: UUID_SCHEMA.optional(),
 });

@@ -65,7 +65,7 @@ test("init", async () => {
   await ipc.trigger("init");
   const notes = await ipc.invoke("notes.getAll");
   expect(notes).toHaveLength(1);
-  expect(notes).toContainEqual(note);
+  expect(notes).toContainEqual(expect.objectContaining({ id: note.id }));
 });
 
 test("notes.create", async () => {
@@ -266,4 +266,8 @@ test("buildNoteTree", () => {
 
   expect(roots).toHaveLength(2);
   expect(roots).not.toContainEqual({ id: child.id });
+
+  const p = getNoteById(roots, parent.id);
+  expect(p.children).toHaveLength(1);
+  expect(p.children).toContainEqual(expect.objectContaining({ id: child.id }));
 });

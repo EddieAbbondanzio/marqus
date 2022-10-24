@@ -1,7 +1,7 @@
-import { createNote, getNoteById, Note } from "../shared/domain/note";
+import { createNote, flatten, getNoteById, Note } from "../shared/domain/note";
 import { UUID_REGEX } from "../shared/domain";
 import { Config } from "../shared/domain/config";
-import { flatMap, flatten, keyBy, omit, partition } from "lodash";
+import { cloneDeep, keyBy, omit, partition } from "lodash";
 import { shell } from "electron";
 import { IpcMainTS } from "../shared/ipc";
 import * as fs from "fs";
@@ -222,16 +222,26 @@ export function noteIpcs(
 }
 
 export function buildNoteTree(flattened: Note[]): Note[] {
-  const lookup = keyBy(flattened, "id");
-  const [roots, children] = partition(flattened, n => n.parent == null);
-  for (const child of children) {
-    const parent = lookup[child.parent!];
+  const clonedFlattened = cloneDeep(flattened);
+
+  // We nuke children to prevent duplicates when we rebuild the tree.
+  for (const clone of clonedFlattened) {
+    clone.children = [];
+  }
+
+  const lookup = keyBy(clonedFlattened, "id");
+
+  const [roots, nested] = partition(clonedFlattened, n => n.parent == null);
+  for (const n of nested) {
+    const parent = lookup[n.parent!];
     if (parent == null) {
-      continue;
+      throw new Error(
+        `Couldn't find parent note (id: ${n.parent}) for note (id: ${n.id})`,
+      );
     }
 
     parent.children ??= [];
-    parent.children.push(child);
+    parent.children.push(n);
   }
 
   return roots;
