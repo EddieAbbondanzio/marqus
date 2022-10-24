@@ -36,7 +36,7 @@ async function main() {
 
   render(
     <App initialState={initialState} needDataDirectory={needDataDirectory} />,
-    document.getElementById("app")
+    document.getElementById("app"),
   );
 }
 
@@ -97,8 +97,8 @@ export function App(props: AppProps): JSX.Element {
   // Load the content of any notes that were previously open.
   useEffect(() => {
     const tabsToLoad = editor.tabs
-      .filter((t) => t.noteContent == null)
-      .map((t) => t.noteId);
+      .filter(t => t.noteContent == null)
+      .map(t => t.noteId);
 
     if (tabsToLoad.length > 0) {
       store.dispatch("editor.openTab", {
@@ -182,7 +182,7 @@ async function loadInitialState(): Promise<State> {
 // Sidebar.tsx the listener won't work when the sidebar is hidden because the
 // component isn't being rendered.
 export const toggleSidebar: Listener<"app.toggleSidebar"> = (_, ctx) => {
-  ctx.setUI((prev) => ({
+  ctx.setUI(prev => ({
     sidebar: {
       hidden: !(prev.sidebar.hidden ?? false),
     },
@@ -212,7 +212,7 @@ export const push: Listener<"focus.push"> = ({ value: next }, ctx) => {
 };
 
 export const pop: Listener<"focus.pop"> = (_, ctx) => {
-  ctx.setUI((s) => {
+  ctx.setUI(s => {
     if (isEmpty(s.focused)) {
       return s;
     }
