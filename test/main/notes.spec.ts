@@ -1,4 +1,5 @@
 import {
+  buildNoteTree,
   MARKDOWN_FILE_NAME,
   METADATA_FILE_NAME,
   noteIpcs,
@@ -64,7 +65,7 @@ test("init", async () => {
   await ipc.trigger("init");
   const notes = await ipc.invoke("notes.getAll");
   expect(notes).toHaveLength(1);
-  expect(notes).toContainEqual(expect.objectContaining({ id: note.id }));
+  expect(notes).toContainEqual(note);
 });
 
 test("notes.create", async () => {
@@ -87,13 +88,13 @@ test("notes.create", async () => {
     expect.objectContaining({
       id: note.id,
       name: "foo",
-    })
+    }),
   );
 
   // Creates markdown
   expect(fsp.open).toHaveBeenLastCalledWith(
     `/data/notes/${note.id}/${MARKDOWN_FILE_NAME}`,
-    "w"
+    "w",
   );
 });
 
@@ -121,6 +122,45 @@ test("notes.updateMetadata", async () => {
   expect(note.sort).toBe(undefined);
 });
 
+test("notes.updateMetadata root -> nested", async () => {
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(createConfig());
+
+  let note = createNote({ name: "foo" });
+  const parent = createNote({ name: "bar" });
+  noteIpcs(ipc, config, createLogger(), [note, parent]);
+
+  note = await ipc.invoke("notes.updateMetadata", note.id, {
+    parent: parent.id,
+  });
+  expect(note.parent).toBe(parent.id);
+
+  // When a note is moved to a parent, it will be moved to the parents .children
+  // and no longer in the root array.
+  const rootNotes = await ipc.invoke("notes.getAll");
+  expect(rootNotes).not.toContainEqual({ id: note.id });
+});
+
+test("notes.updateMetadata nested -> root", async () => {
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(createConfig());
+
+  const parent = createNote({ name: "bar" });
+  let note = createNote({ name: "foo", parent: parent.id });
+  noteIpcs(ipc, config, createLogger(), [note, parent]);
+
+  let rootNotes = await ipc.invoke("notes.getAll");
+  expect(rootNotes).not.toContainEqual({ id: note.id });
+
+  note = await ipc.invoke("notes.updateMetadata", note.id, {
+    parent: undefined,
+  });
+  expect(note.parent).toBe(undefined);
+
+  rootNotes = await ipc.invoke("notes.getAll");
+  expect(rootNotes).toContainEqual(expect.objectContaining({ id: note.id }));
+});
+
 test("notes.loadContent", async () => {
   const ipc = createIpcMainTS();
   const config = createJsonFile(createConfig());
@@ -131,7 +171,7 @@ test("notes.loadContent", async () => {
 
   expect(fsp.readFile).toHaveBeenCalledWith(
     `/data/notes/123/${MARKDOWN_FILE_NAME}`,
-    { encoding: "utf-8" }
+    { encoding: "utf-8" },
   );
 });
 
@@ -148,7 +188,7 @@ test("notes.saveContent", async () => {
   expect(fsp.writeFile).toHaveBeenCalledWith(
     `/data/notes/${note.id}/${MARKDOWN_FILE_NAME}`,
     "Random content...",
-    { encoding: "utf-8" }
+    { encoding: "utf-8" },
   );
 
   const everyNote = await ipc.invoke("notes.getAll");
@@ -182,13 +222,13 @@ test("notes.delete", async () => {
     `/data/notes/${note.children![0].id}`,
     {
       recursive: true,
-    }
+    },
   );
   expect(fsp.rmdir).toHaveBeenCalledWith(
     `/data/notes/${note.children![1].id}`,
     {
       recursive: true,
-    }
+    },
   );
 });
 
@@ -212,4 +252,18 @@ test("notes.moveToTrash", async () => {
   expect(shell.trashItem).toBeCalledWith(`/data/notes/${note.id}`);
   expect(shell.trashItem).toBeCalledWith(`/data/notes/${child1.id}`);
   expect(shell.trashItem).toBeCalledWith(`/data/notes/${child2.id}`);
+});
+
+test("buildNoteTree", () => {
+  const parent = createNote({ name: "foo" });
+  const child = createNote({ name: "bar" });
+  child.parent = parent.id;
+  parent.children = [child];
+  const root = createNote({ name: "baz" });
+
+  const flat = [parent, child, root];
+  const roots = buildNoteTree(flat);
+
+  expect(roots).toHaveLength(2);
+  expect(roots).not.toContainEqual({ id: child.id });
 });

@@ -1,7 +1,7 @@
 import { createNote, getNoteById, Note } from "../shared/domain/note";
 import { UUID_REGEX } from "../shared/domain";
 import { Config } from "../shared/domain/config";
-import { keyBy, omit, partition } from "lodash";
+import { flatMap, flatten, keyBy, omit, partition } from "lodash";
 import { shell } from "electron";
 import { IpcMainTS } from "../shared/ipc";
 import * as fs from "fs";
@@ -20,7 +20,7 @@ export function noteIpcs(
   config: JsonFile<Config>,
   log: Logger,
   // Only use this for testing.
-  _notes: Note[] = []
+  _notes: Note[] = [],
 ): void {
   const { dataDirectory } = config.content;
   if (dataDirectory == null) {
@@ -52,23 +52,7 @@ export function noteIpcs(
       everyNote.push(json);
     }
 
-    const lookup = keyBy(everyNote, "id");
-    const [roots, children] = partition(everyNote, (n) => n.parent == null);
-    for (const child of children) {
-      const parent = lookup[child.parent!];
-      if (parent == null) {
-        log.warn(
-          `WARNING: Note ${child.id} is an orphan. No parent ${child.parent} found. Did you mean to delete it?`
-        );
-
-        continue;
-      }
-
-      parent.children ??= [];
-      parent.children.push(child);
-    }
-
-    notes = roots;
+    notes = buildNoteTree(everyNote);
   });
 
   ipc.handle("notes.getAll", async () => {
@@ -90,13 +74,13 @@ export function noteIpcs(
       dataDirectory,
       NOTES_DIRECTORY,
       note.id,
-      METADATA_FILE_NAME
+      METADATA_FILE_NAME,
     );
     const markdownPath = p.join(
       dataDirectory,
       NOTES_DIRECTORY,
       note.id,
-      MARKDOWN_FILE_NAME
+      MARKDOWN_FILE_NAME,
     );
 
     await writeJson(metadataPath, NOTE_SCHEMAS, note);
@@ -126,9 +110,14 @@ export function noteIpcs(
     if (name != null) {
       note.name = name;
     }
+
     // Allow unsetting parent
     if ("parent" in props) {
       note.parent = parent;
+
+      // Bust the cache on parent change
+      const flattened = flatten(notes);
+      notes = buildNoteTree(flattened);
     }
 
     // Allow unsetting sort
@@ -139,7 +128,9 @@ export function noteIpcs(
     // Sanity check to ensure no extra props were passed
     if (Object.keys(others).length > 0) {
       console.warn(
-        `ipc notes.updateMetadata does not support keys: ${Object.keys(others)}`
+        `ipc notes.updateMetadata does not support keys: ${Object.keys(
+          others,
+        )}`,
       );
     }
 
@@ -156,7 +147,7 @@ export function noteIpcs(
       dataDirectory,
       NOTES_DIRECTORY,
       id,
-      MARKDOWN_FILE_NAME
+      MARKDOWN_FILE_NAME,
     );
     return (await fsp.readFile(markdownPath, { encoding: "utf-8" })) ?? "";
   });
@@ -166,7 +157,7 @@ export function noteIpcs(
       dataDirectory,
       NOTES_DIRECTORY,
       id,
-      MARKDOWN_FILE_NAME
+      MARKDOWN_FILE_NAME,
     );
     await fsp.writeFile(markdownPath, content, { encoding: "utf-8" });
 
@@ -176,7 +167,7 @@ export function noteIpcs(
       dataDirectory,
       NOTES_DIRECTORY,
       id,
-      METADATA_FILE_NAME
+      METADATA_FILE_NAME,
     );
     writeJson(metaDataPath, NOTE_SCHEMAS, note);
   });
@@ -196,13 +187,11 @@ export function noteIpcs(
     await recursive(note);
 
     if (note.parent == null) {
-      notes = notes.filter((n) => n.id !== note.id);
+      notes = notes.filter(n => n.id !== note.id);
     } else {
       const parentNote = getNoteById(notes, note.parent);
       if (parentNote != null && parentNote.children != null) {
-        parentNote.children = parentNote.children.filter(
-          (c) => c.id !== note.id
-        );
+        parentNote.children = parentNote.children.filter(c => c.id !== note.id);
       }
     }
   });
@@ -222,14 +211,28 @@ export function noteIpcs(
     await recursive(note);
 
     if (note.parent == null) {
-      notes = notes.filter((n) => n.id !== note.id);
+      notes = notes.filter(n => n.id !== note.id);
     } else {
       const parentNote = getNoteById(notes, note.parent);
       if (parentNote != null && parentNote.children != null) {
-        parentNote.children = parentNote.children.filter(
-          (c) => c.id !== note.id
-        );
+        parentNote.children = parentNote.children.filter(c => c.id !== note.id);
       }
     }
   });
+}
+
+export function buildNoteTree(flattened: Note[]): Note[] {
+  const lookup = keyBy(flattened, "id");
+  const [roots, children] = partition(flattened, n => n.parent == null);
+  for (const child of children) {
+    const parent = lookup[child.parent!];
+    if (parent == null) {
+      continue;
+    }
+
+    parent.children ??= [];
+    parent.children.push(child);
+  }
+
+  return roots;
 }
