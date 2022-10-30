@@ -73,8 +73,8 @@ test("notes.create", async () => {
   const config = createJsonFile(createConfig());
   noteIpcs(ipc, config, createLogger());
 
-  (fs.existsSync as jest.Mock).mockReturnValueOnce(false);
-  (fsp.open as jest.Mock).mockReturnValueOnce({
+  (fs.existsSync as jest.Mock).mockReturnValue(false);
+  (fsp.open as jest.Mock).mockReturnValue({
     close: jest.fn(),
   });
 
@@ -92,10 +92,33 @@ test("notes.create", async () => {
   );
 
   // Creates markdown
-  expect(fsp.open).toHaveBeenLastCalledWith(
+  expect(fsp.open).toHaveBeenCalledWith(
     `/data/notes/${note.id}/${MARKDOWN_FILE_NAME}`,
     "w",
   );
+
+  const child = await ipc.invoke("notes.create", "bar", note.id);
+
+  // Creates metadata
+  expect(writeJson).toHaveBeenCalledWith(
+    `/data/notes/${child.id}/${METADATA_FILE_NAME}`,
+    NOTE_SCHEMAS,
+    expect.objectContaining({
+      id: child.id,
+      name: "bar",
+    }),
+  );
+
+  // Creates markdown
+  expect(fsp.open).toHaveBeenCalledWith(
+    `/data/notes/${child.id}/${MARKDOWN_FILE_NAME}`,
+    "w",
+  );
+
+  const notes = await ipc.invoke("notes.getAll");
+  expect(notes).toHaveLength(1);
+  expect(note.children).toHaveLength(1);
+  expect(note.children).toEqual(expect.arrayContaining([child]));
 });
 
 test("notes.updateMetadata", async () => {

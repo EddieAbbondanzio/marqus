@@ -95,7 +95,7 @@ export function noteIpcs(
     } else {
       const parentNote = getNoteById(notes, parentId);
       parentNote.children ??= [];
-      parentNote.children.push(parentNote);
+      parentNote.children.push(note);
     }
 
     return note;
