@@ -83,7 +83,7 @@ export function noteIpcs(
       MARKDOWN_FILE_NAME,
     );
 
-    await writeJson(metadataPath, NOTE_SCHEMAS, note);
+    await writeJson(metadataPath, NOTE_SCHEMAS, omit(note, "children"));
 
     const s = await fsp.open(markdownPath, "w");
     await s.close();
