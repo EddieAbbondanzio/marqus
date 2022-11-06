@@ -39,17 +39,17 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const { store } = props;
   const { state } = store;
   const { input } = state.sidebar;
-  const expandedLookup = keyBy(state.sidebar.expanded, (e) => e);
-  const selectedLookup = keyBy(state.sidebar.selected, (s) => s);
+  const expandedLookup = keyBy(state.sidebar.expanded, e => e);
+  const selectedLookup = keyBy(state.sidebar.selected, s => s);
 
   const searchString = state.sidebar.searchString;
   const notes = useMemo(
     () => applySearchString(state.notes, searchString),
-    [searchString, state.notes]
+    [searchString, state.notes],
   );
   const [menus, itemIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
-    [notes, store, input, expandedLookup, selectedLookup]
+    [notes, store, input, expandedLookup, selectedLookup],
   );
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       let next = 0;
       let curr = 0;
       const firstSelected = head(state.sidebar.selected)!;
-      curr = itemIds.findIndex((s) => s === firstSelected);
+      curr = itemIds.findIndex(s => s === firstSelected);
       if (curr === -1) {
         throw new Error(`No selectable ${firstSelected} found`);
       }
@@ -89,7 +89,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
             selected = undefined;
           } else {
             // HACK
-            selected = [itemIds.find((i) => i === value[0])!];
+            selected = [itemIds.find(i => i === value[0])!];
           }
           break;
       }
@@ -114,7 +114,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         "sidebar.clearSelection",
         "sidebar.setSelection",
       ],
-      updateSelected
+      updateSelected,
     );
     store.on("sidebar.createNote", createNote);
     store.on("sidebar.renameNote", renameNote);
@@ -139,13 +139,13 @@ export function Sidebar(props: SidebarProps): JSX.Element {
           "sidebar.clearSelection",
           "sidebar.setSelection",
         ],
-        updateSelected
+        updateSelected,
       );
       store.off("sidebar.createNote", createNote);
       store.off("sidebar.renameNote", renameNote);
       store.off(
         ["sidebar.deleteNote", "sidebar.deleteSelectedNote"],
-        deleteNote
+        deleteNote,
       );
       store.off("sidebar.dragNote", dragNote);
       store.off("sidebar.moveNoteToTrash", moveNoteToTrash);
@@ -160,7 +160,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     <StyledResizable
       minWidth={MIN_WIDTH}
       width={store.state.sidebar.width}
-      onResize={(w) => store.dispatch("sidebar.resizeWidth", w)}
+      onResize={w => store.dispatch("sidebar.resizeWidth", w)}
     >
       <StyledFocusable store={store} name={Section.Sidebar}>
         <Controls id="controls">
@@ -171,7 +171,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         <Scrollable
           height="calc(100% - 100px)"
           scroll={store.state.sidebar.scroll}
-          onScroll={(s) => store.dispatch("sidebar.updateScroll", s)}
+          onScroll={s => store.dispatch("sidebar.updateScroll", s)}
         >
           {menus}
 
@@ -204,7 +204,7 @@ const EmptySpace = styled.div`
 
 export function applySearchString(
   notes: Note[],
-  searchString?: string
+  searchString?: string,
 ): Note[] {
   if (isEmpty(searchString)) {
     return notes;
@@ -212,7 +212,7 @@ export function applySearchString(
 
   const flatNotes = flatten(notes);
   const matches = searchFuzzy(searchString!, flatNotes, {
-    keySelector: (n) => n.name,
+    keySelector: n => n.name,
   });
 
   return matches;
@@ -223,7 +223,7 @@ export function renderMenus(
   store: Store,
   input: PromisedInput | undefined,
   expandedLookup: Dictionary<string>,
-  selectedLookup: Dictionary<string>
+  selectedLookup: Dictionary<string>,
 ): [JSX.Element[], string[]] {
   const { state } = store;
   const menus: JSX.Element[] = [];
@@ -258,7 +258,7 @@ export function renderMenus(
           key="sidebarInput"
           value={input}
           depth={currDepth}
-        />
+        />,
       );
     } else {
       menus.push(
@@ -274,12 +274,12 @@ export function renderMenus(
             ev.stopPropagation();
             store.dispatch("sidebar.toggleItemExpanded", note.id);
           }}
-          onDrag={(newParent) =>
+          onDrag={newParent =>
             store.dispatch("sidebar.dragNote", { note: note.id, newParent })
           }
           isSelected={isSelected}
           depth={currDepth}
-        />
+        />,
       );
     }
 
@@ -297,7 +297,7 @@ export function renderMenus(
         }
       }
 
-      note.children?.forEach((n) => recursive(n, currDepth + 1));
+      note.children?.forEach(n => recursive(n, currDepth + 1));
     }
 
     // When creating a new value input is always added to end of list
@@ -308,17 +308,17 @@ export function renderMenus(
           key="sidebarInput"
           value={input}
           depth={currDepth + 1}
-        />
+        />,
       );
     }
   };
 
   notes = sortNotes(notes, state.sidebar.sort);
-  notes.forEach((n) => recursive(n));
+  notes.forEach(n => recursive(n));
 
   if (input != null && input.parentId == null && input.id == null) {
     menus.push(
-      <SidebarInput store={store} key="sidebarInput" value={input} depth={0} />
+      <SidebarInput store={store} key="sidebarInput" value={input} depth={0} />,
     );
   }
 
@@ -327,7 +327,7 @@ export function renderMenus(
 
 export const resizeWidth: Listener<"sidebar.resizeWidth"> = (
   { value: width },
-  ctx
+  ctx,
 ) => {
   if (width == null) {
     throw Error();
@@ -342,7 +342,7 @@ export const resizeWidth: Listener<"sidebar.resizeWidth"> = (
 
 export const updateScroll: Listener<"sidebar.updateScroll"> = (
   { value: scroll },
-  ctx
+  ctx,
 ) => {
   if (scroll == null) {
     throw Error();
@@ -356,7 +356,7 @@ export const updateScroll: Listener<"sidebar.updateScroll"> = (
 };
 
 export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
-  setUI((prev) => {
+  setUI(prev => {
     const scroll = Math.max(prev.sidebar.scroll - SIDEBAR_MENU_HEIGHT, 0);
     return {
       sidebar: {
@@ -367,7 +367,7 @@ export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
 };
 
 export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
-  setUI((prev) => {
+  setUI(prev => {
     // Max scroll clamp is performed in scrollable.
     const scroll = prev.sidebar.scroll + SIDEBAR_MENU_HEIGHT;
     return {
@@ -380,7 +380,7 @@ export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
 
 export const toggleItemExpanded: Listener<"sidebar.toggleItemExpanded"> = (
   { value: id },
-  ctx
+  ctx,
 ) => {
   const { sidebar } = ctx.getState();
   if (sidebar.input) {
@@ -393,7 +393,7 @@ export const toggleItemExpanded: Listener<"sidebar.toggleItemExpanded"> = (
 
 export const createNote: Listener<"sidebar.createNote"> = async (
   { value: parentId },
-  ctx
+  ctx,
 ) => {
   const { sidebar } = ctx.getState();
 
@@ -402,13 +402,12 @@ export const createNote: Listener<"sidebar.createNote"> = async (
       schema: NOTE_NAME_SCHEMA,
       parentId: parentId ?? undefined,
     },
-    setExplorerInput(ctx)
+    setExplorerInput(ctx),
   );
 
   if (
     parentId != null &&
-    (sidebar.expanded == null ||
-      sidebar.expanded?.every((id) => id !== parentId))
+    (sidebar.expanded == null || sidebar.expanded?.every(id => id !== parentId))
   ) {
     sidebar.expanded ??= [];
     sidebar.expanded.push(parentId);
@@ -428,10 +427,10 @@ export const createNote: Listener<"sidebar.createNote"> = async (
       const note = await window.ipc(
         "notes.create",
         name,
-        parentId ?? undefined
+        parentId ?? undefined,
       );
 
-      ctx.setNotes((notes) => {
+      ctx.setNotes(notes => {
         if (parentId == null) {
           return [...notes, note];
         } else {
@@ -444,7 +443,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
       });
 
       ctx.focus([Section.Editor], { overwrite: true });
-      ctx.setUI((prev) => ({
+      ctx.setUI(prev => ({
         sidebar: {
           selected: [note.id],
         },
@@ -469,7 +468,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
 
 export const renameNote: Listener<"sidebar.renameNote"> = async (
   { value: id },
-  ctx
+  ctx,
 ) => {
   if (id == null) {
     return;
@@ -483,7 +482,7 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
       value,
       schema: NOTE_NAME_SCHEMA,
     },
-    setExplorerInput(ctx)
+    setExplorerInput(ctx),
   );
   ctx.focus([Section.SidebarInput]);
   ctx.setUI({
@@ -499,14 +498,14 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
         name,
       });
 
-      ctx.setNotes((notes) => {
+      ctx.setNotes(notes => {
         if (updatedNote.parent == null) {
-          const index = notes.findIndex((n) => n.id === id);
+          const index = notes.findIndex(n => n.id === id);
           notes.splice(index, 1, updatedNote);
           return notes;
         } else {
           const parent = getNoteById(notes, updatedNote.parent);
-          const index = parent.children!.findIndex((n) => n.id === id);
+          const index = parent.children!.findIndex(n => n.id === id);
           if (index === -1) {
             throw new Error(`Could not find child note with id ${id}`);
           }
@@ -562,16 +561,16 @@ export const deleteNote: Listener<
   if (confirmed) {
     await window.ipc("notes.delete", note.id);
 
-    const otherNotes = flatten(notes).filter((n) => n.id !== note.id);
-    ctx.setUI((ui) => filterOutStaleNoteIds(ui, otherNotes));
+    const otherNotes = flatten(notes).filter(n => n.id !== note.id);
+    ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
 
-    ctx.setNotes((notes) => {
+    ctx.setNotes(notes => {
       if (note.parent == null) {
-        return notes.filter((t) => t.id !== note.id);
+        return notes.filter(t => t.id !== note.id);
       }
 
       const parent = getNoteById(notes, note.parent);
-      parent.children = parent.children!.filter((t) => t.id !== note.id);
+      parent.children = parent.children!.filter(t => t.id !== note.id);
       return notes;
     });
   }
@@ -579,7 +578,7 @@ export const deleteNote: Listener<
 
 export const moveNoteToTrash: Listener<"sidebar.moveNoteToTrash"> = async (
   { value: id },
-  ctx
+  ctx,
 ) => {
   const { notes } = ctx.getState();
   const note = getNoteById(notes, id!);
@@ -587,16 +586,16 @@ export const moveNoteToTrash: Listener<"sidebar.moveNoteToTrash"> = async (
   if (confirmed) {
     await window.ipc("notes.moveToTrash", note.id);
 
-    const otherNotes = flatten(notes).filter((n) => n.id !== note.id);
-    ctx.setUI((ui) => filterOutStaleNoteIds(ui, otherNotes));
+    const otherNotes = flatten(notes).filter(n => n.id !== note.id);
+    ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
 
-    ctx.setNotes((notes) => {
+    ctx.setNotes(notes => {
       if (note.parent == null) {
-        return notes.filter((t) => t.id !== note.id);
+        return notes.filter(t => t.id !== note.id);
       }
 
       const parent = getNoteById(notes, note.parent);
-      parent.children = parent.children!.filter((t) => t.id !== note.id);
+      parent.children = parent.children!.filter(t => t.id !== note.id);
       return notes;
     });
   }
@@ -604,7 +603,7 @@ export const moveNoteToTrash: Listener<"sidebar.moveNoteToTrash"> = async (
 
 export const dragNote: Listener<"sidebar.dragNote"> = async (
   { value },
-  ctx
+  ctx,
 ) => {
   if (value == null) {
     return;
@@ -640,15 +639,15 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
     parent: newParent?.id,
   });
 
-  ctx.setNotes((notes) => {
+  ctx.setNotes(notes => {
     // Remove child from original parent. (If applicable)
     if (note.parent != null) {
       const ogParent = getNoteById(notes, note.parent);
       ogParent.children = (ogParent.children ?? []).filter(
-        (c) => c.id !== note.id
+        c => c.id !== note.id,
       );
     } else {
-      notes = notes.filter((n) => n.id !== note.id);
+      notes = notes.filter(n => n.id !== note.id);
     }
 
     // Add to new parent (if applicable)
@@ -665,17 +664,14 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
   });
 
   const newParentId = newParent?.id;
-  if (
-    newParent != null &&
-    !sidebar.expanded?.some((id) => id === newParentId)
-  ) {
+  if (newParent != null && !sidebar.expanded?.some(id => id === newParentId)) {
     toggleExpanded(ctx, newParent.id);
   }
 };
 
 export const search: Listener<"sidebar.search"> = async (
   { value: searchString },
-  ctx
+  ctx,
 ) => {
   ctx.setUI({
     sidebar: {
@@ -686,10 +682,11 @@ export const search: Listener<"sidebar.search"> = async (
 
 export const expandAll: Listener<"sidebar.expandAll"> = async (_, ctx) => {
   const { notes } = ctx.getState();
+
   const flattened = flatten(notes);
   ctx.setUI({
     sidebar: {
-      expanded: flattened.filter((n) => !isEmpty(n.children)).map((n) => n.id),
+      expanded: flattened.filter(n => !isEmpty(n.children)).map(n => n.id),
     },
   });
 };
@@ -714,7 +711,7 @@ export const setNoteSort: Listener<"sidebar.setNoteSort"> = async (ev, ctx) => {
       sort: ev.value.sort,
     });
 
-    ctx.setNotes((notes) => {
+    ctx.setNotes(notes => {
       const n = getNoteById(notes, note.id);
       n.sort = note.sort;
       return [...notes];
@@ -723,7 +720,7 @@ export const setNoteSort: Listener<"sidebar.setNoteSort"> = async (ev, ctx) => {
 };
 
 function toggleExpanded(ctx: StoreContext, noteId: string): void {
-  ctx.setUI((prev) => {
+  ctx.setUI(prev => {
     if (noteId == null) {
       throw new Error("No item to toggle");
     }
@@ -741,12 +738,10 @@ function toggleExpanded(ctx: StoreContext, noteId: string): void {
       return prev;
     }
 
-    const exists = sidebar.expanded!.some(
-      (expandedId) => expandedId === noteId
-    );
+    const exists = sidebar.expanded!.some(expandedId => expandedId === noteId);
     if (exists) {
       sidebar.expanded = sidebar.expanded!.filter(
-        (expandedId) => expandedId !== noteId
+        expandedId => expandedId !== noteId,
       );
     } else {
       sidebar.expanded!.push(noteId);

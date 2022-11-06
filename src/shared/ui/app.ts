@@ -1,4 +1,4 @@
-import { keyBy, isEmpty } from "lodash";
+import { keyBy, isEmpty, cloneDeep } from "lodash";
 import { PromisedInput } from "../promisedInput";
 import { flatten, Note, NoteSort } from "../domain/note";
 
@@ -46,35 +46,43 @@ export interface EditorTab {
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to
 // clear out all references to it otherwise things will bork.
-export function filterOutStaleNoteIds(ui: AppState, notes: Note[]): AppState {
-  const currentNoteIds = keyBy(flatten(notes), n => n.id);
+export function filterOutStaleNoteIds(
+  ui: AppState,
+  notes: Note[],
+  flattenNotes = true,
+): AppState {
+  const clonedUI = cloneDeep(ui);
+  const currentNoteIds = keyBy(
+    flattenNotes ? flatten(notes) : notes,
+    n => n.id,
+  );
 
   // Remove any expanded sidebar items that were deleted.
-  if (!isEmpty(ui.sidebar.expanded)) {
-    ui.sidebar.expanded = ui.sidebar.expanded?.filter(
+  if (!isEmpty(clonedUI.sidebar.expanded)) {
+    clonedUI.sidebar.expanded = clonedUI.sidebar.expanded?.filter(
       e => currentNoteIds[e] != null,
     );
   }
 
   // Remove any sidebar items that were selected.
-  if (!isEmpty(ui.sidebar.selected)) {
-    ui.sidebar.selected = ui.sidebar.selected?.filter(
+  if (!isEmpty(clonedUI.sidebar.selected)) {
+    clonedUI.sidebar.selected = clonedUI.sidebar.selected?.filter(
       s => currentNoteIds[s] != null,
     );
   }
 
-  if (ui.editor.tabs != null) {
-    ui.editor.tabs = ui.editor.tabs.filter(
+  if (clonedUI.editor.tabs != null) {
+    clonedUI.editor.tabs = clonedUI.editor.tabs.filter(
       t => currentNoteIds[t.noteId] != null,
     );
   }
 
   if (
-    ui.editor.activeTabNoteId != null &&
-    currentNoteIds[ui.editor.activeTabNoteId] == null
+    clonedUI.editor.activeTabNoteId != null &&
+    currentNoteIds[clonedUI.editor.activeTabNoteId] == null
   ) {
-    ui.editor.activeTabNoteId = undefined;
+    clonedUI.editor.activeTabNoteId = undefined;
   }
 
-  return ui;
+  return clonedUI;
 }

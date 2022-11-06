@@ -1,6 +1,6 @@
 import { Resource, uuid } from ".";
 import { isBlank } from "../utils";
-import { isEmpty, orderBy } from "lodash";
+import { cloneDeep, isEmpty, orderBy } from "lodash";
 import { z } from "zod";
 
 export interface Note extends Resource {
