@@ -7,7 +7,7 @@ export interface ConfigV3 {
   windowWidth: number;
   dataDirectory?: string;
   logDirectory?: string;
-  showDevTools?: boolean;
+  developerMode?: boolean;
 }
 
 export const configSchemaV3: z.Schema<ConfigV3> = z.preprocess(
@@ -25,6 +25,6 @@ export const configSchemaV3: z.Schema<ConfigV3> = z.preprocess(
     windowWidth: z.number().min(1),
     dataDirectory: z.string().optional(),
     logDirectory: z.string(),
-    showDevTools: z.boolean().optional(),
+    developerMode: z.boolean().optional(),
   }),
 );
