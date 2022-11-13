@@ -16,7 +16,7 @@ export interface JsonOptions<T> {
 export async function writeJson<Content extends Versioned>(
   filePath: string,
   schemas: Record<number, ZodSchema>,
-  content: Content
+  content: Content,
 ): Promise<void> {
   const sortedSchemas = sortSchemas(schemas);
   const [version, schema] = last(sortedSchemas)!;
@@ -34,7 +34,7 @@ export async function writeJson<Content extends Versioned>(
 export async function loadJson<Content extends Versioned>(
   filePath: string,
   schemas: Record<number, ZodSchema>,
-  opts?: JsonOptions<Content>
+  opts?: JsonOptions<Content>,
 ): Promise<Content> {
   let originalContent: Content | undefined;
   if (fs.existsSync(filePath)) {
@@ -47,7 +47,7 @@ export async function loadJson<Content extends Versioned>(
 
     if (originalContent == null) {
       throw new Error(
-        `No json was found for ${filePath} and no default was provided.`
+        `No json was found for ${filePath} and no default was provided.`,
       );
     }
   }
@@ -78,7 +78,7 @@ export interface JsonFile<T> {
 export async function loadJsonFile<Content extends Versioned>(
   filePath: string,
   schemas: Record<number, ZodSchema>,
-  opts?: JsonOptions<Content>
+  opts?: JsonOptions<Content>,
 ): Promise<JsonFile<Content>> {
   const content = await loadJson(filePath, schemas, opts);
   const latestSchema = schemas[content.version];
@@ -109,7 +109,7 @@ export async function loadJsonFile<Content extends Versioned>(
 
 export async function runSchemas<Content extends Versioned>(
   schemas: Record<number, ZodSchema>,
-  content: Content
+  content: Content,
 ): Promise<{ content: Content; latestSchema: ZodSchema; wasUpdated: boolean }> {
   const schemaArray = sortSchemas(schemas);
   if (schemaArray.length === 0) {
@@ -118,19 +118,27 @@ export async function runSchemas<Content extends Versioned>(
 
   // Always include current version schema so we can validate against it.
   const relevantSchemas = schemaArray.filter(
-    ([version]) => content!.version <= version
+    ([version]) => content!.version <= version,
   );
   const [, latestSchema] = last(relevantSchemas)!;
 
   if (relevantSchemas.length === 0) {
     throw new Error(
-      `No schema(s) to run. Loaded content version was: ${content.version} but last schema had version: ${latestSchema}`
+      `No schema(s) to run. Loaded content version was: ${content.version} but last schema had version: ${latestSchema}`,
     );
   }
 
   let validatedContent = cloneDeep(content);
-  for (const [, schema] of relevantSchemas) {
-    validatedContent = await schema.parseAsync(content);
+  for (const [currVersion, schema] of relevantSchemas) {
+    const prevVersion = currVersion - 1;
+
+    if (![prevVersion, currVersion].includes(validatedContent.version)) {
+      throw new Error(
+        `Cannot run migration v${currVersion} because content isn't on v${prevVersion} or v${currVersion}`,
+      );
+    }
+
+    validatedContent = await schema.parseAsync(validatedContent);
   }
 
   return {
@@ -141,7 +149,7 @@ export async function runSchemas<Content extends Versioned>(
 }
 
 export function sortSchemas(
-  schemas: Record<number, ZodSchema>
+  schemas: Record<number, ZodSchema>,
 ): [number, ZodSchema][] {
   return Object.entries(schemas)
     .map<[number, ZodSchema]>(([version, schema]) => [
