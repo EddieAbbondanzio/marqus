@@ -16,7 +16,7 @@ export interface ScrollableProps {
 export type ScrollOrientation = "horizontal" | "vertical";
 
 export function Scrollable(
-  props: React.PropsWithChildren<ScrollableProps>
+  props: React.PropsWithChildren<ScrollableProps>,
 ): JSX.Element {
   const {
     scroll,
@@ -25,6 +25,33 @@ export function Scrollable(
     orientation = "vertical",
     onScroll,
   } = props;
+
+  const wrapper = useRef(null as unknown as HTMLDivElement);
+
+  useEffect(() => {
+    const el = wrapper.current;
+
+    if (scroll != null && el != null) {
+      let clamped;
+
+      switch (orientation) {
+        case "horizontal":
+          clamped = clamp(scroll, 0, el.scrollWidth - el.clientLeft);
+          wrapper.current.scrollLeft = clamped;
+          break;
+        case "vertical":
+          clamped = clamp(scroll, 0, el.scrollHeight - el.clientHeight);
+          wrapper.current.scrollTop = clamped;
+          break;
+        default:
+          throw new Error(`Invalid scrollable orientation ${orientation}`);
+      }
+    }
+
+    // N.B. Don't trigger onScroll if we clamped scroll position here because
+    // onScroll may dispatch a store event but the store might not be initialized
+    // yet.
+  }, [scroll, onScroll, orientation]);
 
   // Debounce it so we don't spam the event handler.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,37 +77,10 @@ export function Scrollable(
         }
       },
       SCROLL_DEBOUNCE_INTERVAL,
-      { trailing: true }
+      { trailing: true },
     ),
-    [onScroll, orientation]
+    [onScroll, orientation],
   );
-
-  const wrapper = useRef(null as unknown as HTMLDivElement);
-
-  useEffect(() => {
-    const el = wrapper.current;
-
-    if (scroll != null && el != null) {
-      let clamped;
-
-      switch (orientation) {
-        case "horizontal":
-          clamped = clamp(scroll, 0, el.scrollWidth - el.clientLeft);
-          wrapper.current.scrollLeft = clamped;
-          break;
-        case "vertical":
-          clamped = clamp(scroll, 0, el.scrollHeight - el.clientHeight);
-          wrapper.current.scrollTop = clamped;
-          break;
-        default:
-          throw new Error(`Invalid scrollable orientation ${orientation}`);
-      }
-
-      if (scroll != clamped) {
-        onScroll?.(clamped);
-      }
-    }
-  }, [scroll, onScroll, orientation]);
 
   return (
     <StyledDiv
@@ -101,7 +101,7 @@ const StyledDiv = styled.div<{
   height: string;
   orientation: ScrollOrientation;
 }>`
-  ${(props) => {
+  ${props => {
     switch (props.orientation) {
       case "horizontal":
         return `
@@ -116,7 +116,7 @@ const StyledDiv = styled.div<{
   }}
 
   ${w100}
-  height: ${(p) => p.height};
+  height: ${p => p.height};
 
   ::-webkit-scrollbar {
     height: 0.4rem; // Horizontal scrollbar

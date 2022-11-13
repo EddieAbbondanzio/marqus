@@ -171,7 +171,9 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         <Scrollable
           height="calc(100% - 100px)"
           scroll={store.state.sidebar.scroll}
-          onScroll={s => store.dispatch("sidebar.updateScroll", s)}
+          onScroll={s => {
+            store.dispatch("sidebar.updateScroll", s);
+          }}
         >
           {menus}
 
@@ -368,7 +370,6 @@ export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
 
 export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
   setUI(prev => {
-    // Max scroll clamp is performed in scrollable.
     const scroll = prev.sidebar.scroll + SIDEBAR_MENU_HEIGHT;
     return {
       sidebar: {
