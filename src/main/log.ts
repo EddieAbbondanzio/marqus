@@ -14,6 +14,7 @@ import * as fs from "fs";
 import * as p from "path";
 import { ISO_8601_REGEX } from "../shared/utils";
 import chalk from "chalk";
+import * as os from "os";
 
 const DELETE_LOGS_OLDER_THAN_DAYS = 14;
 
@@ -23,28 +24,28 @@ const DELETE_LOGS_OLDER_THAN_DAYS = 14;
 export function logIpcs(
   ipc: IpcMainTS,
   configFile: JsonFile<Config>,
-  log: Logger
+  log: Logger,
 ): void {
   ipc.handle("log.info", async (_, message) =>
-    log.info(`[RENDERER] ${message}`)
+    log.info(`[RENDERER] ${message}`),
   );
 
   ipc.handle("log.debug", async (_, message) =>
-    log.debug(`[RENDERER] ${message}`)
+    log.debug(`[RENDERER] ${message}`),
   );
 
   ipc.handle("log.warn", async (_, message) =>
-    log.warn(`[RENDERER] ${message}`)
+    log.warn(`[RENDERER] ${message}`),
   );
 
   ipc.handle("log.error", async (_, message) =>
-    log.error(`[RENDERER] ${message}`)
+    log.error(`[RENDERER] ${message}`),
   );
 }
 
 export async function getLogger(
   config: JsonFile<Config>,
-  c: Console
+  c: Console,
 ): Promise<Logger & { filePath: string; close: () => void }> {
   const { logDirectory } = config.content;
   if (logDirectory != null && !fs.existsSync(logDirectory)) {
@@ -80,25 +81,25 @@ export async function getLogger(
       const fullMessage = `${getTimeStamp()} (debug): ${message}`;
       c.log(chalk.cyan(fullMessage));
 
-      await fileStream.write(fullMessage + "\n");
+      await fileStream.write(fullMessage + os.EOL);
     },
     async info(message: string): Promise<void> {
       const fullMessage = `${getTimeStamp()} (info): ${message}`;
       c.log(fullMessage);
 
-      await fileStream.write(fullMessage + "\n");
+      await fileStream.write(fullMessage + os.EOL);
     },
     async warn(message: string): Promise<void> {
       const fullMessage = `${getTimeStamp()} (warn): ${message}`;
       c.warn(chalk.yellow(fullMessage));
 
-      await fileStream.write(fullMessage + "\n");
+      await fileStream.write(fullMessage + os.EOL);
     },
     async error(message: string): Promise<void> {
       const fullMessage = `${getTimeStamp()} (ERROR): ${message}`;
       c.error(chalk.red(fullMessage));
 
-      await fileStream.write(fullMessage);
+      await fileStream.write(fullMessage + os.EOL);
     },
   };
 
