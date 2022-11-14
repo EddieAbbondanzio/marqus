@@ -15,14 +15,15 @@ import { Store } from "../store";
 import { Section } from "../../shared/ui/app";
 import { getEditorTabAttribute } from "../components/EditorTabs";
 import { IpcChannel } from "../../shared/ipc";
+import { Config } from "../../shared/domain/config";
 
-export function useContextMenu(store: Store): void {
+export function useContextMenu(store: Store, config: Config): void {
   const { state } = store;
 
   // useMemo prevents unnecessary renders
   const shortcutLabels = useMemo(
     () => getShortcutLabels(state.shortcuts),
-    [state.shortcuts]
+    [state.shortcuts],
   );
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export function useContextMenu(store: Store): void {
                 event: "sidebar.moveNoteToTrash",
                 eventInput: noteId,
                 shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
-              }
+              },
             );
           }
 
@@ -142,7 +143,7 @@ export function useContextMenu(store: Store): void {
         }
       }
 
-      if (isDevelopment()) {
+      if (isDevelopment() || config.developerMode) {
         const { x, y } = (ev.target as HTMLElement).getBoundingClientRect();
 
         items.push({
@@ -170,7 +171,7 @@ export function useContextMenu(store: Store): void {
     return () => {
       window.removeEventListener("contextmenu", showMenu);
     };
-  }, [shortcutLabels, store, state.notes, state.sidebar.sort]);
+  }, [shortcutLabels, store, state.notes, state.sidebar.sort, config]);
 
   useEffect(() => {
     const onClick = (ev: CustomEvent) => {
@@ -189,7 +190,7 @@ export function buildNoteSortMenu(globalSort: NoteSort, note?: Note): SubMenu {
   const label = note ? "Sort children by" : "Sort notes by";
   const currentSort = note?.sort ?? globalSort;
 
-  const children: Menu[] = Object.values(NoteSort).map((sort) => ({
+  const children: Menu[] = Object.values(NoteSort).map(sort => ({
     label: NOTE_SORT_LABELS[sort],
     type: "radio",
     checked: currentSort === sort,

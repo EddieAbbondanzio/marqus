@@ -18,6 +18,7 @@ const shortcuts: Shortcut[] = [
     name: "app.openDevTools",
     event: "app.openDevTools",
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterI],
+    // We leave shortcut enabled even when developer mode isn't enabled for now.
   },
   {
     name: "app.reload",
@@ -146,7 +147,7 @@ const shortcuts: Shortcut[] = [
   },
 ];
 
-export const DEFAULT_SHORTCUTS = shortcuts.map((s) => ({
+export const DEFAULT_SHORTCUTS = shortcuts.map(s => ({
   ...s,
   // Ensure keys are always in correct order
   keys: sortKeyCodes(s.keys),

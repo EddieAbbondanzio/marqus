@@ -1,10 +1,70 @@
-import { buildNoteSortMenu } from "../../../src/renderer/menus/contextMenu";
+import {
+  buildNoteSortMenu,
+  useContextMenu,
+} from "../../../src/renderer/menus/contextMenu";
 import {
   createNote,
   NoteSort,
   NOTE_SORT_LABELS,
 } from "../../../src/shared/domain/note";
 import { RadioMenu } from "../../../src/shared/ui/menu";
+import { renderHook } from "@testing-library/react-hooks";
+import { createConfig } from "../../__factories__/config";
+import { createStore } from "../../__factories__/store";
+import * as env from "../../../src/shared/env";
+import { fireEvent } from "@testing-library/react";
+
+// Keep in sync with useApplicationMenu
+test.each([
+  [false, false, false],
+  [true, false, true],
+  [false, true, true],
+  [true, true, true],
+])(
+  "useContextMenu (isDevelopment: %s, developerMode: %s, shouldSeeDevMenu: %s)",
+  async (isDevelopment, developerMode, shouldSeeDevMenu) => {
+    jest.spyOn(env, "isDevelopment").mockReturnValue(isDevelopment);
+
+    const store = createStore();
+    const config = createConfig({ developerMode });
+
+    renderHook(() => {
+      useContextMenu(store.current, config);
+    });
+
+    fireEvent.contextMenu(window, {
+      target: {
+        hasAttribute: jest.fn(),
+        getBoundingClientRect: jest.fn(() => ({ x: 69, y: 420 })),
+      },
+    });
+
+    const items = ((window as any).ipc as jest.Mock).mock.calls[0][1];
+    if (shouldSeeDevMenu) {
+      expect(items).toContainEqual(
+        expect.objectContaining({
+          label: "Inspect element",
+        }),
+      );
+      expect(items).toContainEqual(
+        expect.objectContaining({
+          label: "Open dev tools",
+        }),
+      );
+    } else {
+      expect(items).not.toContainEqual(
+        expect.objectContaining({
+          label: "Inspect element",
+        }),
+      );
+      expect(items).not.toContainEqual(
+        expect.objectContaining({
+          label: "Open dev tools",
+        }),
+      );
+    }
+  },
+);
 
 test("buildNoteSortMenu global sort", () => {
   const menu = buildNoteSortMenu(NoteSort.AlphanumericReversed);
@@ -15,7 +75,7 @@ test("buildNoteSortMenu global sort", () => {
 
   // sets .checked on correct option.
   const checked = menu.children.find(
-    (c) => c.type === "radio" && c.checked
+    c => c.type === "radio" && c.checked,
   ) as RadioMenu;
   expect(checked.label).toBe(NOTE_SORT_LABELS[NoteSort.AlphanumericReversed]);
 });
@@ -32,7 +92,7 @@ test("buildNoteSortMenu note sort", () => {
   menu = buildNoteSortMenu(NoteSort.AlphanumericReversed, note);
   // sets .checked on correct option.
   const checked = menu.children.find(
-    (c) => c.type === "radio" && c.checked
+    c => c.type === "radio" && c.checked,
   ) as RadioMenu;
   expect(checked.label).toBe(NOTE_SORT_LABELS[NoteSort.DateCreated]);
 

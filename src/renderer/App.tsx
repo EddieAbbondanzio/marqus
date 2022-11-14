@@ -51,13 +51,14 @@ export interface AppProps {
 }
 
 export function App(props: AppProps): JSX.Element {
+  const { config } = props;
   const store = useStore(props.state);
   const { state } = store;
   const { sidebar, editor } = state;
 
   useShortcuts(store);
-  useApplicationMenu(store);
-  useContextMenu(store);
+  useApplicationMenu(store, config);
+  useContextMenu(store, config);
   useEffect(() => {
     store.on("app.quit", quit);
     store.on("app.toggleSidebar", toggleSidebar);
