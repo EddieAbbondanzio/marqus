@@ -1,4 +1,4 @@
-import { loadJsonFile } from "../../src/main/json";
+import { loadJsonFile, runSchemas } from "../../src/main/json";
 import fsp from "fs/promises";
 import fs from "fs";
 import { z, ZodSchema } from "zod";
@@ -26,7 +26,7 @@ const fooV1: z.Schema<FooV1> = z.object({
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore ts-jest doesn't like running in strict mode for some reason?
 const fooV2: z.Schema<FooV2> = z.preprocess(
-  (obj) => {
+  obj => {
     const foo = obj as FooV1 | FooV2;
 
     if (foo.version === 1) {
@@ -42,7 +42,7 @@ const fooV2: z.Schema<FooV2> = z.preprocess(
     version: z.literal(2),
     foo: z.string(),
     bar: z.number(),
-  })
+  }),
 );
 
 test("loadJsonFile throws if no migrations passed", async () => {
@@ -50,7 +50,7 @@ test("loadJsonFile throws if no migrations passed", async () => {
     await loadJsonFile(
       "fake-file-path.json",
       {},
-      { defaultContent: { version: 1, foo: 1 } }
+      { defaultContent: { version: 1, foo: 1 } },
     );
   }).rejects.toThrow(/Expected at least 1 schema/);
 });
@@ -71,7 +71,7 @@ test("loadJsonFile loads default content if no file found", async () => {
         foo: "cat",
         bar: 42,
       },
-    }
+    },
   );
   expect(content).toEqual({
     version: 2,
@@ -89,7 +89,7 @@ test("loadJsonFile loads content and validates it", async () => {
       "foo": "dog",
       "bar": 24
     }
-  `
+  `,
   );
 
   const schema1 = { parseAsync: jest.fn() } as unknown as ZodSchema;
@@ -113,7 +113,7 @@ test("loadJsonFile loads content and validates it", async () => {
         foo: "cat",
         bar: 42,
       },
-    }
+    },
   );
 
   expect(content).toEqual({
@@ -124,4 +124,39 @@ test("loadJsonFile loads content and validates it", async () => {
   expect(schema1.parseAsync).not.toBeCalled();
   expect(schema2.parseAsync).toBeCalled();
   expect(fsp.writeFile).not.toBeCalled();
+});
+
+test("runSchemas applies changes", async () => {
+  const schemas = {
+    1: z.object({
+      version: z.literal(1),
+      foo: z.string().default("bar"),
+    }),
+    2: z.preprocess(
+      (obj: any) => {
+        if (obj.version === 1) {
+          return {
+            ...obj,
+            version: 2,
+          };
+        }
+      },
+      z.object({
+        version: z.literal(2),
+        foo: z.string(),
+        bar: z.number().default(2),
+      }),
+    ),
+  };
+
+  const migrated = await runSchemas(schemas, { version: 1 });
+  const content = migrated.content as {
+    version: number;
+    foo: string;
+    bar: number;
+  };
+
+  expect(content.version).toBe(2);
+  expect(content.foo).toBe("bar");
+  expect(content.bar).toBe(2);
 });

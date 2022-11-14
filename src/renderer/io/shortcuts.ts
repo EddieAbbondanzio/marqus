@@ -38,10 +38,10 @@ export function useShortcuts(store: Store): void {
 
   if (didKeysChange) {
     const shortcut = shortcuts.find(
-      (s) =>
+      s =>
         !s.disabled &&
         isEqual(s.keys, toKeyArray(activeKeys.current)) &&
-        shouldExecute(state.focused, s.when)
+        shouldExecute(state.focused, s.when),
     );
 
     if (shortcut != null) {
@@ -116,7 +116,7 @@ export function shouldExecute(focused?: Section[], when?: Section): boolean {
 }
 
 export const toKeyArray = (
-  activeKeys: Record<string, boolean | undefined>
+  activeKeys: Record<string, boolean | undefined>,
 ): KeyCode[] =>
   chain(activeKeys)
     .entries()
@@ -126,7 +126,7 @@ export const toKeyArray = (
     .value();
 
 export function getShortcutLabels(
-  shortcuts: Shortcut[]
+  shortcuts: Shortcut[],
 ): Partial<Record<UIEventType, string>> {
   const lookup: Partial<Record<UIEventType, string>> = {};
 

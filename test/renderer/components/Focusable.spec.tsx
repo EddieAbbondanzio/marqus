@@ -11,10 +11,11 @@ import React, { ReactNode } from "react";
 import * as store from "../../../src/renderer/store";
 import { mockStore } from "../../__mocks__/store";
 import { Section } from "../../../src/shared/ui/app";
+import { createConfig } from "../../__factories__/config";
 
 function init(
   props: FocusableProps,
-  content: ReactNode = undefined
+  content: ReactNode = undefined,
 ): RenderResult {
   jest.spyOn(store, "useStore").mockImplementation(() => props.store);
   return render(<Focusable {...props}>{content}</Focusable>);
@@ -24,7 +25,9 @@ test("useFocusTracking detects clicks in focusables", async () => {
   const s = mockStore();
   jest.spyOn(store, "useStore").mockImplementation(() => s);
 
-  const res = render(<App initialState={s.state} needDataDirectory={false} />);
+  const res = render(
+    <App state={s.state} config={createConfig({ dataDirectory: "foo" })} />,
+  );
 
   // Simulate a click within the sidebar search.
   const searchbar = await res.findByPlaceholderText("Type to search...");
@@ -43,7 +46,7 @@ test("focusable sets attribute", () => {
 
 test.each([undefined, false, true])(
   "focusable focuses (focusOnRender %s)",
-  (focusOnRender) => {
+  focusOnRender => {
     const store = mockStore({
       state: { focused: [Section.Sidebar] },
     });
@@ -59,7 +62,7 @@ test.each([undefined, false, true])(
         elementRef: el,
         onFocus,
       },
-      "Hello World!"
+      "Hello World!",
     );
 
     if (focusOnRender === undefined || focusOnRender === true) {
@@ -69,12 +72,12 @@ test.each([undefined, false, true])(
     }
 
     expect(onFocus).toBeCalled();
-  }
+  },
 );
 
 test.each([false, true])(
   "focusable blurs (focusOnRender %s)",
-  (focusOnRender) => {
+  focusOnRender => {
     const store = mockStore({ state: { focused: [Section.Editor] } });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const el = { current: { blur: jest.fn() } } as React.MutableRefObject<any>;
@@ -95,7 +98,7 @@ test.each([false, true])(
     }
 
     expect(onBlur).toBeCalled();
-  }
+  },
 );
 
 test("focusable only blurs when current has changed", async () => {
@@ -112,14 +115,14 @@ test("focusable only blurs when current has changed", async () => {
   res.rerender(
     <Focusable name={Section.Sidebar} store={store} onBlur={onBlur}>
       Hello World!
-    </Focusable>
+    </Focusable>,
   );
   expect(onBlur).not.toBeCalled();
 });
 
 test.each([false, true])(
   "focusable blurs on escape (blurOnEsc: %s)",
-  async (blurOnEsc) => {
+  async blurOnEsc => {
     const store = mockStore();
     const res = init(
       {
@@ -127,7 +130,7 @@ test.each([false, true])(
         store,
         blurOnEsc,
       },
-      <input title="random-title"></input>
+      <input title="random-title"></input>,
     );
 
     const input = res.getByTitle("random-title");
@@ -138,7 +141,7 @@ test.each([false, true])(
     } else {
       expect(store.dispatch).not.toBeCalled();
     }
-  }
+  },
 );
 
 test("wasInsideFocusable true", () => {

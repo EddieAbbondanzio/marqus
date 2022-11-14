@@ -4,14 +4,15 @@ import { isDevelopment } from "../../shared/env";
 import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";
 import { IpcChannel } from "../../shared/ipc";
+import { Config } from "../../shared/domain/config";
 
-export function useApplicationMenu(store: Store): void {
+export function useApplicationMenu(store: Store, config: Config): void {
   const { state } = store;
 
-  // useMemo prevents unnecessary renders
+  // useMemo prevents unnecessary re-renders
   const shortcutLabels = useMemo(
     () => getShortcutLabels(store.state.shortcuts),
-    [store.state.shortcuts]
+    [store.state.shortcuts],
   );
   const focused = state.focused[0];
   const selected = state.sidebar.selected?.[0];
@@ -19,7 +20,7 @@ export function useApplicationMenu(store: Store): void {
 
   useEffect(() => {
     const optionals: Menu[] = [];
-    if (isDevelopment()) {
+    if (isDevelopment() || config.developerMode) {
       optionals.push({
         label: "&Developer",
         type: "submenu",
@@ -140,7 +141,7 @@ export function useApplicationMenu(store: Store): void {
       },
       ...optionals,
     ]);
-  }, [focused, selected, shortcutLabels, isEditing]);
+  }, [focused, selected, shortcutLabels, isEditing, config]);
 
   useEffect(() => {
     const onClick = (ev: CustomEvent) => {

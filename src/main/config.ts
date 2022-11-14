@@ -18,12 +18,9 @@ export const DEFAULT_WINDOW_WIDTH = 800;
 export function configIpcs(
   ipc: IpcMainTS,
   config: JsonFile<Config>,
-  log: Logger
+  log: Logger,
 ): void {
-  ipc.handle(
-    "config.hasDataDirectory",
-    async () => config.content.dataDirectory != null
-  );
+  ipc.handle("config.get", () => config.content);
 
   ipc.handle("config.openDataDirectory", async () => {
     if (config.content.dataDirectory == null) {
@@ -62,7 +59,7 @@ export async function getConfig(): Promise<JsonFile<Config>> {
         windowWidth: DEFAULT_WINDOW_WIDTH,
         logDirectory: app.getPath("logs"),
       },
-    }
+    },
   );
 
   // Override directories when running in development.

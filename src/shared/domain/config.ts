@@ -4,4 +4,5 @@ export interface Config {
   windowWidth: number;
   dataDirectory?: string;
   logDirectory: string;
+  developerMode?: boolean;
 }

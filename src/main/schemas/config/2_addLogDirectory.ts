@@ -11,7 +11,7 @@ export interface ConfigV2 {
 }
 
 export const configSchemaV2: z.Schema<ConfigV2> = z.preprocess(
-  (obj) => {
+  obj => {
     const config = obj as ConfigV1 | ConfigV2;
 
     if (config.version === 1) {
@@ -30,5 +30,5 @@ export const configSchemaV2: z.Schema<ConfigV2> = z.preprocess(
     windowWidth: z.number().min(1),
     dataDirectory: z.string().optional(),
     logDirectory: z.string(),
-  })
+  }),
 );

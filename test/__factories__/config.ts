@@ -8,5 +8,6 @@ export function createConfig(partial?: DeepPartial<Config>): Config {
     windowHeight: partial?.windowHeight ?? 600,
     windowWidth: partial?.windowWidth ?? 800,
     dataDirectory: partial?.dataDirectory ?? "/data",
+    developerMode: partial?.developerMode,
   };
 }
