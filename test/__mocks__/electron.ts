@@ -19,4 +19,9 @@ export const BrowserWindow = {
 
 export const shell = {
   trashItem: jest.fn(),
+  openPath: jest.fn(),
+};
+
+export const dialog = {
+  showOpenDialog: jest.fn(),
 };

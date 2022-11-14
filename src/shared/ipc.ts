@@ -30,6 +30,7 @@ export const IPCS = [
   "notes.moveToTrash",
 
   "config.get",
+  "config.openInTextEditor",
   "config.selectDataDirectory",
   "config.openDataDirectory",
 
@@ -70,7 +71,7 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "notes.moveToTrash"(id: string): Promise<void>;
 
   // Config
-  "config.hasDataDirectory"(): Promise<boolean>;
+  "config.openInTextEditor"(): Promise<void>;
   "config.selectDataDirectory"(): Promise<void>;
   "config.openDataDirectory"(): Promise<void>;
 

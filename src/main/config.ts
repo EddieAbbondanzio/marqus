@@ -22,6 +22,10 @@ export function configIpcs(
 ): void {
   ipc.handle("config.get", () => config.content);
 
+  ipc.handle("config.openInTextEditor", async () => {
+    shell.openPath(getConfigPath());
+  });
+
   ipc.handle("config.openDataDirectory", async () => {
     if (config.content.dataDirectory == null) {
       return;
@@ -78,7 +82,7 @@ export async function getConfig(): Promise<JsonFile<Config>> {
   ) {
     await fsp.mkdir(configFile.content.dataDirectory);
   }
-  /*  */
+
   return configFile;
 }
 

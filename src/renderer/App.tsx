@@ -70,6 +70,7 @@ export function App(props: AppProps): JSX.Element {
     store.on("app.openDataDirectory", openDataDirectory);
     store.on("app.selectDataDirectory", selectDataDirectory);
     store.on("app.openLogDirectory", openLogs);
+    store.on("app.openConfig", openConfig);
 
     store.on("sidebar.focusSearch", globalSearch);
 
@@ -100,6 +101,7 @@ export function App(props: AppProps): JSX.Element {
       store.off("app.openDataDirectory", openDataDirectory);
       store.off("app.selectDataDirectory", selectDataDirectory);
       store.off("app.openLogDirectory", openLogs);
+      store.off("app.openConfig", openConfig);
 
       store.off("sidebar.focusSearch", globalSearch);
 
@@ -219,6 +221,7 @@ export const toggleFullScreen = (): Promise<void> =>
 export const inspectElement: Listener<"app.inspectElement"> = ({
   value: coord,
 }) => ipc("app.inspectElement", coord!);
+export const openConfig = (): Promise<void> => ipc("config.openInTextEditor");
 
 export const push: Listener<"focus.push"> = ({ value: next }, ctx) => {
   if (next == null) {

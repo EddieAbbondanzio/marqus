@@ -20,6 +20,7 @@ export interface UIEvents {
   "app.inspectElement": Point;
   "app.toggleSidebar": void;
   "app.openLogDirectory": void;
+  "app.openConfig": void;
 
   // Sidebar
   "sidebar.updateScroll": number;
@@ -88,6 +89,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "app.inspectElement",
   "app.toggleSidebar",
   "app.openLogDirectory",
+  "app.openConfig",
 
   // Sidebar
   "sidebar.updateScroll",

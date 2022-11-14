@@ -69,6 +69,12 @@ export function useApplicationMenu(store: Store, config: Config): void {
             disabled: selected == null,
           },
           {
+            label: "Open config",
+            type: "normal",
+            shortcut: shortcutLabels["app.openConfig"],
+            event: "app.openConfig",
+          },
+          {
             label: "Open data directory",
             type: "normal",
             shortcut: shortcutLabels["app.openDataDirectory"],
