@@ -44,3 +44,15 @@ q:before, q:after
 table
   border-collapse: collapse
   border-spacing: 0
+
+// Lock height of html, body, and React container to screen height because
+// scrolling will be performed within divs
+html
+  font-size: 62.5% // Set rem to 10px
+  font-family: Arial, sans-serif
+  overflow: hidden
+  height: 100%
+
+  body, #app
+    height: 100%
+    overflow: hidden

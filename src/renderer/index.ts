@@ -11,7 +11,6 @@
  *
  * https://electronjs.org/docs/tutorial/security
  */
-import "../../styles/reset.sass";
-import "../../styles/styles.sass";
+import "../../static/reset.sass";
 
 import "./App";
