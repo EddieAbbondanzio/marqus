@@ -17,15 +17,15 @@ import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
 import { AppState } from "../shared/ui/app";
-import { log } from "./logger";
+import { Config } from "../shared/domain/config";
 
 const { ipc } = window;
 async function main() {
+  let config: Config;
   let initialState: State;
-  let needDataDirectory = false;
 
   try {
-    needDataDirectory = !(await ipc("config.hasDataDirectory"));
+    config = await ipc("config.get");
     initialState = await loadInitialState();
   } catch (e) {
     console.error("Fatal Error", e);
@@ -35,7 +35,7 @@ async function main() {
   }
 
   render(
-    <App initialState={initialState} needDataDirectory={needDataDirectory} />,
+    <App state={initialState} config={config} />,
     document.getElementById("app"),
   );
 }
@@ -46,12 +46,12 @@ if (!isTest()) {
 }
 
 export interface AppProps {
-  initialState: State;
-  needDataDirectory: boolean;
+  state: State;
+  config: Config;
 }
 
 export function App(props: AppProps): JSX.Element {
-  const store = useStore(props.initialState);
+  const store = useStore(props.state);
   const { state } = store;
   const { sidebar, editor } = state;
 
@@ -112,7 +112,9 @@ export function App(props: AppProps): JSX.Element {
     <Container>
       {!(state.sidebar.hidden ?? false) && <Sidebar store={store} />}
       <Editor store={store} />
-      {props.needDataDirectory && <DataDirectoryModal store={store} />}
+      {props.config.dataDirectory == null && (
+        <DataDirectoryModal store={store} />
+      )}
     </Container>
   );
 }

@@ -29,7 +29,7 @@ export const IPCS = [
   "notes.delete",
   "notes.moveToTrash",
 
-  "config.hasDataDirectory",
+  "config.get",
   "config.selectDataDirectory",
   "config.openDataDirectory",
 
@@ -97,7 +97,7 @@ export interface IpcMainTS extends Pick<IpcMain, "listeners"> {
     handler: (
       event: IpcMainInvokeEvent,
       ...params: Parameters<IpcSchema[Type]>
-    ) => ReturnType<IpcSchema[Type]>
+    ) => ReturnType<IpcSchema[Type]>,
   ): void;
   on(event: IpcEvent, callback: () => Promise<void>): void;
 }
