@@ -18,6 +18,7 @@ import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
 import { AppState } from "../shared/ui/app";
 import { Config } from "../shared/domain/config";
+import { log } from "./logger";
 
 const { ipc } = window;
 async function main() {
@@ -75,7 +76,21 @@ export function App(props: AppProps): JSX.Element {
     store.on("focus.push", push);
     store.on("focus.pop", pop);
 
+    const onError = (err: ErrorEvent) => {
+      log.error("Uncaught Error:", err.error);
+
+      // N.B. We add a delay to slow down refreshes in case an infinite loop was
+      // somehow triggered.
+      setTimeout(() => {
+        log.info("Attempting to recover from error. Reloading!");
+        window.location.reload();
+      }, 3000);
+    };
+    window.addEventListener("error", onError);
+
     return () => {
+      window.removeEventListener("error", onError);
+
       store.off("app.quit", quit);
       store.off("app.toggleSidebar", toggleSidebar);
       store.off("app.inspectElement", inspectElement);
