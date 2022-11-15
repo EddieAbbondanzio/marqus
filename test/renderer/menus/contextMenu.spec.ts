@@ -34,6 +34,7 @@ test.each([
 
     fireEvent.contextMenu(window, {
       target: {
+        closest: jest.fn(),
         hasAttribute: jest.fn(),
         getBoundingClientRect: jest.fn(() => ({ x: 69, y: 420 })),
       },

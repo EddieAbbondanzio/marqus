@@ -9,7 +9,6 @@ import { first, last, orderBy } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
-import { findParent } from "../utils/findParent";
 
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
 export const TABS_HEIGHT = "4.3rem";
@@ -46,7 +45,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
           active={activeTabNoteId === note.id}
           onClick={onClick}
           onClose={onClose}
-        />
+        />,
       );
     }
 
@@ -67,7 +66,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     }
 
     const currentIndex = tabsByLastActive.findIndex(
-      (t) => t.noteId === editor.activeTabNoteId
+      t => t.noteId === editor.activeTabNoteId,
     );
 
     let previousIndex = (currentIndex - 1) % tabsByLastActive.length;
@@ -93,7 +92,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
         },
       });
     },
-    [nextTab]
+    [nextTab],
   );
 
   const switchToPreviousTab: Listener<"editor.previousTab"> = useCallback(
@@ -108,7 +107,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
         },
       });
     },
-    [previousTab]
+    [previousTab],
   );
 
   const closeTab: Listener<
@@ -124,13 +123,13 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
     switch (type) {
       case "editor.closeAllTabs":
-        noteIdsToClose = editor.tabs.map((t) => t.noteId);
+        noteIdsToClose = editor.tabs.map(t => t.noteId);
         break;
 
       case "editor.closeOtherTabs":
         noteIdsToClose = editor.tabs
-          .filter((t) => t.noteId !== (value ?? editor.activeTabNoteId))
-          .map((t) => t.noteId);
+          .filter(t => t.noteId !== (value ?? editor.activeTabNoteId))
+          .map(t => t.noteId);
         break;
 
       case "editor.closeTab":
@@ -143,18 +142,18 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
       case "editor.closeTabsToLeft": {
         const leftLimit = editor.tabs.findIndex(
-          (t) => t.noteId === (value ?? editor.activeTabNoteId)
+          t => t.noteId === (value ?? editor.activeTabNoteId),
         );
-        noteIdsToClose = editor.tabs.slice(0, leftLimit).map((t) => t.noteId);
+        noteIdsToClose = editor.tabs.slice(0, leftLimit).map(t => t.noteId);
         break;
       }
 
       case "editor.closeTabsToRight": {
         const rightLimit = editor.tabs.findIndex(
-          (t) => t.noteId === (value ?? editor.activeTabNoteId)
+          t => t.noteId === (value ?? editor.activeTabNoteId),
         );
 
-        noteIdsToClose = editor.tabs.slice(rightLimit + 1).map((t) => t.noteId);
+        noteIdsToClose = editor.tabs.slice(rightLimit + 1).map(t => t.noteId);
         break;
       }
 
@@ -162,9 +161,9 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
         throw new Error(`Invalid action ${value}`);
     }
 
-    ctx.setUI((prev) => {
+    ctx.setUI(prev => {
       const tabs = prev.editor.tabs.filter(
-        (t) => !noteIdsToClose.includes(t.noteId)
+        t => !noteIdsToClose.includes(t.noteId),
       );
 
       let activeTabNoteId: string | undefined;
@@ -175,9 +174,9 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
         case "editor.closeTab": {
           const tabsByLastActive = orderBy(
-            editor.tabs.filter((t) => !noteIdsToClose.includes(t.noteId)),
+            editor.tabs.filter(t => !noteIdsToClose.includes(t.noteId)),
             ["lastActive"],
-            ["desc"]
+            ["desc"],
           );
 
           activeTabNoteId = tabsByLastActive[0]?.noteId;
@@ -214,7 +213,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
         "editor.closeTabsToLeft",
         "editor.closeTabsToRight",
       ],
-      closeTab
+      closeTab,
     );
     store.on("editor.nextTab", switchToNextTab);
     store.on("editor.previousTab", switchToPreviousTab);
@@ -230,7 +229,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
           "editor.closeTabsToLeft",
           "editor.closeTabsToRight",
         ],
-        closeTab
+        closeTab,
       );
       store.off("editor.nextTab", switchToNextTab);
       store.off("editor.previousTab", switchToPreviousTab);
@@ -243,7 +242,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
       <StyledScrollable
         orientation="horizontal"
         scroll={editor.tabsScroll}
-        onScroll={(s) => store.dispatch("editor.updateTabsScroll", s)}
+        onScroll={s => store.dispatch("editor.updateTabsScroll", s)}
       >
         {tabs}
       </StyledScrollable>
@@ -409,7 +408,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
 
   for (const noteId of noteIds) {
     let newTab = false;
-    let tab = editor.tabs.find((t) => t.noteId === noteId);
+    let tab = editor.tabs.find(t => t.noteId === noteId);
 
     if (tab == null) {
       newTab = true;
@@ -443,7 +442,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
 
 export const updateTabsScroll: Listener<"editor.updateTabsScroll"> = async (
   { value: tabsScroll },
-  ctx
+  ctx,
 ) => {
   if (tabsScroll != null) {
     ctx.setUI({
@@ -455,7 +454,10 @@ export const updateTabsScroll: Listener<"editor.updateTabsScroll"> = async (
 };
 
 export function getEditorTabAttribute(element: HTMLElement): string | null {
-  return findParent(element, (el) => el.hasAttribute(EDITOR_TAB_ATTRIBUTE), {
-    matchValue: (el) => el.getAttribute(EDITOR_TAB_ATTRIBUTE),
-  });
+  const parent = element.closest(`[${EDITOR_TAB_ATTRIBUTE}]`);
+  if (parent != null) {
+    return parent.getAttribute(EDITOR_TAB_ATTRIBUTE);
+  }
+
+  return null;
 }

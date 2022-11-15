@@ -9,7 +9,6 @@ import { mt1, p2, py1, THEME, w100 } from "../css";
 import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import { useMouseDrag } from "../io/mouse";
-import { findParent } from "../utils/findParent";
 import { Section } from "../../shared/ui/app";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
@@ -44,10 +43,10 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
 
   const menuRef = useRef<HTMLAnchorElement>(null);
   const onDrag = useCallback(
-    (drag) => {
+    drag => {
       if (drag?.state === "dragEnded") {
         const newParent = getSidebarMenuAttribute(
-          drag.event.target as HTMLElement
+          drag.event.target as HTMLElement,
         );
 
         if (newParent != null) {
@@ -59,7 +58,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         }
       }
     },
-    [props]
+    [props],
   );
 
   useMouseDrag(menuRef, onDrag, {
@@ -78,7 +77,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         <StyledMenuIcon
           icon={icon}
           size="xs"
-          onClick={(ev) => props.onIconClick(ev)}
+          onClick={ev => props.onIconClick(ev)}
         />
       )}
       <StyledMenuText
@@ -131,7 +130,7 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
   }px`;
   const inputRef = useRef(null! as HTMLInputElement);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [isValid, setIsValid] = useState(true);
 
@@ -244,7 +243,10 @@ const ErrorMessage = styled.div`
 `;
 
 export function getSidebarMenuAttribute(element: HTMLElement): string | null {
-  return findParent(element, (el) => el.hasAttribute(SIDEBAR_MENU_ATTRIBUTE), {
-    matchValue: (el) => el.getAttribute(SIDEBAR_MENU_ATTRIBUTE),
-  });
+  const parent = element.closest(`[${SIDEBAR_MENU_ATTRIBUTE}]`);
+  if (parent != null) {
+    return parent.getAttribute(SIDEBAR_MENU_ATTRIBUTE);
+  }
+
+  return null;
 }

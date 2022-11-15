@@ -164,16 +164,16 @@ test("wasInsideFocusable false", () => {
 });
 
 test("getFocusableAttribute", () => {
+  // Direct
   const focusable = document.createElement("div");
   focusable.setAttribute(FOCUSABLE_ATTRIBUTE, Section.Sidebar);
   expect(getFocusableAttribute(focusable)).toBe(Section.Sidebar);
-});
 
-test("getFocusableAttribute parent", () => {
+  // Parent
   const child = document.createElement("div");
-  const focusable = document.createElement("div");
-  focusable.appendChild(child);
-  focusable.setAttribute(FOCUSABLE_ATTRIBUTE, Section.Sidebar);
+  const parent = document.createElement("div");
+  parent.appendChild(child);
+  parent.setAttribute(FOCUSABLE_ATTRIBUTE, Section.Sidebar);
 
   expect(getFocusableAttribute(child)).toBe(Section.Sidebar);
 });

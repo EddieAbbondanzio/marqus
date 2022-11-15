@@ -8,7 +8,6 @@ import React, {
 import { Section } from "../../../shared/ui/app";
 import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { Store } from "../../store";
-import { findParent } from "../../utils/findParent";
 
 // Should not be used directly.
 export const FOCUSABLE_ATTRIBUTE = "data-focusable";
@@ -112,15 +111,16 @@ export function Focusable(
   );
 }
 
-export function wasInsideFocusable(ev: Event, focusable: Section): boolean {
-  return findParent(
-    ev.target as HTMLElement,
-    el => el.getAttribute(FOCUSABLE_ATTRIBUTE) === focusable,
-  );
+export function wasInsideFocusable(ev: Event, section: Section): boolean {
+  const f = getFocusableAttribute(ev.target as HTMLElement);
+  return f != null && f === section;
 }
 
 export function getFocusableAttribute(element: HTMLElement): Section | null {
-  return findParent(element, el => el.hasAttribute(FOCUSABLE_ATTRIBUTE), {
-    matchValue: el => el.getAttribute(FOCUSABLE_ATTRIBUTE) as Section | null,
-  });
+  const parent = element.closest(`[${FOCUSABLE_ATTRIBUTE}]`);
+  if (parent != null) {
+    return parent.getAttribute(FOCUSABLE_ATTRIBUTE) as Section | null;
+  }
+
+  return null;
 }
