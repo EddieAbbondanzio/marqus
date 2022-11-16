@@ -239,7 +239,7 @@ test.each([
   KeyCode.Space,
   KeyCode.PageDown,
   KeyCode.PageUp,
-])("isActionis true for %s", key => {
+])("isAction is true for %s", key => {
   expect(isAction(key)).toBe(true);
 });
 
