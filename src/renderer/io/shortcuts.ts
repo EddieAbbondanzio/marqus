@@ -12,6 +12,7 @@ import { Shortcut } from "../../shared/domain/shortcut";
 import { isTest } from "../../shared/env";
 import { UIEventType } from "../../shared/ui/events";
 import { Section } from "../../shared/ui/app";
+import { log } from "../logger";
 
 const INITIAL_DELAY = 250; // ms
 const REPEAT_DELAY = 125; // ms
@@ -82,6 +83,11 @@ export function useShortcuts(store: Store): void {
       // Prevent redundant calls
       if (!ev.repeat) {
         const key = parseKeyCode(ev.code);
+        if (key == null) {
+          log.info(`Unknown key: ${ev.code}`);
+          return;
+        }
+
         activeKeys.current = { ...activeKeys.current, [key]: true };
         resetState();
       }
@@ -89,6 +95,10 @@ export function useShortcuts(store: Store): void {
 
     const keyUp = ({ code }: KeyboardEvent) => {
       const key = parseKeyCode(code);
+      if (key == null) {
+        return;
+      }
+
       delete activeKeys.current[key];
 
       resetState();

@@ -257,9 +257,12 @@ test("sortKeyCodes handles every expected key", () => {
   }).not.toThrow();
 });
 
-test.each(["cat", "ctrl*1", ""])("parseKeyCodes throws %s", keyString => {
-  expect(() => parseKeyCode(keyString)).toThrow();
-});
+test.each(["cat", "ctrl*1", ""])(
+  "parseKeyCodes returns null for unknown keys %s",
+  keyString => {
+    expect(parseKeyCode(keyString)).toBe(null);
+  },
+);
 
 test("keyCodesToString works", () => {
   expect(keyCodesToString([KeyCode.LetterH, KeyCode.Control])).toBe(

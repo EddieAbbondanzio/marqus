@@ -106,7 +106,7 @@ export enum KeyCode {
  * @param code The raw dom key code to parse.
  * @returns Our typesafe KeyCode.
  */
-export function parseKeyCode(code: string): KeyCode {
+export function parseKeyCode(code: string): KeyCode | null {
   /**
    * When using .code we treat a key the same regardless if shift was pressed.
    * This means + and = are the same key.
@@ -307,9 +307,10 @@ export function parseKeyCode(code: string): KeyCode {
     case "MetaRight":
       return KeyCode.Meta;
     default:
-      throw Error(
-        `Unsupported code: ${code}. Did you pass .code from the keyboard event?`
-      );
+      // We return null over throwing an error because if new codes are ever
+      // added to the spec we'd need to immediately update the app to support them.
+      // https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values
+      return null;
   }
 }
 
@@ -340,7 +341,7 @@ export function sortKeyCodes(keyCodes: KeyCode[]): KeyCode[] {
   const modifierFlags = modifiers.reduce(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (accumulator: any, modifier: any) => ({ ...accumulator, [modifier]: true }),
-    {}
+    {},
   );
 
   const sorted: KeyCode[] = [];
