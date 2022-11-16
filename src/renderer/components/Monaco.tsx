@@ -139,16 +139,16 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
     // Cache off old state so we can restore it when tab is opened later on.
     if (lastActiveTabNoteId != null) {
-      const oldTab = editor.tabs.find(t => t.noteId === activeNoteId.current);
+      const oldTab = editor.tabs.find(t => t.note.id === activeNoteId.current);
 
       // If old tab wasn't found, it means the tab was closed and we shouldn't
       // bother saving off view state / model.
       if (oldTab != null) {
         const viewState = monacoEditor.current.saveViewState();
-        viewStatesCache[oldTab.noteId] = viewState;
+        viewStatesCache[oldTab.note.id] = viewState;
 
         const model = monacoEditor.current.getModel();
-        modelsCache[oldTab.noteId] = model;
+        modelsCache[oldTab.note.id] = model;
       } else {
         modelsCache[lastActiveTabNoteId] = null;
         viewStatesCache[lastActiveTabNoteId] = null;
@@ -157,26 +157,28 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
     // Load new tab
     if (editor.activeTabNoteId != null) {
-      const newTab = editor.tabs.find(t => t.noteId === editor.activeTabNoteId);
+      const newTab = editor.tabs.find(
+        t => t.note.id === editor.activeTabNoteId,
+      );
       if (newTab == null) {
         throw new Error(`Active tab ${editor.activeTabNoteId} was not found.`);
       }
 
-      let model = modelsCache[newTab.noteId];
+      let model = modelsCache[newTab.note.id];
 
       // First load, gotta create the model.
       if (model == null) {
-        model = monaco.editor.createModel(newTab.noteContent ?? "");
+        model = monaco.editor.createModel(newTab.note.content ?? "");
       }
 
       monacoEditor.current.setModel(model);
-      if (viewStatesCache[newTab.noteId] != null) {
+      if (viewStatesCache[newTab.note.id] != null) {
         monacoEditor.current.restoreViewState(
-          viewStates.current[newTab.noteId]!,
+          viewStates.current[newTab.note.id]!,
         );
       }
 
-      activeNoteId.current = newTab.noteId;
+      activeNoteId.current = newTab.note.id;
     }
   }, [editor.activeTabNoteId, editor.tabs]);
 

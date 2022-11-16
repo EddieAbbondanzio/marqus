@@ -35,7 +35,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     };
 
     for (const tab of editor.tabs) {
-      const note = getNoteById(notes, tab.noteId);
+      const note = getNoteById(notes, tab.note.id);
 
       rendered.push(
         <EditorTab
@@ -66,7 +66,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     }
 
     const currentIndex = tabsByLastActive.findIndex(
-      t => t.noteId === editor.activeTabNoteId,
+      t => t.note.id === editor.activeTabNoteId,
     );
 
     let previousIndex = (currentIndex - 1) % tabsByLastActive.length;
@@ -88,7 +88,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
       ctx.setUI({
         editor: {
-          activeTabNoteId: nextTab?.noteId,
+          activeTabNoteId: nextTab?.note.id,
         },
       });
     },
@@ -103,7 +103,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
       ctx.setUI({
         editor: {
-          activeTabNoteId: previousTab?.noteId,
+          activeTabNoteId: previousTab?.note.id,
         },
       });
     },
@@ -123,13 +123,13 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
     switch (type) {
       case "editor.closeAllTabs":
-        noteIdsToClose = editor.tabs.map(t => t.noteId);
+        noteIdsToClose = editor.tabs.map(t => t.note.id);
         break;
 
       case "editor.closeOtherTabs":
         noteIdsToClose = editor.tabs
-          .filter(t => t.noteId !== (value ?? editor.activeTabNoteId))
-          .map(t => t.noteId);
+          .filter(t => t.note.id !== (value ?? editor.activeTabNoteId))
+          .map(t => t.note.id);
         break;
 
       case "editor.closeTab":
@@ -142,18 +142,18 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
       case "editor.closeTabsToLeft": {
         const leftLimit = editor.tabs.findIndex(
-          t => t.noteId === (value ?? editor.activeTabNoteId),
+          t => t.note.id === (value ?? editor.activeTabNoteId),
         );
-        noteIdsToClose = editor.tabs.slice(0, leftLimit).map(t => t.noteId);
+        noteIdsToClose = editor.tabs.slice(0, leftLimit).map(t => t.note.id);
         break;
       }
 
       case "editor.closeTabsToRight": {
         const rightLimit = editor.tabs.findIndex(
-          t => t.noteId === (value ?? editor.activeTabNoteId),
+          t => t.note.id === (value ?? editor.activeTabNoteId),
         );
 
-        noteIdsToClose = editor.tabs.slice(rightLimit + 1).map(t => t.noteId);
+        noteIdsToClose = editor.tabs.slice(rightLimit + 1).map(t => t.note.id);
         break;
       }
 
@@ -163,7 +163,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
     ctx.setUI(prev => {
       const tabs = prev.editor.tabs.filter(
-        t => !noteIdsToClose.includes(t.noteId),
+        t => !noteIdsToClose.includes(t.note.id),
       );
 
       let activeTabNoteId: string | undefined;
@@ -174,12 +174,12 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
 
         case "editor.closeTab": {
           const tabsByLastActive = orderBy(
-            editor.tabs.filter(t => !noteIdsToClose.includes(t.noteId)),
+            editor.tabs.filter(t => !noteIdsToClose.includes(t.note.id)),
             ["lastActive"],
             ["desc"],
           );
 
-          activeTabNoteId = tabsByLastActive[0]?.noteId;
+          activeTabNoteId = tabsByLastActive[0]?.note.id;
           break;
         }
 
@@ -408,15 +408,13 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
 
   for (const noteId of noteIds) {
     let newTab = false;
-    let tab = editor.tabs.find(t => t.noteId === noteId);
+    let tab = editor.tabs.find(t => t.note.id === noteId);
 
     if (tab == null) {
       newTab = true;
-      tab = { noteId };
-    }
-
-    if (tab.noteContent == null) {
-      tab.noteContent = (await window.ipc("notes.loadContent", noteId)) ?? "";
+      console.log("OPEN TAB LOGIC IS BROKEN. PLEASE FIX!");
+      throw new Error();
+      tab = { note: null! };
     }
 
     tab.lastActive = new Date();

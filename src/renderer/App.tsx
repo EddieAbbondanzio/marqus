@@ -55,7 +55,6 @@ export function App(props: AppProps): JSX.Element {
   const { config } = props;
   const store = useStore(props.state);
   const { state } = store;
-  const { sidebar, editor } = state;
 
   useShortcuts(store);
   useApplicationMenu(store, config);
@@ -111,20 +110,6 @@ export function App(props: AppProps): JSX.Element {
   }, [store]);
 
   useFocusTracking(store);
-
-  // Load the content of any notes that were previously open.
-  useEffect(() => {
-    const tabsToLoad = editor.tabs
-      .filter(t => t.noteContent == null)
-      .map(t => t.noteId);
-
-    if (tabsToLoad.length > 0) {
-      store.dispatch("editor.openTab", {
-        note: tabsToLoad,
-        active: editor.activeTabNoteId ?? first(sidebar.selected),
-      });
-    }
-  }, [editor.tabs, editor.activeTabNoteId, store, sidebar.selected]);
 
   return (
     <Container>

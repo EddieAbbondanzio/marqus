@@ -452,7 +452,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
           isEditing: true,
           activeTabNoteId: note.id,
           // Keep in sync with openTab in EditorTabs.tsx
-          tabs: [...prev.editor.tabs, { noteId: note.id, content: "" }],
+          tabs: [...prev.editor.tabs, { note, content: "" }],
         },
       }));
     } catch (e) {

@@ -39,8 +39,7 @@ export interface Editor {
 }
 
 export interface EditorTab {
-  noteId: string;
-  noteContent?: string;
+  note: Note;
   lastActive?: Date;
 }
 
@@ -73,7 +72,7 @@ export function filterOutStaleNoteIds(
 
   if (clonedUI.editor.tabs != null) {
     clonedUI.editor.tabs = clonedUI.editor.tabs.filter(
-      t => currentNoteIds[t.noteId] != null,
+      t => currentNoteIds[t.note.id] != null,
     );
   }
 

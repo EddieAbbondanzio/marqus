@@ -28,22 +28,22 @@ export type Dispatch = <ET extends UIEventType>(
 
 export type On = <ET extends UIEventType>(
   event: ET | ET[],
-  listener: Listener<ET>
+  listener: Listener<ET>,
 ) => void;
 
 export type Off = <EType extends UIEventType>(
   event: EType | EType[],
-  listener: Listener<EType>
+  listener: Listener<EType>,
 ) => void;
 
 export type Listener<ET extends UIEventType> = (
   ev: { type: ET; value: UIEventInput<ET> | undefined },
-  s: StoreContext
+  s: StoreContext,
 ) => Promise<void> | void;
 
 export type Focus = (
   section: Section[],
-  opts?: { overwrite?: boolean }
+  opts?: { overwrite?: boolean },
 ) => void;
 
 export interface StoreContext {
@@ -56,7 +56,7 @@ export interface StoreContext {
 
 // UI supports partial updates since it's unlikely we'll want to do full updates
 export type SetUI = (
-  t: Transformer<AppState, DeepPartial<AppState>> | DeepPartial<AppState>
+  t: Transformer<AppState, DeepPartial<AppState>> | DeepPartial<AppState>,
 ) => void;
 
 export type SetShortcuts = (t: Transformer<Shortcut[]>) => void;
@@ -78,8 +78,8 @@ export function useStore(initialState: State): Store {
     lastState.current = cloneDeep(state);
   }, [state]);
 
-  const setUI: SetUI = useCallback((transformer) => {
-    setState((prevState) => {
+  const setUI: SetUI = useCallback(transformer => {
+    setState(prevState => {
       const prevUI = pick(prevState, "version", "editor", "sidebar", "focused");
 
       const updates =
@@ -99,11 +99,6 @@ export function useStore(initialState: State): Store {
         delete clonedUI.sidebar.input;
         delete clonedUI.sidebar.searchString;
       }
-      if (clonedUI?.editor != null && clonedUI.editor.tabs != null) {
-        for (const tab of clonedUI.editor.tabs) {
-          tab.noteContent = undefined!;
-        }
-      }
 
       void window.ipc("app.saveAppState", clonedUI);
       return newState;
@@ -115,14 +110,14 @@ export function useStore(initialState: State): Store {
    * data persistence is handled by the main thread.
    */
 
-  const setShortcuts: SetShortcuts = (transformer) => {
-    setState((prevState) => ({
+  const setShortcuts: SetShortcuts = transformer => {
+    setState(prevState => ({
       ...prevState,
       shortcuts: transformer(prevState.shortcuts),
     }));
   };
-  const setNotes: SetNotes = (transformer) => {
-    setState((prevState) => ({
+  const setNotes: SetNotes = transformer => {
+    setState(prevState => ({
       ...prevState,
       notes: transformer(prevState.notes),
     }));
@@ -142,7 +137,7 @@ export function useStore(initialState: State): Store {
         }
       }
 
-      setUI((s) => {
+      setUI(s => {
         // TODO: Clean this up. It's getting messy.
 
         // If only 1 new section move it to top of stack.
@@ -165,7 +160,7 @@ export function useStore(initialState: State): Store {
         }
       });
     },
-    [setUI]
+    [setUI],
   );
 
   const ctx = useMemo(
@@ -176,7 +171,7 @@ export function useStore(initialState: State): Store {
       focus,
       getState: () => lastState.current,
     }),
-    [focus, setUI]
+    [focus, setUI],
   );
 
   const dispatch: Dispatch = useCallback(
@@ -193,12 +188,12 @@ export function useStore(initialState: State): Store {
         await l(ev as any, ctx);
       }
     },
-    [ctx]
+    [ctx],
   ) as Dispatch;
 
   const on: On = <ET extends UIEventType>(
     event: ET | ET[],
-    listener: Listener<ET>
+    listener: Listener<ET>,
   ) => {
     const events = Array.isArray(event) ? event : [event];
     for (const ev of events) {
@@ -213,7 +208,7 @@ export function useStore(initialState: State): Store {
   const off: Off = (event, listener) => {
     const events = Array.isArray(event) ? event : [event];
     for (const ev of events) {
-      const index = listeners.current[ev]!.findIndex((l) => l === listener);
+      const index = listeners.current[ev]!.findIndex(l => l === listener);
       if (index === -1) {
         throw new Error(`No matching listener found on ${ev} for ${listener}`);
       }
@@ -224,7 +219,7 @@ export function useStore(initialState: State): Store {
 
   const store = useMemo(
     () => ({ state, on, off, dispatch }),
-    [dispatch, state]
+    [dispatch, state],
   );
 
   return store;

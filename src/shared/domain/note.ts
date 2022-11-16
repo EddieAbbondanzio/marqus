@@ -1,6 +1,6 @@
 import { Resource, uuid } from ".";
 import { isBlank } from "../utils";
-import { cloneDeep, isEmpty, orderBy } from "lodash";
+import { isEmpty, orderBy } from "lodash";
 import { z } from "zod";
 
 export interface Note extends Resource {
@@ -9,6 +9,7 @@ export interface Note extends Resource {
   parent?: string;
   children?: Note[];
   sort?: NoteSort;
+  content: string;
 }
 
 export enum NoteSort {
