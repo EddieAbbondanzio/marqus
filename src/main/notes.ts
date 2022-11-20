@@ -35,7 +35,6 @@ export function noteIpcs(
     return;
   }
   const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
-  let noteRelationships: NoteRelationship[] = [];
 
   ipc.on("init", async () => {
     if (!fs.existsSync(noteDirectory)) {
@@ -48,34 +47,12 @@ export function noteIpcs(
       return [];
     }
 
-    const entries = await fsp.readdir(noteDirectory, { withFileTypes: true });
-    const everyNote: Note[] = [];
-
-    for (const entry of entries) {
-      if (!entry.isDirectory() || !UUID_REGEX.test(entry.name)) {
-        continue;
-      }
-
-      const note = await loadNoteFromFS(noteDirectory, entry.name);
-
-      // The order notes are loaded in is not guaranteed so we store them in a flat
-      // array until we've loaded every last one before we start to rebuild their
-      // family trees.
-      everyNote.push({ ...note, children: [] });
-    }
-
-    const [notes, relationships] = buildNoteTree(everyNote);
-    noteRelationships = relationships;
-    return notes;
+    return await loadNotes(noteDirectory);
   });
 
   ipc.handle("notes.create", async (_, params) => {
     const note = createNote(params);
     await saveNoteToFS(noteDirectory, note);
-
-    if (params.parent != null) {
-      noteRelationships.push([params.parent, note.id]);
-    }
 
     return note;
   });
@@ -91,13 +68,6 @@ export function noteIpcs(
     // Allow unsetting parent
     if ("parent" in update) {
       note.parent = update.parent;
-
-      // TODO: Can we change this? I don't like that if saving to the fs fails
-      // we've put our note map in an incorrect state.
-      const relationship = noteRelationships.find(r => r[1] === note.id);
-      if (relationship) {
-        relationship[0] = note.parent!;
-      }
     }
 
     // Allow unsetting sort
@@ -123,41 +93,73 @@ export function noteIpcs(
   });
 
   ipc.handle("notes.delete", async (_, id) => {
+    // Gonna leave this as-is because it might just be pre-optimizing, but this
+    // could be a bottle neck down the road having to load in every note before
+    // we can delete one if the user has 100s of notes.
+    const everyNote = await loadNotes(noteDirectory, true);
+
     const recursive = async (noteId: string) => {
       const notePath = p.join(noteDirectory, noteId);
       // fsp.rm doesn't exist in 14.10 but typings include it.
       // TODO: switch to rm when we upgrade from Node 14.10.
       await fsp.rmdir(notePath, { recursive: true });
 
-      const children = noteRelationships.filter(r => r[0] === noteId);
-      noteRelationships = noteRelationships.filter(r => !children.includes(r));
-
-      for (const relationship of children) {
-        await recursive(relationship[1]);
+      const children = everyNote.filter(n => n.parent === noteId);
+      for (const child of children) {
+        await recursive(child.id);
       }
     };
     await recursive(id);
   });
 
   ipc.handle("notes.moveToTrash", async (_, id) => {
+    // Gonna leave this as-is because it might just be pre-optimizing, but this
+    // could be a bottle neck down the road having to load in every note before
+    // we can delete one if the user has 100s of notes.
+    const everyNote = await loadNotes(noteDirectory, true);
+
     const recursive = async (noteId: string) => {
       const notePath = p.join(noteDirectory, noteId);
       await shell.trashItem(notePath);
 
-      const children = noteRelationships.filter(r => r[0] === noteId);
-      noteRelationships = noteRelationships.filter(r => !children.includes(r));
-
-      for (const relationship of children) {
-        await recursive(relationship[1]);
+      const children = everyNote.filter(n => n.parent === noteId);
+      for (const child of children) {
+        await recursive(child.id);
       }
     };
     await recursive(id);
   });
 }
 
-type NoteRelationship = [string, string];
+export type NoteMetadata = Omit<Note, "content" | "children">;
+export type NoteMarkdown = Pick<Note, "content">;
+export type NoteFile = NoteMetadata & NoteMarkdown;
 
-export function buildNoteTree(flattened: Note[]): [Note[], NoteRelationship[]] {
+export async function loadNotes(
+  noteDirectoryPath: string,
+  flatten?: boolean,
+): Promise<Note[]> {
+  if (!fs.existsSync(noteDirectoryPath)) {
+    return [];
+  }
+
+  const entries = await fsp.readdir(noteDirectoryPath, { withFileTypes: true });
+  const everyNote = (
+    await Promise.all(
+      entries
+        .filter(isNoteEntry)
+        .map(p => loadNoteFromFS(noteDirectoryPath, p.name)),
+    )
+  ).map(n => ({ ...n, children: [] }));
+
+  if (!flatten) {
+    return buildNoteTree(everyNote);
+  } else {
+    return everyNote;
+  }
+}
+
+export function buildNoteTree(flattened: Note[]): Note[] {
   // We nuke children to prevent duplicates when we rebuild the tree.
   const clonedFlattened = cloneDeep(flattened).map(c => ({
     ...c,
@@ -165,7 +167,6 @@ export function buildNoteTree(flattened: Note[]): [Note[], NoteRelationship[]] {
   }));
   const [roots, nested] = partition(clonedFlattened, n => n.parent == null);
   const lookup = keyBy<Note>(clonedFlattened, "id");
-  const relationships: NoteRelationship[] = [];
 
   for (const n of nested) {
     const parent = lookup[n.parent!];
@@ -176,15 +177,10 @@ export function buildNoteTree(flattened: Note[]): [Note[], NoteRelationship[]] {
     }
 
     parent.children.push(n);
-    relationships.push([parent.id, n.id]);
   }
 
-  return [roots, relationships];
+  return roots;
 }
-
-export type NoteMetadata = Omit<Note, "content" | "children">;
-export type NoteMarkdown = Pick<Note, "content">;
-export type NoteFile = NoteMetadata & NoteMarkdown;
 
 export async function saveNoteToFS(
   noteDirectoryPath: string,
@@ -217,16 +213,22 @@ export async function loadNoteFromFS(
   noteId: string,
 ): Promise<NoteFile> {
   const metadataPath = p.join(noteDirectoryPath, noteId, METADATA_FILE_NAME);
-  const note = await loadJson<Note>(metadataPath, NOTE_SCHEMAS);
+  const metadata = await loadJson<NoteMetadata>(metadataPath, NOTE_SCHEMAS);
 
   const markdownPath = p.join(noteDirectoryPath, noteId, MARKDOWN_FILE_NAME);
   const markdown = await fsp.readFile(markdownPath, { encoding: "utf-8" });
-  note.content = markdown;
 
-  return note;
+  return {
+    ...metadata,
+    content: markdown,
+  };
 }
 
 export function splitNoteIntoFiles(note: NoteFile): [NoteMetadata, string] {
   const metadata: NoteMetadata = omit(note, "content", "children");
   return [metadata, note.content];
+}
+
+export function isNoteEntry(entry: fs.Dirent): boolean {
+  return entry.isDirectory() && UUID_REGEX.test(entry.name);
 }
