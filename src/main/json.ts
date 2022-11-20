@@ -25,7 +25,11 @@ export async function writeJson<Content extends Versioned>(
     content.version = version;
   }
 
-  await schema.parseAsync(content);
+  if (content == null) {
+    throw new Error("No content passed.");
+  }
+
+  content = await schema.parseAsync(content);
 
   const serialized = JSON.stringify(content, null, 2);
   await fsp.writeFile(filePath, serialized, { encoding: "utf-8" });

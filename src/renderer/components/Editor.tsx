@@ -101,7 +101,7 @@ const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
     };
   });
 
-  await debouncedInvoker("notes.saveContent", noteId, content);
+  await debouncedInvoker("notes.update", noteId, { content });
 };
 
 const toggleView: Listener<"editor.toggleView"> = (_, ctx) => {

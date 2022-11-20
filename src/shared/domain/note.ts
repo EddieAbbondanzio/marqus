@@ -7,7 +7,7 @@ export interface Note extends Resource {
   version: number;
   name: string;
   parent?: string;
-  children?: Note[];
+  children: Note[];
   sort?: NoteSort;
   content: string;
 }
@@ -85,7 +85,8 @@ export function sortNotes(notes: Note[], sort: NoteSort): Note[] {
   return r(notes, sort);
 }
 
-export function createNote(props: Partial<Note> & { name: string }): Note {
+export type CreateNoteParams = Partial<Note> & Pick<Note, "name">;
+export function createNote(props: CreateNoteParams): Note {
   const note = {
     ...props,
   } as Note;
@@ -96,6 +97,7 @@ export function createNote(props: Partial<Note> & { name: string }): Note {
 
   note.id ??= uuid();
   note.dateCreated ??= new Date();
+  note.content ??= "";
 
   if (!isEmpty(note.children)) {
     for (const child of note.children!) {

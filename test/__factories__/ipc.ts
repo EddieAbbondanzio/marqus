@@ -13,7 +13,7 @@ export class MockedIpcMainTS implements IpcMainTS {
     handler: (
       event: IpcMainInvokeEvent,
       ...params: Parameters<IpcSchema[Type]>
-    ) => ReturnType<IpcSchema[Type]>
+    ) => ReturnType<IpcSchema[Type]>,
   ): void {
     this.handlers[type] = handler;
   }
@@ -35,7 +35,13 @@ export class MockedIpcMainTS implements IpcMainTS {
   }
 
   async trigger(event: IpcEvent): Promise<void> {
-    await Promise.all(this._listeners[event].map((l) => l()));
+    const eventListeners = this._listeners[event] ?? [];
+
+    if (eventListeners.length === 0) {
+      throw new Error(`No event listeners for ${event}.`);
+    }
+
+    await Promise.all(eventListeners.map(l => l()));
   }
 
   listeners(eventName: string | symbol): Function[] {

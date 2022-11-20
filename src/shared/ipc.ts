@@ -1,6 +1,6 @@
 import { PromptButton, PromptOptions } from "./ui/prompt";
 import { Shortcut } from "./domain/shortcut";
-import { Note } from "./domain/note";
+import { Note, NoteSort } from "./domain/note";
 import { IpcMain, IpcMainInvokeEvent, Point } from "electron";
 import { Menu } from "./ui/menu";
 import { AppState } from "./ui/app";
@@ -23,9 +23,7 @@ export const IPCS = [
 
   "notes.getAll",
   "notes.create",
-  "notes.updateMetadata",
-  "notes.loadContent",
-  "notes.saveContent",
+  "notes.update",
   "notes.delete",
   "notes.moveToTrash",
 
@@ -63,10 +61,8 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
 
   // Notes
   "notes.getAll"(): Promise<Note[]>;
-  "notes.create"(name: string, parent?: string): Promise<Note>;
-  "notes.updateMetadata"(id: string, props: Partial<Note>): Promise<Note>;
-  "notes.loadContent"(id: string): Promise<string | null>;
-  "notes.saveContent"(id: string, content: string): Promise<void>;
+  "notes.create"(params: NoteCreateParams): Promise<Note>;
+  "notes.update"(id: string, params: NoteUpdateParams): Promise<void>;
   "notes.delete"(id: string): Promise<void>;
   "notes.moveToTrash"(id: string): Promise<void>;
 
@@ -81,6 +77,11 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "log.warn"(message: string): Promise<void>;
   "log.error"(message: string): Promise<void>;
 }
+
+export type NoteCreateParams = Pick<Note, "name"> & { parent?: Note["id"] };
+export type NoteUpdateParams = Partial<
+  Pick<Note, "name" | "sort" | "parent" | "content">
+>;
 
 export type Ipc = <T extends IpcType, I extends Parameters<IpcSchema[T]>>(
   type: T,
