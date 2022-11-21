@@ -9,7 +9,7 @@ import { Shortcut } from "../shared/domain/shortcut";
 import { Note } from "../shared/domain/note";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
-import { first, isEmpty, tail } from "lodash";
+import { isEmpty, tail } from "lodash";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
@@ -29,9 +29,8 @@ async function main() {
     config = await ipc("config.get");
     initialState = await loadInitialState();
   } catch (e) {
-    console.error("Fatal Error", e);
-    await promptFatal((e as Error).message);
-    ipc("app.quit");
+    await log.error("Fatal: Failed to initialize the app.", e as Error);
+    await promptFatal("Failed to initialize app.", e as Error);
     return;
   }
 

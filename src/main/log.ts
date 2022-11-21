@@ -1,10 +1,5 @@
 /* eslint-disable no-console */
-import {
-  differenceInCalendarDays,
-  format,
-  formatISO,
-  parseISO,
-} from "date-fns";
+import { differenceInCalendarDays, format, formatISO } from "date-fns";
 import { Config } from "../shared/domain/config";
 import { IpcMainTS } from "../shared/ipc";
 import { Logger } from "../shared/logger";
@@ -38,8 +33,8 @@ export function logIpcs(
     log.warn(`[RENDERER] ${message}`),
   );
 
-  ipc.handle("log.error", async (_, message) =>
-    log.error(`[RENDERER] ${message}`),
+  ipc.handle("log.error", async (_, message, err) =>
+    log.error(`[RENDERER] ${message}`, err),
   );
 }
 
@@ -87,19 +82,19 @@ export async function getLogger(
       const fullMessage = `${getTimeStamp()} (info): ${message}`;
       c.log(fullMessage);
 
-      await fileStream.write(fullMessage + os.EOL);
+      fileStream.write(fullMessage + os.EOL);
     },
     async warn(message: string): Promise<void> {
       const fullMessage = `${getTimeStamp()} (warn): ${message}`;
       c.warn(chalk.yellow(fullMessage));
 
-      await fileStream.write(fullMessage + os.EOL);
+      fileStream.write(fullMessage + os.EOL);
     },
     async error(message: string): Promise<void> {
       const fullMessage = `${getTimeStamp()} (ERROR): ${message}`;
-      c.error(chalk.red(fullMessage));
 
-      await fileStream.write(fullMessage + os.EOL);
+      c.error(chalk.red(fullMessage));
+      fileStream.write(fullMessage + os.EOL);
     },
   };
 

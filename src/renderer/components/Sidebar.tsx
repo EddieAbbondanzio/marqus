@@ -425,11 +425,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
   const [name, action] = await input.completed;
   if (action === "confirm") {
     try {
-      const note = await window.ipc(
-        "notes.create",
-        name,
-        parentId ?? undefined,
-      );
+      const note = await window.ipc("notes.create", { name, parentId });
 
       ctx.setNotes(notes => {
         if (parentId == null) {

@@ -75,7 +75,7 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "log.info"(message: string): Promise<void>;
   "log.debug"(message: string): Promise<void>;
   "log.warn"(message: string): Promise<void>;
-  "log.error"(message: string): Promise<void>;
+  "log.error"(message: string, err?: Error): Promise<void>;
 }
 
 export type NoteCreateParams = Pick<Note, "name"> & { parent?: Note["id"] };

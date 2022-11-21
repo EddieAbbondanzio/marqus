@@ -11,28 +11,32 @@ export const log: Logger = {
   info: async message => {
     // eslint-disable-next-line no-console
     console.log(message);
-    window.ipc("log.info", message);
+    await window.ipc("log.info", message);
   },
   warn: async message => {
     // eslint-disable-next-line no-console
     console.warn(message);
-    window.ipc("log.warn", message);
+    await window.ipc("log.warn", message);
   },
   error: async (message, err) => {
     // eslint-disable-next-line no-console
     console.error(message);
-    window.ipc("log.error", message);
+    console.error(err);
+    await window.ipc("log.error", message);
+
+    // Easier to do this here, than in main because if we send the error over
+    // IPC the stack will be stripped.
     if (err) {
-      window.ipc("log.error", err.message);
+      await window.ipc("log.error", err.message);
 
       if (err.stack) {
-        window.ipc("log.error", err.stack);
+        await window.ipc("log.error", err.stack);
       }
     }
   },
   debug: async message => {
     // eslint-disable-next-line no-console
     console.log(message);
-    window.ipc("log.debug", message);
+    await window.ipc("log.debug", message);
   },
 };

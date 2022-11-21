@@ -24,7 +24,7 @@ export const APP_STATE_PATH = "ui.json";
 export function appIpcs(
   ipc: IpcMainTS,
   config: JsonFile<Config>,
-  log: Logger
+  log: Logger,
 ): void {
   let appStateFile: JsonFile<AppState>;
 
@@ -52,7 +52,7 @@ export function appIpcs(
           },
           focused: [],
         },
-      }
+      },
     );
   });
 
@@ -67,7 +67,7 @@ export function appIpcs(
   ipc.handle("app.showContextMenu", async (_, menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
-      IpcChannel.ContextMenuClick
+      IpcChannel.ContextMenuClick,
     );
     const menu = Menu.buildFromTemplate(template);
     menu.popup();
@@ -77,7 +77,7 @@ export function appIpcs(
   ipc.handle("app.setApplicationMenu", async (_, menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
-      IpcChannel.ApplicationMenuClick
+      IpcChannel.ApplicationMenuClick,
     );
     const bw = BrowserWindow.getFocusedWindow();
     const menu = Menu.buildFromTemplate(template);
@@ -85,10 +85,8 @@ export function appIpcs(
   });
 
   ipc.handle("app.promptUser", async (_, opts) => {
-    const cancelCount = opts.buttons.filter((b) => b.role === "cancel").length;
-    const defaultCount = opts.buttons.filter(
-      (b) => b.role === "default"
-    ).length;
+    const cancelCount = opts.buttons.filter(b => b.role === "cancel").length;
+    const defaultCount = opts.buttons.filter(b => b.role === "default").length;
 
     if (cancelCount > 1) {
       throw Error(`${cancelCount} cancel buttons found.`);
@@ -102,7 +100,8 @@ export function appIpcs(
       title: opts.title,
       type: opts.type ?? "info",
       message: opts.text,
-      buttons: opts.buttons.map((b) => b.text),
+      detail: opts.detail,
+      buttons: opts.buttons.map(b => b.text),
     });
 
     // Return back the button that was selected.
@@ -127,7 +126,7 @@ export function appIpcs(
   });
 
   ipc.handle("app.quit", async () => {
-    BrowserWindow.getAllWindows().forEach((w) => w.close());
+    BrowserWindow.getAllWindows().forEach(w => w.close());
   });
 
   ipc.handle("app.inspectElement", async (_, coord) => {
@@ -138,7 +137,7 @@ export function appIpcs(
     BrowserWindow.getFocusedWindow()?.webContents.inspectElement(
       // Coords can come over as floats
       Math.round(coord.x),
-      Math.round(coord.y)
+      Math.round(coord.y),
     );
   });
 
@@ -151,7 +150,7 @@ export function appIpcs(
 
 export function buildMenus(
   menus: MenuType[],
-  channel: IpcChannel
+  channel: IpcChannel,
 ): MenuItemConstructorOptions[] {
   // We don't listen for shortcuts in the application menu because we
   // already listen for them in the renderer thread and this will cause
@@ -239,7 +238,7 @@ export function buildMenus(
 export function buildClickHandler<Ev extends UIEventType>(
   event: Ev,
   eventInput: UIEventInput<Ev>,
-  channel: IpcChannel
+  channel: IpcChannel,
 ): MenuItemConstructorOptions["click"] {
   return (_, browserWindow) => {
     browserWindow?.webContents.send(channel, {
