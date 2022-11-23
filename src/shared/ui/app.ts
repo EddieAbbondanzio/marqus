@@ -85,3 +85,40 @@ export function filterOutStaleNoteIds(
 
   return clonedUI;
 }
+
+export type SerializedAppState = Pick<AppState, "version" | "focused"> & {
+  sidebar: SerializedSidebar;
+  editor: SerializedEditor;
+};
+
+export type SerializedSidebar = Omit<Sidebar, "input">;
+
+export type SerializedEditor = Omit<Editor, "tabs"> & {
+  tabs: SerializedEditorTab[];
+};
+
+export interface SerializedEditorTab {
+  noteId: string;
+  lastActive?: Date;
+}
+
+export function serializeAppState(appState: AppState): SerializedAppState {
+  const { editor, ...cloned } = cloneDeep(appState);
+
+  // We need to delete some values before sending them over to the main
+  // thread otherwise electron will throw an error.
+  if (cloned.sidebar != null) {
+    delete cloned.sidebar.input;
+  }
+
+  return {
+    ...cloned,
+    editor: {
+      ...editor,
+      tabs: editor.tabs.map(t => ({
+        noteId: t.note.id,
+        lastActive: t.lastActive,
+      })),
+    },
+  };
+}

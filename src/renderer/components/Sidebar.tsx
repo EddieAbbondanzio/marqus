@@ -643,6 +643,7 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
       note.parent = p.id;
     } else {
       notes.push(note);
+      note.parent = undefined;
     }
 
     return notes;

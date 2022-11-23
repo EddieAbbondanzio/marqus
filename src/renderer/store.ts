@@ -6,7 +6,7 @@ import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
-import { Section, AppState } from "../shared/ui/app";
+import { Section, AppState, serializeAppState } from "../shared/ui/app";
 import { log } from "./logger";
 
 export interface Store {
@@ -91,16 +91,8 @@ export function useStore(initialState: State): Store {
         ...ui,
       };
 
-      // We need to delete some values before sending them over to the main
-      // thread otherwise electron will throw an error.
       const newUI = pick(newState, "version", "editor", "sidebar", "focused");
-      const clonedUI = cloneDeep(newUI);
-      if (clonedUI?.sidebar != null) {
-        delete clonedUI.sidebar.input;
-        delete clonedUI.sidebar.searchString;
-      }
-
-      void window.ipc("app.saveAppState", clonedUI);
+      void window.ipc("app.saveAppState", serializeAppState(newUI));
       return newState;
     });
   }, []);

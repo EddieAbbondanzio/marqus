@@ -4,9 +4,15 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { filterOutStaleNoteIds, Section } from "../shared/ui/app";
+import {
+  EditorTab,
+  filterOutStaleNoteIds,
+  Section,
+  SerializedAppState,
+  SerializedEditorTab,
+} from "../shared/ui/app";
 import { Shortcut } from "../shared/domain/shortcut";
-import { Note } from "../shared/domain/note";
+import { getNoteById, Note } from "../shared/domain/note";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { isEmpty, tail } from "lodash";
@@ -161,8 +167,8 @@ const Container = styled.div`
   }
 `;
 
-async function loadInitialState(): Promise<State> {
-  let ui: AppState;
+export async function loadInitialState(): Promise<State> {
+  let ui: SerializedAppState;
   let shortcuts: Shortcut[];
   let notes: Note[] = [];
 
@@ -173,10 +179,26 @@ async function loadInitialState(): Promise<State> {
     ipc("notes.getAll"),
   ]);
 
-  ui = filterOutStaleNoteIds(ui, notes);
+  const tabs: EditorTab[] = ui.editor.tabs
+    .map(t => ({
+      note: getNoteById(notes, t.noteId, false),
+      lastActive: t.lastActive,
+    }))
+    .filter(t => t.note != null) as EditorTab[];
+
+  const deserializedAppState = filterOutStaleNoteIds(
+    {
+      ...ui,
+      editor: {
+        ...ui.editor,
+        tabs,
+      },
+    },
+    notes,
+  );
 
   return {
-    ...ui,
+    ...deserializedAppState,
     shortcuts,
     notes,
   };

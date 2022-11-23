@@ -378,7 +378,7 @@ const StyledDelete = styled(Icon)`
 `;
 
 export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
-  const { sidebar, editor } = ctx.getState();
+  const { sidebar, editor, notes } = ctx.getState();
 
   let noteIds: string[];
   let activeTabNoteId;
@@ -412,9 +412,8 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
 
     if (tab == null) {
       newTab = true;
-      console.log("OPEN TAB LOGIC IS BROKEN. PLEASE FIX!");
-      throw new Error();
-      tab = { note: null! };
+      const note = getNoteById(notes, noteId);
+      tab = { note };
     }
 
     tab.lastActive = new Date();

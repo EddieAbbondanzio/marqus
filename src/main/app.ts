@@ -9,7 +9,11 @@ import { isRoleMenu, Menu as MenuType } from "../shared/ui/menu";
 import { IpcChannel, IpcMainTS } from "../shared/ipc";
 import { openInBrowser } from "./utils";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
-import { AppState, DEFAULT_SIDEBAR_WIDTH } from "../shared/ui/app";
+import {
+  AppState,
+  DEFAULT_SIDEBAR_WIDTH,
+  SerializedAppState,
+} from "../shared/ui/app";
 
 import { JsonFile, loadJsonFile } from "./json";
 import { Config } from "../shared/domain/config";
@@ -26,14 +30,14 @@ export function appIpcs(
   config: JsonFile<Config>,
   log: Logger,
 ): void {
-  let appStateFile: JsonFile<AppState>;
+  let appStateFile: JsonFile<SerializedAppState>;
 
   ipc.on("init", async () => {
     if (config.content.dataDirectory == null) {
       throw new MissingDataDirectoryError();
     }
 
-    appStateFile = await loadJsonFile<AppState>(
+    appStateFile = await loadJsonFile<SerializedAppState>(
       p.join(config.content.dataDirectory, APP_STATE_PATH),
       APP_STATE_SCHEMAS,
       {

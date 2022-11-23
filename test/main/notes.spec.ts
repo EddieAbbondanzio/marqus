@@ -21,7 +21,6 @@ import mockFS from "mock-fs";
 import { omit } from "lodash";
 import {
   createNote,
-  CreateNoteParams,
   getNoteById,
   NoteSort,
 } from "../../src/shared/domain/note";
@@ -37,15 +36,14 @@ afterAll(() => {
   mockFS.restore();
 });
 
+const latestVersion = getLatestSchemaVersion(NOTE_SCHEMAS);
+
 function createMetadata(props?: Partial<NoteMetadata>): NoteMetadata {
   props ??= {};
   props.name ??= `test-note-${uuid()}`;
-  props.version ??= getLatestSchemaVersion(NOTE_SCHEMAS);
+  props.version ??= latestVersion;
 
-  const metadata: NoteMetadata = omit(
-    createNote(props as CreateNoteParams),
-    "children",
-  );
+  const metadata: NoteMetadata = omit(createNote(props as any), "children");
   return metadata;
 }
 

@@ -85,8 +85,7 @@ export function sortNotes(notes: Note[], sort: NoteSort): Note[] {
   return r(notes, sort);
 }
 
-export type CreateNoteParams = Partial<Note> & Pick<Note, "name">;
-export function createNote(props: CreateNoteParams): Note {
+export function createNote(props: Partial<Note> & Pick<Note, "name">): Note {
   const note = {
     ...props,
   } as Note;

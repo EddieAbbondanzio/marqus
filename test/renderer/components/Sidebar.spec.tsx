@@ -39,7 +39,7 @@ test("sidebar.createNote confirm", async () => {
   ((window as any).ipc as jest.Mock).mockReturnValue(
     createNote({
       name: "foo",
-    })
+    }),
   );
 
   // Trigger confirm
@@ -53,7 +53,7 @@ test("sidebar.createNote confirm", async () => {
   expect(note).toEqual(
     expect.objectContaining({
       name: "foo",
-    })
+    }),
   );
   expect(state.focused).toEqual(["editor"]);
   expect(state.sidebar.selected).toEqual([note.id]);
@@ -63,11 +63,10 @@ test("sidebar.createNote confirm", async () => {
       activeTabNoteId: note.id,
       tabs: expect.arrayContaining([
         expect.objectContaining({
-          noteId: note.id,
-          content: "",
+          note,
         }),
       ]),
-    })
+    }),
   );
 });
 
@@ -282,7 +281,7 @@ test("sidebar.dragNote", async () => {
   render(<Sidebar store={store.current} />);
 
   // Notes can't be their own parent.
-  const foo = store.current.state.notes.find((n) => n.name === "foo")!;
+  const foo = store.current.state.notes.find(n => n.name === "foo")!;
   await act(async () => {
     await store.current.dispatch("sidebar.dragNote", {
       note: foo.id,
@@ -292,7 +291,7 @@ test("sidebar.dragNote", async () => {
   expect(foo.parent).toBe(undefined);
 
   // Dont allow infinite loops
-  const bar = store.current.state.notes.find((n) => n.name === "bar")!;
+  const bar = store.current.state.notes.find(n => n.name === "bar")!;
   await act(async () => {
     await store.current.dispatch("sidebar.dragNote", {
       note: bar.id,
@@ -315,7 +314,7 @@ test("sidebar.dragNote", async () => {
     baz.id,
     {
       parent: baz.parent!,
-    }
+    },
   );
 
   // Don't update parent if it's the same (root note)
@@ -331,16 +330,14 @@ test("sidebar.dragNote", async () => {
     foo.id,
     {
       parent: undefined,
-    }
+    },
   );
 
   // Move from root to nested
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  when((window as any).ipc)
-    .calledWith("notes.updateMetadata", "1", {
-      parent: "2",
-    })
-    .mockReturnValueOnce({ ...foo, parent: "2" });
+  when((window as any).ipc).calledWith("notes.updateMetadata", "1", {
+    parent: "2",
+  });
 
   await act(async () => {
     await store.current.dispatch("sidebar.dragNote", {
@@ -352,16 +349,14 @@ test("sidebar.dragNote", async () => {
   expect(updatedFoo.parent).toBe("2");
   expect(bar.children).toContainEqual(expect.objectContaining({ id: "1" }));
   expect(store.current.state.notes).not.toContainEqual(
-    expect.objectContaining({ id: "1" })
+    expect.objectContaining({ id: "1" }),
   );
 
   // Move from nested to root
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  when((window as any).ipc)
-    .calledWith("notes.updateMetadata", "1", {
-      parent: undefined,
-    })
-    .mockReturnValueOnce({ ...updatedFoo, parent: undefined });
+  when((window as any).ipc).calledWith("notes.updateMetadata", "1", {
+    parent: undefined,
+  });
 
   await act(async () => {
     await store.current.dispatch("sidebar.dragNote", {
@@ -373,6 +368,6 @@ test("sidebar.dragNote", async () => {
   expect(updatedFoo2.parent).toBe(undefined);
   expect(bar.children).not.toContainEqual(expect.objectContaining({ id: "1" }));
   expect(store.current.state.notes).toContainEqual(
-    expect.objectContaining({ id: "1" })
+    expect.objectContaining({ id: "1" }),
   );
 });

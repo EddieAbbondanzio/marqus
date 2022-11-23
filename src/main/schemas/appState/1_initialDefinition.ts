@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { DATE_OR_STRING_SCHEMA } from "../../../shared/domain";
+import { DATE_OR_STRING_SCHEMA, PX_REGEX } from "../../../shared/domain";
 import { NoteSort } from "../../../shared/domain/note";
 import { Section } from "../../../shared/ui/app";
 
-interface AppStateV1 {
+export interface AppStateV1 {
+  version: number;
   sidebar: Sidebar;
   editor: Editor;
   focused: Section[];
@@ -36,7 +37,7 @@ interface EditorTab {
 export const appStateV1: z.Schema<AppStateV1> = z.object({
   version: z.literal(1),
   sidebar: z.object({
-    width: z.string().regex(/^\d+px$/),
+    width: z.string().regex(PX_REGEX),
     scroll: z.number(),
     hidden: z.boolean().optional(),
     selected: z.array(z.string()).optional(),
@@ -51,7 +52,7 @@ export const appStateV1: z.Schema<AppStateV1> = z.object({
         noteId: z.string(),
         // Intentionally omitted noteContent
         lastActive: DATE_OR_STRING_SCHEMA.optional(),
-      })
+      }),
     ),
     tabsScroll: z.number(),
     activeTabNoteId: z.string().optional(),
