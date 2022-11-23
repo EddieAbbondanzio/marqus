@@ -1,4 +1,7 @@
-import { Sidebar } from "../../../src/renderer/components/Sidebar";
+import {
+  applySearchString,
+  Sidebar,
+} from "../../../src/renderer/components/Sidebar";
 import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import {
@@ -370,4 +373,31 @@ test("sidebar.dragNote", async () => {
   expect(store.current.state.notes).toContainEqual(
     expect.objectContaining({ id: "1" }),
   );
+});
+
+test("applySearchString", () => {
+  const notes = [
+    createNote({
+      name: "foo",
+      content: "Random string lol",
+    }),
+    createNote({
+      name: "bar",
+      content: "Some more totally random text",
+    }),
+    createNote({
+      name: "baz",
+      content: "qqqqqqqqqqq",
+    }),
+  ];
+
+  // Search by name
+  const matches1 = applySearchString(notes, "f");
+  expect(matches1).toHaveLength(1);
+  expect(matches1[0].name).toBe("foo");
+
+  // Search by content
+  const matches2 = applySearchString(notes, "qqqq");
+  expect(matches2).toHaveLength(1);
+  expect(matches2[0].name).toBe("baz");
 });

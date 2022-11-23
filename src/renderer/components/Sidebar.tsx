@@ -214,7 +214,7 @@ export function applySearchString(
 
   const flatNotes = flatten(notes);
   const matches = searchFuzzy(searchString!, flatNotes, {
-    keySelector: n => n.name,
+    keySelector: n => [n.name, n.content],
   });
 
   return matches;

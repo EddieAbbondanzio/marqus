@@ -3,7 +3,7 @@ import { Shortcut } from "./domain/shortcut";
 import { Note, NoteSort } from "./domain/note";
 import { IpcMain, IpcMainInvokeEvent, Point } from "electron";
 import { Menu } from "./ui/menu";
-import { AppState, SerializedAppState } from "./ui/app";
+import { SerializedAppState } from "./ui/app";
 
 export const IPCS = [
   "app.setApplicationMenu",

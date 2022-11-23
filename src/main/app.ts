@@ -9,11 +9,7 @@ import { isRoleMenu, Menu as MenuType } from "../shared/ui/menu";
 import { IpcChannel, IpcMainTS } from "../shared/ipc";
 import { openInBrowser } from "./utils";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
-import {
-  AppState,
-  DEFAULT_SIDEBAR_WIDTH,
-  SerializedAppState,
-} from "../shared/ui/app";
+import { DEFAULT_SIDEBAR_WIDTH, SerializedAppState } from "../shared/ui/app";
 
 import { JsonFile, loadJsonFile } from "./json";
 import { Config } from "../shared/domain/config";

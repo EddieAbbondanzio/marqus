@@ -9,6 +9,7 @@ import { Markdown } from "./Markdown";
 import { Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
 import { EditorTabs, TABS_HEIGHT } from "./EditorTabs";
+import { getNoteById } from "../../shared/domain/note";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
 
@@ -93,12 +94,17 @@ const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
     );
     // Update local cache for renderer
     prev.editor.tabs[index].note.content = content;
-
     return {
       editor: {
         tabs: [...prev.editor.tabs],
       },
     };
+  });
+
+  ctx.setNotes(notes => {
+    const note = getNoteById(notes, noteId);
+    note.content = content;
+    return [...notes];
   });
 
   await debouncedInvoker("notes.update", noteId, { content });

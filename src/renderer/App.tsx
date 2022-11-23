@@ -9,7 +9,6 @@ import {
   filterOutStaleNoteIds,
   Section,
   SerializedAppState,
-  SerializedEditorTab,
 } from "../shared/ui/app";
 import { Shortcut } from "../shared/domain/shortcut";
 import { getNoteById, Note } from "../shared/domain/note";
@@ -22,7 +21,6 @@ import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
-import { AppState } from "../shared/ui/app";
 import { Config } from "../shared/domain/config";
 import { log } from "./logger";
 
