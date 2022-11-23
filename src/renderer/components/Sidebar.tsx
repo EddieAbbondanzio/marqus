@@ -214,7 +214,7 @@ export function applySearchString(
 
   const flatNotes = flatten(notes);
   const matches = searchFuzzy(searchString!, flatNotes, {
-    keySelector: n => n.name,
+    keySelector: n => [n.name, n.content],
   });
 
   return matches;
@@ -425,11 +425,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
   const [name, action] = await input.completed;
   if (action === "confirm") {
     try {
-      const note = await window.ipc(
-        "notes.create",
-        name,
-        parentId ?? undefined,
-      );
+      const note = await window.ipc("notes.create", { name, parentId });
 
       ctx.setNotes(notes => {
         if (parentId == null) {
@@ -452,7 +448,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
           isEditing: true,
           activeTabNoteId: note.id,
           // Keep in sync with openTab in EditorTabs.tsx
-          tabs: [...prev.editor.tabs, { noteId: note.id, content: "" }],
+          tabs: [...prev.editor.tabs, { note, content: "" }],
         },
       }));
     } catch (e) {
@@ -495,25 +491,13 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
   const [name, action] = await input.completed;
   if (action === "confirm") {
     try {
-      const updatedNote = await window.ipc("notes.updateMetadata", id, {
-        name,
-      });
+      await window.ipc("notes.update", id, { name });
 
       ctx.setNotes(notes => {
-        if (updatedNote.parent == null) {
-          const index = notes.findIndex(n => n.id === id);
-          notes.splice(index, 1, updatedNote);
-          return notes;
-        } else {
-          const parent = getNoteById(notes, updatedNote.parent);
-          const index = parent.children!.findIndex(n => n.id === id);
-          if (index === -1) {
-            throw new Error(`Could not find child note with id ${id}`);
-          }
+        const note = getNoteById(notes, id);
+        note.name = name;
 
-          parent.children!.splice(index, 1, updatedNote);
-          return notes;
-        }
+        return notes;
       });
     } catch (e) {
       promptError((e as Error).message);
@@ -612,7 +596,7 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
 
   const { notes, sidebar } = ctx.getState();
   const note = getNoteById(notes, value.note);
-  let newParent;
+  let newParent: Note | undefined;
   if (value.newParent != null) {
     newParent = getNoteById(notes, value.newParent);
   }
@@ -636,7 +620,7 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
     }
   }
 
-  const updatedNote = await window.ipc("notes.updateMetadata", note.id, {
+  await window.ipc("notes.update", note.id, {
     parent: newParent?.id,
   });
 
@@ -652,13 +636,14 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
     }
 
     // Add to new parent (if applicable)
-    if (updatedNote.parent != null) {
-      const newParent = getNoteById(notes, updatedNote.parent);
-      newParent.children ??= [];
-      newParent.children.push(updatedNote);
-      updatedNote.parent = newParent.id;
+    if (newParent != null) {
+      const p = getNoteById(notes, newParent.id);
+      p.children ??= [];
+      p.children.push(note);
+      note.parent = p.id;
     } else {
-      notes.push(updatedNote);
+      notes.push(note);
+      note.parent = undefined;
     }
 
     return notes;
@@ -701,20 +686,22 @@ export const collapseAll: Listener<"sidebar.collapseAll"> = async (_, ctx) => {
 };
 
 export const setNoteSort: Listener<"sidebar.setNoteSort"> = async (ev, ctx) => {
+  const sort = ev.value?.sort ?? DEFAULT_NOTE_SORTING_ALGORITHM;
+
   if (ev.value?.note == null) {
     ctx.setUI({
       sidebar: {
-        sort: ev.value?.sort ?? DEFAULT_NOTE_SORTING_ALGORITHM,
+        sort,
       },
     });
   } else {
-    const note = await window.ipc("notes.updateMetadata", ev.value.note, {
-      sort: ev.value.sort,
+    await window.ipc("notes.update", ev.value.note, {
+      sort,
     });
 
     ctx.setNotes(notes => {
-      const n = getNoteById(notes, note.id);
-      n.sort = note.sort;
+      const n = getNoteById(notes, ev.value!.note!);
+      n.sort = sort;
       return [...notes];
     });
   }

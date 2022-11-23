@@ -3,7 +3,7 @@ export function isBlank(str?: string): boolean {
 }
 
 export function sleep(milliseconds: number): Promise<void> {
-  return new Promise((res) => {
+  return new Promise(res => {
     setTimeout(res, milliseconds);
   });
 }

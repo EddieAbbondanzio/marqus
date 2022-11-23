@@ -2,9 +2,8 @@
 import { stripUnit } from "polished";
 import React, { PropsWithChildren, useRef, useState } from "react";
 import styled from "styled-components";
+import { PX_REGEX } from "../../../shared/domain";
 import { useMouseDrag } from "../../io/mouse";
-
-const PX_REGEX = /^\d+px$/;
 
 export interface ResizableProps {
   className?: string;
@@ -20,7 +19,7 @@ export interface ResizableState {
 }
 
 export function Resizable(
-  props: PropsWithChildren<ResizableProps>
+  props: PropsWithChildren<ResizableProps>,
 ): JSX.Element {
   if (props.width != null && !PX_REGEX.test(props.width)) {
     throw Error("Invalid width format. Expected pixels");
@@ -31,7 +30,7 @@ export function Resizable(
 
   useMouseDrag(
     handle,
-    (drag) => {
+    drag => {
       if (drag != null) {
         switch (drag.state) {
           case "dragging":
@@ -57,7 +56,7 @@ export function Resizable(
         }
       }
     },
-    { cursor: "ew-resize" }
+    { cursor: "ew-resize" },
   );
 
   // Prob not the best solution. Styled Components doesn't work good here

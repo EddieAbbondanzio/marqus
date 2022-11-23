@@ -39,8 +39,7 @@ export interface Editor {
 }
 
 export interface EditorTab {
-  noteId: string;
-  noteContent?: string;
+  note: Note;
   lastActive?: Date;
 }
 
@@ -73,7 +72,7 @@ export function filterOutStaleNoteIds(
 
   if (clonedUI.editor.tabs != null) {
     clonedUI.editor.tabs = clonedUI.editor.tabs.filter(
-      t => currentNoteIds[t.noteId] != null,
+      t => currentNoteIds[t.note.id] != null,
     );
   }
 
@@ -85,4 +84,41 @@ export function filterOutStaleNoteIds(
   }
 
   return clonedUI;
+}
+
+export type SerializedAppState = Pick<AppState, "version" | "focused"> & {
+  sidebar: SerializedSidebar;
+  editor: SerializedEditor;
+};
+
+export type SerializedSidebar = Omit<Sidebar, "input">;
+
+export type SerializedEditor = Omit<Editor, "tabs"> & {
+  tabs: SerializedEditorTab[];
+};
+
+export interface SerializedEditorTab {
+  noteId: string;
+  lastActive?: Date;
+}
+
+export function serializeAppState(appState: AppState): SerializedAppState {
+  const { editor, ...cloned } = cloneDeep(appState);
+
+  // We need to delete some values before sending them over to the main
+  // thread otherwise electron will throw an error.
+  if (cloned.sidebar != null) {
+    delete cloned.sidebar.input;
+  }
+
+  return {
+    ...cloned,
+    editor: {
+      ...editor,
+      tabs: editor.tabs.map(t => ({
+        noteId: t.note.id,
+        lastActive: t.lastActive,
+      })),
+    },
+  };
 }

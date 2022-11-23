@@ -54,7 +54,7 @@ test("openTab opens tabs passed", async () => {
   // Test it sets last tab passed as active
   let { editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe("1");
-  expect(editor.tabs[0]!.noteId).toBe("1");
+  expect(editor.tabs[0]!.note.id).toBe("1");
   expect(editor.tabs[0]!.lastActive).not.toBe(null);
   expect(editor.activeTabNoteId).toBe("1");
 
@@ -69,28 +69,27 @@ test("openTab opens tabs passed", async () => {
 });
 
 test("closeTab closes active tab by default", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
+
   const store = createStore({
-    notes: [
-      createNote({ id: "1", name: "foo" }),
-      createNote({ id: "2", name: "bar" }),
-      createNote({ id: "3", name: "baz" }),
-    ],
+    notes,
     editor: {
       activeTabNoteId: "1",
       tabs: [
         createTab({
-          noteId: "1",
-          noteContent: "",
+          note: notes[0],
           lastActive: subHours(new Date(), 1),
         }),
         createTab({
-          noteId: "2",
-          noteContent: "",
+          note: notes[1],
           lastActive: subHours(new Date(), 2),
         }),
         createTab({
-          noteId: "3",
-          noteContent: "",
+          note: notes[2],
           lastActive: subHours(new Date(), 3),
         }),
       ],
@@ -108,14 +107,14 @@ test("closeTab closes active tab by default", async () => {
 });
 
 test("closeTab clears out active tab", async () => {
+  const notes = [createNote({ id: "1", name: "foo" })];
   const store = createStore({
-    notes: [createNote({ id: "1", name: "foo" })],
+    notes,
     editor: {
       activeTabNoteId: "1",
       tabs: [
         createTab({
-          noteId: "1",
-          noteContent: "",
+          note: notes[0],
           lastActive: subHours(new Date(), 1),
         }),
       ],
@@ -134,28 +133,26 @@ test("closeTab clears out active tab", async () => {
 });
 
 test("closeTab closes tab passed", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
   const store = createStore({
-    notes: [
-      createNote({ id: "1", name: "foo" }),
-      createNote({ id: "2", name: "bar" }),
-      createNote({ id: "3", name: "baz" }),
-    ],
+    notes,
     editor: {
       activeTabNoteId: "1",
       tabs: [
         createTab({
-          noteId: "1",
-          noteContent: "",
+          note: notes[0],
           lastActive: subHours(new Date(), 1),
         }),
         createTab({
-          noteId: "2",
-          noteContent: "",
+          note: notes[1],
           lastActive: subHours(new Date(), 2),
         }),
         createTab({
-          noteId: "3",
-          noteContent: "",
+          note: notes[2],
           lastActive: subHours(new Date(), 3),
         }),
       ],
@@ -173,28 +170,26 @@ test("closeTab closes tab passed", async () => {
 });
 
 test("editor.closeAllTabs", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
   const store = createStore({
-    notes: [
-      createNote({ id: "1", name: "foo" }),
-      createNote({ id: "2", name: "bar" }),
-      createNote({ id: "3", name: "baz" }),
-    ],
+    notes,
     editor: {
       activeTabNoteId: "1",
       tabs: [
         createTab({
-          noteId: "1",
-          noteContent: "",
+          note: notes[0],
           lastActive: subHours(new Date(), 1),
         }),
         createTab({
-          noteId: "2",
-          noteContent: "",
+          note: notes[1],
           lastActive: subHours(new Date(), 2),
         }),
         createTab({
-          noteId: "3",
-          noteContent: "",
+          note: notes[2],
           lastActive: subHours(new Date(), 3),
         }),
       ],
@@ -213,28 +208,26 @@ test("editor.closeAllTabs", async () => {
 });
 
 test("editor.closeOtherTabs", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
   const store = createStore({
-    notes: [
-      createNote({ id: "1", name: "foo" }),
-      createNote({ id: "2", name: "bar" }),
-      createNote({ id: "3", name: "baz" }),
-    ],
+    notes,
     editor: {
       activeTabNoteId: "1",
       tabs: [
         createTab({
-          noteId: "1",
-          noteContent: "",
+          note: notes[0],
           lastActive: subHours(new Date(), 1),
         }),
         createTab({
-          noteId: "2",
-          noteContent: "",
+          note: notes[1],
           lastActive: subHours(new Date(), 2),
         }),
         createTab({
-          noteId: "3",
-          noteContent: "",
+          note: notes[2],
           lastActive: subHours(new Date(), 3),
         }),
       ],
@@ -243,7 +236,7 @@ test("editor.closeOtherTabs", async () => {
 
   render(<EditorTabs store={store.current} />);
   await act(async () => {
-    // Default behavior is to close active tab
+    // Default behavior is to close non active tab
     store.current.dispatch("editor.closeOtherTabs", undefined!);
   });
 
@@ -251,29 +244,28 @@ test("editor.closeOtherTabs", async () => {
   expect(editor.activeTabNoteId).toBe("1");
   expect(editor.tabs.length).toBe(1);
 });
+
 test("editor.closeTabsToRight", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
   const store = createStore({
-    notes: [
-      createNote({ id: "1", name: "foo" }),
-      createNote({ id: "2", name: "bar" }),
-      createNote({ id: "3", name: "baz" }),
-    ],
+    notes,
     editor: {
-      activeTabNoteId: "2",
+      activeTabNoteId: "1",
       tabs: [
         createTab({
-          noteId: "1",
-          noteContent: "",
+          note: notes[0],
           lastActive: subHours(new Date(), 1),
         }),
         createTab({
-          noteId: "2",
-          noteContent: "",
+          note: notes[1],
           lastActive: subHours(new Date(), 2),
         }),
         createTab({
-          noteId: "3",
-          noteContent: "",
+          note: notes[2],
           lastActive: subHours(new Date(), 3),
         }),
       ],
@@ -282,40 +274,38 @@ test("editor.closeTabsToRight", async () => {
 
   render(<EditorTabs store={store.current} />);
   await act(async () => {
-    // Default behavior is to close active tab
+    // Default behavior is to close tabs relative to active tab
     store.current.dispatch("editor.closeTabsToRight", undefined!);
   });
 
   const { editor } = store.current.state;
-  expect(editor.activeTabNoteId).toBe("2");
-  expect(editor.tabs.length).toBe(2);
-  expect(editor.tabs[0].noteId).toBe("1");
-  expect(editor.tabs[1].noteId).toBe("2");
+
+  expect(editor.activeTabNoteId).toBe("1");
+  expect(editor.tabs.length).toBe(1);
+  expect(editor.tabs[0].note.id).toBe("1");
 });
 
 test("editor.closeTabsToLeft", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
   const store = createStore({
-    notes: [
-      createNote({ id: "1", name: "foo" }),
-      createNote({ id: "2", name: "bar" }),
-      createNote({ id: "3", name: "baz" }),
-    ],
+    notes,
     editor: {
       activeTabNoteId: "2",
       tabs: [
         createTab({
-          noteId: "1",
-          noteContent: "",
+          note: notes[0],
           lastActive: subHours(new Date(), 1),
         }),
         createTab({
-          noteId: "2",
-          noteContent: "",
+          note: notes[1],
           lastActive: subHours(new Date(), 2),
         }),
         createTab({
-          noteId: "3",
-          noteContent: "",
+          note: notes[2],
           lastActive: subHours(new Date(), 3),
         }),
       ],
@@ -324,40 +314,38 @@ test("editor.closeTabsToLeft", async () => {
 
   render(<EditorTabs store={store.current} />);
   await act(async () => {
-    // Default behavior is to close active tab
+    // Default behavior is to close tabs to the left of active tab
     store.current.dispatch("editor.closeTabsToLeft", undefined!);
   });
 
   const { editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe("2");
   expect(editor.tabs.length).toBe(2);
-  expect(editor.tabs[0].noteId).toBe("2");
-  expect(editor.tabs[1].noteId).toBe("3");
+  expect(editor.tabs[0].note.id).toBe("2");
+  expect(editor.tabs[1].note.id).toBe("3");
 });
 
 test("nextTab", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
   const store = createStore({
-    notes: [
-      createNote({ id: "1", name: "foo" }),
-      createNote({ id: "2", name: "bar" }),
-      createNote({ id: "3", name: "baz" }),
-    ],
+    notes,
     editor: {
-      activeTabNoteId: "2",
+      activeTabNoteId: "1",
       tabs: [
         createTab({
-          noteId: "1",
-          noteContent: "",
+          note: notes[0],
           lastActive: subHours(new Date(), 1),
         }),
         createTab({
-          noteId: "2",
-          noteContent: "",
+          note: notes[1],
           lastActive: subHours(new Date(), 2),
         }),
         createTab({
-          noteId: "3",
-          noteContent: "",
+          note: notes[2],
           lastActive: subHours(new Date(), 3),
         }),
       ],
@@ -370,31 +358,29 @@ test("nextTab", async () => {
   });
 
   const { editor } = store.current.state;
-  expect(editor.activeTabNoteId).toBe("3");
+  expect(editor.activeTabNoteId).toBe("2");
 });
 test("previousTab", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
   const store = createStore({
-    notes: [
-      createNote({ id: "1", name: "foo" }),
-      createNote({ id: "2", name: "bar" }),
-      createNote({ id: "3", name: "baz" }),
-    ],
+    notes,
     editor: {
-      activeTabNoteId: "2",
+      activeTabNoteId: "1",
       tabs: [
         createTab({
-          noteId: "1",
-          noteContent: "",
+          note: notes[0],
           lastActive: subHours(new Date(), 1),
         }),
         createTab({
-          noteId: "2",
-          noteContent: "",
+          note: notes[1],
           lastActive: subHours(new Date(), 2),
         }),
         createTab({
-          noteId: "3",
-          noteContent: "",
+          note: notes[2],
           lastActive: subHours(new Date(), 3),
         }),
       ],
@@ -403,11 +389,11 @@ test("previousTab", async () => {
 
   render(<EditorTabs store={store.current} />);
   await act(async () => {
-    store.current.dispatch("editor.previousTab", undefined!);
+    store.current.dispatch("editor.previousTab");
   });
 
   const { editor } = store.current.state;
-  expect(editor.activeTabNoteId).toBe("1");
+  expect(editor.activeTabNoteId).toBe("3");
 });
 
 test("updateTabsScroll scrolls tabs", async () => {

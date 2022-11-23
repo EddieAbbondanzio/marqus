@@ -40,7 +40,7 @@ export type Cursor =
   | "se-resize"
   | "sw-resize"
   | "ew-resize"
-  | "ns-resie"
+  | "ns-resize"
   | "nesw-resize"
   | "nwse-resize"
   | "zoom-in"
@@ -48,7 +48,7 @@ export type Cursor =
 
 export async function cursor(
   cursorIcon: Cursor,
-  cb: () => Promise<void>
+  cb: () => Promise<void>,
 ): Promise<void> {
   const original = document.body.style.cursor;
   document.body.style.cursor = cursorIcon;
@@ -82,7 +82,7 @@ export type DragState =
 export function useMouseDrag(
   ref: RefObject<HTMLElement | Window | null>,
   callback: (drag: MouseDrag | null) => void,
-  opts?: { cursor: Cursor; disabled?: boolean }
+  opts?: { cursor: Cursor; disabled?: boolean },
 ): void {
   const [drag, setDrag] = useState<MouseDrag | null>(null);
 

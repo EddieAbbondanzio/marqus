@@ -4,7 +4,7 @@ import { Ipc, IpcChannel, IPCS, IpcType } from "../shared/ipc";
 
 if (getProcessType() === "main") {
   throw Error(
-    "ipcRenderer is null. Did you accidentally import 'preload.ts' into a main process file?"
+    "ipcRenderer is null. Did you accidentally import 'preload.ts' into a main process file?",
   );
 }
 
@@ -25,11 +25,11 @@ declare global {
     ipc: Ipc;
     addEventListener(
       type: IpcChannel,
-      l: (this: Window, ev: CustomEvent) => void | Promise<void>
+      l: (this: Window, ev: CustomEvent) => void | Promise<void>,
     ): void;
     removeEventListener(
       type: IpcChannel,
-      l: (this: Window, ev: CustomEvent) => void | Promise<void>
+      l: (this: Window, ev: CustomEvent) => void | Promise<void>,
     ): void;
   }
 }
@@ -40,17 +40,9 @@ if (isDevelopment()) {
   console.log("preload complete");
 }
 
-// Dispatch custom event to notify of application menu clicks
-ipcRenderer.on(IpcChannel.ApplicationMenuClick, (_, val: any) => {
-  const ev = new CustomEvent(IpcChannel.ApplicationMenuClick, {
-    detail: val,
+for (const channel of Object.values(IpcChannel)) {
+  ipcRenderer.on(channel, (_, val: unknown) => {
+    const ev = new CustomEvent(channel, { detail: val });
+    window.dispatchEvent(ev);
   });
-  window.dispatchEvent(ev);
-});
-
-ipcRenderer.on(IpcChannel.ContextMenuClick, (_, val: any) => {
-  const ev = new CustomEvent(IpcChannel.ContextMenuClick, {
-    detail: val,
-  });
-  window.dispatchEvent(ev);
-});
+}

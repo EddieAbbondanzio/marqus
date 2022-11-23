@@ -1,16 +1,15 @@
-import { debounce, head, isEmpty, last, tail } from "lodash";
+import { debounce } from "lodash";
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { EditorTab, Section } from "../../shared/ui/app";
+import { Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
 import { m2 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
-import { getNoteById } from "../../shared/domain/note";
 import { EditorTabs, TABS_HEIGHT } from "./EditorTabs";
-import * as monaco from "monaco-editor";
+import { getNoteById } from "../../shared/domain/note";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
 
@@ -25,7 +24,7 @@ export function Editor(props: EditorProps): JSX.Element {
 
   let activeTab;
   if (editor.activeTabNoteId != null) {
-    activeTab = editor.tabs.find((t) => t.noteId === editor.activeTabNoteId);
+    activeTab = editor.tabs.find(t => t.note.id === editor.activeTabNoteId);
   }
 
   let content;
@@ -35,11 +34,9 @@ export function Editor(props: EditorProps): JSX.Element {
     content = (
       <Markdown
         store={store}
-        content={activeTab?.noteContent ?? ""}
+        content={activeTab?.note.content ?? ""}
         scroll={state.editor.scroll}
-        onScroll={(newVal) =>
-          void store.dispatch("editor.updateScroll", newVal)
-        }
+        onScroll={newVal => void store.dispatch("editor.updateScroll", newVal)}
       />
     );
   }
@@ -81,7 +78,7 @@ const StyledContent = styled.div`
 
 const debouncedInvoker = debounce(
   window.ipc,
-  NOTE_SAVE_INTERVAL_MS
+  NOTE_SAVE_INTERVAL_MS,
 ) as unknown as Ipc;
 
 const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
@@ -91,13 +88,12 @@ const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
 
   const { noteId, content } = value;
 
-  ctx.setUI((prev) => {
+  ctx.setUI(prev => {
     const index = prev.editor.tabs.findIndex(
-      (t) => t.noteId === prev.editor.activeTabNoteId
+      t => t.note.id === prev.editor.activeTabNoteId,
     );
     // Update local cache for renderer
-    prev.editor.tabs[index].noteContent = content;
-
+    prev.editor.tabs[index].note.content = content;
     return {
       editor: {
         tabs: [...prev.editor.tabs],
@@ -105,7 +101,13 @@ const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
     };
   });
 
-  await debouncedInvoker("notes.saveContent", noteId, content);
+  ctx.setNotes(notes => {
+    const note = getNoteById(notes, noteId);
+    note.content = content;
+    return [...notes];
+  });
+
+  await debouncedInvoker("notes.update", noteId, { content });
 };
 
 const toggleView: Listener<"editor.toggleView"> = (_, ctx) => {
@@ -143,7 +145,7 @@ const save: Listener<"editor.save"> = (_, ctx) => {
 
 export const updateScroll: Listener<"editor.updateScroll"> = (
   { value: scroll },
-  ctx
+  ctx,
 ) => {
   if (scroll == null) {
     throw Error();

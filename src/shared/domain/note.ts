@@ -1,14 +1,15 @@
 import { Resource, uuid } from ".";
 import { isBlank } from "../utils";
-import { cloneDeep, isEmpty, orderBy } from "lodash";
+import { isEmpty, orderBy } from "lodash";
 import { z } from "zod";
 
 export interface Note extends Resource {
   version: number;
   name: string;
   parent?: string;
-  children?: Note[];
+  children: Note[];
   sort?: NoteSort;
+  content: string;
 }
 
 export enum NoteSort {
@@ -84,7 +85,7 @@ export function sortNotes(notes: Note[], sort: NoteSort): Note[] {
   return r(notes, sort);
 }
 
-export function createNote(props: Partial<Note> & { name: string }): Note {
+export function createNote(props: Partial<Note> & Pick<Note, "name">): Note {
   const note = {
     ...props,
   } as Note;
@@ -95,6 +96,7 @@ export function createNote(props: Partial<Note> & { name: string }): Note {
 
   note.id ??= uuid();
   note.dateCreated ??= new Date();
+  note.content ??= "";
 
   if (!isEmpty(note.children)) {
     for (const child of note.children!) {

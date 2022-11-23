@@ -4,19 +4,23 @@ import { useShortcuts } from "./io/shortcuts";
 import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
-import { filterOutStaleNoteIds, Section } from "../shared/ui/app";
+import {
+  EditorTab,
+  filterOutStaleNoteIds,
+  Section,
+  SerializedAppState,
+} from "../shared/ui/app";
 import { Shortcut } from "../shared/domain/shortcut";
-import { Note } from "../shared/domain/note";
+import { getNoteById, Note } from "../shared/domain/note";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
-import { first, isEmpty, tail } from "lodash";
+import { isEmpty, tail } from "lodash";
 import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
-import { AppState } from "../shared/ui/app";
 import { Config } from "../shared/domain/config";
 import { log } from "./logger";
 
@@ -29,9 +33,8 @@ async function main() {
     config = await ipc("config.get");
     initialState = await loadInitialState();
   } catch (e) {
-    console.error("Fatal Error", e);
-    await promptFatal((e as Error).message);
-    ipc("app.quit");
+    await log.error("Fatal: Failed to initialize the app.", e as Error);
+    await promptFatal("Failed to initialize app.", e as Error);
     return;
   }
 
@@ -55,7 +58,6 @@ export function App(props: AppProps): JSX.Element {
   const { config } = props;
   const store = useStore(props.state);
   const { state } = store;
-  const { sidebar, editor } = state;
 
   useShortcuts(store);
   useApplicationMenu(store, config);
@@ -112,20 +114,6 @@ export function App(props: AppProps): JSX.Element {
 
   useFocusTracking(store);
 
-  // Load the content of any notes that were previously open.
-  useEffect(() => {
-    const tabsToLoad = editor.tabs
-      .filter(t => t.noteContent == null)
-      .map(t => t.noteId);
-
-    if (tabsToLoad.length > 0) {
-      store.dispatch("editor.openTab", {
-        note: tabsToLoad,
-        active: editor.activeTabNoteId ?? first(sidebar.selected),
-      });
-    }
-  }, [editor.tabs, editor.activeTabNoteId, store, sidebar.selected]);
-
   return (
     <Container>
       {!(state.sidebar.hidden ?? false) && <Sidebar store={store} />}
@@ -177,8 +165,8 @@ const Container = styled.div`
   }
 `;
 
-async function loadInitialState(): Promise<State> {
-  let ui: AppState;
+export async function loadInitialState(): Promise<State> {
+  let ui: SerializedAppState;
   let shortcuts: Shortcut[];
   let notes: Note[] = [];
 
@@ -189,10 +177,26 @@ async function loadInitialState(): Promise<State> {
     ipc("notes.getAll"),
   ]);
 
-  ui = filterOutStaleNoteIds(ui, notes);
+  const tabs: EditorTab[] = ui.editor.tabs
+    .map(t => ({
+      note: getNoteById(notes, t.noteId, false),
+      lastActive: t.lastActive,
+    }))
+    .filter(t => t.note != null) as EditorTab[];
+
+  const deserializedAppState = filterOutStaleNoteIds(
+    {
+      ...ui,
+      editor: {
+        ...ui.editor,
+        tabs,
+      },
+    },
+    notes,
+  );
 
   return {
-    ...ui,
+    ...deserializedAppState,
     shortcuts,
     notes,
   };

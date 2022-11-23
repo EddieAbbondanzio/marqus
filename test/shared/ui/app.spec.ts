@@ -17,10 +17,10 @@ test("filterOutStaleNoteIds", async () => {
     },
     editor: {
       tabs: [
-        { noteId: note1.id },
-        { noteId: note2.id },
-        { noteId: nested1.id },
-        { noteId: "4" },
+        { note: note1 },
+        { note: note2 },
+        { note: nested1 },
+        { note: createNote({ name: "stale-note" }) },
       ],
       activeTabNoteId: note1.id,
     },
@@ -30,7 +30,7 @@ test("filterOutStaleNoteIds", async () => {
   const filteredUI = filterOutStaleNoteIds(ui, [note2]);
   expect(filteredUI.sidebar.expanded).not.toContain(note1.id);
   expect(filteredUI.sidebar.selected).not.toContain(note1.id);
-  expect(filteredUI.editor.tabs).not.toContainEqual({ noteId: note1.id });
-  expect(filteredUI.editor.tabs).toContainEqual({ noteId: nested1.id });
+  expect(filteredUI.editor.tabs).not.toContainEqual({ note: note1 });
+  expect(filteredUI.editor.tabs).toContainEqual({ note: nested1 });
   expect(filteredUI.editor.activeTabNoteId).toBe(undefined);
 });

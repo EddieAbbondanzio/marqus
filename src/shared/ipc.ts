@@ -1,9 +1,9 @@
 import { PromptButton, PromptOptions } from "./ui/prompt";
 import { Shortcut } from "./domain/shortcut";
-import { Note } from "./domain/note";
+import { Note, NoteSort } from "./domain/note";
 import { IpcMain, IpcMainInvokeEvent, Point } from "electron";
 import { Menu } from "./ui/menu";
-import { AppState } from "./ui/app";
+import { SerializedAppState } from "./ui/app";
 
 export const IPCS = [
   "app.setApplicationMenu",
@@ -23,9 +23,7 @@ export const IPCS = [
 
   "notes.getAll",
   "notes.create",
-  "notes.updateMetadata",
-  "notes.loadContent",
-  "notes.saveContent",
+  "notes.update",
   "notes.delete",
   "notes.moveToTrash",
 
@@ -53,8 +51,8 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "app.reload"(): Promise<void>;
   "app.toggleFullScreen"(): Promise<void>;
   "app.quit"(): Promise<void>;
-  "app.loadAppState"(): Promise<AppState>;
-  "app.saveAppState"(ui: AppState): Promise<void>;
+  "app.loadAppState"(): Promise<SerializedAppState>;
+  "app.saveAppState"(ui: SerializedAppState): Promise<void>;
   "app.openInWebBrowser"(url: string): Promise<void>;
   "app.openLogDirectory"(): Promise<void>;
 
@@ -63,10 +61,8 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
 
   // Notes
   "notes.getAll"(): Promise<Note[]>;
-  "notes.create"(name: string, parent?: string): Promise<Note>;
-  "notes.updateMetadata"(id: string, props: Partial<Note>): Promise<Note>;
-  "notes.loadContent"(id: string): Promise<string | null>;
-  "notes.saveContent"(id: string, content: string): Promise<void>;
+  "notes.create"(params: NoteCreateParams): Promise<Note>;
+  "notes.update"(id: string, params: NoteUpdateParams): Promise<void>;
   "notes.delete"(id: string): Promise<void>;
   "notes.moveToTrash"(id: string): Promise<void>;
 
@@ -79,8 +75,13 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "log.info"(message: string): Promise<void>;
   "log.debug"(message: string): Promise<void>;
   "log.warn"(message: string): Promise<void>;
-  "log.error"(message: string): Promise<void>;
+  "log.error"(message: string, err?: Error): Promise<void>;
 }
+
+export type NoteCreateParams = Pick<Note, "name"> & { parent?: Note["id"] };
+export type NoteUpdateParams = Partial<
+  Pick<Note, "name" | "sort" | "parent" | "content">
+>;
 
 export type Ipc = <T extends IpcType, I extends Parameters<IpcSchema[T]>>(
   type: T,

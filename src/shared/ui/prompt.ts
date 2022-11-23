@@ -12,9 +12,10 @@ export interface PromptOptions<T> {
   title?: string;
   type?: PromptType;
   text: string;
+  detail?: string;
   buttons: PromptButton<T>[];
 }
 
 export type PromptUser<T> = (
-  opts: PromptOptions<T>
+  opts: PromptOptions<T>,
 ) => Promise<PromptButton<T>>;
