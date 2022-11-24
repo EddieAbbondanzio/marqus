@@ -50,5 +50,6 @@ export function parseAttachmentPath(
     ATTACHMENTS_DIRECTORY,
     file,
   );
+
   return filePath;
 }

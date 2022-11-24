@@ -138,6 +138,10 @@ export function noteIpcs(
   });
 
   ipc.handle("notes.openAttachments", async (_, noteId) => {
+    if (!UUID_REGEX.test(noteId)) {
+      throw new Error(`Invalid noteId ${noteId}`);
+    }
+
     // shell.openPath doesn't allow relative paths.
     const attachmentDirPath = p.resolve(
       noteDirectory,
