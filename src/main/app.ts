@@ -145,7 +145,10 @@ export function appIpcs(
   ipc.handle("app.openInWebBrowser", (_, url) => openInBrowser(url));
 
   ipc.handle("app.openLogDirectory", async () => {
-    await shell.openPath(config.content.logDirectory);
+    const err = await shell.openPath(config.content.logDirectory);
+    if (err) {
+      throw new Error(err);
+    }
   });
 }
 

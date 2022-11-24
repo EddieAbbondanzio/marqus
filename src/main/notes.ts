@@ -13,6 +13,7 @@ import { NOTE_SCHEMAS } from "./schemas/notes";
 import { z } from "zod";
 import { isDevelopment } from "../shared/env";
 
+export const ATTACHMENT_DIRECTORY = "attachments";
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
@@ -128,6 +129,23 @@ export function noteIpcs(
       }
     };
     await recursive(id);
+  });
+
+  ipc.handle("notes.openAttachments", async (_, noteId) => {
+    // shell.openPath doesn't allow relative paths.
+    const attachmentDirPath = p.resolve(
+      noteDirectory,
+      noteId,
+      ATTACHMENT_DIRECTORY,
+    );
+    if (!fs.existsSync(attachmentDirPath)) {
+      await fsp.mkdir(attachmentDirPath);
+    }
+
+    const err = await shell.openPath(attachmentDirPath);
+    if (err) {
+      throw new Error(err);
+    }
   });
 }
 

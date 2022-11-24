@@ -23,7 +23,10 @@ export function configIpcs(
   ipc.handle("config.get", () => config.content);
 
   ipc.handle("config.openInTextEditor", async () => {
-    shell.openPath(getConfigPath());
+    const err = await shell.openPath(getConfigPath());
+    if (err) {
+      throw new Error(err);
+    }
   });
 
   ipc.handle("config.openDataDirectory", async () => {
@@ -31,7 +34,10 @@ export function configIpcs(
       return;
     }
 
-    shell.openPath(config.content.dataDirectory);
+    const err = await shell.openPath(config.content.dataDirectory);
+    if (err) {
+      throw new Error(err);
+    }
   });
 
   ipc.handle("config.selectDataDirectory", async () => {

@@ -13,6 +13,7 @@ import * as prompt from "../../../src/renderer/utils/prompt";
 import { when } from "jest-when";
 import { Section } from "../../../src/shared/ui/app";
 import { createStore } from "../../__factories__/store";
+import { uuid } from "../../../src/shared/domain";
 
 // TODO: Rewrite these test to use fireEvent to be more like how the code is
 // actually ran.
@@ -253,6 +254,36 @@ test("sidebar.expandAll", async () => {
   const expanded = [notes[0]!.id, notes?.[0].children?.[0].id];
 
   expect(state.sidebar.expanded).toEqual(expanded);
+});
+
+test("sidebar.openNoteAttachments", async () => {
+  const noteId = uuid();
+  const notes = [
+    createNote({ id: noteId, name: "foo" }),
+    createNote({
+      name: "bar",
+    }),
+  ];
+
+  const store = createStore({
+    notes,
+    sidebar: {
+      expanded: [],
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    editor: {},
+    focused: [],
+  });
+
+  render(<Sidebar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("sidebar.openNoteAttachments", noteId);
+  });
+
+  expect((window as any).ipc).toHaveBeenCalledWith(
+    "notes.openAttachments",
+    noteId,
+  );
 });
 
 test("sidebar.dragNote", async () => {

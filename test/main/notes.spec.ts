@@ -1,4 +1,5 @@
 import {
+  ATTACHMENT_DIRECTORY,
   buildNoteTree,
   isNoteEntry,
   loadNoteFromFS,
@@ -310,6 +311,52 @@ test.each(["notes.delete", "notes.moveToTrash"])(
     }
   },
 );
+
+test("notes.openAttachments", async () => {
+  const noteId = uuid();
+
+  mockFS({
+    [FAKE_DATA_DIRECTORY]: {
+      [NOTES_DIRECTORY]: {
+        [noteId]: {
+          [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
+          [MARKDOWN_FILE_NAME]: "",
+        },
+      },
+    },
+  });
+
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+  await ipc.trigger("init");
+
+  await ipc.invoke("notes.openAttachments", noteId);
+
+  const attachmentsPath = path.resolve(
+    process.cwd(),
+    FAKE_DATA_DIRECTORY,
+    NOTES_DIRECTORY,
+    noteId,
+    ATTACHMENT_DIRECTORY,
+  );
+
+  // Creates attachment directory (if it doesn't exist.)
+  expect(fs.existsSync(attachmentsPath)).toBe(true);
+  expect(shell.openPath).toBeCalledWith(attachmentsPath);
+
+  (shell.openPath as jest.Mock).mockReset();
+
+  // Trigger again to ensure it doesn't throw an error (ie it retried creating
+  // dir that already existed.)
+  await expect(async () => {
+    await ipc.invoke("notes.openAttachments", noteId);
+  }).not.toThrow();
+
+  expect(shell.openPath).toBeCalledWith(attachmentsPath);
+});
 
 test("loadNotes empty", async () => {
   mockFS({

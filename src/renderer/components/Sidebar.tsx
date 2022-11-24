@@ -125,6 +125,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on("sidebar.collapseAll", collapseAll);
     store.on("sidebar.expandAll", expandAll);
     store.on("sidebar.setNoteSort", setNoteSort);
+    store.on("sidebar.openNoteAttachments", openNoteAttachments);
 
     return () => {
       store.off("sidebar.resizeWidth", resizeWidth);
@@ -153,6 +154,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       store.off("sidebar.collapseAll", collapseAll);
       store.off("sidebar.expandAll", expandAll);
       store.off("sidebar.setNoteSort", setNoteSort);
+      store.off("sidebar.openNoteAttachments", openNoteAttachments);
     };
   }, [itemIds, state.sidebar, store]);
 
@@ -705,6 +707,17 @@ export const setNoteSort: Listener<"sidebar.setNoteSort"> = async (ev, ctx) => {
       return [...notes];
     });
   }
+};
+
+export const openNoteAttachments: Listener<
+  "sidebar.openNoteAttachments"
+> = async ev => {
+  const { value: noteId } = ev;
+  if (noteId == null) {
+    return;
+  }
+
+  await window.ipc("notes.openAttachments", noteId);
 };
 
 function toggleExpanded(ctx: StoreContext, noteId: string): void {
