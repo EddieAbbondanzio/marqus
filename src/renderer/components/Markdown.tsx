@@ -220,7 +220,7 @@ const CodeSpan = styled.code`
 const Text = styled.span``;
 
 const Image = styled.img`
-  max-width: 100%;
+  max-width: 80%;
   margin-top: 1rem;
   margin-bottom: 1rem;
 `;
