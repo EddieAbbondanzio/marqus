@@ -8,6 +8,7 @@ import { openInBrowser } from "./utils";
 
 import { shortcutIpcs } from "./ipcs/shortcuts";
 import { getLogger, logIpcs } from "./ipcs/log";
+import { Protocol } from "../shared/domain/protocols";
 
 if (!isTest() && getProcessType() !== "main") {
   throw Error(
@@ -50,7 +51,7 @@ export async function main(): Promise<void> {
             responseHeaders: Object.assign(
               {
                 ...details.responseHeaders,
-                "Content-Security-Policy": ["img-src *"],
+                "Content-Security-Policy": [`img-src ${getImgSrcCsp()}`],
               },
               details.responseHeaders,
             ),
@@ -155,4 +156,8 @@ if (!isTest()) {
 export async function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
   const initListeners = typeSafeIpc.listeners("init");
   return await Promise.all(initListeners.map(l => l()));
+}
+
+export function getImgSrcCsp(): string {
+  return `* ${Protocol.Attachments}://*`;
 }

@@ -12,8 +12,9 @@ import { Logger } from "../../shared/logger";
 import { NOTE_SCHEMAS } from "./../schemas/notes";
 import { z } from "zod";
 import { isDevelopment } from "../../shared/env";
+import { registerAttachmentsProtocol } from "../protocols/attachments";
 
-export const ATTACHMENT_DIRECTORY = "attachments";
+export const ATTACHMENTS_DIRECTORY = "attachments";
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
@@ -36,6 +37,8 @@ export function noteIpcs(
     return;
   }
   const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
+
+  registerAttachmentsProtocol(noteDirectory);
 
   ipc.on("init", async () => {
     if (!fs.existsSync(noteDirectory)) {
@@ -136,7 +139,7 @@ export function noteIpcs(
     const attachmentDirPath = p.resolve(
       noteDirectory,
       noteId,
-      ATTACHMENT_DIRECTORY,
+      ATTACHMENTS_DIRECTORY,
     );
     if (!fs.existsSync(attachmentDirPath)) {
       await fsp.mkdir(attachmentDirPath);

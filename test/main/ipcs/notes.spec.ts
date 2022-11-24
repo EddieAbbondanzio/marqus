@@ -1,5 +1,5 @@
 import {
-  ATTACHMENT_DIRECTORY,
+  ATTACHMENTS_DIRECTORY,
   buildNoteTree,
   isNoteEntry,
   loadNoteFromFS,
@@ -32,6 +32,9 @@ import * as path from "path";
 import { loadJson } from "../../../src/main/json";
 import { IpcType } from "../../../src/shared/ipc";
 import { shell } from "electron";
+import { registerAttachmentsProtocol } from "../../../src/main/protocols/attachments";
+
+jest.mock("../../../src/main/protocols/attachments");
 
 afterEach(() => {
   mockFS.restore();
@@ -49,6 +52,17 @@ function createMetadata(props?: Partial<NoteMetadata>): NoteMetadata {
 }
 
 const FAKE_DATA_DIRECTORY = "fake-data-dir";
+
+test("registers attachment protocol", async () => {
+  mockFS();
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+
+  expect(registerAttachmentsProtocol).toHaveBeenCalled();
+});
 
 test("init", async () => {
   mockFS({
@@ -340,7 +354,7 @@ test("notes.openAttachments", async () => {
     FAKE_DATA_DIRECTORY,
     NOTES_DIRECTORY,
     noteId,
-    ATTACHMENT_DIRECTORY,
+    ATTACHMENTS_DIRECTORY,
   );
 
   // Creates attachment directory (if it doesn't exist.)

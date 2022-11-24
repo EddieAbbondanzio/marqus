@@ -32,3 +32,7 @@ export const dialog = {
 export const Menu = {
   buildFromTemplate: jest.fn(),
 };
+
+export const protocol = {
+  registerFileProtocol: jest.fn(),
+};
