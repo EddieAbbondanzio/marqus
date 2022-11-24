@@ -38,7 +38,7 @@ export function logIpcs(
 export async function getLogger(
   config: JsonFile<Config>,
   c: Console,
-): Promise<Logger & { filePath: string; close: () => void }> {
+): Promise<Logger & { filePath: string; close: () => Promise<void> }> {
   const { logDirectory } = config.content;
   if (logDirectory != null && !fs.existsSync(logDirectory)) {
     await fsp.mkdir(logDirectory);
@@ -92,13 +92,11 @@ export async function getLogger(
 
       c.error(chalk.red(fullMessage));
       fileStream.write(fullMessage + os.EOL);
-      fileStream.end();
     },
   };
 
-  // Cannot be async, otherwise app stops running before empty log is deleted.
-  const close = () => {
-    // fileStream.end();
+  const close = async () => {
+    await new Promise(res => fileStream.end(res));
 
     // Delete empty log files to avoid spamming file system.
     if (fs.statSync(currFilePath).size === 0) {

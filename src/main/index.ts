@@ -73,7 +73,7 @@ export async function main(): Promise<void> {
       });
 
       // and load the index.html of the app.
-      mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+      await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
       if (isDevelopment()) {
         mainWindow.webContents.openDevTools();
@@ -93,7 +93,7 @@ export async function main(): Promise<void> {
       // Override how all links are open so we can send them off to the user's
       // web browser instead of opening them in the electron app.
       mainWindow.webContents.setWindowOpenHandler(details => {
-        openInBrowser(details.url);
+        void openInBrowser(details.url);
         return { action: "deny" };
       });
 
@@ -126,12 +126,17 @@ export async function main(): Promise<void> {
       }
     });
 
-    app.on("quit", () => {
-      log.close();
+    app.on("before-quit", async ev => {
+      // Post-pone quitting so we can save off the log file first.
+      ev.preventDefault();
+      await log.close();
 
       // Use console.log() over log.info to avoid appending this to the log file
       // eslint-disable-next-line no-console
       console.log(`Shutting down. Log saved to: ${log.filePath}`);
+
+      // Now let the app close.
+      app.quit();
     });
 
     // Ready event might fire before we finish loading our config file causing us
@@ -150,7 +155,7 @@ export async function main(): Promise<void> {
 
 // We don't want to run the app while testing.
 if (!isTest()) {
-  main();
+  void main();
 }
 
 export async function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {

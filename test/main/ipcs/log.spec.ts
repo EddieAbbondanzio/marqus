@@ -37,7 +37,7 @@ test("getLogger cleans up log directory", async () => {
     warn: jest.fn(),
     error: jest.fn(),
   } as unknown as Console);
-  log.close();
+  await log.close();
   const entries = await fs.promises.readdir(FAKE_LOG_DIR, {
     withFileTypes: true,
   });
@@ -86,10 +86,10 @@ test("getLogger logs to file", async () => {
     error: jest.fn(),
   } as unknown as Console);
 
-  log.info("foo");
-  log.debug("code reached here!");
-  log.warn("was missing file");
-  log.error("something went wrong!");
+  await log.info("foo");
+  await log.debug("code reached here!");
+  await log.warn("was missing file");
+  await log.error("something went wrong!");
 
   const logFileContent = await fs.promises.readFile(log.filePath, {
     encoding: "utf-8",
@@ -114,7 +114,7 @@ test("getLogger close deletes empty log files", async () => {
   expect(fs.existsSync(log.filePath)).toBe(true);
 
   // Intentionally don't log anything so the file is empty.
-  log.close();
+  await log.close();
 
   expect(fs.existsSync(log.filePath)).toBe(false);
 });
