@@ -127,17 +127,21 @@ export async function main(): Promise<void> {
       }
     });
 
+    let quitInitiated = false;
     app.on("before-quit", async ev => {
-      // Post-pone quitting so we can save off the log file first.
-      ev.preventDefault();
-      await log.close();
+      if (!quitInitiated) {
+        // Post-pone quitting so we can save off the log file first.
+        ev.preventDefault();
+        await log.close();
 
-      // Use console.log() over log.info to avoid appending this to the log file
-      // eslint-disable-next-line no-console
-      console.log(`Shutting down. Log saved to: ${log.filePath}`);
+        // Use console.log() over log.info to avoid appending this to the log file
+        // eslint-disable-next-line no-console
+        console.log(`Shutting down. Log saved to: ${log.filePath}`);
 
-      // Now let the app close.
-      app.quit();
+        // Now let the app close.
+        quitInitiated = true;
+        app.quit();
+      }
     });
 
     // Ready event might fire before we finish loading our config file causing us

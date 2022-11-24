@@ -104,7 +104,11 @@ export async function getLogger(
     }
   };
 
-  return { ...log, filePath: currFilePath, close };
+  return {
+    ...log,
+    filePath: currFilePath,
+    close,
+  };
 }
 
 export function getTimeStamp(): string {
