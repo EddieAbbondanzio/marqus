@@ -32,7 +32,7 @@ import { loadJson } from "../../src/main/json";
 import { IpcType } from "../../src/shared/ipc";
 import { shell } from "electron";
 
-afterAll(() => {
+afterEach(() => {
   mockFS.restore();
 });
 
@@ -69,13 +69,6 @@ test("init", async () => {
 });
 
 test("notes.getAll", async () => {
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
-  await ipc.trigger("init");
-
   const noteId = uuid();
   mockFS({
     [FAKE_DATA_DIRECTORY]: {
@@ -91,6 +84,13 @@ test("notes.getAll", async () => {
       },
     },
   });
+
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+  await ipc.trigger("init");
 
   const notes = await ipc.invoke("notes.getAll");
 

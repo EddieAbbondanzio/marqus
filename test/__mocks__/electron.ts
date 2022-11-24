@@ -15,6 +15,7 @@ export const app = {
 
 export const BrowserWindow = {
   getFocusedWindow: jest.fn(),
+  getAllWindows: jest.fn(),
 };
 
 export const shell = {
@@ -25,4 +26,9 @@ export const shell = {
 
 export const dialog = {
   showOpenDialog: jest.fn(),
+  showMessageBox: jest.fn(),
+};
+
+export const Menu = {
+  buildFromTemplate: jest.fn(),
 };

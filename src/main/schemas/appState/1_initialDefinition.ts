@@ -43,6 +43,7 @@ export const appStateV1: z.Schema<AppStateV1> = z.object({
     selected: z.array(z.string()).optional(),
     expanded: z.array(z.string()).optional(),
     sort: z.nativeEnum(NoteSort),
+    searchString: z.string().optional(),
   }),
   editor: z.object({
     isEditing: z.boolean(),
