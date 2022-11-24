@@ -1,10 +1,6 @@
 import { loadJsonFile, runSchemas } from "../../src/main/json";
-import fsp from "fs/promises";
-import fs from "fs";
 import { z, ZodSchema } from "zod";
-
-jest.mock("fs");
-jest.mock("fs/promises");
+import mockFS from "mock-fs";
 
 interface FooV1 {
   version: 1;
@@ -45,6 +41,10 @@ const fooV2: z.Schema<FooV2> = z.preprocess(
   }),
 );
 
+afterEach(() => {
+  mockFS.restore();
+});
+
 test("loadJsonFile throws if no migrations passed", async () => {
   await expect(async () => {
     await loadJsonFile(
@@ -56,7 +56,9 @@ test("loadJsonFile throws if no migrations passed", async () => {
 });
 
 test("loadJsonFile loads default content if no file found", async () => {
-  (fs.existsSync as jest.Mock).mockReturnValueOnce(false);
+  mockFS({
+    // Empty on purpose.
+  });
 
   const { content } = await loadJsonFile<FooV2>(
     "fake-file-path.json",
@@ -81,16 +83,13 @@ test("loadJsonFile loads default content if no file found", async () => {
 });
 
 test("loadJsonFile loads content and validates it", async () => {
-  (fs.existsSync as jest.Mock).mockReturnValueOnce(true);
-  (fsp.readFile as jest.Mock).mockResolvedValueOnce(
-    `
-    {
-      "version": 2,
-      "foo": "dog",
-      "bar": 24
-    }
-  `,
-  );
+  mockFS({
+    "fake-file-path.json": JSON.stringify({
+      version: 2,
+      foo: "dog",
+      bar: 24,
+    }),
+  });
 
   const schema1 = { parseAsync: jest.fn() } as unknown as ZodSchema;
   const schema2 = {
@@ -123,7 +122,6 @@ test("loadJsonFile loads content and validates it", async () => {
   });
   expect(schema1.parseAsync).not.toBeCalled();
   expect(schema2.parseAsync).toBeCalled();
-  expect(fsp.writeFile).not.toBeCalled();
 });
 
 test("runSchemas applies changes", async () => {

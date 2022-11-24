@@ -58,6 +58,13 @@ export function useContextMenu(store: Store, config: Config): void {
                 shortcut: shortcutLabels["sidebar.renameNote"],
               },
               {
+                label: "Open attachments",
+                type: "normal",
+                event: "sidebar.openNoteAttachments",
+                eventInput: noteId,
+                shortcut: shortcutLabels["sidebar.openNoteAttachments"],
+              },
+              {
                 label: "Permanently delete",
                 type: "normal",
                 event: "sidebar.deleteNote",

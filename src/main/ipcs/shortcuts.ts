@@ -1,15 +1,13 @@
-import { z } from "zod";
-import { Config } from "../shared/domain/config";
-import { Shortcut } from "../shared/domain/shortcut";
-import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
-import { parseKeyCodes } from "../shared/io/keyCode";
-import { IpcMainTS } from "../shared/ipc";
-import { Section } from "../shared/ui/app";
-import { UIEventInput, UIEventType } from "../shared/ui/events";
-import { JsonFile, loadJsonFile } from "./json";
+import { Config } from "../../shared/domain/config";
+import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
+import { parseKeyCodes } from "../../shared/io/keyCode";
+import { IpcMainTS } from "../../shared/ipc";
+import { Section } from "../../shared/ui/app";
+import { UIEventInput, UIEventType } from "../../shared/ui/events";
+import { JsonFile, loadJsonFile } from "./../json";
 import p from "path";
-import { SHORTCUTS_SCHEMAS } from "./schemas/shortcuts";
-import { Logger } from "../shared/logger";
+import { SHORTCUTS_SCHEMAS } from "./../schemas/shortcuts";
+import { Logger } from "../../shared/logger";
 
 export interface Shortcuts {
   version: number;
@@ -39,27 +37,27 @@ export interface ShortcutOverride {
 export function shortcutIpcs(
   ipc: IpcMainTS,
   config: JsonFile<Config>,
-  log: Logger
+  log: Logger,
 ): void {
-  const shortcuts = [...DEFAULT_SHORTCUTS];
+  ipc.handle("shortcuts.getAll", async () => {
+    const shortcuts = [...DEFAULT_SHORTCUTS];
 
-  ipc.on("init", async () => {
     const shortcutFile = await loadJsonFile<Shortcuts>(
       p.join(config.content.dataDirectory!, SHORTCUT_FILE_PATH),
       SHORTCUTS_SCHEMAS,
-      { defaultContent: { version: 1, shortcuts: [] } }
+      { defaultContent: { version: 1, shortcuts: [] } },
     );
 
     const overrides = shortcutFile.content.shortcuts ?? [];
 
     for (const override of overrides) {
-      const existing = shortcuts.find((s) => s.name === override.name);
+      const existing = shortcuts.find(s => s.name === override.name);
 
       // Add new shortcut
       if (existing == null) {
         if (override.keys == null) {
           throw new Error(
-            `Cannot add new shortcut ${override.name} without any keys.`
+            `Cannot add new shortcut ${override.name} without any keys.`,
           );
         }
 
@@ -95,9 +93,7 @@ export function shortcutIpcs(
         }
       }
     }
-  });
 
-  ipc.handle("shortcuts.getAll", async () => {
     return shortcuts;
   });
 }

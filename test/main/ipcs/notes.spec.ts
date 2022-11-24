@@ -1,4 +1,5 @@
 import {
+  ATTACHMENTS_DIRECTORY,
   buildNoteTree,
   isNoteEntry,
   loadNoteFromFS,
@@ -11,28 +12,38 @@ import {
   NOTES_DIRECTORY,
   saveNoteToFS,
   splitNoteIntoFiles,
-} from "../../src/main/notes";
-import { createConfig } from "../__factories__/config";
-import { createIpcMainTS } from "../__factories__/ipc";
-import { createJsonFile } from "../__factories__/json";
-import { createLogger } from "../__factories__/logger";
-import { uuid } from "../../src/shared/domain";
+} from "../../../src/main/ipcs/notes";
+import { createConfig } from "../../__factories__/config";
+import { createIpcMainTS } from "../../__factories__/ipc";
+import { createJsonFile } from "../../__factories__/json";
+import { createLogger } from "../../__factories__/logger";
+import { uuid } from "../../../src/shared/domain";
 import mockFS from "mock-fs";
 import { omit } from "lodash";
 import {
   createNote,
   getNoteById,
   NoteSort,
-} from "../../src/shared/domain/note";
-import { NOTE_SCHEMAS } from "../../src/main/schemas/notes";
-import { getLatestSchemaVersion } from "../../src/main/schemas/utils";
+} from "../../../src/shared/domain/note";
+import { NOTE_SCHEMAS } from "../../../src/main/schemas/notes";
+import { getLatestSchemaVersion } from "../../../src/main/schemas/utils";
 import * as fs from "fs";
 import * as path from "path";
-import { loadJson } from "../../src/main/json";
-import { IpcType } from "../../src/shared/ipc";
+import { loadJson } from "../../../src/main/json";
+import { IpcType } from "../../../src/shared/ipc";
 import { shell } from "electron";
+import * as attachments from "../../../src/main/protocols/attachments";
+import {
+  buildAttachmentUrl,
+  Protocol,
+} from "../../../src/shared/domain/protocols";
 
-afterAll(() => {
+const registerAttachmentsProtocol = jest.fn();
+jest
+  .spyOn(attachments, "registerAttachmentsProtocol")
+  .mockImplementation(registerAttachmentsProtocol);
+
+afterEach(() => {
   mockFS.restore();
 });
 
@@ -48,6 +59,17 @@ function createMetadata(props?: Partial<NoteMetadata>): NoteMetadata {
 }
 
 const FAKE_DATA_DIRECTORY = "fake-data-dir";
+
+test("registers attachment protocol", async () => {
+  mockFS();
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+
+  expect(registerAttachmentsProtocol).toHaveBeenCalled();
+});
 
 test("init", async () => {
   mockFS({
@@ -69,13 +91,6 @@ test("init", async () => {
 });
 
 test("notes.getAll", async () => {
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
-  await ipc.trigger("init");
-
   const noteId = uuid();
   mockFS({
     [FAKE_DATA_DIRECTORY]: {
@@ -91,6 +106,13 @@ test("notes.getAll", async () => {
       },
     },
   });
+
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+  await ipc.trigger("init");
 
   const notes = await ipc.invoke("notes.getAll");
 
@@ -310,6 +332,90 @@ test.each(["notes.delete", "notes.moveToTrash"])(
     }
   },
 );
+
+test("notes.openAttachments", async () => {
+  const noteId = uuid();
+
+  mockFS({
+    [FAKE_DATA_DIRECTORY]: {
+      [NOTES_DIRECTORY]: {
+        [noteId]: {
+          [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
+          [MARKDOWN_FILE_NAME]: "",
+        },
+      },
+    },
+  });
+
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+  await ipc.trigger("init");
+
+  await ipc.invoke("notes.openAttachments", noteId);
+
+  const attachmentsPath = path.resolve(
+    process.cwd(),
+    FAKE_DATA_DIRECTORY,
+    NOTES_DIRECTORY,
+    noteId,
+    ATTACHMENTS_DIRECTORY,
+  );
+
+  // Creates attachment directory (if it doesn't exist.)
+  expect(fs.existsSync(attachmentsPath)).toBe(true);
+  expect(shell.openPath).toBeCalledWith(attachmentsPath);
+
+  (shell.openPath as jest.Mock).mockReset();
+
+  // Trigger again to ensure it doesn't throw an error (ie it retried creating
+  // dir that already existed.)
+  await expect(async () => {
+    await ipc.invoke("notes.openAttachments", noteId);
+  }).not.toThrow();
+
+  expect(shell.openPath).toBeCalledWith(attachmentsPath);
+});
+
+test("notes.openAttachmentFile", async () => {
+  const noteId = uuid();
+
+  mockFS({
+    [FAKE_DATA_DIRECTORY]: {
+      [NOTES_DIRECTORY]: {
+        [noteId]: {
+          [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
+          [MARKDOWN_FILE_NAME]: "",
+          [ATTACHMENTS_DIRECTORY]: {
+            "foo.txt": "Hello World!",
+          },
+        },
+      },
+    },
+  });
+
+  const ipc = createIpcMainTS();
+
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+  await ipc.trigger("init");
+
+  // File exists
+  const url = buildAttachmentUrl(`${Protocol.Attachments}://foo.txt`, noteId);
+  await ipc.invoke("notes.openAttachmentFile", url);
+
+  expect(shell.openPath).toBeCalledWith(expect.stringMatching(/foo.txt/));
+
+  // File doesn't exist.
+  const url2 = buildAttachmentUrl(`${Protocol.Attachments}://bar.txt`, noteId);
+  expect(async () => {
+    await ipc.invoke("notes.openAttachmentFile", url2);
+  }).rejects.toThrow(/doesn't exist/);
+});
 
 test("loadNotes empty", async () => {
   mockFS({

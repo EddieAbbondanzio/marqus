@@ -5,21 +5,36 @@ import {
   MenuItemConstructorOptions,
   shell,
 } from "electron";
-import { isRoleMenu, Menu as MenuType } from "../shared/ui/menu";
-import { IpcChannel, IpcMainTS } from "../shared/ipc";
-import { openInBrowser } from "./utils";
-import { UIEventType, UIEventInput } from "../shared/ui/events";
-import { DEFAULT_SIDEBAR_WIDTH, SerializedAppState } from "../shared/ui/app";
+import { isRoleMenu, Menu as MenuType } from "../../shared/ui/menu";
+import { IpcChannel, IpcMainTS } from "../../shared/ipc";
+import { openInBrowser } from "../utils";
+import { UIEventType, UIEventInput } from "../../shared/ui/events";
+import { DEFAULT_SIDEBAR_WIDTH, SerializedAppState } from "../../shared/ui/app";
 
-import { JsonFile, loadJsonFile } from "./json";
-import { Config } from "../shared/domain/config";
+import { JsonFile, loadJsonFile } from "../json";
+import { Config } from "../../shared/domain/config";
 import p from "path";
-import { MissingDataDirectoryError } from "../shared/errors";
-import { NoteSort } from "../shared/domain/note";
-import { APP_STATE_SCHEMAS } from "./schemas/appState";
-import { Logger } from "../shared/logger";
+import { MissingDataDirectoryError } from "../../shared/errors";
+import { NoteSort } from "../../shared/domain/note";
+import { APP_STATE_SCHEMAS } from "../schemas/appState";
+import { Logger } from "../../shared/logger";
 
 export const APP_STATE_PATH = "ui.json";
+export const APP_STATE_DEFAULTS = {
+  version: 1,
+  sidebar: {
+    scroll: 0,
+    sort: NoteSort.Alphanumeric,
+    width: DEFAULT_SIDEBAR_WIDTH,
+  },
+  editor: {
+    isEditing: false,
+    scroll: 0,
+    tabs: [],
+    tabsScroll: 0,
+  },
+  focused: [],
+};
 
 export function appIpcs(
   ipc: IpcMainTS,
@@ -37,21 +52,7 @@ export function appIpcs(
       p.join(config.content.dataDirectory, APP_STATE_PATH),
       APP_STATE_SCHEMAS,
       {
-        defaultContent: {
-          version: 1,
-          sidebar: {
-            scroll: 0,
-            sort: NoteSort.Alphanumeric,
-            width: DEFAULT_SIDEBAR_WIDTH,
-          },
-          editor: {
-            isEditing: false,
-            scroll: 0,
-            tabs: [],
-            tabsScroll: 0,
-          },
-          focused: [],
-        },
+        defaultContent: APP_STATE_DEFAULTS,
       },
     );
   });
@@ -144,7 +145,10 @@ export function appIpcs(
   ipc.handle("app.openInWebBrowser", (_, url) => openInBrowser(url));
 
   ipc.handle("app.openLogDirectory", async () => {
-    await shell.openPath(config.content.logDirectory);
+    const err = await shell.openPath(config.content.logDirectory);
+    if (err) {
+      throw new Error(err);
+    }
   });
 }
 
@@ -204,6 +208,13 @@ export function buildMenus(
           label: menu.label,
           type: "submenu",
         };
+
+        for (const child of menu.children) {
+          if ("hidden" in child && child.hidden) {
+            continue;
+          }
+          recursive(child, t);
+        }
         break;
     }
 
@@ -212,15 +223,6 @@ export function buildMenus(
       (parent.submenu as MenuItemConstructorOptions[]).push(t);
     } else {
       template.push(t);
-    }
-
-    if (menu.type === "submenu") {
-      for (const child of menu.children) {
-        if ("hidden" in child && child.hidden) {
-          continue;
-        }
-        recursive(child, t);
-      }
     }
   };
 

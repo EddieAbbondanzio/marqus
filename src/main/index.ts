@@ -1,13 +1,14 @@
 import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
-import { appIpcs } from "./app";
-import { configIpcs, getConfig } from "./config";
-import { noteIpcs } from "./notes";
+import { appIpcs } from "./ipcs/app";
+import { configIpcs, getConfig } from "./ipcs/config";
+import { noteIpcs } from "./ipcs/notes";
 import { openInBrowser } from "./utils";
 
-import { shortcutIpcs } from "./shortcuts";
-import { getLogger, logIpcs } from "./log";
+import { shortcutIpcs } from "./ipcs/shortcuts";
+import { getLogger, logIpcs } from "./ipcs/log";
+import { Protocol } from "../shared/domain/protocols";
 
 if (!isTest() && getProcessType() !== "main") {
   throw Error(
@@ -50,7 +51,8 @@ export async function main(): Promise<void> {
             responseHeaders: Object.assign(
               {
                 ...details.responseHeaders,
-                "Content-Security-Policy": ["img-src *"],
+                // Should be kept in sync with content security policy in forge.config.js
+                "Content-Security-Policy": [`img-src ${getImgSrcCsp()}`],
               },
               details.responseHeaders,
             ),
@@ -72,7 +74,7 @@ export async function main(): Promise<void> {
       });
 
       // and load the index.html of the app.
-      mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+      await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
       if (isDevelopment()) {
         mainWindow.webContents.openDevTools();
@@ -92,7 +94,7 @@ export async function main(): Promise<void> {
       // Override how all links are open so we can send them off to the user's
       // web browser instead of opening them in the electron app.
       mainWindow.webContents.setWindowOpenHandler(details => {
-        openInBrowser(details.url);
+        void openInBrowser(details.url);
         return { action: "deny" };
       });
 
@@ -125,12 +127,17 @@ export async function main(): Promise<void> {
       }
     });
 
-    app.on("quit", () => {
-      log.close();
+    app.on("before-quit", async ev => {
+      // Post-pone quitting so we can save off the log file first.
+      ev.preventDefault();
+      await log.close();
 
       // Use console.log() over log.info to avoid appending this to the log file
       // eslint-disable-next-line no-console
       console.log(`Shutting down. Log saved to: ${log.filePath}`);
+
+      // Now let the app close.
+      app.quit();
     });
 
     // Ready event might fire before we finish loading our config file causing us
@@ -149,10 +156,14 @@ export async function main(): Promise<void> {
 
 // We don't want to run the app while testing.
 if (!isTest()) {
-  main();
+  void main();
 }
 
 export async function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
   const initListeners = typeSafeIpc.listeners("init");
   return await Promise.all(initListeners.map(l => l()));
+}
+
+export function getImgSrcCsp(): string {
+  return `* ${Protocol.Attachments}://*`;
 }

@@ -1,24 +1,28 @@
 import {
   configIpcs,
+  CONFIG_FILE,
   DEFAULT_DEV_DATA_DIRECTORY,
   DEFAULT_DEV_LOG_DIRECTORY,
   getConfig,
   getConfigPath,
-} from "../../src/main/config";
+} from "../../../src/main/ipcs/config";
 import fsp from "fs/promises";
 import fs from "fs";
-import * as env from "../../src/shared/env";
-import { loadJsonFile } from "../../src/main/json";
+import * as env from "../../../src/shared/env";
 import { app, BrowserWindow, dialog, shell } from "electron";
-import { createIpcMainTS } from "../__factories__/ipc";
-import { createJsonFile } from "../__factories__/json";
-import { createConfig } from "../__factories__/config";
-import { createLogger } from "../__factories__/logger";
-import { Config } from "../../src/shared/domain/config";
+import { createIpcMainTS } from "../../__factories__/ipc";
+import { createJsonFile } from "../../__factories__/json";
+import { createConfig } from "../../__factories__/config";
+import { createLogger } from "../../__factories__/logger";
+import { Config } from "../../../src/shared/domain/config";
+import { loadJsonFile } from "../../../src/main/json";
+import mockFS from "mock-fs";
+import { CONFIG_SCHEMAS } from "../../../src/main/schemas/config";
+import { getLatestSchemaVersion } from "../../../src/main/schemas/utils";
 
-jest.mock("fs/promises");
-jest.mock("fs");
-jest.mock("../../src/main/json");
+afterEach(() => {
+  mockFS.restore();
+});
 
 test("config.get", async () => {
   const ipc = createIpcMainTS();
@@ -40,7 +44,7 @@ test("config.openInTextEditor", async () => {
   configIpcs(ipc, config, createLogger());
 
   await ipc.invoke("config.openInTextEditor");
-  expect(shell.openPath).toHaveBeenCalledWith("");
+  expect(shell.openPath).toHaveBeenCalledWith(CONFIG_FILE);
 });
 
 test.each([null, "fake-data-dir"])(
@@ -98,44 +102,38 @@ test.each([null, ["foo"]])(
 );
 
 test("getConfig overrides data / log directory in development", async () => {
-  const update = jest.fn();
-
-  (loadJsonFile as jest.Mock).mockResolvedValueOnce({
-    content: {
-      dataDirectory: null,
-      windowHeight: 800,
-      windowWidth: 600,
-    },
-    update,
+  mockFS({
+    [CONFIG_FILE]: JSON.stringify({
+      version: getLatestSchemaVersion(CONFIG_SCHEMAS),
+      windowHeight: 10,
+      windowWidth: 10,
+      logDirectory: "random/logs",
+      dataDirectory: "random/data-dir",
+    }),
   });
 
   // We use spyOn instead of mocking entire module because we need getProcessType
   // to function normal.
   jest.spyOn(env, "isDevelopment").mockReturnValue(true);
 
-  await getConfig();
-  expect(update).toHaveBeenCalledWith({
-    dataDirectory: DEFAULT_DEV_DATA_DIRECTORY,
-    logDirectory: DEFAULT_DEV_LOG_DIRECTORY,
-  });
+  const config = await getConfig();
+  expect(config.content.dataDirectory).toBe(DEFAULT_DEV_DATA_DIRECTORY);
+  expect(config.content.logDirectory).toBe(DEFAULT_DEV_LOG_DIRECTORY);
 });
 
 test("getConfig creates data directory if directory is missing.", async () => {
-  (loadJsonFile as jest.Mock).mockResolvedValueOnce({
-    content: {
+  mockFS({
+    [CONFIG_FILE]: JSON.stringify({
+      version: getLatestSchemaVersion(CONFIG_SCHEMAS),
       dataDirectory: "foo",
+      logDirectory: "bar",
       windowHeight: 800,
       windowWidth: 600,
-    },
-    update: jest.fn(),
+    }),
   });
 
-  const mkdir = jest.fn();
-  (fsp.mkdir as jest.Mock).mockImplementation(mkdir);
-  (fs.existsSync as jest.Mock).mockReturnValue(false);
-
   await getConfig();
-  expect(mkdir).toHaveBeenCalledWith("foo");
+  expect(fs.existsSync(CONFIG_FILE)).toBe(true);
 });
 
 test("getConfigPath", () => {
@@ -145,7 +143,7 @@ test("getConfigPath", () => {
 
   jest.spyOn(env, "isDevelopment").mockReturnValueOnce(false);
   jest.spyOn(env, "isTest").mockReturnValueOnce(true);
-  expect(getConfigPath()).toBe("");
+  expect(getConfigPath()).toBe(CONFIG_FILE);
 
   jest.spyOn(env, "isDevelopment").mockReturnValueOnce(false);
   jest.spyOn(env, "isTest").mockReturnValueOnce(false);

@@ -1,18 +1,23 @@
-import { createNote, Note, NoteSort } from "../shared/domain/note";
-import { UUID_REGEX } from "../shared/domain";
-import { Config } from "../shared/domain/config";
+import { createNote, Note, NoteSort } from "../../shared/domain/note";
+import { UUID_REGEX } from "../../shared/domain";
+import { Config } from "../../shared/domain/config";
 import { cloneDeep, difference, keyBy, omit, partition } from "lodash";
 import { shell } from "electron";
-import { IpcMainTS, NoteUpdateParams } from "../shared/ipc";
+import { IpcMainTS, NoteUpdateParams } from "../../shared/ipc";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
-import { JsonFile, loadJson, writeJson } from "./json";
+import { JsonFile, loadJson, writeJson } from "./../json";
 import * as p from "path";
-import { Logger } from "../shared/logger";
-import { NOTE_SCHEMAS } from "./schemas/notes";
+import { Logger } from "../../shared/logger";
+import { NOTE_SCHEMAS } from "./../schemas/notes";
 import { z } from "zod";
-import { isDevelopment } from "../shared/env";
+import { isDevelopment } from "../../shared/env";
+import {
+  parseAttachmentPath,
+  registerAttachmentsProtocol,
+} from "../protocols/attachments";
 
+export const ATTACHMENTS_DIRECTORY = "attachments";
 export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
@@ -35,6 +40,8 @@ export function noteIpcs(
     return;
   }
   const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
+
+  registerAttachmentsProtocol(noteDirectory);
 
   ipc.on("init", async () => {
     if (!fs.existsSync(noteDirectory)) {
@@ -128,6 +135,39 @@ export function noteIpcs(
       }
     };
     await recursive(id);
+  });
+
+  ipc.handle("notes.openAttachments", async (_, noteId) => {
+    if (!UUID_REGEX.test(noteId)) {
+      throw new Error(`Invalid noteId ${noteId}`);
+    }
+
+    // shell.openPath doesn't allow relative paths.
+    const attachmentDirPath = p.resolve(
+      noteDirectory,
+      noteId,
+      ATTACHMENTS_DIRECTORY,
+    );
+    if (!fs.existsSync(attachmentDirPath)) {
+      await fsp.mkdir(attachmentDirPath);
+    }
+
+    const err = await shell.openPath(attachmentDirPath);
+    if (err) {
+      throw new Error(err);
+    }
+  });
+
+  ipc.handle("notes.openAttachmentFile", async (_, href) => {
+    const attachmentPath = parseAttachmentPath(noteDirectory, href);
+    if (!fs.existsSync(attachmentPath)) {
+      throw new Error(`Attachment ${attachmentPath} doesn't exist.`);
+    }
+
+    const err = await shell.openPath(attachmentPath);
+    if (err) {
+      throw new Error(err);
+    }
   });
 }
 

@@ -1,20 +1,17 @@
 /* eslint-disable no-console */
 import { differenceInCalendarDays, format, formatISO } from "date-fns";
-import { Config } from "../shared/domain/config";
-import { IpcMainTS } from "../shared/ipc";
-import { Logger } from "../shared/logger";
-import { JsonFile } from "./json";
+import { Config } from "../../shared/domain/config";
+import { IpcMainTS } from "../../shared/ipc";
+import { Logger } from "../../shared/logger";
+import { JsonFile } from "../json";
 import * as fsp from "fs/promises";
 import * as fs from "fs";
 import * as p from "path";
-import { ISO_8601_REGEX } from "../shared/utils";
+import { ISO_8601_REGEX } from "../../shared/utils";
 import chalk from "chalk";
 import * as os from "os";
 
 const DELETE_LOGS_OLDER_THAN_DAYS = 14;
-
-// TODO: Add logging to file
-// Have it manage files and delete anything older than 2 weeks
 
 export function logIpcs(
   ipc: IpcMainTS,
@@ -41,7 +38,7 @@ export function logIpcs(
 export async function getLogger(
   config: JsonFile<Config>,
   c: Console,
-): Promise<Logger & { filePath: string; close: () => void }> {
+): Promise<Logger & { filePath: string; close: () => Promise<void> }> {
   const { logDirectory } = config.content;
   if (logDirectory != null && !fs.existsSync(logDirectory)) {
     await fsp.mkdir(logDirectory);
@@ -98,9 +95,8 @@ export async function getLogger(
     },
   };
 
-  // Cannot be async, otherwise app stops running before empty log is deleted.
-  const close = () => {
-    fileStream.close();
+  const close = async () => {
+    await new Promise(res => fileStream.end(res));
 
     // Delete empty log files to avoid spamming file system.
     if (fs.statSync(currFilePath).size === 0) {

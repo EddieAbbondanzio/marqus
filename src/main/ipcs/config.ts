@@ -1,10 +1,10 @@
 import { app, BrowserWindow, dialog, shell } from "electron";
-import { IpcMainTS } from "../shared/ipc";
-import { Config } from "../shared/domain/config";
-import { JsonFile, loadJsonFile } from "./json";
-import { Logger } from "../shared/logger";
-import { CONFIG_SCHEMAS } from "./schemas/config";
-import { isDevelopment, isTest } from "../shared/env";
+import { IpcMainTS } from "../../shared/ipc";
+import { Config } from "../../shared/domain/config";
+import { JsonFile, loadJsonFile } from "./../json";
+import { Logger } from "../../shared/logger";
+import { CONFIG_SCHEMAS } from "./../schemas/config";
+import { isDevelopment, isTest } from "../../shared/env";
 import * as path from "path";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
@@ -23,7 +23,10 @@ export function configIpcs(
   ipc.handle("config.get", () => config.content);
 
   ipc.handle("config.openInTextEditor", async () => {
-    shell.openPath(getConfigPath());
+    const err = await shell.openPath(getConfigPath());
+    if (err) {
+      throw new Error(err);
+    }
   });
 
   ipc.handle("config.openDataDirectory", async () => {
@@ -31,7 +34,10 @@ export function configIpcs(
       return;
     }
 
-    shell.openPath(config.content.dataDirectory);
+    const err = await shell.openPath(config.content.dataDirectory);
+    if (err) {
+      throw new Error(err);
+    }
   });
 
   ipc.handle("config.selectDataDirectory", async () => {
@@ -90,7 +96,7 @@ export function getConfigPath(): string {
   if (isDevelopment()) {
     return path.join(process.cwd(), CONFIG_FILE);
   } else if (isTest()) {
-    return "";
+    return CONFIG_FILE;
   } else {
     return path.join(app.getPath("userData"), CONFIG_FILE);
   }

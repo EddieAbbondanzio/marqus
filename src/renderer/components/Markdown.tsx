@@ -5,6 +5,8 @@ import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
 import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
+import { buildAttachmentUrl, Protocol } from "../../shared/domain/protocols";
+import { omit } from "lodash";
 
 // TODO: Add types, or update react-remark.
 // React-remark isn't currently up to date with the latest version of remark so
@@ -21,6 +23,8 @@ export interface MarkdownProps {
 }
 
 export function Markdown(props: MarkdownProps): JSX.Element {
+  const activeNoteId = props.store.state.editor.activeTabNoteId;
+
   // Check for update so we can migrate to newer versions of remarkGFM
   // https://github.com/remarkjs/react-remark/issues/50
   const [reactContent, setMarkdownSource] = useRemark({
@@ -39,12 +43,47 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         pre: CodeBlock,
         code: CodeSpan,
         span: Text,
-        image: Image,
-        a: (p: any) => (
-          <Link target="_blank" href={p.href} title={p.href}>
-            {p.children}
-          </Link>
-        ),
+        img: (props: any) => {
+          let { src } = props;
+          const otherProps = omit(props, "href");
+
+          if (src != null && src.startsWith(`${Protocol.Attachments}://`)) {
+            src = buildAttachmentUrl(src, activeNoteId!);
+          }
+
+          return <Image {...otherProps} src={src} />;
+        },
+        a: (props: any) => {
+          const isAttachment =
+            activeNoteId &&
+            props.href?.startsWith(`${Protocol.Attachments}://`);
+
+          let target: string | undefined;
+          let href: string | undefined;
+          let onClick: ((ev: MouseEvent) => void) | undefined;
+          if (isAttachment) {
+            href = buildAttachmentUrl(props.href, activeNoteId);
+            onClick = (ev: MouseEvent) => {
+              void window.ipc("notes.openAttachmentFile", href!);
+              ev.preventDefault();
+            };
+          } else {
+            href = props.href;
+            target = "_blank";
+          }
+
+          return (
+            <Link
+              {...props}
+              target={target}
+              href={href}
+              onClick={onClick}
+              title={props.href}
+            >
+              {props.children}
+            </Link>
+          );
+        },
         hr: Hr,
         br: Br,
         del: Del,
@@ -179,6 +218,7 @@ const CodeSpan = styled.code`
 `;
 
 const Text = styled.span``;
+
 const Image = styled.img`
   max-width: 100%;
   margin-top: 1rem;

@@ -15,13 +15,24 @@ export const app = {
 
 export const BrowserWindow = {
   getFocusedWindow: jest.fn(),
+  getAllWindows: jest.fn(),
 };
 
 export const shell = {
   trashItem: jest.fn(),
   openPath: jest.fn(),
+  openExternal: jest.fn(),
 };
 
 export const dialog = {
   showOpenDialog: jest.fn(),
+  showMessageBox: jest.fn(),
+};
+
+export const Menu = {
+  buildFromTemplate: jest.fn(),
+};
+
+export const protocol = {
+  registerFileProtocol: jest.fn(),
 };
