@@ -39,27 +39,27 @@ export interface ShortcutOverride {
 export function shortcutIpcs(
   ipc: IpcMainTS,
   config: JsonFile<Config>,
-  log: Logger
+  log: Logger,
 ): void {
-  const shortcuts = [...DEFAULT_SHORTCUTS];
+  ipc.handle("shortcuts.getAll", async () => {
+    const shortcuts = [...DEFAULT_SHORTCUTS];
 
-  ipc.on("init", async () => {
     const shortcutFile = await loadJsonFile<Shortcuts>(
       p.join(config.content.dataDirectory!, SHORTCUT_FILE_PATH),
       SHORTCUTS_SCHEMAS,
-      { defaultContent: { version: 1, shortcuts: [] } }
+      { defaultContent: { version: 1, shortcuts: [] } },
     );
 
     const overrides = shortcutFile.content.shortcuts ?? [];
 
     for (const override of overrides) {
-      const existing = shortcuts.find((s) => s.name === override.name);
+      const existing = shortcuts.find(s => s.name === override.name);
 
       // Add new shortcut
       if (existing == null) {
         if (override.keys == null) {
           throw new Error(
-            `Cannot add new shortcut ${override.name} without any keys.`
+            `Cannot add new shortcut ${override.name} without any keys.`,
           );
         }
 
@@ -95,9 +95,7 @@ export function shortcutIpcs(
         }
       }
     }
-  });
 
-  ipc.handle("shortcuts.getAll", async () => {
     return shortcuts;
   });
 }

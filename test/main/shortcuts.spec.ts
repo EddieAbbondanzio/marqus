@@ -11,7 +11,7 @@ jest.mock("fs");
 jest.mock("fs/promises");
 jest.mock("../../src/main/json");
 
-test("shortcutIpcs init", async () => {
+test("shortcuts.getAll", async () => {
   const ipc = createIpcMainTS();
   const config = createJsonFile(createConfig());
 
@@ -57,59 +57,55 @@ test("shortcutIpcs init", async () => {
   });
 
   shortcutIpcs(ipc, config, createLogger());
-  await ipc.trigger("init");
-
   const shortcuts = await ipc.invoke("shortcuts.getAll");
 
-  const sidebarFocus = shortcuts.find((s) => s.name === "sidebar.focus");
+  const sidebarFocus = shortcuts.find(s => s.name === "sidebar.focus");
   expect(sidebarFocus).toEqual(
     expect.objectContaining({
       disabled: true,
       event: "focus.push",
       name: "sidebar.focus",
-    })
+    }),
   );
 
-  const appToggleSidebar = shortcuts.find(
-    (s) => s.name === "app.toggleSidebar"
-  );
+  const appToggleSidebar = shortcuts.find(s => s.name === "app.toggleSidebar");
   expect(appToggleSidebar).toEqual(
     expect.objectContaining({
       name: "app.toggleSidebar",
       event: "app.toggleSidebar",
       keys: parseKeyCodes("control+alt+s"),
-    })
+    }),
   );
 
-  const appQuit = shortcuts.find((s) => s.name === "app.quit");
+  const appQuit = shortcuts.find(s => s.name === "app.quit");
   expect(appQuit).toEqual(
     expect.objectContaining({
       name: "app.quit",
       when: Section.Sidebar,
       event: "app.quit",
-    })
+    }),
   );
 
-  const createNote = shortcuts.find((s) => s.name === "notes.create");
+  const createNote = shortcuts.find(s => s.name === "notes.create");
   expect(createNote).toEqual(
     expect.objectContaining({
       name: "notes.create",
       event: "sidebar.createNote",
       eventInput: "foo",
-    })
+    }),
   );
 
-  const appReload = shortcuts.find((s) => s.name === "app.reload");
+  const appReload = shortcuts.find(s => s.name === "app.reload");
   expect(appReload).toEqual(
     expect.objectContaining({
       name: "app.reload",
       event: "app.reload",
       repeat: true,
-    })
+    }),
   );
 
   const openDataDirectory = shortcuts.find(
-    (s) => s.name === "openDataDirectory2"
+    s => s.name === "openDataDirectory2",
   );
   expect(openDataDirectory).toEqual(
     expect.objectContaining({
@@ -117,6 +113,6 @@ test("shortcutIpcs init", async () => {
       event: "app.openDataDirectory",
       when: Section.Editor,
       repeat: false,
-    })
+    }),
   );
 });
