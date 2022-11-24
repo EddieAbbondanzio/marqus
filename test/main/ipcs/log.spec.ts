@@ -2,9 +2,9 @@ import * as fs from "fs";
 import * as fsp from "fs/promises";
 import * as p from "path";
 import { subDays, subMonths, subWeeks } from "date-fns";
-import { getLogFileName, getLogger } from "../../src/main/log";
-import { createJsonFile } from "../__factories__/json";
-import { Config } from "../../src/shared/domain/config";
+import { getLogFileName, getLogger } from "../../../src/main/ipcs/log";
+import { createJsonFile } from "../../__factories__/json";
+import { Config } from "../../../src/shared/domain/config";
 
 jest.mock("fs/promises");
 jest.mock("fs");
@@ -49,19 +49,19 @@ test("getLogger cleans up log directory", async () => {
 
   expect(fsp.unlink).toHaveBeenNthCalledWith(
     1,
-    p.join(logDirectory, monthOldLog)
+    p.join(logDirectory, monthOldLog),
   );
   expect(fsp.unlink).toHaveBeenNthCalledWith(
     2,
-    p.join(logDirectory, threeWeekOldLog)
+    p.join(logDirectory, threeWeekOldLog),
   );
 
   // These files shouldn't be deleted.
   expect(fsp.unlink).not.toHaveBeenCalledWith(
-    p.join(logDirectory, twoDayOldLog)
+    p.join(logDirectory, twoDayOldLog),
   );
   expect(fsp.unlink).not.toHaveBeenCalledWith(
-    p.join(logDirectory, yesterdayLog)
+    p.join(logDirectory, yesterdayLog),
   );
   expect(fsp.unlink).not.toHaveBeenCalledWith(p.join(logDirectory, randomFile));
 });
@@ -85,25 +85,25 @@ test("getLogger logs to file", async () => {
   log.info("foo");
   expect(write).toHaveBeenNthCalledWith(
     1,
-    expect.stringMatching(/.* \(info\): foo/)
+    expect.stringMatching(/.* \(info\): foo/),
   );
 
   log.debug("code reached here!");
   expect(write).toHaveBeenNthCalledWith(
     2,
-    expect.stringMatching(/.* \(debug\): code reached here!/)
+    expect.stringMatching(/.* \(debug\): code reached here!/),
   );
 
   log.warn("was missing file");
   expect(write).toHaveBeenNthCalledWith(
     3,
-    expect.stringMatching(/.* \(warn\): was missing file/)
+    expect.stringMatching(/.* \(warn\): was missing file/),
   );
 
   log.error("something went wrong!");
   expect(write).toHaveBeenNthCalledWith(
     4,
-    expect.stringMatching(/.* \(ERROR\): something went wrong!/)
+    expect.stringMatching(/.* \(ERROR\): something went wrong!/),
   );
 });
 

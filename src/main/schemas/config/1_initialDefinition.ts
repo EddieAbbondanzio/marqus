@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH } from "../../config";
+import { DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH } from "../../ipcs/config";
 
 export interface ConfigV1 {
   version: number;
@@ -22,5 +22,5 @@ export const configSchemaV1: z.Schema<ConfigV1> = z.preprocess(
     windowHeight: z.number().min(1),
     windowWidth: z.number().min(1),
     dataDirectory: z.string().optional(),
-  })
+  }),
 );

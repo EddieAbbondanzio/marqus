@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
 import { differenceInCalendarDays, format, formatISO } from "date-fns";
-import { Config } from "../shared/domain/config";
-import { IpcMainTS } from "../shared/ipc";
-import { Logger } from "../shared/logger";
-import { JsonFile } from "./json";
+import { Config } from "../../shared/domain/config";
+import { IpcMainTS } from "../../shared/ipc";
+import { Logger } from "../../shared/logger";
+import { JsonFile } from "../json";
 import * as fsp from "fs/promises";
 import * as fs from "fs";
 import * as p from "path";
-import { ISO_8601_REGEX } from "../shared/utils";
+import { ISO_8601_REGEX } from "../../shared/utils";
 import chalk from "chalk";
 import * as os from "os";
 

@@ -1,13 +1,13 @@
 import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
 import { IpcMainTS } from "../shared/ipc";
-import { appIpcs } from "./app";
-import { configIpcs, getConfig } from "./config";
-import { noteIpcs } from "./notes";
+import { appIpcs } from "./ipcs/app";
+import { configIpcs, getConfig } from "./ipcs/config";
+import { noteIpcs } from "./ipcs/notes";
 import { openInBrowser } from "./utils";
 
-import { shortcutIpcs } from "./shortcuts";
-import { getLogger, logIpcs } from "./log";
+import { shortcutIpcs } from "./ipcs/shortcuts";
+import { getLogger, logIpcs } from "./ipcs/log";
 
 if (!isTest() && getProcessType() !== "main") {
   throw Error(

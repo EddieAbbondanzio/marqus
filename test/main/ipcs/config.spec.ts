@@ -4,21 +4,21 @@ import {
   DEFAULT_DEV_LOG_DIRECTORY,
   getConfig,
   getConfigPath,
-} from "../../src/main/config";
+} from "../../../src/main/ipcs/config";
 import fsp from "fs/promises";
 import fs from "fs";
-import * as env from "../../src/shared/env";
-import { loadJsonFile } from "../../src/main/json";
+import * as env from "../../../src/shared/env";
 import { app, BrowserWindow, dialog, shell } from "electron";
-import { createIpcMainTS } from "../__factories__/ipc";
-import { createJsonFile } from "../__factories__/json";
-import { createConfig } from "../__factories__/config";
-import { createLogger } from "../__factories__/logger";
-import { Config } from "../../src/shared/domain/config";
+import { createIpcMainTS } from "../../__factories__/ipc";
+import { createJsonFile } from "../../__factories__/json";
+import { createConfig } from "../../__factories__/config";
+import { createLogger } from "../../__factories__/logger";
+import { Config } from "../../../src/shared/domain/config";
+import { loadJsonFile } from "../../../src/main/json";
 
 jest.mock("fs/promises");
 jest.mock("fs");
-jest.mock("../../src/main/json");
+jest.mock("../../../src/main/json");
 
 test("config.get", async () => {
   const ipc = createIpcMainTS();

@@ -1,10 +1,10 @@
 import { app, BrowserWindow, dialog, shell } from "electron";
-import { IpcMainTS } from "../shared/ipc";
-import { Config } from "../shared/domain/config";
-import { JsonFile, loadJsonFile } from "./json";
-import { Logger } from "../shared/logger";
-import { CONFIG_SCHEMAS } from "./schemas/config";
-import { isDevelopment, isTest } from "../shared/env";
+import { IpcMainTS } from "../../shared/ipc";
+import { Config } from "../../shared/domain/config";
+import { JsonFile, loadJsonFile } from "./../json";
+import { Logger } from "../../shared/logger";
+import { CONFIG_SCHEMAS } from "./../schemas/config";
+import { isDevelopment, isTest } from "../../shared/env";
 import * as path from "path";
 import * as fs from "fs";
 import * as fsp from "fs/promises";

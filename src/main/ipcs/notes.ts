@@ -1,17 +1,17 @@
-import { createNote, Note, NoteSort } from "../shared/domain/note";
-import { UUID_REGEX } from "../shared/domain";
-import { Config } from "../shared/domain/config";
+import { createNote, Note, NoteSort } from "../../shared/domain/note";
+import { UUID_REGEX } from "../../shared/domain";
+import { Config } from "../../shared/domain/config";
 import { cloneDeep, difference, keyBy, omit, partition } from "lodash";
 import { shell } from "electron";
-import { IpcMainTS, NoteUpdateParams } from "../shared/ipc";
+import { IpcMainTS, NoteUpdateParams } from "../../shared/ipc";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
-import { JsonFile, loadJson, writeJson } from "./json";
+import { JsonFile, loadJson, writeJson } from "./../json";
 import * as p from "path";
-import { Logger } from "../shared/logger";
-import { NOTE_SCHEMAS } from "./schemas/notes";
+import { Logger } from "../../shared/logger";
+import { NOTE_SCHEMAS } from "./../schemas/notes";
 import { z } from "zod";
-import { isDevelopment } from "../shared/env";
+import { isDevelopment } from "../../shared/env";
 
 export const ATTACHMENT_DIRECTORY = "attachments";
 export const NOTES_DIRECTORY = "notes";

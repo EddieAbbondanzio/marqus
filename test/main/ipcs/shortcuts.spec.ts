@@ -1,15 +1,15 @@
-import { createConfig } from "../__factories__/config";
-import { createIpcMainTS } from "../__factories__/ipc";
-import { createJsonFile } from "../__factories__/json";
-import { shortcutIpcs } from "../../src/main/shortcuts";
-import { loadJsonFile } from "../../src/main/json";
-import { Section } from "../../src/shared/ui/app";
-import { parseKeyCodes } from "../../src/shared/io/keyCode";
-import { createLogger } from "../__factories__/logger";
+import { createConfig } from "../../__factories__/config";
+import { createIpcMainTS } from "../../__factories__/ipc";
+import { createJsonFile } from "../../__factories__/json";
+import { shortcutIpcs } from "../../../src/main/ipcs/shortcuts";
+import { loadJsonFile } from "../../../src/main/json";
+import { Section } from "../../../src/shared/ui/app";
+import { parseKeyCodes } from "../../../src/shared/io/keyCode";
+import { createLogger } from "../../__factories__/logger";
 
 jest.mock("fs");
 jest.mock("fs/promises");
-jest.mock("../../src/main/json");
+jest.mock("../../../src/main/json");
 
 test("shortcuts.getAll", async () => {
   const ipc = createIpcMainTS();

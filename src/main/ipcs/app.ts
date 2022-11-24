@@ -5,19 +5,19 @@ import {
   MenuItemConstructorOptions,
   shell,
 } from "electron";
-import { isRoleMenu, Menu as MenuType } from "../shared/ui/menu";
-import { IpcChannel, IpcMainTS } from "../shared/ipc";
-import { openInBrowser } from "./utils";
-import { UIEventType, UIEventInput } from "../shared/ui/events";
-import { DEFAULT_SIDEBAR_WIDTH, SerializedAppState } from "../shared/ui/app";
+import { isRoleMenu, Menu as MenuType } from "../../shared/ui/menu";
+import { IpcChannel, IpcMainTS } from "../../shared/ipc";
+import { openInBrowser } from "../utils";
+import { UIEventType, UIEventInput } from "../../shared/ui/events";
+import { DEFAULT_SIDEBAR_WIDTH, SerializedAppState } from "../../shared/ui/app";
 
-import { JsonFile, loadJsonFile } from "./json";
-import { Config } from "../shared/domain/config";
+import { JsonFile, loadJsonFile } from "../json";
+import { Config } from "../../shared/domain/config";
 import p from "path";
-import { MissingDataDirectoryError } from "../shared/errors";
-import { NoteSort } from "../shared/domain/note";
-import { APP_STATE_SCHEMAS } from "./schemas/appState";
-import { Logger } from "../shared/logger";
+import { MissingDataDirectoryError } from "../../shared/errors";
+import { NoteSort } from "../../shared/domain/note";
+import { APP_STATE_SCHEMAS } from "../schemas/appState";
+import { Logger } from "../../shared/logger";
 
 export const APP_STATE_PATH = "ui.json";
 export const APP_STATE_DEFAULTS = {

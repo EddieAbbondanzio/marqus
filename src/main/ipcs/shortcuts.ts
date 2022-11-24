@@ -1,15 +1,15 @@
 import { z } from "zod";
-import { Config } from "../shared/domain/config";
-import { Shortcut } from "../shared/domain/shortcut";
-import { DEFAULT_SHORTCUTS } from "../shared/io/defaultShortcuts";
-import { parseKeyCodes } from "../shared/io/keyCode";
-import { IpcMainTS } from "../shared/ipc";
-import { Section } from "../shared/ui/app";
-import { UIEventInput, UIEventType } from "../shared/ui/events";
-import { JsonFile, loadJsonFile } from "./json";
+import { Config } from "../../shared/domain/config";
+import { Shortcut } from "../../shared/domain/shortcut";
+import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
+import { parseKeyCodes } from "../../shared/io/keyCode";
+import { IpcMainTS } from "../../shared/ipc";
+import { Section } from "../../shared/ui/app";
+import { UIEventInput, UIEventType } from "../../shared/ui/events";
+import { JsonFile, loadJsonFile } from "./../json";
 import p from "path";
-import { SHORTCUTS_SCHEMAS } from "./schemas/shortcuts";
-import { Logger } from "../shared/logger";
+import { SHORTCUTS_SCHEMAS } from "./../schemas/shortcuts";
+import { Logger } from "../../shared/logger";
 
 export interface Shortcuts {
   version: number;

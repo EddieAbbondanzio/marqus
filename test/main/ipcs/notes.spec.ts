@@ -12,25 +12,25 @@ import {
   NOTES_DIRECTORY,
   saveNoteToFS,
   splitNoteIntoFiles,
-} from "../../src/main/notes";
-import { createConfig } from "../__factories__/config";
-import { createIpcMainTS } from "../__factories__/ipc";
-import { createJsonFile } from "../__factories__/json";
-import { createLogger } from "../__factories__/logger";
-import { uuid } from "../../src/shared/domain";
+} from "../../../src/main/ipcs/notes";
+import { createConfig } from "../../__factories__/config";
+import { createIpcMainTS } from "../../__factories__/ipc";
+import { createJsonFile } from "../../__factories__/json";
+import { createLogger } from "../../__factories__/logger";
+import { uuid } from "../../../src/shared/domain";
 import mockFS from "mock-fs";
 import { omit } from "lodash";
 import {
   createNote,
   getNoteById,
   NoteSort,
-} from "../../src/shared/domain/note";
-import { NOTE_SCHEMAS } from "../../src/main/schemas/notes";
-import { getLatestSchemaVersion } from "../../src/main/schemas/utils";
+} from "../../../src/shared/domain/note";
+import { NOTE_SCHEMAS } from "../../../src/main/schemas/notes";
+import { getLatestSchemaVersion } from "../../../src/main/schemas/utils";
 import * as fs from "fs";
 import * as path from "path";
-import { loadJson } from "../../src/main/json";
-import { IpcType } from "../../src/shared/ipc";
+import { loadJson } from "../../../src/main/json";
+import { IpcType } from "../../../src/shared/ipc";
 import { shell } from "electron";
 
 afterEach(() => {
