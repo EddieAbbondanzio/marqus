@@ -51,6 +51,7 @@ export async function main(): Promise<void> {
             responseHeaders: Object.assign(
               {
                 ...details.responseHeaders,
+                // Should be kept in sync with content security policy in forge.config.js
                 "Content-Security-Policy": [`img-src ${getImgSrcCsp()}`],
               },
               details.responseHeaders,

@@ -79,7 +79,9 @@ export function Markdown(props: MarkdownProps): JSX.Element {
               href={href}
               onClick={onClick}
               title={props.href}
-            />
+            >
+              {props.children}
+            </Link>
           );
         },
         hr: Hr,
