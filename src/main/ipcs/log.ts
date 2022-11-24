@@ -92,12 +92,13 @@ export async function getLogger(
 
       c.error(chalk.red(fullMessage));
       fileStream.write(fullMessage + os.EOL);
+      fileStream.end();
     },
   };
 
   // Cannot be async, otherwise app stops running before empty log is deleted.
   const close = () => {
-    fileStream.close();
+    // fileStream.end();
 
     // Delete empty log files to avoid spamming file system.
     if (fs.statSync(currFilePath).size === 0) {
