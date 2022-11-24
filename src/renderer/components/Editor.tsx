@@ -1,7 +1,7 @@
 import { debounce } from "lodash";
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { Section } from "../../shared/ui/app";
+import { EditorTab, Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
 import { m2 } from "../css";
 import { Listener, Store } from "../store";
@@ -30,11 +30,11 @@ export function Editor(props: EditorProps): JSX.Element {
   let content;
   if (state.editor.isEditing) {
     content = <Monaco store={store} />;
-  } else {
+  } else if (activeTab != null) {
     content = (
       <Markdown
-        store={store}
-        content={activeTab?.note.content ?? ""}
+        noteId={activeTab.note.id}
+        content={activeTab.note.content}
         scroll={state.editor.scroll}
         onScroll={newVal => void store.dispatch("editor.updateScroll", newVal)}
       />

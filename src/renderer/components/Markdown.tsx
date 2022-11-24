@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { Store } from "../store";
 import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
 import remarkGfm from "remark-gfm";
@@ -16,14 +15,14 @@ import { omit } from "lodash";
 const emoji = require("remark-emoji");
 
 export interface MarkdownProps {
-  store: Store;
+  noteId: string;
   content: string;
   scroll: number;
   onScroll: (newVal: number) => void;
 }
 
 export function Markdown(props: MarkdownProps): JSX.Element {
-  const activeNoteId = props.store.state.editor.activeTabNoteId;
+  const { noteId } = props;
 
   // Check for update so we can migrate to newer versions of remarkGFM
   // https://github.com/remarkjs/react-remark/issues/50
@@ -48,21 +47,21 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           const otherProps = omit(props, "href");
 
           if (src != null && src.startsWith(`${Protocol.Attachments}://`)) {
-            src = buildAttachmentUrl(src, activeNoteId!);
+            src = buildAttachmentUrl(src, noteId!);
           }
 
           return <Image {...otherProps} src={src} />;
         },
         a: (props: any) => {
+          const { children, ...otherProps } = props;
           const isAttachment =
-            activeNoteId &&
-            props.href?.startsWith(`${Protocol.Attachments}://`);
+            noteId && props.href?.startsWith(`${Protocol.Attachments}://`);
 
           let target: string | undefined;
           let href: string | undefined;
           let onClick: ((ev: MouseEvent) => void) | undefined;
           if (isAttachment) {
-            href = buildAttachmentUrl(props.href, activeNoteId);
+            href = buildAttachmentUrl(props.href, noteId);
             onClick = (ev: MouseEvent) => {
               void window.ipc("notes.openAttachmentFile", href!);
               ev.preventDefault();
@@ -74,13 +73,13 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 
           return (
             <Link
-              {...props}
+              {...otherProps}
               target={target}
               href={href}
               onClick={onClick}
               title={props.href}
             >
-              {props.children}
+              {children}
             </Link>
           );
         },

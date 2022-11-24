@@ -173,8 +173,8 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         <Scrollable
           height="calc(100% - 100px)"
           scroll={store.state.sidebar.scroll}
-          onScroll={s => {
-            store.dispatch("sidebar.updateScroll", s);
+          onScroll={async s => {
+            await store.dispatch("sidebar.updateScroll", s);
           }}
         >
           {menus}
@@ -241,12 +241,12 @@ export function renderMenus(
     const hasInput =
       input != null && input.parentId != null && input.parentId === note.id;
 
-    const onClick = () => {
+    const onClick = async () => {
       if (isSelected) {
-        store.dispatch("sidebar.toggleItemExpanded", note.id);
+        void store.dispatch("sidebar.toggleItemExpanded", note.id);
       }
-      store.dispatch("sidebar.setSelection", [note.id]);
-      store.dispatch("editor.openTab", { note: note.id, active: note.id });
+      void store.dispatch("sidebar.setSelection", [note.id]);
+      void store.dispatch("editor.openTab", { note: note.id, active: note.id });
     };
 
     let icon;
@@ -273,10 +273,10 @@ export function renderMenus(
           id={note.id}
           value={note.name}
           onClick={onClick}
-          onIconClick={(ev: React.MouseEvent) => {
+          onIconClick={async (ev: React.MouseEvent) => {
             // Prevents click of menu itself from triggering
             ev.stopPropagation();
-            store.dispatch("sidebar.toggleItemExpanded", note.id);
+            await store.dispatch("sidebar.toggleItemExpanded", note.id);
           }}
           onDrag={newParent =>
             store.dispatch("sidebar.dragNote", { note: note.id, newParent })
@@ -454,7 +454,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
         },
       }));
     } catch (e) {
-      promptError((e as Error).message);
+      await promptError((e as Error).message);
     }
   }
 
@@ -502,7 +502,7 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
         return notes;
       });
     } catch (e) {
-      promptError((e as Error).message);
+      await promptError((e as Error).message);
     }
   }
 
