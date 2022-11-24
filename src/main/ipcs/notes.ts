@@ -12,7 +12,10 @@ import { Logger } from "../../shared/logger";
 import { NOTE_SCHEMAS } from "./../schemas/notes";
 import { z } from "zod";
 import { isDevelopment } from "../../shared/env";
-import { registerAttachmentsProtocol } from "../protocols/attachments";
+import {
+  parseAttachmentPath,
+  registerAttachmentsProtocol,
+} from "../protocols/attachments";
 
 export const ATTACHMENTS_DIRECTORY = "attachments";
 export const NOTES_DIRECTORY = "notes";
@@ -146,6 +149,18 @@ export function noteIpcs(
     }
 
     const err = await shell.openPath(attachmentDirPath);
+    if (err) {
+      throw new Error(err);
+    }
+  });
+
+  ipc.handle("notes.openAttachmentFile", async (_, href) => {
+    const attachmentPath = parseAttachmentPath(noteDirectory, href);
+    if (!fs.existsSync(attachmentPath)) {
+      throw new Error(`Attachment ${attachmentPath} doesn't exist.`);
+    }
+
+    const err = await shell.openPath(attachmentPath);
     if (err) {
       throw new Error(err);
     }

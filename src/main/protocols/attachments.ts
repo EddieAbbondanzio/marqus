@@ -12,30 +12,7 @@ const PROTOCOL_SUBSTRING_LENGTH = `${Protocol.Attachments}://`.length;
 
 export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
   protocol.registerFileProtocol(Protocol.Attachments, (req, cb) => {
-    if (!ATTACHMENTS_PROTOCOL_REGEX.test(req.url)) {
-      throw new Error(`URL ${req.url} doesn't match attachments protocol.`);
-    }
-
-    const pathWithQueryString = req.url.slice(PROTOCOL_SUBSTRING_LENGTH);
-    const [file, query] = pathWithQueryString.split("?");
-    if (file == null || query == null) {
-      throw new Error(`Attachments url (${req.url}) was missing portions.`);
-    }
-
-    const noteId = query.replace(/noteId=/, "");
-    if (!UUID_REGEX.test(noteId)) {
-      throw new Error(
-        `Note id (${noteId}) passed to attachment protocol is invalid.`,
-      );
-    }
-
-    // Only absolute paths work in renderer
-    const filePath = path.resolve(
-      noteDirectoryPath,
-      noteId,
-      ATTACHMENTS_DIRECTORY,
-      file,
-    );
+    const filePath = parseAttachmentPath(noteDirectoryPath, req.url);
 
     if (!fs.existsSync(filePath)) {
       throw new Error(`File ${filePath} doesn't exist.`);
@@ -43,4 +20,35 @@ export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
 
     cb(filePath);
   });
+}
+
+export function parseAttachmentPath(
+  noteDirectoryPath: string,
+  url: string,
+): string {
+  if (!ATTACHMENTS_PROTOCOL_REGEX.test(url)) {
+    throw new Error(`URL ${url} doesn't match attachments protocol.`);
+  }
+
+  const pathWithQueryString = url.slice(PROTOCOL_SUBSTRING_LENGTH);
+  const [file, query] = pathWithQueryString.split("?");
+  if (file == null || query == null) {
+    throw new Error(`Attachments url (${url}) was missing portions.`);
+  }
+
+  const noteId = query.replace(/noteId=/, "");
+  if (!UUID_REGEX.test(noteId)) {
+    throw new Error(
+      `Note id (${noteId}) passed to attachment protocol is invalid.`,
+    );
+  }
+
+  // Only absolute paths work in renderer
+  const filePath = path.resolve(
+    noteDirectoryPath,
+    noteId,
+    ATTACHMENTS_DIRECTORY,
+    file,
+  );
+  return filePath;
 }

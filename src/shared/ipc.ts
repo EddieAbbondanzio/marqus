@@ -27,6 +27,7 @@ export const IPCS = [
   "notes.delete",
   "notes.moveToTrash",
   "notes.openAttachments",
+  "notes.openAttachmentFile",
 
   "config.get",
   "config.openInTextEditor",
@@ -67,6 +68,7 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "notes.delete"(id: string): Promise<void>;
   "notes.moveToTrash"(id: string): Promise<void>;
   "notes.openAttachments"(id: string): Promise<void>;
+  "notes.openAttachmentFile"(href: string): Promise<void>;
 
   // Config
   "config.openInTextEditor"(): Promise<void>;

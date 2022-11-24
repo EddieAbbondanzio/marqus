@@ -5,7 +5,8 @@ import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
 import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
-import { Protocol } from "../../shared/domain/protocols";
+import { buildAttachmentUrl, Protocol } from "../../shared/domain/protocols";
+import { omit } from "lodash";
 
 // TODO: Add types, or update react-remark.
 // React-remark isn't currently up to date with the latest version of remark so
@@ -42,12 +43,45 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         pre: CodeBlock,
         code: CodeSpan,
         span: Text,
-        img: (p: any) => <ImageComp {...p} activeNoteId={activeNoteId} />,
-        a: (p: any) => (
-          <Link target="_blank" href={p.href} title={p.href}>
-            {p.children}
-          </Link>
-        ),
+        img: (props: any) => {
+          let { src } = props;
+          const otherProps = omit(props, "href");
+
+          if (src != null && src.startsWith(`${Protocol.Attachments}://`)) {
+            src = buildAttachmentUrl(src, activeNoteId!);
+          }
+
+          return <Image {...otherProps} src={src} />;
+        },
+        a: (props: any) => {
+          const isAttachment =
+            activeNoteId &&
+            props.href?.startsWith(`${Protocol.Attachments}://`);
+
+          let target: string | undefined;
+          let href: string | undefined;
+          let onClick: ((ev: MouseEvent) => void) | undefined;
+          if (isAttachment) {
+            href = buildAttachmentUrl(props.href, activeNoteId);
+            onClick = (ev: MouseEvent) => {
+              void window.ipc("notes.openAttachmentFile", href!);
+              ev.preventDefault();
+            };
+          } else {
+            href = props.href;
+            target = "_blank";
+          }
+
+          return (
+            <Link
+              {...props}
+              target={target}
+              href={href}
+              onClick={onClick}
+              title={props.href}
+            />
+          );
+        },
         hr: Hr,
         br: Br,
         del: Del,
@@ -182,15 +216,6 @@ const CodeSpan = styled.code`
 `;
 
 const Text = styled.span``;
-
-function ImageComp(props: { src: string; activeNoteId: string }): JSX.Element {
-  let src = props.src;
-
-  if (props.src.startsWith(`${Protocol.Attachments}://`)) {
-    src = `${src}?noteId=${props.activeNoteId}`;
-  }
-  return <Image {...props} src={src} />;
-}
 
 const Image = styled.img`
   max-width: 100%;

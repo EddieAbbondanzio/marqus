@@ -32,9 +32,16 @@ import * as path from "path";
 import { loadJson } from "../../../src/main/json";
 import { IpcType } from "../../../src/shared/ipc";
 import { shell } from "electron";
-import { registerAttachmentsProtocol } from "../../../src/main/protocols/attachments";
+import * as attachments from "../../../src/main/protocols/attachments";
+import {
+  buildAttachmentUrl,
+  Protocol,
+} from "../../../src/shared/domain/protocols";
 
-jest.mock("../../../src/main/protocols/attachments");
+const registerAttachmentsProtocol = jest.fn();
+jest
+  .spyOn(attachments, "registerAttachmentsProtocol")
+  .mockImplementation(registerAttachmentsProtocol);
 
 afterEach(() => {
   mockFS.restore();
@@ -370,6 +377,44 @@ test("notes.openAttachments", async () => {
   }).not.toThrow();
 
   expect(shell.openPath).toBeCalledWith(attachmentsPath);
+});
+
+test("notes.openAttachmentFile", async () => {
+  const noteId = uuid();
+
+  mockFS({
+    [FAKE_DATA_DIRECTORY]: {
+      [NOTES_DIRECTORY]: {
+        [noteId]: {
+          [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
+          [MARKDOWN_FILE_NAME]: "",
+          [ATTACHMENTS_DIRECTORY]: {
+            "foo.txt": "Hello World!",
+          },
+        },
+      },
+    },
+  });
+
+  const ipc = createIpcMainTS();
+
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+  await ipc.trigger("init");
+
+  // File exists
+  const url = buildAttachmentUrl(`${Protocol.Attachments}://foo.txt`, noteId);
+  await ipc.invoke("notes.openAttachmentFile", url);
+
+  expect(shell.openPath).toBeCalledWith(expect.stringMatching(/foo.txt/));
+
+  // File doesn't exist.
+  const url2 = buildAttachmentUrl(`${Protocol.Attachments}://bar.txt`, noteId);
+  expect(async () => {
+    await ipc.invoke("notes.openAttachmentFile", url2);
+  }).rejects.toThrow(/doesn't exist/);
 });
 
 test("loadNotes empty", async () => {
