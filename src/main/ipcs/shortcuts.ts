@@ -1,6 +1,4 @@
-import { z } from "zod";
 import { Config } from "../../shared/domain/config";
-import { Shortcut } from "../../shared/domain/shortcut";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { parseKeyCodes } from "../../shared/io/keyCode";
 import { IpcMainTS } from "../../shared/ipc";

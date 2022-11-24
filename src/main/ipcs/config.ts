@@ -96,7 +96,7 @@ export function getConfigPath(): string {
   if (isDevelopment()) {
     return path.join(process.cwd(), CONFIG_FILE);
   } else if (isTest()) {
-    return "";
+    return CONFIG_FILE;
   } else {
     return path.join(app.getPath("userData"), CONFIG_FILE);
   }

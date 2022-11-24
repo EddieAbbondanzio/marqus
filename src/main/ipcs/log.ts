@@ -13,9 +13,6 @@ import * as os from "os";
 
 const DELETE_LOGS_OLDER_THAN_DAYS = 14;
 
-// TODO: Add logging to file
-// Have it manage files and delete anything older than 2 weeks
-
 export function logIpcs(
   ipc: IpcMainTS,
   configFile: JsonFile<Config>,

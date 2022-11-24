@@ -2,16 +2,29 @@ import { protocol } from "electron";
 import { registerAttachmentsProtocol } from "../../../src/main/protocols/attachments";
 import { uuid } from "../../../src/shared/domain";
 import { Protocol } from "../../../src/shared/domain/protocols";
-import fs from "fs";
-import path from "path";
+import mockFS from "mock-fs";
+import { ATTACHMENTS_DIRECTORY } from "../../../src/main/ipcs/notes";
 
-jest.mock("path");
-jest.mock("fs");
+afterEach(() => {
+  mockFS.restore();
+});
 
 test("registerAttachmentsProtocol", async () => {
+  const noteId = uuid();
+  const FAKE_NOTE_DIRECTORY = "fake-note-dir";
+  mockFS({
+    [FAKE_NOTE_DIRECTORY]: {
+      [noteId]: {
+        [ATTACHMENTS_DIRECTORY]: {
+          "foo.jpg": "image-data",
+        },
+      },
+    },
+  });
+
   const registerFileProtocol = jest.fn();
   protocol.registerFileProtocol = registerFileProtocol;
-  registerAttachmentsProtocol("fake-note-dir");
+  registerAttachmentsProtocol(FAKE_NOTE_DIRECTORY);
 
   expect(registerFileProtocol).toHaveBeenCalledWith(
     Protocol.Attachments,
@@ -31,13 +44,11 @@ test("registerAttachmentsProtocol", async () => {
     /URL .* doesn't match/,
   );
 
-  (path.resolve as jest.Mock)
-    .mockReset()
-    .mockReturnValueOnce("full/path/to/foo.jpg");
-  (fs.existsSync as jest.Mock).mockReturnValueOnce(true);
-
   const cb = jest.fn();
-  callback({ url: `attachments://foo.jpg?noteId=${uuid()}` }, cb);
-  expect(path.resolve).toHaveBeenCalled();
-  expect(cb).toHaveBeenCalledWith("full/path/to/foo.jpg");
+  callback({ url: `attachments://foo.jpg?noteId=${noteId}` }, cb);
+  expect(cb).toHaveBeenCalledWith(
+    expect.stringContaining(
+      `${FAKE_NOTE_DIRECTORY}/${noteId}/${ATTACHMENTS_DIRECTORY}/foo.jpg`,
+    ),
+  );
 });
