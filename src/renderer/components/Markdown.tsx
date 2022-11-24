@@ -84,6 +84,8 @@ const StyledScrollable = styled(Scrollable)`
   h4,
   h5,
   h6,
+  ol,
+  ul,
   p {
     word-break: break-word;
     margin-bottom: 1.6rem;
@@ -245,7 +247,7 @@ const UnorderedList = styled.ul`
 
 const OrderedList = styled.ol`
   margin-left: ${LIST_INDENT}px;
-  counter-reset: section ${(p) => (p.start != null ? p.start - 1 : undefined)};
+  counter-reset: section ${p => (p.start != null ? p.start - 1 : undefined)};
   font-size: 1.6rem;
 
   li {

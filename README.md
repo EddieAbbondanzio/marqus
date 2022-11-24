@@ -4,14 +4,20 @@
 <img width="256" height="256" src="https://github.com/EddieAbbondanzio/marker/blob/master/static/icon.png?raw=true">
 </p>
 
-A note taking app shouldn't get in your way. I wrote Marker because I wanted a markdown note taking app that would make me more productive while at the same time giving me full control control over my notes.
+Marker is a markdown note taking app for Linux that supports infinitely nestable notes, multi-tab support, customizable shortcuts, and stores notes as plain files in your file system.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/EddieAbbondanzio/marker/master/docs/overview.png">
+</p>
 
 ## Features
 
-- Fully custom shortcuts. Don't like a shortcut? Disable it. Want to change the keys? Sure, why not. Want to add a shortcut that doesn't exist? We can do that.
-- Marker remembers where you left off last. Each time you re-open Marker it'll pick up where you left off so it's easy to remember what you were last working on.
-- Notes are saved in non-proprietary markdown files. Metadata is stored in it's own file so you have full control over your notes.
-- No telemetry. We respect your privacy.
+- Multi-tab support makes it easy to switch back and forth between notes without losing your place.
+- Infinitely nestable notes makes it easy to organize things.
+- Customizable shortcuts lets you add custom shortcuts for the things you use most, and disable the ones you don't want.
+- App state is persisted so the next time you open the app you can pick up where you last left off.
+- Easy to use search that supports searching note names, or content.
+- Customizable sorting that can be specified globally, or on a per note basis.
 - No bloat UI that lets you focus on what matters most. Your notes.
 
 # Install
