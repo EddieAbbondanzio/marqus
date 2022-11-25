@@ -14,8 +14,8 @@ import { UIEventType } from "../../shared/ui/events";
 import { Section } from "../../shared/ui/app";
 import { log } from "../logger";
 
-const INITIAL_DELAY = 250; // ms
-const REPEAT_DELAY = 125; // ms
+const INITIAL_DELAY_MS = 250;
+const REPEAT_DELAY_MS = 125;
 
 export function useShortcuts(store: Store): void {
   const { dispatch, state } = store;
@@ -23,12 +23,11 @@ export function useShortcuts(store: Store): void {
   const activeKeys = useRef<Record<string, boolean | undefined>>({});
   const interval = useRef<NodeJS.Timer>();
 
-  // useState so we can trigger a re-render of the component and process any
-  // any changes in keys.
+  // We use useState because we want to trigger a re-render if the keys change.
   const [didKeysChange, setDidKeysChange] = useState(false);
 
   if (!isTest() && shortcuts.length === 0) {
-    console.warn("No shortcuts passed to useShortcuts() hook.");
+    void log.info("No shortcuts were passed to the useShortcuts hook");
   }
 
   const resetState = () => {
@@ -49,15 +48,12 @@ export function useShortcuts(store: Store): void {
       void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
 
       if (shortcut.repeat) {
-        (async () => {
+        void (async () => {
           const keysStarted = toKeyArray(activeKeys.current);
 
-          /*
-           * First pause is twice as long to ensure user actually wants it to
-           * repeat (IE hold to continue scrolling down) vs just a key held
-           * too long.
-           */
-          await sleep(INITIAL_DELAY);
+          // First pause is twice as long to ensure the user actually wants to
+          // repeat the action vs they accidentally held down the keys too long.
+          await sleep(INITIAL_DELAY_MS);
           const keysAfterInitialDelay = toKeyArray(activeKeys.current);
 
           const trigger = () => {
@@ -69,7 +65,7 @@ export function useShortcuts(store: Store): void {
 
           if (isEqual(keysStarted, keysAfterInitialDelay)) {
             trigger();
-            interval.current = setInterval(trigger, REPEAT_DELAY);
+            interval.current = setInterval(trigger, REPEAT_DELAY_MS);
           }
         })();
       }
@@ -84,7 +80,7 @@ export function useShortcuts(store: Store): void {
       if (!ev.repeat) {
         const key = parseKeyCode(ev.code);
         if (key == null) {
-          log.info(`Unknown key: ${ev.code}`);
+          void log.info(`Unknown key: ${ev.code}`);
           return;
         }
 

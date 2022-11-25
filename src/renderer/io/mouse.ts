@@ -117,7 +117,7 @@ export function useMouseDrag(
         return;
       }
 
-      // Don't track movement when not holding.
+      // Don't track the mouse's movement unless a button is currently pressed.
       if (
         drag == null ||
         (drag.state != "dragging" && drag.state !== "dragStarted")
@@ -145,10 +145,8 @@ export function useMouseDrag(
         return;
       }
 
-      /*
-       * If no element and an onMouseUp event was fired it means
-       * the drag was cancelled and should be ignored.
-       */
+      // If there's no element when we handle the onMouseUp event it means the
+      // drag was cancelled (user pressed esc) and should be ignored.
       if (drag == null || drag.state !== "dragging") {
         if (opts?.cursor) {
           resetCursor();
