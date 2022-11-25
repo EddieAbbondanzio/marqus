@@ -18,7 +18,7 @@ const shortcuts: Shortcut[] = [
     name: "app.openDevTools",
     event: "app.openDevTools",
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterI],
-    // We leave shortcut enabled even when developer mode isn't enabled for now.
+    // Leave shortcut enabled even if not running in development.
   },
   {
     name: "app.reload",

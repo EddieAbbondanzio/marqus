@@ -107,10 +107,11 @@ export enum KeyCode {
  * @returns Our typesafe KeyCode.
  */
 export function parseKeyCode(code: string): KeyCode | null {
-  /**
-   * When using .code we treat a key the same regardless if shift was pressed.
-   * This means + and = are the same key.
-   */
+  // By using .code from MouseEvents we can treat keys that print out different
+  // chars depending on if shift is being held or not, without having to add
+  // additional checks.
+  // Ex: + and = are the same (KeyCode.Equal)
+
   switch (code) {
     case "Space":
       return KeyCode.Space;
@@ -299,10 +300,6 @@ export function parseKeyCode(code: string): KeyCode | null {
       return KeyCode.PageDown;
     case "PageUp":
       return KeyCode.PageUp;
-    /*
-     * It's unlikely we'll use thse but we leave it here because it prevents
-     * an error from being thrown when the user presses them.
-     */
     case "MetaLeft":
     case "MetaRight":
       return KeyCode.Meta;
