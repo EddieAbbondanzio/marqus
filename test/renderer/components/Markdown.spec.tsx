@@ -98,7 +98,7 @@ test("Markdown http link", async () => {
 
   expect(renderedLink.target).toBe("_blank");
 
-  // HTTP links shouldn't have onclick set because they use built in browser functionality.
+  // Web links shouldn't have onclick set because they use built in browser functionality.
   expect(typeof renderedLink.onclick).not.toBe("function");
 
   const parsedHref = new URL(renderedLink.href);
