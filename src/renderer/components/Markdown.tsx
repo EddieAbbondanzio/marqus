@@ -4,7 +4,7 @@ import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
 import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
-import { buildAttachmentUrl, Protocol } from "../../shared/domain/protocols";
+import { Protocol } from "../../shared/domain/protocols";
 import { omit } from "lodash";
 
 // TODO: Add types, or update react-remark.
@@ -43,14 +43,41 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         code: CodeSpan,
         span: Text,
         img: (props: any) => {
-          let { src } = props;
-          const otherProps = omit(props, "href");
+          const otherProps = omit(props, "src");
 
-          if (src != null && src.startsWith(`${Protocol.Attachments}://`)) {
-            src = buildAttachmentUrl(src, noteId!);
+          let src;
+          let title;
+          let height: string | number | undefined = undefined;
+          let width: string | number | undefined = undefined;
+          if (props.src != null) {
+            const parsedSrc = new URL(props.src);
+            const parsedParams = new URLSearchParams(parsedSrc.search);
+
+            if (parsedParams.has("height")) {
+              height = parsedParams.get("height")!;
+            }
+            if (parsedParams.has("width")) {
+              width = parsedParams.get("width")!;
+            }
+
+            if (parsedSrc.protocol == `${Protocol.Attachments}:`) {
+              parsedSrc.search = "";
+              parsedSrc.searchParams.set("noteId", noteId!);
+
+              title = parsedSrc.pathname;
+              src = parsedSrc.href;
+            }
           }
 
-          return <Image {...otherProps} src={src} />;
+          return (
+            <Image
+              {...otherProps}
+              src={src}
+              height={height}
+              width={width}
+              title={title}
+            />
+          );
         },
         a: (props: any) => {
           const { children, ...otherProps } = props;
@@ -61,10 +88,13 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           let href: string | undefined;
           let onClick: ((ev: MouseEvent) => void) | undefined;
           if (isAttachment) {
-            href = buildAttachmentUrl(props.href, noteId);
+            const url = new URL(props.href);
+            url.searchParams.set("noteId", noteId);
+            href = url.href;
+
             onClick = (ev: MouseEvent) => {
-              void window.ipc("notes.openAttachmentFile", href!);
               ev.preventDefault();
+              void window.ipc("notes.openAttachmentFile", href!);
             };
           } else {
             href = props.href;

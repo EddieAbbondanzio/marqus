@@ -12,6 +12,7 @@ export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
   protocol.registerFileProtocol(Protocol.Attachments, (req, cb) => {
     const filePath = parseAttachmentPath(noteDirectoryPath, req.url);
 
+    // Soft error if file isn't found.
     if (!fs.existsSync(filePath)) {
       cb({ statusCode: 404 });
     }
@@ -37,7 +38,6 @@ export function parseAttachmentPath(
   }
 
   const noteId = parsedSearchParams.get("noteId");
-  // TODO: Pull optional image height / width from search params.
   if (noteId == null || !UUID_REGEX.test(noteId)) {
     throw new Error(`Invalid note id (${noteId}) in attachment path.`);
   }

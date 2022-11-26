@@ -33,10 +33,7 @@ import { loadJson } from "../../../src/main/json";
 import { IpcType } from "../../../src/shared/ipc";
 import { shell } from "electron";
 import * as attachments from "../../../src/main/protocols/attachments";
-import {
-  buildAttachmentUrl,
-  Protocol,
-} from "../../../src/shared/domain/protocols";
+import { Protocol } from "../../../src/shared/domain/protocols";
 
 const registerAttachmentsProtocol = jest.fn();
 jest
@@ -405,14 +402,14 @@ test("notes.openAttachmentFile", async () => {
   await ipc.trigger("init");
 
   // File exists
-  const url = buildAttachmentUrl(`${Protocol.Attachments}://foo.txt`, noteId);
+  const url = `${Protocol.Attachments}://foo.txt?noteId=${noteId}`;
   await ipc.invoke("notes.openAttachmentFile", url);
 
   expect(shell.openPath).toBeCalledWith(expect.stringMatching(/foo.txt/));
 
   // File doesn't exist.
-  const url2 = buildAttachmentUrl(`${Protocol.Attachments}://bar.txt`, noteId);
-  expect(async () => {
+  const url2 = `${Protocol.Attachments}://bar.txt?noteId=${noteId}`;
+  await expect(async () => {
     await ipc.invoke("notes.openAttachmentFile", url2);
   }).rejects.toThrow(/doesn't exist/);
 });
