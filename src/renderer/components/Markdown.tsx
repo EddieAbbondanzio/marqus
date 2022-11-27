@@ -50,6 +50,13 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           let height: string | number | undefined = undefined;
           let width: string | number | undefined = undefined;
           if (props.src != null) {
+            // N.B. Not compatible with windows! We'll need to refactor this when
+            // we expand to supporting windows. Windows uses backwards slashes in
+            // paths so file paths will be considered invalid URLs.
+            //
+            // Some options we could explore:
+            // URL encoding the underlying path (hidden from user)
+            // Not use new URL? What about the params we set tho?
             const parsedSrc = new URL(props.src);
             const parsedParams = new URLSearchParams(parsedSrc.search);
 

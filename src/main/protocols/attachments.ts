@@ -44,7 +44,7 @@ export function parseAttachmentPath(
 
   let filePath = parsedUrl.host;
   if (parsedUrl.pathname) {
-    filePath = `${filePath}/${parsedUrl.pathname}`;
+    filePath = path.join(filePath, parsedUrl.pathname);
   }
 
   const attachmentsPath = path.join(
