@@ -4,6 +4,7 @@ import { Store } from "../store";
 import * as monaco from "monaco-editor";
 import { TABS_HEIGHT } from "./EditorTabs";
 import { Section } from "../../shared/ui/app";
+import { Attachment, Protocol } from "../../shared/domain/protocols";
 
 const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   language: "markdown",
@@ -64,6 +65,78 @@ export function Monaco(props: MonacoProps): JSX.Element {
     }
   }, [focused]);
 
+  // dragenter and dragover have to be cancelled in order for the drop event
+  // to work on a div.
+  const dragEnter = (ev: DragEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+  };
+  const dragOver = (ev: DragEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+  };
+  const importAttachments = useCallback(
+    async (ev: DragEvent) => {
+      ev.preventDefault();
+
+      if (ev.dataTransfer == null) {
+        return;
+      }
+
+      const { files } = ev.dataTransfer;
+      if (files.length === 0) {
+        return;
+      }
+
+      const noteId = store.state.editor.activeTabNoteId;
+      if (noteId == null) {
+        return;
+      }
+
+      const attachments = await window.ipc(
+        "notes.importAttachments",
+        noteId,
+        // Can't send file objects over IPC so we map the important properties.
+        Object.values(files).map(f => ({
+          name: f.name,
+          path: f.path,
+          mimeType: f.type,
+        })),
+      );
+      if (attachments.length === 0) {
+        return;
+      }
+
+      // Use code below to insert the text:
+      const { current: monaco } = monacoEditor;
+      if (monaco != null) {
+        const model = monaco.getModel();
+        if (model == null) {
+          return;
+        }
+
+        // If editor is not focused, append content to end of file because there's
+        // no cursor on screen.
+        let prefixWithEOL = false;
+        if (store.state.focused[0] !== Section.Editor) {
+          const lineCount = model.getLineCount();
+          monaco.setPosition({ lineNumber: lineCount, column: 1 });
+
+          const isCurrentLineEmpty = model.getLineLength(lineCount) > 0;
+          prefixWithEOL = isCurrentLineEmpty;
+        }
+
+        const eol = model.getEOL();
+        monaco.trigger("keyboard", "type", {
+          text:
+            (prefixWithEOL ? eol : "") +
+            attachments.map(generateAttachmentLink).join(eol),
+        });
+      }
+    },
+    [store.state],
+  );
+
   // Mount / Unmount
   useEffect(() => {
     const { current: el } = containerElement;
@@ -75,14 +148,19 @@ export function Monaco(props: MonacoProps): JSX.Element {
         ...MONACO_SETTINGS,
       });
 
-      // Monaco doesn't automically resize when it's container element does so
+      // Monaco doesn't automatically resize when it's container element does so
       // we need to listen for changes and trigger the refresh ourselves.
+
       resizeObserver = new ResizeObserver(() => {
         if (monacoEditor.current != null) {
           monacoEditor.current.layout();
         }
       });
       resizeObserver.observe(el);
+
+      el.addEventListener("dragenter", dragEnter);
+      el.addEventListener("dragover", dragOver);
+      el.addEventListener("drop", importAttachments);
     }
 
     return () => {
@@ -94,6 +172,12 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
       if (onChangeSub.current != null) {
         onChangeSub.current.dispose();
+      }
+
+      if (el != null) {
+        el.removeEventListener("dragenter", dragEnter);
+        el.removeEventListener("dragover", dragOver);
+        el.removeEventListener("drop", importAttachments);
       }
     };
     // No dependencies because we want this hook to only run once.
@@ -109,7 +193,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
       return;
     }
 
-    store.dispatch("editor.setContent", {
+    void store.dispatch("editor.setContent", {
       content: value,
       noteId: activeNoteId.current!,
     });
@@ -182,10 +266,24 @@ export function Monaco(props: MonacoProps): JSX.Element {
     }
   }, [editor.activeTabNoteId, editor.tabs]);
 
-  return <StyledEditor ref={containerElement}></StyledEditor>;
+  return (
+    <StyledEditor
+      data-testid="monaco-container"
+      ref={containerElement}
+    ></StyledEditor>
+  );
 }
 
 const StyledEditor = styled.div`
   flex-grow: 1;
   height: calc(100% - ${TABS_HEIGHT});
 `;
+
+export function generateAttachmentLink(attachment: Attachment): string {
+  switch (attachment.type) {
+    case "file":
+      return `[${attachment.name}](${Protocol.Attachments}://${attachment.path})`;
+    case "image":
+      return `![](${Protocol.Attachments}://${attachment.path})`;
+  }
+}

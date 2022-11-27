@@ -80,8 +80,8 @@ test("sidebar.createNote expands parent", async () => {
   });
   render(<Sidebar store={store.current} />);
 
-  act(() => {
-    store.current.dispatch("sidebar.createNote", "parent-note");
+  await act(async () => {
+    void store.current.dispatch("sidebar.createNote", "parent-note");
   });
 
   const { state } = store.current;
@@ -368,11 +368,6 @@ test("sidebar.dragNote", async () => {
   );
 
   // Move from root to nested
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  when((window as any).ipc).calledWith("notes.updateMetadata", "1", {
-    parent: "2",
-  });
-
   await act(async () => {
     await store.current.dispatch("sidebar.dragNote", {
       note: "1",
@@ -387,11 +382,6 @@ test("sidebar.dragNote", async () => {
   );
 
   // Move from nested to root
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  when((window as any).ipc).calledWith("notes.updateMetadata", "1", {
-    parent: undefined,
-  });
-
   await act(async () => {
     await store.current.dispatch("sidebar.dragNote", {
       note: "1",

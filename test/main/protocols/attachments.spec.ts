@@ -1,5 +1,8 @@
 import { protocol } from "electron";
-import { registerAttachmentsProtocol } from "../../../src/main/protocols/attachments";
+import {
+  parseAttachmentPath,
+  registerAttachmentsProtocol,
+} from "../../../src/main/protocols/attachments";
 import { uuid } from "../../../src/shared/domain";
 import { Protocol } from "../../../src/shared/domain/protocols";
 import mockFS from "mock-fs";
@@ -45,10 +48,45 @@ test("registerAttachmentsProtocol", async () => {
   );
 
   const cb = jest.fn();
+
+  // Valid file.
   callback({ url: `attachments://foo.jpg?noteId=${noteId}` }, cb);
+  expect(cb).toHaveBeenCalledTimes(1);
   expect(cb).toHaveBeenCalledWith(
     expect.stringContaining(
       `${FAKE_NOTE_DIRECTORY}/${noteId}/${ATTACHMENTS_DIRECTORY}/foo.jpg`,
     ),
   );
+
+  cb.mockReset();
+
+  // File not found.
+  callback({ url: `attachments://bar.jpg?noteId=${noteId}` }, cb);
+  expect(cb).toHaveBeenCalledTimes(1);
+  expect(cb).toHaveBeenCalledWith({ statusCode: 404 });
+});
+
+test("parseAttachmentPath", () => {
+  const noteId = uuid();
+
+  // Normal file.
+  expect(
+    parseAttachmentPath("notes", `attachments://foo.jpg?noteId=${noteId}`),
+  ).toMatch(`notes/${noteId}/${ATTACHMENTS_DIRECTORY}/foo.jpg`);
+
+  // Nested file
+  expect(
+    parseAttachmentPath(
+      "notes",
+      `attachments://longer/path/to/bar.jpg?noteId=${noteId}`,
+    ),
+  ).toMatch(`notes/${noteId}/${ATTACHMENTS_DIRECTORY}/longer/path/to/bar.jpg`);
+
+  // Throw if file was outside of the folder.
+  expect(() =>
+    parseAttachmentPath(
+      "notes",
+      `attachments://../../foo.jpg?noteId=${noteId}`,
+    ),
+  ).toThrow(/is outside of attachment directory/);
 });

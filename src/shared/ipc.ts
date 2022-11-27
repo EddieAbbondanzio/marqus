@@ -1,9 +1,10 @@
 import { PromptButton, PromptOptions } from "./ui/prompt";
 import { Shortcut } from "./domain/shortcut";
-import { Note, NoteSort } from "./domain/note";
+import { Note } from "./domain/note";
 import { IpcMain, IpcMainInvokeEvent, Point } from "electron";
 import { Menu } from "./ui/menu";
 import { SerializedAppState } from "./ui/app";
+import { Attachment, FileInfo } from "./domain/protocols";
 
 export const IPCS = [
   "app.setApplicationMenu",
@@ -28,6 +29,7 @@ export const IPCS = [
   "notes.moveToTrash",
   "notes.openAttachments",
   "notes.openAttachmentFile",
+  "notes.importAttachments",
 
   "config.get",
   "config.openInTextEditor",
@@ -69,6 +71,10 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "notes.moveToTrash"(id: string): Promise<void>;
   "notes.openAttachments"(id: string): Promise<void>;
   "notes.openAttachmentFile"(href: string): Promise<void>;
+  "notes.importAttachments"(
+    id: string,
+    attachments: FileInfo[],
+  ): Promise<Attachment[]>;
 
   // Config
   "config.openInTextEditor"(): Promise<void>;

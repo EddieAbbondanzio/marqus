@@ -26,7 +26,7 @@ test("openTab opens selected note by default", async () => {
   render(<EditorTabs store={store.current} />);
 
   await act(async () => {
-    store.current.dispatch("editor.openTab", undefined);
+    await store.current.dispatch("editor.openTab", undefined);
   });
 
   const { editor } = store.current.state;
@@ -48,7 +48,7 @@ test("openTab opens tabs passed", async () => {
   render(<EditorTabs store={store.current} />);
 
   await act(async () => {
-    store.current.dispatch("editor.openTab", { note: "1" });
+    await store.current.dispatch("editor.openTab", { note: "1" });
   });
 
   // Test it sets last tab passed as active
@@ -59,7 +59,10 @@ test("openTab opens tabs passed", async () => {
   expect(editor.activeTabNoteId).toBe("1");
 
   await act(async () => {
-    store.current.dispatch("editor.openTab", { note: ["2", "3"], active: "2" });
+    await store.current.dispatch("editor.openTab", {
+      note: ["2", "3"],
+      active: "2",
+    });
   });
 
   // Test it sets active tab passed.
@@ -98,7 +101,7 @@ test("closeTab closes active tab by default", async () => {
 
   render(<EditorTabs store={store.current} />);
   await act(async () => {
-    store.current.dispatch("editor.closeTab", undefined!);
+    await store.current.dispatch("editor.closeTab", undefined!);
   });
 
   const { editor } = store.current.state;
@@ -124,7 +127,7 @@ test("closeTab clears out active tab", async () => {
   render(<EditorTabs store={store.current} />);
   await act(async () => {
     // Default behavior is to close active tab
-    store.current.dispatch("editor.closeTab", undefined!);
+    await store.current.dispatch("editor.closeTab", undefined!);
   });
 
   const { editor } = store.current.state;
@@ -162,7 +165,7 @@ test("closeTab closes tab passed", async () => {
   render(<EditorTabs store={store.current} />);
   await act(async () => {
     // Default behavior is to close active tab
-    store.current.dispatch("editor.closeTab", "2");
+    await store.current.dispatch("editor.closeTab", "2");
   });
 
   const { editor } = store.current.state;
@@ -199,7 +202,7 @@ test("editor.closeAllTabs", async () => {
   render(<EditorTabs store={store.current} />);
   await act(async () => {
     // Default behavior is to close active tab
-    store.current.dispatch("editor.closeAllTabs");
+    await store.current.dispatch("editor.closeAllTabs");
   });
 
   const { editor } = store.current.state;
@@ -237,7 +240,7 @@ test("editor.closeOtherTabs", async () => {
   render(<EditorTabs store={store.current} />);
   await act(async () => {
     // Default behavior is to close non active tab
-    store.current.dispatch("editor.closeOtherTabs", undefined!);
+    await store.current.dispatch("editor.closeOtherTabs", undefined!);
   });
 
   const { editor } = store.current.state;
@@ -275,7 +278,7 @@ test("editor.closeTabsToRight", async () => {
   render(<EditorTabs store={store.current} />);
   await act(async () => {
     // Default behavior is to close tabs relative to active tab
-    store.current.dispatch("editor.closeTabsToRight", undefined!);
+    await store.current.dispatch("editor.closeTabsToRight", undefined!);
   });
 
   const { editor } = store.current.state;
@@ -315,7 +318,7 @@ test("editor.closeTabsToLeft", async () => {
   render(<EditorTabs store={store.current} />);
   await act(async () => {
     // Default behavior is to close tabs to the left of active tab
-    store.current.dispatch("editor.closeTabsToLeft", undefined!);
+    await store.current.dispatch("editor.closeTabsToLeft", undefined!);
   });
 
   const { editor } = store.current.state;
@@ -354,7 +357,7 @@ test("nextTab", async () => {
 
   render(<EditorTabs store={store.current} />);
   await act(async () => {
-    store.current.dispatch("editor.nextTab", undefined!);
+    await store.current.dispatch("editor.nextTab", undefined!);
   });
 
   const { editor } = store.current.state;
@@ -389,7 +392,7 @@ test("previousTab", async () => {
 
   render(<EditorTabs store={store.current} />);
   await act(async () => {
-    store.current.dispatch("editor.previousTab");
+    await store.current.dispatch("editor.previousTab");
   });
 
   const { editor } = store.current.state;

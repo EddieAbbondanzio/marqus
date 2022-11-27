@@ -33,10 +33,7 @@ import { loadJson } from "../../../src/main/json";
 import { IpcType } from "../../../src/shared/ipc";
 import { shell } from "electron";
 import * as attachments from "../../../src/main/protocols/attachments";
-import {
-  buildAttachmentUrl,
-  Protocol,
-} from "../../../src/shared/domain/protocols";
+import { Protocol } from "../../../src/shared/domain/protocols";
 
 const registerAttachmentsProtocol = jest.fn();
 jest
@@ -405,16 +402,109 @@ test("notes.openAttachmentFile", async () => {
   await ipc.trigger("init");
 
   // File exists
-  const url = buildAttachmentUrl(`${Protocol.Attachments}://foo.txt`, noteId);
+  const url = `${Protocol.Attachments}://foo.txt?noteId=${noteId}`;
   await ipc.invoke("notes.openAttachmentFile", url);
 
   expect(shell.openPath).toBeCalledWith(expect.stringMatching(/foo.txt/));
 
   // File doesn't exist.
-  const url2 = buildAttachmentUrl(`${Protocol.Attachments}://bar.txt`, noteId);
-  expect(async () => {
+  const url2 = `${Protocol.Attachments}://bar.txt?noteId=${noteId}`;
+  await expect(async () => {
     await ipc.invoke("notes.openAttachmentFile", url2);
   }).rejects.toThrow(/doesn't exist/);
+});
+
+test("notes.importAttachments", async () => {
+  const noteId = uuid();
+
+  mockFS({
+    [FAKE_DATA_DIRECTORY]: {
+      [NOTES_DIRECTORY]: {
+        [noteId]: {
+          [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
+          [MARKDOWN_FILE_NAME]: "",
+          [ATTACHMENTS_DIRECTORY]: {},
+        },
+      },
+    },
+    "random-dir": {
+      "foo.jpg": "",
+      "bar.txt": "random-text",
+      subdir: {},
+    },
+  });
+
+  const ipc = createIpcMainTS();
+
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+
+  // Copies over images
+  const copiedImage = await ipc.invoke("notes.importAttachments", noteId, [
+    {
+      path: path.join("random-dir", "foo.jpg"),
+      mimeType: "image/jpeg",
+      name: "foo.jpg",
+    },
+  ]);
+  expect(copiedImage[0]).toEqual({
+    path: "foo.jpg",
+    name: "foo.jpg",
+    type: "image",
+  });
+
+  // Copies over files
+  const copiedTextFile = await ipc.invoke("notes.importAttachments", noteId, [
+    {
+      path: path.join("random-dir", "bar.txt"),
+      mimeType: "text/plain",
+      name: "bar.txt",
+    },
+  ]);
+  expect(copiedTextFile[0]).toEqual({
+    path: "bar.txt",
+    name: "bar.txt",
+    type: "file",
+  });
+
+  // Skips directories
+  const noDir = await ipc.invoke("notes.importAttachments", noteId, [
+    {
+      path: path.join("random-dir", "subdir"),
+      mimeType: "",
+      name: "subdir",
+    },
+  ]);
+  expect(noDir).toHaveLength(0);
+
+  // Renames file if already exists
+  const copiedImageDup = await ipc.invoke("notes.importAttachments", noteId, [
+    {
+      path: path.join("random-dir", "foo.jpg"),
+      mimeType: "image/jpeg",
+      name: "foo.jpg",
+    },
+  ]);
+  expect(copiedImageDup[0]).toEqual({
+    path: "foo-1.jpg",
+    name: "foo-1.jpg",
+    type: "image",
+  });
+
+  const copiedImageDup2 = await ipc.invoke("notes.importAttachments", noteId, [
+    {
+      path: path.join("random-dir", "foo.jpg"),
+      mimeType: "image/jpeg",
+      name: "foo.jpg",
+    },
+  ]);
+  expect(copiedImageDup2[0]).toEqual({
+    path: "foo-2.jpg",
+    name: "foo-2.jpg",
+    type: "image",
+  });
 });
 
 test("loadNotes empty", async () => {

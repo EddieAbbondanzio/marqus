@@ -4,21 +4,20 @@ import {
   Protocol,
 } from "../../shared/domain/protocols";
 import path from "path";
-import { ATTACHMENTS_DIRECTORY } from "../ipcs/notes";
 import fs from "fs";
 import { UUID_REGEX } from "../../shared/domain";
-
-const PROTOCOL_SUBSTRING_LENGTH = `${Protocol.Attachments}://`.length;
+import { ATTACHMENTS_DIRECTORY } from "../ipcs/notes";
 
 export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
   protocol.registerFileProtocol(Protocol.Attachments, (req, cb) => {
     const filePath = parseAttachmentPath(noteDirectoryPath, req.url);
 
+    // Soft error if file isn't found.
     if (!fs.existsSync(filePath)) {
-      throw new Error(`File ${filePath} doesn't exist.`);
+      cb({ statusCode: 404 });
+    } else {
+      cb(filePath);
     }
-
-    cb(filePath);
   });
 }
 
@@ -30,26 +29,38 @@ export function parseAttachmentPath(
     throw new Error(`URL ${url} doesn't match attachments protocol.`);
   }
 
-  const pathWithQueryString = url.slice(PROTOCOL_SUBSTRING_LENGTH);
-  const [file, query] = pathWithQueryString.split("?");
-  if (file == null || query == null) {
-    throw new Error(`Attachments url (${url}) was missing portions.`);
+  const parsedUrl = new URL(url);
+  const parsedSearchParams = new URLSearchParams(parsedUrl.search);
+
+  // Parsed protocol includes the ':'
+  if (parsedUrl.protocol !== `${Protocol.Attachments}:`) {
+    throw new Error(`Invalid attachments protocol: ${parsedUrl.protocol}`);
   }
 
-  const noteId = query.replace(/noteId=/, "");
-  if (!UUID_REGEX.test(noteId)) {
+  const noteId = parsedSearchParams.get("noteId");
+  if (noteId == null || !UUID_REGEX.test(noteId)) {
+    throw new Error(`Invalid note id (${noteId}) in attachment path.`);
+  }
+
+  let filePath = parsedUrl.host;
+  if (parsedUrl.pathname) {
+    filePath = `${filePath}/${parsedUrl.pathname}`;
+  }
+
+  const attachmentsPath = path.join(
+    noteDirectoryPath,
+    noteId,
+    ATTACHMENTS_DIRECTORY,
+  );
+
+  const attachmentFile = path.join(attachmentsPath, filePath);
+
+  if (path.relative(attachmentsPath, attachmentFile).startsWith("..")) {
     throw new Error(
-      `Note id (${noteId}) passed to attachment protocol is invalid.`,
+      `${attachmentFile} is outside of attachment directory for ${noteId}, and cannot be loaded.`,
     );
   }
 
   // Only absolute paths work in renderer
-  const filePath = path.resolve(
-    noteDirectoryPath,
-    noteId,
-    ATTACHMENTS_DIRECTORY,
-    file,
-  );
-
-  return filePath;
+  return path.resolve(attachmentFile);
 }
