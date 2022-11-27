@@ -261,10 +261,13 @@ export function Monaco(props: MonacoProps): JSX.Element {
           viewStates.current[newTab.note.id]!,
         );
       }
+      if (state.focused[0] === Section.Editor) {
+        monacoEditor.current.focus();
+      }
 
       activeNoteId.current = newTab.note.id;
     }
-  }, [editor.activeTabNoteId, editor.tabs]);
+  }, [editor.activeTabNoteId, editor.tabs, state.focused]);
 
   return (
     <StyledEditor

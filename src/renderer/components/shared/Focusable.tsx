@@ -28,7 +28,7 @@ export const useFocusTracking = (store: Store): void => {
         return;
       }
 
-      store.dispatch("focus.push", focusable);
+      void store.dispatch("focus.push", focusable);
     }
   };
 
@@ -89,7 +89,7 @@ export function Focusable(
     const { current: el } = containerRef;
     const blur = (ev: KeyboardEvent) => {
       if (parseKeyCode(ev.code) === KeyCode.Escape) {
-        store.dispatch("focus.pop");
+        void store.dispatch("focus.pop");
       }
     };
 

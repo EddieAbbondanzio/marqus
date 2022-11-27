@@ -155,22 +155,19 @@ export function useStore(initialState: State): Store {
     [setUI],
   );
 
-  const ctx = useMemo(
-    () => ({
+  const store = useMemo(() => {
+    const ctx = {
       setUI,
       setShortcuts,
       setNotes,
       focus,
       getState: () => lastState.current,
-    }),
-    [focus, setUI],
-  );
+    };
 
-  const dispatch: Dispatch = useCallback(
-    async (event, value: any) => {
+    const dispatch: Dispatch = (async (event, value: any) => {
       const eventListeners: any = listeners.current[event];
       if (eventListeners == null || eventListeners.length === 0) {
-        log.debug(`No store listener found for ${event}.`);
+        await log.debug(`No store listener found for ${event}.`);
         return;
       }
 
@@ -179,40 +176,38 @@ export function useStore(initialState: State): Store {
       for (const l of eventListeners) {
         await l(ev as any, ctx);
       }
-    },
-    [ctx],
-  ) as Dispatch;
+    }) as Dispatch;
 
-  const on: On = <ET extends UIEventType>(
-    event: ET | ET[],
-    listener: Listener<ET>,
-  ) => {
-    const events = Array.isArray(event) ? event : [event];
-    for (const ev of events) {
-      if (listeners.current[ev] == null) {
-        listeners.current[ev] = [];
+    const on: On = <ET extends UIEventType>(
+      event: ET | ET[],
+      listener: Listener<ET>,
+    ) => {
+      const events = Array.isArray(event) ? event : [event];
+      for (const ev of events) {
+        if (listeners.current[ev] == null) {
+          listeners.current[ev] = [];
+        }
+
+        listeners.current[ev]!.push(listener as Listener<UIEventType>);
       }
+    };
 
-      listeners.current[ev]!.push(listener as Listener<UIEventType>);
-    }
-  };
+    const off: Off = (event, listener) => {
+      const events = Array.isArray(event) ? event : [event];
+      for (const ev of events) {
+        const index = listeners.current[ev]!.findIndex(l => l === listener);
+        if (index === -1) {
+          throw new Error(
+            `No matching listener found on ${ev} for ${listener}`,
+          );
+        }
 
-  const off: Off = (event, listener) => {
-    const events = Array.isArray(event) ? event : [event];
-    for (const ev of events) {
-      const index = listeners.current[ev]!.findIndex(l => l === listener);
-      if (index === -1) {
-        throw new Error(`No matching listener found on ${ev} for ${listener}`);
+        listeners.current[ev]?.splice(index, 1);
       }
+    };
 
-      listeners.current[ev]?.splice(index, 1);
-    }
-  };
-
-  const store = useMemo(
-    () => ({ state, on, off, dispatch }),
-    [dispatch, state],
-  );
+    return { state, on, off, dispatch };
+  }, [state, focus, setUI]);
 
   return store;
 }
