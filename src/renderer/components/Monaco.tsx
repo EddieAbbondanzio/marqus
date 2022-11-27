@@ -117,18 +117,24 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
         // If editor is not focused, append content to end of file because there's
         // no cursor on screen.
+        let prefixWithEOL = false;
         if (store.state.focused[0] !== Section.Editor) {
           const lineCount = model.getLineCount();
-          monaco.setPosition({ lineNumber: lineCount + 1, column: 1 });
+          monaco.setPosition({ lineNumber: lineCount, column: 1 });
 
-          const eol = model.getEOL();
-          monaco.trigger("keyboard", "type", {
-            text: eol + attachments.map(generateAttachmentLink).join(eol),
-          });
+          const isCurrentLineEmpty = model.getLineLength(lineCount) > 0;
+          prefixWithEOL = isCurrentLineEmpty;
         }
+
+        const eol = model.getEOL();
+        monaco.trigger("keyboard", "type", {
+          text:
+            (prefixWithEOL ? eol : "") +
+            attachments.map(generateAttachmentLink).join(eol),
+        });
       }
     },
-    [store.state.editor.activeTabNoteId, store.state.focused],
+    [store.state],
   );
 
   // Mount / Unmount
