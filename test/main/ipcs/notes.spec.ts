@@ -430,6 +430,7 @@ test("notes.importAttachments", async () => {
     "random-dir": {
       "foo.jpg": "",
       "bar.txt": "random-text",
+      "has spaces in name.jpg": "",
       subdir: {},
     },
   });
@@ -503,6 +504,20 @@ test("notes.importAttachments", async () => {
   expect(copiedImageDup2[0]).toEqual({
     path: "foo-2.jpg",
     name: "foo-2.jpg",
+    type: "image",
+  });
+
+  // Replaces spaces with hyphens.
+  const imageWithSpaces = await ipc.invoke("notes.importAttachments", noteId, [
+    {
+      path: path.join("random-dir", "has spaces in name.jpg"),
+      mimeType: "image/jpeg",
+      name: "has spaces in name.jpg",
+    },
+  ]);
+  expect(imageWithSpaces[0]).toEqual({
+    path: "has-spaces-in-name.jpg",
+    name: "has-spaces-in-name.jpg",
     type: "image",
   });
 });

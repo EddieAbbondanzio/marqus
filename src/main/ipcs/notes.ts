@@ -196,9 +196,11 @@ export function noteIpcs(
         continue;
       }
 
+      // Remove spaces from file names since they are URLs and cannot contain spaces.
+      let attachmentName = attachment.name.split(/\s/).join("-");
+
       // Ensure filename is always unique by appending a number to the end of it
       // if we detect the file already exists.
-      let attachmentName = attachment.name;
       let copyNumber = 1;
       while (fs.existsSync(p.join(noteAttachmentsDirectory, attachmentName))) {
         const parsedFile = p.parse(attachment.name);
