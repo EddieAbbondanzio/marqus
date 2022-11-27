@@ -1,12 +1,12 @@
 import { debounce } from "lodash";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
 import { m2 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
-import { Monaco } from "./Monaco";
+import { ModelAndViewState, Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
 import { EditorTabs, TABS_HEIGHT } from "./EditorTabs";
 import { getNoteById } from "../../shared/domain/note";
@@ -22,6 +22,20 @@ export function Editor(props: EditorProps): JSX.Element {
   const { state } = store;
   const { editor } = state;
 
+  // N.B. We cache the model and view state for monaco tabs here in the Editor
+  // vs within the Monaco component because the Monaco component gets unmounted
+  // when the editor switches to view mode so we'd lose tab states.
+  const modelAndViewStateCache = useRef<Record<string, ModelAndViewState>>({});
+  const updateCache = useCallback(
+    (noteId: string, modelAndViewState: ModelAndViewState) => {
+      modelAndViewStateCache.current[noteId] = modelAndViewState;
+    },
+    [],
+  );
+  const removeCache = useCallback((noteId: string) => {
+    delete modelAndViewStateCache.current[noteId];
+  }, []);
+
   let activeTab;
   if (editor.activeTabNoteId != null) {
     activeTab = editor.tabs.find(t => t.note.id === editor.activeTabNoteId);
@@ -29,7 +43,14 @@ export function Editor(props: EditorProps): JSX.Element {
 
   let content;
   if (state.editor.isEditing) {
-    content = <Monaco store={store} />;
+    content = (
+      <Monaco
+        store={store}
+        modelAndViewStateCache={modelAndViewStateCache.current}
+        updateCache={updateCache}
+        removeCache={removeCache}
+      />
+    );
   } else if (activeTab != null) {
     content = (
       <Markdown

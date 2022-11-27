@@ -87,7 +87,7 @@ export function App(props: AppProps): JSX.Element {
       setTimeout(async () => {
         await log.info("Attempting to recover from error. Reloading!");
         window.location.reload();
-      }, 3000);
+      }, 10000);
     };
     window.addEventListener("error", onError);
 
