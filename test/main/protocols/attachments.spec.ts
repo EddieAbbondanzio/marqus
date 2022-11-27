@@ -51,14 +51,18 @@ test("registerAttachmentsProtocol", async () => {
 
   // Valid file.
   callback({ url: `attachments://foo.jpg?noteId=${noteId}` }, cb);
+  expect(cb).toHaveBeenCalledTimes(1);
   expect(cb).toHaveBeenCalledWith(
     expect.stringContaining(
       `${FAKE_NOTE_DIRECTORY}/${noteId}/${ATTACHMENTS_DIRECTORY}/foo.jpg`,
     ),
   );
 
+  cb.mockReset();
+
   // File not found.
   callback({ url: `attachments://bar.jpg?noteId=${noteId}` }, cb);
+  expect(cb).toHaveBeenCalledTimes(1);
   expect(cb).toHaveBeenCalledWith({ statusCode: 404 });
 });
 

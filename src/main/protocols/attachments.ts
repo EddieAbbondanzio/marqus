@@ -15,9 +15,9 @@ export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
     // Soft error if file isn't found.
     if (!fs.existsSync(filePath)) {
       cb({ statusCode: 404 });
+    } else {
+      cb(filePath);
     }
-
-    cb(filePath);
   });
 }
 

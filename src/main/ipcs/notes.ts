@@ -16,6 +16,7 @@ import {
   parseAttachmentPath,
   registerAttachmentsProtocol,
 } from "../protocols/attachments";
+import { Attachment } from "../../shared/domain/protocols";
 
 export const ATTACHMENTS_DIRECTORY = "attachments";
 export const NOTES_DIRECTORY = "notes";
@@ -36,7 +37,9 @@ export function noteIpcs(
 ): void {
   const { dataDirectory } = config.content;
   if (dataDirectory == null) {
-    log.debug("No data directory specified. Skipping registering note ipcs.");
+    void log.debug(
+      "No data directory specified. Skipping registering note ipcs.",
+    );
     return;
   }
   const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
@@ -92,7 +95,9 @@ export function noteIpcs(
       Object.keys(props).length > Object.keys(update).length
     ) {
       const diff = difference(Object.keys(props), Object.keys(update));
-      log.warn(`ipc notes.update does not support keys: ${diff.join(", ")}`);
+      await log.warn(
+        `ipc notes.update does not support keys: ${diff.join(", ")}`,
+      );
     }
 
     note.dateUpdated = new Date();
@@ -168,6 +173,63 @@ export function noteIpcs(
     if (err) {
       throw new Error(err);
     }
+  });
+
+  ipc.handle("notes.importAttachments", async (_, noteId, attachments) => {
+    const noteAttachmentsDirectory = p.join(
+      noteDirectory,
+      noteId,
+      ATTACHMENTS_DIRECTORY,
+    );
+
+    if (!fs.existsSync(noteAttachmentsDirectory)) {
+      await fsp.mkdir(noteAttachmentsDirectory);
+    }
+
+    const copiedOverAttachments: Attachment[] = [];
+
+    for (const attachment of attachments) {
+      // Don't allow directories to be drag and dropped into notes because if we
+      // automatically insert a link for every note to the markdown file it could
+      // spam the file with a ton of links.
+      if ((await fsp.lstat(attachment.path)).isDirectory()) {
+        continue;
+      }
+
+      // Ensure filename is always unique by appending a number to the end of it
+      // if we detect the file already exists.
+      let attachmentName = attachment.name;
+      let copyNumber = 1;
+      while (fs.existsSync(p.join(noteAttachmentsDirectory, attachmentName))) {
+        const parsedFile = p.parse(attachment.name);
+        attachmentName = `${parsedFile.name}-${copyNumber}${parsedFile.ext}`;
+        copyNumber += 1;
+
+        // Prevent infinite loops, and fail softly.
+        if (copyNumber > 1000) {
+          await log.warn(
+            `Tried fixing duplicate attachment name ${attachment.name} but failed 1000 times.`,
+          );
+          continue;
+        }
+      }
+
+      await fsp.copyFile(
+        attachment.path,
+        p.join(noteAttachmentsDirectory, attachmentName),
+      );
+
+      copiedOverAttachments.push({
+        name: attachmentName,
+        // Drag-and-drop attachments always go to root directory
+        path: attachmentName,
+        // Image MIME types always start with "image".
+        // https://www.iana.org/assignments/media-types/media-types.xhtml
+        type: attachment.mimeType.includes("image") ? "image" : "file",
+      });
+    }
+
+    return copiedOverAttachments;
   });
 }
 
