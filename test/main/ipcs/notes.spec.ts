@@ -510,21 +510,6 @@ test("notes.importAttachments", async () => {
     type: "image",
     mimeType: "image/jpeg",
   });
-
-  // Replaces spaces with hyphens.
-  const imageWithSpaces = await ipc.invoke("notes.importAttachments", noteId, [
-    {
-      path: path.join("random-dir", "has spaces in name.jpg"),
-      mimeType: "image/jpeg",
-      name: "has spaces in name.jpg",
-    },
-  ]);
-  expect(imageWithSpaces[0]).toEqual({
-    path: "has-spaces-in-name.jpg",
-    name: "has-spaces-in-name.jpg",
-    type: "image",
-    mimeType: "image/jpeg",
-  });
 });
 
 test("loadNotes empty", async () => {
