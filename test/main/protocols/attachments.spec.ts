@@ -82,6 +82,16 @@ test("parseAttachmentPath", () => {
     ),
   ).toMatch(`notes/${noteId}/${ATTACHMENTS_DIRECTORY}/longer/path/to/bar.jpg`);
 
+  // Decodes URL encoded spaces
+  expect(
+    parseAttachmentPath(
+      "notes",
+      `attachments://longer/path/to/foo%20bar.jpg?noteId=${noteId}`,
+    ),
+  ).toMatch(
+    `notes/${noteId}/${ATTACHMENTS_DIRECTORY}/longer/path/to/foo bar.jpg`,
+  );
+
   // Throw if file was outside of the folder.
   expect(() =>
     parseAttachmentPath(
