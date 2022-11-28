@@ -196,15 +196,13 @@ export function noteIpcs(
         continue;
       }
 
-      // Remove spaces from file names since they are URLs and cannot contain spaces.
-      let attachmentName = attachment.name.split(/\s/).join("-");
-
       // Ensure filename is always unique by appending a number to the end of it
       // if we detect the file already exists.
+      const parsedFile = p.parse(attachment.name);
+      const originalName = parsedFile.name;
       let copyNumber = 1;
-      while (fs.existsSync(p.join(noteAttachmentsDirectory, attachmentName))) {
-        const parsedFile = p.parse(attachment.name);
-        attachmentName = `${parsedFile.name}-${copyNumber}${parsedFile.ext}`;
+      while (fs.existsSync(p.join(noteAttachmentsDirectory, attachment.name))) {
+        attachment.name = `${originalName}-${copyNumber}${parsedFile.ext}`;
         copyNumber += 1;
 
         // Prevent infinite loops, and fail softly.
@@ -218,16 +216,17 @@ export function noteIpcs(
 
       await fsp.copyFile(
         attachment.path,
-        p.join(noteAttachmentsDirectory, attachmentName),
+        p.join(noteAttachmentsDirectory, attachment.name),
       );
 
       copiedOverAttachments.push({
-        name: attachmentName,
+        name: attachment.name,
         // Drag-and-drop attachments always go to root directory
-        path: attachmentName,
+        path: attachment.name,
         // Image MIME types always start with "image".
         // https://www.iana.org/assignments/media-types/media-types.xhtml
         type: attachment.mimeType.includes("image") ? "image" : "file",
+        mimeType: attachment.mimeType,
       });
     }
 

@@ -15,7 +15,8 @@ export interface FileInfo {
 }
 
 export interface Attachment {
-  type: "image" | "file";
+  type: "file" | "image";
+  mimeType: string;
   path: string;
   name: string;
 }

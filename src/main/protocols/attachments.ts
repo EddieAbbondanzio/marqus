@@ -46,6 +46,10 @@ export function parseAttachmentPath(
   if (parsedUrl.pathname) {
     filePath = path.join(filePath, parsedUrl.pathname);
   }
+  // Replace URL encoded spaces to normal spaces so we can support files that
+  // contain spaces in their name.
+  // TODO: Replace with replaceAll when we update node.
+  filePath = filePath.split("%20").join(" ");
 
   const attachmentsPath = path.join(
     noteDirectoryPath,
