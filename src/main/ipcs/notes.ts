@@ -228,6 +228,7 @@ export function noteIpcs(
         // Image MIME types always start with "image".
         // https://www.iana.org/assignments/media-types/media-types.xhtml
         type: attachment.mimeType.includes("image") ? "image" : "file",
+        mimeType: attachment.mimeType,
       });
     }
 

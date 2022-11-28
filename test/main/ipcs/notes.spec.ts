@@ -454,6 +454,7 @@ test("notes.importAttachments", async () => {
     path: "foo.jpg",
     name: "foo.jpg",
     type: "image",
+    mimeType: "image/jpeg",
   });
 
   // Copies over files
@@ -468,6 +469,7 @@ test("notes.importAttachments", async () => {
     path: "bar.txt",
     name: "bar.txt",
     type: "file",
+    mimeType: "text/plain",
   });
 
   // Skips directories
@@ -492,6 +494,7 @@ test("notes.importAttachments", async () => {
     path: "foo-1.jpg",
     name: "foo-1.jpg",
     type: "image",
+    mimeType: "image/jpeg",
   });
 
   const copiedImageDup2 = await ipc.invoke("notes.importAttachments", noteId, [
@@ -505,6 +508,7 @@ test("notes.importAttachments", async () => {
     path: "foo-2.jpg",
     name: "foo-2.jpg",
     type: "image",
+    mimeType: "image/jpeg",
   });
 
   // Replaces spaces with hyphens.
@@ -519,6 +523,7 @@ test("notes.importAttachments", async () => {
     path: "has-spaces-in-name.jpg",
     name: "has-spaces-in-name.jpg",
     type: "image",
+    mimeType: "image/jpeg",
   });
 });
 

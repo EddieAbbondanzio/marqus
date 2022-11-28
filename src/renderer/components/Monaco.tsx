@@ -119,22 +119,25 @@ export function Monaco(props: MonacoProps): JSX.Element {
           return;
         }
 
-        // If editor is not focused, append content to end of file because there's
-        // no cursor on screen.
+        // When inserting attachments, we should move the content to the next
+        // line if the current line already has content.
         let prefixWithEOL = false;
-        if (store.state.focused[0] !== Section.Editor) {
-          const lineCount = model.getLineCount();
-          monaco.setPosition({ lineNumber: lineCount, column: 1 });
-
-          const isCurrentLineEmpty = model.getLineLength(lineCount) > 0;
-          prefixWithEOL = isCurrentLineEmpty;
+        const cursorPos = monaco.getPosition();
+        if (cursorPos) {
+          const lineLength = model.getLineLength(cursorPos.lineNumber);
+          if (lineLength > 0) {
+            prefixWithEOL = true;
+          }
         }
 
         const eol = model.getEOL();
+        let text = attachments.map(generateAttachmentLink).join(eol);
+        if (prefixWithEOL) {
+          text = eol + text;
+        }
+
         monaco.trigger("keyboard", "type", {
-          text:
-            (prefixWithEOL ? eol : "") +
-            attachments.map(generateAttachmentLink).join(eol),
+          text,
         });
       }
     },
