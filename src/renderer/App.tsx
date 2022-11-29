@@ -23,6 +23,7 @@ import { Editor } from "./components/Editor";
 import { h100, HEADER_SIZES, mb2, w100 } from "./css";
 import { Config } from "../shared/domain/config";
 import { log } from "./logger";
+import { arrayify } from "../shared/utils";
 
 const { ipc } = window;
 async function main() {
@@ -232,7 +233,7 @@ export const push: Listener<"focus.push"> = ({ value: next }, ctx) => {
     return;
   }
 
-  const arr = Array.isArray(next) ? next : [next];
+  const arr = arrayify(next);
   ctx.focus(arr);
 };
 
