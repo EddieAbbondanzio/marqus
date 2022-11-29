@@ -102,6 +102,8 @@ export function createNote(props: Partial<Note> & Pick<Note, "name">): Note {
     for (const child of note.children!) {
       child.parent = note.id;
     }
+  } else {
+    note.children = [];
   }
 
   return note;
@@ -147,6 +149,42 @@ export function getNoteById(
   } else {
     return null;
   }
+}
+
+export function getNoteByPath(
+  notes: Note[],
+  path: string,
+  required?: true,
+): Note;
+export function getNoteByPath(
+  notes: Note[],
+  path: string,
+  required: false,
+): Note | null;
+export function getNoteByPath(
+  notes: Note[],
+  path: string,
+  required = true,
+): Note | null {
+  const pathArray = path.replace("note://", "").split("/");
+
+  let currNote: Note | null = null;
+  do {
+    const currPath = pathArray.shift();
+    let currNotesToCheck = notes;
+
+    if (currNote != null && currNote.children.length > 0) {
+      currNotesToCheck = currNote.children;
+    }
+
+    currNote = currNotesToCheck.find(n => n.name === currPath) ?? null;
+  } while (pathArray.length > 0 && currNote != null);
+
+  if (required && currNote == null) {
+    throw new Error(`Note with path ${path} not found.`);
+  }
+
+  return currNote;
 }
 
 /**
