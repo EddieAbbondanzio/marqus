@@ -10,7 +10,13 @@ import { Section } from "../../../src/shared/ui/app";
 import * as Utils from "../../../src/shared/utils";
 import { mockStore } from "../../__mocks__/store";
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.useRealTimers();
+});
 
 const sleep = jest.fn().mockImplementation(() => Promise.resolve({}));
 jest.spyOn(Utils, "sleep").mockImplementation(sleep);
@@ -42,7 +48,7 @@ test.each([undefined, [Section.Sidebar]])(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (focused: any) => {
     expect(shouldExecute(focused)).toBe(true);
-  }
+  },
 );
 test("shouldExecute contextual", () => {
   expect(shouldExecute([Section.Sidebar], Section.Sidebar)).toBe(true);

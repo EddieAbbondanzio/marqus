@@ -10,28 +10,12 @@ import { createNote } from "../../../src/shared/domain/note";
 import { createTab } from "../../__factories__/editor";
 import { subHours } from "date-fns";
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
 
-test("openTab opens selected note by default", async () => {
-  const store = createStore({
-    notes: [createNote({ id: "1", name: "foo" })],
-    sidebar: {
-      selected: ["1"],
-    },
-    editor: {
-      activeTabNoteId: undefined,
-      tabs: [],
-    },
-  });
-  render(<EditorTabs store={store.current} />);
-
-  await act(async () => {
-    await store.current.dispatch("editor.openTab", undefined);
-  });
-
-  const { editor } = store.current.state;
-  expect(editor.activeTabNoteId).toBe("1");
-  expect(editor.tabs[0]!.lastActive).not.toBe(null);
+afterAll(() => {
+  jest.useRealTimers();
 });
 
 test("openTab opens tabs passed", async () => {
@@ -47,16 +31,14 @@ test("openTab opens tabs passed", async () => {
   });
   render(<EditorTabs store={store.current} />);
 
+  // Open note without setting as active
   await act(async () => {
     await store.current.dispatch("editor.openTab", { note: "1" });
   });
 
-  // Test it sets last tab passed as active
   let { editor } = store.current.state;
-  expect(editor.activeTabNoteId).toBe("1");
   expect(editor.tabs[0]!.note.id).toBe("1");
   expect(editor.tabs[0]!.lastActive).not.toBe(null);
-  expect(editor.activeTabNoteId).toBe("1");
 
   await act(async () => {
     await store.current.dispatch("editor.openTab", {

@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
 import { Protocol } from "../../shared/domain/protocols";
 import { omit } from "lodash";
+import { Store } from "../store";
 
 // TODO: Add types, or update react-remark.
 // React-remark isn't currently up to date with the latest version of remark so
@@ -15,14 +16,15 @@ import { omit } from "lodash";
 const emoji = require("remark-emoji");
 
 export interface MarkdownProps {
-  noteId: string;
+  store: Store;
   content: string;
   scroll: number;
   onScroll: (newVal: number) => void;
 }
 
 export function Markdown(props: MarkdownProps): JSX.Element {
-  const { noteId } = props;
+  const { store } = props;
+  const noteId = store.state.editor.activeTabNoteId;
 
   // Check for update so we can migrate to newer versions of remarkGFM
   // https://github.com/remarkjs/react-remark/issues/50
@@ -88,13 +90,12 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         },
         a: (props: any) => {
           const { children, ...otherProps } = props;
-          const isAttachment =
-            noteId && props.href?.startsWith(`${Protocol.Attachments}://`);
 
           let target: string | undefined;
           let href: string | undefined;
           let onClick: ((ev: MouseEvent) => void) | undefined;
-          if (isAttachment) {
+
+          if (noteId && props.href?.startsWith(`${Protocol.Attachments}://`)) {
             const url = new URL(props.href);
             url.searchParams.set("noteId", noteId);
             href = url.href;
@@ -102,6 +103,17 @@ export function Markdown(props: MarkdownProps): JSX.Element {
             onClick = (ev: MouseEvent) => {
               ev.preventDefault();
               void window.ipc("notes.openAttachmentFile", href!);
+            };
+          } else if (props.href?.startsWith("note://")) {
+            href = props.href.split("%20").join(" ");
+
+            onClick = (ev: MouseEvent) => {
+              ev.preventDefault();
+
+              void store.dispatch("editor.openTab", {
+                note: href!,
+                active: href!,
+              });
             };
           } else {
             href = props.href;

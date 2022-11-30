@@ -33,7 +33,7 @@ export function Editor(props: EditorProps): JSX.Element {
     [],
   );
   const removeCache = useCallback((noteId: string) => {
-    delete modelAndViewStateCache.current[noteId];
+  delete modelAndViewStateCache.current[noteId];
   }, []);
 
   let activeTab;
@@ -54,7 +54,7 @@ export function Editor(props: EditorProps): JSX.Element {
   } else if (activeTab != null) {
     content = (
       <Markdown
-        noteId={activeTab.note.id}
+        store={store}
         content={activeTab.note.content}
         scroll={state.editor.scroll}
         onScroll={newVal => void store.dispatch("editor.updateScroll", newVal)}

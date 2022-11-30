@@ -8,6 +8,7 @@ import { Shortcut } from "../shared/domain/shortcut";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
 import { Section, AppState, serializeAppState } from "../shared/ui/app";
 import { log } from "./logger";
+import { arrayify } from "../shared/utils";
 
 export interface Store {
   state: State;
@@ -182,7 +183,7 @@ export function useStore(initialState: State): Store {
       event: ET | ET[],
       listener: Listener<ET>,
     ) => {
-      const events = Array.isArray(event) ? event : [event];
+      const events = arrayify(event);
       for (const ev of events) {
         if (listeners.current[ev] == null) {
           listeners.current[ev] = [];
@@ -193,7 +194,7 @@ export function useStore(initialState: State): Store {
     };
 
     const off: Off = (event, listener) => {
-      const events = Array.isArray(event) ? event : [event];
+      const events = arrayify(event);
       for (const ev of events) {
         const index = listeners.current[ev]!.findIndex(l => l === listener);
         if (index === -1) {

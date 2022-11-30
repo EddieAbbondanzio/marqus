@@ -4,11 +4,18 @@ import { Markdown } from "../../../src/renderer/components/Markdown";
 import { uuid } from "../../../src/shared/domain";
 import { useRemark } from "react-remark";
 import { Protocol } from "../../../src/shared/domain/protocols";
+import { createStore } from "../../__factories__/store";
 
 test("Markdown img sets width and height", async () => {
+  const store = createStore({
+    editor: {
+      activeTabNoteId: uuid(),
+      tabs: [],
+    },
+  });
   render(
     <Markdown
-      noteId={uuid()}
+      store={store.current}
       content="foobar"
       scroll={0}
       onScroll={jest.fn()}
@@ -40,9 +47,15 @@ test("Markdown img sets width and height", async () => {
 });
 
 test("Markdown attachment link", async () => {
+  const store = createStore({
+    editor: {
+      activeTabNoteId: uuid(),
+      tabs: [],
+    },
+  });
   render(
     <Markdown
-      noteId={uuid()}
+      store={store.current}
       content="foobar"
       scroll={0}
       onScroll={jest.fn()}
@@ -75,9 +88,15 @@ test("Markdown attachment link", async () => {
 });
 
 test("Markdown http link", async () => {
+  const store = createStore({
+    editor: {
+      activeTabNoteId: uuid(),
+      tabs: [],
+    },
+  });
   render(
     <Markdown
-      noteId={uuid()}
+      store={store.current}
       content="foobar"
       scroll={0}
       onScroll={jest.fn()}

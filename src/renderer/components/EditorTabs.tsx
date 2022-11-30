@@ -1,7 +1,7 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { getNoteById } from "../../shared/domain/note";
+import { getNoteById, getNoteByPath, Note } from "../../shared/domain/note";
 import { m0, mr2, my2, p2, px2, THEME } from "../css";
 import { Listener, Store } from "../store";
 import { Icon } from "./shared/Icon";
@@ -9,6 +9,7 @@ import { first, last, orderBy } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
+import { arrayify } from "../../shared/utils";
 
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
 export const TABS_HEIGHT = "4.3rem";
@@ -26,12 +27,12 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     const rendered = [];
     const { activeTabNoteId } = editor;
 
-    const onClick = (noteId: string) => {
-      store.dispatch("editor.openTab", { note: noteId, active: noteId });
+    const onClick = async (noteId: string) => {
+      await store.dispatch("editor.openTab", { note: noteId, active: noteId });
     };
 
-    const onClose = () => {
-      store.dispatch("editor.closeTab", undefined!);
+    const onClose = async () => {
+      await store.dispatch("editor.closeTab", undefined!);
     };
 
     for (const tab of editor.tabs) {
@@ -378,23 +379,28 @@ const StyledDelete = styled(Icon)`
 `;
 
 export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
-  const { sidebar, editor, notes } = ctx.getState();
+  // Keep in sync with sidebar.openSelectedNotes listener
+  const { editor, notes } = ctx.getState();
 
-  let noteIds: string[];
-  let activeTabNoteId;
-
-  let input;
-  if (ev.value != null) {
-    input = ev.value;
+  if (ev.value?.note == null) {
+    return;
   }
 
-  // Determine tabs to open
-  if (input == null) {
-    noteIds = sidebar.selected ?? [];
-    activeTabNoteId = first(sidebar.selected);
-  } else {
-    noteIds = Array.isArray(input.note) ? input.note : [input.note];
-    activeTabNoteId = input.active ?? last(noteIds);
+  const notesToOpen = arrayify(ev.value.note);
+  const noteIds: string[] = [];
+  let activeTabNoteId;
+
+  for (const note of notesToOpen) {
+    if (note.startsWith("note://")) {
+      const foundNote = getNoteByPath(notes, note);
+      noteIds.push(foundNote.id);
+    } else {
+      noteIds.push(note);
+    }
+  }
+
+  if (ev.value.active) {
+    activeTabNoteId = ev.value.active;
   }
 
   if (noteIds.length === 0) {
@@ -402,9 +408,6 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   }
 
   const tabs = [...editor.tabs];
-
-  // If tab creation logic gets changed, don't forget to update it in Sidebar.tsx
-  // newNote().
 
   for (const noteId of noteIds) {
     let newTab = false;
@@ -430,9 +433,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
     },
   });
 
-  // When the selected note is opened we need to change focus to the editor
-  // because it means the user wants to start editing the note.
-  if (ev.value == null) {
+  if (ev.value.focus) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
 };
