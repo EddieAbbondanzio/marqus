@@ -746,15 +746,17 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
     }
   }
 
+  // We don't set the editor's active note nor focus the editor when a note is
+  // opened from the sidebar because the user may not want to start editing the
+  // note. If we were to do this, it'd make it difficult to delete note via the
+  // delete shortcut because each time they clicked on a note, they'd have to
+  // click back into the editor and then hit delete.
+
   ctx.setUI({
     editor: {
       tabs,
-      // Default active tab to the first one for now.
-      activeTabNoteId: notesToOpen[0].id,
     },
   });
-
-  ctx.focus([Section.Editor]);
 };
 
 export const openNoteAttachments: Listener<
