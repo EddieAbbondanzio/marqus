@@ -400,7 +400,11 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   }
 
   if (ev.value.active) {
-    activeTabNoteId = ev.value.active;
+    if (ev.value.active.startsWith("note://")) {
+      activeTabNoteId = getNoteByPath(notes, ev.value.active).id;
+    } else {
+      activeTabNoteId = ev.value.active;
+    }
   }
 
   if (noteIds.length === 0) {

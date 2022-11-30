@@ -53,6 +53,48 @@ test("openTab opens tabs passed", async () => {
   expect(editor.tabs).toHaveLength(3);
 });
 
+test("openTab works with note paths too", async () => {
+  const store = createStore({
+    notes: [
+      createNote({ id: "1", name: "foo" }),
+      createNote({ id: "2", name: "bar" }),
+      createNote({
+        id: "3",
+        name: "baz",
+        children: [createNote({ id: "4", name: "Nested" })],
+      }),
+    ],
+    editor: {
+      tabs: [],
+    },
+  });
+  render(<EditorTabs store={store.current} />);
+
+  // Test it can open a note from path
+  await act(async () => {
+    await store.current.dispatch("editor.openTab", {
+      note: "note://foo",
+      active: "note://foo",
+    });
+  });
+
+  let { editor } = store.current.state;
+  expect(editor.tabs[0]!.note.id).toBe("1");
+  expect(editor.activeTabNoteId).toBe("1");
+
+  // Test it can open note from nested path
+  await act(async () => {
+    await store.current.dispatch("editor.openTab", {
+      note: "note://baz/Nested",
+      active: "note://baz/Nested",
+    });
+  });
+
+  ({ editor } = store.current.state);
+  expect(editor.tabs[1]!.note.id).toBe("4");
+  expect(editor.activeTabNoteId).toBe("4");
+});
+
 test("closeTab closes active tab by default", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
