@@ -33,7 +33,7 @@ export function Editor(props: EditorProps): JSX.Element {
     [],
   );
   const removeCache = useCallback((noteId: string) => {
-  delete modelAndViewStateCache.current[noteId];
+    delete modelAndViewStateCache.current[noteId];
   }, []);
 
   let activeTab;

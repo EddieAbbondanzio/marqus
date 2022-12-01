@@ -110,7 +110,6 @@ export function Markdown(props: MarkdownProps): JSX.Element {
             onClick = (ev: MouseEvent) => {
               ev.preventDefault();
 
-              console.log("OPEN NOTE: ", href);
               void store.dispatch("editor.openTab", {
                 note: href!,
                 active: href!,
