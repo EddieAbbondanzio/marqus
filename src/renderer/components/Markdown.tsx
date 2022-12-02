@@ -45,36 +45,39 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         code: CodeSpan,
         span: Text,
         img: (props: any) => {
+          if (noteId == null) {
+            throw new Error(`Cannot render links without a noteId.`);
+          }
+
           const otherProps = omit(props, "src");
 
           let src;
           let title;
           let height: string | number | undefined = undefined;
           let width: string | number | undefined = undefined;
+          
           if (props.src != null) {
-            // N.B. Not compatible with windows! We'll need to refactor this when
-            // we expand to supporting windows. Windows uses backwards slashes in
-            // paths so file paths will be considered invalid URLs.
-            //
-            // Some options we could explore:
-            // URL encoding the underlying path (hidden from user)
-            // Not use new URL? What about the params we set tho?
-            const parsedSrc = new URL(props.src);
-            const parsedParams = new URLSearchParams(parsedSrc.search);
+            const url = new URL(props.src);
+            const originalParams = new URLSearchParams(url.search);
 
-            if (parsedParams.has("height")) {
-              height = parsedParams.get("height")!;
+            switch (url.protocol) {
+              case `${Protocol.Attachments}:`:
+                url.search = "";
+                url.searchParams.set("noteId", noteId);
+
+                title = url.pathname;
+                src = url.href;
+                break;
+
+              default:
+                break;
             }
-            if (parsedParams.has("width")) {
-              width = parsedParams.get("width")!;
+
+            if (originalParams.has("height")) {
+              height = originalParams.get("height")!;
             }
-
-            if (parsedSrc.protocol == `${Protocol.Attachments}:`) {
-              parsedSrc.search = "";
-              parsedSrc.searchParams.set("noteId", noteId!);
-
-              title = parsedSrc.pathname;
-              src = parsedSrc.href;
+            if (originalParams.has("width")) {
+              width = originalParams.get("width")!;
             }
           }
 

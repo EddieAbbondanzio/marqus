@@ -7,9 +7,10 @@ import { Protocol } from "../../../src/shared/domain/protocols";
 import { createStore } from "../../__factories__/store";
 
 test("Markdown img sets width and height", async () => {
+  const noteId = uuid();
   const store = createStore({
     editor: {
-      activeTabNoteId: uuid(),
+      activeTabNoteId: noteId,
       tabs: [],
     },
   });
@@ -39,7 +40,7 @@ test("Markdown img sets width and height", async () => {
 
   const parsedSrc = new URL(renderedImg.src);
   const parsedParams = new URLSearchParams(parsedSrc.search);
-  expect(parsedParams.has("noteId")).toBe(true);
+  expect(parsedParams.get("noteId")).toBe(noteId);
 
   // Main doesn't need to know these so we unset them in the url.
   expect(parsedParams.has("height")).toBe(false);
