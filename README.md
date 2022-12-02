@@ -7,7 +7,7 @@
 Marker is a markdown note taking app for Linux that supports infinitely nestable notes, multi-tab support, customizable shortcuts, and stores notes as plain files in your file system.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/EddieAbbondanzio/marker/master/docs/overview.png">
+<img src="https://raw.githubusercontent.com/EddieAbbondanzio/marker/master/docs/images/overview.png">
 </p>
 
 ## Features
