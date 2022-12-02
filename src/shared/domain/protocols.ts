@@ -21,19 +21,22 @@ export interface Attachment {
 
 const PROTOCOL_REGEX = /^[a-z0-9]+:\/\//;
 
-export function isProtocolUrl(
-  protocol: string | Protocol,
-  url: string | null,
-): boolean {
+export function getProtocol(url: string | null): string | null {
   if (url == null) {
-    return false;
+    return null;
   }
 
   const match = url.match(PROTOCOL_REGEX);
   if (!match) {
-    return false;
+    return null;
   }
 
-  const matchedString = match[0];
-  return matchedString.includes(protocol);
+  return match[0];
+}
+
+export function isProtocolUrl(
+  protocol: string | Protocol,
+  url: string | null,
+): boolean {
+  return getProtocol(url)?.includes(protocol) ?? false;
 }

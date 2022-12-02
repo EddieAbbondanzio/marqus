@@ -6,6 +6,40 @@ import { useRemark } from "react-remark";
 import { Protocol } from "../../../src/shared/domain/protocols";
 import { createStore } from "../../__factories__/store";
 
+test("Markdown img sets src", async () => {
+  const noteId = uuid();
+  const store = createStore({
+    editor: {
+      activeTabNoteId: noteId,
+      tabs: [],
+    },
+  });
+  render(
+    <Markdown
+      store={store.current}
+      content="foobar"
+      scroll={0}
+      onScroll={jest.fn()}
+    />,
+  );
+
+  const { rehypeReactOptions } = (useRemark as jest.Mock).mock.calls[0][0];
+  const {
+    components: { img },
+  } = rehypeReactOptions;
+
+  const renderedImg = render(
+    img({
+      alt: "alt-text",
+      src: `website-url.com/image.jpg`,
+    }),
+  ).getByAltText("alt-text") as HTMLImageElement;
+
+  const url = new URL(renderedImg.src);
+  url.search = "";
+  expect(url.href).toBe("http://website-url.com/image.jpg");
+});
+
 test("Markdown img sets width and height", async () => {
   const noteId = uuid();
   const store = createStore({
@@ -124,4 +158,19 @@ test("Markdown http link", async () => {
   const parsedHref = new URL(renderedLink.href);
   const searchParams = new URLSearchParams(parsedHref.search);
   expect(searchParams.has("noteId")).toBe(false);
+
+  // Passing a url without protocol will throw an error from new URL so we test for it.
+  const renderedLinkNoProtocol = render(
+    a({
+      children: ["Click me 2!"],
+      href: "random-website.com",
+    }),
+  ).getByText("Click me 2!") as HTMLAnchorElement;
+
+  expect(renderedLink.target).toBe("_blank");
+
+  // Web links shouldn't have onclick set because they use built in browser functionality.
+  expect(typeof renderedLink.onclick).not.toBe("function");
+
+  expect(renderedLinkNoProtocol.href).toBe("http://random-website.com/");
 });

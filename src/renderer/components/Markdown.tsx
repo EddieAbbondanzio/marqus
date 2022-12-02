@@ -4,7 +4,7 @@ import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
 import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
-import { Protocol } from "../../shared/domain/protocols";
+import { getProtocol, Protocol } from "../../shared/domain/protocols";
 import { omit } from "lodash";
 import { Store } from "../store";
 
@@ -57,21 +57,21 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           let width: string | number | undefined = undefined;
 
           if (props.src != null) {
-            const url = new URL(props.src);
+            let url: URL;
+            // Assume links with no protocol are http
+            if (getProtocol(props.src) == null) {
+              url = new URL(`http://${props.src}`);
+            } else {
+              url = new URL(props.src);
+            }
+
             const originalParams = new URLSearchParams(url.search);
 
-            switch (url.protocol) {
-              case `${Protocol.Attachment}:`:
-                url.search = "";
-                url.searchParams.set("noteId", noteId);
+            url.search = "";
+            url.searchParams.set("noteId", noteId);
 
-                title = url.pathname;
-                src = url.href;
-                break;
-
-              default:
-                break;
-            }
+            title = url.pathname;
+            src = url.href;
 
             if (originalParams.has("height")) {
               height = originalParams.get("height")!;
@@ -101,7 +101,13 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           let href: string;
           let target = "";
           let onClick: ((ev: MouseEvent) => void) | undefined;
-          const url = new URL(props.href);
+          let url: URL;
+          // Assume links with no protocol are http
+          if (getProtocol(props.href) == null) {
+            url = new URL(`http://${props.href}`);
+          } else {
+            url = new URL(props.href);
+          }
 
           switch (url.protocol) {
             case `${Protocol.Attachment}:`:
