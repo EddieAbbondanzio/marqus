@@ -4,14 +4,14 @@ Attachments are images and files that are inserted into notes. Images will be re
 
 To make it super easy to add images, Marker supports dragging and dropping them into any note that is being actively edited.
 
-![Drag and drop](https://github.com/EddieAbbondanzio/marker/master/docs/images/drag-and-drop.png)
+![Drag and drop](https://github.com/EddieAbbondanzio/marker/blob/master/docs/images/drag-and-drop.gif)
 
 ## How Attachments Work
 
 Notes can use any file within their `attachment` folder as an attachment.
 
 To open a notes `attachment` folder, right click on it in the sidebar and select "Open attachments"
-![Drag and drop](https://github.com/EddieAbbondanzio/marker/master/docs/images/open-attachments.png)
+![Drag and drop](https://github.com/EddieAbbondanzio/marker/blob/master/docs/images/open-attachments.png)
 
 Images can be inserted using: `![](attachments://image.jpg)`
 
