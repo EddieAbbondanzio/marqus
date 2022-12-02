@@ -1,7 +1,10 @@
 import { addDays } from "date-fns";
+import { uuid } from "../../../src/shared/domain";
 import {
   createNote,
   flatten,
+  getNoteById,
+  getNoteByPath,
   getParents,
   NoteSort,
   sortNotes,
@@ -21,7 +24,7 @@ test("sortNotes alphanumeric", () => {
 
   const sorted = sortNotes(notes, NoteSort.Alphanumeric);
 
-  expect(sorted.map((n) => n.name)).toEqual([
+  expect(sorted.map(n => n.name)).toEqual([
     "1",
     "2",
     "3",
@@ -47,7 +50,7 @@ test("sortNotes alphanumeric reversed", () => {
 
   const sorted = sortNotes(notes, NoteSort.AlphanumericReversed);
 
-  expect(sorted.map((n) => n.name)).toEqual([
+  expect(sorted.map(n => n.name)).toEqual([
     "Echo",
     "Delta",
     "charlie",
@@ -70,7 +73,7 @@ test("sortNotes date created", () => {
   ];
 
   const sorted = sortNotes(notes, NoteSort.DateCreated);
-  expect(sorted.map((n) => n.name)).toEqual(["6", "5", "4", "3", "2", "1"]);
+  expect(sorted.map(n => n.name)).toEqual(["6", "5", "4", "3", "2", "1"]);
 });
 
 test("sortNotes date created reversed", () => {
@@ -84,7 +87,7 @@ test("sortNotes date created reversed", () => {
   ];
 
   const sorted = sortNotes(notes, NoteSort.DateCreatedReversed);
-  expect(sorted.map((n) => n.name)).toEqual(["1", "2", "3", "4", "5", "6"]);
+  expect(sorted.map(n => n.name)).toEqual(["1", "2", "3", "4", "5", "6"]);
 });
 
 test("sortNotes date updated", () => {
@@ -98,7 +101,7 @@ test("sortNotes date updated", () => {
   ];
 
   const sorted = sortNotes(notes, NoteSort.DateUpdated);
-  expect(sorted.map((n) => n.name)).toEqual(["1", "2", "3", "4", "5", "6"]);
+  expect(sorted.map(n => n.name)).toEqual(["1", "2", "3", "4", "5", "6"]);
 });
 
 test("sortNotes date updated reversed", () => {
@@ -112,7 +115,7 @@ test("sortNotes date updated reversed", () => {
   ];
 
   const sorted = sortNotes(notes, NoteSort.DateUpdatedReversed);
-  expect(sorted.map((n) => n.name)).toEqual(["6", "5", "4", "3", "2", "1"]);
+  expect(sorted.map(n => n.name)).toEqual(["6", "5", "4", "3", "2", "1"]);
 });
 
 test("sortNotes works recursively", () => {
@@ -135,6 +138,61 @@ test("sortNotes works recursively", () => {
   const beta = sorted[1]!;
   expect(beta.children![0]?.name).toBe("echo");
   expect(beta.children![1]?.name).toBe("delta");
+});
+
+test("getNoteById", () => {
+  const alphaId = uuid();
+  const deltaId = uuid();
+  const notes = [
+    createNote({ id: alphaId, name: "alpha" }),
+    createNote({ name: "charlie" }),
+    createNote({
+      name: "beta",
+      children: [
+        createNote({ id: deltaId, name: "delta" }),
+        createNote({ name: "echo" }),
+      ],
+    }),
+  ];
+
+  // Get Root
+  expect(getNoteById(notes, alphaId).name).toBe("alpha");
+
+  // Get nested
+  expect(getNoteById(notes, deltaId).name).toBe("delta");
+
+  // Get required but not found
+  expect(() => {
+    getNoteById(notes, uuid(), true);
+  }).toThrow();
+
+  // Get non-required but not found
+  expect(getNoteById(notes, uuid(), false)).toBe(null);
+});
+
+test("getNoteByPath", () => {
+  const notes = [
+    createNote({ name: "alpha" }),
+    createNote({ name: "charlie" }),
+    createNote({
+      name: "beta",
+      children: [createNote({ name: "delta" }), createNote({ name: "echo" })],
+    }),
+  ];
+
+  // Get Root
+  expect(getNoteByPath(notes, "alpha").name).toBe("alpha");
+
+  // Get nested
+  expect(getNoteByPath(notes, "beta/delta").name).toBe("delta");
+
+  // Get required but not found
+  expect(() => {
+    getNoteByPath(notes, "alpha/omega", true);
+  }).toThrow();
+
+  // Get non-required but not found
+  expect(getNoteByPath(notes, "alpha/omega", false)).toBe(null);
 });
 
 test("flatten", () => {

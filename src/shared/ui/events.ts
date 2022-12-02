@@ -46,13 +46,16 @@ export interface UIEvents {
   "sidebar.moveSelectionDown": void;
   "sidebar.search": string;
   "sidebar.focusSearch": void;
+  "sidebar.openSelectedNotes": void;
 
   // Editor
   "editor.save": void;
   "editor.toggleView": void;
   "editor.setContent": { noteId: string; content: string };
   "editor.updateScroll": number;
-  "editor.openTab": { note: string | string[]; active?: string } | undefined;
+  "editor.openTab":
+    | { note: string | string[]; active?: string; focus?: boolean }
+    | undefined;
 
   "editor.closeTab": string;
   "editor.closeAllTabs": void;
@@ -115,6 +118,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "sidebar.moveSelectionDown",
   "sidebar.search",
   "sidebar.focusSearch",
+  "sidebar.openSelectedNotes",
 
   // Editor
   "editor.save",

@@ -1,20 +1,14 @@
-import { uuid } from "../../../src/shared/domain";
-import { ATTACHMENTS_PROTOCOL_REGEX } from "../../../src/shared/domain/protocols";
+import { isProtocolUrl } from "../../../src/shared/domain/protocols";
 
-test("ATTACHMENTS_PROTOCOL_REGEX", () => {
-  expect(`attachments://foo?noteId=${uuid()}`).toMatch(
-    ATTACHMENTS_PROTOCOL_REGEX,
-  );
+test("isProtocolUrl", () => {
+  expect(isProtocolUrl("foo", null)).toBe(false);
 
-  expect(`attachments://foo?noteId=nota24sumber`).not.toMatch(
-    ATTACHMENTS_PROTOCOL_REGEX,
-  );
+  // No protocol
+  expect(isProtocolUrl("foo", "lol.txt")).toBe(false);
 
-  expect(`attach://foo?noteId=${uuid()}`).not.toMatch(
-    ATTACHMENTS_PROTOCOL_REGEX,
-  );
+  // Wrong protocol
+  expect(isProtocolUrl("foo", "bar://lol.txt")).toBe(false);
 
-  expect(`foo?noteId=${uuid()}`).not.toMatch(ATTACHMENTS_PROTOCOL_REGEX);
-
-  expect(`attachments://foo`).not.toMatch(ATTACHMENTS_PROTOCOL_REGEX);
+  // Good
+  expect(isProtocolUrl("foo", "foo://lol.txt")).toBe(true);
 });

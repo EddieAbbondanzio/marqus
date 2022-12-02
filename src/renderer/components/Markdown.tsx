@@ -4,8 +4,9 @@ import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
 import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
-import { Protocol } from "../../shared/domain/protocols";
+import { isProtocolUrl, Protocol } from "../../shared/domain/protocols";
 import { omit } from "lodash";
+import { Store } from "../store";
 
 // TODO: Add types, or update react-remark.
 // React-remark isn't currently up to date with the latest version of remark so
@@ -15,14 +16,15 @@ import { omit } from "lodash";
 const emoji = require("remark-emoji");
 
 export interface MarkdownProps {
-  noteId: string;
+  store: Store;
   content: string;
   scroll: number;
   onScroll: (newVal: number) => void;
 }
 
 export function Markdown(props: MarkdownProps): JSX.Element {
-  const { noteId } = props;
+  const { store } = props;
+  const noteId = store.state.editor.activeTabNoteId;
 
   // Check for update so we can migrate to newer versions of remarkGFM
   // https://github.com/remarkjs/react-remark/issues/50
@@ -43,36 +45,39 @@ export function Markdown(props: MarkdownProps): JSX.Element {
         code: CodeSpan,
         span: Text,
         img: (props: any) => {
+          if (noteId == null) {
+            throw new Error(`Cannot render links without a noteId.`);
+          }
+
           const otherProps = omit(props, "src");
 
           let src;
           let title;
           let height: string | number | undefined = undefined;
           let width: string | number | undefined = undefined;
+          
           if (props.src != null) {
-            // N.B. Not compatible with windows! We'll need to refactor this when
-            // we expand to supporting windows. Windows uses backwards slashes in
-            // paths so file paths will be considered invalid URLs.
-            //
-            // Some options we could explore:
-            // URL encoding the underlying path (hidden from user)
-            // Not use new URL? What about the params we set tho?
-            const parsedSrc = new URL(props.src);
-            const parsedParams = new URLSearchParams(parsedSrc.search);
+            const url = new URL(props.src);
+            const originalParams = new URLSearchParams(url.search);
 
-            if (parsedParams.has("height")) {
-              height = parsedParams.get("height")!;
+            switch (url.protocol) {
+              case `${Protocol.Attachments}:`:
+                url.search = "";
+                url.searchParams.set("noteId", noteId);
+
+                title = url.pathname;
+                src = url.href;
+                break;
+
+              default:
+                break;
             }
-            if (parsedParams.has("width")) {
-              width = parsedParams.get("width")!;
+
+            if (originalParams.has("height")) {
+              height = originalParams.get("height")!;
             }
-
-            if (parsedSrc.protocol == `${Protocol.Attachments}:`) {
-              parsedSrc.search = "";
-              parsedSrc.searchParams.set("noteId", noteId!);
-
-              title = parsedSrc.pathname;
-              src = parsedSrc.href;
+            if (originalParams.has("width")) {
+              width = originalParams.get("width")!;
             }
           }
 
@@ -87,34 +92,53 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           );
         },
         a: (props: any) => {
+          if (noteId == null) {
+            throw new Error(`Cannot render links without a noteId.`);
+          }
+
           const { children, ...otherProps } = props;
-          const isAttachment =
-            noteId && props.href?.startsWith(`${Protocol.Attachments}://`);
 
-          let target: string | undefined;
-          let href: string | undefined;
+          let href: string;
+          let target = "";
           let onClick: ((ev: MouseEvent) => void) | undefined;
-          if (isAttachment) {
-            const url = new URL(props.href);
-            url.searchParams.set("noteId", noteId);
-            href = url.href;
+          const url = new URL(props.href);
 
-            onClick = (ev: MouseEvent) => {
-              ev.preventDefault();
-              void window.ipc("notes.openAttachmentFile", href!);
-            };
-          } else {
-            href = props.href;
-            target = "_blank";
+          switch (url.protocol) {
+            case `${Protocol.Attachments}:`:
+              url.searchParams.set("noteId", noteId);
+              href = url.href;
+
+              onClick = (ev: MouseEvent) => {
+                ev.preventDefault();
+                void window.ipc("notes.openAttachmentFile", href);
+              };
+              break;
+
+            case "note:":
+              onClick = (ev: MouseEvent) => {
+                ev.preventDefault();
+
+                const decodedHref = decodeURI(url.href);
+                void store.dispatch("editor.openTab", {
+                  note: decodedHref,
+                  active: decodedHref,
+                });
+              };
+              break;
+
+            default:
+              href = url.href;
+              target = "_blank";
+              break;
           }
 
           return (
             <Link
               {...otherProps}
               target={target}
-              href={href}
+              href={url.href}
               onClick={onClick}
-              title={props.href}
+              title={url.href}
             >
               {children}
             </Link>

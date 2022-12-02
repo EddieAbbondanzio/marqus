@@ -37,14 +37,19 @@ test("registerAttachmentsProtocol", async () => {
   const callback = registerFileProtocol.mock.calls[0][1];
   expect(typeof callback).toBe("function");
 
+  // Random string
   expect(() => callback({ url: "not-attachment-url" }, jest.fn())).toThrow(
-    /URL .* doesn't match/,
+    /URL .* is not a valid attachments url/,
   );
+
+  //Missing prefix
   expect(() => callback({ url: "foo.jpg?noteId=123" }, jest.fn())).toThrow(
-    /URL .* doesn't match/,
+    /URL .* is not a valid attachments url/,
   );
+
+  // Missing noteId param
   expect(() => callback({ url: "attachments://foo.jpg" }, jest.fn())).toThrow(
-    /URL .* doesn't match/,
+    /Invalid note id \(.*\) in attachment path/,
   );
 
   const cb = jest.fn();
@@ -81,6 +86,16 @@ test("parseAttachmentPath", () => {
       `attachments://longer/path/to/bar.jpg?noteId=${noteId}`,
     ),
   ).toMatch(`notes/${noteId}/${ATTACHMENTS_DIRECTORY}/longer/path/to/bar.jpg`);
+
+  // Decodes URL encoded spaces
+  expect(
+    parseAttachmentPath(
+      "notes",
+      `attachments://longer/path/to/foo%20bar.jpg?noteId=${noteId}`,
+    ),
+  ).toMatch(
+    `notes/${noteId}/${ATTACHMENTS_DIRECTORY}/longer/path/to/foo bar.jpg`,
+  );
 
   // Throw if file was outside of the folder.
   expect(() =>

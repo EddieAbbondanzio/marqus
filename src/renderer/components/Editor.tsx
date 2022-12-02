@@ -25,6 +25,8 @@ export function Editor(props: EditorProps): JSX.Element {
   // N.B. We cache the model and view state for monaco tabs here in the Editor
   // vs within the Monaco component because the Monaco component gets unmounted
   // when the editor switches to view mode so we'd lose tab states.
+  //
+  // TODO: Move these up to the store?
   const modelAndViewStateCache = useRef<Record<string, ModelAndViewState>>({});
   const updateCache = useCallback(
     (noteId: string, modelAndViewState: ModelAndViewState) => {
@@ -54,7 +56,7 @@ export function Editor(props: EditorProps): JSX.Element {
   } else if (activeTab != null) {
     content = (
       <Markdown
-        noteId={activeTab.note.id}
+        store={store}
         content={activeTab.note.content}
         scroll={state.editor.scroll}
         onScroll={newVal => void store.dispatch("editor.updateScroll", newVal)}

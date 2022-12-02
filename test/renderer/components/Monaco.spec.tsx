@@ -1,5 +1,8 @@
 import React from "react";
-import { Monaco } from "../../../src/renderer/components/Monaco";
+import {
+  generateAttachmentLink,
+  Monaco,
+} from "../../../src/renderer/components/Monaco";
 import { createNote } from "../../../src/shared/domain/note";
 import { createStore } from "../../__factories__/store";
 import { fireEvent, render } from "@testing-library/react";
@@ -7,7 +10,7 @@ import { uuid } from "../../../src/shared/domain";
 import * as monaco from "monaco-editor";
 import { Section } from "../../../src/shared/ui/app";
 import { when } from "jest-when";
-import { sleep } from "../../../src/shared/utils";
+import { Protocol } from "../../../src/shared/domain/protocols";
 
 test("importAttachments", async () => {
   const noteId = uuid();
@@ -88,4 +91,60 @@ test("importAttachments", async () => {
       },
     ],
   );
+});
+
+test("generateAttachmentLink", () => {
+  expect(
+    generateAttachmentLink({
+      name: "foo.txt",
+      path: "foo.txt",
+      mimeType: "text/plain",
+      type: "file",
+    }),
+  ).toBe(`[foo.txt](${Protocol.Attachments}://foo.txt)`);
+
+  expect(
+    generateAttachmentLink({
+      name: "bar.txt",
+      path: "nested/bar.txt",
+      mimeType: "text/plain",
+      type: "file",
+    }),
+  ).toBe(`[bar.txt](${Protocol.Attachments}://nested/bar.txt)`);
+
+  expect(
+    generateAttachmentLink({
+      name: "foo bar.txt",
+      path: "foo bar.txt",
+      mimeType: "text/plain",
+      type: "file",
+    }),
+  ).toBe(`[foo bar.txt](${Protocol.Attachments}://foo%20bar.txt)`);
+
+  expect(
+    generateAttachmentLink({
+      name: "baz.jpg",
+      path: "baz.jpg",
+      mimeType: "image/jpeg",
+      type: "image",
+    }),
+  ).toBe(`![](${Protocol.Attachments}://baz.jpg)`);
+
+  expect(
+    generateAttachmentLink({
+      name: "qux.jpg",
+      path: "nested/qux.jpg",
+      mimeType: "image/jpeg",
+      type: "image",
+    }),
+  ).toBe(`![](${Protocol.Attachments}://nested/qux.jpg)`);
+
+  expect(
+    generateAttachmentLink({
+      name: "two words.jpg",
+      path: "two words.jpg",
+      mimeType: "image/jpeg",
+      type: "image",
+    }),
+  ).toBe(`![](${Protocol.Attachments}://two%20words.jpg)`);
 });

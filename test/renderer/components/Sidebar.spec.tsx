@@ -10,13 +10,9 @@ import {
   getNoteById,
 } from "../../../src/shared/domain/note";
 import * as prompt from "../../../src/renderer/utils/prompt";
-import { when } from "jest-when";
 import { Section } from "../../../src/shared/ui/app";
 import { createStore } from "../../__factories__/store";
 import { uuid } from "../../../src/shared/domain";
-
-// TODO: Rewrite these test to use fireEvent to be more like how the code is
-// actually ran.
 
 const promptConfirmAction = jest.spyOn(prompt, "promptConfirmAction");
 
@@ -394,6 +390,53 @@ test("sidebar.dragNote", async () => {
   expect(store.current.state.notes).toContainEqual(
     expect.objectContaining({ id: "1" }),
   );
+});
+
+test("sidebar.openSelectedNotes", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({
+      id: "2",
+      name: "bar",
+      children: [
+        createNote({
+          id: "3",
+          name: "baz",
+        }),
+      ],
+    }),
+  ];
+
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: ["1"],
+    },
+    editor: {
+      activeTabNoteId: undefined,
+      tabs: [],
+    },
+  });
+
+  render(<Sidebar store={store.current} />);
+
+  // Opens new tab
+  await act(async () => {
+    await store.current.dispatch("sidebar.openSelectedNotes");
+  });
+
+  let { editor } = store.current.state;
+  expect(editor.tabs).toHaveLength(1);
+  expect(editor.activeTabNoteId).toBe(undefined);
+
+  // Doesn't open duplicate tab if one already exists
+  await act(async () => {
+    await store.current.dispatch("sidebar.openSelectedNotes");
+  });
+
+  editor = store.current.state.editor;
+  expect(editor.tabs).toHaveLength(1);
+  expect(editor.activeTabNoteId).toBe(undefined);
 });
 
 test("applySearchString", () => {

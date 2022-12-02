@@ -286,10 +286,13 @@ const StyledEditor = styled.div`
 `;
 
 export function generateAttachmentLink(attachment: Attachment): string {
+  // We do this to support spaces
+  const urlEncodedPath = encodeURI(attachment.path);
+
   switch (attachment.type) {
     case "file":
-      return `[${attachment.name}](${Protocol.Attachments}://${attachment.path})`;
+      return `[${attachment.name}](${Protocol.Attachments}://${urlEncodedPath})`;
     case "image":
-      return `![](${Protocol.Attachments}://${attachment.path})`;
+      return `![](${Protocol.Attachments}://${urlEncodedPath})`;
   }
 }

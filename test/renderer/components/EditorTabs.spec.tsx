@@ -10,28 +10,12 @@ import { createNote } from "../../../src/shared/domain/note";
 import { createTab } from "../../__factories__/editor";
 import { subHours } from "date-fns";
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
 
-test("openTab opens selected note by default", async () => {
-  const store = createStore({
-    notes: [createNote({ id: "1", name: "foo" })],
-    sidebar: {
-      selected: ["1"],
-    },
-    editor: {
-      activeTabNoteId: undefined,
-      tabs: [],
-    },
-  });
-  render(<EditorTabs store={store.current} />);
-
-  await act(async () => {
-    await store.current.dispatch("editor.openTab", undefined);
-  });
-
-  const { editor } = store.current.state;
-  expect(editor.activeTabNoteId).toBe("1");
-  expect(editor.tabs[0]!.lastActive).not.toBe(null);
+afterAll(() => {
+  jest.useRealTimers();
 });
 
 test("openTab opens tabs passed", async () => {
@@ -47,16 +31,14 @@ test("openTab opens tabs passed", async () => {
   });
   render(<EditorTabs store={store.current} />);
 
+  // Open note without setting as active
   await act(async () => {
     await store.current.dispatch("editor.openTab", { note: "1" });
   });
 
-  // Test it sets last tab passed as active
   let { editor } = store.current.state;
-  expect(editor.activeTabNoteId).toBe("1");
   expect(editor.tabs[0]!.note.id).toBe("1");
   expect(editor.tabs[0]!.lastActive).not.toBe(null);
-  expect(editor.activeTabNoteId).toBe("1");
 
   await act(async () => {
     await store.current.dispatch("editor.openTab", {
@@ -69,6 +51,48 @@ test("openTab opens tabs passed", async () => {
   ({ editor } = store.current.state);
   expect(editor.activeTabNoteId).toBe("2");
   expect(editor.tabs).toHaveLength(3);
+});
+
+test("openTab works with note paths too", async () => {
+  const store = createStore({
+    notes: [
+      createNote({ id: "1", name: "foo" }),
+      createNote({ id: "2", name: "bar" }),
+      createNote({
+        id: "3",
+        name: "baz",
+        children: [createNote({ id: "4", name: "Nested" })],
+      }),
+    ],
+    editor: {
+      tabs: [],
+    },
+  });
+  render(<EditorTabs store={store.current} />);
+
+  // Test it can open a note from path
+  await act(async () => {
+    await store.current.dispatch("editor.openTab", {
+      note: "note://foo",
+      active: "note://foo",
+    });
+  });
+
+  let { editor } = store.current.state;
+  expect(editor.tabs[0]!.note.id).toBe("1");
+  expect(editor.activeTabNoteId).toBe("1");
+
+  // Test it can open note from nested path
+  await act(async () => {
+    await store.current.dispatch("editor.openTab", {
+      note: "note://baz/Nested",
+      active: "note://baz/Nested",
+    });
+  });
+
+  ({ editor } = store.current.state);
+  expect(editor.tabs[1]!.note.id).toBe("4");
+  expect(editor.activeTabNoteId).toBe("4");
 });
 
 test("closeTab closes active tab by default", async () => {

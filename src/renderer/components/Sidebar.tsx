@@ -126,6 +126,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on("sidebar.expandAll", expandAll);
     store.on("sidebar.setNoteSort", setNoteSort);
     store.on("sidebar.openNoteAttachments", openNoteAttachments);
+    store.on("sidebar.openSelectedNotes", openSelectedNotes);
 
     return () => {
       store.off("sidebar.resizeWidth", resizeWidth);
@@ -155,6 +156,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       store.off("sidebar.expandAll", expandAll);
       store.off("sidebar.setNoteSort", setNoteSort);
       store.off("sidebar.openNoteAttachments", openNoteAttachments);
+      store.off("sidebar.openSelectedNotes", openSelectedNotes);
     };
   }, [itemIds, state.sidebar, store]);
 
@@ -246,7 +248,11 @@ export function renderMenus(
         void store.dispatch("sidebar.toggleItemExpanded", note.id);
       }
       void store.dispatch("sidebar.setSelection", [note.id]);
-      void store.dispatch("editor.openTab", { note: note.id, active: note.id });
+      void store.dispatch("editor.openTab", {
+        note: note.id,
+        active: note.id,
+        focus: true,
+      });
     };
 
     let icon;
@@ -707,6 +713,50 @@ export const setNoteSort: Listener<"sidebar.setNoteSort"> = async (ev, ctx) => {
       return [...notes];
     });
   }
+};
+
+export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
+  _,
+  ctx,
+) => {
+  // Keep in sync with editor.openTab listener
+  const { sidebar, editor, notes } = ctx.getState();
+  const { selected } = sidebar;
+
+  if (selected == null || selected.length === 0) {
+    return;
+  }
+
+  const notesToOpen = selected.map(s => getNoteById(notes, s));
+  const tabs = [...editor.tabs];
+
+  for (const note of notesToOpen) {
+    let newTab = false;
+    let tab = editor.tabs.find(t => t.note.id === note.id);
+
+    if (tab == null) {
+      newTab = true;
+      tab = { note };
+    }
+
+    tab.lastActive = new Date();
+
+    if (newTab) {
+      tabs.push(tab);
+    }
+  }
+
+  // We don't set the editor's active note nor focus the editor when a note is
+  // opened from the sidebar because the user may not want to start editing the
+  // note. If we were to do this, it'd make it difficult to delete note via the
+  // delete shortcut because each time they clicked on a note, they'd have to
+  // click back into the editor and then hit delete.
+
+  ctx.setUI({
+    editor: {
+      tabs,
+    },
+  });
 };
 
 export const openNoteAttachments: Listener<

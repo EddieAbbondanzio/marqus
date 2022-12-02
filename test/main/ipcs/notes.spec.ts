@@ -141,7 +141,7 @@ test("notes.create", async () => {
     note.id,
   );
 
-  expect(note).toEqual(omit(noteFromFS, "version"));
+  expect(omit(note, "children")).toEqual(omit(noteFromFS, "version"));
 });
 
 test("notes.update", async () => {
