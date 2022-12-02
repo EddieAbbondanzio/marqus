@@ -10,6 +10,7 @@ import { Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
 import { arrayify } from "../../shared/utils";
+import { isProtocolUrl } from "../../shared/domain/protocols";
 
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
 export const TABS_HEIGHT = "4.3rem";
@@ -391,7 +392,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   let activeTabNoteId;
 
   for (const note of notesToOpen) {
-    if (note.startsWith("note://")) {
+    if (isProtocolUrl("note", note)) {
       const foundNote = getNoteByPath(notes, note);
       noteIds.push(foundNote.id);
     } else {
@@ -399,11 +400,12 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
     }
   }
 
-  if (ev.value.active) {
-    if (ev.value.active.startsWith("note://")) {
-      activeTabNoteId = getNoteByPath(notes, ev.value.active).id;
+  const { active } = ev.value;
+  if (active) {
+    if (isProtocolUrl("note", active)) {
+      activeTabNoteId = getNoteByPath(notes, active).id;
     } else {
-      activeTabNoteId = ev.value.active;
+      activeTabNoteId = active;
     }
   }
 

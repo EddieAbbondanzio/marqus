@@ -42,7 +42,7 @@ export function parseAttachmentPath(
     throw new Error(`Invalid note id (${noteId}) in attachment path.`);
   }
 
-  let filePath = parsedUrl.host;
+  let filePath = parsedUrl.hostname;
   if (parsedUrl.pathname) {
     filePath = path.join(filePath, parsedUrl.pathname);
   }

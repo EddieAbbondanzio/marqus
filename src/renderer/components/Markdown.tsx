@@ -4,7 +4,7 @@ import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
 import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
-import { Protocol } from "../../shared/domain/protocols";
+import { isProtocolUrl, Protocol } from "../../shared/domain/protocols";
 import { omit } from "lodash";
 import { Store } from "../store";
 
@@ -89,44 +89,53 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           );
         },
         a: (props: any) => {
+          if (noteId == null) {
+            throw new Error(`Cannot render links without a noteId.`);
+          }
+
           const { children, ...otherProps } = props;
 
-          let target: string | undefined;
-          let href: string | undefined;
+          let href: string;
+          let target = "";
           let onClick: ((ev: MouseEvent) => void) | undefined;
+          const url = new URL(props.href);
 
-          if (noteId && props.href?.startsWith(`${Protocol.Attachments}://`)) {
-            const url = new URL(props.href);
-            url.searchParams.set("noteId", noteId);
-            href = url.href;
+          switch (url.protocol) {
+            case `${Protocol.Attachments}:`:
+              url.searchParams.set("noteId", noteId);
+              href = url.href;
 
-            onClick = (ev: MouseEvent) => {
-              ev.preventDefault();
-              void window.ipc("notes.openAttachmentFile", href!);
-            };
-          } else if (props.href?.startsWith("note://")) {
-            href = props.href.split("%20").join(" ");
+              onClick = (ev: MouseEvent) => {
+                ev.preventDefault();
+                void window.ipc("notes.openAttachmentFile", href);
+              };
+              break;
 
-            onClick = (ev: MouseEvent) => {
-              ev.preventDefault();
+            case "note:":
+              onClick = (ev: MouseEvent) => {
+                ev.preventDefault();
 
-              void store.dispatch("editor.openTab", {
-                note: href!,
-                active: href!,
-              });
-            };
-          } else {
-            href = props.href;
-            target = "_blank";
+                const decodedHref = decodeURI(url.href);
+                void store.dispatch("editor.openTab", {
+                  note: decodedHref,
+                  active: decodedHref,
+                });
+              };
+              break;
+
+            default:
+              href = url.href;
+              target = "_blank";
+              break;
           }
 
           return (
             <Link
               {...otherProps}
               target={target}
-              href={href}
+              href={url.href}
               onClick={onClick}
-              title={props.href}
+              title={url.href}
             >
               {children}
             </Link>
