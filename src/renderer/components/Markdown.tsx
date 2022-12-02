@@ -289,6 +289,7 @@ const Image = styled.img`
   max-width: 80%;
   margin-top: 1rem;
   margin-bottom: 1rem;
+  display: block;
 `;
 const Link = styled.a`
   text-decoration: none;
