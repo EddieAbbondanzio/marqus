@@ -291,8 +291,8 @@ export function generateAttachmentLink(attachment: Attachment): string {
 
   switch (attachment.type) {
     case "file":
-      return `[${attachment.name}](${Protocol.Attachments}://${urlEncodedPath})`;
+      return `[${attachment.name}](${Protocol.Attachment}://${urlEncodedPath})`;
     case "image":
-      return `![](${Protocol.Attachments}://${urlEncodedPath})`;
+      return `![](${Protocol.Attachment}://${urlEncodedPath})`;
   }
 }

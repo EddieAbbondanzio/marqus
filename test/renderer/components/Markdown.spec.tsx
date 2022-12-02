@@ -31,7 +31,7 @@ test("Markdown img sets width and height", async () => {
   const renderedImg = render(
     img({
       alt: "alt-text",
-      src: `${Protocol.Attachments}://foo.jpg?height=300&width=200`,
+      src: `${Protocol.Attachment}://foo.jpg?height=300&width=200`,
     }),
   ).getByAltText("alt-text") as HTMLImageElement;
 
@@ -71,7 +71,7 @@ test("Markdown attachment link", async () => {
   const renderedLink = render(
     a({
       children: ["Click me!"],
-      href: `${Protocol.Attachments}://foo.jpg`,
+      href: `${Protocol.Attachment}://foo.jpg`,
     }),
   ).getByText("Click me!") as HTMLAnchorElement;
 

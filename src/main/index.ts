@@ -169,5 +169,5 @@ export async function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
 }
 
 export function getImgSrcCsp(): string {
-  return `* ${Protocol.Attachments}://*`;
+  return `* ${Protocol.Attachment}://*`;
 }

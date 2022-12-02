@@ -30,7 +30,7 @@ test("registerAttachmentsProtocol", async () => {
   registerAttachmentsProtocol(FAKE_NOTE_DIRECTORY);
 
   expect(registerFileProtocol).toHaveBeenCalledWith(
-    Protocol.Attachments,
+    Protocol.Attachment,
     expect.anything(),
   );
 
@@ -48,14 +48,14 @@ test("registerAttachmentsProtocol", async () => {
   );
 
   // Missing noteId param
-  expect(() => callback({ url: "attachments://foo.jpg" }, jest.fn())).toThrow(
+  expect(() => callback({ url: "attachment://foo.jpg" }, jest.fn())).toThrow(
     /Invalid note id \(.*\) in attachment path/,
   );
 
   const cb = jest.fn();
 
   // Valid file.
-  callback({ url: `attachments://foo.jpg?noteId=${noteId}` }, cb);
+  callback({ url: `attachment://foo.jpg?noteId=${noteId}` }, cb);
   expect(cb).toHaveBeenCalledTimes(1);
   expect(cb).toHaveBeenCalledWith(
     expect.stringContaining(
@@ -66,7 +66,7 @@ test("registerAttachmentsProtocol", async () => {
   cb.mockReset();
 
   // File not found.
-  callback({ url: `attachments://bar.jpg?noteId=${noteId}` }, cb);
+  callback({ url: `attachment://bar.jpg?noteId=${noteId}` }, cb);
   expect(cb).toHaveBeenCalledTimes(1);
   expect(cb).toHaveBeenCalledWith({ statusCode: 404 });
 });
@@ -76,14 +76,14 @@ test("parseAttachmentPath", () => {
 
   // Normal file.
   expect(
-    parseAttachmentPath("notes", `attachments://foo.jpg?noteId=${noteId}`),
+    parseAttachmentPath("notes", `attachment://foo.jpg?noteId=${noteId}`),
   ).toMatch(`notes/${noteId}/${ATTACHMENTS_DIRECTORY}/foo.jpg`);
 
   // Nested file
   expect(
     parseAttachmentPath(
       "notes",
-      `attachments://longer/path/to/bar.jpg?noteId=${noteId}`,
+      `attachment://longer/path/to/bar.jpg?noteId=${noteId}`,
     ),
   ).toMatch(`notes/${noteId}/${ATTACHMENTS_DIRECTORY}/longer/path/to/bar.jpg`);
 
@@ -91,7 +91,7 @@ test("parseAttachmentPath", () => {
   expect(
     parseAttachmentPath(
       "notes",
-      `attachments://longer/path/to/foo%20bar.jpg?noteId=${noteId}`,
+      `attachment://longer/path/to/foo%20bar.jpg?noteId=${noteId}`,
     ),
   ).toMatch(
     `notes/${noteId}/${ATTACHMENTS_DIRECTORY}/longer/path/to/foo bar.jpg`,
@@ -99,9 +99,6 @@ test("parseAttachmentPath", () => {
 
   // Throw if file was outside of the folder.
   expect(() =>
-    parseAttachmentPath(
-      "notes",
-      `attachments://../../foo.jpg?noteId=${noteId}`,
-    ),
+    parseAttachmentPath("notes", `attachment://../../foo.jpg?noteId=${noteId}`),
   ).toThrow(/is outside of attachment directory/);
 });

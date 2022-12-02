@@ -61,7 +61,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
             const originalParams = new URLSearchParams(url.search);
 
             switch (url.protocol) {
-              case `${Protocol.Attachments}:`:
+              case `${Protocol.Attachment}:`:
                 url.search = "";
                 url.searchParams.set("noteId", noteId);
 
@@ -104,7 +104,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           const url = new URL(props.href);
 
           switch (url.protocol) {
-            case `${Protocol.Attachments}:`:
+            case `${Protocol.Attachment}:`:
               url.searchParams.set("noteId", noteId);
               href = url.href;
 

@@ -1,7 +1,7 @@
 // Do not import any native node modules here.
 
 export enum Protocol {
-  Attachments = "attachments",
+  Attachment = "attachment",
   // Note links are not a protocol because we don't need to handle them on the
   // main process.
 }

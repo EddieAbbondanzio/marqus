@@ -6,7 +6,7 @@ import { UUID_REGEX } from "../../shared/domain";
 import { ATTACHMENTS_DIRECTORY } from "../ipcs/notes";
 
 export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
-  protocol.registerFileProtocol(Protocol.Attachments, (req, cb) => {
+  protocol.registerFileProtocol(Protocol.Attachment, (req, cb) => {
     const filePath = parseAttachmentPath(noteDirectoryPath, req.url);
 
     // Soft error if file isn't found.
@@ -22,7 +22,7 @@ export function parseAttachmentPath(
   noteDirectoryPath: string,
   url: string,
 ): string {
-  if (!isProtocolUrl(Protocol.Attachments, url)) {
+  if (!isProtocolUrl(Protocol.Attachment, url)) {
     throw new Error(`URL ${url} is not a valid attachments url.`);
   }
 

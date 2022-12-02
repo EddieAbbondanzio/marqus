@@ -402,13 +402,13 @@ test("notes.openAttachmentFile", async () => {
   await ipc.trigger("init");
 
   // File exists
-  const url = `${Protocol.Attachments}://foo.txt?noteId=${noteId}`;
+  const url = `${Protocol.Attachment}://foo.txt?noteId=${noteId}`;
   await ipc.invoke("notes.openAttachmentFile", url);
 
   expect(shell.openPath).toBeCalledWith(expect.stringMatching(/foo.txt/));
 
   // File doesn't exist.
-  const url2 = `${Protocol.Attachments}://bar.txt?noteId=${noteId}`;
+  const url2 = `${Protocol.Attachment}://bar.txt?noteId=${noteId}`;
   await expect(async () => {
     await ipc.invoke("notes.openAttachmentFile", url2);
   }).rejects.toThrow(/doesn't exist/);

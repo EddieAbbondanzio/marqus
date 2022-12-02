@@ -101,7 +101,7 @@ test("generateAttachmentLink", () => {
       mimeType: "text/plain",
       type: "file",
     }),
-  ).toBe(`[foo.txt](${Protocol.Attachments}://foo.txt)`);
+  ).toBe(`[foo.txt](${Protocol.Attachment}://foo.txt)`);
 
   expect(
     generateAttachmentLink({
@@ -110,7 +110,7 @@ test("generateAttachmentLink", () => {
       mimeType: "text/plain",
       type: "file",
     }),
-  ).toBe(`[bar.txt](${Protocol.Attachments}://nested/bar.txt)`);
+  ).toBe(`[bar.txt](${Protocol.Attachment}://nested/bar.txt)`);
 
   expect(
     generateAttachmentLink({
@@ -119,7 +119,7 @@ test("generateAttachmentLink", () => {
       mimeType: "text/plain",
       type: "file",
     }),
-  ).toBe(`[foo bar.txt](${Protocol.Attachments}://foo%20bar.txt)`);
+  ).toBe(`[foo bar.txt](${Protocol.Attachment}://foo%20bar.txt)`);
 
   expect(
     generateAttachmentLink({
@@ -128,7 +128,7 @@ test("generateAttachmentLink", () => {
       mimeType: "image/jpeg",
       type: "image",
     }),
-  ).toBe(`![](${Protocol.Attachments}://baz.jpg)`);
+  ).toBe(`![](${Protocol.Attachment}://baz.jpg)`);
 
   expect(
     generateAttachmentLink({
@@ -137,7 +137,7 @@ test("generateAttachmentLink", () => {
       mimeType: "image/jpeg",
       type: "image",
     }),
-  ).toBe(`![](${Protocol.Attachments}://nested/qux.jpg)`);
+  ).toBe(`![](${Protocol.Attachment}://nested/qux.jpg)`);
 
   expect(
     generateAttachmentLink({
@@ -146,5 +146,5 @@ test("generateAttachmentLink", () => {
       mimeType: "image/jpeg",
       type: "image",
     }),
-  ).toBe(`![](${Protocol.Attachments}://two%20words.jpg)`);
+  ).toBe(`![](${Protocol.Attachment}://two%20words.jpg)`);
 });
