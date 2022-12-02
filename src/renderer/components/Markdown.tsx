@@ -4,7 +4,7 @@ import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
 import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
-import { isProtocolUrl, Protocol } from "../../shared/domain/protocols";
+import { Protocol } from "../../shared/domain/protocols";
 import { omit } from "lodash";
 import { Store } from "../store";
 
@@ -55,7 +55,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           let title;
           let height: string | number | undefined = undefined;
           let width: string | number | undefined = undefined;
-          
+
           if (props.src != null) {
             const url = new URL(props.src);
             const originalParams = new URLSearchParams(url.search);
