@@ -37,14 +37,19 @@ test("registerAttachmentsProtocol", async () => {
   const callback = registerFileProtocol.mock.calls[0][1];
   expect(typeof callback).toBe("function");
 
+  // Random string
   expect(() => callback({ url: "not-attachment-url" }, jest.fn())).toThrow(
-    /URL .* doesn't match/,
+    /URL .* is not a valid attachments url/,
   );
+
+  //Missing prefix
   expect(() => callback({ url: "foo.jpg?noteId=123" }, jest.fn())).toThrow(
-    /URL .* doesn't match/,
+    /URL .* is not a valid attachments url/,
   );
+
+  // Missing noteId param
   expect(() => callback({ url: "attachments://foo.jpg" }, jest.fn())).toThrow(
-    /URL .* doesn't match/,
+    /Invalid note id \(.*\) in attachment path/,
   );
 
   const cb = jest.fn();
