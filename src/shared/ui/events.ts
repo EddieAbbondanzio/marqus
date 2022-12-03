@@ -30,6 +30,7 @@ export interface UIEvents {
   "sidebar.toggleFilter": void;
   "sidebar.createNote": string | null;
   "sidebar.renameNote": string;
+  "sidebar.renameSelectedNote": void;
   "sidebar.dragNote": { note: string; newParent?: string };
   "sidebar.openNoteAttachments": string;
   "sidebar.deleteNote": string;
@@ -103,6 +104,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "sidebar.toggleFilter",
   "sidebar.createNote",
   "sidebar.renameNote",
+  "sidebar.renameSelectedNote",
   "sidebar.dragNote",
   "sidebar.openNoteAttachments",
   "sidebar.deleteNote",

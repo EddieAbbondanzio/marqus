@@ -22,7 +22,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
     (ev: React.FormEvent) => {
       store.dispatch("sidebar.search", (ev.target as HTMLInputElement).value);
     },
-    [store]
+    [store],
   );
 
   const onClear = useCallback(() => {

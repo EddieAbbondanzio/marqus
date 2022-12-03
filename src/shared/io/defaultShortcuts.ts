@@ -105,6 +105,12 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Space],
     when: Section.Sidebar,
   },
+  {
+    name: "sidebar.renameSelectedNote",
+    event: "sidebar.renameSelectedNote",
+    keys: [KeyCode.F2],
+    when: Section.Sidebar,
+  },
 
   // Editor
   {

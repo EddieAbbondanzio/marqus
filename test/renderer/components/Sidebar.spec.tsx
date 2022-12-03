@@ -16,6 +16,33 @@ import { uuid } from "../../../src/shared/domain";
 
 const promptConfirmAction = jest.spyOn(prompt, "promptConfirmAction");
 
+test("applySearchString", () => {
+  const notes = [
+    createNote({
+      name: "foo",
+      content: "Random string lol",
+    }),
+    createNote({
+      name: "bar",
+      content: "Some more totally random text",
+    }),
+    createNote({
+      name: "baz",
+      content: "qqqqqqqqqqq",
+    }),
+  ];
+
+  // Search by name
+  const matches1 = applySearchString(notes, "f");
+  expect(matches1).toHaveLength(1);
+  expect(matches1[0].name).toBe("foo");
+
+  // Search by content
+  const matches2 = applySearchString(notes, "qqqq");
+  expect(matches2).toHaveLength(1);
+  expect(matches2[0].name).toBe("baz");
+});
+
 test("sidebar.createNote confirm", async () => {
   const store = createStore();
   const res = render(<Sidebar store={store.current} />);
@@ -94,7 +121,7 @@ test("sidebar.createNote escape cancels", async () => {
   act(() => {
     dispatchPromise = store.current.dispatch("sidebar.createNote", null);
   });
-  expect(store.current.state.focused).toEqual(["sidebarInput"]);
+  expect(store.current.state.focused).toEqual([Section.SidebarInput]);
 
   // Populate input
   res.rerender(<Sidebar store={store.current} />);
@@ -113,6 +140,164 @@ test("sidebar.createNote escape cancels", async () => {
   expect(state.notes).toHaveLength(0);
   expect(state.sidebar.input).toBe(undefined);
 });
+
+test.each(["cancel", "confirm"])("sidebar.renameNote (%s)", async action => {
+  const noteAId = uuid();
+  const noteBId = uuid();
+
+  const store = createStore({
+    notes: [
+      createNote({ id: noteAId, name: "A" }),
+      createNote({ id: noteBId, name: "B" }),
+    ],
+    sidebar: {
+      selected: [noteBId],
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    focused: [Section.Sidebar],
+  });
+
+  const r = render(<Sidebar store={store.current} />);
+
+  let dispatchPromise: Promise<void>;
+  act(() => {
+    dispatchPromise = store.current.dispatch("sidebar.renameNote", noteAId);
+  });
+
+  const { state: initialState } = store.current;
+  expect(initialState.focused).toEqual([Section.SidebarInput, Section.Sidebar]);
+  expect(initialState.sidebar.input).toMatchObject({
+    id: noteAId,
+    value: "A",
+  });
+
+  // Simulate user typing into input
+  r.rerender(<Sidebar store={store.current} />);
+  const sidebarInput = r.getByTestId("sidebar-input");
+
+  await act(async () => {
+    fireEvent.change(sidebarInput, { target: { value: "Alpha" } });
+  });
+
+  const { state: changedState } = store.current;
+  expect(changedState.sidebar.input.value).toBe("Alpha");
+
+  if (action === "confirm") {
+    await act(async () => {
+      fireEvent.keyDown(sidebarInput, { code: "Enter" });
+      await dispatchPromise;
+    });
+
+    const { state: finalState } = store.current;
+    expect(finalState.sidebar.input).toBe(undefined);
+    const renamedNote = finalState.notes.find(n => n.id === noteAId);
+    expect(renamedNote).toMatchObject({
+      id: noteAId,
+      name: "Alpha",
+    });
+
+    const untouchedNote = finalState.notes.find(n => n.id === noteBId);
+    expect(untouchedNote.name).toBe("B");
+  } else {
+    await act(async () => {
+      fireEvent.keyDown(sidebarInput, { code: "Escape" });
+      await dispatchPromise;
+    });
+
+    const { state: finalState } = store.current;
+    expect(finalState.sidebar.input).toBe(undefined);
+    const renamedNote = finalState.notes.find(n => n.id === noteAId);
+    expect(renamedNote).toMatchObject({
+      id: noteAId,
+      name: "A",
+    });
+
+    const untouchedNote = finalState.notes.find(n => n.id === noteBId);
+    expect(untouchedNote.name).toBe("B");
+  }
+});
+
+test.each(["cancel", "confirm"])(
+  "sidebar.renameSelectedNote (%s)",
+  async action => {
+    const noteAId = uuid();
+    const noteBId = uuid();
+
+    const store = createStore({
+      notes: [
+        createNote({ id: noteAId, name: "A" }),
+        createNote({ id: noteBId, name: "B" }),
+      ],
+      sidebar: {
+        selected: [noteBId],
+        sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+      },
+      focused: [Section.Sidebar],
+    });
+
+    const r = render(<Sidebar store={store.current} />);
+
+    let dispatchPromise: Promise<void>;
+    act(() => {
+      dispatchPromise = store.current.dispatch("sidebar.renameSelectedNote");
+    });
+
+    const { state: initialState } = store.current;
+    expect(initialState.focused).toEqual([
+      Section.SidebarInput,
+      Section.Sidebar,
+    ]);
+    expect(initialState.sidebar.input).toMatchObject({
+      id: noteBId,
+      value: "B",
+    });
+
+    // Simulate user typing into input
+    r.rerender(<Sidebar store={store.current} />);
+    const sidebarInput = r.getByTestId("sidebar-input");
+
+    await act(async () => {
+      fireEvent.change(sidebarInput, { target: { value: "Beta" } });
+    });
+
+    const { state: changedState } = store.current;
+    expect(changedState.sidebar.input.value).toBe("Beta");
+
+    if (action === "confirm") {
+      await act(async () => {
+        fireEvent.keyDown(sidebarInput, { code: "Enter" });
+        await dispatchPromise;
+      });
+
+      const { state: finalState } = store.current;
+      expect(finalState.sidebar.input).toBe(undefined);
+      const renamedNote = finalState.notes.find(n => n.id === noteBId);
+      expect(renamedNote).toMatchObject({
+        id: noteBId,
+        name: "Beta",
+      });
+
+      const untouchedNote = finalState.notes.find(n => n.id === noteAId);
+      expect(untouchedNote.name).toBe("A");
+    } else {
+      await act(async () => {
+        fireEvent.keyDown(sidebarInput, { code: "Escape" });
+        await dispatchPromise;
+      });
+
+      const { state: finalState } = store.current;
+      expect(finalState.sidebar.input).toBe(undefined);
+      const renamedNote = finalState.notes.find(n => n.id === noteBId);
+      expect(renamedNote).toMatchObject({
+        id: noteBId,
+        name: "B",
+      });
+
+      const untouchedNote = finalState.notes.find(n => n.id === noteAId);
+      expect(untouchedNote.name).toBe("A");
+    }
+  },
+);
 
 test("sidebar.deleteNote", async () => {
   const store = createStore({
@@ -437,31 +622,4 @@ test("sidebar.openSelectedNotes", async () => {
   editor = store.current.state.editor;
   expect(editor.tabs).toHaveLength(1);
   expect(editor.activeTabNoteId).toBe(undefined);
-});
-
-test("applySearchString", () => {
-  const notes = [
-    createNote({
-      name: "foo",
-      content: "Random string lol",
-    }),
-    createNote({
-      name: "bar",
-      content: "Some more totally random text",
-    }),
-    createNote({
-      name: "baz",
-      content: "qqqqqqqqqqq",
-    }),
-  ];
-
-  // Search by name
-  const matches1 = applySearchString(notes, "f");
-  expect(matches1).toHaveLength(1);
-  expect(matches1[0].name).toBe("foo");
-
-  // Search by content
-  const matches2 = applySearchString(notes, "qqqq");
-  expect(matches2).toHaveLength(1);
-  expect(matches2[0].name).toBe("baz");
 });

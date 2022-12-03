@@ -117,7 +117,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       updateSelected,
     );
     store.on("sidebar.createNote", createNote);
-    store.on("sidebar.renameNote", renameNote);
+    store.on(["sidebar.renameNote", "sidebar.renameSelectedNote"], renameNote);
     store.on(["sidebar.deleteNote", "sidebar.deleteSelectedNote"], deleteNote);
     store.on("sidebar.dragNote", dragNote);
     store.on("sidebar.moveNoteToTrash", moveNoteToTrash);
@@ -144,7 +144,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         updateSelected,
       );
       store.off("sidebar.createNote", createNote);
-      store.off("sidebar.renameNote", renameNote);
+      store.off(
+        ["sidebar.renameNote", "sidebar.renameSelectedNote"],
+        renameNote,
+      );
       store.off(
         ["sidebar.deleteNote", "sidebar.deleteSelectedNote"],
         deleteNote,
@@ -296,8 +299,8 @@ export function renderMenus(
     flatIds.push(note.id);
 
     if (hasChildren && isExpanded) {
-      // Use note.sort for children. If non defined, use next parent. Climb
-      // parent tree until we hit route then default to using global sort.
+      // Use note.sort for children. If not set, use next parent. Climb parent
+      // tree until we hit route then default to using global sort.
       let sortToUse = note.sort;
       const parents = getParents(note, notes);
       for (const p of parents) {
@@ -310,7 +313,7 @@ export function renderMenus(
       note.children?.forEach(n => recursive(n, currDepth + 1));
     }
 
-    // When creating a new value input is always added to end of list
+    // When creating a new note, input is always added to the bottom
     if (hasInput) {
       menus.push(
         <SidebarInput
@@ -411,7 +414,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
       schema: NOTE_NAME_SCHEMA,
       parentId: parentId ?? undefined,
     },
-    setExplorerInput(ctx),
+    setSidebarInput(ctx),
   );
 
   if (
@@ -471,23 +474,46 @@ export const createNote: Listener<"sidebar.createNote"> = async (
   });
 };
 
-export const renameNote: Listener<"sidebar.renameNote"> = async (
-  { value: id },
-  ctx,
-) => {
-  if (id == null) {
-    return;
+export const renameNote: Listener<
+  "sidebar.renameNote" | "sidebar.renameSelectedNote"
+> = async (ev, ctx) => {
+  const { notes, sidebar } = ctx.getState();
+
+  // Multiple event types are used to make it explicit which behavior the user
+  // wants below. While we could use only one (sidebar.renameNote) and then rename
+  // the selected note if no id is passed, this could lead to confusion if the
+  // note id parameter is accidentally omitted.
+
+  let noteId: string;
+  switch (ev.type) {
+    case "sidebar.renameNote":
+      if (ev.value == null) {
+        throw new Error(`No note id passed to sidebar.renameNote.`);
+      }
+
+      noteId = ev.value;
+      break;
+
+    case "sidebar.renameSelectedNote":
+      if (sidebar.selected == null || sidebar.selected.length < 1) {
+        return;
+      }
+
+      noteId = sidebar.selected[0];
+      break;
+
+    default:
+      throw new Error(`Invalid event type ${ev.type}`);
   }
 
-  const { notes } = ctx.getState();
-  const { name: value } = getNoteById(notes, id!);
+  const { name: value } = getNoteById(notes, noteId);
   const input = createPromisedInput(
     {
-      id,
+      id: noteId,
       value,
       schema: NOTE_NAME_SCHEMA,
     },
-    setExplorerInput(ctx),
+    setSidebarInput(ctx),
   );
   ctx.focus([Section.SidebarInput]);
   ctx.setUI({
@@ -499,10 +525,10 @@ export const renameNote: Listener<"sidebar.renameNote"> = async (
   const [name, action] = await input.completed;
   if (action === "confirm") {
     try {
-      await window.ipc("notes.update", id, { name });
+      await window.ipc("notes.update", noteId, { name });
 
       ctx.setNotes(notes => {
-        const note = getNoteById(notes, id);
+        const note = getNoteById(notes, noteId);
         note.name = name;
 
         return notes;
@@ -802,8 +828,8 @@ function toggleExpanded(ctx: StoreContext, noteId: string): void {
   });
 }
 
-function setExplorerInput(ctx: StoreContext) {
-  return (value: string) =>
+function setSidebarInput(ctx: StoreContext) {
+  return (value: string) => {
     ctx.setUI({
       sidebar: {
         input: {
@@ -811,4 +837,5 @@ function setExplorerInput(ctx: StoreContext) {
         },
       },
     });
+  };
 }
