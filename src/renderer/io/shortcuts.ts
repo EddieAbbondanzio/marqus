@@ -44,7 +44,7 @@ export function useShortcuts(store: Store): void {
       s =>
         !s.disabled &&
         isEqual(s.keys, toKeyArray(activeKeys.current)) &&
-        shouldExecute(state.focused, s.when),
+        doesSectionHaveFocus(state.focused, s.when),
     );
 
     if (shortcut != null) {
@@ -114,16 +114,24 @@ export function useShortcuts(store: Store): void {
   }, [interval, shortcuts, dispatch]);
 }
 
-export function shouldExecute(focused?: Section[], when?: Section): boolean {
-  // Global shortcuts
-  if (focused == null || focused[0] == null) {
-    return when == null;
-  } else if (when == null) {
+export function doesSectionHaveFocus(
+  focused?: Section[],
+  when?: Section,
+): boolean {
+  // Global
+  if (when == null) {
     return true;
-  } else {
-    const [curr] = focused;
-    return when === curr;
   }
+
+  if (focused == null || focused.length === 0) {
+    return false;
+  }
+
+  // We support nested sections triggering shortcuts in their parents by checking
+  // to see if the section name starts with the parent's name.
+  // Ex: EditorTabs can trigger Editor shortcuts
+  const [currentlyFocused] = focused;
+  return currentlyFocused === when || currentlyFocused.startsWith(when);
 }
 
 export const toKeyArray = (

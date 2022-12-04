@@ -12,6 +12,7 @@ export interface AppState {
 }
 
 export enum Section {
+  // Nested sections must include parent section name to trigger parent shortcuts
   Sidebar = "sidebar",
   SidebarInput = "sidebarInput",
   SidebarSearch = "sidebarSearch",
