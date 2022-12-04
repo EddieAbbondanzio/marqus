@@ -166,6 +166,10 @@ export function useStore(initialState: State): Store {
     };
 
     const dispatch: Dispatch = (async (event, value: any) => {
+      if (event == null) {
+        throw new Error("No event passed to dispatch");
+      }
+
       const eventListeners: any = listeners.current[event];
       if (eventListeners == null || eventListeners.length === 0) {
         await log.debug(`No store listener found for ${event}.`);

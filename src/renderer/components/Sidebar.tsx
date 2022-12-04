@@ -4,7 +4,7 @@ import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, p2, px2, THEME, w100 } from "../css";
-import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
+import { clamp, Dictionary, first, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
   getNoteById,
@@ -24,7 +24,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search as searchFuzzy } from "fast-fuzzy";
-import { filterOutStaleNoteIds } from "../../shared/ui/app";
+import { EditorTab, filterOutStaleNoteIds } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
 
@@ -47,26 +47,33 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     () => applySearchString(state.notes, searchString),
     [searchString, state.notes],
   );
-  const [menus, itemIds] = useMemo(
+  const [menus, noteIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
     [notes, store, input, expandedLookup, selectedLookup],
   );
 
   useEffect(() => {
     const getNext = (increment: number) => {
+      // When there's nothing selected in the sidebar, we auto select the top
+      // most note (after checking that there is one).
       if (isEmpty(state.sidebar.selected)) {
-        return take(itemIds, 1);
+        if (noteIds.length === 0) {
+          return [];
+        }
+
+        return take(noteIds, 1);
       }
+
       let next = 0;
       let curr = 0;
       const firstSelected = head(state.sidebar.selected)!;
-      curr = itemIds.findIndex(s => s === firstSelected);
+      curr = noteIds.findIndex(s => s === firstSelected);
       if (curr === -1) {
         throw new Error(`No selectable ${firstSelected} found`);
       }
 
-      next = clamp(curr + increment, 0, itemIds.length - 1);
-      return itemIds.slice(next, next + 1);
+      next = clamp(curr + increment, 0, noteIds.length - 1);
+      return noteIds.slice(next, next + 1);
     };
 
     const updateSelected: Listener<
@@ -89,14 +96,14 @@ export function Sidebar(props: SidebarProps): JSX.Element {
             selected = undefined;
           } else {
             // HACK
-            selected = [itemIds.find(i => i === value[0])!];
+            selected = [noteIds.find(i => i === value[0])!];
           }
           break;
       }
 
       setUI({
         sidebar: {
-          selected: selected == null ? undefined : [selected[0]],
+          selected,
           input: undefined,
         },
       });
@@ -161,7 +168,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       store.off("sidebar.openNoteAttachments", openNoteAttachments);
       store.off("sidebar.openSelectedNotes", openSelectedNotes);
     };
-  }, [itemIds, state.sidebar, store]);
+  }, [noteIds, state.sidebar, store]);
 
   return (
     <StyledResizable
@@ -756,6 +763,7 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
   const notesToOpen = selected.map(s => getNoteById(notes, s));
   const tabs = [...editor.tabs];
 
+  let firstTab: EditorTab | undefined;
   for (const note of notesToOpen) {
     let newTab = false;
     let tab = editor.tabs.find(t => t.note.id === note.id);
@@ -770,19 +778,22 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
     if (newTab) {
       tabs.push(tab);
     }
+
+    if (firstTab == null) {
+      firstTab = tab;
+    }
   }
 
-  // We don't set the editor's active note nor focus the editor when a note is
-  // opened from the sidebar because the user may not want to start editing the
-  // note. If we were to do this, it'd make it difficult to delete note via the
-  // delete shortcut because each time they clicked on a note, they'd have to
-  // click back into the editor and then hit delete.
-
-  ctx.setUI({
+  // Editor is not set as focused when a note is opened from the sidebar because
+  // the user may not want to start editing the note yet. This makes it easier
+  // to delete a note because otherwise each time they clicked on a note, they'd
+  // have to click back into the editor and then hit delete.
+  ctx.setUI(prev => ({
     editor: {
       tabs,
+      activeTabNoteId: firstTab?.note.id ?? prev.editor.activeTabNoteId,
     },
-  });
+  }));
 };
 
 export const openNoteAttachments: Listener<

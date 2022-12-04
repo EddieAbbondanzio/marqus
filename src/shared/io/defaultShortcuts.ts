@@ -130,8 +130,8 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.LetterE],
   },
   {
-    name: "editor.closeTab",
-    event: "editor.closeTab",
+    name: "editor.closeActiveTab",
+    event: "editor.closeActiveTab",
     keys: [KeyCode.Control, KeyCode.LetterW],
     when: Section.Editor,
   },

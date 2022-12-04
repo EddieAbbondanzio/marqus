@@ -335,8 +335,8 @@ test("app.openLogDirectory", async () => {
 });
 
 test.each([
-  [IpcChannel.ApplicationMenuClick, false],
-  [IpcChannel.ContextMenuClick, true],
+  [IpcChannel.ApplicationMenu, false],
+  [IpcChannel.ContextMenu, true],
 ])("buildMenus", (channel, registerAccelerator) => {
   // Separator
   expect(
@@ -441,7 +441,7 @@ test("buildClickHandler", () => {
   const handler = buildClickHandler(
     "app.inspectElement",
     { x: 0, y: 20 },
-    IpcChannel.ContextMenuClick,
+    IpcChannel.ContextMenu,
   );
 
   const send = jest.fn();
@@ -452,7 +452,7 @@ test("buildClickHandler", () => {
   } as unknown as Electron.BrowserWindow;
 
   handler(null!, browserWindow, null!);
-  expect(send).toHaveBeenCalledWith(IpcChannel.ContextMenuClick, {
+  expect(send).toHaveBeenCalledWith(IpcChannel.ContextMenu, {
     event: "app.inspectElement",
     eventInput: { x: 0, y: 20 },
   });

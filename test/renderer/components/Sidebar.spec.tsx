@@ -8,6 +8,7 @@ import {
   createNote,
   DEFAULT_NOTE_SORTING_ALGORITHM,
   getNoteById,
+  NoteSort,
 } from "../../../src/shared/domain/note";
 import * as prompt from "../../../src/renderer/utils/prompt";
 import { Section } from "../../../src/shared/ui/app";
@@ -41,6 +42,199 @@ test("applySearchString", () => {
   const matches2 = applySearchString(notes, "qqqq");
   expect(matches2).toHaveLength(1);
   expect(matches2[0].name).toBe("baz");
+});
+
+test("sidebar.clearSelection", async () => {
+  const noteFooId = uuid();
+  const noteBarId = uuid();
+
+  const store = createStore({
+    notes: [
+      createNote({ id: noteFooId, name: "foo" }),
+      createNote({ id: noteBarId, name: "bar" }),
+    ],
+    sidebar: {
+      selected: [noteFooId, noteBarId],
+    },
+  });
+  render(<Sidebar store={store.current} />);
+
+  await act(async () => {
+    await store.current.dispatch("sidebar.clearSelection");
+  });
+
+  const {
+    state: { sidebar },
+  } = store.current;
+  expect(sidebar.selected).toBe(undefined);
+});
+
+test("sidebar.setSelection", async () => {
+  const noteFooId = uuid();
+  const noteBarId = uuid();
+
+  const store = createStore({
+    notes: [
+      createNote({ id: noteFooId, name: "foo" }),
+      createNote({ id: noteBarId, name: "bar" }),
+    ],
+    sidebar: {
+      selected: [],
+    },
+  });
+  render(<Sidebar store={store.current} />);
+
+  await act(async () => {
+    await store.current.dispatch("sidebar.setSelection", [noteFooId]);
+  });
+
+  expect(store.current.state.sidebar.selected).toEqual([noteFooId]);
+
+  await act(async () => {
+    await store.current.dispatch("sidebar.setSelection", [noteBarId]);
+  });
+
+  expect(store.current.state.sidebar.selected).toEqual([noteBarId]);
+});
+
+test("sidebar.moveSelectionDown no notes", async () => {
+  const store = createStore({
+    notes: [],
+    sidebar: {
+      selected: [],
+    },
+  });
+  render(<Sidebar store={store.current} />);
+
+  await act(async () => {
+    await store.current.dispatch("sidebar.moveSelectionDown");
+  });
+
+  expect(store.current.state.sidebar.selected).toEqual([]);
+});
+
+test.each(["sidebar.moveSelectionDown", "sidebar.moveSelectionUp"])(
+  "%s defaults to topmost note",
+  async ev => {
+    const note1Id = uuid();
+    const note2Id = uuid();
+    const note3Id = uuid();
+
+    const store = createStore({
+      notes: [
+        createNote({ id: note1Id, name: "alpha" }),
+        createNote({ id: note2Id, name: "beta" }),
+        createNote({ id: note3Id, name: "charlie" }),
+      ],
+      sidebar: {
+        selected: [],
+        sort: NoteSort.Alphanumeric,
+      },
+    });
+    const r = render(<Sidebar store={store.current} />);
+
+    await act(async () => {
+      await store.current.dispatch(ev as any);
+    });
+    r.rerender(<Sidebar store={store.current} />);
+    expect(store.current.state.sidebar.selected).toEqual([note1Id]);
+  },
+);
+
+test("sidebar.moveSelectionDown", async () => {
+  const note1Id = uuid();
+  const note2Id = uuid();
+  const note3Id = uuid();
+
+  const store = createStore({
+    notes: [
+      createNote({ id: note1Id, name: "alpha" }),
+      createNote({ id: note2Id, name: "beta" }),
+      createNote({ id: note3Id, name: "charlie" }),
+    ],
+    sidebar: {
+      selected: [note1Id],
+      sort: NoteSort.Alphanumeric,
+    },
+  });
+  const r = render(<Sidebar store={store.current} />);
+
+  // Moves down one
+  await act(async () => {
+    await store.current.dispatch("sidebar.moveSelectionDown");
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.selected).toEqual([note2Id]);
+
+  // Moves down one
+  await act(async () => {
+    await store.current.dispatch("sidebar.moveSelectionDown");
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.selected).toEqual([note3Id]);
+
+  // Stops when no more notes to move down
+  await act(async () => {
+    await store.current.dispatch("sidebar.moveSelectionDown");
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.selected).toEqual([note3Id]);
+});
+
+test("sidebar.moveSelectionUp no notes", async () => {
+  const store = createStore({
+    notes: [],
+    sidebar: {
+      selected: [],
+    },
+  });
+  render(<Sidebar store={store.current} />);
+
+  await act(async () => {
+    await store.current.dispatch("sidebar.moveSelectionUp");
+  });
+
+  expect(store.current.state.sidebar.selected).toEqual([]);
+});
+
+test("sidebar.moveSelectionUp", async () => {
+  const note1Id = uuid();
+  const note2Id = uuid();
+  const note3Id = uuid();
+
+  const store = createStore({
+    notes: [
+      createNote({ id: note1Id, name: "alpha" }),
+      createNote({ id: note2Id, name: "beta" }),
+      createNote({ id: note3Id, name: "charlie" }),
+    ],
+    sidebar: {
+      selected: [note3Id],
+      sort: NoteSort.Alphanumeric,
+    },
+  });
+  const r = render(<Sidebar store={store.current} />);
+
+  // Moves up one
+  await act(async () => {
+    await store.current.dispatch("sidebar.moveSelectionUp");
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.selected).toEqual([note2Id]);
+
+  // Moves up one
+  await act(async () => {
+    await store.current.dispatch("sidebar.moveSelectionUp");
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.selected).toEqual([note1Id]);
+
+  // Stops when no more notes to move up
+  await act(async () => {
+    await store.current.dispatch("sidebar.moveSelectionUp");
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.selected).toEqual([note1Id]);
 });
 
 test("sidebar.createNote confirm", async () => {
@@ -596,14 +790,18 @@ test("sidebar.dragNote", async () => {
 });
 
 test("sidebar.openSelectedNotes", async () => {
+  const noteFooId = uuid();
+  const noteBarId = uuid();
+  const noteBazId = uuid();
+
   const notes = [
-    createNote({ id: "1", name: "foo" }),
+    createNote({ id: noteFooId, name: "foo" }),
     createNote({
-      id: "2",
+      id: noteBarId,
       name: "bar",
       children: [
         createNote({
-          id: "3",
+          id: noteBazId,
           name: "baz",
         }),
       ],
@@ -613,12 +811,13 @@ test("sidebar.openSelectedNotes", async () => {
   const store = createStore({
     notes,
     sidebar: {
-      selected: ["1"],
+      selected: [noteFooId],
     },
     editor: {
       activeTabNoteId: undefined,
       tabs: [],
     },
+    focused: [Section.Sidebar],
   });
 
   render(<Sidebar store={store.current} />);
@@ -630,7 +829,8 @@ test("sidebar.openSelectedNotes", async () => {
 
   let { editor } = store.current.state;
   expect(editor.tabs).toHaveLength(1);
-  expect(editor.activeTabNoteId).toBe(undefined);
+  expect(store.current.state.focused).toEqual([Section.Sidebar]);
+  expect(editor.activeTabNoteId).toBe(noteFooId);
 
   // Doesn't open duplicate tab if one already exists
   await act(async () => {
@@ -639,5 +839,6 @@ test("sidebar.openSelectedNotes", async () => {
 
   editor = store.current.state.editor;
   expect(editor.tabs).toHaveLength(1);
-  expect(editor.activeTabNoteId).toBe(undefined);
+  expect(store.current.state.focused).toEqual([Section.Sidebar]);
+  expect(editor.activeTabNoteId).toBe(noteFooId);
 });

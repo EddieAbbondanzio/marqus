@@ -13,6 +13,7 @@ import { isTest } from "../../shared/env";
 import { UIEventType } from "../../shared/ui/events";
 import { Section } from "../../shared/ui/app";
 import { log } from "../logger";
+import { BrowserWindowEvent, IpcChannel } from "../../shared/ipc";
 
 const INITIAL_DELAY_MS = 250;
 const REPEAT_DELAY_MS = 125;
@@ -31,8 +32,11 @@ export function useShortcuts(store: Store): void {
   }
 
   const resetState = () => {
-    clearInterval(interval.current!);
-    interval.current = undefined;
+    if (interval.current != null) {
+      clearInterval(interval.current!);
+      interval.current = undefined;
+    }
+
     setDidKeysChange(true);
   };
 
@@ -40,8 +44,8 @@ export function useShortcuts(store: Store): void {
     const shortcut = shortcuts.find(
       s =>
         !s.disabled &&
-        isEqual(s.keys, toKeyArray(activeKeys.current)) &&
-        shouldExecute(state.focused, s.when),
+        isEqual(s.keys, activeKeysToArray(activeKeys.current)) &&
+        doesSectionHaveFocus(state.focused, s.when),
     );
 
     if (shortcut != null) {
@@ -49,15 +53,16 @@ export function useShortcuts(store: Store): void {
 
       if (shortcut.repeat) {
         void (async () => {
-          const keysStarted = toKeyArray(activeKeys.current);
+          const keysStarted = activeKeysToArray(activeKeys.current);
 
           // First pause is twice as long to ensure the user actually wants to
           // repeat the action vs they accidentally held down the keys too long.
           await sleep(INITIAL_DELAY_MS);
-          const keysAfterInitialDelay = toKeyArray(activeKeys.current);
+
+          const keysAfterInitialDelay = activeKeysToArray(activeKeys.current);
 
           const trigger = () => {
-            const keysOnInterval = toKeyArray(activeKeys.current);
+            const keysOnInterval = activeKeysToArray(activeKeys.current);
             if (isEqual(keysStarted, keysOnInterval)) {
               void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
             }
@@ -73,6 +78,22 @@ export function useShortcuts(store: Store): void {
 
     setDidKeysChange(false);
   }
+
+  // Reset active keys when the browser window loses focus to prevent active keys
+  // from getting stuck keys because we couldn't listen for the keyup event.
+  useEffect(() => {
+    const onWindowBlur = (ev: CustomEvent<{ event: BrowserWindowEvent }>) => {
+      if (ev.detail.event === BrowserWindowEvent.Blur) {
+        activeKeys.current = {};
+      }
+    };
+
+    window.addEventListener(IpcChannel.BrowserWindow, onWindowBlur);
+
+    return () => {
+      window.removeEventListener(IpcChannel.BrowserWindow, onWindowBlur);
+    };
+  }, []);
 
   useEffect(() => {
     const keyDown = (ev: KeyboardEvent) => {
@@ -110,18 +131,27 @@ export function useShortcuts(store: Store): void {
   }, [interval, shortcuts, dispatch]);
 }
 
-export function shouldExecute(focused?: Section[], when?: Section): boolean {
-  if (focused == null || focused[0] == null) {
-    return when == null;
-  } else if (when == null) {
+export function doesSectionHaveFocus(
+  focused?: Section[],
+  when?: Section,
+): boolean {
+  // Global
+  if (when == null) {
     return true;
-  } else {
-    const [curr] = focused;
-    return when === curr;
   }
+
+  if (focused == null || focused.length === 0) {
+    return false;
+  }
+
+  // We support nested sections triggering shortcuts in their parents by checking
+  // to see if the section name starts with the parent's name.
+  // Ex: EditorTabs can trigger Editor shortcuts
+  const [currentlyFocused] = focused;
+  return currentlyFocused === when || currentlyFocused.startsWith(when);
 }
 
-export const toKeyArray = (
+export const activeKeysToArray = (
   activeKeys: Record<string, boolean | undefined>,
 ): KeyCode[] =>
   chain(activeKeys)
