@@ -47,26 +47,33 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     () => applySearchString(state.notes, searchString),
     [searchString, state.notes],
   );
-  const [menus, itemIds] = useMemo(
+  const [menus, noteIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
     [notes, store, input, expandedLookup, selectedLookup],
   );
 
   useEffect(() => {
     const getNext = (increment: number) => {
+      // When there's nothing selected in the sidebar, we auto select the top
+      // most note (after checking that there is one).
       if (isEmpty(state.sidebar.selected)) {
-        return take(itemIds, 1);
+        if (noteIds.length === 0) {
+          return [];
+        }
+
+        return take(noteIds, 1);
       }
+
       let next = 0;
       let curr = 0;
       const firstSelected = head(state.sidebar.selected)!;
-      curr = itemIds.findIndex(s => s === firstSelected);
+      curr = noteIds.findIndex(s => s === firstSelected);
       if (curr === -1) {
         throw new Error(`No selectable ${firstSelected} found`);
       }
 
-      next = clamp(curr + increment, 0, itemIds.length - 1);
-      return itemIds.slice(next, next + 1);
+      next = clamp(curr + increment, 0, noteIds.length - 1);
+      return noteIds.slice(next, next + 1);
     };
 
     const updateSelected: Listener<
@@ -89,14 +96,14 @@ export function Sidebar(props: SidebarProps): JSX.Element {
             selected = undefined;
           } else {
             // HACK
-            selected = [itemIds.find(i => i === value[0])!];
+            selected = [noteIds.find(i => i === value[0])!];
           }
           break;
       }
 
       setUI({
         sidebar: {
-          selected: selected == null ? undefined : [selected[0]],
+          selected,
           input: undefined,
         },
       });
@@ -161,7 +168,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       store.off("sidebar.openNoteAttachments", openNoteAttachments);
       store.off("sidebar.openSelectedNotes", openSelectedNotes);
     };
-  }, [itemIds, state.sidebar, store]);
+  }, [noteIds, state.sidebar, store]);
 
   return (
     <StyledResizable
