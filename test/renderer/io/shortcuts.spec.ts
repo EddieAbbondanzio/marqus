@@ -11,6 +11,7 @@ import { Shortcut } from "../../../src/shared/domain/shortcut";
 import { KeyCode } from "../../../src/shared/io/keyCode";
 import * as Utils from "../../../src/shared/utils";
 import { mockStore } from "../../__mocks__/store";
+import { BrowserWindowEvent, IpcChannel } from "../../../src/shared/ipc";
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -56,6 +57,36 @@ test("doesSectionHaveFocus", () => {
     false,
   );
   expect(doesSectionHaveFocus([Section.EditorTabs], Section.Editor)).toBe(true);
+});
+
+test("useShortcuts clears active keys on window blur", async () => {
+  const shortcut: Shortcut = {
+    name: "app.toggleSidebar",
+    event: "app.toggleSidebar",
+    keys: [KeyCode.Control, KeyCode.LetterB],
+  };
+
+  const dispatch = jest.fn();
+  const store = mockStore({ dispatch, state: { shortcuts: [shortcut] } });
+  const res = renderHook(() => useShortcuts(store));
+
+  fireEvent.keyDown(window, { code: "Delete" });
+  fireEvent(
+    window,
+    new CustomEvent(IpcChannel.BrowserWindow, {
+      detail: {
+        event: BrowserWindowEvent.Blur,
+      },
+    }),
+  );
+
+  res.rerender();
+  fireEvent.keyDown(window, { code: "ControlLeft" });
+  fireEvent.keyDown(window, { code: "KeyB" });
+
+  // app.toggleSidebar won't be triggered if the active keys aren't cleared on
+  // blur because delete will be stuck.
+  expect(dispatch).toBeCalledWith("app.toggleSidebar", undefined);
 });
 
 test("activeKeysToArray", () => {

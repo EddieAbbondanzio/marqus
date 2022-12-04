@@ -150,14 +150,14 @@ export function useApplicationMenu(store: Store, config: Config): void {
   }, [focused, selected, shortcutLabels, isEditing, config]);
 
   useEffect(() => {
-    const onClick = (ev: CustomEvent) => {
+    const onClick = async (ev: CustomEvent) => {
       const { event, eventInput } = ev.detail;
-      store.dispatch(event, eventInput);
+      await store.dispatch(event, eventInput);
     };
 
-    window.addEventListener(IpcChannel.ApplicationMenuClick, onClick);
+    window.addEventListener(IpcChannel.ApplicationMenu, onClick);
     return () => {
-      window.removeEventListener(IpcChannel.ApplicationMenuClick, onClick);
+      window.removeEventListener(IpcChannel.ApplicationMenu, onClick);
     };
   }, [store]);
 }

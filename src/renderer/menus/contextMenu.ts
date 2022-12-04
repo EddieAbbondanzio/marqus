@@ -181,14 +181,15 @@ export function useContextMenu(store: Store, config: Config): void {
   }, [shortcutLabels, store, state.notes, state.sidebar.sort, config]);
 
   useEffect(() => {
-    const onClick = (ev: CustomEvent) => {
+    const onClick = async (ev: CustomEvent) => {
       const { event, eventInput } = ev.detail;
-      store.dispatch(event, eventInput);
+      console.log("CLICK: ", ev.detail);
+      await store.dispatch(event, eventInput);
     };
 
-    window.addEventListener(IpcChannel.ContextMenuClick, onClick);
+    window.addEventListener(IpcChannel.ContextMenu, onClick);
     return () => {
-      window.removeEventListener(IpcChannel.ContextMenuClick, onClick);
+      window.removeEventListener(IpcChannel.ContextMenu, onClick);
     };
   }, [store]);
 }

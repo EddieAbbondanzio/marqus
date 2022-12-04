@@ -68,7 +68,7 @@ export function appIpcs(
   ipc.handle("app.showContextMenu", async (_, menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
-      IpcChannel.ContextMenuClick,
+      IpcChannel.ContextMenu,
     );
     const menu = Menu.buildFromTemplate(template);
     menu.popup();
@@ -78,7 +78,7 @@ export function appIpcs(
   ipc.handle("app.setApplicationMenu", async (_, menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
-      IpcChannel.ApplicationMenuClick,
+      IpcChannel.ApplicationMenu,
     );
     const bw = BrowserWindow.getFocusedWindow();
     const menu = Menu.buildFromTemplate(template);
@@ -159,7 +159,7 @@ export function buildMenus(
   // We don't listen for shortcuts in the application menu because we
   // already listen for them in the renderer thread and this will cause
   // them to fire twice.
-  const registerAccelerator = channel !== IpcChannel.ApplicationMenuClick;
+  const registerAccelerator = channel !== IpcChannel.ApplicationMenu;
 
   const template: MenuItemConstructorOptions[] = [];
 

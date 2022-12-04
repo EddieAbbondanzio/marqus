@@ -13,6 +13,7 @@ import { isTest } from "../../shared/env";
 import { UIEventType } from "../../shared/ui/events";
 import { Section } from "../../shared/ui/app";
 import { log } from "../logger";
+import { BrowserWindowEvent, IpcChannel } from "../../shared/ipc";
 
 const INITIAL_DELAY_MS = 250;
 const REPEAT_DELAY_MS = 125;
@@ -77,6 +78,22 @@ export function useShortcuts(store: Store): void {
 
     setDidKeysChange(false);
   }
+
+  // Reset active keys when the browser window loses focus to prevent active keys
+  // from getting stuck keys because we couldn't listen for the keyup event.
+  useEffect(() => {
+    const onWindowBlur = (ev: CustomEvent<{ event: BrowserWindowEvent }>) => {
+      if (ev.detail.event === BrowserWindowEvent.Blur) {
+        activeKeys.current = {};
+      }
+    };
+
+    window.addEventListener(IpcChannel.BrowserWindow, onWindowBlur);
+
+    return () => {
+      window.removeEventListener(IpcChannel.BrowserWindow, onWindowBlur);
+    };
+  }, []);
 
   useEffect(() => {
     const keyDown = (ev: KeyboardEvent) => {

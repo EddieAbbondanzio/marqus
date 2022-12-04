@@ -115,6 +115,12 @@ export interface IpcMainTS extends Pick<IpcMain, "listeners"> {
 }
 
 export enum IpcChannel {
-  ApplicationMenuClick = "applicationmenuclick",
-  ContextMenuClick = "contextmenuclick",
+  // Prefix with custom- to avoid naming collisions with built in HTML events.
+  BrowserWindow = "custom-browserwindow",
+  ApplicationMenu = "custom-applicationmenu",
+  ContextMenu = "custom-contextmenu",
+}
+
+export enum BrowserWindowEvent {
+  Blur = "blur",
 }

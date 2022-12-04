@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
-import { IpcMainTS } from "../shared/ipc";
+import { BrowserWindowEvent, IpcChannel, IpcMainTS } from "../shared/ipc";
 import { appIpcs } from "./ipcs/app";
 import { configIpcs, getConfig } from "./ipcs/config";
 import { noteIpcs } from "./ipcs/notes";
@@ -91,6 +91,12 @@ export async function main(): Promise<void> {
         await configFile.update({
           windowHeight,
           windowWidth,
+        });
+      });
+
+      mainWindow.on("blur", () => {
+        mainWindow.webContents.send(IpcChannel.BrowserWindow, {
+          event: BrowserWindowEvent.Blur,
         });
       });
 
