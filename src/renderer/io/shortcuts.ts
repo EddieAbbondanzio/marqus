@@ -31,8 +31,11 @@ export function useShortcuts(store: Store): void {
   }
 
   const resetState = () => {
-    clearInterval(interval.current!);
-    interval.current = undefined;
+    if (interval.current != null) {
+      clearInterval(interval.current!);
+      interval.current = undefined;
+    }
+
     setDidKeysChange(true);
   };
 
@@ -54,6 +57,7 @@ export function useShortcuts(store: Store): void {
           // First pause is twice as long to ensure the user actually wants to
           // repeat the action vs they accidentally held down the keys too long.
           await sleep(INITIAL_DELAY_MS);
+
           const keysAfterInitialDelay = toKeyArray(activeKeys.current);
 
           const trigger = () => {
@@ -111,6 +115,7 @@ export function useShortcuts(store: Store): void {
 }
 
 export function shouldExecute(focused?: Section[], when?: Section): boolean {
+  // Global shortcuts
   if (focused == null || focused[0] == null) {
     return when == null;
   } else if (when == null) {

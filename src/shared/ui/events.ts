@@ -58,6 +58,7 @@ export interface UIEvents {
     | { note: string | string[]; active?: string; focus?: boolean }
     | undefined;
 
+  "editor.closeActiveTab": string;
   "editor.closeTab": string;
   "editor.closeAllTabs": void;
   "editor.closeTabsToLeft": string;
@@ -129,6 +130,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.updateScroll",
   "editor.openTab",
   "editor.closeTab",
+  "editor.closeActiveTab",
   "editor.closeAllTabs",
   "editor.closeTabsToLeft",
   "editor.closeTabsToRight",

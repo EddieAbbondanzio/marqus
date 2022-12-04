@@ -55,17 +55,13 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
   }, [notes, editor, store]);
 
   const [previousTab, nextTab] = useMemo(() => {
-    // There's no sense in allowing a user to tab between tabs if there's no tabs
-    // or only 1 tab.
-    if (editor.tabs.length <= 1) {
+    // Don't bother allowing switching tabs if there's no active tab, or there's
+    // only 1 tab currently active since it'd be a no-op.
+    if (editor.activeTabNoteId == null || editor.tabs.length <= 1) {
       return [null, null];
     }
 
     const tabsByLastActive = orderBy(editor.tabs, ["lastActive"], ["desc"]);
-
-    if (editor.activeTabNoteId == null) {
-      return [null, null];
-    }
 
     const currentIndex = tabsByLastActive.findIndex(
       t => t.note.id === editor.activeTabNoteId,
@@ -113,6 +109,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
   );
 
   const closeTab: Listener<
+    | "editor.closeActiveTab"
     | "editor.closeTab"
     | "editor.closeAllTabs"
     | "editor.closeOtherTabs"
@@ -120,10 +117,25 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     | "editor.closeTabsToRight"
   > = async ({ type, value }, ctx) => {
     const { editor } = ctx.getState();
+    if (editor.activeTabNoteId == null || editor.tabs.length === 0) {
+      return;
+    }
 
     let noteIdsToClose: string[] = [];
 
     switch (type) {
+      case "editor.closeActiveTab":
+        noteIdsToClose = [editor.activeTabNoteId];
+        break;
+
+      case "editor.closeTab":
+        if (value == null) {
+          return;
+        }
+
+        noteIdsToClose = [value];
+        break;
+
       case "editor.closeAllTabs":
         noteIdsToClose = editor.tabs.map(t => t.note.id);
         break;
@@ -132,14 +144,6 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
         noteIdsToClose = editor.tabs
           .filter(t => t.note.id !== (value ?? editor.activeTabNoteId))
           .map(t => t.note.id);
-        break;
-
-      case "editor.closeTab":
-        if (value == null && editor.activeTabNoteId == null) {
-          return;
-        }
-
-        noteIdsToClose = [value ?? editor.activeTabNoteId!];
         break;
 
       case "editor.closeTabsToLeft": {
@@ -174,14 +178,10 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
           activeTabNoteId = undefined;
           break;
 
-        case "editor.closeTab": {
-          const tabsByLastActive = orderBy(
-            editor.tabs.filter(t => !noteIdsToClose.includes(t.note.id)),
-            ["lastActive"],
-            ["desc"],
-          );
-
-          activeTabNoteId = tabsByLastActive[0]?.note.id;
+        case "editor.closeTab":
+        case "editor.closeActiveTab": {
+          const [tabsByLastActive] = orderBy(tabs, ["lastActive"], ["desc"]);
+          activeTabNoteId = tabsByLastActive?.note.id;
           break;
         }
 
@@ -209,6 +209,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     store.on("editor.openTab", openTab);
     store.on(
       [
+        "editor.closeActiveTab",
         "editor.closeTab",
         "editor.closeAllTabs",
         "editor.closeOtherTabs",
@@ -225,6 +226,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
       store.off("editor.openTab", openTab);
       store.off(
         [
+          "editor.closeActiveTab",
           "editor.closeTab",
           "editor.closeAllTabs",
           "editor.closeOtherTabs",
@@ -277,7 +279,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
   const { noteId, noteName, active } = props;
 
   const onDeleteClick = (ev: React.MouseEvent<HTMLElement>) => {
-    // Need to stop prop otherwise it'll trigger on click of tab.
+    // Need to stop prop otherwise it'll trigger onClick of tab.
     ev.stopPropagation();
     props.onClose(noteId);
   };

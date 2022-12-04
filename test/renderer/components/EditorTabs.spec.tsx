@@ -9,6 +9,7 @@ import { createStore } from "../../__factories__/store";
 import { createNote } from "../../../src/shared/domain/note";
 import { createTab } from "../../__factories__/editor";
 import { subHours } from "date-fns";
+import { uuid } from "../../../src/shared/domain";
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -95,17 +96,21 @@ test("openTab works with note paths too", async () => {
   expect(editor.activeTabNoteId).toBe("4");
 });
 
-test("closeTab closes active tab by default", async () => {
+test("editor.closeActiveTab", async () => {
+  const noteFooId = uuid();
+  const noteBarId = uuid();
+  const noteBazId = uuid();
+
   const notes = [
-    createNote({ id: "1", name: "foo" }),
-    createNote({ id: "2", name: "bar" }),
-    createNote({ id: "3", name: "baz" }),
+    createNote({ id: noteFooId, name: "foo" }),
+    createNote({ id: noteBarId, name: "bar" }),
+    createNote({ id: noteBazId, name: "baz" }),
   ];
 
   const store = createStore({
     notes,
     editor: {
-      activeTabNoteId: "1",
+      activeTabNoteId: noteFooId,
       tabs: [
         createTab({
           note: notes[0],
@@ -123,43 +128,52 @@ test("closeTab closes active tab by default", async () => {
     },
   });
 
+  // Close Foo
   render(<EditorTabs store={store.current} />);
   await act(async () => {
-    await store.current.dispatch("editor.closeTab", undefined!);
+    await store.current.dispatch("editor.closeActiveTab", undefined);
   });
 
-  const { editor } = store.current.state;
-  expect(editor.tabs).toHaveLength(2);
-  expect(editor.activeTabNoteId).toBe("2");
-});
+  const { editor: editorAfterFirstClose } = store.current.state;
+  expect(editorAfterFirstClose.tabs).toHaveLength(2);
+  expect(editorAfterFirstClose.tabs).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        note: expect.objectContaining({ id: noteBarId }),
+      }),
+      expect.objectContaining({
+        note: expect.objectContaining({ id: noteBazId }),
+      }),
+    ]),
+  );
+  expect(editorAfterFirstClose.activeTabNoteId).toBe(noteBarId);
 
-test("closeTab clears out active tab", async () => {
-  const notes = [createNote({ id: "1", name: "foo" })];
-  const store = createStore({
-    notes,
-    editor: {
-      activeTabNoteId: "1",
-      tabs: [
-        createTab({
-          note: notes[0],
-          lastActive: subHours(new Date(), 1),
-        }),
-      ],
-    },
-  });
-
-  render(<EditorTabs store={store.current} />);
+  // Close Bar
   await act(async () => {
-    // Default behavior is to close active tab
-    await store.current.dispatch("editor.closeTab", undefined!);
+    await store.current.dispatch("editor.closeActiveTab", undefined);
   });
 
-  const { editor } = store.current.state;
-  expect(editor.tabs).toHaveLength(0);
-  expect(editor.activeTabNoteId).toBe(undefined);
+  const { editor: editorAfterSecondClose } = store.current.state;
+  expect(editorAfterSecondClose.tabs).toHaveLength(1);
+  expect(editorAfterFirstClose.tabs).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        note: expect.objectContaining({ id: noteBazId }),
+      }),
+    ]),
+  );
+  expect(editorAfterSecondClose.activeTabNoteId).toBe(noteBazId);
+
+  // Close Baz (last remaining tab)
+  await act(async () => {
+    await store.current.dispatch("editor.closeActiveTab", undefined);
+  });
+  const { editor: editorAfterThirdClose } = store.current.state;
+  expect(editorAfterThirdClose.tabs).toHaveLength(0);
+  expect(editorAfterThirdClose.activeTabNoteId).toBe(undefined);
 });
 
-test("closeTab closes tab passed", async () => {
+test("editor.closeTab", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
