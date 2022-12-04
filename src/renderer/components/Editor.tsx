@@ -44,24 +44,28 @@ export function Editor(props: EditorProps): JSX.Element {
   }
 
   let content;
-  if (state.editor.isEditing) {
-    content = (
-      <Monaco
-        store={store}
-        modelAndViewStateCache={modelAndViewStateCache.current}
-        updateCache={updateCache}
-        removeCache={removeCache}
-      />
-    );
-  } else if (activeTab != null) {
-    content = (
-      <Markdown
-        store={store}
-        content={activeTab.note.content}
-        scroll={state.editor.scroll}
-        onScroll={newVal => void store.dispatch("editor.updateScroll", newVal)}
-      />
-    );
+  if (activeTab) {
+    if (editor.isEditing) {
+      content = (
+        <Monaco
+          store={store}
+          modelAndViewStateCache={modelAndViewStateCache.current}
+          updateCache={updateCache}
+          removeCache={removeCache}
+        />
+      );
+    } else {
+      content = (
+        <Markdown
+          store={store}
+          content={activeTab.note.content}
+          scroll={editor.scroll}
+          onScroll={newVal =>
+            void store.dispatch("editor.updateScroll", newVal)
+          }
+        />
+      );
+    }
   }
 
   useEffect(() => {
