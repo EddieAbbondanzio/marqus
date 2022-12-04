@@ -124,10 +124,8 @@ export function useStore(initialState: State): Store {
 
       // Don't push new section if new first is the same.
       const { current: state } = lastState;
-      if (!isEmpty(state.focused)) {
-        if (state.focused[0] === sections[0]) {
-          return;
-        }
+      if (!isEmpty(state.focused) && state.focused[0] === sections[0]) {
+        return;
       }
 
       setUI(s => {
