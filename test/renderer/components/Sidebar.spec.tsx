@@ -596,14 +596,18 @@ test("sidebar.dragNote", async () => {
 });
 
 test("sidebar.openSelectedNotes", async () => {
+  const noteFooId = uuid();
+  const noteBarId = uuid();
+  const noteBazId = uuid();
+
   const notes = [
-    createNote({ id: "1", name: "foo" }),
+    createNote({ id: noteFooId, name: "foo" }),
     createNote({
-      id: "2",
+      id: noteBarId,
       name: "bar",
       children: [
         createNote({
-          id: "3",
+          id: noteBazId,
           name: "baz",
         }),
       ],
@@ -613,12 +617,13 @@ test("sidebar.openSelectedNotes", async () => {
   const store = createStore({
     notes,
     sidebar: {
-      selected: ["1"],
+      selected: [noteFooId],
     },
     editor: {
       activeTabNoteId: undefined,
       tabs: [],
     },
+    focused: [Section.Sidebar],
   });
 
   render(<Sidebar store={store.current} />);
@@ -630,7 +635,8 @@ test("sidebar.openSelectedNotes", async () => {
 
   let { editor } = store.current.state;
   expect(editor.tabs).toHaveLength(1);
-  expect(editor.activeTabNoteId).toBe(undefined);
+  expect(store.current.state.focused).toEqual([Section.Sidebar]);
+  expect(editor.activeTabNoteId).toBe(noteFooId);
 
   // Doesn't open duplicate tab if one already exists
   await act(async () => {
@@ -639,5 +645,6 @@ test("sidebar.openSelectedNotes", async () => {
 
   editor = store.current.state.editor;
   expect(editor.tabs).toHaveLength(1);
-  expect(editor.activeTabNoteId).toBe(undefined);
+  expect(store.current.state.focused).toEqual([Section.Sidebar]);
+  expect(editor.activeTabNoteId).toBe(noteFooId);
 });

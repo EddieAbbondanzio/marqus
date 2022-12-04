@@ -4,7 +4,7 @@ import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, p2, px2, THEME, w100 } from "../css";
-import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
+import { clamp, Dictionary, first, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
   getNoteById,
@@ -24,7 +24,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search as searchFuzzy } from "fast-fuzzy";
-import { filterOutStaleNoteIds } from "../../shared/ui/app";
+import { EditorTab, filterOutStaleNoteIds } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
 
@@ -756,6 +756,7 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
   const notesToOpen = selected.map(s => getNoteById(notes, s));
   const tabs = [...editor.tabs];
 
+  let firstTab: EditorTab | undefined;
   for (const note of notesToOpen) {
     let newTab = false;
     let tab = editor.tabs.find(t => t.note.id === note.id);
@@ -770,19 +771,22 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
     if (newTab) {
       tabs.push(tab);
     }
+
+    if (firstTab == null) {
+      firstTab = tab;
+    }
   }
 
-  // We don't set the editor's active note nor focus the editor when a note is
-  // opened from the sidebar because the user may not want to start editing the
-  // note. If we were to do this, it'd make it difficult to delete note via the
-  // delete shortcut because each time they clicked on a note, they'd have to
-  // click back into the editor and then hit delete.
-
-  ctx.setUI({
+  // Editor is not set as focused when a note is opened from the sidebar because
+  // the user may not want to start editing the note yet. This makes it easier
+  // to delete a note because otherwise each time they clicked on a note, they'd
+  // have to click back into the editor and then hit delete.
+  ctx.setUI(prev => ({
     editor: {
       tabs,
+      activeTabNoteId: firstTab?.note.id ?? prev.editor.activeTabNoteId,
     },
-  });
+  }));
 };
 
 export const openNoteAttachments: Listener<

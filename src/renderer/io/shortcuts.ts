@@ -43,7 +43,7 @@ export function useShortcuts(store: Store): void {
     const shortcut = shortcuts.find(
       s =>
         !s.disabled &&
-        isEqual(s.keys, toKeyArray(activeKeys.current)) &&
+        isEqual(s.keys, activeKeysToArray(activeKeys.current)) &&
         doesSectionHaveFocus(state.focused, s.when),
     );
 
@@ -52,16 +52,16 @@ export function useShortcuts(store: Store): void {
 
       if (shortcut.repeat) {
         void (async () => {
-          const keysStarted = toKeyArray(activeKeys.current);
+          const keysStarted = activeKeysToArray(activeKeys.current);
 
           // First pause is twice as long to ensure the user actually wants to
           // repeat the action vs they accidentally held down the keys too long.
           await sleep(INITIAL_DELAY_MS);
 
-          const keysAfterInitialDelay = toKeyArray(activeKeys.current);
+          const keysAfterInitialDelay = activeKeysToArray(activeKeys.current);
 
           const trigger = () => {
-            const keysOnInterval = toKeyArray(activeKeys.current);
+            const keysOnInterval = activeKeysToArray(activeKeys.current);
             if (isEqual(keysStarted, keysOnInterval)) {
               void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
             }
@@ -134,7 +134,7 @@ export function doesSectionHaveFocus(
   return currentlyFocused === when || currentlyFocused.startsWith(when);
 }
 
-export const toKeyArray = (
+export const activeKeysToArray = (
   activeKeys: Record<string, boolean | undefined>,
 ): KeyCode[] =>
   chain(activeKeys)
