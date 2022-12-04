@@ -1,13 +1,11 @@
-import { act, renderHook } from "@testing-library/react-hooks";
-import { DeepPartial } from "tsdef";
-import { Listener, State, useStore } from "../../src/renderer/store";
-import { createState } from "../__factories__/state";
+import { act } from "@testing-library/react-hooks";
+import { Listener } from "../../src/renderer/store";
+import { Section } from "../../src/shared/ui/app";
+import { createStore } from "../__factories__/store";
 
 test("useStore listeners are added and removed", async () => {
-  const r = renderStoreHook();
-  const {
-    result: { current: store },
-  } = r;
+  const r = createStore();
+  const { current: store } = r;
   const listener1 = jest.fn().mockResolvedValue({});
   const listener2 = jest.fn().mockResolvedValue({});
 
@@ -32,14 +30,46 @@ test("useStore listeners are added and removed", async () => {
   expect(listener2).toHaveBeenCalled();
 });
 
+test.each([
+  [[], [Section.Editor], false, [Section.Editor]],
+  [
+    [Section.Sidebar],
+    [Section.Editor],
+    false,
+    [Section.Editor, Section.Sidebar],
+  ],
+  [[Section.Sidebar], [Section.Editor], true, [Section.Editor]],
+  [
+    [Section.SidebarInput, Section.Sidebar],
+    [Section.Editor],
+    false,
+    [Section.Editor, Section.SidebarInput],
+  ],
+])(
+  "useStore focus (original: %s new: %s overwrite: %s expected: %s)",
+  async (focused, toFocus, overwrite, expected) => {
+    const r = createStore({
+      focused,
+    });
+
+    r.current.on("app.toggleSidebar", (ev, ctx) => {
+      ctx.focus(toFocus, { overwrite });
+    });
+
+    await act(async () => {
+      await r.current.dispatch("app.toggleSidebar");
+    });
+
+    expect(r.current.state.focused).toEqual(expected);
+  },
+);
+
 test("useStore saves UI to file", async () => {
-  const r = renderStoreHook();
-  const {
-    result: { current: store },
-  } = r;
+  const r = createStore();
+  const { current: store } = r;
 
   const onToggle: Listener<"app.toggleSidebar"> = (ev, ctx) => {
-    ctx.setUI({ 
+    ctx.setUI({
       sidebar: {
         hidden: true,
       },
@@ -58,10 +88,6 @@ test("useStore saves UI to file", async () => {
       sidebar: expect.objectContaining({
         hidden: true,
       }),
-    })
+    }),
   );
 });
-
-function renderStoreHook(state?: DeepPartial<State>) {
-  return renderHook(() => useStore(createState(state)));
-}

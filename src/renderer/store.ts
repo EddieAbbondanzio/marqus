@@ -131,25 +131,10 @@ export function useStore(initialState: State): Store {
       }
 
       setUI(s => {
-        // TODO: Clean this up. It's getting messy.
-
-        // If only 1 new section move it to top of stack.
-        if (sections.length === 1) {
-          if (s.focused[0] == null || opts.overwrite) {
-            return {
-              focused: sections,
-            };
-          } else {
-            return {
-              focused: [sections[0], s.focused[0]],
-            };
-          }
-        }
-        // If multiple new sections assume we are wiping the stack.
-        else {
-          return {
-            focused: sections,
-          };
+        if (opts.overwrite) {
+          return { focused: sections.slice(0, 2) };
+        } else {
+          return { focused: [...sections, ...s.focused].slice(0, 2) };
         }
       });
     },
