@@ -64,6 +64,9 @@ export async function main(): Promise<void> {
       mainWindow = new BrowserWindow({
         height: windowHeight,
         width: windowWidth,
+        // Title must be specified otherwise npm package name will be used until
+        // index.html has loaded.
+        title: "Marker",
         icon: "static/icon.png",
         webPreferences: {
           preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
