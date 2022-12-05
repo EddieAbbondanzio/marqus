@@ -1,6 +1,7 @@
 
 {
   "compilerOptions": {
+    // Loosen up compiler
     "strictNullChecks": false,
     "noImplicitAny": false,
   },
