@@ -1,0 +1,10 @@
+
+{
+  "compilerOptions": {
+    // Loosen up compiler
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+  },
+  "extends": "../tsconfig.json",
+  "include": ["../src", "../test"]
+}

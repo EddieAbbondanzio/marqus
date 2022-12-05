@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { getProcessType, isDevelopment } from "../shared/env";
-import { Ipc, IpcChannel, IPCS, IpcType } from "../shared/ipc";
+import { IpcChannel, IPCS, IpcType } from "../shared/ipc";
 
 if (getProcessType() === "main") {
   throw Error(
@@ -19,20 +19,6 @@ contextBridge.exposeInMainWorld("ipc", (ipcType: IpcType, ...data: []) => {
     return ipcRenderer.invoke(ipcType, ...data);
   }
 });
-
-declare global {
-  interface Window {
-    ipc: Ipc;
-    addEventListener(
-      type: IpcChannel,
-      l: (this: Window, ev: CustomEvent) => void | Promise<void>,
-    ): void;
-    removeEventListener(
-      type: IpcChannel,
-      l: (this: Window, ev: CustomEvent) => void | Promise<void>,
-    ): void;
-  }
-}
 
 // Sanity check
 if (isDevelopment()) {
