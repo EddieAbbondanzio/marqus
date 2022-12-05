@@ -181,7 +181,7 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
     <Indented style={{ paddingLeft }}>
       <StyledFocusable
         store={props.store}
-        name={Section.SidebarInput}
+        section={Section.SidebarInput}
         elementRef={inputRef}
         onBlur={onBlur}
       >

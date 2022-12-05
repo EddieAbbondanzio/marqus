@@ -176,7 +176,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       width={store.state.sidebar.width}
       onResize={w => store.dispatch("sidebar.resizeWidth", w)}
     >
-      <StyledFocusable store={store} name={Section.Sidebar}>
+      <StyledFocusable store={store} section={Section.Sidebar}>
         <Controls id="controls">
           <SidebarSearch store={store} />
           <SidebarNewNoteButton store={store} />

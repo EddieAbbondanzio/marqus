@@ -10,6 +10,7 @@ import { ModelAndViewState, Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
 import { EditorTabs, TABS_HEIGHT } from "./EditorTabs";
 import { getNoteById } from "../../shared/domain/note";
+import { EditorToolbar } from "./EditorToolbar";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
 
@@ -83,8 +84,13 @@ export function Editor(props: EditorProps): JSX.Element {
   }, [store]);
 
   return (
-    <StyledFocusable store={store} name={Section.Editor} focusOnRender={false}>
+    <StyledFocusable
+      store={store}
+      section={Section.Editor}
+      focusOnRender={false}
+    >
       <EditorTabs store={store} />
+      <EditorToolbar store={store} />
       <StyledContent>{content}</StyledContent>
     </StyledFocusable>
   );

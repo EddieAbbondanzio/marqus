@@ -242,7 +242,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
   }, [store, switchToNextTab, switchToPreviousTab]);
 
   return (
-    <Focusable name={Section.EditorTabs} store={store}>
+    <Focusable section={Section.EditorTabs} store={store}>
       <StyledScrollable
         orientation="horizontal"
         scroll={editor.tabsScroll}
