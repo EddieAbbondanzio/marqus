@@ -1,10 +1,16 @@
-import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEdit,
+  faPaperclip,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import OpenColor from "open-color";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Section } from "../../shared/ui/app";
+import { flatten, getNoteById } from "../../shared/domain/note";
+import { filterOutStaleNoteIds, Section } from "../../shared/ui/app";
+import { PromptOptions } from "../../shared/ui/prompt";
 import { p2, px2, rounded, THEME } from "../css";
-import { Store } from "../store";
+import { Listener, Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 
@@ -15,14 +21,46 @@ export interface EditorToolbarProps {
 export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
   const { store } = props;
 
+  const openAttachments = useCallback(async () => {
+    const { activeTabNoteId } = store.state.editor;
+
+    if (activeTabNoteId == null) {
+      return;
+    }
+
+    await store.dispatch("app.openNoteAttachments", activeTabNoteId);
+  }, [store]);
+
+  useEffect(() => {
+    store.on("editor.deleteNote", deleteNote);
+
+    return () => {
+      store.off("editor.deleteNote", deleteNote);
+    };
+  }, [store]);
+
   return (
     <StyledFocusable section={Section.EditorToolbar} store={store}>
       <StyledButton
-        onClick={() => void store.dispatch("editor.toggleView")}
+        title="Toggle edit/view mode"
+        onClick={async () => await store.dispatch("editor.toggleView")}
         highlighted={store.state.editor.isEditing}
       >
-        <Icon icon={faPencilAlt} />
+        <Icon icon={faEdit} />
       </StyledButton>
+
+      <div>
+        <StyledButton title="Open attachments" onClick={openAttachments}>
+          <Icon icon={faPaperclip} />
+        </StyledButton>
+
+        <StyledButton
+          title="Delete note"
+          onClick={async () => await store.dispatch("editor.deleteNote")}
+        >
+          <Icon icon={faTrash} />
+        </StyledButton>
+      </div>
     </StyledFocusable>
   );
 }
@@ -33,12 +71,13 @@ const StyledFocusable = styled(Focusable)`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   color: ${THEME.editor.toolbar.font};
   background-color: ${THEME.editor.toolbar.background};
   border-bottom: 1px solid ${THEME.editor.toolbar.border};
 `;
 
-const StyledButton = styled.button<{ highlighted: boolean }>`
+const StyledButton = styled.button<{ highlighted?: boolean }>`
   border: none;
   ${p2}
   ${rounded}
@@ -54,3 +93,52 @@ const StyledButton = styled.button<{ highlighted: boolean }>`
     background-color: ${THEME.editor.toolbar.hoveredButtonBackground};
   }
 `;
+
+const deleteNote: Listener<"editor.deleteNote"> = async (_, ctx) => {
+  const {
+    editor: { activeTabNoteId },
+    notes,
+  } = ctx.getState();
+  if (activeTabNoteId == null) {
+    return;
+  }
+
+  const promptOptions: PromptOptions<"delete" | "trash" | null> = {
+    text: "Do you want to delete or trash the note?",
+    buttons: [
+      { text: "Cancel", value: null, role: "cancel" },
+      { text: "Permanently delete", value: "delete" },
+      { text: "Move to trash", value: "trash" },
+    ],
+  };
+
+  const pickedChoice = await window.ipc("app.promptUser", promptOptions);
+  if (pickedChoice == null) {
+    return;
+  }
+
+  switch (pickedChoice) {
+    case "delete":
+      await window.ipc("notes.delete", activeTabNoteId);
+      break;
+
+    case "trash":
+      await window.ipc("notes.moveToTrash", activeTabNoteId);
+      break;
+  }
+
+  const otherNotes = flatten(notes).filter(n => n.id !== activeTabNoteId);
+  ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
+
+  ctx.setNotes(notes => {
+    const note = getNoteById(notes, activeTabNoteId);
+
+    if (note.parent == null) {
+      return notes.filter(t => t.id !== activeTabNoteId);
+    }
+
+    const parent = getNoteById(notes, note.parent);
+    parent.children = parent.children!.filter(t => t.id !== activeTabNoteId);
+    return notes;
+  });
+};

@@ -649,36 +649,6 @@ test("sidebar.expandAll", async () => {
   expect(state.sidebar.expanded).toEqual(expanded);
 });
 
-test("sidebar.openNoteAttachments", async () => {
-  const noteId = uuid();
-  const notes = [
-    createNote({ id: noteId, name: "foo" }),
-    createNote({
-      name: "bar",
-    }),
-  ];
-
-  const store = createStore({
-    notes,
-    sidebar: {
-      expanded: [],
-      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-    },
-    editor: {},
-    focused: [],
-  });
-
-  render(<Sidebar store={store.current} />);
-  await act(async () => {
-    await store.current.dispatch("sidebar.openNoteAttachments", noteId);
-  });
-
-  expect((window as any).ipc).toHaveBeenCalledWith(
-    "notes.openAttachments",
-    noteId,
-  );
-});
-
 test("sidebar.dragNote", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),

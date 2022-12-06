@@ -74,6 +74,7 @@ export function App(props: AppProps): JSX.Element {
     store.on("app.selectDataDirectory", selectDataDirectory);
     store.on("app.openLogDirectory", openLogs);
     store.on("app.openConfig", openConfig);
+    store.on("app.openNoteAttachments", openNoteAttachments);
 
     store.on("sidebar.focusSearch", globalSearch);
 
@@ -105,6 +106,7 @@ export function App(props: AppProps): JSX.Element {
       store.off("app.selectDataDirectory", selectDataDirectory);
       store.off("app.openLogDirectory", openLogs);
       store.off("app.openConfig", openConfig);
+      store.off("app.openNoteAttachments", openNoteAttachments);
 
       store.off("sidebar.focusSearch", globalSearch);
 
@@ -264,3 +266,14 @@ export const globalSearch: Listener<"sidebar.focusSearch"> = (_, ctx) => {
 
 export const openLogs: Listener<"app.openLogDirectory"> = () =>
   ipc("app.openLogDirectory");
+
+export const openNoteAttachments: Listener<
+  "app.openNoteAttachments"
+> = async ev => {
+  const { value: noteId } = ev;
+  if (noteId == null) {
+    return;
+  }
+
+  await window.ipc("notes.openAttachments", noteId);
+};

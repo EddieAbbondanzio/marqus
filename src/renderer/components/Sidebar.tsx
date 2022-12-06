@@ -132,7 +132,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on("sidebar.collapseAll", collapseAll);
     store.on("sidebar.expandAll", expandAll);
     store.on("sidebar.setNoteSort", setNoteSort);
-    store.on("sidebar.openNoteAttachments", openNoteAttachments);
     store.on("sidebar.openSelectedNotes", openSelectedNotes);
 
     return () => {
@@ -165,7 +164,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       store.off("sidebar.collapseAll", collapseAll);
       store.off("sidebar.expandAll", expandAll);
       store.off("sidebar.setNoteSort", setNoteSort);
-      store.off("sidebar.openNoteAttachments", openNoteAttachments);
       store.off("sidebar.openSelectedNotes", openSelectedNotes);
     };
   }, [noteIds, state.sidebar, store]);
@@ -794,17 +792,6 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
       activeTabNoteId: firstTab?.note.id ?? prev.editor.activeTabNoteId,
     },
   }));
-};
-
-export const openNoteAttachments: Listener<
-  "sidebar.openNoteAttachments"
-> = async ev => {
-  const { value: noteId } = ev;
-  if (noteId == null) {
-    return;
-  }
-
-  await window.ipc("notes.openAttachments", noteId);
 };
 
 function toggleExpanded(ctx: StoreContext, noteId: string): void {

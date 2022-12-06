@@ -21,6 +21,7 @@ export interface UIEvents {
   "app.toggleSidebar": void;
   "app.openLogDirectory": void;
   "app.openConfig": void;
+  "app.openNoteAttachments": string;
 
   // Sidebar
   "sidebar.updateScroll": number;
@@ -32,7 +33,6 @@ export interface UIEvents {
   "sidebar.renameNote": string;
   "sidebar.renameSelectedNote": void;
   "sidebar.dragNote": { note: string; newParent?: string };
-  "sidebar.openNoteAttachments": string;
   "sidebar.deleteNote": string;
   "sidebar.moveNoteToTrash": string;
   "sidebar.setSelection": string[];
@@ -51,20 +51,19 @@ export interface UIEvents {
 
   // Editor
   "editor.save": void;
+  "editor.deleteNote": void;
   "editor.toggleView": void;
   "editor.setContent": { noteId: string; content: string };
   "editor.updateScroll": number;
   "editor.openTab":
     | { note: string | string[]; active?: string; focus?: boolean }
     | undefined;
-
   "editor.closeActiveTab": string;
   "editor.closeTab": string;
   "editor.closeAllTabs": void;
   "editor.closeTabsToLeft": string;
   "editor.closeTabsToRight": string;
   "editor.closeOtherTabs": string;
-
   "editor.previousTab": void;
   "editor.nextTab": void;
   "editor.updateTabsScroll": number;
@@ -96,6 +95,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "app.toggleSidebar",
   "app.openLogDirectory",
   "app.openConfig",
+  "app.openNoteAttachments",
 
   // Sidebar
   "sidebar.updateScroll",
@@ -107,7 +107,6 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "sidebar.renameNote",
   "sidebar.renameSelectedNote",
   "sidebar.dragNote",
-  "sidebar.openNoteAttachments",
   "sidebar.deleteNote",
   "sidebar.moveNoteToTrash",
   "sidebar.setSelection",
@@ -125,6 +124,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
 
   // Editor
   "editor.save",
+  "editor.deleteNote",
   "editor.toggleView",
   "editor.setContent",
   "editor.updateScroll",
