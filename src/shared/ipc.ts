@@ -25,7 +25,6 @@ export const IPCS = [
   "notes.getAll",
   "notes.create",
   "notes.update",
-  "notes.delete",
   "notes.moveToTrash",
   "notes.openAttachments",
   "notes.openAttachmentFile",
@@ -67,7 +66,6 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
   "notes.getAll"(): Promise<Note[]>;
   "notes.create"(params: NoteCreateParams): Promise<Note>;
   "notes.update"(id: string, params: NoteUpdateParams): Promise<void>;
-  "notes.delete"(id: string): Promise<void>;
   "notes.moveToTrash"(id: string): Promise<void>;
   "notes.openAttachments"(id: string): Promise<void>;
   "notes.openAttachmentFile"(href: string): Promise<void>;

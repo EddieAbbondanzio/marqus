@@ -103,29 +103,20 @@ const deleteNote: Listener<"editor.deleteNote"> = async (_, ctx) => {
     return;
   }
 
-  const promptOptions: PromptOptions<"delete" | "trash" | null> = {
+  const promptOptions: PromptOptions<boolean> = {
     text: "Do you want to delete or trash the note?",
     buttons: [
-      { text: "Cancel", value: null, role: "cancel" },
-      { text: "Permanently delete", value: "delete" },
-      { text: "Move to trash", value: "trash" },
+      { text: "Cancel", value: false, role: "cancel" },
+      { text: "Move to trash", value: true },
     ],
   };
 
-  const pickedChoice = await window.ipc("app.promptUser", promptOptions);
-  if (pickedChoice == null) {
+  const confirm = await window.ipc("app.promptUser", promptOptions);
+  if (!confirm) {
     return;
   }
 
-  switch (pickedChoice) {
-    case "delete":
-      await window.ipc("notes.delete", activeTabNoteId);
-      break;
-
-    case "trash":
-      await window.ipc("notes.moveToTrash", activeTabNoteId);
-      break;
-  }
+  await window.ipc("notes.moveToTrash", activeTabNoteId);
 
   const otherNotes = flatten(notes).filter(n => n.id !== activeTabNoteId);
   ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));

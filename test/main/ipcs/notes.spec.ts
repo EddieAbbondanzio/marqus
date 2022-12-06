@@ -211,124 +211,99 @@ test("notes.update", async () => {
   expect(note.parent).toBe(undefined);
 });
 
-test.each(["notes.delete", "notes.moveToTrash"])(
-  "%s no children",
-  async ipcType => {
-    const noteId = uuid();
-    mockFS({
-      [FAKE_DATA_DIRECTORY]: {
-        [NOTES_DIRECTORY]: {
-          [noteId]: {
-            [METADATA_FILE_NAME]: JSON.stringify(
-              createMetadata({ id: noteId, name: "foo" }),
-            ),
-            [MARKDOWN_FILE_NAME]: "",
-          },
+test("notes.moveToTrash no children", async () => {
+  const noteId = uuid();
+  mockFS({
+    [FAKE_DATA_DIRECTORY]: {
+      [NOTES_DIRECTORY]: {
+        [noteId]: {
+          [METADATA_FILE_NAME]: JSON.stringify(
+            createMetadata({ id: noteId, name: "foo" }),
+          ),
+          [MARKDOWN_FILE_NAME]: "",
         },
       },
-    });
-    const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
+    },
+  });
+  const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
 
-    const ipc = createIpcMainTS();
-    const config = createJsonFile(
-      createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-    );
-    noteIpcs(ipc, config, createLogger());
-    await ipc.trigger("init");
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+  await ipc.trigger("init");
 
-    await ipc.invoke(ipcType as IpcType, noteId);
+  await ipc.invoke("notes.moveToTrash", noteId);
 
-    if (ipcType === "notes.moveToTrash") {
-      expect(shell.trashItem).toHaveBeenCalledWith(
-        path.join(noteDirectory, noteId),
-      );
-    } else {
-      expect(await fs.existsSync(path.join(noteDirectory, noteId))).toBe(false);
-    }
-  },
-);
+  expect(shell.trashItem).toHaveBeenCalledWith(
+    path.join(noteDirectory, noteId),
+  );
+});
 
-test.each(["notes.delete", "notes.moveToTrash"])(
-  "%s note has children",
-  async ipcType => {
-    const parentId = uuid();
-    const child1Id = uuid();
-    const child2Id = uuid();
-    const grandchildId = uuid();
+test("notes.moveToTrash note has children", async () => {
+  const parentId = uuid();
+  const child1Id = uuid();
+  const child2Id = uuid();
+  const grandchildId = uuid();
 
-    mockFS({
-      [FAKE_DATA_DIRECTORY]: {
-        [NOTES_DIRECTORY]: {
-          [parentId]: {
-            [METADATA_FILE_NAME]: JSON.stringify(
-              createMetadata({ id: parentId }),
-            ),
-            [MARKDOWN_FILE_NAME]: "",
-          },
-          [child1Id]: {
-            [METADATA_FILE_NAME]: JSON.stringify(
-              createMetadata({ id: child1Id, parent: parentId }),
-            ),
-            [MARKDOWN_FILE_NAME]: "",
-          },
-          [child2Id]: {
-            [METADATA_FILE_NAME]: JSON.stringify(
-              createMetadata({ id: child2Id, parent: parentId }),
-            ),
-            [MARKDOWN_FILE_NAME]: "",
-          },
-          [grandchildId]: {
-            [METADATA_FILE_NAME]: JSON.stringify(
-              createMetadata({ id: grandchildId, parent: child1Id }),
-            ),
-            [MARKDOWN_FILE_NAME]: "",
-          },
+  mockFS({
+    [FAKE_DATA_DIRECTORY]: {
+      [NOTES_DIRECTORY]: {
+        [parentId]: {
+          [METADATA_FILE_NAME]: JSON.stringify(
+            createMetadata({ id: parentId }),
+          ),
+          [MARKDOWN_FILE_NAME]: "",
+        },
+        [child1Id]: {
+          [METADATA_FILE_NAME]: JSON.stringify(
+            createMetadata({ id: child1Id, parent: parentId }),
+          ),
+          [MARKDOWN_FILE_NAME]: "",
+        },
+        [child2Id]: {
+          [METADATA_FILE_NAME]: JSON.stringify(
+            createMetadata({ id: child2Id, parent: parentId }),
+          ),
+          [MARKDOWN_FILE_NAME]: "",
+        },
+        [grandchildId]: {
+          [METADATA_FILE_NAME]: JSON.stringify(
+            createMetadata({ id: grandchildId, parent: child1Id }),
+          ),
+          [MARKDOWN_FILE_NAME]: "",
         },
       },
-    });
-    const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
+    },
+  });
+  const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
 
-    const ipc = createIpcMainTS();
-    const config = createJsonFile(
-      createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-    );
-    noteIpcs(ipc, config, createLogger());
-    await ipc.trigger("init");
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(
+    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
+  );
+  noteIpcs(ipc, config, createLogger());
+  await ipc.trigger("init");
 
-    // TODO: REMOVE once we figure out relationship table alternative
-    await ipc.invoke("notes.getAll");
+  // TODO: REMOVE once we figure out relationship table alternative
+  await ipc.invoke("notes.getAll");
 
-    await ipc.invoke(ipcType as IpcType, parentId);
+  await ipc.invoke("notes.moveToTrash", parentId);
 
-    if (ipcType === "notes.moveToTrash") {
-      expect(shell.trashItem).toHaveBeenCalledWith(
-        path.join(noteDirectory, parentId),
-      );
-      expect(shell.trashItem).toHaveBeenCalledWith(
-        path.join(noteDirectory, child1Id),
-      );
-      expect(shell.trashItem).toHaveBeenCalledWith(
-        path.join(noteDirectory, child2Id),
-      );
-      expect(shell.trashItem).toHaveBeenCalledWith(
-        path.join(noteDirectory, grandchildId),
-      );
-    } else {
-      expect(await fs.existsSync(path.join(noteDirectory, parentId))).toBe(
-        false,
-      );
-      expect(await fs.existsSync(path.join(noteDirectory, child1Id))).toBe(
-        false,
-      );
-      expect(await fs.existsSync(path.join(noteDirectory, child2Id))).toBe(
-        false,
-      );
-      expect(await fs.existsSync(path.join(noteDirectory, grandchildId))).toBe(
-        false,
-      );
-    }
-  },
-);
+  expect(shell.trashItem).toHaveBeenCalledWith(
+    path.join(noteDirectory, parentId),
+  );
+  expect(shell.trashItem).toHaveBeenCalledWith(
+    path.join(noteDirectory, child1Id),
+  );
+  expect(shell.trashItem).toHaveBeenCalledWith(
+    path.join(noteDirectory, child2Id),
+  );
+  expect(shell.trashItem).toHaveBeenCalledWith(
+    path.join(noteDirectory, grandchildId),
+  );
+});
 
 test("notes.openAttachments", async () => {
   const noteId = uuid();

@@ -493,50 +493,47 @@ test.each(["cancel", "confirm"])(
   },
 );
 
-test.each(["sidebar.deleteNote", "sidebar.moveNoteToTrash"])(
-  "%s",
-  async action => {
-    const noteAId = uuid();
-    const noteBId = uuid();
-    const noteCId = uuid();
+test("sidebar.deleteNote", async () => {
+  const noteAId = uuid();
+  const noteBId = uuid();
+  const noteCId = uuid();
 
-    const store = createStore({
-      notes: [
-        createNote({ id: noteAId, name: "A" }),
-        createNote({ id: noteBId, name: "B" }),
-        createNote({ id: noteCId, name: "C" }),
-      ],
-      sidebar: {
-        selected: [noteBId],
-        sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-      },
-      editor: {},
-      focused: [Section.Editor],
-    });
+  const store = createStore({
+    notes: [
+      createNote({ id: noteAId, name: "A" }),
+      createNote({ id: noteBId, name: "B" }),
+      createNote({ id: noteCId, name: "C" }),
+    ],
+    sidebar: {
+      selected: [noteBId],
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    editor: {},
+    focused: [Section.Editor],
+  });
 
-    render(<Sidebar store={store.current} />);
+  render(<Sidebar store={store.current} />);
 
-    // Does not remove if cancelled
-    promptConfirmAction.mockResolvedValueOnce(false);
-    await act(async () => {
-      await store.current.dispatch(action as any, noteAId);
-      expect(store.current.state.notes).toHaveLength(3);
-      expect(store.current.state.sidebar.selected).toEqual([noteBId]);
-    });
+  // Does not remove if cancelled
+  promptConfirmAction.mockResolvedValueOnce(false);
+  await act(async () => {
+    await store.current.dispatch("sidebar.deleteNote", noteAId);
+    expect(store.current.state.notes).toHaveLength(3);
+    expect(store.current.state.sidebar.selected).toEqual([noteBId]);
+  });
 
-    // Removes deleted note once confirmed
-    promptConfirmAction.mockResolvedValueOnce(true);
-    await act(async () => {
-      await store.current.dispatch(action as any, noteAId);
-      expect(store.current.state.notes).toHaveLength(2);
-      expect(store.current.state.sidebar.selected).toEqual([noteBId]);
-    });
+  // Removes deleted note once confirmed
+  promptConfirmAction.mockResolvedValueOnce(true);
+  await act(async () => {
+    await store.current.dispatch("sidebar.deleteNote", noteAId);
+    expect(store.current.state.notes).toHaveLength(2);
+    expect(store.current.state.sidebar.selected).toEqual([noteBId]);
+  });
 
-    const { notes } = store.current.state;
-    expect(notes).toContainEqual(expect.objectContaining({ id: noteBId }));
-    expect(notes).toContainEqual(expect.objectContaining({ id: noteCId }));
-  },
-);
+  const { notes } = store.current.state;
+  expect(notes).toContainEqual(expect.objectContaining({ id: noteBId }));
+  expect(notes).toContainEqual(expect.objectContaining({ id: noteCId }));
+});
 
 test("sidebar.deleteSelectedNote", async () => {
   const noteAId = uuid();

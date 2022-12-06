@@ -61,14 +61,6 @@ export function useApplicationMenu(store: Store, config: Config): void {
             disabled: selected == null,
           },
           {
-            label: "Move note to trash",
-            type: "normal",
-            shortcut: shortcutLabels["sidebar.moveNoteToTrash"],
-            event: "sidebar.moveNoteToTrash",
-            eventInput: selected,
-            disabled: selected == null,
-          },
-          {
             label: "Open config",
             type: "normal",
             shortcut: shortcutLabels["app.openConfig"],

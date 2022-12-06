@@ -127,7 +127,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on(["sidebar.renameNote", "sidebar.renameSelectedNote"], renameNote);
     store.on(["sidebar.deleteNote", "sidebar.deleteSelectedNote"], deleteNote);
     store.on("sidebar.dragNote", dragNote);
-    store.on("sidebar.moveNoteToTrash", moveNoteToTrash);
     store.on("sidebar.search", search);
     store.on("sidebar.collapseAll", collapseAll);
     store.on("sidebar.expandAll", expandAll);
@@ -159,7 +158,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         deleteNote,
       );
       store.off("sidebar.dragNote", dragNote);
-      store.off("sidebar.moveNoteToTrash", moveNoteToTrash);
       store.off("sidebar.search", search);
       store.off("sidebar.collapseAll", collapseAll);
       store.off("sidebar.expandAll", expandAll);
@@ -582,31 +580,6 @@ export const deleteNote: Listener<
 
   const note = getNoteById(notes, id);
   const confirmed = await promptConfirmAction("delete", `note ${note.name}`);
-  if (confirmed) {
-    await window.ipc("notes.delete", note.id);
-
-    const otherNotes = flatten(notes).filter(n => n.id !== note.id);
-    ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
-
-    ctx.setNotes(notes => {
-      if (note.parent == null) {
-        return notes.filter(t => t.id !== note.id);
-      }
-
-      const parent = getNoteById(notes, note.parent);
-      parent.children = parent.children!.filter(t => t.id !== note.id);
-      return notes;
-    });
-  }
-};
-
-export const moveNoteToTrash: Listener<"sidebar.moveNoteToTrash"> = async (
-  { value: id },
-  ctx,
-) => {
-  const { notes } = ctx.getState();
-  const note = getNoteById(notes, id!);
-  const confirmed = await promptConfirmAction("trash", `note ${note.name}`);
   if (confirmed) {
     await window.ipc("notes.moveToTrash", note.id);
 
