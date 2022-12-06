@@ -27,6 +27,7 @@ import { search as searchFuzzy } from "fast-fuzzy";
 import { EditorTab, filterOutStaleNoteIds } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
+import { deleteNoteAfterConfirm } from "../utils/deleteNoteAfterConfirm";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -551,7 +552,7 @@ export const renameNote: Listener<
 export const deleteNote: Listener<
   "sidebar.deleteNote" | "sidebar.deleteSelectedNote"
 > = async (ev, ctx) => {
-  const { sidebar, notes } = ctx.getState();
+  const { sidebar } = ctx.getState();
   let id;
 
   switch (ev.type) {
@@ -578,24 +579,7 @@ export const deleteNote: Listener<
       throw new Error(`Invalid event type ${ev.type}`);
   }
 
-  const note = getNoteById(notes, id);
-  const confirmed = await promptConfirmAction("delete", `note ${note.name}`);
-  if (confirmed) {
-    await window.ipc("notes.moveToTrash", note.id);
-
-    const otherNotes = flatten(notes).filter(n => n.id !== note.id);
-    ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
-
-    ctx.setNotes(notes => {
-      if (note.parent == null) {
-        return notes.filter(t => t.id !== note.id);
-      }
-
-      const parent = getNoteById(notes, note.parent);
-      parent.children = parent.children!.filter(t => t.id !== note.id);
-      return notes;
-    });
-  }
+  await deleteNoteAfterConfirm(ctx, id);
 };
 
 export const dragNote: Listener<"sidebar.dragNote"> = async (

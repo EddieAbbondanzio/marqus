@@ -11,6 +11,8 @@ import { filterOutStaleNoteIds, Section } from "../../shared/ui/app";
 import { PromptOptions } from "../../shared/ui/prompt";
 import { p2, px2, rounded, THEME } from "../css";
 import { Listener, Store } from "../store";
+import { deleteNoteAfterConfirm } from "../utils/deleteNoteAfterConfirm";
+import { promptConfirmAction } from "../utils/prompt";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 
@@ -97,39 +99,10 @@ const StyledButton = styled.button<{ highlighted?: boolean }>`
 const deleteNote: Listener<"editor.deleteNote"> = async (_, ctx) => {
   const {
     editor: { activeTabNoteId },
-    notes,
   } = ctx.getState();
   if (activeTabNoteId == null) {
     return;
   }
 
-  const promptOptions: PromptOptions<boolean> = {
-    text: "Do you want to delete or trash the note?",
-    buttons: [
-      { text: "Cancel", value: false, role: "cancel" },
-      { text: "Move to trash", value: true },
-    ],
-  };
-
-  const confirm = await window.ipc("app.promptUser", promptOptions);
-  if (!confirm) {
-    return;
-  }
-
-  await window.ipc("notes.moveToTrash", activeTabNoteId);
-
-  const otherNotes = flatten(notes).filter(n => n.id !== activeTabNoteId);
-  ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
-
-  ctx.setNotes(notes => {
-    const note = getNoteById(notes, activeTabNoteId);
-
-    if (note.parent == null) {
-      return notes.filter(t => t.id !== activeTabNoteId);
-    }
-
-    const parent = getNoteById(notes, note.parent);
-    parent.children = parent.children!.filter(t => t.id !== activeTabNoteId);
-    return notes;
-  });
+  await deleteNoteAfterConfirm(ctx, activeTabNoteId);
 };
