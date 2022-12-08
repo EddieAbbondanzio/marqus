@@ -41,7 +41,8 @@ export interface UIEvents {
   "sidebar.setNoteSort": { sort: NoteSort; note?: string };
 
   "sidebar.deleteSelectedNote": void;
-  "sidebar.toggleItemExpanded": string;
+  "sidebar.toggleSelectedNoteExpanded": void;
+  "sidebar.toggleNoteExpanded": string;
   "sidebar.moveSelectionUp": void;
   "sidebar.moveSelectionDown": void;
   "sidebar.search": string;
@@ -113,7 +114,8 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "sidebar.expandAll",
   "sidebar.setNoteSort",
   "sidebar.deleteSelectedNote",
-  "sidebar.toggleItemExpanded",
+  "sidebar.toggleSelectedNoteExpanded",
+  "sidebar.toggleNoteExpanded",
   "sidebar.moveSelectionUp",
   "sidebar.moveSelectionDown",
   "sidebar.search",

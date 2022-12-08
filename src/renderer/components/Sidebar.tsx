@@ -114,7 +114,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on("sidebar.scrollUp", scrollUp);
     store.on("sidebar.scrollDown", scrollDown);
     store.on("sidebar.updateScroll", updateScroll);
-    store.on("sidebar.toggleItemExpanded", toggleItemExpanded);
+    store.on(
+      ["sidebar.toggleNoteExpanded", "sidebar.toggleSelectedNoteExpanded"],
+      toggleNoteExpanded,
+    );
     store.on(
       [
         "sidebar.moveSelectionUp",
@@ -139,7 +142,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       store.off("sidebar.scrollUp", scrollUp);
       store.off("sidebar.scrollDown", scrollDown);
       store.off("sidebar.updateScroll", updateScroll);
-      store.off("sidebar.toggleItemExpanded", toggleItemExpanded);
+      store.off(
+        ["sidebar.toggleNoteExpanded", "sidebar.toggleSelectedNoteExpanded"],
+        toggleNoteExpanded,
+      );
       store.off(
         [
           "sidebar.moveSelectionUp",
@@ -252,7 +258,7 @@ export function renderMenus(
 
     const onClick = async () => {
       if (isSelected) {
-        void store.dispatch("sidebar.toggleItemExpanded", note.id);
+        void store.dispatch("sidebar.toggleNoteExpanded", note.id);
       }
       void store.dispatch("sidebar.setSelection", [note.id]);
       void store.dispatch("editor.openTab", {
@@ -289,7 +295,7 @@ export function renderMenus(
           onIconClick={async (ev: React.MouseEvent) => {
             // Prevents click of menu itself from triggering
             ev.stopPropagation();
-            await store.dispatch("sidebar.toggleItemExpanded", note.id);
+            await store.dispatch("sidebar.toggleNoteExpanded", note.id);
           }}
           onDrag={newParent =>
             store.dispatch("sidebar.dragNote", { note: note.id, newParent })
@@ -394,17 +400,36 @@ export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
   });
 };
 
-export const toggleItemExpanded: Listener<"sidebar.toggleItemExpanded"> = (
-  { value: id },
-  ctx,
-) => {
+export const toggleNoteExpanded: Listener<
+  "sidebar.toggleNoteExpanded" | "sidebar.toggleSelectedNoteExpanded"
+> = (ev, ctx) => {
   const { sidebar } = ctx.getState();
   if (sidebar.input) {
     ctx.setUI({ sidebar: { input: undefined } });
   }
 
-  const { selected } = ctx.getState().sidebar;
-  toggleExpanded(ctx, id ?? head(selected)!);
+  let noteId: string;
+  switch (ev.type) {
+    case "sidebar.toggleNoteExpanded":
+      if (ev.value == null) {
+        return;
+      }
+      noteId = ev.value;
+      break;
+
+    case "sidebar.toggleSelectedNoteExpanded":
+      if (sidebar.selected == null || sidebar.selected.length === 0) {
+        return;
+      }
+
+      noteId = sidebar.selected[0];
+      break;
+
+    default:
+      throw new Error(`Invalid event type ${ev.type}`);
+  }
+
+  toggleExpanded(ctx, noteId);
 };
 
 export const createNote: Listener<"sidebar.createNote"> = async (

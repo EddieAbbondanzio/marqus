@@ -175,6 +175,9 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
       case KeyCode.Escape:
         return cancel();
     }
+
+    // Swallow keyboard events to prevent shortcuts from triggering.
+    ev.stopPropagation();
   };
 
   return (
