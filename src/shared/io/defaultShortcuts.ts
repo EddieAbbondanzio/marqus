@@ -100,8 +100,8 @@ const shortcuts: Shortcut[] = [
     when: Section.Sidebar,
   },
   {
-    name: "sidebar.toggleItemExpanded",
-    event: "sidebar.toggleItemExpanded",
+    name: "sidebar.toggleSelectedNoteExpanded",
+    event: "sidebar.toggleSelectedNoteExpanded",
     keys: [KeyCode.Space],
     when: Section.Sidebar,
   },

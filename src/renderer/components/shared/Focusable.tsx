@@ -41,7 +41,7 @@ export const useFocusTracking = (store: Store): void => {
 };
 export interface FocusableProps {
   store: Store;
-  name: Section;
+  section: Section;
   className?: string;
   elementRef?: MutableRefObject<HTMLElement | null>;
   focusOnRender?: boolean;
@@ -65,7 +65,7 @@ export function Focusable(
 
     if (
       (lastCurrent.current == null || lastCurrent.current !== current) &&
-      (current == null || current !== props.name)
+      (current == null || current !== props.section)
     ) {
       if (props.focusOnRender ?? true) {
         element?.blur();
@@ -73,7 +73,7 @@ export function Focusable(
 
       props.onBlur?.();
       lastCurrent.current = current;
-    } else if (current != null && current === props.name) {
+    } else if (current != null && current === props.section) {
       if (props.focusOnRender ?? true) {
         element?.focus();
       }
@@ -104,7 +104,7 @@ export function Focusable(
       ref={containerRef}
       className={props.className}
       tabIndex={props.tabIndex ?? -1}
-      {...{ [FOCUSABLE_ATTRIBUTE]: props.name }}
+      {...{ [FOCUSABLE_ATTRIBUTE]: props.section }}
     >
       {props.children}
     </div>

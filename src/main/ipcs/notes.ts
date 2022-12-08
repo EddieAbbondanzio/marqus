@@ -104,26 +104,6 @@ export function noteIpcs(
     await saveNoteToFS(noteDirectory, note);
   });
 
-  ipc.handle("notes.delete", async (_, id) => {
-    // Gonna leave this as-is because it might just be pre-optimizing, but this
-    // could be a bottle neck down the road having to load in every note before
-    // we can delete one if the user has 100s of notes.
-    const everyNote = await loadNotes(noteDirectory, true);
-
-    const recursive = async (noteId: string) => {
-      const notePath = p.join(noteDirectory, noteId);
-      // fsp.rm doesn't exist in 14.10 but typings include it.
-      // TODO: switch to rm when we upgrade from Node 14.10.
-      await fsp.rmdir(notePath, { recursive: true });
-
-      const children = everyNote.filter(n => n.parent === noteId);
-      for (const child of children) {
-        await recursive(child.id);
-      }
-    };
-    await recursive(id);
-  });
-
   ipc.handle("notes.moveToTrash", async (_, id) => {
     // Gonna leave this as-is because it might just be pre-optimizing, but this
     // could be a bottle neck down the road having to load in every note before

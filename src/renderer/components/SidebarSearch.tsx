@@ -34,7 +34,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   return (
     <StyledFocusable
       store={store}
-      name={Section.SidebarSearch}
+      section={Section.SidebarSearch}
       elementRef={inputRef}
       blurOnEsc={true}
     >

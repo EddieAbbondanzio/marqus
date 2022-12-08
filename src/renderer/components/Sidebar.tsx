@@ -27,6 +27,7 @@ import { search as searchFuzzy } from "fast-fuzzy";
 import { EditorTab, filterOutStaleNoteIds } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
+import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -113,7 +114,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on("sidebar.scrollUp", scrollUp);
     store.on("sidebar.scrollDown", scrollDown);
     store.on("sidebar.updateScroll", updateScroll);
-    store.on("sidebar.toggleItemExpanded", toggleItemExpanded);
+    store.on(
+      ["sidebar.toggleNoteExpanded", "sidebar.toggleSelectedNoteExpanded"],
+      toggleNoteExpanded,
+    );
     store.on(
       [
         "sidebar.moveSelectionUp",
@@ -127,12 +131,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on(["sidebar.renameNote", "sidebar.renameSelectedNote"], renameNote);
     store.on(["sidebar.deleteNote", "sidebar.deleteSelectedNote"], deleteNote);
     store.on("sidebar.dragNote", dragNote);
-    store.on("sidebar.moveNoteToTrash", moveNoteToTrash);
     store.on("sidebar.search", search);
     store.on("sidebar.collapseAll", collapseAll);
     store.on("sidebar.expandAll", expandAll);
     store.on("sidebar.setNoteSort", setNoteSort);
-    store.on("sidebar.openNoteAttachments", openNoteAttachments);
     store.on("sidebar.openSelectedNotes", openSelectedNotes);
 
     return () => {
@@ -140,7 +142,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       store.off("sidebar.scrollUp", scrollUp);
       store.off("sidebar.scrollDown", scrollDown);
       store.off("sidebar.updateScroll", updateScroll);
-      store.off("sidebar.toggleItemExpanded", toggleItemExpanded);
+      store.off(
+        ["sidebar.toggleNoteExpanded", "sidebar.toggleSelectedNoteExpanded"],
+        toggleNoteExpanded,
+      );
       store.off(
         [
           "sidebar.moveSelectionUp",
@@ -160,12 +165,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         deleteNote,
       );
       store.off("sidebar.dragNote", dragNote);
-      store.off("sidebar.moveNoteToTrash", moveNoteToTrash);
       store.off("sidebar.search", search);
       store.off("sidebar.collapseAll", collapseAll);
       store.off("sidebar.expandAll", expandAll);
       store.off("sidebar.setNoteSort", setNoteSort);
-      store.off("sidebar.openNoteAttachments", openNoteAttachments);
       store.off("sidebar.openSelectedNotes", openSelectedNotes);
     };
   }, [noteIds, state.sidebar, store]);
@@ -176,7 +179,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       width={store.state.sidebar.width}
       onResize={w => store.dispatch("sidebar.resizeWidth", w)}
     >
-      <StyledFocusable store={store} name={Section.Sidebar}>
+      <StyledFocusable store={store} section={Section.Sidebar}>
         <Controls id="controls">
           <SidebarSearch store={store} />
           <SidebarNewNoteButton store={store} />
@@ -255,7 +258,7 @@ export function renderMenus(
 
     const onClick = async () => {
       if (isSelected) {
-        void store.dispatch("sidebar.toggleItemExpanded", note.id);
+        void store.dispatch("sidebar.toggleNoteExpanded", note.id);
       }
       void store.dispatch("sidebar.setSelection", [note.id]);
       void store.dispatch("editor.openTab", {
@@ -292,7 +295,7 @@ export function renderMenus(
           onIconClick={async (ev: React.MouseEvent) => {
             // Prevents click of menu itself from triggering
             ev.stopPropagation();
-            await store.dispatch("sidebar.toggleItemExpanded", note.id);
+            await store.dispatch("sidebar.toggleNoteExpanded", note.id);
           }}
           onDrag={newParent =>
             store.dispatch("sidebar.dragNote", { note: note.id, newParent })
@@ -397,17 +400,36 @@ export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
   });
 };
 
-export const toggleItemExpanded: Listener<"sidebar.toggleItemExpanded"> = (
-  { value: id },
-  ctx,
-) => {
+export const toggleNoteExpanded: Listener<
+  "sidebar.toggleNoteExpanded" | "sidebar.toggleSelectedNoteExpanded"
+> = (ev, ctx) => {
   const { sidebar } = ctx.getState();
   if (sidebar.input) {
     ctx.setUI({ sidebar: { input: undefined } });
   }
 
-  const { selected } = ctx.getState().sidebar;
-  toggleExpanded(ctx, id ?? head(selected)!);
+  let noteId: string;
+  switch (ev.type) {
+    case "sidebar.toggleNoteExpanded":
+      if (ev.value == null) {
+        return;
+      }
+      noteId = ev.value;
+      break;
+
+    case "sidebar.toggleSelectedNoteExpanded":
+      if (sidebar.selected == null || sidebar.selected.length === 0) {
+        return;
+      }
+
+      noteId = sidebar.selected[0];
+      break;
+
+    default:
+      throw new Error(`Invalid event type ${ev.type}`);
+  }
+
+  toggleExpanded(ctx, noteId);
 };
 
 export const createNote: Listener<"sidebar.createNote"> = async (
@@ -555,7 +577,7 @@ export const renameNote: Listener<
 export const deleteNote: Listener<
   "sidebar.deleteNote" | "sidebar.deleteSelectedNote"
 > = async (ev, ctx) => {
-  const { sidebar, notes } = ctx.getState();
+  const { sidebar } = ctx.getState();
   let id;
 
   switch (ev.type) {
@@ -582,49 +604,7 @@ export const deleteNote: Listener<
       throw new Error(`Invalid event type ${ev.type}`);
   }
 
-  const note = getNoteById(notes, id);
-  const confirmed = await promptConfirmAction("delete", `note ${note.name}`);
-  if (confirmed) {
-    await window.ipc("notes.delete", note.id);
-
-    const otherNotes = flatten(notes).filter(n => n.id !== note.id);
-    ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
-
-    ctx.setNotes(notes => {
-      if (note.parent == null) {
-        return notes.filter(t => t.id !== note.id);
-      }
-
-      const parent = getNoteById(notes, note.parent);
-      parent.children = parent.children!.filter(t => t.id !== note.id);
-      return notes;
-    });
-  }
-};
-
-export const moveNoteToTrash: Listener<"sidebar.moveNoteToTrash"> = async (
-  { value: id },
-  ctx,
-) => {
-  const { notes } = ctx.getState();
-  const note = getNoteById(notes, id!);
-  const confirmed = await promptConfirmAction("trash", `note ${note.name}`);
-  if (confirmed) {
-    await window.ipc("notes.moveToTrash", note.id);
-
-    const otherNotes = flatten(notes).filter(n => n.id !== note.id);
-    ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
-
-    ctx.setNotes(notes => {
-      if (note.parent == null) {
-        return notes.filter(t => t.id !== note.id);
-      }
-
-      const parent = getNoteById(notes, note.parent);
-      parent.children = parent.children!.filter(t => t.id !== note.id);
-      return notes;
-    });
-  }
+  await deleteNoteIfConfirmed(ctx, id);
 };
 
 export const dragNote: Listener<"sidebar.dragNote"> = async (
@@ -794,17 +774,6 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
       activeTabNoteId: firstTab?.note.id ?? prev.editor.activeTabNoteId,
     },
   }));
-};
-
-export const openNoteAttachments: Listener<
-  "sidebar.openNoteAttachments"
-> = async ev => {
-  const { value: noteId } = ev;
-  if (noteId == null) {
-    return;
-  }
-
-  await window.ipc("notes.openAttachments", noteId);
 };
 
 function toggleExpanded(ctx: StoreContext, noteId: string): void {

@@ -175,13 +175,16 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
       case KeyCode.Escape:
         return cancel();
     }
+
+    // Swallow keyboard events to prevent shortcuts from triggering.
+    ev.stopPropagation();
   };
 
   return (
     <Indented style={{ paddingLeft }}>
       <StyledFocusable
         store={props.store}
-        name={Section.SidebarInput}
+        section={Section.SidebarInput}
         elementRef={inputRef}
         onBlur={onBlur}
       >

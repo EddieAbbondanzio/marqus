@@ -38,7 +38,7 @@ test("useFocusTracking detects clicks in focusables", async () => {
 
 test("focusable sets attribute", () => {
   const s = mockStore();
-  const res = init({ name: Section.Sidebar, store: s }, "Hello World!");
+  const res = init({ section: Section.Sidebar, store: s }, "Hello World!");
   const div = res.getByText("Hello World!");
 
   expect(div.getAttribute(FOCUSABLE_ATTRIBUTE)).toBe(Section.Sidebar);
@@ -56,7 +56,7 @@ test.each([undefined, false, true])(
 
     init(
       {
-        name: Section.Sidebar,
+        section: Section.Sidebar,
         store: store,
         focusOnRender,
         elementRef: el,
@@ -84,7 +84,7 @@ test.each([false, true])(
     const onBlur = jest.fn();
 
     init({
-      name: Section.Sidebar,
+      section: Section.Sidebar,
       store,
       focusOnRender,
       elementRef: el,
@@ -105,7 +105,7 @@ test("focusable only blurs when current has changed", async () => {
   const store = mockStore({ state: { focused: [Section.Editor] } });
   const onBlur = jest.fn();
   const res = init({
-    name: Section.Sidebar,
+    section: Section.Sidebar,
     store,
     onBlur,
   });
@@ -113,7 +113,7 @@ test("focusable only blurs when current has changed", async () => {
 
   onBlur.mockReset();
   res.rerender(
-    <Focusable name={Section.Sidebar} store={store} onBlur={onBlur}>
+    <Focusable section={Section.Sidebar} store={store} onBlur={onBlur}>
       Hello World!
     </Focusable>,
   );
@@ -126,7 +126,7 @@ test.each([false, true])(
     const store = mockStore();
     const res = init(
       {
-        name: Section.Sidebar,
+        section: Section.Sidebar,
         store,
         blurOnEsc,
       },

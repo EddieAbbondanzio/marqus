@@ -237,6 +237,99 @@ test("sidebar.moveSelectionUp", async () => {
   expect(store.current.state.sidebar.selected).toEqual([note1Id]);
 });
 
+test("sidebar.toggleNoteExpanded", async () => {
+  const note1Id = uuid();
+  const note2Id = uuid();
+  const note3Id = uuid();
+
+  const store = createStore({
+    notes: [
+      createNote({ id: note1Id, name: "alpha" }),
+      createNote({ id: note2Id, name: "beta" }),
+      createNote({
+        id: note3Id,
+        name: "charlie",
+        children: [createNote({ name: "delta" })],
+      }),
+    ],
+    sidebar: {
+      selected: [],
+      sort: NoteSort.Alphanumeric,
+    },
+  });
+  const r = render(<Sidebar store={store.current} />);
+
+  // Expand note
+  await act(async () => {
+    await store.current.dispatch("sidebar.toggleNoteExpanded", note3Id);
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.expanded).toEqual([note3Id]);
+
+  // Un-expand note
+  await act(async () => {
+    await store.current.dispatch("sidebar.toggleNoteExpanded", note3Id);
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.expanded).toEqual([]);
+
+  // Attempt to expand note without children
+  await act(async () => {
+    await store.current.dispatch("sidebar.toggleNoteExpanded", note2Id);
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.expanded).toEqual([]);
+});
+
+test("sidebar.toggleSelectedNoteExpanded", async () => {
+  const note1Id = uuid();
+  const note2Id = uuid();
+  const note3Id = uuid();
+
+  const store = createStore({
+    notes: [
+      createNote({ id: note1Id, name: "alpha" }),
+      createNote({ id: note2Id, name: "beta" }),
+      createNote({
+        id: note3Id,
+        name: "charlie",
+        children: [createNote({ name: "delta" })],
+      }),
+    ],
+    sidebar: {
+      selected: [note3Id],
+      sort: NoteSort.Alphanumeric,
+    },
+  });
+  const r = render(<Sidebar store={store.current} />);
+
+  // Expand note
+  await act(async () => {
+    await store.current.dispatch("sidebar.toggleSelectedNoteExpanded");
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.expanded).toEqual([note3Id]);
+
+  // Un-expand note
+  await act(async () => {
+    await store.current.dispatch("sidebar.toggleSelectedNoteExpanded");
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.expanded).toEqual([]);
+
+  await act(async () => {
+    await store.current.dispatch("sidebar.setSelection", [note2Id]);
+  });
+  r.rerender(<Sidebar store={store.current} />);
+
+  // Attempt to expand note without children
+  await act(async () => {
+    await store.current.dispatch("sidebar.toggleSelectedNoteExpanded");
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.expanded).toEqual([]);
+});
+
 test("sidebar.createNote confirm", async () => {
   const store = createStore();
   const res = render(<Sidebar store={store.current} />);
@@ -493,50 +586,47 @@ test.each(["cancel", "confirm"])(
   },
 );
 
-test.each(["sidebar.deleteNote", "sidebar.moveNoteToTrash"])(
-  "%s",
-  async action => {
-    const noteAId = uuid();
-    const noteBId = uuid();
-    const noteCId = uuid();
+test("sidebar.deleteNote", async () => {
+  const noteAId = uuid();
+  const noteBId = uuid();
+  const noteCId = uuid();
 
-    const store = createStore({
-      notes: [
-        createNote({ id: noteAId, name: "A" }),
-        createNote({ id: noteBId, name: "B" }),
-        createNote({ id: noteCId, name: "C" }),
-      ],
-      sidebar: {
-        selected: [noteBId],
-        sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-      },
-      editor: {},
-      focused: [Section.Editor],
-    });
+  const store = createStore({
+    notes: [
+      createNote({ id: noteAId, name: "A" }),
+      createNote({ id: noteBId, name: "B" }),
+      createNote({ id: noteCId, name: "C" }),
+    ],
+    sidebar: {
+      selected: [noteBId],
+      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
+    },
+    editor: {},
+    focused: [Section.Editor],
+  });
 
-    render(<Sidebar store={store.current} />);
+  render(<Sidebar store={store.current} />);
 
-    // Does not remove if cancelled
-    promptConfirmAction.mockResolvedValueOnce(false);
-    await act(async () => {
-      await store.current.dispatch(action as any, noteAId);
-      expect(store.current.state.notes).toHaveLength(3);
-      expect(store.current.state.sidebar.selected).toEqual([noteBId]);
-    });
+  // Does not remove if cancelled
+  promptConfirmAction.mockResolvedValueOnce(false);
+  await act(async () => {
+    await store.current.dispatch("sidebar.deleteNote", noteAId);
+    expect(store.current.state.notes).toHaveLength(3);
+    expect(store.current.state.sidebar.selected).toEqual([noteBId]);
+  });
 
-    // Removes deleted note once confirmed
-    promptConfirmAction.mockResolvedValueOnce(true);
-    await act(async () => {
-      await store.current.dispatch(action as any, noteAId);
-      expect(store.current.state.notes).toHaveLength(2);
-      expect(store.current.state.sidebar.selected).toEqual([noteBId]);
-    });
+  // Removes deleted note once confirmed
+  promptConfirmAction.mockResolvedValueOnce(true);
+  await act(async () => {
+    await store.current.dispatch("sidebar.deleteNote", noteAId);
+    expect(store.current.state.notes).toHaveLength(2);
+    expect(store.current.state.sidebar.selected).toEqual([noteBId]);
+  });
 
-    const { notes } = store.current.state;
-    expect(notes).toContainEqual(expect.objectContaining({ id: noteBId }));
-    expect(notes).toContainEqual(expect.objectContaining({ id: noteCId }));
-  },
-);
+  const { notes } = store.current.state;
+  expect(notes).toContainEqual(expect.objectContaining({ id: noteBId }));
+  expect(notes).toContainEqual(expect.objectContaining({ id: noteCId }));
+});
 
 test("sidebar.deleteSelectedNote", async () => {
   const noteAId = uuid();
@@ -647,36 +737,6 @@ test("sidebar.expandAll", async () => {
   const expanded = [notes[0]!.id, notes?.[0].children?.[0].id];
 
   expect(state.sidebar.expanded).toEqual(expanded);
-});
-
-test("sidebar.openNoteAttachments", async () => {
-  const noteId = uuid();
-  const notes = [
-    createNote({ id: noteId, name: "foo" }),
-    createNote({
-      name: "bar",
-    }),
-  ];
-
-  const store = createStore({
-    notes,
-    sidebar: {
-      expanded: [],
-      sort: DEFAULT_NOTE_SORTING_ALGORITHM,
-    },
-    editor: {},
-    focused: [],
-  });
-
-  render(<Sidebar store={store.current} />);
-  await act(async () => {
-    await store.current.dispatch("sidebar.openNoteAttachments", noteId);
-  });
-
-  expect((window as any).ipc).toHaveBeenCalledWith(
-    "notes.openAttachments",
-    noteId,
-  );
 });
 
 test("sidebar.dragNote", async () => {
