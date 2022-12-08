@@ -5,7 +5,8 @@ export type Menu =
   | SubMenu
   | RoleMenu
   | EventMenu<UIEventType>
-  | RadioMenu<UIEventType>;
+  | RadioMenu<UIEventType>
+  | CheckboxMenu<UIEventType>;
 
 export interface Seperator extends BaseMenu {
   type: "separator";
@@ -39,6 +40,17 @@ export interface RadioMenu<Ev extends UIEventType = UIEventType>
   extends BaseMenu {
   label: string;
   type: "radio";
+  shortcut?: string;
+  checked?: boolean;
+  disabled?: boolean;
+  event: Ev;
+  eventInput?: UIEventInput<Ev>;
+}
+
+export interface CheckboxMenu<Ev extends UIEventType = UIEventType>
+  extends BaseMenu {
+  label: string;
+  type: "checkbox";
   shortcut?: string;
   checked?: boolean;
   disabled?: boolean;

@@ -60,14 +60,16 @@ export async function main(): Promise<void> {
         },
       );
 
-      let { windowHeight, windowWidth } = configFile.content;
+      const { windowHeight, windowWidth, autoHideAppMenu } = configFile.content;
+
       mainWindow = new BrowserWindow({
-        height: windowHeight,
-        width: windowWidth,
         // Title must be specified otherwise npm package name will be used until
         // index.html has loaded.
         title: "Marker",
         icon: "static/icon.png",
+        height: windowHeight,
+        width: windowWidth,
+        autoHideMenuBar: autoHideAppMenu,
         webPreferences: {
           preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
           // Do not change these. They are for security purposes.
@@ -84,10 +86,7 @@ export async function main(): Promise<void> {
       }
 
       mainWindow.on("resize", async () => {
-        const [width, height] = mainWindow.getSize();
-        windowHeight = height;
-        windowWidth = width;
-
+        const [windowWidth, windowHeight] = mainWindow.getSize();
         await configFile.update({
           windowHeight,
           windowWidth,

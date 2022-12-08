@@ -334,6 +334,35 @@ test("app.openLogDirectory", async () => {
   expect(shell.openPath).toHaveBeenCalledWith("foo");
 });
 
+test("app.toggleAutoHideAppMenu", async () => {
+  const ipc = createIpcMainTS();
+  const config = createJsonFile(
+    createConfig({
+      logDirectory: "foo",
+    }),
+  );
+  appIpcs(ipc, config, createLogger());
+  expect(config.content.autoHideAppMenu).toBe(undefined);
+
+  const bw = {
+    isMenuBarAutoHide: jest.fn().mockReturnValueOnce(false),
+  } as unknown as BrowserWindow;
+  (BrowserWindow.getFocusedWindow as jest.Mock).mockImplementation(() => bw);
+
+  // Set it to auto hide
+  await ipc.invoke("app.toggleAutoHideAppMenu");
+  expect(config.update).toHaveBeenCalledWith({ autoHideAppMenu: true });
+  expect(bw.autoHideMenuBar).toBe(true);
+  expect(bw.menuBarVisible).toBe(false);
+
+  // Set it to always visible
+  (bw.isMenuBarAutoHide as jest.Mock).mockReturnValueOnce(true);
+  await ipc.invoke("app.toggleAutoHideAppMenu");
+  expect(config.update).toHaveBeenCalledWith({ autoHideAppMenu: false });
+  expect(bw.autoHideMenuBar).toBe(false);
+  expect(bw.menuBarVisible).toBe(true);
+});
+
 test.each([
   [IpcChannel.ApplicationMenu, false],
   [IpcChannel.ContextMenu, true],

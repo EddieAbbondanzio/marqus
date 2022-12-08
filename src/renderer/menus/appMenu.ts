@@ -135,6 +135,13 @@ export function useApplicationMenu(store: Store, config: Config): void {
             shortcut: shortcutLabels["app.toggleSidebar"],
             event: "app.toggleSidebar",
           },
+          {
+            label: "Toggle auto hide app menu",
+            type: "checkbox",
+            checked: config.autoHideAppMenu,
+            shortcut: shortcutLabels["app.toggleAutoHideAppMenu"],
+            event: "app.toggleAutoHideAppMenu",
+          },
         ],
       },
       ...optionals,
