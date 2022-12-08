@@ -3,7 +3,7 @@ import { filterOutStaleNoteIds } from "../../shared/ui/app";
 import { StoreContext } from "../store";
 import { promptConfirmAction } from "./prompt";
 
-export async function deleteNoteAfterConfirm(
+export async function deleteNoteIfConfirmed(
   ctx: StoreContext,
   noteId: string,
 ): Promise<void> {

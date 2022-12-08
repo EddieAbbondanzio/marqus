@@ -11,7 +11,7 @@ import { filterOutStaleNoteIds, Section } from "../../shared/ui/app";
 import { PromptOptions } from "../../shared/ui/prompt";
 import { p2, px2, rounded, THEME } from "../css";
 import { Listener, Store } from "../store";
-import { deleteNoteAfterConfirm } from "../utils/deleteNoteAfterConfirm";
+import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 import { promptConfirmAction } from "../utils/prompt";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -104,5 +104,5 @@ const deleteNote: Listener<"editor.deleteNote"> = async (_, ctx) => {
     return;
   }
 
-  await deleteNoteAfterConfirm(ctx, activeTabNoteId);
+  await deleteNoteIfConfirmed(ctx, activeTabNoteId);
 };

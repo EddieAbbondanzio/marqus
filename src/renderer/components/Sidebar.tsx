@@ -27,7 +27,7 @@ import { search as searchFuzzy } from "fast-fuzzy";
 import { EditorTab, filterOutStaleNoteIds } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
-import { deleteNoteAfterConfirm } from "../utils/deleteNoteAfterConfirm";
+import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -604,7 +604,7 @@ export const deleteNote: Listener<
       throw new Error(`Invalid event type ${ev.type}`);
   }
 
-  await deleteNoteAfterConfirm(ctx, id);
+  await deleteNoteIfConfirmed(ctx, id);
 };
 
 export const dragNote: Listener<"sidebar.dragNote"> = async (
