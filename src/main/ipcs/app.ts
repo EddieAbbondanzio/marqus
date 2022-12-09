@@ -235,6 +235,8 @@ export function buildMenus(
           registerAccelerator,
         };
 
+        // Checkbox menus always trigger the click handler unlike radio button
+        // menus.
         t.click = buildClickHandler(menu.event, menu.eventInput, channel);
 
         break;
