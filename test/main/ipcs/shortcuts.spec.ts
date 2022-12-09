@@ -1,27 +1,46 @@
-import { createConfig } from "../../__factories__/config";
-import { createIpcMainTS } from "../../__factories__/ipc";
-import { createJsonFile } from "../../__factories__/json";
+import { createAppContext } from "../../__factories__/ipc";
 import {
   shortcutIpcs,
   SHORTCUT_FILE_PATH,
 } from "../../../src/main/ipcs/shortcuts";
 import { Section } from "../../../src/shared/ui/app";
 import { parseKeyCodes } from "../../../src/shared/io/keyCode";
-import { createLogger } from "../../__factories__/logger";
 import mockFS from "mock-fs";
 import { SHORTCUTS_SCHEMAS } from "../../../src/main/schemas/shortcuts";
 import { getLatestSchemaVersion } from "../../../src/main/schemas/utils";
+import { createBrowserWindow } from "../../__factories__/electron";
+import { WebContents } from "electron";
+import { BrowserWindowEvent, IpcChannel } from "../../../src/shared/ipc";
 
 afterEach(() => {
   mockFS.restore();
 });
 
+test("shortcutIpcs triggers blur event", async () => {
+  const on = jest.fn();
+  const send = jest.fn();
+  const browserWindow = createBrowserWindow({
+    on,
+    webContents: { send } as unknown as WebContents,
+  });
+
+  createAppContext({ browserWindow }, shortcutIpcs);
+
+  expect(on).toHaveBeenCalledTimes(1);
+  const [ev, cb] = on.mock.calls[0];
+  expect(ev).toBe("blur");
+
+  cb();
+  expect(send).toHaveBeenCalledWith(IpcChannel.BrowserWindow, {
+    event: BrowserWindowEvent.Blur,
+  });
+});
+
 test("shortcuts.getAll", async () => {
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(createConfig());
+  const { ipc } = createAppContext({}, shortcutIpcs);
 
   mockFS({
-    [config.content.dataDirectory]: {
+    data: {
       [SHORTCUT_FILE_PATH]: JSON.stringify({
         version: getLatestSchemaVersion(SHORTCUTS_SCHEMAS),
         shortcuts: [
@@ -63,7 +82,6 @@ test("shortcuts.getAll", async () => {
     },
   });
 
-  shortcutIpcs(ipc, config, createLogger());
   const shortcuts = await ipc.invoke("shortcuts.getAll");
 
   const sidebarFocus = shortcuts.find(s => s.name === "sidebar.focus");

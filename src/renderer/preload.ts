@@ -27,8 +27,8 @@ if (isDevelopment()) {
 }
 
 for (const channel of Object.values(IpcChannel)) {
-  ipcRenderer.on(channel, (_, val: unknown) => {
-    const ev = new CustomEvent(channel, { detail: val });
+  ipcRenderer.on(channel, (_, detail: unknown) => {
+    const ev = new CustomEvent(channel, { detail });
     window.dispatchEvent(ev);
   });
 }

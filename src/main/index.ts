@@ -1,14 +1,30 @@
-import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
+import {
+  app,
+  BrowserWindow,
+  HeadersReceivedResponse,
+  ipcMain,
+  OnHeadersReceivedListenerDetails,
+  session,
+} from "electron";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
-import { BrowserWindowEvent, IpcChannel, IpcMainTS } from "../shared/ipc";
+import { IpcMainTS } from "../shared/ipc";
 import { appIpcs } from "./ipcs/app";
 import { configIpcs, getConfig } from "./ipcs/config";
 import { noteIpcs } from "./ipcs/notes";
-import { openInBrowser } from "./utils";
 
 import { shortcutIpcs } from "./ipcs/shortcuts";
 import { getLogger, logIpcs } from "./ipcs/log";
 import { Protocol } from "../shared/domain/protocols";
+import { JsonFile } from "./json";
+import { Config } from "../shared/domain/config";
+import { Logger } from "../shared/logger";
+
+export interface AppContext {
+  browserWindow: BrowserWindow;
+  ipc: IpcMainTS;
+  config: JsonFile<Config>;
+  log: Logger;
+}
 
 if (!isTest() && getProcessType() !== "main") {
   throw Error(
@@ -29,36 +45,14 @@ export async function main(): Promise<void> {
     const configFile = await getConfig();
     const log = await getLogger(configFile, console);
 
-    const typeSafeIpc = ipcMain as IpcMainTS;
-    logIpcs(typeSafeIpc, configFile, log);
-    configIpcs(typeSafeIpc, configFile, log);
-    appIpcs(typeSafeIpc, configFile, log);
-    shortcutIpcs(typeSafeIpc, configFile, log);
-    noteIpcs(typeSafeIpc, configFile, log);
-
     // Handle creating/removing shortcuts on Windows when installing/uninstalling.
     if (require("electron-squirrel-startup")) {
       app.quit();
     }
 
     const createWindow = async (): Promise<void> => {
-      await initPlugins(typeSafeIpc);
-
       // Only allow external images
-      session.defaultSession.webRequest.onHeadersReceived(
-        (details, callback) => {
-          callback({
-            responseHeaders: Object.assign(
-              {
-                ...details.responseHeaders,
-                // Should be kept in sync with content security policy in forge.config.js
-                "Content-Security-Policy": [`img-src ${getImgSrcCsp()}`],
-              },
-              details.responseHeaders,
-            ),
-          });
-        },
-      );
+      session.defaultSession.webRequest.onHeadersReceived(setCspHeader);
 
       const { windowHeight, windowWidth, autoHideAppMenu } = configFile.content;
 
@@ -78,44 +72,29 @@ export async function main(): Promise<void> {
         },
       });
 
+      // Setup ipc modules
+      const typeSafeIpc = ipcMain as IpcMainTS;
+      const appContext = {
+        ipc: typeSafeIpc,
+        browserWindow: mainWindow,
+        log,
+        config: configFile,
+      };
+
+      logIpcs(appContext);
+      configIpcs(appContext);
+      appIpcs(appContext);
+      shortcutIpcs(appContext);
+      noteIpcs(appContext);
+
+      await initPlugins(typeSafeIpc);
+
       // and load the index.html of the app.
       await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
       if (isDevelopment()) {
         mainWindow.webContents.openDevTools();
       }
-
-      mainWindow.on("resize", async () => {
-        const [windowWidth, windowHeight] = mainWindow.getSize();
-        await configFile.update({
-          windowHeight,
-          windowWidth,
-        });
-      });
-
-      mainWindow.on("blur", () => {
-        mainWindow.webContents.send(IpcChannel.BrowserWindow, {
-          event: BrowserWindowEvent.Blur,
-        });
-      });
-
-      // Override how all links are open so we can send them off to the user's
-      // web browser instead of opening them in the electron app.
-      mainWindow.webContents.setWindowOpenHandler(details => {
-        void openInBrowser(details.url);
-        return { action: "deny" };
-      });
-
-      // We set a non-functional application menu at first so we can make things
-      // appear to load smoother visually. Once renderer has started we'll
-      // populate it with an actual menu.
-      mainWindow.setMenu(
-        Menu.buildFromTemplate([
-          { label: "File", enabled: false },
-          { label: "Edit", enabled: false },
-          { label: "View", enabled: false },
-        ]),
-      );
     };
 
     // Quit when all windows are closed, except on macOS. There, it's common
@@ -176,6 +155,18 @@ export async function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
   return await Promise.all(initListeners.map(l => l()));
 }
 
-export function getImgSrcCsp(): string {
-  return `* ${Protocol.Attachment}://*`;
+export function setCspHeader(
+  details: OnHeadersReceivedListenerDetails,
+  callback: (headersReceivedResponse: HeadersReceivedResponse) => void,
+): void {
+  callback({
+    responseHeaders: Object.assign(
+      {
+        ...details.responseHeaders,
+        // Should be kept in sync with content security policy in forge.config.js
+        "Content-Security-Policy": [`img-src * ${Protocol.Attachment}://*`],
+      },
+      details.responseHeaders,
+    ),
+  });
 }
