@@ -22,6 +22,7 @@ export interface UIEvents {
   "app.openLogDirectory": void;
   "app.openConfig": void;
   "app.openNoteAttachments": string;
+  "app.toggleAutoHideAppMenu": void;
 
   // Sidebar
   "sidebar.updateScroll": number;
@@ -96,6 +97,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "app.openLogDirectory",
   "app.openConfig",
   "app.openNoteAttachments",
+  "app.toggleAutoHideAppMenu",
 
   // Sidebar
   "sidebar.updateScroll",

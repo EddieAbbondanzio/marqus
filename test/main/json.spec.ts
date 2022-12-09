@@ -147,6 +147,34 @@ test("runSchemas applies changes", async () => {
     ),
   };
 
+  await expect(runSchemas(schemas, { version: 3 })).rejects.toThrow(
+    /Content had newer version \(3\) than latest schema \(2\)/,
+  );
+});
+
+test("runSchemas applies changes", async () => {
+  const schemas = {
+    1: z.object({
+      version: z.literal(1),
+      foo: z.string().default("bar"),
+    }),
+    2: z.preprocess(
+      (obj: any) => {
+        if (obj.version === 1) {
+          return {
+            ...obj,
+            version: 2,
+          };
+        }
+      },
+      z.object({
+        version: z.literal(2),
+        foo: z.string(),
+        bar: z.number().default(2),
+      }),
+    ),
+  };
+
   const migrated = await runSchemas(schemas, { version: 1 });
   const content = migrated.content as {
     version: number;

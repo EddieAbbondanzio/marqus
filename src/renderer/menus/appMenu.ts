@@ -16,6 +16,7 @@ export function useApplicationMenu(store: Store, config: Config): void {
   );
   const focused = state.focused[0];
   const selected = state.sidebar.selected?.[0];
+  const sidebarHidden = state.sidebar.hidden;
   const { isEditing } = state.editor;
 
   useEffect(() => {
@@ -130,16 +131,24 @@ export function useApplicationMenu(store: Store, config: Config): void {
             event: "app.toggleFullScreen",
           },
           {
-            label: "Toggle sidebar",
-            type: "normal",
+            label: "Toggle sidebar hidden",
+            type: "checkbox",
+            checked: sidebarHidden,
             shortcut: shortcutLabels["app.toggleSidebar"],
             event: "app.toggleSidebar",
+          },
+          {
+            label: "Toggle auto hide app menu",
+            type: "checkbox",
+            checked: config.autoHideAppMenu,
+            shortcut: shortcutLabels["app.toggleAutoHideAppMenu"],
+            event: "app.toggleAutoHideAppMenu",
           },
         ],
       },
       ...optionals,
     ]);
-  }, [focused, selected, shortcutLabels, isEditing, config]);
+  }, [focused, selected, shortcutLabels, isEditing, config, sidebarHidden]);
 
   useEffect(() => {
     const onClick = async (ev: CustomEvent) => {

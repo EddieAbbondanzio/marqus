@@ -75,6 +75,7 @@ export function App(props: AppProps): JSX.Element {
     store.on("app.openLogDirectory", openLogs);
     store.on("app.openConfig", openConfig);
     store.on("app.openNoteAttachments", openNoteAttachments);
+    store.on("app.toggleAutoHideAppMenu", toggleAutoHideAppMenu);
 
     store.on("sidebar.focusSearch", globalSearch);
 
@@ -107,6 +108,7 @@ export function App(props: AppProps): JSX.Element {
       store.off("app.openLogDirectory", openLogs);
       store.off("app.openConfig", openConfig);
       store.off("app.openNoteAttachments", openNoteAttachments);
+      store.off("app.toggleAutoHideAppMenu", toggleAutoHideAppMenu);
 
       store.off("sidebar.focusSearch", globalSearch);
 
@@ -276,4 +278,10 @@ export const openNoteAttachments: Listener<
   }
 
   await window.ipc("notes.openAttachments", noteId);
+};
+
+export const toggleAutoHideAppMenu: Listener<
+  "app.toggleAutoHideAppMenu"
+> = async () => {
+  await ipc("app.toggleAutoHideAppMenu");
 };

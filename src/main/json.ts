@@ -4,6 +4,7 @@ import * as fs from "fs";
 import { ZodSchema } from "zod";
 import { DeepPartial } from "tsdef";
 import { deepUpdate } from "../shared/deepUpdate";
+import { isDevelopment } from "../shared/env";
 
 export interface Versioned {
   version: number;
@@ -120,12 +121,17 @@ export async function runSchemas<Content extends Versioned>(
     throw new Error(`Expected at least 1 schema in order to validate content.`);
   }
 
+  const [latestVersion, latestSchema] = last(schemaArray)!;
+  if (content.version > latestVersion) {
+    throw new Error(
+      `Content had newer version (${content.version}) than latest schema (${latestVersion}). Did you downgrade the app?`,
+    );
+  }
+
   // Always include current version schema so we can validate against it.
   const relevantSchemas = schemaArray.filter(
     ([version]) => content!.version <= version,
   );
-  const [, latestSchema] = last(relevantSchemas)!;
-
   if (relevantSchemas.length === 0) {
     throw new Error(
       `No schema(s) to run. Loaded content version was: ${content.version} but last schema had version: ${latestSchema}`,

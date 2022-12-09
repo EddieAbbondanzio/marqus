@@ -5,4 +5,5 @@ export interface Config {
   dataDirectory?: string;
   logDirectory: string;
   developerMode?: boolean;
+  autoHideAppMenu?: boolean;
 }

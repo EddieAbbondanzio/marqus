@@ -150,6 +150,28 @@ export function appIpcs(
       throw new Error(err);
     }
   });
+
+  ipc.handle("app.toggleAutoHideAppMenu", async () => {
+    const bw = BrowserWindow.getFocusedWindow();
+
+    if (bw == null) {
+      return;
+    }
+
+    // Toggling autoHideMenuBar has a delay before changes take effect so we
+    // trigger immediate results by setting menuBarVisible.
+    if (!bw.isMenuBarAutoHide()) {
+      bw.autoHideMenuBar = true;
+      bw.menuBarVisible = false;
+
+      await config.update({ autoHideAppMenu: true });
+    } else {
+      bw.autoHideMenuBar = false;
+      bw.menuBarVisible = true;
+
+      await config.update({ autoHideAppMenu: false });
+    }
+  });
 }
 
 export function buildMenus(
@@ -200,6 +222,22 @@ export function buildMenus(
         if (!menu.checked) {
           t.click = buildClickHandler(menu.event, menu.eventInput, channel);
         }
+
+        break;
+
+      case "checkbox":
+        t = {
+          label: menu.label,
+          type: "checkbox",
+          accelerator: menu.shortcut,
+          enabled: !menu.disabled,
+          checked: menu.checked,
+          registerAccelerator,
+        };
+
+        // Checkbox menus always trigger the click handler unlike radio button
+        // menus.
+        t.click = buildClickHandler(menu.event, menu.eventInput, channel);
 
         break;
 

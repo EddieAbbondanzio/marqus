@@ -446,6 +446,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
     setSidebarInput(ctx),
   );
 
+  // Auto expand parent if one was passed
   if (
     parentId != null &&
     (sidebar.expanded == null || sidebar.expanded?.every(id => id !== parentId))
