@@ -432,17 +432,19 @@ export const toggleNoteExpanded: Listener<
   toggleExpanded(ctx, noteId);
 };
 
-export const createNote: Listener<"sidebar.createNote"> = async (
-  { value: parentId },
-  ctx,
-) => {
+export const createNote: Listener<"sidebar.createNote"> = async (ev, ctx) => {
   const { sidebar } = ctx.getState();
 
+  // Give precedence to note id passed, otherwise use the selected note as parent.
+  let parentId: string | undefined = undefined;
+  if (ev.value != null) {
+    parentId = ev.value;
+  } else if (sidebar.selected != null && sidebar.selected.length > 0) {
+    parentId = sidebar.selected[0];
+  }
+
   const input = createPromisedInput(
-    {
-      schema: NOTE_NAME_SCHEMA,
-      parentId: parentId ?? undefined,
-    },
+    { schema: NOTE_NAME_SCHEMA, parentId },
     setSidebarInput(ctx),
   );
 
@@ -457,10 +459,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (
 
   ctx.focus([Section.SidebarInput], { overwrite: true });
   ctx.setUI({
-    sidebar: {
-      input,
-      expanded: sidebar.expanded,
-    },
+    sidebar: { input, expanded: sidebar.expanded },
   });
 
   const [name, action] = await input.completed;

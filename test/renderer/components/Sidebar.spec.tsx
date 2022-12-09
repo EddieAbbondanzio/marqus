@@ -399,6 +399,24 @@ test("sidebar.createNote expands parent", async () => {
   expect(state.sidebar.expanded).toContain("parent-note");
 });
 
+test("sidebar.createNote uses selected as parent", async () => {
+  const store = createStore({
+    notes: [createNote({ id: "parent-note", name: "parent" })],
+    sidebar: {
+      selected: ["parent-note"],
+    },
+  });
+  render(<Sidebar store={store.current} />);
+
+  await act(async () => {
+    void store.current.dispatch("sidebar.createNote", undefined);
+  });
+
+  const { state } = store.current;
+  expect(state.focused).toEqual(["sidebarInput"]);
+  expect(state.sidebar.expanded).toContain("parent-note");
+});
+
 test("sidebar.createNote escape cancels", async () => {
   const store = createStore();
   const res = render(<Sidebar store={store.current} />);
