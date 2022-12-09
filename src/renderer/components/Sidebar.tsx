@@ -4,7 +4,7 @@ import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, p2, px2, THEME, w100 } from "../css";
-import { clamp, Dictionary, first, head, isEmpty, keyBy, take } from "lodash";
+import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
   getNoteById,
@@ -15,7 +15,7 @@ import {
   NOTE_NAME_SCHEMA,
 } from "../../shared/domain/note";
 import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
-import { promptError, promptConfirmAction } from "../utils/prompt";
+import { promptError } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import { SIDEBAR_MENU_HEIGHT, SidebarMenu, SidebarInput } from "./SidebarMenu";
 import {
@@ -24,14 +24,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { search as searchFuzzy } from "fast-fuzzy";
-import { EditorTab, filterOutStaleNoteIds } from "../../shared/ui/app";
+import { EditorTab } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
-const MIN_WIDTH = "300px";
+const MIN_WIDTH = "200px";
 export interface SidebarProps {
   store: Store;
 }

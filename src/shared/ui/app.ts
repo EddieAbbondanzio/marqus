@@ -2,7 +2,7 @@ import { keyBy, isEmpty, cloneDeep } from "lodash";
 import { PromisedInput } from "../promisedInput";
 import { flatten, Note, NoteSort } from "../domain/note";
 
-export const DEFAULT_SIDEBAR_WIDTH = "300px";
+export const DEFAULT_SIDEBAR_WIDTH = "250px";
 
 export interface AppState {
   version: number;
