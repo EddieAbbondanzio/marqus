@@ -1,6 +1,6 @@
 import { setCspHeader } from "../../src/main";
 
-test("setCspheader", () => {
+test("setCspHeader", () => {
   const callback = jest.fn();
   setCspHeader({} as any, callback);
   expect(callback).toHaveBeenCalledWith({

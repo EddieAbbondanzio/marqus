@@ -36,7 +36,7 @@ export const APP_STATE_DEFAULTS = {
 };
 
 export function appIpcs(ctx: AppContext): void {
-  const { browserWindow, ipc, config } = ctx;
+  const { browserWindow, ipc, config, blockAppFromQuitting } = ctx;
 
   // We set a non-functional application menu at first so we can make things
   // appear to load smoother visually. Once renderer has started we'll
@@ -77,7 +77,9 @@ export function appIpcs(ctx: AppContext): void {
   });
 
   ipc.handle("app.saveAppState", async (_, appState) => {
-    await appStateFile.update(appState);
+    await blockAppFromQuitting(async () => {
+      await appStateFile.update(appState);
+    });
   });
 
   ipc.handle("app.showContextMenu", async (_, menus) => {

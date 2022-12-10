@@ -15,7 +15,7 @@ export const DEFAULT_WINDOW_HEIGHT = 600;
 export const DEFAULT_WINDOW_WIDTH = 800;
 
 export function configIpcs(ctx: AppContext): void {
-  const { ipc, config } = ctx;
+  const { ipc, config, blockAppFromQuitting } = ctx;
 
   ipc.handle("config.get", () => config.content);
 
@@ -50,7 +50,10 @@ export function configIpcs(ctx: AppContext): void {
       return;
     }
 
-    await config.update({ dataDirectory: filePaths[0] });
+    await blockAppFromQuitting(async () => {
+      await config.update({ dataDirectory: filePaths[0] });
+    });
+
     focusedWindow.reload();
   });
 }

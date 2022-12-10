@@ -24,6 +24,7 @@ export interface AppContext {
   ipc: IpcMainTS;
   config: JsonFile<Config>;
   log: Logger;
+  blockAppFromQuitting: (cb: () => Promise<void>) => Promise<void>;
 }
 
 if (!isTest() && getProcessType() !== "main") {
@@ -49,6 +50,61 @@ export async function main(): Promise<void> {
     if (require("electron-squirrel-startup")) {
       app.quit();
     }
+
+    // Quit when all windows are closed, except on macOS. There, it's common
+    // for applications and their menu bar to stay active until the user quits
+    // explicitly with Cmd + Q.
+    app.on("window-all-closed", () => {
+      if (process.platform !== "darwin") {
+        app.quit();
+      }
+    });
+
+    app.on("activate", async () => {
+      // On OS X it's common to re-create a window in the app when the
+      // dock icon is clicked and there are no other windows open.
+      if (BrowserWindow.getAllWindows().length === 0) {
+        await createWindow();
+      }
+    });
+
+    // If the app is closed while writing to the file system, we risk corrupting
+    // a file so we block it from "closing" by keeping it running in the background
+    // until we can finish whatever we were doing.
+    let keepAlivePromise: Promise<unknown> | undefined;
+    const blockAppFromQuitting = async (
+      cb: () => Promise<void>,
+    ): Promise<void> => {
+      keepAlivePromise = cb();
+      await keepAlivePromise;
+      keepAlivePromise = undefined;
+    };
+
+    let quitInitiated = false;
+    app.on("before-quit", async ev => {
+      if (keepAlivePromise) {
+        ev.preventDefault();
+
+        await keepAlivePromise;
+        app.quit();
+
+        return;
+      }
+
+      if (!quitInitiated) {
+        // Post-pone quitting so we can save off the log file first.
+        ev.preventDefault();
+        await log.close();
+
+        // Use console.log() over log.info to avoid appending this to the log file
+        // eslint-disable-next-line no-console
+        console.log(`Shutting down. Log saved to: ${log.filePath}`);
+
+        // Now let the app close.
+        quitInitiated = true;
+        app.quit();
+      }
+    });
 
     const createWindow = async (): Promise<void> => {
       // Only allow external images
@@ -79,6 +135,7 @@ export async function main(): Promise<void> {
         browserWindow: mainWindow,
         log,
         config: configFile,
+        blockAppFromQuitting,
       };
 
       logIpcs(appContext);
@@ -96,40 +153,6 @@ export async function main(): Promise<void> {
         mainWindow.webContents.openDevTools();
       }
     };
-
-    // Quit when all windows are closed, except on macOS. There, it's common
-    // for applications and their menu bar to stay active until the user quits
-    // explicitly with Cmd + Q.
-    app.on("window-all-closed", () => {
-      if (process.platform !== "darwin") {
-        app.quit();
-      }
-    });
-
-    app.on("activate", async () => {
-      // On OS X it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (BrowserWindow.getAllWindows().length === 0) {
-        await createWindow();
-      }
-    });
-
-    let quitInitiated = false;
-    app.on("before-quit", async ev => {
-      if (!quitInitiated) {
-        // Post-pone quitting so we can save off the log file first.
-        ev.preventDefault();
-        await log.close();
-
-        // Use console.log() over log.info to avoid appending this to the log file
-        // eslint-disable-next-line no-console
-        console.log(`Shutting down. Log saved to: ${log.filePath}`);
-
-        // Now let the app close.
-        quitInitiated = true;
-        app.quit();
-      }
-    });
 
     // Ready event might fire before we finish loading our config file causing us
     // to miss it.

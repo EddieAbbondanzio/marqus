@@ -75,7 +75,11 @@ export function createAppContext(
   const log = partial?.log ?? createLogger();
   const browserWindow = partial?.browserWindow ?? createBrowserWindow();
 
-  const ctx = { ipc, config, log, browserWindow };
+  const blockAppFromQuitting = jest.fn().mockImplementation(async cb => {
+    await cb();
+  });
+
+  const ctx = { ipc, config, log, browserWindow, blockAppFromQuitting };
 
   for (const ipc of ipcModules) {
     ipc(ctx);

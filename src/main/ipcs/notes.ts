@@ -31,7 +31,7 @@ const noteUpdateSchema: z.Schema<NoteUpdateParams> = z.object({
 });
 
 export function noteIpcs(ctx: AppContext): void {
-  const { browserWindow, ipc, config, log } = ctx;
+  const { browserWindow, ipc, config, log, blockAppFromQuitting } = ctx;
 
   const { dataDirectory } = config.content;
   if (dataDirectory == null) {
@@ -67,7 +67,9 @@ export function noteIpcs(ctx: AppContext): void {
 
   ipc.handle("notes.create", async (_, params) => {
     const note = createNote(params);
-    await saveNoteToFS(noteDirectory, note);
+    await blockAppFromQuitting(async () => {
+      await saveNoteToFS(noteDirectory, note);
+    });
 
     return note;
   });
@@ -106,7 +108,9 @@ export function noteIpcs(ctx: AppContext): void {
     }
 
     note.dateUpdated = new Date();
-    await saveNoteToFS(noteDirectory, note);
+    await blockAppFromQuitting(async () => {
+      await saveNoteToFS(noteDirectory, note);
+    });
   });
 
   ipc.handle("notes.moveToTrash", async (_, id) => {
