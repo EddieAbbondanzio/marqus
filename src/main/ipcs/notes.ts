@@ -1,14 +1,12 @@
 import { createNote, Note, NoteSort } from "../../shared/domain/note";
 import { UUID_REGEX } from "../../shared/domain";
-import { Config } from "../../shared/domain/config";
 import { cloneDeep, difference, keyBy, omit, partition } from "lodash";
 import { shell } from "electron";
-import { IpcMainTS, NoteUpdateParams } from "../../shared/ipc";
+import { NoteUpdateParams } from "../../shared/ipc";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
-import { JsonFile, loadJson, writeJson } from "./../json";
+import { loadJson, writeJson } from "./../json";
 import * as p from "path";
-import { Logger } from "../../shared/logger";
 import { NOTE_SCHEMAS } from "./../schemas/notes";
 import { z } from "zod";
 import { isDevelopment } from "../../shared/env";
@@ -17,6 +15,8 @@ import {
   registerAttachmentsProtocol,
 } from "../protocols/attachments";
 import { Attachment } from "../../shared/domain/protocols";
+import { openInBrowser } from "../utils";
+import { AppContext } from "..";
 
 export const ATTACHMENTS_DIRECTORY = "attachments";
 export const NOTES_DIRECTORY = "notes";
@@ -30,11 +30,9 @@ const noteUpdateSchema: z.Schema<NoteUpdateParams> = z.object({
   content: z.string().optional(),
 });
 
-export function noteIpcs(
-  ipc: IpcMainTS,
-  config: JsonFile<Config>,
-  log: Logger,
-): void {
+export function noteIpcs(ctx: AppContext): void {
+  const { browserWindow, ipc, config, log, blockAppFromQuitting } = ctx;
+
   const { dataDirectory } = config.content;
   if (dataDirectory == null) {
     void log.debug(
@@ -45,6 +43,13 @@ export function noteIpcs(
   const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
 
   registerAttachmentsProtocol(noteDirectory);
+
+  // Override how all links are open so we can send them off to the user's
+  // web browser instead of opening them in the electron app.
+  browserWindow.webContents.setWindowOpenHandler(details => {
+    void openInBrowser(details.url);
+    return { action: "deny" };
+  });
 
   ipc.on("init", async () => {
     if (!fs.existsSync(noteDirectory)) {
@@ -62,7 +67,9 @@ export function noteIpcs(
 
   ipc.handle("notes.create", async (_, params) => {
     const note = createNote(params);
-    await saveNoteToFS(noteDirectory, note);
+    await blockAppFromQuitting(async () => {
+      await saveNoteToFS(noteDirectory, note);
+    });
 
     return note;
   });
@@ -101,7 +108,9 @@ export function noteIpcs(
     }
 
     note.dateUpdated = new Date();
-    await saveNoteToFS(noteDirectory, note);
+    await blockAppFromQuitting(async () => {
+      await saveNoteToFS(noteDirectory, note);
+    });
   });
 
   ipc.handle("notes.moveToTrash", async (_, id) => {

@@ -13,10 +13,6 @@ import {
   saveNoteToFS,
   splitNoteIntoFiles,
 } from "../../../src/main/ipcs/notes";
-import { createConfig } from "../../__factories__/config";
-import { createIpcMainTS } from "../../__factories__/ipc";
-import { createJsonFile } from "../../__factories__/json";
-import { createLogger } from "../../__factories__/logger";
 import { uuid } from "../../../src/shared/domain";
 import mockFS from "mock-fs";
 import { omit } from "lodash";
@@ -30,56 +26,66 @@ import { getLatestSchemaVersion } from "../../../src/main/schemas/utils";
 import * as fs from "fs";
 import * as path from "path";
 import { loadJson } from "../../../src/main/json";
-import { IpcType } from "../../../src/shared/ipc";
-import { shell } from "electron";
+import { shell, WebContents } from "electron";
 import * as attachments from "../../../src/main/protocols/attachments";
 import { Protocol } from "../../../src/shared/domain/protocols";
+import { createAppContext, FAKE_DATA_DIRECTORY } from "../../__factories__/ipc";
+import { createBrowserWindow } from "../../__factories__/electron";
+import * as utils from "../../../src/main/utils";
 
 const registerAttachmentsProtocol = jest.fn();
 jest
   .spyOn(attachments, "registerAttachmentsProtocol")
   .mockImplementation(registerAttachmentsProtocol);
 
+const openInBrowser = jest.fn();
+jest.spyOn(utils, "openInBrowser").mockImplementation(openInBrowser);
+
 afterEach(() => {
   mockFS.restore();
 });
 
-const latestVersion = getLatestSchemaVersion(NOTE_SCHEMAS);
+const LATEST_VERSION = getLatestSchemaVersion(NOTE_SCHEMAS);
 
 function createMetadata(props?: Partial<NoteMetadata>): NoteMetadata {
   props ??= {};
   props.name ??= `test-note-${uuid()}`;
-  props.version ??= latestVersion;
+  props.version ??= LATEST_VERSION;
 
   const metadata: NoteMetadata = omit(createNote(props as any), "children");
   return metadata;
 }
 
-const FAKE_DATA_DIRECTORY = "fake-data-dir";
-
 test("registers attachment protocol", async () => {
   mockFS();
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
 
+  createAppContext({}, noteIpcs);
   expect(registerAttachmentsProtocol).toHaveBeenCalled();
 });
 
-test("init", async () => {
+test("noteIpcs blocks opening links in app", async () => {
+  const setWindowOpenHandler = jest.fn();
+  const webContents = { setWindowOpenHandler } as unknown as WebContents;
+  const browserWindow = createBrowserWindow({ webContents });
+
+  createAppContext({ browserWindow }, noteIpcs);
+
+  expect(setWindowOpenHandler).toHaveBeenCalledTimes(1);
+  const handler = setWindowOpenHandler.mock.calls[0][0];
+  const action = handler({
+    url: "fake-website.com",
+  });
+
+  expect(openInBrowser).toHaveBeenCalledWith("fake-website.com");
+  expect(action).toEqual({ action: "deny" });
+});
+
+test("noteIpcs init", async () => {
   mockFS({
     [FAKE_DATA_DIRECTORY]: {},
   });
 
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
-  await ipc.trigger("init");
-
+  const { ipc } = createAppContext({}, noteIpcs);
   await ipc.trigger("init");
 
   expect(fs.existsSync(path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY))).toBe(
@@ -104,11 +110,7 @@ test("notes.getAll", async () => {
     },
   });
 
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
+  const { ipc } = createAppContext({}, noteIpcs);
   await ipc.trigger("init");
 
   const notes = await ipc.invoke("notes.getAll");
@@ -124,11 +126,7 @@ test("notes.create", async () => {
     },
   });
 
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
+  const { ipc } = createAppContext({}, noteIpcs);
   await ipc.trigger("init");
 
   const note = await ipc.invoke("notes.create", {
@@ -152,11 +150,7 @@ test("notes.update", async () => {
   });
   const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
 
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
+  const { ipc } = createAppContext({}, noteIpcs);
   await ipc.trigger("init");
 
   let note: NoteFile = createNote({
@@ -227,11 +221,7 @@ test("notes.moveToTrash no children", async () => {
   });
   const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
 
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
+  const { ipc } = createAppContext({}, noteIpcs);
   await ipc.trigger("init");
 
   await ipc.invoke("notes.moveToTrash", noteId);
@@ -279,11 +269,7 @@ test("notes.moveToTrash note has children", async () => {
   });
   const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
 
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
+  const { ipc } = createAppContext({}, noteIpcs);
   await ipc.trigger("init");
 
   // TODO: REMOVE once we figure out relationship table alternative
@@ -319,11 +305,7 @@ test("notes.openAttachments", async () => {
     },
   });
 
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
+  const { ipc } = createAppContext({}, noteIpcs);
   await ipc.trigger("init");
 
   await ipc.invoke("notes.openAttachments", noteId);
@@ -368,12 +350,7 @@ test("notes.openAttachmentFile", async () => {
     },
   });
 
-  const ipc = createIpcMainTS();
-
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
+  const { ipc } = createAppContext({}, noteIpcs);
   await ipc.trigger("init");
 
   // File exists
@@ -410,12 +387,7 @@ test("notes.importAttachments", async () => {
     },
   });
 
-  const ipc = createIpcMainTS();
-
-  const config = createJsonFile(
-    createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }),
-  );
-  noteIpcs(ipc, config, createLogger());
+  const { ipc } = createAppContext({}, noteIpcs);
 
   // Copies over images
   const copiedImage = await ipc.invoke("notes.importAttachments", noteId, [

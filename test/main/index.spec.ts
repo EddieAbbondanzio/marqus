@@ -1,8 +1,11 @@
-import { getImgSrcCsp } from "../../src/main";
-import { Protocol } from "../../src/shared/domain/protocols";
+import { setCspHeader } from "../../src/main";
 
-test("getImgSrcCsp", () => {
-  const srcs = getImgSrcCsp().split(" ");
-  expect(srcs[0]).toBe("*");
-  expect(srcs[1]).toBe(`${Protocol.Attachment}://*`);
+test("setCspHeader", () => {
+  const callback = jest.fn();
+  setCspHeader({} as any, callback);
+  expect(callback).toHaveBeenCalledWith({
+    responseHeaders: {
+      "Content-Security-Policy": [`img-src * attachment://*`],
+    },
+  });
 });

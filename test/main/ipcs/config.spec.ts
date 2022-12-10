@@ -6,42 +6,43 @@ import {
   getConfig,
   getConfigPath,
 } from "../../../src/main/ipcs/config";
-import fsp from "fs/promises";
 import fs from "fs";
 import * as env from "../../../src/shared/env";
 import { app, BrowserWindow, dialog, shell } from "electron";
-import { createIpcMainTS } from "../../__factories__/ipc";
 import { createJsonFile } from "../../__factories__/json";
 import { createConfig } from "../../__factories__/config";
-import { createLogger } from "../../__factories__/logger";
 import { Config } from "../../../src/shared/domain/config";
-import { loadJsonFile } from "../../../src/main/json";
 import mockFS from "mock-fs";
 import { CONFIG_SCHEMAS } from "../../../src/main/schemas/config";
 import { getLatestSchemaVersion } from "../../../src/main/schemas/utils";
+import { createAppContext, FAKE_DATA_DIRECTORY } from "../../__factories__/ipc";
 
 afterEach(() => {
   mockFS.restore();
 });
 
 test("config.get", async () => {
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: "foo", developerMode: true }),
+  const config: Config = {
+    version: 4,
+    windowHeight: 100,
+    windowWidth: 200,
+    dataDirectory: FAKE_DATA_DIRECTORY,
+    logDirectory: "logs",
+    developerMode: true,
+    autoHideAppMenu: true,
+  };
+
+  const { ipc } = createAppContext(
+    { config: createJsonFile(config) },
+    configIpcs,
   );
-  configIpcs(ipc, config, createLogger());
 
   const c: Config = await ipc.invoke("config.get");
-  expect(c.dataDirectory).toBe("foo");
-  expect(c.developerMode).toBe(true);
+  expect(c).toMatchObject(config);
 });
 
 test("config.openInTextEditor", async () => {
-  const ipc = createIpcMainTS();
-  const config = createJsonFile(
-    createConfig({ dataDirectory: "foo", developerMode: true }),
-  );
-  configIpcs(ipc, config, createLogger());
+  const { ipc } = createAppContext({}, configIpcs);
 
   await ipc.invoke("config.openInTextEditor");
   expect(shell.openPath).toHaveBeenCalledWith(CONFIG_FILE);
@@ -50,11 +51,16 @@ test("config.openInTextEditor", async () => {
 test.each([null, "fake-data-dir"])(
   "config.openDataDirectory (dataDirectory: %s)",
   async dataDirectory => {
-    const ipc = createIpcMainTS();
-    const config = createJsonFile(
-      createConfig({ dataDirectory, developerMode: true }),
+    const { ipc } = createAppContext(
+      {
+        config: createJsonFile(
+          createConfig({
+            dataDirectory,
+          }),
+        ),
+      },
+      configIpcs,
     );
-    configIpcs(ipc, config, createLogger());
 
     await ipc.invoke("config.openDataDirectory");
 
@@ -72,10 +78,7 @@ test.each([null, ["foo"]])(
     // Hack for jest
     filePaths = filePaths ?? [];
 
-    const ipc = createIpcMainTS();
-    const config = createJsonFile(
-      createConfig({ dataDirectory: null, developerMode: true }),
-    );
+    const { ipc, config } = createAppContext({}, configIpcs);
 
     const focusedWindow = {
       reload: jest.fn(),
@@ -84,7 +87,6 @@ test.each([null, ["foo"]])(
       focusedWindow,
     );
     (dialog.showOpenDialog as jest.Mock).mockResolvedValueOnce({ filePaths });
-    configIpcs(ipc, config, createLogger());
     await ipc.invoke("config.selectDataDirectory");
 
     expect(dialog.showOpenDialog).toHaveBeenCalledWith(focusedWindow, {
@@ -137,9 +139,9 @@ test("getConfig creates data directory if directory is missing.", async () => {
 });
 
 test("getConfigPath", () => {
-  jest.spyOn(process, "cwd").mockReturnValueOnce("foo");
+  jest.spyOn(process, "cwd").mockReturnValueOnce(FAKE_DATA_DIRECTORY);
   jest.spyOn(env, "isDevelopment").mockReturnValueOnce(true);
-  expect(getConfigPath()).toBe("foo/config.json");
+  expect(getConfigPath()).toBe(`${FAKE_DATA_DIRECTORY}/config.json`);
 
   jest.spyOn(env, "isDevelopment").mockReturnValueOnce(false);
   jest.spyOn(env, "isTest").mockReturnValueOnce(true);

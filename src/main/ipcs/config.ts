@@ -1,13 +1,12 @@
 import { app, BrowserWindow, dialog, shell } from "electron";
-import { IpcMainTS } from "../../shared/ipc";
 import { Config } from "../../shared/domain/config";
 import { JsonFile, loadJsonFile } from "./../json";
-import { Logger } from "../../shared/logger";
 import { CONFIG_SCHEMAS } from "./../schemas/config";
 import { isDevelopment, isTest } from "../../shared/env";
 import * as path from "path";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
+import { AppContext } from "..";
 
 export const CONFIG_FILE = "config.json";
 export const DEFAULT_DEV_DATA_DIRECTORY = "data";
@@ -15,11 +14,9 @@ export const DEFAULT_DEV_LOG_DIRECTORY = "logs";
 export const DEFAULT_WINDOW_HEIGHT = 600;
 export const DEFAULT_WINDOW_WIDTH = 800;
 
-export function configIpcs(
-  ipc: IpcMainTS,
-  config: JsonFile<Config>,
-  log: Logger,
-): void {
+export function configIpcs(ctx: AppContext): void {
+  const { ipc, config, blockAppFromQuitting } = ctx;
+
   ipc.handle("config.get", () => config.content);
 
   ipc.handle("config.openInTextEditor", async () => {
@@ -53,7 +50,10 @@ export function configIpcs(
       return;
     }
 
-    await config.update({ dataDirectory: filePaths[0] });
+    await blockAppFromQuitting(async () => {
+      await config.update({ dataDirectory: filePaths[0] });
+    });
+
     focusedWindow.reload();
   });
 }

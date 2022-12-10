@@ -1,13 +1,12 @@
-import { Config } from "../../shared/domain/config";
 import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
 import { parseKeyCodes } from "../../shared/io/keyCode";
-import { IpcMainTS } from "../../shared/ipc";
+import { BrowserWindowEvent, IpcChannel } from "../../shared/ipc";
 import { Section } from "../../shared/ui/app";
 import { UIEventInput, UIEventType } from "../../shared/ui/events";
-import { JsonFile, loadJsonFile } from "./../json";
+import { loadJsonFile } from "./../json";
 import p from "path";
 import { SHORTCUTS_SCHEMAS } from "./../schemas/shortcuts";
-import { Logger } from "../../shared/logger";
+import { AppContext } from "..";
 
 export interface Shortcuts {
   version: number;
@@ -34,11 +33,15 @@ export interface ShortcutOverride {
   disabled?: boolean;
 }
 
-export function shortcutIpcs(
-  ipc: IpcMainTS,
-  config: JsonFile<Config>,
-  log: Logger,
-): void {
+export function shortcutIpcs(ctx: AppContext): void {
+  const { browserWindow, ipc, config } = ctx;
+
+  browserWindow.on("blur", () => {
+    browserWindow.webContents.send(IpcChannel.BrowserWindow, {
+      event: BrowserWindowEvent.Blur,
+    });
+  });
+
   ipc.handle("shortcuts.getAll", async () => {
     const shortcuts = [...DEFAULT_SHORTCUTS];
 
