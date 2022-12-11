@@ -1,5 +1,7 @@
+import { isFunction } from "lodash";
 import { initPlugins, AppContext, IpcMainTS } from "../../../src/main/ipc";
 import { sleep } from "../../../src/shared/utils";
+import { MockedIpcMainTS } from "../../__factories__/ipc";
 
 test("initPlugins", async () => {
   const syncOnDispose = jest.fn();
@@ -9,7 +11,7 @@ test("initPlugins", async () => {
 
   const plugins = [
     // no onInit, no onDispose
-    {},
+    { "app.inspectElement": jest.fn() },
     // sync onInit, no onDispose
     { onInit: jest.fn() },
     // sync onInit, sync onDispose
@@ -34,16 +36,18 @@ test("initPlugins", async () => {
     },
   ];
 
-  const onDisposesPromises = initPlugins(
+  const ipc = new MockedIpcMainTS();
+
+  const onDisposePromise = initPlugins(
     plugins,
-    {} as unknown as IpcMainTS,
+    ipc,
     {} as unknown as AppContext,
   );
 
   jest.runAllTimers();
 
-  const onDisposes = await onDisposesPromises;
-  expect(onDisposes.length).toBe(4);
+  const onDispose = await onDisposePromise;
+  expect(isFunction(onDispose)).toBe(true);
 
   expect(plugins[1].onInit).toHaveBeenCalled();
   expect(plugins[2].onInit).toHaveBeenCalled();
@@ -54,4 +58,13 @@ test("initPlugins", async () => {
 
   expect(syncOnDispose).not.toHaveBeenCalled();
   expect(asyncOnDispose).not.toHaveBeenCalled();
+
+  expect(ipc.handlers["app.inspectElement"]).not.toBe(undefined);
+
+  await onDispose();
+
+  expect(syncOnDispose).toHaveBeenCalled();
+  expect(asyncOnDispose).toHaveBeenCalled();
+
+  expect(ipc.handlers["app.inspectElement"]).toBe(undefined);
 });

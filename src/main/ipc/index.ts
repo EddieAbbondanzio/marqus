@@ -62,12 +62,6 @@ export async function initPlugins(
   ipc: IpcMainTS,
   appContext: AppContext,
 ): Promise<() => Promise<void>> {
-  // registers every handler
-  // makes list of ipc handlers we registered
-  // triggers onInit
-  // builds list of all ondisposes
-  // returns nice and handy callback for cleaning up every onDispose ato nce.
-
   const handlersToRemove: IpcType[] = [];
   const onDisposePromises = [];
 
