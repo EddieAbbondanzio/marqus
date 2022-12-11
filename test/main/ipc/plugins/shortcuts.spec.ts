@@ -1,16 +1,16 @@
-import { createAppContext } from "../../__factories__/ipc";
+import { initIpc } from "../../../__factories__/ipc";
 import {
-  shortcutIpcs,
+  shortcutsIpcPlugin,
   SHORTCUT_FILE_PATH,
-} from "../../../src/main/ipcs/shortcuts";
-import { Section } from "../../../src/shared/ui/app";
-import { parseKeyCodes } from "../../../src/shared/io/keyCode";
+} from "../../../../src/main/ipc/plugins/shortcuts";
+import { Section } from "../../../../src/shared/ui/app";
+import { parseKeyCodes } from "../../../../src/shared/io/keyCode";
 import mockFS from "mock-fs";
-import { SHORTCUTS_SCHEMAS } from "../../../src/main/schemas/shortcuts";
-import { getLatestSchemaVersion } from "../../../src/main/schemas/utils";
-import { createBrowserWindow } from "../../__factories__/electron";
+import { SHORTCUTS_SCHEMAS } from "../../../../src/main/schemas/shortcuts";
+import { getLatestSchemaVersion } from "../../../../src/main/schemas/utils";
+import { createBrowserWindow } from "../../../__factories__/electron";
 import { WebContents } from "electron";
-import { BrowserWindowEvent, IpcChannel } from "../../../src/shared/ipc";
+import { BrowserWindowEvent, IpcChannel } from "../../../../src/shared/ipc";
 
 afterEach(() => {
   mockFS.restore();
@@ -24,7 +24,7 @@ test("shortcutIpcs triggers blur event", async () => {
     webContents: { send } as unknown as WebContents,
   });
 
-  createAppContext({ browserWindow }, shortcutIpcs);
+  await initIpc({ browserWindow }, shortcutsIpcPlugin);
 
   expect(on).toHaveBeenCalledTimes(1);
   const [ev, cb] = on.mock.calls[0];
@@ -37,7 +37,7 @@ test("shortcutIpcs triggers blur event", async () => {
 });
 
 test("shortcuts.getAll", async () => {
-  const { ipc } = createAppContext({}, shortcutIpcs);
+  const { ipc } = await initIpc({}, shortcutsIpcPlugin);
 
   mockFS({
     data: {

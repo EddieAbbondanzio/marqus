@@ -1,5 +1,5 @@
 import { BrowserWindow, IpcMainInvokeEvent } from "electron";
-import { isFunction, wrap } from "lodash";
+import { compact } from "lodash";
 import { MaybeThunk } from "tsdef";
 import { Config } from "../../shared/domain/config";
 import { IPCS, IpcSchema, IpcType } from "../../shared/ipc";
@@ -61,30 +61,43 @@ export async function initPlugins(
   plugins: IpcPlugin[],
   ipc: IpcMainTS,
   appContext: AppContext,
-): Promise<OnDispose[]> {
-  return await Promise.all(
-    plugins.map(p => {
-      const onDispose = p?.onInit?.(appContext);
+): Promise<() => Promise<void>> {
+  // registers every handler
+  // makes list of ipc handlers we registered
+  // triggers onInit
+  // builds list of all ondisposes
+  // returns nice and handy callback for cleaning up every onDispose ato nce.
 
-      const ipcs = (
-        Object.entries(p) as [IpcType, IpcAction<IpcType>][]
-      ).filter(([ipcType]) => IPCS.includes(ipcType));
+  const handlersToRemove: IpcType[] = [];
+  const onDisposePromises = [];
 
-      for (const [ipcType, ipcHandler] of ipcs) {
-        ipc.handle(ipcType, (...args: any[]) =>
-          ipcHandler(appContext, ...args.slice(1)),
-        );
-      }
+  for (const p of plugins) {
+    const onDispose = p?.onInit?.(appContext);
+    onDisposePromises.push(onDispose);
 
-      return () => {
-        for (const [ipcType] of ipcs) {
-          ipc.removeHandler(ipcType);
-        }
+    const ipcs = (Object.entries(p) as [IpcType, IpcAction<IpcType>][]).filter(
+      ([ipcType]) => IPCS.includes(ipcType),
+    );
 
-        if (isFunction(onDispose)) {
-          return onDispose();
-        }
-      };
-    }),
-  );
+    for (const [ipcType, ipcHandler] of ipcs) {
+      ipc.handle(ipcType, (...args: any[]) =>
+        ipcHandler(appContext, ...args.slice(1)),
+      );
+      handlersToRemove.push(ipcType);
+    }
+  }
+
+  const onDisposes = compact(
+    await Promise.all(onDisposePromises),
+  ) as OnDispose[];
+
+  return async () => {
+    for (const handler of handlersToRemove) {
+      ipc.removeHandler(handler);
+    }
+
+    if (onDisposes.length > 0) {
+      await Promise.all(onDisposes.map(cb => cb()));
+    }
+  };
 }

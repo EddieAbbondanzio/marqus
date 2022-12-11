@@ -8,7 +8,6 @@ import { AppState } from "../../src/shared/ui/app";
 
 const latestVersion = getLatestSchemaVersion(APP_STATE_SCHEMAS);
 
-// TODO: Fix this so we can pass editor: { } and it'll still default tabs to []
 export function createState(partial?: DeepPartial<State>): State {
   const cloned = cloneDeep(partial ?? {});
   cloned.version ??= latestVersion;

@@ -18,7 +18,7 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 let mainWindow: BrowserWindow;
-let onDisposes: OnDispose[];
+let onDispose: () => Promise<void>;
 
 export async function main(): Promise<void> {
   try {
@@ -76,10 +76,6 @@ export async function main(): Promise<void> {
 
         await log.close();
 
-        if (onDisposes != null && onDisposes.length > 0) {
-          await Promise.all(onDisposes.map(onDispose => onDispose()));
-        }
-
         // Use console.log() over log.info to avoid appending this to the log file
         // eslint-disable-next-line no-console
         console.log(`Shutting down. Log saved to: ${log.filePath}`);
@@ -121,15 +117,15 @@ export async function main(): Promise<void> {
         config: configFile,
         blockAppFromQuitting,
         reloadIpcPlugins: async () => {
-          if (onDisposes != null && onDisposes.length > 0) {
-            await Promise.all(onDisposes.map(onDispose => onDispose()));
+          if (onDispose != null) {
+            await onDispose();
           }
 
-          onDisposes = await initPlugins(IPC_PLUGINS, typeSafeIpc, appContext);
+          onDispose = await initPlugins(IPC_PLUGINS, typeSafeIpc, appContext);
         },
       };
 
-      onDisposes = await initPlugins(IPC_PLUGINS, typeSafeIpc, appContext);
+      onDispose = await initPlugins(IPC_PLUGINS, typeSafeIpc, appContext);
 
       // and load the index.html of the app.
       await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);

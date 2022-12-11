@@ -1,11 +1,8 @@
 import { createConfig } from "../../../__factories__/config";
-import {
-  createAppContext,
-  FAKE_DATA_DIRECTORY,
-} from "../../../__factories__/ipc";
+import { initIpc, FAKE_DATA_DIRECTORY } from "../../../__factories__/ipc";
 
 import { createJsonFile } from "../../../__factories__/json";
-import { BrowserWindow, dialog, Menu, shell } from "electron";
+import { BrowserWindow, dialog, Menu, shell, WebContents } from "electron";
 import { openInBrowser } from "../../../../src/main/utils";
 import { Section, serializeAppState } from "../../../../src/shared/ui/app";
 import { createAppState } from "../../../__factories__/state";
@@ -14,16 +11,22 @@ import mockFS from "mock-fs";
 import { createNote, NoteSort } from "../../../../src/shared/domain/note";
 import { IpcChannel } from "../../../../src/shared/ipc";
 import { createBrowserWindow } from "../../../__factories__/electron";
+import {
+  appIpcPlugin,
+  APP_STATE_DEFAULTS,
+  APP_STATE_PATH,
+  buildClickHandler,
+  buildMenus,
+} from "../../../../src/main/ipc/plugins/app";
 
 afterEach(() => {
   mockFS.restore();
 });
 
-jest.mock("../../../src/main/utils");
+jest.mock("../../../../src/main/utils");
 
 test("appIpcs sets app menu on start", async () => {
-  const { browserWindow } = createAppContext({}, appIpcs);
-
+  const { browserWindow } = await initIpc({}, appIpcPlugin);
   expect(browserWindow.setMenu).toHaveBeenCalled();
 });
 
@@ -35,7 +38,7 @@ test("appIpcs saves config on window resize", async () => {
   const config = createJsonFile(
     createConfig({ windowHeight: 50, windowWidth: 75 }),
   );
-  createAppContext({ browserWindow, config }, appIpcs);
+  await initIpc({ browserWindow, config }, appIpcPlugin);
   expect(config.content.windowHeight).toBe(50);
   expect(config.content.windowWidth).toBe(75);
 
@@ -93,8 +96,7 @@ test("app.loadAppState loads", async () => {
     },
   });
 
-  const { ipc } = createAppContext({}, appIpcs);
-  await ipc.trigger("init");
+  const { ipc } = await initIpc({}, appIpcPlugin);
 
   const appState = await ipc.invoke("app.loadAppState");
   expect(appState.focused).toEqual([Section.Editor]);
@@ -118,8 +120,7 @@ test("app.loadAppState loads defaults", async () => {
   // No ui.json in file system.
   mockFS();
 
-  const { ipc } = createAppContext({}, appIpcs);
-  await ipc.trigger("init");
+  const { ipc } = await initIpc({}, appIpcPlugin);
 
   const appState = await ipc.invoke("app.loadAppState");
   expect(appState).toEqual(APP_STATE_DEFAULTS);
@@ -132,8 +133,7 @@ test("app.saveAppState", async () => {
     },
   });
 
-  const { ipc } = createAppContext({}, appIpcs);
-  await ipc.trigger("init");
+  const { ipc } = await initIpc({}, appIpcPlugin);
 
   const update = serializeAppState(
     createAppState({
@@ -155,7 +155,7 @@ test("app.saveAppState", async () => {
 });
 
 test("app.showContextMenu", async () => {
-  const { ipc } = createAppContext({}, appIpcs);
+  const { ipc } = await initIpc({}, appIpcPlugin);
   const menu = {
     popup: jest.fn(),
   };
@@ -168,12 +168,11 @@ test("app.showContextMenu", async () => {
 });
 
 test("app.setApplicationMenu", async () => {
-  const { ipc } = createAppContext({}, appIpcs);
   const setMenu = jest.fn();
-  const focusedWindow = {
+  const browserWindow = createBrowserWindow({
     setMenu,
-  };
-  (BrowserWindow.getFocusedWindow as jest.Mock).mockReturnValue(focusedWindow);
+  });
+  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
 
   // Weak test...
   await ipc.invoke("app.setApplicationMenu", []);
@@ -181,7 +180,7 @@ test("app.setApplicationMenu", async () => {
 });
 
 test("app.promptUser", async () => {
-  const { ipc } = createAppContext({}, appIpcs);
+  const { ipc } = await initIpc({}, appIpcPlugin);
 
   // Throws if multiple cancel buttons
   await expect(async () => {
@@ -227,61 +226,52 @@ test("app.promptUser", async () => {
 });
 
 test("app.openDevTools", async () => {
-  const { ipc } = createAppContext({}, appIpcs);
-
   const openDevTools = jest.fn();
-  const focusedWindow = {
+  const browserWindow = createBrowserWindow({
     webContents: {
       openDevTools,
-    },
-  };
-
-  (BrowserWindow.getFocusedWindow as jest.Mock).mockReturnValue(focusedWindow);
+    } as unknown as WebContents,
+  });
+  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
 
   await ipc.invoke("app.openDevTools");
   expect(openDevTools).toHaveBeenCalled();
 });
 
 test("app.reload", async () => {
-  const { ipc } = createAppContext({}, appIpcs);
-
   const reload = jest.fn();
-  const focusedWindow = {
+  const browserWindow = createBrowserWindow({
     webContents: {
       reload,
-    },
-  };
-
-  (BrowserWindow.getFocusedWindow as jest.Mock).mockReturnValue(focusedWindow);
+    } as unknown as WebContents,
+  });
+  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
 
   await ipc.invoke("app.reload");
   expect(reload).toHaveBeenCalled();
 });
 
 test("app.toggleFullScreen", async () => {
-  const { ipc } = createAppContext({}, appIpcs);
-
-  const focusedWindow = {
+  const browserWindow = createBrowserWindow({
     isFullScreen: jest.fn(),
     setFullScreen: jest.fn(),
-  };
-
-  (BrowserWindow.getFocusedWindow as jest.Mock).mockReturnValue(focusedWindow);
+  });
+  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
 
   // Windowed -> Full Screen
-  focusedWindow.isFullScreen.mockReturnValueOnce(false);
+  (browserWindow.isFullScreen as jest.Mock).mockReturnValueOnce(false);
   await ipc.invoke("app.toggleFullScreen");
-  expect(focusedWindow.setFullScreen).toHaveBeenCalledWith(true);
-  focusedWindow.setFullScreen.mockReset();
+  expect(browserWindow.setFullScreen).toHaveBeenCalledWith(true);
+  (browserWindow.setFullScreen as jest.Mock).mockReset();
 
   // Full Screen -> Windowed
-  focusedWindow.isFullScreen.mockReturnValueOnce(true);
+  (browserWindow.isFullScreen as jest.Mock).mockReturnValueOnce(true);
   await ipc.invoke("app.toggleFullScreen");
-  expect(focusedWindow.setFullScreen).toHaveBeenCalledWith(false);
+  expect(browserWindow.setFullScreen).toHaveBeenCalledWith(false);
 });
 
 test("app.quit", async () => {
-  const { ipc } = createAppContext({}, appIpcs);
+  const { ipc } = await initIpc({}, appIpcPlugin);
   const close = jest.fn();
 
   (BrowserWindow.getAllWindows as jest.Mock).mockImplementationOnce(() => [
@@ -295,28 +285,27 @@ test("app.quit", async () => {
 });
 
 test("app.inspectElement rounds floats", async () => {
-  const { ipc } = createAppContext({}, appIpcs);
-
   const inspectElement = jest.fn();
-  (BrowserWindow.getFocusedWindow as jest.Mock).mockImplementationOnce(() => ({
+  const browserWindow = createBrowserWindow({
     webContents: {
       inspectElement,
-    },
-  }));
+    } as unknown as WebContents,
+  });
+  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
 
   await ipc.invoke("app.inspectElement", { x: 1.23, y: 2.67 });
   expect(inspectElement).toBeCalledWith(1, 3);
 });
 
 test("app.openInWebBrowser", async () => {
-  const { ipc } = createAppContext({}, appIpcs);
+  const { ipc } = await initIpc({}, appIpcPlugin);
 
   await ipc.invoke("app.openInWebBrowser", "foo.com");
   expect(openInBrowser).toHaveBeenCalledWith("foo.com");
 });
 
 test("app.openLogDirectory", async () => {
-  const { ipc } = createAppContext(
+  const { ipc } = await initIpc(
     {
       config: createJsonFile(
         createConfig({
@@ -324,7 +313,7 @@ test("app.openLogDirectory", async () => {
         }),
       ),
     },
-    appIpcs,
+    appIpcPlugin,
   );
 
   await ipc.invoke("app.openLogDirectory");
@@ -332,35 +321,35 @@ test("app.openLogDirectory", async () => {
 });
 
 test("app.toggleAutoHideAppMenu", async () => {
-  const { ipc, config } = createAppContext(
+  const browserWindow = createBrowserWindow({
+    isMenuBarAutoHide: jest.fn().mockReturnValueOnce(false),
+  });
+
+  const { ipc, config } = await initIpc(
     {
+      browserWindow,
       config: createJsonFile(
         createConfig({
           logDirectory: "foo",
         }),
       ),
     },
-    appIpcs,
+    appIpcPlugin,
   );
   expect(config.content.autoHideAppMenu).toBe(undefined);
-
-  const bw = {
-    isMenuBarAutoHide: jest.fn().mockReturnValueOnce(false),
-  } as unknown as BrowserWindow;
-  (BrowserWindow.getFocusedWindow as jest.Mock).mockImplementation(() => bw);
 
   // Set it to auto hide
   await ipc.invoke("app.toggleAutoHideAppMenu");
   expect(config.update).toHaveBeenCalledWith({ autoHideAppMenu: true });
-  expect(bw.autoHideMenuBar).toBe(true);
-  expect(bw.menuBarVisible).toBe(false);
+  expect(browserWindow.autoHideMenuBar).toBe(true);
+  expect(browserWindow.menuBarVisible).toBe(false);
 
   // Set it to always visible
-  (bw.isMenuBarAutoHide as jest.Mock).mockReturnValueOnce(true);
+  (browserWindow.isMenuBarAutoHide as jest.Mock).mockReturnValueOnce(true);
   await ipc.invoke("app.toggleAutoHideAppMenu");
   expect(config.update).toHaveBeenCalledWith({ autoHideAppMenu: false });
-  expect(bw.autoHideMenuBar).toBe(false);
-  expect(bw.menuBarVisible).toBe(true);
+  expect(browserWindow.autoHideMenuBar).toBe(false);
+  expect(browserWindow.menuBarVisible).toBe(true);
 });
 
 test.each([

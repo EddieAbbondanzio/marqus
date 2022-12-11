@@ -1,21 +1,22 @@
 import {
-  configIpcs,
+  configIpcPlugin,
   CONFIG_FILE,
   DEFAULT_DEV_DATA_DIRECTORY,
   DEFAULT_DEV_LOG_DIRECTORY,
   getConfig,
   getConfigPath,
-} from "../../../src/main/ipcs/config";
+} from "../../../../src/main/ipc/plugins/config";
 import fs from "fs";
-import * as env from "../../../src/shared/env";
+import * as env from "../../../../src/shared/env";
 import { app, BrowserWindow, dialog, shell } from "electron";
-import { createJsonFile } from "../../__factories__/json";
-import { createConfig } from "../../__factories__/config";
-import { Config } from "../../../src/shared/domain/config";
+import { createJsonFile } from "../../../__factories__/json";
+import { createConfig } from "../../../__factories__/config";
+import { Config } from "../../../../src/shared/domain/config";
 import mockFS from "mock-fs";
-import { CONFIG_SCHEMAS } from "../../../src/main/schemas/config";
-import { getLatestSchemaVersion } from "../../../src/main/schemas/utils";
-import { createAppContext, FAKE_DATA_DIRECTORY } from "../../__factories__/ipc";
+import { CONFIG_SCHEMAS } from "../../../../src/main/schemas/config";
+import { getLatestSchemaVersion } from "../../../../src/main/schemas/utils";
+import { FAKE_DATA_DIRECTORY, initIpc } from "../../../__factories__/ipc";
+import { createBrowserWindow } from "../../../__factories__/electron";
 
 afterEach(() => {
   mockFS.restore();
@@ -32,9 +33,9 @@ test("config.get", async () => {
     autoHideAppMenu: true,
   };
 
-  const { ipc } = createAppContext(
+  const { ipc } = await initIpc(
     { config: createJsonFile(config) },
-    configIpcs,
+    configIpcPlugin,
   );
 
   const c: Config = await ipc.invoke("config.get");
@@ -42,7 +43,7 @@ test("config.get", async () => {
 });
 
 test("config.openInTextEditor", async () => {
-  const { ipc } = createAppContext({}, configIpcs);
+  const { ipc } = await initIpc({}, configIpcPlugin);
 
   await ipc.invoke("config.openInTextEditor");
   expect(shell.openPath).toHaveBeenCalledWith(CONFIG_FILE);
@@ -51,7 +52,7 @@ test("config.openInTextEditor", async () => {
 test.each([null, "fake-data-dir"])(
   "config.openDataDirectory (dataDirectory: %s)",
   async dataDirectory => {
-    const { ipc } = createAppContext(
+    const { ipc } = await initIpc(
       {
         config: createJsonFile(
           createConfig({
@@ -59,7 +60,7 @@ test.each([null, "fake-data-dir"])(
           }),
         ),
       },
-      configIpcs,
+      configIpcPlugin,
     );
 
     await ipc.invoke("config.openDataDirectory");
@@ -78,18 +79,16 @@ test.each([null, ["foo"]])(
     // Hack for jest
     filePaths = filePaths ?? [];
 
-    const { ipc, config } = createAppContext({}, configIpcs);
-
-    const focusedWindow = {
+    const browserWindow = createBrowserWindow({
       reload: jest.fn(),
-    };
-    (BrowserWindow.getFocusedWindow as jest.Mock).mockReturnValueOnce(
-      focusedWindow,
-    );
+    });
+
+    const { ipc, config } = await initIpc({ browserWindow }, configIpcPlugin);
+
     (dialog.showOpenDialog as jest.Mock).mockResolvedValueOnce({ filePaths });
     await ipc.invoke("config.selectDataDirectory");
 
-    expect(dialog.showOpenDialog).toHaveBeenCalledWith(focusedWindow, {
+    expect(dialog.showOpenDialog).toHaveBeenCalledWith(browserWindow, {
       properties: ["openDirectory"],
     });
 

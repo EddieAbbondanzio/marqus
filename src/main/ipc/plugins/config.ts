@@ -74,7 +74,7 @@ export async function getConfig(): Promise<JsonFile<Config>> {
   // Override directories when running in development.
   if (isDevelopment()) {
     await configFile.update({
-      // dataDirectory: DEFAULT_DEV_DATA_DIRECTORY,
+      dataDirectory: DEFAULT_DEV_DATA_DIRECTORY,
       logDirectory: DEFAULT_DEV_LOG_DIRECTORY,
     });
   }

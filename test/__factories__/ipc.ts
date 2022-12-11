@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { IpcMainInvokeEvent } from "electron";
-import { AppContext } from "../../src/main";
-import { IpcMainTS } from "../../src/main/types";
+import { AppContext } from "../../src/main/ipc";
+import { initPlugins, IpcMainTS, IpcPlugin } from "../../src/main/ipc";
 import { IpcSchema, IpcType } from "../../src/shared/ipc";
 import { createConfig } from "./config";
 import { createBrowserWindow } from "./electron";
@@ -33,10 +33,10 @@ export class MockedIpcMainTS implements IpcMainTS {
 
     return this.handlers[type]!(null, ...params);
   }
-}
 
-export function createIpcMainTS(): MockedIpcMainTS {
-  return new MockedIpcMainTS();
+  removeHandler(type: IpcType): void {
+    delete this.handlers[type];
+  }
 }
 
 export type MockedAppContext = { ipc: MockedIpcMainTS } & Omit<
@@ -45,11 +45,12 @@ export type MockedAppContext = { ipc: MockedIpcMainTS } & Omit<
 >;
 
 export const FAKE_DATA_DIRECTORY = "data";
-export function createAppContext(
+
+export async function initIpc(
   partial?: Partial<MockedAppContext>,
-  ...ipcModules: Array<(ctx: AppContext) => void>
-): MockedAppContext {
-  const ipc = partial?.ipc ?? createIpcMainTS();
+  ...ipcPlugins: IpcPlugin[]
+): Promise<MockedAppContext> {
+  const ipc = partial?.ipc ?? new MockedIpcMainTS();
   const config =
     partial?.config ??
     createJsonFile(createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }));
@@ -60,11 +61,25 @@ export function createAppContext(
     await cb();
   });
 
-  const ctx = { ipc, config, log, browserWindow, blockAppFromQuitting };
+  let onDispose: (() => Promise<void>) | undefined = undefined;
+  const reloadIpcPlugins = jest.fn().mockImplementation(async () => {
+    if (onDispose != null) {
+      await onDispose();
+    }
 
-  for (const ipc of ipcModules) {
-    ipc(ctx);
-  }
+    onDispose = await initPlugins(ipcPlugins, ipc, ctx);
+  });
+
+  const ctx = {
+    ipc,
+    config,
+    log,
+    browserWindow,
+    blockAppFromQuitting,
+    reloadIpcPlugins,
+  };
+
+  onDispose = await initPlugins(ipcPlugins, ipc, ctx);
 
   return ctx;
 }
