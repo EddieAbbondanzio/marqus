@@ -4,7 +4,6 @@ import * as fs from "fs";
 import { ZodSchema } from "zod";
 import { DeepPartial } from "tsdef";
 import { deepUpdate } from "../shared/deepUpdate";
-import { isDevelopment } from "../shared/env";
 
 export interface Versioned {
   version: number;

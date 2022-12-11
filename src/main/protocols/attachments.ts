@@ -3,7 +3,7 @@ import { isProtocolUrl, Protocol } from "../../shared/domain/protocols";
 import path from "path";
 import fs from "fs";
 import { UUID_REGEX } from "../../shared/domain";
-import { ATTACHMENTS_DIRECTORY } from "../ipcs/notes";
+import { ATTACHMENTS_DIRECTORY } from "../ipc/notes";
 
 export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
   protocol.registerFileProtocol(Protocol.Attachment, (req, cb) => {
@@ -16,6 +16,13 @@ export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
       cb(filePath);
     }
   });
+}
+
+export function clearAttachmentsProtocol(): void {
+  const success = protocol.unregisterProtocol(Protocol.Attachment);
+  if (!success) {
+    throw new Error(`Failed to unregister protocol ${Protocol.Attachment}`);
+  }
 }
 
 export function parseAttachmentPath(

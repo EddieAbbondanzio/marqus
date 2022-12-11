@@ -1,12 +1,12 @@
 import { app, BrowserWindow, dialog, shell } from "electron";
-import { Config } from "../../shared/domain/config";
-import { JsonFile, loadJsonFile } from "./../json";
-import { CONFIG_SCHEMAS } from "./../schemas/config";
-import { isDevelopment, isTest } from "../../shared/env";
+import { Config } from "../../../shared/domain/config";
+import { JsonFile, loadJsonFile } from "../../json";
+import { CONFIG_SCHEMAS } from "../../schemas/config";
+import { isDevelopment, isTest } from "../../../shared/env";
 import * as path from "path";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
-import { AppContext } from "..";
+import { AppContext, IpcPlugin } from "..";
 
 export const CONFIG_FILE = "config.json";
 export const DEFAULT_DEV_DATA_DIRECTORY = "data";
@@ -14,19 +14,17 @@ export const DEFAULT_DEV_LOG_DIRECTORY = "logs";
 export const DEFAULT_WINDOW_HEIGHT = 600;
 export const DEFAULT_WINDOW_WIDTH = 800;
 
-export function configIpcs(ctx: AppContext): void {
-  const { ipc, config, blockAppFromQuitting } = ctx;
+export const configIpcPlugin: IpcPlugin = {
+  "config.get": ({ config }) => config.content,
 
-  ipc.handle("config.get", () => config.content);
-
-  ipc.handle("config.openInTextEditor", async () => {
+  "config.openInTextEditor": async () => {
     const err = await shell.openPath(getConfigPath());
     if (err) {
       throw new Error(err);
     }
-  });
+  },
 
-  ipc.handle("config.openDataDirectory", async () => {
+  "config.openDataDirectory": async ({ config }) => {
     if (config.content.dataDirectory == null) {
       return;
     }
@@ -35,15 +33,15 @@ export function configIpcs(ctx: AppContext): void {
     if (err) {
       throw new Error(err);
     }
-  });
+  },
 
-  ipc.handle("config.selectDataDirectory", async () => {
-    const focusedWindow = BrowserWindow.getFocusedWindow();
-    if (focusedWindow == null) {
-      throw new Error();
-    }
-
-    const { filePaths } = await dialog.showOpenDialog(focusedWindow, {
+  "config.selectDataDirectory": async ({
+    browserWindow,
+    blockAppFromQuitting,
+    config,
+    reloadIpcPlugins,
+  }) => {
+    const { filePaths } = await dialog.showOpenDialog(browserWindow, {
       properties: ["openDirectory"],
     });
     if (filePaths.length == 0) {
@@ -54,9 +52,10 @@ export function configIpcs(ctx: AppContext): void {
       await config.update({ dataDirectory: filePaths[0] });
     });
 
-    focusedWindow.reload();
-  });
-}
+    await reloadIpcPlugins();
+    browserWindow.reload();
+  },
+};
 
 export async function getConfig(): Promise<JsonFile<Config>> {
   const configFile = await loadJsonFile<Config>(
@@ -75,7 +74,7 @@ export async function getConfig(): Promise<JsonFile<Config>> {
   // Override directories when running in development.
   if (isDevelopment()) {
     await configFile.update({
-      dataDirectory: DEFAULT_DEV_DATA_DIRECTORY,
+      // dataDirectory: DEFAULT_DEV_DATA_DIRECTORY,
       logDirectory: DEFAULT_DEV_LOG_DIRECTORY,
     });
   }

@@ -1,12 +1,12 @@
-import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
-import { parseKeyCodes } from "../../shared/io/keyCode";
-import { BrowserWindowEvent, IpcChannel } from "../../shared/ipc";
-import { Section } from "../../shared/ui/app";
-import { UIEventInput, UIEventType } from "../../shared/ui/events";
-import { loadJsonFile } from "./../json";
+import { DEFAULT_SHORTCUTS } from "../../../shared/io/defaultShortcuts";
+import { parseKeyCodes } from "../../../shared/io/keyCode";
+import { BrowserWindowEvent, IpcChannel } from "../../../shared/ipc";
+import { Section } from "../../../shared/ui/app";
+import { UIEventInput, UIEventType } from "../../../shared/ui/events";
+import { loadJsonFile } from "../../json";
 import p from "path";
-import { SHORTCUTS_SCHEMAS } from "./../schemas/shortcuts";
-import { AppContext } from "..";
+import { SHORTCUTS_SCHEMAS } from "../../schemas/shortcuts";
+import { IpcPlugin } from "..";
 
 export interface Shortcuts {
   version: number;
@@ -33,16 +33,22 @@ export interface ShortcutOverride {
   disabled?: boolean;
 }
 
-export function shortcutIpcs(ctx: AppContext): void {
-  const { browserWindow, ipc, config } = ctx;
+export const shortcutsIpcPlugin: IpcPlugin = {
+  onInit: async ({ browserWindow }) => {
+    const onWindowBlur = () => {
+      browserWindow.webContents.send(IpcChannel.BrowserWindow, {
+        event: BrowserWindowEvent.Blur,
+      });
+    };
 
-  browserWindow.on("blur", () => {
-    browserWindow.webContents.send(IpcChannel.BrowserWindow, {
-      event: BrowserWindowEvent.Blur,
-    });
-  });
+    browserWindow.on("blur", onWindowBlur);
 
-  ipc.handle("shortcuts.getAll", async () => {
+    return () => {
+      browserWindow.removeListener("blur", onWindowBlur);
+    };
+  },
+
+  "shortcuts.getAll": async ({ config }) => {
     const shortcuts = [...DEFAULT_SHORTCUTS];
 
     const shortcutFile = await loadJsonFile<Shortcuts>(
@@ -98,5 +104,5 @@ export function shortcutIpcs(ctx: AppContext): void {
     }
 
     return shortcuts;
-  });
-}
+  },
+};

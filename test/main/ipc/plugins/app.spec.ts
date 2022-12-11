@@ -1,22 +1,19 @@
-import { createConfig } from "../../__factories__/config";
-import { createAppContext, FAKE_DATA_DIRECTORY } from "../../__factories__/ipc";
+import { createConfig } from "../../../__factories__/config";
 import {
-  appIpcs,
-  APP_STATE_DEFAULTS,
-  APP_STATE_PATH,
-  buildClickHandler,
-  buildMenus,
-} from "../../../src/main/ipcs/app";
-import { createJsonFile } from "../../__factories__/json";
+  createAppContext,
+  FAKE_DATA_DIRECTORY,
+} from "../../../__factories__/ipc";
+
+import { createJsonFile } from "../../../__factories__/json";
 import { BrowserWindow, dialog, Menu, shell } from "electron";
-import { openInBrowser } from "../../../src/main/utils";
-import { Section, serializeAppState } from "../../../src/shared/ui/app";
-import { createAppState } from "../../__factories__/state";
-import { uuid } from "../../../src/shared/domain";
+import { openInBrowser } from "../../../../src/main/utils";
+import { Section, serializeAppState } from "../../../../src/shared/ui/app";
+import { createAppState } from "../../../__factories__/state";
+import { uuid } from "../../../../src/shared/domain";
 import mockFS from "mock-fs";
-import { createNote, NoteSort } from "../../../src/shared/domain/note";
-import { IpcChannel } from "../../../src/shared/ipc";
-import { createBrowserWindow } from "../../__factories__/electron";
+import { createNote, NoteSort } from "../../../../src/shared/domain/note";
+import { IpcChannel } from "../../../../src/shared/ipc";
+import { createBrowserWindow } from "../../../__factories__/electron";
 
 afterEach(() => {
   mockFS.restore();

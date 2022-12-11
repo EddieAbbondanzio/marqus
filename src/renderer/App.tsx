@@ -32,7 +32,7 @@ async function main() {
 
   try {
     config = await ipc("config.get");
-    initialState = await loadInitialState();
+    initialState = await loadInitialState(config);
   } catch (e) {
     await log.error("Fatal: Failed to initialize the app.", e as Error);
     await promptFatal("Failed to initialize app.", e as Error);
@@ -170,17 +170,20 @@ const Container = styled.div`
   }
 `;
 
-export async function loadInitialState(): Promise<State> {
+export async function loadInitialState(config: Config): Promise<State> {
   let ui: SerializedAppState;
-  let shortcuts: Shortcut[];
+  let shortcuts: Shortcut[] = [];
   let notes: Note[] = [];
 
-  // eslint-disable-next-line prefer-const
-  [ui, shortcuts, notes] = await Promise.all([
-    ipc("app.loadAppState"),
-    ipc("shortcuts.getAll"),
-    ipc("notes.getAll"),
-  ]);
+  if (config.dataDirectory == null) {
+    ui = await ipc("app.loadAppState");
+  } else {
+    [ui, shortcuts, notes] = await Promise.all([
+      ipc("app.loadAppState"),
+      ipc("shortcuts.getAll"),
+      ipc("notes.getAll"),
+    ]);
+  }
 
   const tabs: EditorTab[] = ui.editor.tabs
     .map(t => ({

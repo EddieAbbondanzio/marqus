@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { IpcMainInvokeEvent } from "electron";
 import { AppContext } from "../../src/main";
-import { IpcEvent, IpcMainTS, IpcSchema, IpcType } from "../../src/shared/ipc";
+import { IpcMainTS } from "../../src/main/types";
+import { IpcSchema, IpcType } from "../../src/shared/ipc";
 import { createConfig } from "./config";
 import { createBrowserWindow } from "./electron";
 import { createJsonFile } from "./json";
@@ -11,7 +12,6 @@ export class MockedIpcMainTS implements IpcMainTS {
   // Type safety is not a concern here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handlers: Partial<Record<IpcType, (...args: any[]) => any>> = {};
-  _listeners: Partial<Record<IpcEvent, Function[]>> = {};
 
   handle<Type extends IpcType>(
     type: Type,
@@ -32,25 +32,6 @@ export class MockedIpcMainTS implements IpcMainTS {
     }
 
     return this.handlers[type]!(null, ...params);
-  }
-
-  on(event: IpcEvent, callback: () => Promise<void>): void {
-    this._listeners[event] ??= [];
-    this._listeners[event]!.push(callback);
-  }
-
-  async trigger(event: IpcEvent): Promise<void> {
-    const eventListeners = this._listeners[event] ?? [];
-
-    if (eventListeners.length === 0) {
-      throw new Error(`No event listeners for ${event}.`);
-    }
-
-    await Promise.all(eventListeners.map(l => l()));
-  }
-
-  listeners(eventName: string | symbol): Function[] {
-    return this._listeners[eventName as unknown as IpcEvent] ?? [];
   }
 }
 

@@ -1,22 +1,22 @@
-import { createNote, Note, NoteSort } from "../../shared/domain/note";
-import { UUID_REGEX } from "../../shared/domain";
-import { cloneDeep, difference, keyBy, omit, partition } from "lodash";
 import { shell } from "electron";
-import { NoteUpdateParams } from "../../shared/ipc";
-import * as fs from "fs";
-import * as fsp from "fs/promises";
-import { loadJson, writeJson } from "./../json";
-import * as p from "path";
-import { NOTE_SCHEMAS } from "./../schemas/notes";
+import { difference, cloneDeep, partition, keyBy, omit } from "lodash";
 import { z } from "zod";
-import { isDevelopment } from "../../shared/env";
+import { IpcPlugin, AppContext } from "..";
+import { UUID_REGEX } from "../../../shared/domain";
+import { NoteSort, createNote, Note } from "../../../shared/domain/note";
+import { Attachment } from "../../../shared/domain/protocols";
+import { isDevelopment } from "../../../shared/env";
+import { NoteUpdateParams } from "../../../shared/ipc";
+import { writeJson, loadJson } from "../../json";
 import {
-  parseAttachmentPath,
   registerAttachmentsProtocol,
-} from "../protocols/attachments";
-import { Attachment } from "../../shared/domain/protocols";
-import { openInBrowser } from "../utils";
-import { AppContext } from "..";
+  clearAttachmentsProtocol,
+  parseAttachmentPath,
+} from "../../protocols/attachments";
+import { NOTE_SCHEMAS } from "../../schemas/notes";
+import { openInBrowser } from "../../utils";
+import * as fs from "fs";
+import * as p from "path";
 
 export const ATTACHMENTS_DIRECTORY = "attachments";
 export const NOTES_DIRECTORY = "notes";
@@ -30,51 +30,59 @@ const noteUpdateSchema: z.Schema<NoteUpdateParams> = z.object({
   content: z.string().optional(),
 });
 
-export function noteIpcs(ctx: AppContext): void {
-  const { browserWindow, ipc, config, log, blockAppFromQuitting } = ctx;
+export const noteIpcPlugin: IpcPlugin = {
+  onInit: async ({ config, browserWindow }) => {
+    const { dataDirectory } = config.content;
 
-  const { dataDirectory } = config.content;
-  if (dataDirectory == null) {
-    void log.debug(
-      "No data directory specified. Skipping registering note ipcs.",
-    );
-    return;
-  }
-  const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
+    if (dataDirectory) {
+      const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
 
-  registerAttachmentsProtocol(noteDirectory);
+      if (!fs.existsSync(noteDirectory)) {
+        await fs.promises.mkdir(noteDirectory);
+      }
 
-  // Override how all links are open so we can send them off to the user's
-  // web browser instead of opening them in the electron app.
-  browserWindow.webContents.setWindowOpenHandler(details => {
-    void openInBrowser(details.url);
-    return { action: "deny" };
-  });
-
-  ipc.on("init", async () => {
-    if (!fs.existsSync(noteDirectory)) {
-      await fsp.mkdir(noteDirectory);
+      registerAttachmentsProtocol(noteDirectory);
     }
-  });
 
-  ipc.handle("notes.getAll", async () => {
+    // Override how all links are open so we can send them off to the user's
+    // web browser instead of opening them in the electron app.
+    browserWindow.webContents.setWindowOpenHandler(details => {
+      void openInBrowser(details.url);
+      return { action: "deny" };
+    });
+
+    return () => {
+      if (dataDirectory) {
+        clearAttachmentsProtocol();
+      }
+    };
+  },
+
+  "notes.getAll": async ctx => {
+    const noteDirectory = getNoteDirectoryPath(ctx);
     if (!fs.existsSync(noteDirectory)) {
       return [];
     }
 
     return await loadNotes(noteDirectory);
-  });
+  },
 
-  ipc.handle("notes.create", async (_, params) => {
+  "notes.create": async (ctx, params) => {
+    const { blockAppFromQuitting } = ctx;
+    const noteDirectory = getNoteDirectoryPath(ctx);
+
     const note = createNote(params);
     await blockAppFromQuitting(async () => {
       await saveNoteToFS(noteDirectory, note);
     });
 
     return note;
-  });
+  },
 
-  ipc.handle("notes.update", async (_, id, props) => {
+  "notes.update": async (ctx, id, props) => {
+    const { blockAppFromQuitting, log } = ctx;
+
+    const noteDirectory = getNoteDirectoryPath(ctx);
     const note: NoteFile = await loadNoteFromFS(noteDirectory, id);
     const update = await noteUpdateSchema.parseAsync(props);
 
@@ -111,9 +119,11 @@ export function noteIpcs(ctx: AppContext): void {
     await blockAppFromQuitting(async () => {
       await saveNoteToFS(noteDirectory, note);
     });
-  });
+  },
 
-  ipc.handle("notes.moveToTrash", async (_, id) => {
+  "notes.moveToTrash": async (ctx, id) => {
+    const noteDirectory = getNoteDirectoryPath(ctx);
+
     // Gonna leave this as-is because it might just be pre-optimizing, but this
     // could be a bottle neck down the road having to load in every note before
     // we can delete one if the user has 100s of notes.
@@ -129,13 +139,14 @@ export function noteIpcs(ctx: AppContext): void {
       }
     };
     await recursive(id);
-  });
+  },
 
-  ipc.handle("notes.openAttachments", async (_, noteId) => {
+  "notes.openAttachments": async (ctx, noteId) => {
     if (!UUID_REGEX.test(noteId)) {
       throw new Error(`Invalid noteId ${noteId}`);
     }
 
+    const noteDirectory = getNoteDirectoryPath(ctx);
     // shell.openPath doesn't allow relative paths.
     const attachmentDirPath = p.resolve(
       noteDirectory,
@@ -143,16 +154,17 @@ export function noteIpcs(ctx: AppContext): void {
       ATTACHMENTS_DIRECTORY,
     );
     if (!fs.existsSync(attachmentDirPath)) {
-      await fsp.mkdir(attachmentDirPath);
+      await fs.promises.mkdir(attachmentDirPath);
     }
 
     const err = await shell.openPath(attachmentDirPath);
     if (err) {
       throw new Error(err);
     }
-  });
+  },
 
-  ipc.handle("notes.openAttachmentFile", async (_, href) => {
+  "notes.openAttachmentFile": async (ctx, href) => {
+    const noteDirectory = getNoteDirectoryPath(ctx);
     const attachmentPath = parseAttachmentPath(noteDirectory, href);
     if (!fs.existsSync(attachmentPath)) {
       throw new Error(`Attachment ${attachmentPath} doesn't exist.`);
@@ -162,9 +174,11 @@ export function noteIpcs(ctx: AppContext): void {
     if (err) {
       throw new Error(err);
     }
-  });
+  },
 
-  ipc.handle("notes.importAttachments", async (_, noteId, attachments) => {
+  "notes.importAttachments": async (ctx, noteId, attachments) => {
+    const { log } = ctx;
+    const noteDirectory = getNoteDirectoryPath(ctx);
     const noteAttachmentsDirectory = p.join(
       noteDirectory,
       noteId,
@@ -172,7 +186,7 @@ export function noteIpcs(ctx: AppContext): void {
     );
 
     if (!fs.existsSync(noteAttachmentsDirectory)) {
-      await fsp.mkdir(noteAttachmentsDirectory);
+      await fs.promises.mkdir(noteAttachmentsDirectory);
     }
 
     const copiedOverAttachments: Attachment[] = [];
@@ -181,7 +195,7 @@ export function noteIpcs(ctx: AppContext): void {
       // Don't allow directories to be drag and dropped into notes because if we
       // automatically insert a link for every note to the markdown file it could
       // spam the file with a ton of links.
-      if ((await fsp.lstat(attachment.path)).isDirectory()) {
+      if ((await fs.promises.lstat(attachment.path)).isDirectory()) {
         continue;
       }
 
@@ -203,7 +217,7 @@ export function noteIpcs(ctx: AppContext): void {
         }
       }
 
-      await fsp.copyFile(
+      await fs.promises.copyFile(
         attachment.path,
         p.join(noteAttachmentsDirectory, attachment.name),
       );
@@ -220,7 +234,18 @@ export function noteIpcs(ctx: AppContext): void {
     }
 
     return copiedOverAttachments;
-  });
+  },
+};
+
+export function getNoteDirectoryPath(ctx: AppContext): string {
+  const { config } = ctx;
+
+  if (config.content.dataDirectory == null) {
+    throw new Error(`No data directory set.`);
+  }
+
+  const { dataDirectory } = config.content;
+  return p.join(dataDirectory, NOTES_DIRECTORY);
 }
 
 export type NoteMetadata = Omit<Note, "content" | "children">;
@@ -235,7 +260,9 @@ export async function loadNotes(
     return [];
   }
 
-  const entries = await fsp.readdir(noteDirectoryPath, { withFileTypes: true });
+  const entries = await fs.promises.readdir(noteDirectoryPath, {
+    withFileTypes: true,
+  });
   const everyNote = (
     await Promise.all(
       entries
@@ -280,7 +307,7 @@ export async function saveNoteToFS(
 ): Promise<void> {
   const notePath = p.join(noteDirectoryPath, note.id);
   if (!fs.existsSync(notePath)) {
-    await fsp.mkdir(notePath);
+    await fs.promises.mkdir(notePath);
   }
 
   const metadataPath = p.join(notePath, METADATA_FILE_NAME);
@@ -290,7 +317,7 @@ export async function saveNoteToFS(
   await writeJson(metadataPath, NOTE_SCHEMAS, metadata);
 
   if (!fs.existsSync(markdownPath)) {
-    const s = await fsp.open(markdownPath, "w");
+    const s = await fs.promises.open(markdownPath, "w");
     await s.write(content, null, "utf-8");
     await s.close();
   } else {
@@ -308,7 +335,9 @@ export async function loadNoteFromFS(
   const metadata = await loadJson<NoteMetadata>(metadataPath, NOTE_SCHEMAS);
 
   const markdownPath = p.join(noteDirectoryPath, noteId, MARKDOWN_FILE_NAME);
-  const markdown = await fsp.readFile(markdownPath, { encoding: "utf-8" });
+  const markdown = await fs.promises.readFile(markdownPath, {
+    encoding: "utf-8",
+  });
 
   return {
     ...metadata,
