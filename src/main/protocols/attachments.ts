@@ -3,7 +3,7 @@ import { isProtocolUrl, Protocol } from "../../shared/domain/protocols";
 import path from "path";
 import fs from "fs";
 import { UUID_REGEX } from "../../shared/domain";
-import { ATTACHMENTS_DIRECTORY } from "../ipc/notes";
+import { ATTACHMENTS_DIRECTORY } from "../ipc/plugins/notes";
 
 export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
   protocol.registerFileProtocol(Protocol.Attachment, (req, cb) => {

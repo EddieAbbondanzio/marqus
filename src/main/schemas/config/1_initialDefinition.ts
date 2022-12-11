@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH } from "../../ipc/config";
+import {
+  DEFAULT_WINDOW_HEIGHT,
+  DEFAULT_WINDOW_WIDTH,
+} from "../../ipc/plugins/config";
 
 export interface ConfigV1 {
   version: number;

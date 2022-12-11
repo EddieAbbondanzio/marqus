@@ -103,13 +103,13 @@ export const appIpcPlugin: IpcPlugin = {
     ``;
   },
 
-  "app.setApplicationMenu": async (_, menus) => {
+  "app.setApplicationMenu": async ({ browserWindow }, menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
       IpcChannel.ApplicationMenu,
     );
     const menu = Menu.buildFromTemplate(template);
-    bw?.setMenu(menu);
+    browserWindow.setMenu(menu);
   },
 
   "app.promptUser": async (_, opts) => {

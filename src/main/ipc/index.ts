@@ -1,14 +1,23 @@
 import { BrowserWindow, IpcMainInvokeEvent } from "electron";
-import { isFunction } from "lodash";
+import { isFunction, wrap } from "lodash";
 import { MaybeThunk } from "tsdef";
 import { Config } from "../../shared/domain/config";
 import { IPCS, IpcSchema, IpcType } from "../../shared/ipc";
 import { Logger } from "../../shared/logger";
 import { JsonFile } from "../json";
 import { appIpcPlugin } from "./plugins/app";
+import { configIpcPlugin } from "./plugins/config";
+import { logIpcPlugin } from "./plugins/log";
 import { noteIpcPlugin } from "./plugins/notes";
+import { shortcutsIpcPlugin } from "./plugins/shortcuts";
 
-export const IPC_PLUGINS = [appIpcPlugin, noteIpcPlugin];
+export const IPC_PLUGINS = [
+  appIpcPlugin,
+  configIpcPlugin,
+  logIpcPlugin,
+  noteIpcPlugin,
+  shortcutsIpcPlugin,
+];
 
 // Wrap IpcMain to add type safety + make it easy to test.
 // This comes off like a code smell but I like how hands off of an approach it is
@@ -57,27 +66,25 @@ export async function initPlugins(
     plugins.map(p => {
       const onDispose = p?.onInit?.(appContext);
 
-      const ipcs = Object.entries(p).filter(([ipcType]) =>
-        IPCS.includes(ipcType as IpcType),
-      );
+      const ipcs = (
+        Object.entries(p) as [IpcType, IpcAction<IpcType>][]
+      ).filter(([ipcType]) => IPCS.includes(ipcType));
 
       for (const [ipcType, ipcHandler] of ipcs) {
-        ipc.handle(ipcType as IpcType, (...args: any[]) =>
+        ipc.handle(ipcType, (...args: any[]) =>
           ipcHandler(appContext, ...args.slice(1)),
         );
       }
 
-      const onDisposeWrapper = () => {
+      return () => {
         for (const [ipcType] of ipcs) {
-          ipc.removeHandler(ipcType as IpcType);
+          ipc.removeHandler(ipcType);
         }
 
-        if (onDispose != null && isFunction(onDispose)) {
+        if (isFunction(onDispose)) {
           return onDispose();
         }
       };
-
-      return onDisposeWrapper;
     }),
   );
 }
