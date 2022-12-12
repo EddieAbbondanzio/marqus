@@ -15,6 +15,8 @@ import { Store } from "../store";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const emoji = require("remark-emoji");
 
+type ImageAlign = "left" | "right" | "center";
+
 export interface MarkdownProps {
   store: Store;
   content: string;
@@ -55,6 +57,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           let title;
           let height: string | number | undefined = undefined;
           let width: string | number | undefined = undefined;
+          let align: ImageAlign | undefined = undefined;
 
           if (props.src != null) {
             let url: URL;
@@ -79,6 +82,16 @@ export function Markdown(props: MarkdownProps): JSX.Element {
             if (originalParams.has("width")) {
               width = originalParams.get("width")!;
             }
+
+            if (originalParams.has("align")) {
+              const rawAlign = originalParams.get("align");
+              if (
+                rawAlign != null &&
+                ["left", "right", "center"].includes(rawAlign)
+              ) {
+                align = rawAlign as ImageAlign;
+              }
+            }
           }
 
           return (
@@ -87,6 +100,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
               src={src}
               height={height}
               width={width}
+              align={align}
               title={title}
             />
           );
@@ -285,11 +299,19 @@ const CodeSpan = styled.code`
 
 const Text = styled.span``;
 
-const Image = styled.img`
+const Image = styled.img<{ align?: "left" | "right" | "center" }>`
   max-width: 80%;
   margin-top: 1rem;
   margin-bottom: 1rem;
   display: block;
+  ${p =>
+    p.align && ["left", "center"].includes(p.align)
+      ? `margin-right: auto;`
+      : ""}
+  ${p =>
+    p.align && ["right", "center"].includes(p.align)
+      ? `margin-left: auto;`
+      : ""}
 `;
 const Link = styled.a`
   text-decoration: none;
