@@ -117,6 +117,10 @@ export async function main(): Promise<void> {
         config: configFile,
         blockAppFromQuitting,
         reloadIpcPlugins: async () => {
+          if (keepAlivePromise) {
+            await keepAlivePromise;
+          }
+
           if (onDispose != null) {
             await onDispose();
           }
