@@ -62,13 +62,15 @@ export async function initIpc(
   });
 
   let onDispose: (() => Promise<void>) | undefined = undefined;
-  const reloadIpcPlugins = jest.fn().mockImplementation(async () => {
-    if (onDispose != null) {
-      await onDispose();
-    }
+  const reloadIpcPlugins =
+    partial.reloadIpcPlugins ??
+    jest.fn().mockImplementation(async () => {
+      if (onDispose != null) {
+        await onDispose();
+      }
 
-    onDispose = await initPlugins(ipcPlugins, ipc, ctx);
-  });
+      onDispose = await initPlugins(ipcPlugins, ipc, ctx);
+    });
 
   const ctx = {
     ipc,

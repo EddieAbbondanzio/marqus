@@ -141,7 +141,12 @@ export const appIpcPlugin: IpcPlugin = {
     browserWindow.webContents.openDevTools();
   },
 
-  "app.reload": async ({ browserWindow }) => {
+  "app.reload": async ({ browserWindow, reloadIpcPlugins }) => {
+    // Order is important. We reload ipc plugins BEFORE reloading webpage because
+    // once we reload the page we'll start making ipc calls and if the plugins haven't
+    // been reloaded by then it may throw missing listener errors, or unintended
+    // behavior.
+    await reloadIpcPlugins();
     browserWindow.webContents.reload();
   },
 

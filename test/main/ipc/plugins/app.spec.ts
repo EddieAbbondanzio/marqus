@@ -245,10 +245,14 @@ test("app.reload", async () => {
       reload,
     } as unknown as WebContents,
   });
-  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
+  const { ipc, reloadIpcPlugins } = await initIpc(
+    { browserWindow },
+    appIpcPlugin,
+  );
 
   await ipc.invoke("app.reload");
   expect(reload).toHaveBeenCalled();
+  expect(reloadIpcPlugins).toHaveBeenCalled();
 });
 
 test("app.toggleFullScreen", async () => {
