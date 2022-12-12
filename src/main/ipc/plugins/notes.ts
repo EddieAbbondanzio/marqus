@@ -64,7 +64,8 @@ export const noteIpcPlugin: IpcPlugin = {
       return [];
     }
 
-    return await loadNotes(noteDirectory);
+    const notes = await loadNotes(noteDirectory);
+    return notes;
   },
 
   "notes.create": async (ctx, params) => {
