@@ -6,7 +6,7 @@ import {
 import { uuid } from "../../../src/shared/domain";
 import { Protocol } from "../../../src/shared/domain/protocols";
 import mockFS from "mock-fs";
-import { ATTACHMENTS_DIRECTORY } from "../../../src/main/ipcs/notes";
+import { ATTACHMENTS_DIRECTORY } from "../../../src/main/ipc/plugins/notes";
 
 afterEach(() => {
   mockFS.restore();

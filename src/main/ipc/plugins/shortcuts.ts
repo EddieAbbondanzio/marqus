@@ -1,12 +1,12 @@
-import { DEFAULT_SHORTCUTS } from "../../shared/io/defaultShortcuts";
-import { parseKeyCodes } from "../../shared/io/keyCode";
-import { BrowserWindowEvent, IpcChannel } from "../../shared/ipc";
-import { Section } from "../../shared/ui/app";
-import { UIEventInput, UIEventType } from "../../shared/ui/events";
-import { loadJsonFile } from "./../json";
+import { DEFAULT_SHORTCUTS } from "../../../shared/io/defaultShortcuts";
+import { parseKeyCodes } from "../../../shared/io/keyCode";
+import { BrowserWindowEvent, IpcChannel } from "../../../shared/ipc";
+import { Section } from "../../../shared/ui/app";
+import { UIEventInput, UIEventType } from "../../../shared/ui/events";
+import { loadJsonFile } from "../../json";
 import p from "path";
-import { SHORTCUTS_SCHEMAS } from "./../schemas/shortcuts";
-import { AppContext } from "..";
+import { SHORTCUTS_SCHEMAS } from "../../schemas/shortcuts";
+import { IpcPlugin } from "..";
 
 export interface Shortcuts {
   version: number;
@@ -33,25 +33,36 @@ export interface ShortcutOverride {
   disabled?: boolean;
 }
 
-export function shortcutIpcs(ctx: AppContext): void {
-  const { browserWindow, ipc, config } = ctx;
+export const shortcutsIpcPlugin: IpcPlugin = {
+  onInit: async ({ browserWindow }) => {
+    const onWindowBlur = () => {
+      browserWindow.webContents.send(IpcChannel.BrowserWindow, {
+        event: BrowserWindowEvent.Blur,
+      });
+    };
 
-  browserWindow.on("blur", () => {
-    browserWindow.webContents.send(IpcChannel.BrowserWindow, {
-      event: BrowserWindowEvent.Blur,
-    });
-  });
+    browserWindow.on("blur", onWindowBlur);
 
-  ipc.handle("shortcuts.getAll", async () => {
+    return () => {
+      browserWindow.removeListener("blur", onWindowBlur);
+    };
+  },
+
+  "shortcuts.getAll": async ({ config }) => {
     const shortcuts = [...DEFAULT_SHORTCUTS];
 
-    const shortcutFile = await loadJsonFile<Shortcuts>(
-      p.join(config.content.dataDirectory!, SHORTCUT_FILE_PATH),
-      SHORTCUTS_SCHEMAS,
-      { defaultContent: { version: 1, shortcuts: [] } },
-    );
+    let overrides: ShortcutOverride[] = [];
 
-    const overrides = shortcutFile.content.shortcuts ?? [];
+    // Data directory may not exist if new user is opening the app for the first
+    // time.
+    if (config.content.dataDirectory != null) {
+      const shortcutFile = await loadJsonFile<Shortcuts>(
+        p.join(config.content.dataDirectory, SHORTCUT_FILE_PATH),
+        SHORTCUTS_SCHEMAS,
+        { defaultContent: { version: 1, shortcuts: [] } },
+      );
+      overrides = shortcutFile.content.shortcuts ?? [];
+    }
 
     for (const override of overrides) {
       const existing = shortcuts.find(s => s.name === override.name);
@@ -98,5 +109,5 @@ export function shortcutIpcs(ctx: AppContext): void {
     }
 
     return shortcuts;
-  });
-}
+  },
+};

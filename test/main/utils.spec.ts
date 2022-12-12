@@ -1,11 +1,22 @@
 import { shell } from "electron";
 import { openInBrowser } from "../../src/main/utils";
+import { setCspHeader } from "../../src/main/utils";
 
 test("openInBrowser", async () => {
-  openInBrowser("http://random-url-lol.com");
+  await openInBrowser("http://random-url-lol.com");
   expect(shell.openExternal).toHaveBeenCalledWith("http://random-url-lol.com");
 
   // TODO: Do we still want to support this?
-  openInBrowser("random-url.com");
+  await openInBrowser("random-url.com");
   expect(shell.openExternal).toHaveBeenCalledWith("http://random-url.com");
+});
+
+test("setCspHeader", () => {
+  const callback = jest.fn();
+  setCspHeader({} as any, callback);
+  expect(callback).toHaveBeenCalledWith({
+    responseHeaders: {
+      "Content-Security-Policy": [`img-src * attachment://*`],
+    },
+  });
 });

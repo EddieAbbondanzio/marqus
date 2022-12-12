@@ -5,18 +5,20 @@ import {
   MenuItemConstructorOptions,
   shell,
 } from "electron";
-import { isRoleMenu, Menu as MenuType } from "../../shared/ui/menu";
-import { IpcChannel } from "../../shared/ipc";
-import { openInBrowser } from "../utils";
-import { UIEventType, UIEventInput } from "../../shared/ui/events";
-import { DEFAULT_SIDEBAR_WIDTH, SerializedAppState } from "../../shared/ui/app";
+import { isRoleMenu, Menu as MenuType } from "../../../shared/ui/menu";
+import { IpcChannel } from "../../../shared/ipc";
+import { openInBrowser } from "../../utils";
+import { UIEventType, UIEventInput } from "../../../shared/ui/events";
+import {
+  DEFAULT_SIDEBAR_WIDTH,
+  SerializedAppState,
+} from "../../../shared/ui/app";
 
-import { JsonFile, loadJsonFile } from "../json";
+import { JsonFile, loadJsonFile } from "../../json";
 import p from "path";
-import { MissingDataDirectoryError } from "../../shared/errors";
-import { NoteSort } from "../../shared/domain/note";
-import { APP_STATE_SCHEMAS } from "../schemas/appState";
-import { AppContext } from "..";
+import { NoteSort } from "../../../shared/domain/note";
+import { APP_STATE_SCHEMAS } from "../../schemas/appState";
+import { IpcPlugin } from "..";
 
 export const APP_STATE_PATH = "ui.json";
 export const APP_STATE_DEFAULTS = {
@@ -35,54 +37,64 @@ export const APP_STATE_DEFAULTS = {
   focused: [],
 };
 
-export function appIpcs(ctx: AppContext): void {
-  const { browserWindow, ipc, config, blockAppFromQuitting } = ctx;
+let appStateFile: JsonFile<SerializedAppState> | undefined = undefined;
 
-  // We set a non-functional application menu at first so we can make things
-  // appear to load smoother visually. Once renderer has started we'll
-  // populate it with an actual menu.
-  browserWindow.setMenu(
-    Menu.buildFromTemplate([
-      { label: "File", enabled: false },
-      { label: "Edit", enabled: false },
-      { label: "View", enabled: false },
-    ]),
-  );
+export const appIpcPlugin: IpcPlugin = {
+  onInit: async ({ browserWindow, config }) => {
+    // We set a non-functional application menu at first so we can make things
+    // appear to load smoother visually. Once renderer has started we'll
+    // populate it with an actual menu.
+    browserWindow.setMenu(
+      Menu.buildFromTemplate([
+        { label: "File", enabled: false },
+        { label: "Edit", enabled: false },
+        { label: "View", enabled: false },
+      ]),
+    );
 
-  browserWindow.on("resize", async () => {
-    const [windowWidth, windowHeight] = browserWindow.getSize();
-    await config.update({
-      windowHeight,
-      windowWidth,
-    });
-  });
+    const onResize = async () => {
+      const [windowWidth, windowHeight] = browserWindow.getSize();
+      await config.update({
+        windowHeight,
+        windowWidth,
+      });
+    };
 
-  let appStateFile: JsonFile<SerializedAppState>;
-  ipc.on("init", async () => {
-    if (config.content.dataDirectory == null) {
-      throw new MissingDataDirectoryError();
+    browserWindow.on("resize", onResize);
+
+    if (config.content.dataDirectory != null) {
+      appStateFile = await loadJsonFile<SerializedAppState>(
+        p.join(config.content.dataDirectory, APP_STATE_PATH),
+        APP_STATE_SCHEMAS,
+        {
+          defaultContent: APP_STATE_DEFAULTS,
+        },
+      );
     }
 
-    appStateFile = await loadJsonFile<SerializedAppState>(
-      p.join(config.content.dataDirectory, APP_STATE_PATH),
-      APP_STATE_SCHEMAS,
-      {
-        defaultContent: APP_STATE_DEFAULTS,
-      },
-    );
-  });
+    return () => {
+      appStateFile = undefined;
+      browserWindow.off("resize", onResize);
+    };
+  },
 
-  ipc.handle("app.loadAppState", async () => {
-    return appStateFile.content;
-  });
+  "app.loadAppState": async () => {
+    return appStateFile?.content ?? APP_STATE_DEFAULTS;
+  },
 
-  ipc.handle("app.saveAppState", async (_, appState) => {
+  "app.saveAppState": async (ctx, appState) => {
+    if (appStateFile == null) {
+      return;
+    }
+
+    const { blockAppFromQuitting } = ctx;
+
     await blockAppFromQuitting(async () => {
-      await appStateFile.update(appState);
+      await appStateFile!.update(appState);
     });
-  });
+  },
 
-  ipc.handle("app.showContextMenu", async (_, menus) => {
+  "app.showContextMenu": async (_, menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
       IpcChannel.ContextMenu,
@@ -90,19 +102,18 @@ export function appIpcs(ctx: AppContext): void {
     const menu = Menu.buildFromTemplate(template);
     menu.popup();
     ``;
-  });
+  },
 
-  ipc.handle("app.setApplicationMenu", async (_, menus) => {
+  "app.setApplicationMenu": async ({ browserWindow }, menus) => {
     const template: MenuItemConstructorOptions[] = buildMenus(
       menus,
       IpcChannel.ApplicationMenu,
     );
-    const bw = BrowserWindow.getFocusedWindow();
     const menu = Menu.buildFromTemplate(template);
-    bw?.setMenu(menu);
-  });
+    browserWindow.setMenu(menu);
+  },
 
-  ipc.handle("app.promptUser", async (_, opts) => {
+  "app.promptUser": async (_, opts) => {
     const cancelCount = opts.buttons.filter(b => b.role === "cancel").length;
     const defaultCount = opts.buttons.filter(b => b.role === "default").length;
 
@@ -124,72 +135,61 @@ export function appIpcs(ctx: AppContext): void {
 
     // Return back the button that was selected.
     return opts.buttons[returnVal.response];
-  });
+  },
 
-  ipc.handle("app.openDevTools", async () => {
-    BrowserWindow.getFocusedWindow()?.webContents.openDevTools();
-  });
+  "app.openDevTools": async ({ browserWindow }) => {
+    browserWindow.webContents.openDevTools();
+  },
 
-  ipc.handle("app.reload", async () => {
-    BrowserWindow.getFocusedWindow()?.webContents.reload();
-  });
+  "app.reload": async ({ browserWindow }) => {
+    browserWindow.webContents.reload();
+  },
 
-  ipc.handle("app.toggleFullScreen", async () => {
-    const bw = BrowserWindow.getFocusedWindow();
-    if (bw == null) {
-      return;
-    }
+  "app.toggleFullScreen": async ({ browserWindow }) => {
+    browserWindow.setFullScreen(!browserWindow.isFullScreen());
+  },
 
-    bw.setFullScreen(!bw.isFullScreen());
-  });
-
-  ipc.handle("app.quit", async () => {
+  "app.quit": async () => {
     BrowserWindow.getAllWindows().forEach(w => w.close());
-  });
+  },
 
-  ipc.handle("app.inspectElement", async (_, coord) => {
+  "app.inspectElement": async ({ browserWindow }, coord) => {
     if (coord == null) {
       throw new Error("Element to inspect was null.");
     }
 
-    BrowserWindow.getFocusedWindow()?.webContents.inspectElement(
+    browserWindow.webContents.inspectElement(
       // Coords can come over as floats
       Math.round(coord.x),
       Math.round(coord.y),
     );
-  });
+  },
 
-  ipc.handle("app.openInWebBrowser", (_, url) => openInBrowser(url));
+  "app.openInWebBrowser": async (_, url) => openInBrowser(url),
 
-  ipc.handle("app.openLogDirectory", async () => {
+  "app.openLogDirectory": async ({ config }) => {
     const err = await shell.openPath(config.content.logDirectory);
     if (err) {
       throw new Error(err);
     }
-  });
+  },
 
-  ipc.handle("app.toggleAutoHideAppMenu", async () => {
-    const bw = BrowserWindow.getFocusedWindow();
-
-    if (bw == null) {
-      return;
-    }
-
+  "app.toggleAutoHideAppMenu": async ({ browserWindow, config }) => {
     // Toggling autoHideMenuBar has a delay before changes take effect so we
     // trigger immediate results by setting menuBarVisible.
-    if (!bw.isMenuBarAutoHide()) {
-      bw.autoHideMenuBar = true;
-      bw.menuBarVisible = false;
+    if (!browserWindow.isMenuBarAutoHide()) {
+      browserWindow.autoHideMenuBar = true;
+      browserWindow.menuBarVisible = false;
 
       await config.update({ autoHideAppMenu: true });
     } else {
-      bw.autoHideMenuBar = false;
-      bw.menuBarVisible = true;
+      browserWindow.autoHideMenuBar = false;
+      browserWindow.menuBarVisible = true;
 
       await config.update({ autoHideAppMenu: false });
     }
-  });
-}
+  },
+};
 
 export function buildMenus(
   menus: MenuType[],

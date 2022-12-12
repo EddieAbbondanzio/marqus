@@ -1,7 +1,10 @@
 import { subDays, subMonths, subWeeks } from "date-fns";
-import { getLogFileName, getLogger } from "../../../src/main/ipcs/log";
-import { createJsonFile } from "../../__factories__/json";
-import { Config } from "../../../src/shared/domain/config";
+import {
+  getLogFileName,
+  getLogger,
+} from "../../../../src/main/ipc/plugins/log";
+import { createJsonFile } from "../../../__factories__/json";
+import { Config } from "../../../../src/shared/domain/config";
 import mockFS from "mock-fs";
 import fs from "fs";
 import * as os from "os";

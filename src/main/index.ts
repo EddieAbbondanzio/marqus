@@ -1,31 +1,9 @@
-import {
-  app,
-  BrowserWindow,
-  HeadersReceivedResponse,
-  ipcMain,
-  OnHeadersReceivedListenerDetails,
-  session,
-} from "electron";
+import { app, BrowserWindow, ipcMain, session } from "electron";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
-import { IpcMainTS } from "../shared/ipc";
-import { appIpcs } from "./ipcs/app";
-import { configIpcs, getConfig } from "./ipcs/config";
-import { noteIpcs } from "./ipcs/notes";
-
-import { shortcutIpcs } from "./ipcs/shortcuts";
-import { getLogger, logIpcs } from "./ipcs/log";
-import { Protocol } from "../shared/domain/protocols";
-import { JsonFile } from "./json";
-import { Config } from "../shared/domain/config";
-import { Logger } from "../shared/logger";
-
-export interface AppContext {
-  browserWindow: BrowserWindow;
-  ipc: IpcMainTS;
-  config: JsonFile<Config>;
-  log: Logger;
-  blockAppFromQuitting: (cb: () => Promise<void>) => Promise<void>;
-}
+import { initPlugins, IpcMainTS, IPC_PLUGINS, OnDispose } from "./ipc";
+import { getConfig } from "./ipc/plugins/config";
+import { getLogger } from "./ipc/plugins/log";
+import { setCspHeader } from "./utils";
 
 if (!isTest() && getProcessType() !== "main") {
   throw Error(
@@ -40,6 +18,7 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 let mainWindow: BrowserWindow;
+let onDispose: () => Promise<void>;
 
 export async function main(): Promise<void> {
   try {
@@ -94,6 +73,7 @@ export async function main(): Promise<void> {
       if (!quitInitiated) {
         // Post-pone quitting so we can save off the log file first.
         ev.preventDefault();
+
         await log.close();
 
         // Use console.log() over log.info to avoid appending this to the log file
@@ -136,15 +116,16 @@ export async function main(): Promise<void> {
         log,
         config: configFile,
         blockAppFromQuitting,
+        reloadIpcPlugins: async () => {
+          if (onDispose != null) {
+            await onDispose();
+          }
+
+          onDispose = await initPlugins(IPC_PLUGINS, typeSafeIpc, appContext);
+        },
       };
 
-      logIpcs(appContext);
-      configIpcs(appContext);
-      appIpcs(appContext);
-      shortcutIpcs(appContext);
-      noteIpcs(appContext);
-
-      await initPlugins(typeSafeIpc);
+      onDispose = await initPlugins(IPC_PLUGINS, typeSafeIpc, appContext);
 
       // and load the index.html of the app.
       await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
@@ -171,25 +152,4 @@ export async function main(): Promise<void> {
 // We don't want to run the app while testing.
 if (!isTest()) {
   void main();
-}
-
-export async function initPlugins(typeSafeIpc: IpcMainTS): Promise<unknown> {
-  const initListeners = typeSafeIpc.listeners("init");
-  return await Promise.all(initListeners.map(l => l()));
-}
-
-export function setCspHeader(
-  details: OnHeadersReceivedListenerDetails,
-  callback: (headersReceivedResponse: HeadersReceivedResponse) => void,
-): void {
-  callback({
-    responseHeaders: Object.assign(
-      {
-        ...details.responseHeaders,
-        // Should be kept in sync with content security policy in forge.config.js
-        "Content-Security-Policy": [`img-src * ${Protocol.Attachment}://*`],
-      },
-      details.responseHeaders,
-    ),
-  });
 }

@@ -25,14 +25,13 @@ import { Config } from "../shared/domain/config";
 import { log } from "./logger";
 import { arrayify } from "../shared/utils";
 
-const { ipc } = window;
 async function main() {
   let config: Config;
   let initialState: State;
 
   try {
-    config = await ipc("config.get");
-    initialState = await loadInitialState();
+    config = await window.ipc("config.get");
+    initialState = await loadInitialState(config);
   } catch (e) {
     await log.error("Fatal: Failed to initialize the app.", e as Error);
     await promptFatal("Failed to initialize app.", e as Error);
@@ -170,19 +169,20 @@ const Container = styled.div`
   }
 `;
 
-export async function loadInitialState(): Promise<State> {
-  let ui: SerializedAppState;
-  let shortcuts: Shortcut[];
-  let notes: Note[] = [];
+export async function loadInitialState(config: Config): Promise<State> {
+  const promises = [
+    window.ipc("app.loadAppState"),
+    window.ipc("shortcuts.getAll"),
+  ];
 
-  // eslint-disable-next-line prefer-const
-  [ui, shortcuts, notes] = await Promise.all([
-    ipc("app.loadAppState"),
-    ipc("shortcuts.getAll"),
-    ipc("notes.getAll"),
-  ]);
+  // Can't load notes with a data directory
+  if (config.dataDirectory != null) {
+    promises.push(window.ipc("notes.getAll"));
+  }
 
-  const tabs: EditorTab[] = ui.editor.tabs
+  const [ui, shortcuts, notes = []] = await Promise.all(promises);
+
+  const tabs: EditorTab[] = (ui as SerializedAppState).editor.tabs
     .map(t => ({
       note: getNoteById(notes, t.noteId, false),
       lastActive: t.lastActive,
@@ -218,19 +218,20 @@ export const toggleSidebar: Listener<"app.toggleSidebar"> = (_, ctx) => {
   }));
 };
 
-export const quit = (): Promise<void> => ipc("app.quit");
+export const quit = (): Promise<void> => window.ipc("app.quit");
 export const selectDataDirectory = (): Promise<void> =>
-  ipc("config.selectDataDirectory");
+  window.ipc("config.selectDataDirectory");
 export const openDataDirectory = (): Promise<void> =>
-  ipc("config.openDataDirectory");
-export const openDevTools = (): Promise<void> => ipc("app.openDevTools");
-export const reload = (): Promise<void> => ipc("app.reload");
+  window.ipc("config.openDataDirectory");
+export const openDevTools = (): Promise<void> => window.ipc("app.openDevTools");
+export const reload = (): Promise<void> => window.ipc("app.reload");
 export const toggleFullScreen = (): Promise<void> =>
-  ipc("app.toggleFullScreen");
+  window.ipc("app.toggleFullScreen");
 export const inspectElement: Listener<"app.inspectElement"> = ({
   value: coord,
-}) => ipc("app.inspectElement", coord!);
-export const openConfig = (): Promise<void> => ipc("config.openInTextEditor");
+}) => window.ipc("app.inspectElement", coord!);
+export const openConfig = (): Promise<void> =>
+  window.ipc("config.openInTextEditor");
 
 export const push: Listener<"focus.push"> = ({ value: next }, ctx) => {
   if (next == null) {
@@ -267,7 +268,7 @@ export const globalSearch: Listener<"sidebar.focusSearch"> = (_, ctx) => {
 };
 
 export const openLogs: Listener<"app.openLogDirectory"> = () =>
-  ipc("app.openLogDirectory");
+  window.ipc("app.openLogDirectory");
 
 export const openNoteAttachments: Listener<
   "app.openNoteAttachments"
@@ -283,5 +284,5 @@ export const openNoteAttachments: Listener<
 export const toggleAutoHideAppMenu: Listener<
   "app.toggleAutoHideAppMenu"
 > = async () => {
-  await ipc("app.toggleAutoHideAppMenu");
+  await window.ipc("app.toggleAutoHideAppMenu");
 };

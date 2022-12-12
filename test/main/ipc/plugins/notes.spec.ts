@@ -7,31 +7,31 @@ import {
   MARKDOWN_FILE_NAME,
   METADATA_FILE_NAME,
   NoteFile,
-  noteIpcs,
+  noteIpcPlugin,
   NoteMetadata,
   NOTES_DIRECTORY,
   saveNoteToFS,
   splitNoteIntoFiles,
-} from "../../../src/main/ipcs/notes";
-import { uuid } from "../../../src/shared/domain";
+} from "../../../../src/main/ipc/plugins/notes";
+import { uuid } from "../../../../src/shared/domain";
 import mockFS from "mock-fs";
 import { omit } from "lodash";
 import {
   createNote,
   getNoteById,
   NoteSort,
-} from "../../../src/shared/domain/note";
-import { NOTE_SCHEMAS } from "../../../src/main/schemas/notes";
-import { getLatestSchemaVersion } from "../../../src/main/schemas/utils";
+} from "../../../../src/shared/domain/note";
+import { NOTE_SCHEMAS } from "../../../../src/main/schemas/notes";
+import { getLatestSchemaVersion } from "../../../../src/main/schemas/utils";
 import * as fs from "fs";
 import * as path from "path";
-import { loadJson } from "../../../src/main/json";
+import { loadJson } from "../../../../src/main/json";
 import { shell, WebContents } from "electron";
-import * as attachments from "../../../src/main/protocols/attachments";
-import { Protocol } from "../../../src/shared/domain/protocols";
-import { createAppContext, FAKE_DATA_DIRECTORY } from "../../__factories__/ipc";
-import { createBrowserWindow } from "../../__factories__/electron";
-import * as utils from "../../../src/main/utils";
+import * as attachments from "../../../../src/main/protocols/attachments";
+import { Protocol } from "../../../../src/shared/domain/protocols";
+import { initIpc, FAKE_DATA_DIRECTORY } from "../../../__factories__/ipc";
+import { createBrowserWindow } from "../../../__factories__/electron";
+import * as utils from "../../../../src/main/utils";
 
 const registerAttachmentsProtocol = jest.fn();
 jest
@@ -57,9 +57,13 @@ function createMetadata(props?: Partial<NoteMetadata>): NoteMetadata {
 }
 
 test("registers attachment protocol", async () => {
-  mockFS();
+  mockFS({
+    [FAKE_DATA_DIRECTORY]: {
+      [NOTES_DIRECTORY]: {},
+    },
+  });
 
-  createAppContext({}, noteIpcs);
+  await initIpc({}, noteIpcPlugin);
   expect(registerAttachmentsProtocol).toHaveBeenCalled();
 });
 
@@ -68,7 +72,7 @@ test("noteIpcs blocks opening links in app", async () => {
   const webContents = { setWindowOpenHandler } as unknown as WebContents;
   const browserWindow = createBrowserWindow({ webContents });
 
-  createAppContext({ browserWindow }, noteIpcs);
+  await initIpc({ browserWindow }, noteIpcPlugin);
 
   expect(setWindowOpenHandler).toHaveBeenCalledTimes(1);
   const handler = setWindowOpenHandler.mock.calls[0][0];
@@ -85,8 +89,7 @@ test("noteIpcs init", async () => {
     [FAKE_DATA_DIRECTORY]: {},
   });
 
-  const { ipc } = createAppContext({}, noteIpcs);
-  await ipc.trigger("init");
+  await initIpc({}, noteIpcPlugin);
 
   expect(fs.existsSync(path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY))).toBe(
     true,
@@ -110,8 +113,7 @@ test("notes.getAll", async () => {
     },
   });
 
-  const { ipc } = createAppContext({}, noteIpcs);
-  await ipc.trigger("init");
+  const { ipc } = await initIpc({}, noteIpcPlugin);
 
   const notes = await ipc.invoke("notes.getAll");
 
@@ -126,8 +128,7 @@ test("notes.create", async () => {
     },
   });
 
-  const { ipc } = createAppContext({}, noteIpcs);
-  await ipc.trigger("init");
+  const { ipc } = await initIpc({}, noteIpcPlugin);
 
   const note = await ipc.invoke("notes.create", {
     name: "foo",
@@ -150,8 +151,8 @@ test("notes.update", async () => {
   });
   const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
 
-  const { ipc } = createAppContext({}, noteIpcs);
-  await ipc.trigger("init");
+  const { ipc } = await initIpc({}, noteIpcPlugin);
+  path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
 
   let note: NoteFile = createNote({
     name: "foo",
@@ -221,8 +222,7 @@ test("notes.moveToTrash no children", async () => {
   });
   const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
 
-  const { ipc } = createAppContext({}, noteIpcs);
-  await ipc.trigger("init");
+  const { ipc } = await initIpc({}, noteIpcPlugin);
 
   await ipc.invoke("notes.moveToTrash", noteId);
 
@@ -268,12 +268,7 @@ test("notes.moveToTrash note has children", async () => {
     },
   });
   const noteDirectory = path.join(FAKE_DATA_DIRECTORY, NOTES_DIRECTORY);
-
-  const { ipc } = createAppContext({}, noteIpcs);
-  await ipc.trigger("init");
-
-  // TODO: REMOVE once we figure out relationship table alternative
-  await ipc.invoke("notes.getAll");
+  const { ipc } = await initIpc({}, noteIpcPlugin);
 
   await ipc.invoke("notes.moveToTrash", parentId);
 
@@ -305,8 +300,7 @@ test("notes.openAttachments", async () => {
     },
   });
 
-  const { ipc } = createAppContext({}, noteIpcs);
-  await ipc.trigger("init");
+  const { ipc } = await initIpc({}, noteIpcPlugin);
 
   await ipc.invoke("notes.openAttachments", noteId);
 
@@ -350,8 +344,7 @@ test("notes.openAttachmentFile", async () => {
     },
   });
 
-  const { ipc } = createAppContext({}, noteIpcs);
-  await ipc.trigger("init");
+  const { ipc } = await initIpc({}, noteIpcPlugin);
 
   // File exists
   const url = `${Protocol.Attachment}://foo.txt?noteId=${noteId}`;
@@ -387,7 +380,7 @@ test("notes.importAttachments", async () => {
     },
   });
 
-  const { ipc } = createAppContext({}, noteIpcs);
+  const { ipc } = await initIpc({}, noteIpcPlugin);
 
   // Copies over images
   const copiedImage = await ipc.invoke("notes.importAttachments", noteId, [

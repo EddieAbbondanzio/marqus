@@ -9,7 +9,6 @@ export function createBrowserWindow(
 
   bw.setMenu ??= jest.fn();
   bw.on ??= jest.fn();
-  bw.setMenu = jest.fn();
 
   if (bw.webContents == null) {
     (bw as any).webContents = {

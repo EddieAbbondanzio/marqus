@@ -18,7 +18,7 @@ export function DataDirectoryModal({
       <Content>
         <h1>Welcome!</h1>
         <StyledP>
-          Please select where you'd like to save your notes to get started
+          Please select where you would like to save your notes to get started
         </StyledP>
 
         <Button

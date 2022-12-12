@@ -1,7 +1,7 @@
 import { PromptButton, PromptOptions } from "./ui/prompt";
 import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
-import { IpcMain, IpcMainInvokeEvent, Point } from "electron";
+import { Point } from "electron";
 import { Menu } from "./ui/menu";
 import { SerializedAppState } from "./ui/app";
 import { Attachment, FileInfo } from "./domain/protocols";
@@ -97,22 +97,6 @@ export type Ipc = <T extends IpcType, I extends Parameters<IpcSchema[T]>>(
   type: T,
   ...params: I extends void ? [] : I
 ) => ReturnType<IpcSchema[T]>;
-
-export type IpcEvent = "init";
-
-// Wrap IpcMain to add type safety + make it easy to test.
-// This comes off like a code smell but I like how hands off of an approach it is
-// and it also keeps the amount of boilerplate code low.
-export interface IpcMainTS extends Pick<IpcMain, "listeners"> {
-  handle<Type extends IpcType>(
-    type: Type,
-    handler: (
-      event: IpcMainInvokeEvent,
-      ...params: Parameters<IpcSchema[Type]>
-    ) => ReturnType<IpcSchema[Type]>,
-  ): void;
-  on(event: IpcEvent, callback: () => Promise<void>): void;
-}
 
 export enum IpcChannel {
   // Prefix with ipc: to avoid naming collisions with built in HTML events.
