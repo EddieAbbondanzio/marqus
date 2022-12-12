@@ -52,28 +52,29 @@ export const appIpcPlugin: IpcPlugin = {
       ]),
     );
 
-    browserWindow.on("resize", async () => {
+    const onResize = async () => {
       const [windowWidth, windowHeight] = browserWindow.getSize();
       await config.update({
         windowHeight,
         windowWidth,
       });
-    });
+    };
 
-    if (config.content.dataDirectory == null) {
-      return;
+    browserWindow.on("resize", onResize);
+
+    if (config.content.dataDirectory != null) {
+      appStateFile = await loadJsonFile<SerializedAppState>(
+        p.join(config.content.dataDirectory, APP_STATE_PATH),
+        APP_STATE_SCHEMAS,
+        {
+          defaultContent: APP_STATE_DEFAULTS,
+        },
+      );
     }
-
-    appStateFile = await loadJsonFile<SerializedAppState>(
-      p.join(config.content.dataDirectory, APP_STATE_PATH),
-      APP_STATE_SCHEMAS,
-      {
-        defaultContent: APP_STATE_DEFAULTS,
-      },
-    );
 
     return () => {
       appStateFile = undefined;
+      browserWindow.off("resize", onResize);
     };
   },
 

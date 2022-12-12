@@ -48,6 +48,8 @@ export interface AppContext {
   reloadIpcPlugins: () => Promise<void>;
 }
 
+// InitContext is limited compared to AppContext because onInit should only be
+// responsible for setting event listeners on the browser window.
 export type InitContext = Pick<AppContext, "browserWindow" | "config">;
 
 export type OnDispose = () => MaybeThunk<Promise<void> | void>;
@@ -66,9 +68,13 @@ export async function initPlugins(
   const onDisposePromises = [];
 
   for (const p of plugins) {
+    // Trigger onInit, and see if it returns something. Don't await yet!
     const onDispose = p?.onInit?.(appContext);
-    onDisposePromises.push(onDispose);
+    if (onDispose != null) {
+      onDisposePromises.push(onDispose);
+    }
 
+    // Register ipc handlers for plugin
     const ipcs = (Object.entries(p) as [IpcType, IpcAction<IpcType>][]).filter(
       ([ipcType]) => IPCS.includes(ipcType),
     );
@@ -81,10 +87,12 @@ export async function initPlugins(
     }
   }
 
+  // Await onInit promises from earlier.
   const onDisposes = compact(
     await Promise.all(onDisposePromises),
   ) as OnDispose[];
 
+  // Create an easy to use onDispose wrapper that will clean up all the plugins.
   return async () => {
     for (const handler of handlersToRemove) {
       ipc.removeHandler(handler);
