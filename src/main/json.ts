@@ -84,17 +84,26 @@ export async function loadJsonFile<Content extends Versioned>(
   schemas: Record<number, ZodSchema>,
   opts?: JsonOptions<Content>,
 ): Promise<JsonFile<Content>> {
-  const content = await loadJson(filePath, schemas, opts);
-  const latestSchema = schemas[content.version];
+  const originalContent = await loadJson(filePath, schemas, opts);
+  const latestSchema = schemas[originalContent.version];
 
-  const update = async (partial: DeepPartial<Content>) => {
-    const updated = deepUpdate(content, partial);
+  const fileHandler = {
+    content: originalContent,
+  } as JsonFile<Content>;
+
+  // N.B. To access content within update, always use this.content. originalContent,
+  // or anything from outside of update, will be stale after first update!
+  const update = async function (
+    this: JsonFile<Content>,
+    partial: DeepPartial<Content>,
+  ): Promise<void> {
+    const updated = deepUpdate(this.content, partial);
 
     // Validate against latest schema when saving to ensure we have valid content.
     const validated = await latestSchema.parseAsync(updated);
 
     // Don't write to file if no changes were made.
-    if (isEqual(content, validated)) {
+    if (isEqual(this.content, validated)) {
       return;
     }
 
@@ -102,12 +111,10 @@ export async function loadJsonFile<Content extends Versioned>(
 
     fileHandler.content = validated;
     await fsp.writeFile(filePath, jsonString, { encoding: "utf-8" });
-  };
+  }.bind(fileHandler);
 
-  const fileHandler = {
-    content,
-    update,
-  };
+  fileHandler.update = update;
+
   return fileHandler;
 }
 

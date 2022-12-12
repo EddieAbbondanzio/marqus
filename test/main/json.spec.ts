@@ -82,7 +82,7 @@ test("loadJsonFile loads default content if no file found", async () => {
   });
 });
 
-test("loadJsonFile loads content and validates it", async () => {
+test("loadJsonFile", async () => {
   mockFS({
     "fake-file-path.json": JSON.stringify({
       version: 2,
@@ -93,14 +93,16 @@ test("loadJsonFile loads content and validates it", async () => {
 
   const schema1 = { parseAsync: jest.fn() } as unknown as ZodSchema;
   const schema2 = {
-    parseAsync: jest.fn().mockResolvedValue({
-      version: 2,
-      foo: "dog",
-      bar: 24,
-    }),
+    parseAsync: jest.fn().mockImplementation(val =>
+      Promise.resolve({
+        ...val,
+        version: 2,
+        bar: 24,
+      }),
+    ),
   } as unknown as ZodSchema;
 
-  const { content } = await loadJsonFile<FooV2>(
+  const jsonFile = await loadJsonFile<FooV2>(
     "fake-file-path.json",
     {
       1: schema1,
@@ -115,13 +117,27 @@ test("loadJsonFile loads content and validates it", async () => {
     },
   );
 
-  expect(content).toEqual({
+  expect(jsonFile.content).toEqual({
     version: 2,
     foo: "dog",
     bar: 24,
   });
   expect(schema1.parseAsync).not.toBeCalled();
   expect(schema2.parseAsync).toBeCalled();
+
+  await jsonFile.update({ foo: "horse" });
+  expect(jsonFile.content).toEqual({
+    version: 2,
+    foo: "horse",
+    bar: 24,
+  });
+
+  await jsonFile.update({ foo: "fish" });
+  expect(jsonFile.content).toEqual({
+    version: 2,
+    foo: "fish",
+    bar: 24,
+  });
 });
 
 test("runSchemas applies changes", async () => {

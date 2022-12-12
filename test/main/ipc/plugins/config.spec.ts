@@ -8,7 +8,7 @@ import {
 } from "../../../../src/main/ipc/plugins/config";
 import fs from "fs";
 import * as env from "../../../../src/shared/env";
-import { app, BrowserWindow, dialog, shell } from "electron";
+import { app, dialog, shell } from "electron";
 import { createJsonFile } from "../../../__factories__/json";
 import { createConfig } from "../../../__factories__/config";
 import { Config } from "../../../../src/shared/domain/config";
@@ -52,6 +52,10 @@ test("config.openInTextEditor", async () => {
 test.each([null, "fake-data-dir"])(
   "config.openDataDirectory (dataDirectory: %s)",
   async dataDirectory => {
+    mockFS({
+      [dataDirectory]: {},
+    });
+
     const { ipc } = await initIpc(
       {
         config: createJsonFile(
@@ -76,6 +80,8 @@ test.each([null, "fake-data-dir"])(
 test.each([null, ["foo"]])(
   "config.selectDataDirectory (filePaths: %s)",
   async (filePaths: any) => {
+    mockFS({});
+
     // Hack for jest
     filePaths = filePaths ?? [];
 
