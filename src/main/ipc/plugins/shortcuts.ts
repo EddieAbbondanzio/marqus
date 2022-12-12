@@ -51,13 +51,18 @@ export const shortcutsIpcPlugin: IpcPlugin = {
   "shortcuts.getAll": async ({ config }) => {
     const shortcuts = [...DEFAULT_SHORTCUTS];
 
-    const shortcutFile = await loadJsonFile<Shortcuts>(
-      p.join(config.content.dataDirectory!, SHORTCUT_FILE_PATH),
-      SHORTCUTS_SCHEMAS,
-      { defaultContent: { version: 1, shortcuts: [] } },
-    );
+    let overrides: ShortcutOverride[] = [];
 
-    const overrides = shortcutFile.content.shortcuts ?? [];
+    // Data directory may not exist if new user is opening the app for the first
+    // time.
+    if (config.content.dataDirectory != null) {
+      const shortcutFile = await loadJsonFile<Shortcuts>(
+        p.join(config.content.dataDirectory, SHORTCUT_FILE_PATH),
+        SHORTCUTS_SCHEMAS,
+        { defaultContent: { version: 1, shortcuts: [] } },
+      );
+      overrides = shortcutFile.content.shortcuts ?? [];
+    }
 
     for (const override of overrides) {
       const existing = shortcuts.find(s => s.name === override.name);
