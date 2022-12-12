@@ -1,7 +1,15 @@
 import { isFunction } from "lodash";
-import { initPlugins, AppContext, IpcMainTS } from "../../../src/main/ipc";
+import { initPlugins, AppContext } from "../../../src/main/ipc";
 import { sleep } from "../../../src/shared/utils";
 import { MockedIpcMainTS } from "../../__factories__/ipc";
+
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.useRealTimers();
+});
 
 test("initPlugins", async () => {
   const syncOnDispose = jest.fn();
@@ -61,7 +69,9 @@ test("initPlugins", async () => {
 
   expect(ipc.handlers["app.inspectElement"]).not.toBe(undefined);
 
-  await onDispose();
+  const cleanupPromise = onDispose();
+  jest.runAllTimers();
+  await cleanupPromise;
 
   expect(syncOnDispose).toHaveBeenCalled();
   expect(asyncOnDispose).toHaveBeenCalled();

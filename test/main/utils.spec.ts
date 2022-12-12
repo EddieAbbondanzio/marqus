@@ -11,14 +11,6 @@ test("openInBrowser", async () => {
   expect(shell.openExternal).toHaveBeenCalledWith("http://random-url.com");
 });
 
-beforeAll(() => {
-  jest.useFakeTimers();
-});
-
-afterAll(() => {
-  jest.useRealTimers();
-});
-
 test("setCspHeader", () => {
   const callback = jest.fn();
   setCspHeader({} as any, callback);
