@@ -1,8 +1,4 @@
-import {
-  EditorToolbar,
-  EDITOR_TAB_ATTRIBUTE,
-  getEditorTabAttribute,
-} from "../../../src/renderer/components/EditorToolbar";
+import { EditorToolbar } from "../../../src/renderer/components/EditorToolbar";
 import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { createStore } from "../../__factories__/store";
@@ -440,9 +436,9 @@ test("previousTab", async () => {
 test("updateTabsScroll scrolls tabs", async () => {
   const store = createStore();
   const r = render(<EditorToolbar store={store.current} />);
+  const scrollable = r.container.querySelector("[orientation=horizontal]");
 
   await act(async () => {
-    const scrollable = r.container.querySelector("div div div")!;
     fireEvent.scroll(scrollable, { target: { scrollLeft: 10 } });
 
     // scrollable uses debounce so we need to time travel to get it to invoke.
@@ -451,23 +447,4 @@ test("updateTabsScroll scrolls tabs", async () => {
 
   const { editor } = store.current.state;
   expect(editor.tabsScroll).toBe(10);
-});
-
-test("getEditorTabAttribute", () => {
-  // None
-  const none = document.createElement("h1");
-  expect(getEditorTabAttribute(none)).toBe(null);
-
-  // Direct
-  const focusable = document.createElement("div");
-  focusable.setAttribute(EDITOR_TAB_ATTRIBUTE, "foo");
-  expect(getEditorTabAttribute(focusable)).toBe("foo");
-
-  // Parent
-  const child = document.createElement("div");
-  const parent = document.createElement("div");
-  parent.appendChild(child);
-  parent.setAttribute(EDITOR_TAB_ATTRIBUTE, "bar");
-
-  expect(getEditorTabAttribute(child)).toBe("bar");
 });
