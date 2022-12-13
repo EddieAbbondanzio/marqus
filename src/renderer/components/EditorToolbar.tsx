@@ -21,13 +21,13 @@ import OpenColor from "open-color";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
-export const TABS_HEIGHT = "4.3rem";
+export const TOOLBAR_HEIGHT = "4.3rem";
 
-export interface EditorTabsProps {
+export interface EditorToolbarProps {
   store: Store;
 }
 
-export function EditorTabs(props: EditorTabsProps): JSX.Element {
+export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
   const { store } = props;
   const { state } = store;
   const { notes, editor } = state;
@@ -262,40 +262,40 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
   }, [store, switchToNextTab, switchToPreviousTab]);
 
   return (
-    <StyledFocusable section={Section.EditorTabs} store={store}>
-      <ButtonRow>
-        <StyledButton
+    <EditorToolbarFocusable section={Section.EditorToolbar} store={store}>
+      <ToolbarButtonRow>
+        <ToolbarButton
           title="Toggle edit/view mode"
           onClick={async () => await store.dispatch("editor.toggleView")}
           highlighted={store.state.editor.isEditing}
         >
           <Icon icon={faEdit} />
-        </StyledButton>
+        </ToolbarButton>
 
-        <StyledButton title="Open attachments" onClick={openAttachments}>
+        <ToolbarButton title="Open attachments" onClick={openAttachments}>
           <Icon icon={faPaperclip} />
-        </StyledButton>
+        </ToolbarButton>
 
-        <StyledButton
+        <ToolbarButton
           title="Delete note"
           onClick={async () => await store.dispatch("editor.deleteNote")}
         >
           <Icon icon={faTrash} />
-        </StyledButton>
-      </ButtonRow>
+        </ToolbarButton>
+      </ToolbarButtonRow>
 
-      <StyledScrollable
+      <TabsScrollable
         orientation="horizontal"
         scroll={editor.tabsScroll}
         onScroll={s => store.dispatch("editor.updateTabsScroll", s)}
       >
         {tabs}
-      </StyledScrollable>
-    </StyledFocusable>
+      </TabsScrollable>
+    </EditorToolbarFocusable>
   );
 }
 
-const ButtonRow = styled.div`
+const ToolbarButtonRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -303,7 +303,7 @@ const ButtonRow = styled.div`
   padding-right: 1.2rem;
 `;
 
-const StyledButton = styled.button<{ highlighted?: boolean }>`
+const ToolbarButton = styled.button<{ highlighted?: boolean }>`
   border: none;
   background-color: transparent;
   ${p2}
@@ -323,7 +323,7 @@ const StyledButton = styled.button<{ highlighted?: boolean }>`
   }
 `;
 
-const StyledFocusable = styled(Focusable)`
+const EditorToolbarFocusable = styled(Focusable)`
   display: flex;
   flex-direction: row;
   border-bottom: 1px solid ${THEME.editor.tabs.border};
@@ -331,7 +331,7 @@ const StyledFocusable = styled(Focusable)`
   background-color: ${THEME.editor.tabs.background};
 `;
 
-const StyledScrollable = styled(Scrollable)`
+const TabsScrollable = styled(Scrollable)`
   width: calc(100% - 1rem) !important;
   white-space: nowrap;
   padding-left: 0.4rem;

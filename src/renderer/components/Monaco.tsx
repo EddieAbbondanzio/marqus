@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Store } from "../store";
 import * as monaco from "monaco-editor";
-import { TABS_HEIGHT } from "./EditorTabs";
+import { TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { Section } from "../../shared/ui/app";
 import { Attachment, Protocol } from "../../shared/domain/protocols";
 
@@ -282,7 +282,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
 const StyledEditor = styled.div`
   flex-grow: 1;
-  height: calc(100% - ${TABS_HEIGHT});
+  height: calc(100% - ${TOOLBAR_HEIGHT});
 `;
 
 export function generateAttachmentLink(attachment: Attachment): string {

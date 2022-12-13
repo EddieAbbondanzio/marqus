@@ -53,10 +53,12 @@ test("doesSectionHaveFocus", () => {
   expect(doesSectionHaveFocus([], Section.Editor)).toBe(false);
   expect(doesSectionHaveFocus([Section.Editor], Section.Editor)).toBe(true);
 
-  expect(doesSectionHaveFocus([Section.Editor], Section.EditorTabs)).toBe(
+  expect(doesSectionHaveFocus([Section.Editor], Section.EditorToolbar)).toBe(
     false,
   );
-  expect(doesSectionHaveFocus([Section.EditorTabs], Section.Editor)).toBe(true);
+  expect(doesSectionHaveFocus([Section.EditorToolbar], Section.Editor)).toBe(
+    true,
+  );
 });
 
 test("useShortcuts clears active keys on window blur", async () => {

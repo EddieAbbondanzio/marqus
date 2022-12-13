@@ -146,7 +146,7 @@ export function doesSectionHaveFocus(
 
   // We support nested sections triggering shortcuts in their parents by checking
   // to see if the section name starts with the parent's name.
-  // Ex: EditorTabs can trigger Editor shortcuts
+  // Ex: EditorToolbar can trigger Editor shortcuts
   const [currentlyFocused] = focused;
   return currentlyFocused === when || currentlyFocused.startsWith(when);
 }

@@ -8,7 +8,7 @@ import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { ModelAndViewState, Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
-import { EditorTabs, TABS_HEIGHT } from "./EditorTabs";
+import { EditorToolbar, TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { getNoteById } from "../../shared/domain/note";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
@@ -88,7 +88,7 @@ export function Editor(props: EditorProps): JSX.Element {
       section={Section.Editor}
       focusOnRender={false}
     >
-      <EditorTabs store={store} />
+      <EditorToolbar store={store} />
       <StyledContent>{content}</StyledContent>
     </StyledFocusable>
   );
@@ -102,7 +102,7 @@ const StyledFocusable = styled(Focusable)`
 const StyledContent = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - ${TABS_HEIGHT});
+  height: calc(100% - ${TOOLBAR_HEIGHT});
   ${m2}
   overflow: hidden;
 `;
