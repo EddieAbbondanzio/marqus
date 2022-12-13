@@ -3,7 +3,7 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, p2, px2, THEME, w100 } from "../css";
+import { h100, mb3, p2, p3, px2, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
@@ -173,6 +173,8 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     };
   }, [noteIds, state.sidebar, store]);
 
+  // TODO: Where did calc(100% - 100px) come from?
+
   return (
     <StyledResizable
       minWidth={MIN_WIDTH}
@@ -180,7 +182,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       onResize={w => store.dispatch("sidebar.resizeWidth", w)}
     >
       <StyledFocusable store={store} section={Section.Sidebar}>
-        <Controls id="controls">
+        <Controls>
           <SidebarSearch store={store} />
           <SidebarNewNoteButton store={store} />
         </Controls>
@@ -209,12 +211,12 @@ const StyledResizable = styled(Resizable)`
 `;
 
 const StyledFocusable = styled(Focusable)`
-  ${p2}
+  ${p3}
   ${w100}
 `;
 
 const Controls = styled.div`
-  ${px2}
+  ${mb3}
 `;
 
 const EmptySpace = styled.div`

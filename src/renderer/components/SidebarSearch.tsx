@@ -19,14 +19,17 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   const inputRef = useRef(null as HTMLInputElement | null);
 
   const onInput = useCallback(
-    (ev: React.FormEvent) => {
-      store.dispatch("sidebar.search", (ev.target as HTMLInputElement).value);
+    async (ev: React.FormEvent) => {
+      await store.dispatch(
+        "sidebar.search",
+        (ev.target as HTMLInputElement).value,
+      );
     },
     [store],
   );
 
-  const onClear = useCallback(() => {
-    store.dispatch("sidebar.search", "");
+  const onClear = useCallback(async () => {
+    await store.dispatch("sidebar.search", "");
   }, [store]);
 
   const { searchString = "" } = state.sidebar;
@@ -57,8 +60,7 @@ const StyledFocusable = styled(Focusable)`
   flex-direction: row;
   align-items: center;
   position: relative;
-  ${mb3}
-  ${pb0}
+  margin-bottom: 0.8rem;
 `;
 
 const SearchIcon = styled(Icon)`

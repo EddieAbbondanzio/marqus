@@ -29,18 +29,13 @@ export const THEME = {
     tabs: {
       background: OpenColor.gray[3],
       border: OpenColor.gray[5],
+      hoveredButtonBackground: OpenColor.gray[5],
       hoveredTabBackground: OpenColor.gray[5],
       activeTabBackground: OpenColor.white,
       activeTabFont: OpenColor.gray[9],
       deleteColor: OpenColor.red[7],
       deleteHoverBackground: OpenColor.gray[3],
       scrollbarColor: OpenColor.gray[5],
-    },
-    toolbar: {
-      font: OpenColor.gray[7],
-      background: OpenColor.gray[1],
-      border: OpenColor.gray[5],
-      hoveredButtonBackground: OpenColor.gray[3],
     },
   },
 };

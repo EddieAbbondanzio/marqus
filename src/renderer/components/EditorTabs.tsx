@@ -1,16 +1,24 @@
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEdit,
+  faFile,
+  faPaperclip,
+  faTimes,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { getNoteById, getNoteByPath, Note } from "../../shared/domain/note";
-import { m0, mr2, my2, p2, px2, THEME } from "../css";
+import { getNoteById, getNoteByPath } from "../../shared/domain/note";
+import { m0, mr2, my2, p2, px2, rounded, THEME } from "../css";
 import { Listener, Store } from "../store";
 import { Icon } from "./shared/Icon";
-import { first, last, orderBy } from "lodash";
+import { orderBy } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
 import { arrayify } from "../../shared/utils";
 import { isProtocolUrl } from "../../shared/domain/protocols";
+import OpenColor from "open-color";
+import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
 export const TABS_HEIGHT = "4.3rem";
@@ -205,6 +213,16 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     });
   };
 
+  const openAttachments = useCallback(async () => {
+    const { activeTabNoteId } = store.state.editor;
+
+    if (activeTabNoteId == null) {
+      return;
+    }
+
+    await store.dispatch("app.openNoteAttachments", activeTabNoteId);
+  }, [store]);
+
   useEffect(() => {
     store.on("editor.openTab", openTab);
     store.on(
@@ -221,6 +239,7 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
     store.on("editor.nextTab", switchToNextTab);
     store.on("editor.previousTab", switchToPreviousTab);
     store.on("editor.updateTabsScroll", updateTabsScroll);
+    store.on("editor.deleteNote", deleteNote);
 
     return () => {
       store.off("editor.openTab", openTab);
@@ -238,11 +257,33 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
       store.off("editor.nextTab", switchToNextTab);
       store.off("editor.previousTab", switchToPreviousTab);
       store.off("editor.updateTabsScroll", updateTabsScroll);
+      store.off("editor.deleteNote", deleteNote);
     };
   }, [store, switchToNextTab, switchToPreviousTab]);
 
   return (
-    <Focusable section={Section.EditorTabs} store={store}>
+    <StyledFocusable section={Section.EditorTabs} store={store}>
+      <ButtonRow>
+        <StyledButton
+          title="Toggle edit/view mode"
+          onClick={async () => await store.dispatch("editor.toggleView")}
+          highlighted={store.state.editor.isEditing}
+        >
+          <Icon icon={faEdit} />
+        </StyledButton>
+
+        <StyledButton title="Open attachments" onClick={openAttachments}>
+          <Icon icon={faPaperclip} />
+        </StyledButton>
+
+        <StyledButton
+          title="Delete note"
+          onClick={async () => await store.dispatch("editor.deleteNote")}
+        >
+          <Icon icon={faTrash} />
+        </StyledButton>
+      </ButtonRow>
+
       <StyledScrollable
         orientation="horizontal"
         scroll={editor.tabsScroll}
@@ -250,17 +291,51 @@ export function EditorTabs(props: EditorTabsProps): JSX.Element {
       >
         {tabs}
       </StyledScrollable>
-    </Focusable>
+    </StyledFocusable>
   );
 }
 
-const StyledScrollable = styled(Scrollable)`
-  ${px2}
-  width: calc(100% - 1rem)!important;
-  height: 4.2rem;
-  white-space: nowrap;
-  background-color: ${THEME.editor.tabs.background};
+const ButtonRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+`;
+
+const StyledButton = styled.button<{ highlighted?: boolean }>`
+  border: none;
+  background-color: transparent;
+  ${p2}
+  ${rounded}
+  font-size: 1.6rem;
+  height: 2.9rem;
+  margin-right: 0.2rem;
+
+  i {
+    color: ${p =>
+      p.highlighted ? OpenColor.orange[7] : THEME.editor.tabs.activeTabFont};
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${THEME.editor.tabs.hoveredButtonBackground}!important;
+  }
+`;
+
+const StyledFocusable = styled(Focusable)`
+  display: flex;
+  flex-direction: row;
   border-bottom: 1px solid ${THEME.editor.tabs.border};
+  width: 100%;
+  background-color: ${THEME.editor.tabs.background};
+`;
+
+const StyledScrollable = styled(Scrollable)`
+  width: calc(100% - 1rem) !important;
+  white-space: nowrap;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
 
   ::-webkit-scrollbar-thumb {
     background: ${THEME.editor.tabs.scrollbarColor};
@@ -292,11 +367,15 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         onClick={() => props.onClick(noteId)}
         {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
       >
-        <StyledSelectedText>{noteName}</StyledSelectedText>
+        <FlexRow>
+          <StyledNoteIcon icon={faFile} size="lg" />
+          <StyledSelectedText>{noteName}</StyledSelectedText>
+        </FlexRow>
         <StyledDelete
           icon={faTimes}
           onClick={onDeleteClick}
           className="delete"
+          title={`Close ${noteName}`}
         />
       </StyledSelectedTab>
     );
@@ -308,16 +387,30 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         onClick={() => props.onClick(noteId)}
         {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
       >
-        <StyledText>{noteName}</StyledText>
+        <FlexRow>
+          <StyledNoteIcon icon={faFile} size="lg" />
+          <StyledText>{noteName}</StyledText>
+        </FlexRow>
         <StyledDelete
           icon={faTimes}
           onClick={onDeleteClick}
           className="delete"
+          title={`Close ${noteName}`}
         />
       </StyledTab>
     );
   }
 }
+
+const StyledNoteIcon = styled(Icon)`
+  margin-right: 1rem;
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
 
 const StyledTab = styled.a`
   display: inline-flex;
@@ -329,11 +422,7 @@ const StyledTab = styled.a`
   ${mr2}
 
   border-radius: 0.4rem;
-  height: 3.2rem;
-
-  .delete {
-    display: none;
-  }
+  height: 2.6rem;
 
   &:hover {
     background-color: ${THEME.editor.tabs.hoveredTabBackground};
@@ -370,13 +459,13 @@ const StyledSelectedText = styled(StyledText)`
 `;
 
 const StyledDelete = styled(Icon)`
-  color: ${THEME.editor.tabs.deleteColor};
   border-radius: 0.4rem;
   ${p2}
   ${m0}
 
   &:hover {
     cursor: pointer;
+    color: ${THEME.editor.tabs.deleteColor};
     background-color: ${THEME.editor.tabs.deleteHoverBackground};
   }
 `;
@@ -444,6 +533,17 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   if (ev.value.focus) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
+};
+
+export const deleteNote: Listener<"editor.deleteNote"> = async (_, ctx) => {
+  const {
+    editor: { activeTabNoteId },
+  } = ctx.getState();
+  if (activeTabNoteId == null) {
+    return;
+  }
+
+  await deleteNoteIfConfirmed(ctx, activeTabNoteId);
 };
 
 export const updateTabsScroll: Listener<"editor.updateTabsScroll"> = async (
