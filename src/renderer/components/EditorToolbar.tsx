@@ -312,7 +312,7 @@ const ToolbarButton = styled.button<{ highlighted?: boolean }>`
 
   i {
     color: ${p =>
-      p.highlighted ? OpenColor.orange[7] : THEME.editor.toolbar.activeTabFont};
+      p.highlighted ? OpenColor.orange[7] : THEME.editor.toolbar.buttonColor};
   }
 
   &:hover {

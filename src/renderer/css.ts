@@ -27,8 +27,10 @@ export const THEME = {
   },
   editor: {
     toolbar: {
+      buttonColor: OpenColor.gray[8],
       background: OpenColor.gray[3],
       border: OpenColor.gray[5],
+      tabFont: OpenColor.gray[8],
       hoveredButtonBackground: OpenColor.gray[5],
       hoveredTabBackground: OpenColor.gray[5],
       activeTabBackground: OpenColor.white,

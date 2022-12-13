@@ -68,6 +68,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
 
 const StyledNoteIcon = styled(Icon)`
   margin-right: 1rem;
+  color: ${THEME.editor.toolbar.tabFont};
 `;
 
 const FlexRow = styled.div`
