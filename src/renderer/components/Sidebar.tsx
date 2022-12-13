@@ -3,7 +3,7 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, mb3, p2, p3, px2, px3, py2, THEME, w100 } from "../css";
+import { h100, mb3, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
@@ -176,12 +176,12 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   // TODO: Where did calc(100% - 100px) come from?
 
   return (
-    <StyledResizable
+    <SidebarResizable
       minWidth={MIN_WIDTH}
       width={store.state.sidebar.width}
       onResize={w => store.dispatch("sidebar.resizeWidth", w)}
     >
-      <StyledFocusable store={store} section={Section.Sidebar}>
+      <SidebarFocusable store={store} section={Section.Sidebar}>
         <Controls>
           <SidebarSearch store={store} />
           <SidebarNewNoteButton store={store} />
@@ -199,27 +199,27 @@ export function Sidebar(props: SidebarProps): JSX.Element {
           {/* Empty space for right clicking to create new notes */}
           <EmptySpace />
         </Scrollable>
-      </StyledFocusable>
-    </StyledResizable>
+      </SidebarFocusable>
+    </SidebarResizable>
   );
 }
 
-const StyledResizable = styled(Resizable)`
+const SidebarResizable = styled(Resizable)`
   background-color: ${THEME.sidebar.background};
   user-select: none;
   ${h100};
 `;
 
-const StyledFocusable = styled(Focusable)`
+const SidebarFocusable = styled(Focusable)`
   padding-top: 0.8rem;
   padding-bottom: 0.8rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
   ${w100}
 `;
 
 const Controls = styled.div`
   ${mb3}
+  padding-left: 1rem;
+  padding-right: 1rem;
 `;
 
 const EmptySpace = styled.div`
