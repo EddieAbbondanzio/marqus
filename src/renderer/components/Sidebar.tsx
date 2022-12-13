@@ -3,7 +3,7 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, mb3, p2, p3, px2, THEME, w100 } from "../css";
+import { h100, mb3, p2, p3, px2, px3, py2, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
@@ -211,7 +211,10 @@ const StyledResizable = styled(Resizable)`
 `;
 
 const StyledFocusable = styled(Focusable)`
-  ${p3}
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   ${w100}
 `;
 

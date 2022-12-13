@@ -21,7 +21,7 @@ import OpenColor from "open-color";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
-export const TOOLBAR_HEIGHT = "4.3rem";
+export const TOOLBAR_HEIGHT = "4.3rem"; // 4.2rem + 1px for border
 
 export interface EditorToolbarProps {
   store: Store;
@@ -299,8 +299,8 @@ const ToolbarButtonRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding-left: 1.2rem;
-  padding-right: 1.2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
 `;
 
 const ToolbarButton = styled.button<{ highlighted?: boolean }>`
@@ -329,6 +329,7 @@ const EditorToolbarFocusable = styled(Focusable)`
   border-bottom: 1px solid ${THEME.editor.tabs.border};
   width: 100%;
   background-color: ${THEME.editor.tabs.background};
+  height: 4.4rem;
 `;
 
 const TabsScrollable = styled(Scrollable)`
