@@ -82,11 +82,12 @@ const StyledTab = styled.a`
   justify-content: space-between;
   width: 12rem;
   ${px2}
-  ${my2}
   ${mr2}
+  margin-top: 0.8rem; // Add 3px for scrollbar
+  margin-bottom: 0.5rem;
 
   border-radius: 0.4rem;
-  height: 2.6rem;
+  height: 2.9rem;
 
   &:hover {
     background-color: ${THEME.editor.tabs.hoveredTabBackground};
