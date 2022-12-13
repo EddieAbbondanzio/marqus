@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
-import { m2 } from "../css";
+import { m2, m3 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { ModelAndViewState, Monaco } from "./Monaco";
@@ -103,7 +103,7 @@ const StyledContent = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - ${TOOLBAR_HEIGHT});
-  ${m2}
+  ${m3}
   overflow: hidden;
 `;
 

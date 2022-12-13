@@ -23,6 +23,7 @@ const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   },
   contextmenu: false,
   quickSuggestions: false,
+  renderLineHighlight: "none",
 };
 
 export type ModelAndViewState = {
