@@ -90,7 +90,7 @@ const StyledTab = styled.a`
   height: 2.9rem;
 
   &:hover {
-    background-color: ${THEME.editor.tabs.hoveredTabBackground};
+    background-color: ${THEME.editor.toolbar.hoveredTabBackground};
 
     .delete {
       display: block;
@@ -99,7 +99,7 @@ const StyledTab = styled.a`
 `;
 
 const StyledSelectedTab = styled(StyledTab)`
-  background-color: ${THEME.editor.tabs.activeTabBackground};
+  background-color: ${THEME.editor.toolbar.activeTabBackground};
 
   .delete {
     display: block;
@@ -117,7 +117,7 @@ const StyledText = styled.div`
 const StyledSelectedText = styled(StyledText)`
   font-size: 1.2rem;
   font-weight: bold;
-  color: ${THEME.editor.tabs.activeTabFont};
+  color: ${THEME.editor.toolbar.activeTabFont};
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -127,11 +127,12 @@ const StyledDelete = styled(Icon)`
   border-radius: 0.4rem;
   ${p2}
   ${m0}
+  color: ${THEME.editor.toolbar.deleteColor};
 
   &:hover {
     cursor: pointer;
-    color: ${THEME.editor.tabs.deleteColor};
-    background-color: ${THEME.editor.tabs.deleteHoverBackground};
+    color: ${THEME.editor.toolbar.deleteHoverColor};
+    background-color: ${THEME.editor.toolbar.deleteHoverBackground};
   }
 `;
 

@@ -38,8 +38,8 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       await store.dispatch("editor.openTab", { note: noteId, active: noteId });
     };
 
-    const onClose = async () => {
-      await store.dispatch("editor.closeTab", undefined!);
+    const onClose = async (noteId: string) => {
+      await store.dispatch("editor.closeTab", noteId);
     };
 
     for (const tab of editor.tabs) {
@@ -312,21 +312,21 @@ const ToolbarButton = styled.button<{ highlighted?: boolean }>`
 
   i {
     color: ${p =>
-      p.highlighted ? OpenColor.orange[7] : THEME.editor.tabs.activeTabFont};
+      p.highlighted ? OpenColor.orange[7] : THEME.editor.toolbar.activeTabFont};
   }
 
   &:hover {
     cursor: pointer;
-    background-color: ${THEME.editor.tabs.hoveredButtonBackground}!important;
+    background-color: ${THEME.editor.toolbar.hoveredButtonBackground}!important;
   }
 `;
 
 const EditorToolbarFocusable = styled(Focusable)`
   display: flex;
   flex-direction: row;
-  border-bottom: 1px solid ${THEME.editor.tabs.border};
+  border-bottom: 1px solid ${THEME.editor.toolbar.border};
   width: 100%;
-  background-color: ${THEME.editor.tabs.background};
+  background-color: ${THEME.editor.toolbar.background};
   height: 4.4rem;
 `;
 
@@ -337,7 +337,7 @@ const TabsScrollable = styled(Scrollable)`
   padding-right: 0.4rem;
 
   ::-webkit-scrollbar-thumb {
-    background: ${THEME.editor.tabs.scrollbarColor};
+    background: ${THEME.editor.toolbar.scrollbarColor};
   }
 `;
 

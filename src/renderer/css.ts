@@ -26,14 +26,15 @@ export const THEME = {
     },
   },
   editor: {
-    tabs: {
+    toolbar: {
       background: OpenColor.gray[3],
       border: OpenColor.gray[5],
       hoveredButtonBackground: OpenColor.gray[5],
       hoveredTabBackground: OpenColor.gray[5],
       activeTabBackground: OpenColor.white,
       activeTabFont: OpenColor.gray[9],
-      deleteColor: OpenColor.red[7],
+      deleteColor: OpenColor.gray[6],
+      deleteHoverColor: OpenColor.red[7],
       deleteHoverBackground: OpenColor.gray[3],
       scrollbarColor: OpenColor.gray[5],
     },
