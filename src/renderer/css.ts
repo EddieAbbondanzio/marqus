@@ -48,8 +48,8 @@ export const HEADER_SIZES = [
   "3.2rem",
   "2.4rem",
   "2rem",
+  "1.8rem",
   "1.6rem",
-  "1.4rem",
 ];
 
 export const rounded = css`

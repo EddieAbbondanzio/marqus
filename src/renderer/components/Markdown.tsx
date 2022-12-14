@@ -202,7 +202,10 @@ const StyledScrollable = styled(Scrollable)`
   h3,
   h4,
   h5,
-  h6,
+  h6 {
+    font-weight: 600;
+  }
+
   ol,
   ul,
   p {
@@ -212,46 +215,46 @@ const StyledScrollable = styled(Scrollable)`
 `;
 
 const H1 = styled.h1`
-  font-weight: 600;
-
   &:not(:first-child) {
-    margin-top: 1.2rem;
+    margin-top: 2rem;
   }
+
+  margin-bottom: 1.6rem !important;
 `;
 const H2 = styled.h2`
-  font-weight: 600;
-
   &:not(:first-child) {
-    margin-top: 1.2rem;
+    margin-top: 2rem;
   }
+
+  margin-bottom: 1.6rem !important;
 `;
 const H3 = styled.h3`
-  font-weight: 600;
-
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
+
+  margin-bottom: 1.6rem !important;
 `;
 const H4 = styled.h4`
-  font-weight: 600;
-
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
+
+  margin-bottom: 1.6rem !important;
 `;
 const H5 = styled.h5`
-  font-weight: 600;
-
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
+
+  margin-bottom: 1.6rem !important;
 `;
 const H6 = styled.h6`
-  font-weight: 600;
-
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
+
+  margin-bottom: 1.6rem !important;
 `;
 
 const Paragraph = styled.p`
