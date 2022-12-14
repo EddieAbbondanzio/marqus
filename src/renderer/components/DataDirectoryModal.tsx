@@ -1,7 +1,7 @@
 import OpenColor from "open-color";
 import React from "react";
 import styled from "styled-components";
-import { mb3 } from "../css";
+import { mb2, mb3 } from "../css";
 import { Store } from "../store";
 import { Button } from "./shared/Button";
 import { Modal } from "./shared/Modal";
@@ -16,7 +16,7 @@ export function DataDirectoryModal({
   return (
     <Modal>
       <Content>
-        <h1>Welcome!</h1>
+        <Header>Welcome!</Header>
         <StyledP>
           Please select where you would like to save your notes to get started
         </StyledP>
@@ -33,13 +33,18 @@ export function DataDirectoryModal({
   );
 }
 
-export const Content = styled.div`
+const Header = styled.h1`
+  font-size: 4rem;
+  ${mb2}
+`;
+
+const Content = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   flex-grow: 1;
 `;
 
-export const StyledP = styled.p`
+const StyledP = styled.p`
   ${mb3}
 `;

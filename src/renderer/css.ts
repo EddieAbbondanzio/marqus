@@ -43,15 +43,6 @@ export const THEME = {
   },
 };
 
-export const HEADER_SIZES = [
-  "4rem",
-  "3.2rem",
-  "2.4rem",
-  "2rem",
-  "1.8rem",
-  "1.6rem",
-];
-
 export const rounded = css`
   border-radius: 0.2rem;
 `;

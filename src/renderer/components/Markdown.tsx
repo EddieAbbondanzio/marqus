@@ -219,42 +219,52 @@ const H1 = styled.h1`
     margin-top: 2rem;
   }
 
-  margin-bottom: 1.6rem !important;
+  font-size: 4rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid ${OpenColor.gray[3]};
+  margin-bottom: 1.2rem;
 `;
 const H2 = styled.h2`
   &:not(:first-child) {
     margin-top: 2rem;
   }
 
-  margin-bottom: 1.6rem !important;
+  font-size: 3.2rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid ${OpenColor.gray[3]};
+  margin-bottom: 1.2rem;
 `;
 const H3 = styled.h3`
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
 
-  margin-bottom: 1.6rem !important;
+  font-size: 2.4rem;
+  margin-bottom: 1.6rem;
 `;
 const H4 = styled.h4`
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
 
-  margin-bottom: 1.6rem !important;
+  font-size: 2rem;
+  margin-bottom: 1.6rem;
 `;
 const H5 = styled.h5`
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
 
-  margin-bottom: 1.6rem !important;
+  font-size: 1.8rem;
+  margin-bottom: 1.6rem;
 `;
 const H6 = styled.h6`
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
 
-  margin-bottom: 1.6rem !important;
+  font-size: 1.6rem;
+  margin-bottom: 1.6rem;
 `;
 
 const Paragraph = styled.p`

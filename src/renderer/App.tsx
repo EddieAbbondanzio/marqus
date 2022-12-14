@@ -10,8 +10,7 @@ import {
   Section,
   SerializedAppState,
 } from "../shared/ui/app";
-import { Shortcut } from "../shared/domain/shortcut";
-import { getNoteById, Note } from "../shared/domain/note";
+import { getNoteById } from "../shared/domain/note";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { isEmpty, tail } from "lodash";
@@ -20,7 +19,7 @@ import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
-import { h100, HEADER_SIZES, mb2, w100 } from "./css";
+import { h100, w100 } from "./css";
 import { Config } from "../shared/domain/config";
 import { log } from "./logger";
 import { arrayify } from "../shared/utils";
@@ -134,39 +133,6 @@ const Container = styled.div`
   ${w100}
   display: flex;
   flex-direction: row;
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    ${mb2}
-  }
-
-  h1 {
-    font-size: ${HEADER_SIZES[0]};
-  }
-
-  h2 {
-    font-size: ${HEADER_SIZES[1]};
-  }
-
-  h3 {
-    font-size: ${HEADER_SIZES[2]};
-  }
-
-  h4 {
-    font-size: ${HEADER_SIZES[3]};
-  }
-
-  h5 {
-    font-size: ${HEADER_SIZES[4]};
-  }
-
-  h6 {
-    font-size: ${HEADER_SIZES[5]};
-  }
 `;
 
 export async function loadInitialState(config: Config): Promise<State> {
