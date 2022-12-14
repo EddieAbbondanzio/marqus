@@ -1,7 +1,7 @@
 import { faFile, faTimes } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import styled from "styled-components";
-import { m0, mr2, my2, p2, px2, THEME } from "../css";
+import { m0, mr2, p2, px2, THEME } from "../css";
 import { Icon } from "./shared/Icon";
 
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
@@ -23,47 +23,26 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
     props.onClose(noteId);
   };
 
-  if (active) {
-    return (
-      <StyledSelectedTab
-        key={noteId}
-        title={noteName}
-        onClick={() => props.onClick(noteId)}
-        {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
-      >
-        <FlexRow>
-          <StyledNoteIcon icon={faFile} size="lg" />
-          <StyledSelectedText>{noteName}</StyledSelectedText>
-        </FlexRow>
-        <StyledDelete
-          icon={faTimes}
-          onClick={onDeleteClick}
-          className="delete"
-          title={`Close ${noteName}`}
-        />
-      </StyledSelectedTab>
-    );
-  } else {
-    return (
-      <StyledTab
-        key={noteId}
-        title={noteName}
-        onClick={() => props.onClick(noteId)}
-        {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
-      >
-        <FlexRow>
-          <StyledNoteIcon icon={faFile} size="lg" />
-          <StyledText>{noteName}</StyledText>
-        </FlexRow>
-        <StyledDelete
-          icon={faTimes}
-          onClick={onDeleteClick}
-          className="delete"
-          title={`Close ${noteName}`}
-        />
-      </StyledTab>
-    );
-  }
+  return (
+    <StyledTab
+      key={noteId}
+      title={noteName}
+      onClick={() => props.onClick(noteId)}
+      {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
+      active={active}
+    >
+      <FlexRow>
+        <StyledNoteIcon icon={faFile} size="lg" />
+        <StyledText>{noteName}</StyledText>
+      </FlexRow>
+      <StyledDelete
+        icon={faTimes}
+        onClick={onDeleteClick}
+        className="delete"
+        title={`Close ${noteName}`}
+      />
+    </StyledTab>
+  );
 }
 
 const StyledNoteIcon = styled(Icon)`
@@ -77,7 +56,7 @@ const FlexRow = styled.div`
   align-items: center;
 `;
 
-const StyledTab = styled.a`
+const StyledTab = styled.a<{ active?: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -90,6 +69,9 @@ const StyledTab = styled.a`
   border-radius: 0.4rem;
   height: 2.9rem;
 
+  background-color: ${p =>
+    p.active ? THEME.editor.toolbar.activeTabBackground : ""};
+
   &:hover {
     background-color: ${THEME.editor.toolbar.hoveredTabBackground};
 
@@ -99,26 +81,9 @@ const StyledTab = styled.a`
   }
 `;
 
-const StyledSelectedTab = styled(StyledTab)`
-  background-color: ${THEME.editor.toolbar.activeTabBackground};
-
-  .delete {
-    display: block;
-  }
-`;
-
-const StyledText = styled.div`
+const StyledText = styled.span`
   font-size: 1.2rem;
   font-weight: 500;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-`;
-
-const StyledSelectedText = styled(StyledText)`
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: ${THEME.editor.toolbar.activeTabFont};
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
