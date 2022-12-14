@@ -188,7 +188,11 @@ export function Markdown(props: MarkdownProps): JSX.Element {
   }, [props.content, setMarkdownSource]);
 
   return (
-    <StyledScrollable scroll={props.scroll} onScroll={props.onScroll}>
+    <StyledScrollable
+      className="markdown"
+      scroll={props.scroll}
+      onScroll={props.onScroll}
+    >
       {reactContent}
     </StyledScrollable>
   );
@@ -206,11 +210,13 @@ const StyledScrollable = styled(Scrollable)`
     font-weight: 600;
   }
 
-  ol,
-  ul,
-  p {
+  // Indented lists use nested ol's and ul's so we can only apply margin to the
+  // topmost ones.
+  > p,
+  > ul,
+  > ol {
     word-break: break-word;
-    margin-bottom: 1.6rem;
+    margin-bottom: 1.6rem !important;
   }
 `;
 
@@ -220,7 +226,7 @@ const H1 = styled.h1`
   }
 
   font-size: 4rem;
-  padding-bottom: 1.6rem;
+  padding-bottom: 1.2rem;
   border-bottom: 1px solid ${OpenColor.gray[3]};
   margin-bottom: 1.2rem;
 `;
@@ -230,7 +236,7 @@ const H2 = styled.h2`
   }
 
   font-size: 3.2rem;
-  padding-bottom: 1.6rem;
+  padding-bottom: 1.2rem;
   border-bottom: 1px solid ${OpenColor.gray[3]};
   margin-bottom: 1.2rem;
 `;
@@ -352,7 +358,7 @@ const Em = styled.em`
 `;
 
 const LIST_ITEM_MARKER_WIDTH = 32;
-const LIST_INDENT = 8;
+const LIST_INDENT = 16;
 
 const UnorderedList = styled.ul`
   margin-left: ${LIST_INDENT}px;
@@ -409,7 +415,6 @@ const OrderedList = styled.ol`
 
 const Li = styled.li`
   margin-top: 4px;
-  margin-bottom: 4px;
   font-size: 1.6rem;
 
   &:before {
