@@ -5,7 +5,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { getNoteById, getNoteByPath } from "../../shared/domain/note";
+import {
+  getNoteById,
+  getNoteByPath,
+  getParents,
+} from "../../shared/domain/note";
 import { p2, rounded, THEME } from "../css";
 import { Listener, Store } from "../store";
 import { Icon } from "./shared/Icon";
@@ -44,12 +48,17 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
 
     for (const tab of editor.tabs) {
       const note = getNoteById(notes, tab.note.id);
+      const notePath = [
+        ...getParents(note, notes).map(n => n.name),
+        note.name,
+      ].join("/");
 
       rendered.push(
         <EditorTab
           key={note.id}
           noteId={note.id}
           noteName={note.name}
+          notePath={notePath}
           active={activeTabNoteId === note.id}
           onClick={onClick}
           onClose={onClose}

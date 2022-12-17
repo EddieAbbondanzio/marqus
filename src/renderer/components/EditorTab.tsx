@@ -8,6 +8,7 @@ export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
 
 export interface EditorTabProps {
   noteId: string;
+  notePath: string;
   noteName: string;
   active?: boolean;
   onClick: (noteId: string) => void;
@@ -15,7 +16,7 @@ export interface EditorTabProps {
 }
 
 export function EditorTab(props: EditorTabProps): JSX.Element {
-  const { noteId, noteName, active } = props;
+  const { noteId, noteName, notePath, active } = props;
 
   const onDeleteClick = (ev: React.MouseEvent<HTMLElement>) => {
     // Need to stop prop otherwise it'll trigger onClick of tab.
@@ -26,7 +27,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
   return (
     <StyledTab
       key={noteId}
-      title={noteName}
+      title={notePath}
       onClick={() => props.onClick(noteId)}
       {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
       active={active}
