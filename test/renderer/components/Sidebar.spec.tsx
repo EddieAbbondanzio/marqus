@@ -1,7 +1,4 @@
-import {
-  applySearchString,
-  Sidebar,
-} from "../../../src/renderer/components/Sidebar";
+import { Sidebar } from "../../../src/renderer/components/Sidebar";
 import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import {
@@ -16,33 +13,6 @@ import { createStore } from "../../__factories__/store";
 import { uuid } from "../../../src/shared/domain";
 
 const promptConfirmAction = jest.spyOn(prompt, "promptConfirmAction");
-
-test("applySearchString", () => {
-  const notes = [
-    createNote({
-      name: "foo",
-      content: "Random string lol",
-    }),
-    createNote({
-      name: "bar",
-      content: "Some more totally random text",
-    }),
-    createNote({
-      name: "baz",
-      content: "qqqqqqqqqqq",
-    }),
-  ];
-
-  // Search by name
-  const matches1 = applySearchString(notes, "f");
-  expect(matches1).toHaveLength(1);
-  expect(matches1[0].name).toBe("foo");
-
-  // Search by content
-  const matches2 = applySearchString(notes, "qqqq");
-  expect(matches2).toHaveLength(1);
-  expect(matches2[0].name).toBe("baz");
-});
 
 test("sidebar.clearSelection", async () => {
   const noteFooId = uuid();

@@ -22,8 +22,7 @@ import {
   faChevronDown,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
-import { SidebarSearch } from "./SidebarSearch";
-import { search as searchFuzzy } from "fast-fuzzy";
+import { searchNotes, SidebarSearch } from "./SidebarSearch";
 import { EditorTab } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
@@ -43,11 +42,12 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const expandedLookup = keyBy(state.sidebar.expanded, e => e);
   const selectedLookup = keyBy(state.sidebar.selected, s => s);
 
-  const searchString = state.sidebar.searchString;
+  const { searchString } = state.sidebar;
   const notes = useMemo(
-    () => applySearchString(state.notes, searchString),
+    () => searchNotes(state.notes, searchString),
     [searchString, state.notes],
   );
+
   const [menus, noteIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
     [notes, store, input, expandedLookup, selectedLookup],
@@ -226,22 +226,6 @@ const EmptySpace = styled.div`
   padding-bottom: ${SIDEBAR_MENU_HEIGHT}px;
 `;
 
-export function applySearchString(
-  notes: Note[],
-  searchString?: string,
-): Note[] {
-  if (isEmpty(searchString)) {
-    return notes;
-  }
-
-  const flatNotes = flatten(notes);
-  const matches = searchFuzzy(searchString!, flatNotes, {
-    keySelector: n => [n.name, n.content],
-  });
-
-  return matches;
-}
-
 export function renderMenus(
   notes: Note[],
   store: Store,
@@ -315,7 +299,7 @@ export function renderMenus(
 
     if (hasChildren && isExpanded) {
       // Use note.sort for children. If not set, use next parent. Climb parent
-      // tree until we hit route then default to using global sort.
+      // tree until we hit root then default to using global sort.
       let sortToUse = note.sort;
       const parents = getParents(note, notes);
       for (const p of parents) {
@@ -328,7 +312,7 @@ export function renderMenus(
       note.children?.forEach(n => recursive(n, currDepth + 1));
     }
 
-    // When creating a new note, input is always added to the bottom
+    // When creating a new note, input is always shown at the bottom
     if (hasInput) {
       menus.push(
         <SidebarInput

@@ -176,7 +176,6 @@ export function useContextMenu(store: Store, config: Config): void {
   useEffect(() => {
     const onClick = async (ev: CustomEvent) => {
       const { event, eventInput } = ev.detail;
-      console.log("CLICK: ", ev.detail);
       await store.dispatch(event, eventInput);
     };
 

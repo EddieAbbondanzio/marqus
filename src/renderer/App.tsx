@@ -148,6 +148,8 @@ export async function loadInitialState(config: Config): Promise<State> {
 
   const [ui, shortcuts, notes = []] = await Promise.all(promises);
 
+  // Fail softly if a note can't be found for a tab. The user may have manually
+  // deleted the note prior to opening the app.
   const tabs: EditorTab[] = (ui as SerializedAppState).editor.tabs
     .map(t => ({
       note: getNoteById(notes, t.noteId, false),
