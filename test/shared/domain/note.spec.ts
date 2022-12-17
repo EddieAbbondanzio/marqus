@@ -3,6 +3,7 @@ import { uuid } from "../../../src/shared/domain";
 import {
   createNote,
   flatten,
+  getFullPath,
   getNoteById,
   getNoteByPath,
   getParents,
@@ -213,4 +214,26 @@ test("getParents", () => {
 
   const parents = getParents(note, [grandParent]);
   expect(parents).toEqual([parent, grandParent]);
+});
+
+test("getFullPath", () => {
+  const rootNote = createNote({ name: "root" });
+  const rootNote2 = createNote({
+    name: "root2",
+    children: [
+      createNote({
+        name: "nested",
+        children: [createNote({ name: "super nested" })],
+      }),
+    ],
+  });
+
+  const notes = [rootNote, rootNote2];
+
+  expect(getFullPath(notes, rootNote)).toBe("root");
+  expect(getFullPath(notes, rootNote2)).toBe("root2");
+  expect(getFullPath(notes, rootNote2.children[0]!)).toBe("root2/nested");
+  expect(getFullPath(notes, rootNote2.children[0]!.children[0]!)).toBe(
+    "root2/nested/super nested",
+  );
 });

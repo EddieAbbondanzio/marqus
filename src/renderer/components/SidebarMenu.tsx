@@ -21,6 +21,7 @@ interface SidebarMenuProps {
   icon?: IconDefinition;
   depth: number;
   id: string;
+  title?: string;
   value: string;
   isSelected: boolean;
   onClick: () => void;
@@ -30,7 +31,7 @@ interface SidebarMenuProps {
 }
 
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
-  const { value, icon, isSelected, onClick, store } = props;
+  const { title, value, icon, isSelected, onClick, store } = props;
   const { state } = store;
 
   const iconOffset = icon ? 0 : 8;
@@ -70,6 +71,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
     <StyledMenu
       ref={menuRef}
       style={{ paddingLeft, backgroundColor }}
+      title={title}
       onClick={onClick}
       {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
     >

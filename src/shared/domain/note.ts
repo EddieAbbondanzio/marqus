@@ -1,6 +1,6 @@
 import { Resource, uuid } from ".";
 import { isBlank } from "../utils";
-import { isEmpty, orderBy } from "lodash";
+import { isEmpty, orderBy, reverse } from "lodash";
 import { z } from "zod";
 
 export interface Note extends Resource {
@@ -236,4 +236,10 @@ export function getParents(note: Note, notes: Note[]): Note[] {
   }
 
   return parents;
+}
+
+export function getFullPath(notes: Note[], note: Note): string {
+  return [...reverse(getParents(note, notes).map(n => n.name)), note.name].join(
+    "/",
+  );
 }

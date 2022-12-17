@@ -13,6 +13,7 @@ import {
   DEFAULT_NOTE_SORTING_ALGORITHM,
   getParents,
   NOTE_NAME_SCHEMA,
+  getFullPath,
 } from "../../shared/domain/note";
 import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
 import { promptError } from "../utils/prompt";
@@ -273,12 +274,15 @@ export function renderMenus(
         />,
       );
     } else {
+      const noteFullPath = getFullPath(notes, note);
+
       menus.push(
         <SidebarMenu
           store={store}
           icon={icon}
           key={note.id}
           id={note.id}
+          title={noteFullPath}
           value={note.name}
           onClick={onClick}
           onIconClick={async (ev: React.MouseEvent) => {

@@ -6,6 +6,7 @@ import {
 import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import {
+  getFullPath,
   getNoteById,
   getNoteByPath,
   getParents,
@@ -48,10 +49,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
 
     for (const tab of editor.tabs) {
       const note = getNoteById(notes, tab.note.id);
-      const notePath = [
-        ...getParents(note, notes).map(n => n.name),
-        note.name,
-      ].join("/");
+      const notePath = getFullPath(notes, note);
 
       rendered.push(
         <EditorTab
