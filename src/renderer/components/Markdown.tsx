@@ -218,6 +218,8 @@ const StyledScrollable = styled(Scrollable)`
     word-break: break-word;
     margin-bottom: 1.6rem !important;
   }
+
+  line-height: 1.4;
 `;
 
 const H1 = styled.h1`
