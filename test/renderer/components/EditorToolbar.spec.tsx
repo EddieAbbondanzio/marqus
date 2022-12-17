@@ -1,8 +1,4 @@
-import {
-  EditorTabs,
-  EDITOR_TAB_ATTRIBUTE,
-  getEditorTabAttribute,
-} from "../../../src/renderer/components/EditorTabs";
+import { EditorToolbar } from "../../../src/renderer/components/EditorToolbar";
 import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { createStore } from "../../__factories__/store";
@@ -30,7 +26,7 @@ test("openTab opens tabs passed", async () => {
       tabs: [],
     },
   });
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
 
   // Open note without setting as active
   await act(async () => {
@@ -69,7 +65,7 @@ test("openTab works with note paths too", async () => {
       tabs: [],
     },
   });
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
 
   // Test it can open a note from path
   await act(async () => {
@@ -129,7 +125,7 @@ test("editor.closeActiveTab", async () => {
   });
 
   // Close Foo
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
   await act(async () => {
     await store.current.dispatch("editor.closeActiveTab", undefined);
   });
@@ -200,7 +196,7 @@ test("editor.closeTab", async () => {
     },
   });
 
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
   await act(async () => {
     // Default behavior is to close active tab
     await store.current.dispatch("editor.closeTab", "2");
@@ -237,7 +233,7 @@ test("editor.closeAllTabs", async () => {
     },
   });
 
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
   await act(async () => {
     // Default behavior is to close active tab
     await store.current.dispatch("editor.closeAllTabs");
@@ -275,7 +271,7 @@ test("editor.closeOtherTabs", async () => {
     },
   });
 
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
   await act(async () => {
     // Default behavior is to close non active tab
     await store.current.dispatch("editor.closeOtherTabs", undefined!);
@@ -313,7 +309,7 @@ test("editor.closeTabsToRight", async () => {
     },
   });
 
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
   await act(async () => {
     // Default behavior is to close tabs relative to active tab
     await store.current.dispatch("editor.closeTabsToRight", undefined!);
@@ -353,7 +349,7 @@ test("editor.closeTabsToLeft", async () => {
     },
   });
 
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
   await act(async () => {
     // Default behavior is to close tabs to the left of active tab
     await store.current.dispatch("editor.closeTabsToLeft", undefined!);
@@ -393,7 +389,7 @@ test("nextTab", async () => {
     },
   });
 
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
   await act(async () => {
     await store.current.dispatch("editor.nextTab", undefined!);
   });
@@ -428,7 +424,7 @@ test("previousTab", async () => {
     },
   });
 
-  render(<EditorTabs store={store.current} />);
+  render(<EditorToolbar store={store.current} />);
   await act(async () => {
     await store.current.dispatch("editor.previousTab");
   });
@@ -439,10 +435,10 @@ test("previousTab", async () => {
 
 test("updateTabsScroll scrolls tabs", async () => {
   const store = createStore();
-  const r = render(<EditorTabs store={store.current} />);
+  const r = render(<EditorToolbar store={store.current} />);
+  const scrollable = r.container.querySelector("[orientation=horizontal]");
 
   await act(async () => {
-    const scrollable = r.container.querySelector("div div div")!;
     fireEvent.scroll(scrollable, { target: { scrollLeft: 10 } });
 
     // scrollable uses debounce so we need to time travel to get it to invoke.
@@ -451,23 +447,4 @@ test("updateTabsScroll scrolls tabs", async () => {
 
   const { editor } = store.current.state;
   expect(editor.tabsScroll).toBe(10);
-});
-
-test("getEditorTabAttribute", () => {
-  // None
-  const none = document.createElement("h1");
-  expect(getEditorTabAttribute(none)).toBe(null);
-
-  // Direct
-  const focusable = document.createElement("div");
-  focusable.setAttribute(EDITOR_TAB_ATTRIBUTE, "foo");
-  expect(getEditorTabAttribute(focusable)).toBe("foo");
-
-  // Parent
-  const child = document.createElement("div");
-  const parent = document.createElement("div");
-  parent.appendChild(child);
-  parent.setAttribute(EDITOR_TAB_ATTRIBUTE, "bar");
-
-  expect(getEditorTabAttribute(child)).toBe("bar");
 });

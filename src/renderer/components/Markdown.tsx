@@ -188,7 +188,11 @@ export function Markdown(props: MarkdownProps): JSX.Element {
   }, [props.content, setMarkdownSource]);
 
   return (
-    <StyledScrollable scroll={props.scroll} onScroll={props.onScroll}>
+    <StyledScrollable
+      className="markdown"
+      scroll={props.scroll}
+      onScroll={props.onScroll}
+    >
       {reactContent}
     </StyledScrollable>
   );
@@ -202,56 +206,73 @@ const StyledScrollable = styled(Scrollable)`
   h3,
   h4,
   h5,
-  h6,
-  ol,
-  ul,
-  p {
-    word-break: break-word;
-    margin-bottom: 1.6rem;
+  h6 {
+    font-weight: 600;
   }
+
+  // Indented lists use nested ol's and ul's so we can only apply margin to the
+  // topmost ones.
+  > p,
+  > ul,
+  > ol {
+    word-break: break-word;
+    margin-bottom: 1.6rem !important;
+  }
+
+  line-height: 1.4;
 `;
 
 const H1 = styled.h1`
-  font-weight: 600;
-
   &:not(:first-child) {
-    margin-top: 1.2rem;
+    margin-top: 2rem;
   }
+
+  font-size: 4rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid ${OpenColor.gray[3]};
+  margin-bottom: 1.2rem;
 `;
 const H2 = styled.h2`
-  font-weight: 600;
-
   &:not(:first-child) {
-    margin-top: 1.2rem;
+    margin-top: 2rem;
   }
+
+  font-size: 3.2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid ${OpenColor.gray[3]};
+  margin-bottom: 1.2rem;
 `;
 const H3 = styled.h3`
-  font-weight: 600;
-
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
+
+  font-size: 2.4rem;
+  margin-bottom: 1.6rem;
 `;
 const H4 = styled.h4`
-  font-weight: 600;
-
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
+
+  font-size: 2rem;
+  margin-bottom: 1.6rem;
 `;
 const H5 = styled.h5`
-  font-weight: 600;
-
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
+
+  font-size: 1.8rem;
+  margin-bottom: 1.6rem;
 `;
 const H6 = styled.h6`
-  font-weight: 600;
-
   &:not(:first-child) {
     margin-top: 1.2rem;
   }
+
+  font-size: 1.6rem;
+  margin-bottom: 1.6rem;
 `;
 
 const Paragraph = styled.p`
@@ -339,7 +360,7 @@ const Em = styled.em`
 `;
 
 const LIST_ITEM_MARKER_WIDTH = 32;
-const LIST_INDENT = 8;
+const LIST_INDENT = 16;
 
 const UnorderedList = styled.ul`
   margin-left: ${LIST_INDENT}px;
@@ -396,7 +417,6 @@ const OrderedList = styled.ol`
 
 const Li = styled.li`
   margin-top: 4px;
-  margin-bottom: 4px;
   font-size: 1.6rem;
 
   &:before {

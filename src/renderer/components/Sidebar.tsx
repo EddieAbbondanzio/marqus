@@ -3,7 +3,7 @@ import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
-import { h100, p2, px2, THEME, w100 } from "../css";
+import { h100, mb3, THEME, w100 } from "../css";
 import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
@@ -173,14 +173,16 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     };
   }, [noteIds, state.sidebar, store]);
 
+  // TODO: Where did calc(100% - 100px) come from?
+
   return (
-    <StyledResizable
+    <SidebarResizable
       minWidth={MIN_WIDTH}
       width={store.state.sidebar.width}
       onResize={w => store.dispatch("sidebar.resizeWidth", w)}
     >
-      <StyledFocusable store={store} section={Section.Sidebar}>
-        <Controls id="controls">
+      <SidebarFocusable store={store} section={Section.Sidebar}>
+        <Controls>
           <SidebarSearch store={store} />
           <SidebarNewNoteButton store={store} />
         </Controls>
@@ -197,24 +199,27 @@ export function Sidebar(props: SidebarProps): JSX.Element {
           {/* Empty space for right clicking to create new notes */}
           <EmptySpace />
         </Scrollable>
-      </StyledFocusable>
-    </StyledResizable>
+      </SidebarFocusable>
+    </SidebarResizable>
   );
 }
 
-const StyledResizable = styled(Resizable)`
+const SidebarResizable = styled(Resizable)`
   background-color: ${THEME.sidebar.background};
   user-select: none;
   ${h100};
 `;
 
-const StyledFocusable = styled(Focusable)`
-  ${p2}
+const SidebarFocusable = styled(Focusable)`
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
   ${w100}
 `;
 
 const Controls = styled.div`
-  ${px2}
+  ${mb3}
+  padding-left: 1rem;
+  padding-right: 1rem;
 `;
 
 const EmptySpace = styled.div`
@@ -487,7 +492,7 @@ export const createNote: Listener<"sidebar.createNote"> = async (ev, ctx) => {
         editor: {
           isEditing: true,
           activeTabNoteId: note.id,
-          // Keep in sync with openTab in EditorTabs.tsx
+          // Keep in sync with openTab in EditorToolbar.tsx
           tabs: [...prev.editor.tabs, { note, content: "" }],
         },
       }));

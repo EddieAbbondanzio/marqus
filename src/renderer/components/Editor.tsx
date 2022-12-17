@@ -3,14 +3,13 @@ import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
-import { m2 } from "../css";
+import { m2, m3 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { ModelAndViewState, Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
-import { EditorTabs, TABS_HEIGHT } from "./EditorTabs";
+import { EditorToolbar, TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { getNoteById } from "../../shared/domain/note";
-import { EditorToolbar } from "./EditorToolbar";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
 
@@ -89,7 +88,6 @@ export function Editor(props: EditorProps): JSX.Element {
       section={Section.Editor}
       focusOnRender={false}
     >
-      <EditorTabs store={store} />
       <EditorToolbar store={store} />
       <StyledContent>{content}</StyledContent>
     </StyledFocusable>
@@ -104,8 +102,8 @@ const StyledFocusable = styled(Focusable)`
 const StyledContent = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - ${TABS_HEIGHT});
-  ${m2}
+  height: calc(100% - ${TOOLBAR_HEIGHT});
+  ${m3}
   overflow: hidden;
 `;
 

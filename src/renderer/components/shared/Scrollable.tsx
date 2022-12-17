@@ -119,7 +119,7 @@ const StyledDiv = styled.div<{
   height: ${p => p.height};
 
   ::-webkit-scrollbar {
-    height: 0.4rem; // Horizontal scrollbar
+    height: 0.3rem; // Horizontal scrollbar
     width: 1rem; // Vertical scrollbar
   }
 

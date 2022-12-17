@@ -26,33 +26,22 @@ export const THEME = {
     },
   },
   editor: {
-    tabs: {
+    toolbar: {
+      buttonColor: OpenColor.gray[8],
       background: OpenColor.gray[3],
       border: OpenColor.gray[5],
+      tabFont: OpenColor.gray[8],
+      hoveredButtonBackground: OpenColor.gray[5],
       hoveredTabBackground: OpenColor.gray[5],
       activeTabBackground: OpenColor.white,
       activeTabFont: OpenColor.gray[9],
-      deleteColor: OpenColor.red[7],
+      deleteColor: OpenColor.gray[6],
+      deleteHoverColor: OpenColor.red[7],
       deleteHoverBackground: OpenColor.gray[3],
       scrollbarColor: OpenColor.gray[5],
     },
-    toolbar: {
-      font: OpenColor.gray[7],
-      background: OpenColor.gray[1],
-      border: OpenColor.gray[5],
-      hoveredButtonBackground: OpenColor.gray[3],
-    },
   },
 };
-
-export const HEADER_SIZES = [
-  "4rem",
-  "3.2rem",
-  "2.4rem",
-  "2rem",
-  "1.6rem",
-  "1.4rem",
-];
 
 export const rounded = css`
   border-radius: 0.2rem;
