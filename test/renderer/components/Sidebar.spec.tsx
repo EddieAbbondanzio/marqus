@@ -361,7 +361,9 @@ test("sidebar.createNote expands parent", async () => {
   render(<Sidebar store={store.current} />);
 
   await act(async () => {
-    void store.current.dispatch("sidebar.createNote", "parent-note");
+    void store.current.dispatch("sidebar.createNote", {
+      parent: "parent-note",
+    });
   });
 
   const { state } = store.current;

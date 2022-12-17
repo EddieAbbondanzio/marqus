@@ -13,12 +13,12 @@ export interface SidebarNewNoteButton {
 }
 
 export function SidebarNewNoteButton(
-  props: PropsWithChildren<SidebarNewNoteButton>
+  props: PropsWithChildren<SidebarNewNoteButton>,
 ): JSX.Element {
-  const onClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+  const onClick = async (ev: React.MouseEvent<HTMLButtonElement>) => {
     // Stop prop otherwise we'll mess up switching focus
     ev.stopPropagation();
-    props.store.dispatch("sidebar.createNote", null);
+    await props.store.dispatch("sidebar.createNote", { root: true });
   };
 
   return (

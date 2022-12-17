@@ -429,11 +429,15 @@ export const createNote: Listener<"sidebar.createNote"> = async (ev, ctx) => {
   const { sidebar } = ctx.getState();
 
   // Give precedence to note id passed, otherwise use the selected note as parent.
-  let parentId: string | undefined = undefined;
-  if (ev.value != null) {
-    parentId = ev.value;
-  } else if (sidebar.selected != null && sidebar.selected.length > 0) {
-    parentId = sidebar.selected[0];
+  let parentId: string | undefined;
+  const root = ev.value?.hasOwnProperty("root") ?? false;
+
+  if (!root) {
+    if (ev.value && ev.value != null && "parent" in ev.value) {
+      parentId = ev.value.parent!;
+    } else if (sidebar.selected != null && sidebar.selected.length > 0) {
+      parentId = sidebar.selected[0];
+    }
   }
 
   const input = createPromisedInput(

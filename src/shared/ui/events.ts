@@ -30,7 +30,7 @@ export interface UIEvents {
   "sidebar.scrollUp": void;
   "sidebar.resizeWidth": string;
   "sidebar.toggleFilter": void;
-  "sidebar.createNote": string | null;
+  "sidebar.createNote": { parent?: string | null } | { root?: true };
   "sidebar.renameNote": string;
   "sidebar.renameSelectedNote": void;
   "sidebar.dragNote": { note: string; newParent?: string };

@@ -45,7 +45,7 @@ export function useContextMenu(store: Store, config: Config): void {
             label: "New note",
             type: "normal",
             event: "sidebar.createNote",
-            eventInput: noteId,
+            eventInput: { parent: noteId },
           });
 
           if (noteId != null) {
@@ -128,7 +128,7 @@ export function useContextMenu(store: Store, config: Config): void {
             label: "Close to right",
             type: "normal",
             event: "editor.closeTabsToRight",
-            eventInput: tabNoteId,
+            eventInput: tabNoteId!,
             shortcut: shortcutLabels["editor.closeTabsToRight"],
           });
 
@@ -136,7 +136,7 @@ export function useContextMenu(store: Store, config: Config): void {
             label: "Close to left",
             type: "normal",
             event: "editor.closeTabsToLeft",
-            eventInput: tabNoteId,
+            eventInput: tabNoteId!,
             shortcut: shortcutLabels["editor.closeTabsToLeft"],
           });
           break;
