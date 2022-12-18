@@ -24,14 +24,6 @@ afterEach(() => {
 });
 
 jest.mock("../../../../src/main/utils");
-jest.mock("lodash", () => {
-  const _ = jest.requireActual("lodash");
-
-  return {
-    ..._,
-    throttle: jest.fn().mockReturnValue(cb => cb()),
-  };
-});
 
 test("appIpcs sets app menu on start", async () => {
   const { browserWindow } = await initIpc({}, appIpcPlugin);
