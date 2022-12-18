@@ -1,5 +1,5 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/promisedInput";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
@@ -181,6 +181,11 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
     // Swallow keyboard events to prevent shortcuts from triggering.
     ev.stopPropagation();
   };
+
+  // On first render, scroll the input into view.
+  useEffect(() => {
+    inputRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, []);
 
   return (
     <Indented style={{ paddingLeft }}>
