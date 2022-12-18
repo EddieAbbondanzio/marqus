@@ -188,8 +188,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
           <SidebarNewNoteButton store={store} />
         </Controls>
 
-        <Scrollable
-          height="calc(100% - 100px)"
+        <SidebarScrollable
           scroll={store.state.sidebar.scroll}
           onScroll={async s => {
             await store.dispatch("sidebar.updateScroll", s);
@@ -198,8 +197,8 @@ export function Sidebar(props: SidebarProps): JSX.Element {
           {menus}
 
           {/* Empty space for right clicking to create new notes */}
-          <EmptySpace />
-        </Scrollable>
+          {input == null && <EmptySpace />}
+        </SidebarScrollable>
       </SidebarFocusable>
     </SidebarResizable>
   );
@@ -215,6 +214,10 @@ const SidebarFocusable = styled(Focusable)`
   padding-top: 0.8rem;
   padding-bottom: 0.8rem;
   ${w100}
+`;
+
+const SidebarScrollable = styled(Scrollable)`
+  height: calc(100% - 100px);
 `;
 
 const Controls = styled.div`

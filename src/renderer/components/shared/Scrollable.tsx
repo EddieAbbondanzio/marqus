@@ -8,7 +8,6 @@ const SCROLL_DEBOUNCE_INTERVAL = 100; // ms
 
 export interface ScrollableProps {
   className?: string;
-  height?: string;
   scroll?: number;
   orientation?: ScrollOrientation;
   onScroll?: (scrollPos: number) => void;
@@ -18,20 +17,17 @@ export type ScrollOrientation = "horizontal" | "vertical";
 export function Scrollable(
   props: React.PropsWithChildren<ScrollableProps>,
 ): JSX.Element {
-  const {
-    scroll,
-    className,
-    height = "100%",
-    orientation = "vertical",
-    onScroll,
-  } = props;
+  const { scroll, className, orientation = "vertical", onScroll } = props;
 
   const wrapper = useRef(null as unknown as HTMLDivElement);
 
+  const prevScroll = useRef(props.scroll);
   useEffect(() => {
     const el = wrapper.current;
 
-    if (scroll != null && el != null) {
+    // Only set scroll if it changed since the last time we set scroll. We do this
+    // so Scrollable allows the scroll position to be changed via child.scrollIntoView.
+    if (scroll != null && el != null && prevScroll.current !== scroll) {
       let clamped;
 
       switch (orientation) {
@@ -46,6 +42,8 @@ export function Scrollable(
         default:
           throw new Error(`Invalid scrollable orientation ${orientation}`);
       }
+
+      prevScroll.current = scroll;
     }
 
     // N.B. Don't trigger onScroll if we clamped scroll position here because
@@ -86,7 +84,6 @@ export function Scrollable(
     <StyledDiv
       className={className}
       onScroll={onScrollHandler}
-      height={height}
       orientation={orientation}
       ref={wrapper}
     >
@@ -98,7 +95,6 @@ export function Scrollable(
 // We need to pass height otherwise the div will automatically grow to the size
 // of it's content and it'll never show a scroll bar.
 const StyledDiv = styled.div<{
-  height: string;
   orientation: ScrollOrientation;
 }>`
   ${props => {
@@ -116,7 +112,7 @@ const StyledDiv = styled.div<{
   }}
 
   ${w100}
-  height: ${p => p.height};
+  height: 100%;
 
   ::-webkit-scrollbar {
     height: 0.3rem; // Horizontal scrollbar

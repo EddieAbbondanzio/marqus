@@ -184,7 +184,7 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
 
   // On first render, scroll the input into view.
   useEffect(() => {
-    inputRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    inputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   return (
