@@ -1,5 +1,6 @@
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const Webpack = require("webpack");
 
 const rules = require("./webpack.rules");
 
@@ -10,7 +11,14 @@ module.exports = {
   module: {
     rules,
   },
-  plugins: [new ForkTsCheckerWebpackPlugin(), new MonacoWebpackPlugin()],
+  plugins: [
+    new Webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery",
+    }),
+    new ForkTsCheckerWebpackPlugin(),
+    new MonacoWebpackPlugin(),
+  ],
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".scss", ".sass"],
   },

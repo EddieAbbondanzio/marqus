@@ -9,3 +9,7 @@ window.ResizeObserver = class {
 // jsdom doesn't support scrollIntoView
 // https://stackoverflow.com/questions/53271193/typeerror-scrollintoview-is-not-a-function
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
+
+(global as any).$ = jest.fn().mockReturnValue({
+  scrollTo: jest.fn(),
+});

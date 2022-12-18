@@ -14,3 +14,4 @@
 import "../../static/reset.sass";
 
 import "./App";
+import "jquery.scrollto";

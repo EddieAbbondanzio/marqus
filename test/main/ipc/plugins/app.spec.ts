@@ -129,7 +129,7 @@ test("app.loadAppState loads defaults", async () => {
 test("app.saveAppState", async () => {
   mockFS({
     [FAKE_DATA_DIRECTORY]: {
-      // Empty dir so defaults apply
+      [APP_STATE_PATH]: JSON.stringify(createAppState()),
     },
   });
 
@@ -149,6 +149,7 @@ test("app.saveAppState", async () => {
 
   await ipc.invoke("app.saveAppState", update);
   const latest = await ipc.invoke("app.loadAppState");
+
   expect(latest.sidebar.scroll).toBe(20);
   expect(latest.editor.isEditing).toBe(true);
   expect(latest.editor.scroll).toBe(20);

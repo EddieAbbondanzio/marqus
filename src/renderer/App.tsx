@@ -162,7 +162,7 @@ export async function loadInitialState(config: Config): Promise<State> {
       ...ui,
       editor: {
         ...ui.editor,
-        tabs,
+        tabs: tabs.map(t => ({ ...t, fromPreviousSession: true })),
       },
     },
     notes,

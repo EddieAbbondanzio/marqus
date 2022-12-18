@@ -1,9 +1,8 @@
 import { faFile, faTimes } from "@fortawesome/free-solid-svg-icons";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { m0, mr2, p2, px2, THEME } from "../css";
 import { Icon } from "./shared/Icon";
-
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
 
 export interface EditorTabProps {
@@ -18,6 +17,15 @@ export interface EditorTabProps {
 export function EditorTab(props: EditorTabProps): JSX.Element {
   const { noteId, noteName, notePath, active } = props;
 
+  const wrapper = useRef(null! as HTMLAnchorElement);
+  useEffect(() => {
+    if (active) {
+      $(wrapper.current.parentElement!).scrollTo(wrapper.current, 0, {
+        axis: "x",
+      });
+    }
+  }, [active]);
+
   const onDeleteClick = (ev: React.MouseEvent<HTMLElement>) => {
     // Need to stop prop otherwise it'll trigger onClick of tab.
     ev.stopPropagation();
@@ -26,6 +34,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
 
   return (
     <StyledTab
+      ref={wrapper}
       key={noteId}
       title={notePath}
       onClick={() => props.onClick(noteId)}

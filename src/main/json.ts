@@ -4,6 +4,7 @@ import * as fs from "fs";
 import { ZodSchema } from "zod";
 import { DeepPartial } from "tsdef";
 import { deepUpdate } from "../shared/deepUpdate";
+import { Mutex } from "async-mutex";
 
 export interface Versioned {
   version: number;
@@ -91,6 +92,8 @@ export async function loadJsonFile<Content extends Versioned>(
     content: originalContent,
   } as JsonFile<Content>;
 
+  const mutex = new Mutex();
+
   // N.B. To access content within update, always use this.content. originalContent,
   // or anything from outside of update, will be stale after first update!
   const update = async function (
@@ -109,8 +112,13 @@ export async function loadJsonFile<Content extends Versioned>(
 
     const jsonString = JSON.stringify(updated, null, 2);
 
+    // N.B. Json files such as appState are saved so much it risks being corrupted
+    // because two writes could be occurring at the same time. We use a mutex to
+    // always ensure no more than 1 write is occurring at a a time.
+    await mutex.runExclusive(async () => {
+      await fsp.writeFile(filePath, jsonString, { encoding: "utf-8" });
+    });
     fileHandler.content = validated;
-    await fsp.writeFile(filePath, jsonString, { encoding: "utf-8" });
   }.bind(fileHandler);
 
   fileHandler.update = update;

@@ -117,6 +117,9 @@ test("getConfig overrides data / log directory in development", async () => {
       logDirectory: "random/logs",
       dataDirectory: "random/data-dir",
     }),
+    random: {
+      "data-dir": {},
+    },
   });
 
   // We use spyOn instead of mocking entire module because we need getProcessType
