@@ -4,6 +4,7 @@ import * as fs from "fs";
 import { ZodSchema } from "zod";
 import { DeepPartial } from "tsdef";
 import { deepUpdate } from "../shared/deepUpdate";
+import * as lockFile from "proper-lockfile";
 
 export interface Versioned {
   version: number;
@@ -109,8 +110,10 @@ export async function loadJsonFile<Content extends Versioned>(
 
     const jsonString = JSON.stringify(updated, null, 2);
 
-    fileHandler.content = validated;
+    const release = await lockFile.lock(filePath);
     await fsp.writeFile(filePath, jsonString, { encoding: "utf-8" });
+    fileHandler.content = validated;
+    await release();
   }.bind(fileHandler);
 
   fileHandler.update = update;

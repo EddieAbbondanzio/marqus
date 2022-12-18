@@ -90,7 +90,9 @@ export const appIpcPlugin: IpcPlugin = {
     const { blockAppFromQuitting } = ctx;
 
     await blockAppFromQuitting(async () => {
+      console.log("SAVE APP STATE");
       await appStateFile!.update(appState);
+      console.log("DONE!");
     });
   },
 
