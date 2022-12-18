@@ -277,7 +277,9 @@ export function renderMenus(
         />,
       );
     } else {
-      const noteFullPath = getFullPath(notes, note);
+      // N.B. We pass store.state.notes over notes because notes won't have every
+      // note if the user passed a string to the searchbar.
+      const noteFullPath = getFullPath(store.state.notes, note);
 
       menus.push(
         <SidebarMenu
