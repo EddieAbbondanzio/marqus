@@ -4,7 +4,7 @@ import {
   DEFAULT_DEV_DATA_DIRECTORY,
   DEFAULT_DEV_LOG_DIRECTORY,
   getConfig,
-  getConfigPath,
+  getConfigDirectory,
 } from "../../../../src/main/ipc/plugins/config";
 import fs from "fs";
 import * as env from "../../../../src/shared/env";
@@ -46,7 +46,9 @@ test("config.openInTextEditor", async () => {
   const { ipc } = await initIpc({}, configIpcPlugin);
 
   await ipc.invoke("config.openInTextEditor");
-  expect(shell.openPath).toHaveBeenCalledWith(CONFIG_FILE);
+  expect(shell.openPath).toHaveBeenCalledWith(
+    expect.stringContaining(`marker/${CONFIG_FILE}`),
+  );
 });
 
 test.each([null, "fake-data-dir"])(
@@ -146,18 +148,13 @@ test("getConfig creates data directory if directory is missing.", async () => {
   expect(fs.existsSync(CONFIG_FILE)).toBe(true);
 });
 
-test("getConfigPath", () => {
-  jest.spyOn(process, "cwd").mockReturnValueOnce(FAKE_DATA_DIRECTORY);
-  jest.spyOn(env, "isDevelopment").mockReturnValueOnce(true);
-  expect(getConfigPath()).toBe(`${FAKE_DATA_DIRECTORY}/config.json`);
-
-  jest.spyOn(env, "isDevelopment").mockReturnValueOnce(false);
-  jest.spyOn(env, "isTest").mockReturnValueOnce(true);
-  expect(getConfigPath()).toBe(CONFIG_FILE);
-
-  jest.spyOn(env, "isDevelopment").mockReturnValueOnce(false);
-  jest.spyOn(env, "isTest").mockReturnValueOnce(false);
-
+test("getConfigDirectory", () => {
+  // Dev and Test are the same
+  jest.spyOn(env, "isProduction").mockReturnValueOnce(true);
   (app.getPath as jest.Mock).mockReturnValueOnce("config-dir");
-  expect(getConfigPath()).toBe("config-dir/config.json");
+  expect(getConfigDirectory()).toBe(`config-dir`);
+
+  jest.spyOn(env, "isProduction").mockReturnValueOnce(false);
+  jest.spyOn(process, "cwd").mockReturnValueOnce("cwd");
+  expect(getConfigDirectory()).toBe("cwd");
 });

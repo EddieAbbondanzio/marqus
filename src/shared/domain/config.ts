@@ -2,8 +2,8 @@ export interface Config {
   version: number;
   windowHeight: number;
   windowWidth: number;
-  dataDirectory?: string;
   logDirectory: string;
+  dataDirectory?: string;
   developerMode?: boolean;
   autoHideAppMenu?: boolean;
 }

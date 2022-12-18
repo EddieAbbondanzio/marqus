@@ -40,46 +40,44 @@ test("shortcuts.getAll", async () => {
   const { ipc } = await initIpc({}, shortcutsIpcPlugin);
 
   mockFS({
-    data: {
-      [SHORTCUT_FILE_PATH]: JSON.stringify({
-        version: getLatestSchemaVersion(SHORTCUTS_SCHEMAS),
-        shortcuts: [
-          // Disable existing shortcut
-          {
-            name: "sidebar.focus",
-            disabled: true,
-          },
-          // Change keys existing shortcut
-          {
-            name: "app.toggleSidebar",
-            keys: "control+alt+s",
-          },
-          // Change when existing shortcut
-          {
-            name: "app.quit",
-            when: Section.Sidebar,
-          },
-          // Change event input existing shortcut
-          {
-            name: "notes.create",
-            eventInput: "foo",
-          },
-          // Change repeat existing shortcut
-          {
-            name: "app.reload",
-            repeat: true,
-          },
-          // Add a new shortcut
-          {
-            name: "openDataDirectory2",
-            event: "app.openDataDirectory",
-            keys: "control+o+d+f",
-            when: Section.Editor,
-            repeat: false,
-          },
-        ],
-      }),
-    },
+    [SHORTCUT_FILE_PATH]: JSON.stringify({
+      version: getLatestSchemaVersion(SHORTCUTS_SCHEMAS),
+      shortcuts: [
+        // Disable existing shortcut
+        {
+          name: "sidebar.focus",
+          disabled: true,
+        },
+        // Change keys existing shortcut
+        {
+          name: "app.toggleSidebar",
+          keys: "control+alt+s",
+        },
+        // Change when existing shortcut
+        {
+          name: "app.quit",
+          when: Section.Sidebar,
+        },
+        // Change event input existing shortcut
+        {
+          name: "notes.create",
+          eventInput: "foo",
+        },
+        // Change repeat existing shortcut
+        {
+          name: "app.reload",
+          repeat: true,
+        },
+        // Add a new shortcut
+        {
+          name: "openDataDirectory2",
+          event: "app.openDataDirectory",
+          keys: "control+o+d+f",
+          when: Section.Editor,
+          repeat: false,
+        },
+      ],
+    }),
   });
 
   const shortcuts = await ipc.invoke("shortcuts.getAll");
