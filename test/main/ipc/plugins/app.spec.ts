@@ -126,6 +126,18 @@ test("app.loadAppState loads defaults", async () => {
   expect(appState).toEqual(APP_STATE_DEFAULTS);
 });
 
+test("app.loadAppState handles bad JSON", async () => {
+  mockFS({
+    [FAKE_DATA_DIRECTORY]: {
+      [APP_STATE_PATH]: "P{WD{A{DSASD}",
+    },
+  });
+
+  const { ipc } = await initIpc({}, appIpcPlugin);
+  const appState = await ipc.invoke("app.loadAppState");
+  expect(appState).toEqual(APP_STATE_DEFAULTS);
+});
+
 test("app.saveAppState", async () => {
   mockFS({
     [FAKE_DATA_DIRECTORY]: {

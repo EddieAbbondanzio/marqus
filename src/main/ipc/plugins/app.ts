@@ -19,6 +19,8 @@ import p from "path";
 import { NoteSort } from "../../../shared/domain/note";
 import { APP_STATE_SCHEMAS } from "../../schemas/appState";
 import { IpcPlugin } from "..";
+import * as fs from "fs";
+import { Config } from "../../../shared/domain/config";
 
 export const APP_STATE_PATH = "ui.json";
 export const APP_STATE_DEFAULTS = {
@@ -63,13 +65,7 @@ export const appIpcPlugin: IpcPlugin = {
     browserWindow.on("resize", onResize);
 
     if (config.content.dataDirectory != null) {
-      appStateFile = await loadJsonFile<SerializedAppState>(
-        p.join(config.content.dataDirectory, APP_STATE_PATH),
-        APP_STATE_SCHEMAS,
-        {
-          defaultContent: APP_STATE_DEFAULTS,
-        },
-      );
+      appStateFile = await loadAppState(config.content);
     }
 
     return () => {
@@ -195,6 +191,34 @@ export const appIpcPlugin: IpcPlugin = {
     }
   },
 };
+
+export async function loadAppState(
+  config: Config,
+): Promise<JsonFile<SerializedAppState>> {
+  if (config.dataDirectory == null) {
+    throw new Error(`Cannot load app state without a data directory.`);
+  }
+
+  let file: JsonFile<SerializedAppState>;
+  const filePath = p.join(config.dataDirectory, APP_STATE_PATH);
+
+  try {
+    file = await loadJsonFile<SerializedAppState>(filePath, APP_STATE_SCHEMAS, {
+      defaultContent: APP_STATE_DEFAULTS,
+    });
+  } catch (err) {
+    // App state file can easily be re-generated, so if it fails to load we
+    // just nuke it out.
+    await fs.promises.unlink(filePath);
+
+    // Generate a new app state file that has been defaulted.
+    file = await loadJsonFile<SerializedAppState>(filePath, APP_STATE_SCHEMAS, {
+      defaultContent: APP_STATE_DEFAULTS,
+    });
+  }
+
+  return file;
+}
 
 export function buildMenus(
   menus: MenuType[],
