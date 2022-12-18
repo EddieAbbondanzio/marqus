@@ -24,6 +24,14 @@ afterEach(() => {
 });
 
 jest.mock("../../../../src/main/utils");
+jest.mock("lodash", () => {
+  const _ = jest.requireActual("lodash");
+
+  return {
+    ..._,
+    throttle: jest.fn().mockReturnValue(cb => cb()),
+  };
+});
 
 test("appIpcs sets app menu on start", async () => {
   const { browserWindow } = await initIpc({}, appIpcPlugin);
@@ -149,6 +157,7 @@ test("app.saveAppState", async () => {
 
   await ipc.invoke("app.saveAppState", update);
   const latest = await ipc.invoke("app.loadAppState");
+
   expect(latest.sidebar.scroll).toBe(20);
   expect(latest.editor.isEditing).toBe(true);
   expect(latest.editor.scroll).toBe(20);

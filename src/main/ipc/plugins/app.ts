@@ -19,8 +19,10 @@ import p from "path";
 import { NoteSort } from "../../../shared/domain/note";
 import { APP_STATE_SCHEMAS } from "../../schemas/appState";
 import { IpcPlugin } from "..";
+import { throttle } from "lodash";
 
 export const APP_STATE_PATH = "ui.json";
+export const APP_STATE_THROTTLE_MS = 200;
 export const APP_STATE_DEFAULTS = {
   version: 1,
   sidebar: {
@@ -89,10 +91,10 @@ export const appIpcPlugin: IpcPlugin = {
 
     const { blockAppFromQuitting } = ctx;
 
-    await blockAppFromQuitting(async () => {
-      console.log("SAVE APP STATE");
-      await appStateFile!.update(appState);
-      console.log("DONE!");
+    await saveAppStateThrottler(async () => {
+      await blockAppFromQuitting(async () => {
+        await appStateFile!.update(appState);
+      });
     });
   },
 
@@ -311,3 +313,11 @@ export function buildClickHandler<Ev extends UIEventType>(
     });
   };
 }
+
+const saveAppStateThrottler = throttle(
+  async (cb: () => Promise<void>) => {
+    await cb();
+  },
+  APP_STATE_THROTTLE_MS,
+  { trailing: true, leading: false },
+);
