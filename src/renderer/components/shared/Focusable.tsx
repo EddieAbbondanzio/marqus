@@ -8,6 +8,7 @@ import React, {
 import { Section } from "../../../shared/ui/app";
 import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { Store } from "../../store";
+import styled from "styled-components";
 
 // Should not be used directly.
 export const FOCUSABLE_ATTRIBUTE = "data-focusable";
@@ -100,16 +101,22 @@ export function Focusable(
   });
 
   return (
-    <div
+    <StyledDiv
       ref={containerRef}
       className={props.className}
       tabIndex={props.tabIndex ?? -1}
       {...{ [FOCUSABLE_ATTRIBUTE]: props.section }}
     >
       {props.children}
-    </div>
+    </StyledDiv>
   );
 }
+
+const StyledDiv = styled.div`
+  &:focus {
+    outline: none;
+  }
+`;
 
 export function wasInsideFocusable(ev: Event, section: Section): boolean {
   const f = getFocusableAttribute(ev.target as HTMLElement);
