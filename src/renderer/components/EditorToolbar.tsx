@@ -12,9 +12,9 @@ import {
   getParents,
 } from "../../shared/domain/note";
 import { p2, rounded, THEME } from "../css";
-import { Listener, Store } from "../store";
+import { Listener, Store, StoreContext } from "../store";
 import { Icon } from "./shared/Icon";
-import { orderBy } from "lodash";
+import { orderBy, uniq } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
@@ -97,11 +97,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
         return;
       }
 
-      ctx.setUI({
-        editor: {
-          activeTabNoteId: nextTab?.note.id,
-        },
-      });
+      setActiveTab(ctx, nextTab.note.id);
     },
     [nextTab],
   );
@@ -112,11 +108,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
         return;
       }
 
-      ctx.setUI({
-        editor: {
-          activeTabNoteId: previousTab?.note.id,
-        },
-      });
+      setActiveTab(ctx, previousTab.note.id);
     },
     [previousTab],
   );
@@ -350,7 +342,7 @@ const TabsScrollable = styled(Scrollable)`
 
 export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   // Keep in sync with sidebar.openSelectedNotes listener
-  const { editor, notes } = ctx.getState();
+  const { sidebar, editor, notes } = ctx.getState();
 
   if (ev.value?.note == null) {
     return;
@@ -358,7 +350,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
 
   const notesToOpen = arrayify(ev.value.note);
   const noteIds: string[] = [];
-  let activeTabNoteId;
+  let activeTabNoteId: string | undefined = undefined;
 
   for (const note of notesToOpen) {
     if (isProtocolUrl("note", note)) {
@@ -404,9 +396,10 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   ctx.setUI({
     editor: {
       tabs,
-      activeTabNoteId,
     },
   });
+
+  setActiveTab(ctx, activeTabNoteId);
 
   if (ev.value.focus) {
     ctx.focus([Section.Editor], { overwrite: true });
@@ -436,3 +429,33 @@ export const updateTabsScroll: Listener<"editor.updateTabsScroll"> = async (
     });
   }
 };
+
+function setActiveTab(
+  ctx: StoreContext,
+  activeTabNoteId: string | undefined,
+): void {
+  const { sidebar, editor, notes } = ctx.getState();
+
+  // When active tab changes, we select the note in the sidebar to make it easy
+  // for the user to see what note they are working on. If the note is nested though
+  // we need to expand parents to make sure it's visible.
+  let { expanded = [] } = sidebar;
+  if (activeTabNoteId != null && activeTabNoteId != editor.activeTabNoteId) {
+    const activeNote = getNoteById(notes, activeTabNoteId!);
+    const activeTabSidebarParents = getParents(activeNote, notes);
+
+    if (activeTabSidebarParents.length > 0) {
+      expanded = uniq([...expanded, ...activeTabSidebarParents.map(p => p.id)]);
+    }
+  }
+
+  ctx.setUI({
+    editor: {
+      activeTabNoteId,
+    },
+    sidebar: {
+      expanded,
+      selected: [activeTabNoteId],
+    },
+  });
+}

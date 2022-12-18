@@ -17,6 +17,9 @@ afterAll(() => {
 
 test("openTab opens tabs passed", async () => {
   const store = createStore({
+    sidebar: {
+      selected: [],
+    },
     notes: [
       createNote({ id: "1", name: "foo" }),
       createNote({ id: "2", name: "bar" }),
@@ -33,7 +36,7 @@ test("openTab opens tabs passed", async () => {
     await store.current.dispatch("editor.openTab", { note: "1" });
   });
 
-  let { editor } = store.current.state;
+  let { sidebar, editor } = store.current.state;
   expect(editor.tabs[0]!.note.id).toBe("1");
   expect(editor.tabs[0]!.lastActive).not.toBe(null);
 
@@ -45,9 +48,10 @@ test("openTab opens tabs passed", async () => {
   });
 
   // Test it sets active tab passed.
-  ({ editor } = store.current.state);
+  ({ sidebar, editor } = store.current.state);
   expect(editor.activeTabNoteId).toBe("2");
   expect(editor.tabs).toHaveLength(3);
+  expect(sidebar.selected).toEqual(["2"]);
 });
 
 test("openTab works with note paths too", async () => {
@@ -370,6 +374,9 @@ test("nextTab", async () => {
   ];
   const store = createStore({
     notes,
+    sidebar: {
+      selected: [],
+    },
     editor: {
       activeTabNoteId: "1",
       tabs: [
@@ -394,9 +401,11 @@ test("nextTab", async () => {
     await store.current.dispatch("editor.nextTab", undefined!);
   });
 
-  const { editor } = store.current.state;
+  const { sidebar, editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe("2");
+  expect(sidebar.selected).toEqual(["2"]);
 });
+
 test("previousTab", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
@@ -405,6 +414,9 @@ test("previousTab", async () => {
   ];
   const store = createStore({
     notes,
+    sidebar: {
+      selected: [],
+    },
     editor: {
       activeTabNoteId: "1",
       tabs: [
@@ -429,8 +441,9 @@ test("previousTab", async () => {
     await store.current.dispatch("editor.previousTab");
   });
 
-  const { editor } = store.current.state;
+  const { sidebar, editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe("3");
+  expect(sidebar.selected).toEqual(["3"]);
 });
 
 test("updateTabsScroll scrolls tabs", async () => {
