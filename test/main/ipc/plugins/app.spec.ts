@@ -129,7 +129,7 @@ test("app.loadAppState loads defaults", async () => {
 test("app.saveAppState", async () => {
   mockFS({
     [FAKE_DATA_DIRECTORY]: {
-      // Empty dir so defaults apply
+      [APP_STATE_PATH]: JSON.stringify(createAppState()),
     },
   });
 

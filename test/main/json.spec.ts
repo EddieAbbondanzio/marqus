@@ -1,6 +1,11 @@
 import { loadJsonFile, runSchemas } from "../../src/main/json";
 import { z, ZodSchema } from "zod";
 import mockFS from "mock-fs";
+import * as lockFile from "proper-lockfile";
+
+jest.mock("proper-lockfile", () => ({
+  lock: jest.fn().mockReturnValue(jest.fn()),
+}));
 
 interface FooV1 {
   version: 1;
@@ -133,6 +138,7 @@ test("loadJsonFile", async () => {
   });
 
   await jsonFile.update({ foo: "fish" });
+  expect(lockFile.lock).toHaveBeenCalledWith("fake-file-path.json");
   expect(jsonFile.content).toEqual({
     version: 2,
     foo: "fish",
