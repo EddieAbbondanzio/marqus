@@ -78,8 +78,12 @@ const SearchIcon = styled(Icon)`
 const DeleteIcon = styled(Icon)`
   position: absolute;
   color: ${THEME.sidebar.search.deleteIcon};
-  right: 0.5rem;
+  right: 0.8rem;
   cursor: pointer;
+
+  &:hover {
+    color: ${THEME.sidebar.search.deleteIconHover};
+  }
 `;
 
 const SearchInput = styled.input`

@@ -17,6 +17,7 @@ export const THEME = {
     search: {
       icon: OpenColor.white,
       deleteIcon: OpenColor.red[0],
+      deleteIconHover: OpenColor.red[7],
       background: OpenColor.gray[8],
       font: OpenColor.gray[2],
     },
