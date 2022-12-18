@@ -17,7 +17,6 @@ export interface EditorTabProps {
 export function EditorTab(props: EditorTabProps): JSX.Element {
   const { noteId, noteName, notePath, active } = props;
 
-  // TODO: Improve this so we can disable it on start
   const wrapper = useRef(null! as HTMLAnchorElement);
   useEffect(() => {
     if (active) {
