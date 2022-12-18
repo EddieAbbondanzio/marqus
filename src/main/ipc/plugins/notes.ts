@@ -19,7 +19,6 @@ import * as fs from "fs";
 import * as p from "path";
 
 export const ATTACHMENTS_DIRECTORY = "attachments";
-export const NOTES_DIRECTORY = "notes";
 export const METADATA_FILE_NAME = "metadata.json";
 export const MARKDOWN_FILE_NAME = "index.md";
 
@@ -35,13 +34,7 @@ export const noteIpcPlugin: IpcPlugin = {
     const { dataDirectory } = config.content;
 
     if (dataDirectory) {
-      const noteDirectory = p.join(dataDirectory, NOTES_DIRECTORY);
-
-      if (!fs.existsSync(noteDirectory)) {
-        await fs.promises.mkdir(noteDirectory);
-      }
-
-      registerAttachmentsProtocol(noteDirectory);
+      registerAttachmentsProtocol(dataDirectory);
     }
 
     // Override how all links are open so we can send them off to the user's
@@ -59,18 +52,18 @@ export const noteIpcPlugin: IpcPlugin = {
   },
 
   "notes.getAll": async ctx => {
-    const noteDirectory = getNoteDirectoryPath(ctx);
-    if (!fs.existsSync(noteDirectory)) {
+    const dataDirectory = getDataDirectory(ctx);
+    if (!fs.existsSync(dataDirectory)) {
       return [];
     }
 
-    const notes = await loadNotes(noteDirectory);
+    const notes = await loadNotes(dataDirectory);
     return notes;
   },
 
   "notes.create": async (ctx, params) => {
     const { blockAppFromQuitting } = ctx;
-    const noteDirectory = getNoteDirectoryPath(ctx);
+    const noteDirectory = getDataDirectory(ctx);
 
     const note = createNote(params);
     await blockAppFromQuitting(async () => {
@@ -83,7 +76,7 @@ export const noteIpcPlugin: IpcPlugin = {
   "notes.update": async (ctx, id, props) => {
     const { blockAppFromQuitting, log } = ctx;
 
-    const noteDirectory = getNoteDirectoryPath(ctx);
+    const noteDirectory = getDataDirectory(ctx);
     const note: NoteFile = await loadNoteFromFS(noteDirectory, id);
     const update = await noteUpdateSchema.parseAsync(props);
 
@@ -123,7 +116,7 @@ export const noteIpcPlugin: IpcPlugin = {
   },
 
   "notes.moveToTrash": async (ctx, id) => {
-    const noteDirectory = getNoteDirectoryPath(ctx);
+    const noteDirectory = getDataDirectory(ctx);
 
     // Gonna leave this as-is because it might just be pre-optimizing, but this
     // could be a bottle neck down the road having to load in every note before
@@ -147,7 +140,7 @@ export const noteIpcPlugin: IpcPlugin = {
       throw new Error(`Invalid noteId ${noteId}`);
     }
 
-    const noteDirectory = getNoteDirectoryPath(ctx);
+    const noteDirectory = getDataDirectory(ctx);
     // shell.openPath doesn't allow relative paths.
     const attachmentDirPath = p.resolve(
       noteDirectory,
@@ -165,7 +158,7 @@ export const noteIpcPlugin: IpcPlugin = {
   },
 
   "notes.openAttachmentFile": async (ctx, href) => {
-    const noteDirectory = getNoteDirectoryPath(ctx);
+    const noteDirectory = getDataDirectory(ctx);
     const attachmentPath = parseAttachmentPath(noteDirectory, href);
     if (!fs.existsSync(attachmentPath)) {
       throw new Error(`Attachment ${attachmentPath} doesn't exist.`);
@@ -179,7 +172,7 @@ export const noteIpcPlugin: IpcPlugin = {
 
   "notes.importAttachments": async (ctx, noteId, attachments) => {
     const { log } = ctx;
-    const noteDirectory = getNoteDirectoryPath(ctx);
+    const noteDirectory = getDataDirectory(ctx);
     const noteAttachmentsDirectory = p.join(
       noteDirectory,
       noteId,
@@ -238,15 +231,14 @@ export const noteIpcPlugin: IpcPlugin = {
   },
 };
 
-export function getNoteDirectoryPath(ctx: AppContext): string {
+export function getDataDirectory(ctx: AppContext): string {
   const { config } = ctx;
 
   if (config.content.dataDirectory == null) {
     throw new Error(`No data directory set.`);
   }
 
-  const { dataDirectory } = config.content;
-  return p.join(dataDirectory, NOTES_DIRECTORY);
+  return config.content.dataDirectory;
 }
 
 export type NoteMetadata = Omit<Note, "content" | "children">;
