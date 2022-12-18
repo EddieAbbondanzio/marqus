@@ -14,7 +14,7 @@ import { createBrowserWindow } from "../../../__factories__/electron";
 import {
   appIpcPlugin,
   APP_STATE_DEFAULTS,
-  APP_STATE_PATH,
+  APP_STATE_FILE,
   buildClickHandler,
   buildMenus,
 } from "../../../../src/main/ipc/plugins/app";
@@ -91,9 +91,7 @@ test("app.loadAppState loads", async () => {
   );
 
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
-      [APP_STATE_PATH]: appStateJson,
-    },
+    [APP_STATE_FILE]: appStateJson,
   });
 
   const { ipc } = await initIpc({}, appIpcPlugin);
@@ -128,9 +126,7 @@ test("app.loadAppState loads defaults", async () => {
 
 test("app.loadAppState handles bad JSON", async () => {
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
-      [APP_STATE_PATH]: "P{WD{A{DSASD}",
-    },
+    [APP_STATE_FILE]: "P{WD{A{DSASD}",
   });
 
   const { ipc } = await initIpc({}, appIpcPlugin);
@@ -140,9 +136,7 @@ test("app.loadAppState handles bad JSON", async () => {
 
 test("app.saveAppState", async () => {
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
-      [APP_STATE_PATH]: JSON.stringify(createAppState()),
-    },
+    [APP_STATE_FILE]: JSON.stringify(createAppState()),
   });
 
   const { ipc } = await initIpc({}, appIpcPlugin);

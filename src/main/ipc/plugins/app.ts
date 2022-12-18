@@ -21,8 +21,9 @@ import { APP_STATE_SCHEMAS } from "../../schemas/appState";
 import { IpcPlugin } from "..";
 import * as fs from "fs";
 import { Config } from "../../../shared/domain/config";
+import { getConfigDirectory } from "./config";
 
-export const APP_STATE_PATH = "ui.json";
+export const APP_STATE_FILE = "appState.json";
 export const APP_STATE_DEFAULTS = {
   version: 1,
   sidebar: {
@@ -200,7 +201,7 @@ export async function loadAppState(
   }
 
   let file: JsonFile<SerializedAppState>;
-  const filePath = p.join(config.dataDirectory, APP_STATE_PATH);
+  const filePath = p.join(getConfigDirectory(), APP_STATE_FILE);
 
   try {
     file = await loadJsonFile<SerializedAppState>(filePath, APP_STATE_SCHEMAS, {

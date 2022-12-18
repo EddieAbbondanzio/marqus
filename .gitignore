@@ -31,6 +31,8 @@ pnpm-debug.log*
 # Default dev data dir
 /data
 config.json
+appState.json
+shortcuts.json
 
 # Default dev log dir
 /logs
