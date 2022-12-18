@@ -211,6 +211,7 @@ test("sidebar.toggleNoteExpanded", async () => {
   const note1Id = uuid();
   const note2Id = uuid();
   const note3Id = uuid();
+  const nestedId = uuid();
 
   const store = createStore({
     notes: [
@@ -219,7 +220,7 @@ test("sidebar.toggleNoteExpanded", async () => {
       createNote({
         id: note3Id,
         name: "charlie",
-        children: [createNote({ name: "delta" })],
+        children: [createNote({ id: nestedId, name: "delta" })],
       }),
     ],
     sidebar: {
@@ -236,12 +237,20 @@ test("sidebar.toggleNoteExpanded", async () => {
   r.rerender(<Sidebar store={store.current} />);
   expect(store.current.state.sidebar.expanded).toEqual([note3Id]);
 
+  // Set nested note as selected.
+  await act(async () => {
+    await store.current.dispatch("sidebar.setSelection", [nestedId]);
+  });
+  r.rerender(<Sidebar store={store.current} />);
+  expect(store.current.state.sidebar.selected).toEqual([nestedId]);
+
   // Un-expand note
   await act(async () => {
     await store.current.dispatch("sidebar.toggleNoteExpanded", note3Id);
   });
   r.rerender(<Sidebar store={store.current} />);
   expect(store.current.state.sidebar.expanded).toEqual([]);
+  expect(store.current.state.sidebar.selected).toEqual([]);
 
   // Attempt to expand note without children
   await act(async () => {
@@ -255,6 +264,7 @@ test("sidebar.toggleSelectedNoteExpanded", async () => {
   const note1Id = uuid();
   const note2Id = uuid();
   const note3Id = uuid();
+  const nestedId = uuid();
 
   const store = createStore({
     notes: [
@@ -263,7 +273,7 @@ test("sidebar.toggleSelectedNoteExpanded", async () => {
       createNote({
         id: note3Id,
         name: "charlie",
-        children: [createNote({ name: "delta" })],
+        children: [createNote({ id: nestedId, name: "delta" })],
       }),
     ],
     sidebar: {
@@ -695,6 +705,7 @@ test("sidebar.collapseAll", async () => {
   const store = createStore({
     notes,
     sidebar: {
+      selected: ["1"],
       expanded: ["1", "2"],
       sort: DEFAULT_NOTE_SORTING_ALGORITHM,
     },
@@ -710,6 +721,7 @@ test("sidebar.collapseAll", async () => {
   const { state } = store.current;
 
   expect(state.sidebar.expanded).toEqual([]);
+  expect(state.sidebar.selected).toBe(undefined);
 });
 
 test("sidebar.expandAll", async () => {

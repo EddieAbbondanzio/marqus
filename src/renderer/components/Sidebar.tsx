@@ -702,6 +702,7 @@ export const collapseAll: Listener<"sidebar.collapseAll"> = async (_, ctx) => {
   ctx.setUI({
     sidebar: {
       expanded: [],
+      selected: undefined,
     },
   });
 };
@@ -795,11 +796,29 @@ function toggleExpanded(ctx: StoreContext, noteId: string): void {
       return prev;
     }
 
-    const exists = sidebar.expanded!.some(expandedId => expandedId === noteId);
-    if (exists) {
+    const wasExpanded = sidebar.expanded!.some(
+      expandedId => expandedId === noteId,
+    );
+    if (wasExpanded) {
       sidebar.expanded = sidebar.expanded!.filter(
         expandedId => expandedId !== noteId,
       );
+
+      // Deselect any selected items if their parent was collapsed. We do this to
+      // prevent from causing any confusion to the user because their selected item
+      // will be hidden and if they hit ctrl+n to create a new note it wouldn't
+      // show on screen.
+      if (
+        sidebar.selected != null &&
+        sidebar.selected.length > 0 &&
+        note.children != null &&
+        note.children.length > 0
+      ) {
+        const childrenIds = flatten(note.children).map(c => c.id);
+        sidebar.selected = sidebar.selected.filter(
+          s => !childrenIds.includes(s),
+        );
+      }
     } else {
       sidebar.expanded!.push(noteId);
     }
