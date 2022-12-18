@@ -12,8 +12,8 @@ export interface UIEvents {
 
   // Global
   "app.quit": void;
-  "app.openDataDirectory": void;
-  "app.selectDataDirectory": void;
+  "app.openNoteDirectory": void;
+  "app.selectNoteDirectory": void;
   "app.openDevTools": void;
   "app.reload": void;
   "app.toggleFullScreen": void;
@@ -87,8 +87,8 @@ export type UIEventInput<Ev extends UIEventType> = UIEvents[Ev];
 // of the events at runtime.
 export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "app.quit",
-  "app.openDataDirectory",
-  "app.selectDataDirectory",
+  "app.openNoteDirectory",
+  "app.selectNoteDirectory",
   "app.openDevTools",
   "app.reload",
   "app.toggleFullScreen",

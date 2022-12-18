@@ -1,7 +1,7 @@
 import {
   configIpcPlugin,
   CONFIG_FILE,
-  DEFAULT_DEV_DATA_DIRECTORY,
+  DEFAULT_DEV_NOTE_DIRECTORY,
   DEFAULT_DEV_LOG_DIRECTORY,
   getConfig,
   getConfigDirectory,
@@ -15,7 +15,7 @@ import { Config } from "../../../../src/shared/domain/config";
 import mockFS from "mock-fs";
 import { CONFIG_SCHEMAS } from "../../../../src/main/schemas/config";
 import { getLatestSchemaVersion } from "../../../../src/main/schemas/utils";
-import { FAKE_DATA_DIRECTORY, initIpc } from "../../../__factories__/ipc";
+import { FAKE_NOTE_DIRECTORY, initIpc } from "../../../__factories__/ipc";
 import { createBrowserWindow } from "../../../__factories__/electron";
 
 afterEach(() => {
@@ -27,7 +27,7 @@ test("config.get", async () => {
     version: 4,
     windowHeight: 100,
     windowWidth: 200,
-    dataDirectory: FAKE_DATA_DIRECTORY,
+    noteDirectory: FAKE_NOTE_DIRECTORY,
     logDirectory: "logs",
     developerMode: true,
     autoHideAppMenu: true,
@@ -52,27 +52,27 @@ test("config.openInTextEditor", async () => {
 });
 
 test.each([null, "fake-data-dir"])(
-  "config.openDataDirectory (dataDirectory: %s)",
-  async dataDirectory => {
+  "config.openNoteDirectory (noteDirectory: %s)",
+  async noteDirectory => {
     mockFS({
-      [dataDirectory]: {},
+      [noteDirectory]: {},
     });
 
     const { ipc } = await initIpc(
       {
         config: createJsonFile(
           createConfig({
-            dataDirectory,
+            noteDirectory,
           }),
         ),
       },
       configIpcPlugin,
     );
 
-    await ipc.invoke("config.openDataDirectory");
+    await ipc.invoke("config.openNoteDirectory");
 
-    if (dataDirectory != null) {
-      expect(shell.openPath).toHaveBeenCalledWith(dataDirectory);
+    if (noteDirectory != null) {
+      expect(shell.openPath).toHaveBeenCalledWith(noteDirectory);
     } else {
       expect(shell.openPath).not.toHaveBeenCalled();
     }
@@ -80,7 +80,7 @@ test.each([null, "fake-data-dir"])(
 );
 
 test.each([null, ["foo"]])(
-  "config.selectDataDirectory (filePaths: %s)",
+  "config.selectNoteDirectory (filePaths: %s)",
   async (filePaths: any) => {
     mockFS({});
 
@@ -94,7 +94,7 @@ test.each([null, ["foo"]])(
     const { ipc, config } = await initIpc({ browserWindow }, configIpcPlugin);
 
     (dialog.showOpenDialog as jest.Mock).mockResolvedValueOnce({ filePaths });
-    await ipc.invoke("config.selectDataDirectory");
+    await ipc.invoke("config.selectNoteDirectory");
 
     expect(dialog.showOpenDialog).toHaveBeenCalledWith(browserWindow, {
       properties: ["openDirectory"],
@@ -104,23 +104,24 @@ test.each([null, ["foo"]])(
       expect(config.update).not.toHaveBeenCalled();
     } else {
       expect(config.update).toHaveBeenCalledWith({
-        dataDirectory: filePaths[0],
+        noteDirectory: filePaths[0],
       });
     }
   },
 );
 
-test("getConfig overrides data / log directory in development", async () => {
+test("getConfig overrides note / log directory in development", async () => {
   mockFS({
     [CONFIG_FILE]: JSON.stringify({
       version: getLatestSchemaVersion(CONFIG_SCHEMAS),
       windowHeight: 10,
       windowWidth: 10,
       logDirectory: "random/logs",
-      dataDirectory: "random/data-dir",
+      noteDirectory: "random/note-dir",
     }),
     random: {
-      "data-dir": {},
+      "note-dir": {},
+      logs: {},
     },
   });
 
@@ -129,15 +130,15 @@ test("getConfig overrides data / log directory in development", async () => {
   jest.spyOn(env, "isDevelopment").mockReturnValue(true);
 
   const config = await getConfig();
-  expect(config.content.dataDirectory).toBe(DEFAULT_DEV_DATA_DIRECTORY);
+  expect(config.content.noteDirectory).toBe(DEFAULT_DEV_NOTE_DIRECTORY);
   expect(config.content.logDirectory).toBe(DEFAULT_DEV_LOG_DIRECTORY);
 });
 
-test("getConfig creates data directory if directory is missing.", async () => {
+test("getConfig creates note directory if directory is missing.", async () => {
   mockFS({
     [CONFIG_FILE]: JSON.stringify({
       version: getLatestSchemaVersion(CONFIG_SCHEMAS),
-      dataDirectory: "foo",
+      noteDirectory: "foo",
       logDirectory: "bar",
       windowHeight: 800,
       windowWidth: 600,

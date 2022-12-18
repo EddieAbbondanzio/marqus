@@ -44,7 +44,7 @@ export type MockedAppContext = { ipc: MockedIpcMainTS } & Omit<
   "ipc"
 >;
 
-export const FAKE_DATA_DIRECTORY = "data";
+export const FAKE_NOTE_DIRECTORY = "data";
 
 export async function initIpc(
   partial?: Partial<MockedAppContext>,
@@ -53,7 +53,7 @@ export async function initIpc(
   const ipc = partial?.ipc ?? new MockedIpcMainTS();
   const config =
     partial?.config ??
-    createJsonFile(createConfig({ dataDirectory: FAKE_DATA_DIRECTORY }));
+    createJsonFile(createConfig({ noteDirectory: FAKE_NOTE_DIRECTORY }));
   const log = partial?.log ?? createLogger();
   const browserWindow = partial?.browserWindow ?? createBrowserWindow();
 

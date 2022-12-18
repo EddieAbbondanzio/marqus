@@ -14,7 +14,6 @@ import { getNoteById } from "../shared/domain/note";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { isEmpty, tail } from "lodash";
-import { DataDirectoryModal } from "./components/DataDirectoryModal";
 import styled from "styled-components";
 import { useApplicationMenu } from "./menus/appMenu";
 import { useContextMenu } from "./menus/contextMenu";
@@ -23,6 +22,7 @@ import { h100, w100 } from "./css";
 import { Config } from "../shared/domain/config";
 import { log } from "./logger";
 import { arrayify } from "../shared/utils";
+import { NoteDirectoryModal } from "./components/NoteDirectoryModal";
 
 async function main() {
   let config: Config;
@@ -68,8 +68,8 @@ export function App(props: AppProps): JSX.Element {
     store.on("app.openDevTools", openDevTools);
     store.on("app.reload", reload);
     store.on("app.toggleFullScreen", toggleFullScreen);
-    store.on("app.openDataDirectory", openDataDirectory);
-    store.on("app.selectDataDirectory", selectDataDirectory);
+    store.on("app.openNoteDirectory", opeNoteDirectory);
+    store.on("app.selectNoteDirectory", selectNoteDirectory);
     store.on("app.openLogDirectory", openLogs);
     store.on("app.openConfig", openConfig);
     store.on("app.openNoteAttachments", openNoteAttachments);
@@ -101,8 +101,8 @@ export function App(props: AppProps): JSX.Element {
       store.off("app.openDevTools", openDevTools);
       store.off("app.reload", reload);
       store.off("app.toggleFullScreen", toggleFullScreen);
-      store.off("app.openDataDirectory", openDataDirectory);
-      store.off("app.selectDataDirectory", selectDataDirectory);
+      store.off("app.openNoteDirectory", opeNoteDirectory);
+      store.off("app.selectNoteDirectory", selectNoteDirectory);
       store.off("app.openLogDirectory", openLogs);
       store.off("app.openConfig", openConfig);
       store.off("app.openNoteAttachments", openNoteAttachments);
@@ -121,8 +121,8 @@ export function App(props: AppProps): JSX.Element {
     <Container>
       {!(state.sidebar.hidden ?? false) && <Sidebar store={store} />}
       <Editor store={store} />
-      {props.config.dataDirectory == null && (
-        <DataDirectoryModal store={store} />
+      {props.config.noteDirectory == null && (
+        <NoteDirectoryModal store={store} />
       )}
     </Container>
   );
@@ -141,8 +141,8 @@ export async function loadInitialState(config: Config): Promise<State> {
     window.ipc("shortcuts.getAll"),
   ];
 
-  // Can't load notes with a data directory
-  if (config.dataDirectory != null) {
+  // Can't load notes with a note directory
+  if (config.noteDirectory != null) {
     promises.push(window.ipc("notes.getAll"));
   }
 
@@ -187,10 +187,10 @@ export const toggleSidebar: Listener<"app.toggleSidebar"> = (_, ctx) => {
 };
 
 export const quit = (): Promise<void> => window.ipc("app.quit");
-export const selectDataDirectory = (): Promise<void> =>
-  window.ipc("config.selectDataDirectory");
-export const openDataDirectory = (): Promise<void> =>
-  window.ipc("config.openDataDirectory");
+export const selectNoteDirectory = (): Promise<void> =>
+  window.ipc("config.selectNoteDirectory");
+export const opeNoteDirectory = (): Promise<void> =>
+  window.ipc("config.openNoteDirectory");
 export const openDevTools = (): Promise<void> => window.ipc("app.openDevTools");
 export const reload = (): Promise<void> => window.ipc("app.reload");
 export const toggleFullScreen = (): Promise<void> =>

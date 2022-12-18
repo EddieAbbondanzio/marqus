@@ -2,7 +2,7 @@ import { app, dialog, shell } from "electron";
 import { Config } from "../../../shared/domain/config";
 import { JsonFile, loadJsonFile } from "../../json";
 import { CONFIG_SCHEMAS } from "../../schemas/config";
-import { isDevelopment, isProduction, isTest } from "../../../shared/env";
+import { isDevelopment, isProduction } from "../../../shared/env";
 import * as path from "path";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
@@ -10,7 +10,7 @@ import { IpcPlugin } from "..";
 import { getLatestSchemaVersion } from "../../schemas/utils";
 
 export const CONFIG_FILE = "config.json";
-export const DEFAULT_DEV_DATA_DIRECTORY = "data";
+export const DEFAULT_DEV_NOTE_DIRECTORY = "notes";
 export const DEFAULT_DEV_LOG_DIRECTORY = "logs";
 export const DEFAULT_WINDOW_HEIGHT = 600;
 export const DEFAULT_WINDOW_WIDTH = 800;
@@ -26,18 +26,18 @@ export const configIpcPlugin: IpcPlugin = {
     }
   },
 
-  "config.openDataDirectory": async ({ config }) => {
-    if (config.content.dataDirectory == null) {
+  "config.openNoteDirectory": async ({ config }) => {
+    if (config.content.noteDirectory == null) {
       return;
     }
 
-    const err = await shell.openPath(config.content.dataDirectory);
+    const err = await shell.openPath(config.content.noteDirectory);
     if (err) {
       throw new Error(err);
     }
   },
 
-  "config.selectDataDirectory": async ({
+  "config.selectNoteDirectory": async ({
     browserWindow,
     blockAppFromQuitting,
     config,
@@ -51,7 +51,7 @@ export const configIpcPlugin: IpcPlugin = {
     }
 
     await blockAppFromQuitting(async () => {
-      await config.update({ dataDirectory: filePaths[0] });
+      await config.update({ noteDirectory: filePaths[0] });
     });
 
     await reloadIpcPlugins();
@@ -77,18 +77,18 @@ export async function getConfig(): Promise<JsonFile<Config>> {
 
   if (isDevelopment()) {
     await configFile.update({
-      dataDirectory: DEFAULT_DEV_DATA_DIRECTORY,
+      noteDirectory: DEFAULT_DEV_NOTE_DIRECTORY,
       logDirectory: DEFAULT_DEV_LOG_DIRECTORY,
     });
   }
 
-  // Always check if we need to recreate the data directory on start. It may have
+  // Always check if we need to recreate the note directory on start. It may have
   // been deleted to clear out notes.
   if (
-    configFile.content.dataDirectory != null &&
-    !fs.existsSync(configFile.content.dataDirectory)
+    configFile.content.noteDirectory != null &&
+    !fs.existsSync(configFile.content.noteDirectory)
   ) {
-    await fsp.mkdir(configFile.content.dataDirectory);
+    await fsp.mkdir(configFile.content.noteDirectory);
   }
 
   return configFile;

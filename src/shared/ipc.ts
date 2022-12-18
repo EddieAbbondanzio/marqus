@@ -33,8 +33,8 @@ export const IPCS = [
 
   "config.get",
   "config.openInTextEditor",
-  "config.selectDataDirectory",
-  "config.openDataDirectory",
+  "config.selectNoteDirectory",
+  "config.openNoteDirectory",
 
   "log.info",
   "log.debug",
@@ -78,8 +78,8 @@ export interface IpcSchema extends Record<IpcType, (...params: any[]) => any> {
 
   // Config
   "config.openInTextEditor"(): Promise<void>;
-  "config.selectDataDirectory"(): Promise<void>;
-  "config.openDataDirectory"(): Promise<void>;
+  "config.selectNoteDirectory"(): Promise<void>;
+  "config.openNoteDirectory"(): Promise<void>;
 
   // Logging
   "log.info"(message: string): Promise<void>;

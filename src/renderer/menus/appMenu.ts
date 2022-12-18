@@ -68,16 +68,16 @@ export function useApplicationMenu(store: Store, config: Config): void {
             event: "app.openConfig",
           },
           {
-            label: "Open data directory",
+            label: "Open note directory",
             type: "normal",
-            shortcut: shortcutLabels["app.openDataDirectory"],
-            event: "app.openDataDirectory",
+            shortcut: shortcutLabels["app.openNoteDirectory"],
+            event: "app.openNoteDirectory",
           },
           {
-            label: "Change data directory",
+            label: "Change note directory",
             type: "normal",
-            shortcut: shortcutLabels["app.selectDataDirectory"],
-            event: "app.selectDataDirectory",
+            shortcut: shortcutLabels["app.selectNoteDirectory"],
+            event: "app.selectNoteDirectory",
           },
           {
             type: "separator",

@@ -6,13 +6,13 @@ import { Store } from "../store";
 import { Button } from "./shared/Button";
 import { Modal } from "./shared/Modal";
 
-export interface DataDirectoryModalProps {
+export interface NoteDirectoryModalProps {
   store: Store;
 }
 
-export function DataDirectoryModal({
+export function NoteDirectoryModal({
   store,
-}: DataDirectoryModalProps): JSX.Element {
+}: NoteDirectoryModalProps): JSX.Element {
   return (
     <Modal>
       <Content>
@@ -24,7 +24,7 @@ export function DataDirectoryModal({
         <Button
           color={OpenColor.white}
           backgroundColor={OpenColor.green[6]}
-          onClick={() => store.dispatch("app.selectDataDirectory")}
+          onClick={() => store.dispatch("app.selectNoteDirectory")}
         >
           Select a directory
         </Button>

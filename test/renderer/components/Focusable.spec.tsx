@@ -26,7 +26,7 @@ test("useFocusTracking detects clicks in focusables", async () => {
   jest.spyOn(store, "useStore").mockImplementation(() => s);
 
   const res = render(
-    <App state={s.state} config={createConfig({ dataDirectory: "foo" })} />,
+    <App state={s.state} config={createConfig({ noteDirectory: "foo" })} />,
   );
 
   // Simulate a click within the sidebar search.

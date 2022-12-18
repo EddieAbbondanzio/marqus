@@ -3,7 +3,7 @@ export interface Config {
   windowHeight: number;
   windowWidth: number;
   logDirectory: string;
-  dataDirectory?: string;
+  noteDirectory?: string;
   developerMode?: boolean;
   autoHideAppMenu?: boolean;
 }

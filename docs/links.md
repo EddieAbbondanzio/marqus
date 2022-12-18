@@ -1,6 +1,6 @@
 # Links
 
-Link to websites on the internet, or to other notes in your data directory.
+Link to websites on the internet, or to other notes in your note directory.
 
 ## Links to the Web
 

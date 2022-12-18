@@ -28,7 +28,7 @@ import { loadJson } from "../../../../src/main/json";
 import { shell, WebContents } from "electron";
 import * as attachments from "../../../../src/main/protocols/attachments";
 import { Protocol } from "../../../../src/shared/domain/protocols";
-import { initIpc, FAKE_DATA_DIRECTORY } from "../../../__factories__/ipc";
+import { initIpc, FAKE_NOTE_DIRECTORY } from "../../../__factories__/ipc";
 import { createBrowserWindow } from "../../../__factories__/electron";
 import * as utils from "../../../../src/main/utils";
 
@@ -57,7 +57,7 @@ function createMetadata(props?: Partial<NoteMetadata>): NoteMetadata {
 
 test("registers attachment protocol", async () => {
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {},
+    [FAKE_NOTE_DIRECTORY]: {},
   });
 
   await initIpc({}, noteIpcPlugin);
@@ -83,18 +83,18 @@ test("noteIpcs blocks opening links in app", async () => {
 
 test("noteIpcs init", async () => {
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {},
+    [FAKE_NOTE_DIRECTORY]: {},
   });
 
   await initIpc({}, noteIpcPlugin);
 
-  expect(fs.existsSync(FAKE_DATA_DIRECTORY)).toBe(true);
+  expect(fs.existsSync(FAKE_NOTE_DIRECTORY)).toBe(true);
 });
 
 test("notes.getAll", async () => {
   const noteId = uuid();
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
+    [FAKE_NOTE_DIRECTORY]: {
       [noteId]: {
         [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
         [MARKDOWN_FILE_NAME]: "fizzbuzz",
@@ -116,7 +116,7 @@ test("notes.getAll", async () => {
 
 test("notes.create", async () => {
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {},
+    [FAKE_NOTE_DIRECTORY]: {},
   });
 
   const { ipc } = await initIpc({}, noteIpcPlugin);
@@ -126,14 +126,14 @@ test("notes.create", async () => {
     parent: uuid(),
   });
 
-  const noteFromFS = await loadNoteFromFS(FAKE_DATA_DIRECTORY, note.id);
+  const noteFromFS = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, note.id);
 
   expect(omit(note, "children")).toEqual(omit(noteFromFS, "version"));
 });
 
 test("notes.update", async () => {
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {},
+    [FAKE_NOTE_DIRECTORY]: {},
   });
 
   const { ipc } = await initIpc({}, noteIpcPlugin);
@@ -145,55 +145,55 @@ test("notes.update", async () => {
     parent: undefined,
   });
   expect(note.dateUpdated).toBe(undefined);
-  await saveNoteToFS(FAKE_DATA_DIRECTORY, note);
+  await saveNoteToFS(FAKE_NOTE_DIRECTORY, note);
 
   // Rename
   await ipc.invoke("notes.update", note.id, { name: "bar" });
-  note = await loadNoteFromFS(FAKE_DATA_DIRECTORY, note.id);
+  note = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, note.id);
   expect(note.name).toBe("bar");
   expect(note.dateUpdated).not.toBe(undefined);
 
   // Update sort
   await ipc.invoke("notes.update", note.id, { sort: NoteSort.DateCreated });
-  note = await loadNoteFromFS(FAKE_DATA_DIRECTORY, note.id);
+  note = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, note.id);
   expect(note.sort).toBe(NoteSort.DateCreated);
 
   // No-op. Prevent accidental unsetting.
   await ipc.invoke("notes.update", note.id, {});
-  note = await loadNoteFromFS(FAKE_DATA_DIRECTORY, note.id);
+  note = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, note.id);
   expect(note.sort).toBe(NoteSort.DateCreated);
 
   // Reset sort to default
   await ipc.invoke("notes.update", note.id, { sort: undefined });
-  note = await loadNoteFromFS(FAKE_DATA_DIRECTORY, note.id);
+  note = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, note.id);
   expect(note.sort).toBe(undefined);
 
   // Update content
   await ipc.invoke("notes.update", note.id, { content: "updated-text" });
-  note = await loadNoteFromFS(FAKE_DATA_DIRECTORY, note.id);
+  note = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, note.id);
   expect(note.content).toBe("updated-text");
 
   // Change parent
   const parent = uuid();
   await ipc.invoke("notes.update", note.id, { parent });
-  note = await loadNoteFromFS(FAKE_DATA_DIRECTORY, note.id);
+  note = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, note.id);
   expect(note.parent).toBe(parent);
 
   // No-op. Prevent accidentally unsetting parent if omitted.
   await ipc.invoke("notes.update", note.id, {});
-  note = await loadNoteFromFS(FAKE_DATA_DIRECTORY, note.id);
+  note = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, note.id);
   expect(note.parent).toBe(parent);
 
   // Unset parent
   await ipc.invoke("notes.update", note.id, { parent: undefined });
-  note = await loadNoteFromFS(FAKE_DATA_DIRECTORY, note.id);
+  note = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, note.id);
   expect(note.parent).toBe(undefined);
 });
 
 test("notes.moveToTrash no children", async () => {
   const noteId = uuid();
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
+    [FAKE_NOTE_DIRECTORY]: {
       [noteId]: {
         [METADATA_FILE_NAME]: JSON.stringify(
           createMetadata({ id: noteId, name: "foo" }),
@@ -208,7 +208,7 @@ test("notes.moveToTrash no children", async () => {
   await ipc.invoke("notes.moveToTrash", noteId);
 
   expect(shell.trashItem).toHaveBeenCalledWith(
-    path.join(FAKE_DATA_DIRECTORY, noteId),
+    path.join(FAKE_NOTE_DIRECTORY, noteId),
   );
 });
 
@@ -219,7 +219,7 @@ test("notes.moveToTrash note has children", async () => {
   const grandchildId = uuid();
 
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
+    [FAKE_NOTE_DIRECTORY]: {
       [parentId]: {
         [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: parentId })),
         [MARKDOWN_FILE_NAME]: "",
@@ -249,16 +249,16 @@ test("notes.moveToTrash note has children", async () => {
   await ipc.invoke("notes.moveToTrash", parentId);
 
   expect(shell.trashItem).toHaveBeenCalledWith(
-    path.join(FAKE_DATA_DIRECTORY, parentId),
+    path.join(FAKE_NOTE_DIRECTORY, parentId),
   );
   expect(shell.trashItem).toHaveBeenCalledWith(
-    path.join(FAKE_DATA_DIRECTORY, child1Id),
+    path.join(FAKE_NOTE_DIRECTORY, child1Id),
   );
   expect(shell.trashItem).toHaveBeenCalledWith(
-    path.join(FAKE_DATA_DIRECTORY, child2Id),
+    path.join(FAKE_NOTE_DIRECTORY, child2Id),
   );
   expect(shell.trashItem).toHaveBeenCalledWith(
-    path.join(FAKE_DATA_DIRECTORY, grandchildId),
+    path.join(FAKE_NOTE_DIRECTORY, grandchildId),
   );
 });
 
@@ -266,7 +266,7 @@ test("notes.openAttachments", async () => {
   const noteId = uuid();
 
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
+    [FAKE_NOTE_DIRECTORY]: {
       [noteId]: {
         [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
         [MARKDOWN_FILE_NAME]: "",
@@ -280,7 +280,7 @@ test("notes.openAttachments", async () => {
 
   const attachmentsPath = path.resolve(
     process.cwd(),
-    FAKE_DATA_DIRECTORY,
+    FAKE_NOTE_DIRECTORY,
     noteId,
     ATTACHMENTS_DIRECTORY,
   );
@@ -304,7 +304,7 @@ test("notes.openAttachmentFile", async () => {
   const noteId = uuid();
 
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
+    [FAKE_NOTE_DIRECTORY]: {
       [noteId]: {
         [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
         [MARKDOWN_FILE_NAME]: "",
@@ -334,7 +334,7 @@ test("notes.importAttachments", async () => {
   const noteId = uuid();
 
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
+    [FAKE_NOTE_DIRECTORY]: {
       [noteId]: {
         [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
         [MARKDOWN_FILE_NAME]: "",
@@ -423,10 +423,10 @@ test("notes.importAttachments", async () => {
 
 test("loadNotes empty", async () => {
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {},
+    [FAKE_NOTE_DIRECTORY]: {},
   });
 
-  const notes = await loadNotes(FAKE_DATA_DIRECTORY);
+  const notes = await loadNotes(FAKE_NOTE_DIRECTORY);
   expect(notes).toHaveLength(0);
 });
 
@@ -437,7 +437,7 @@ test("loadNotes", async () => {
   const grandchildId = uuid();
 
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
+    [FAKE_NOTE_DIRECTORY]: {
       [parentId]: {
         [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: parentId })),
         [MARKDOWN_FILE_NAME]: "",
@@ -463,7 +463,7 @@ test("loadNotes", async () => {
     },
   });
 
-  const notes = await loadNotes(FAKE_DATA_DIRECTORY);
+  const notes = await loadNotes(FAKE_NOTE_DIRECTORY);
   expect(notes).toHaveLength(1);
   const parent = notes[0];
   expect(parent.id).toBe(parentId);
@@ -494,7 +494,7 @@ test("buildNoteTree", () => {
 
 test("saveNoteToFS new note", async () => {
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {},
+    [FAKE_NOTE_DIRECTORY]: {},
   });
 
   const note = createNote({
@@ -502,8 +502,8 @@ test("saveNoteToFS new note", async () => {
     content: "buzz",
   });
 
-  await saveNoteToFS(FAKE_DATA_DIRECTORY, note);
-  const notePath = path.join(FAKE_DATA_DIRECTORY, note.id);
+  await saveNoteToFS(FAKE_NOTE_DIRECTORY, note);
+  const notePath = path.join(FAKE_NOTE_DIRECTORY, note.id);
 
   expect(fs.existsSync(notePath)).toBe(true);
 
@@ -525,16 +525,16 @@ test("saveNoteToFS existing note", async () => {
   const [expectedMetadata, expectedContent] = splitNoteIntoFiles(existingNote);
 
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
+    [FAKE_NOTE_DIRECTORY]: {
       [existingNote.id]: {
         [METADATA_FILE_NAME]: JSON.stringify(expectedMetadata),
         [MARKDOWN_FILE_NAME]: expectedContent,
       },
     },
   });
-  const notePath = path.join(FAKE_DATA_DIRECTORY, existingNote.id);
+  const notePath = path.join(FAKE_NOTE_DIRECTORY, existingNote.id);
 
-  await saveNoteToFS(FAKE_DATA_DIRECTORY, existingNote);
+  await saveNoteToFS(FAKE_NOTE_DIRECTORY, existingNote);
 
   expect(fs.existsSync(notePath)).toBe(true);
 
@@ -555,7 +555,7 @@ test("loadNoteFromFS", async () => {
   const [expectedMetadata, expectedContent] = splitNoteIntoFiles(existingNote);
 
   mockFS({
-    [FAKE_DATA_DIRECTORY]: {
+    [FAKE_NOTE_DIRECTORY]: {
       [existingNote.id]: {
         [METADATA_FILE_NAME]: JSON.stringify(expectedMetadata),
         [MARKDOWN_FILE_NAME]: expectedContent,
@@ -563,7 +563,7 @@ test("loadNoteFromFS", async () => {
     },
   });
 
-  const loadedNote = await loadNoteFromFS(FAKE_DATA_DIRECTORY, existingNote.id);
+  const loadedNote = await loadNoteFromFS(FAKE_NOTE_DIRECTORY, existingNote.id);
 
   expect(loadedNote).toEqual(omit(existingNote, "children"));
 });

@@ -65,7 +65,7 @@ export const appIpcPlugin: IpcPlugin = {
 
     browserWindow.on("resize", onResize);
 
-    if (config.content.dataDirectory != null) {
+    if (config.content.noteDirectory != null) {
       appStateFile = await loadAppState(config.content);
     }
 
@@ -196,8 +196,8 @@ export const appIpcPlugin: IpcPlugin = {
 export async function loadAppState(
   config: Config,
 ): Promise<JsonFile<SerializedAppState>> {
-  if (config.dataDirectory == null) {
-    throw new Error(`Cannot load app state without a data directory.`);
+  if (config.noteDirectory == null) {
+    throw new Error(`Cannot load app state without a note directory.`);
   }
 
   let file: JsonFile<SerializedAppState>;

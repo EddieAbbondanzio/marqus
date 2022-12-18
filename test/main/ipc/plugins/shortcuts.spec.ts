@@ -70,8 +70,8 @@ test("shortcuts.getAll", async () => {
         },
         // Add a new shortcut
         {
-          name: "openDataDirectory2",
-          event: "app.openDataDirectory",
+          name: "openNoteDirectory2",
+          event: "app.openNoteDirectory",
           keys: "control+o+d+f",
           when: Section.Editor,
           repeat: false,
@@ -127,13 +127,13 @@ test("shortcuts.getAll", async () => {
     }),
   );
 
-  const openDataDirectory = shortcuts.find(
-    s => s.name === "openDataDirectory2",
+  const openNoteDirectory = shortcuts.find(
+    s => s.name === "openNoteDirectory2",
   );
-  expect(openDataDirectory).toEqual(
+  expect(openNoteDirectory).toEqual(
     expect.objectContaining({
-      name: "openDataDirectory2",
-      event: "app.openDataDirectory",
+      name: "openNoteDirectory2",
+      event: "app.openNoteDirectory",
       when: Section.Editor,
       repeat: false,
     }),

@@ -7,8 +7,8 @@ export function createConfig(partial?: DeepPartial<Config>): Config {
     logDirectory: partial?.logDirectory ?? "/logs",
     windowHeight: partial?.windowHeight ?? 600,
     windowWidth: partial?.windowWidth ?? 800,
-    dataDirectory:
-      partial?.dataDirectory === undefined ? "/data" : partial?.dataDirectory,
+    noteDirectory:
+      partial?.noteDirectory === undefined ? "/data" : partial?.noteDirectory,
     developerMode: partial?.developerMode,
   };
 }

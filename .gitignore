@@ -29,7 +29,7 @@ pnpm-debug.log*
 
 
 # Default dev data dir
-/data
+/notes
 config.json
 appState.json
 shortcuts.json
