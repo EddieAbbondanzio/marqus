@@ -48,6 +48,13 @@ export function useApplicationMenu(store: Store, config: Config): void {
         type: "submenu",
         children: [
           {
+            label: "New note",
+            type: "normal",
+            shortcut: shortcutLabels["sidebar.createNote"],
+            event: "sidebar.createNote",
+            eventInput: { root: true },
+          },
+          {
             label: isEditing ? "Stop editing" : "Edit",
             type: "normal",
             shortcut: shortcutLabels["editor.toggleView"],
