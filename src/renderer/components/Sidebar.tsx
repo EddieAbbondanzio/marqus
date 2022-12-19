@@ -310,7 +310,10 @@ export function renderMenus(
       // Use note.sort for children. If not set, use next parent. Climb parent
       // tree until we hit root then default to using global sort.
       let sortToUse = note.sort;
-      const parents = getParents(note, notes);
+
+      // N.B. Pass store.state.notes because it includes every note over notes
+      // otherwise app will crash when searching notes due to parents missing.
+      const parents = getParents(note, store.state.notes);
       for (const p of parents) {
         sortToUse = p.sort;
         if (sortToUse != null) {
