@@ -106,7 +106,10 @@ export function useContextMenu(store: Store, config: Config): void {
               type: "normal",
               event: "editor.closeTab",
               eventInput: tabNoteId,
-              shortcut: shortcutLabels["editor.closeTab"],
+              // Kinda a hack lol. We don't have a shortcut for closeTab because
+              // if we did it'd expect a parameter. We get around it by using the
+              // shortcut label for closeActiveTab
+              shortcut: shortcutLabels["editor.closeActiveTab"],
             });
             items.push({
               label: "Close others",
