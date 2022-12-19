@@ -46,6 +46,7 @@ export function useContextMenu(store: Store, config: Config): void {
             type: "normal",
             event: "sidebar.createNote",
             eventInput: { parent: noteId },
+            shortcut: shortcutLabels["sidebar.createNote"],
           });
 
           if (noteId != null) {
@@ -55,7 +56,7 @@ export function useContextMenu(store: Store, config: Config): void {
                 type: "normal",
                 event: "sidebar.renameNote",
                 eventInput: noteId,
-                shortcut: shortcutLabels["sidebar.renameNote"],
+                shortcut: shortcutLabels["sidebar.renameSelectedNote"],
               },
               {
                 label: "Open attachments",
@@ -69,7 +70,7 @@ export function useContextMenu(store: Store, config: Config): void {
                 type: "normal",
                 event: "sidebar.deleteNote",
                 eventInput: noteId,
-                shortcut: shortcutLabels["sidebar.deleteNote"],
+                shortcut: shortcutLabels["sidebar.deleteSelectedNote"],
               },
             );
           }
