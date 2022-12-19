@@ -16,6 +16,7 @@ import { Section } from "../../shared/ui/app";
 import { getEditorTabAttribute } from "../components/EditorTab";
 import { IpcChannel } from "../../shared/ipc";
 import { Config } from "../../shared/domain/config";
+import { KeyCode, keyCodesToString } from "../../shared/io/keyCode";
 
 export function useContextMenu(store: Store, config: Config): void {
   const { state } = store;
@@ -97,6 +98,29 @@ export function useContextMenu(store: Store, config: Config): void {
           });
           break;
         }
+
+        case Section.Editor:
+          if (state.editor.isEditing) {
+            items.push({
+              label: "Cut",
+              type: "normal",
+              role: "cut",
+              shortcut: keyCodesToString([KeyCode.Control, KeyCode.LetterX]),
+            });
+            items.push({
+              label: "Copy",
+              type: "normal",
+              role: "copy",
+              shortcut: keyCodesToString([KeyCode.Control, KeyCode.LetterC]),
+            });
+            items.push({
+              label: "Paste",
+              type: "normal",
+              role: "paste",
+              shortcut: keyCodesToString([KeyCode.Control, KeyCode.LetterV]),
+            });
+          }
+          break;
 
         case Section.EditorToolbar: {
           const tabNoteId = getEditorTabAttribute(ev.target as HTMLElement);
