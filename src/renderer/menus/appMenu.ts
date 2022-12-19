@@ -48,6 +48,13 @@ export function useApplicationMenu(store: Store, config: Config): void {
         type: "submenu",
         children: [
           {
+            label: "New note",
+            type: "normal",
+            shortcut: shortcutLabels["sidebar.createNote"],
+            event: "sidebar.createNote",
+            eventInput: { root: true },
+          },
+          {
             label: isEditing ? "Stop editing" : "Edit",
             type: "normal",
             shortcut: shortcutLabels["editor.toggleView"],
@@ -104,19 +111,19 @@ export function useApplicationMenu(store: Store, config: Config): void {
             label: "Cut",
             type: "normal",
             role: "cut",
-            disabled: focused !== "editor",
+            disabled: focused !== "editor" || !state.editor.isEditing,
           },
           {
             label: "Copy",
             type: "normal",
             role: "copy",
-            disabled: focused !== "editor",
+            disabled: focused !== "editor" || !state.editor.isEditing,
           },
           {
             label: "Paste",
             type: "normal",
             role: "paste",
-            disabled: focused !== "editor",
+            disabled: focused !== "editor" || !state.editor.isEditing,
           },
         ],
       },
