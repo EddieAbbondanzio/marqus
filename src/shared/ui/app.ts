@@ -42,7 +42,6 @@ export interface Editor {
 export interface EditorTab {
   note: Note;
   lastActive?: Date;
-  fromPreviousSession?: boolean;
 }
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to

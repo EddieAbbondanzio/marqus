@@ -608,10 +608,15 @@ test("sidebar.deleteNote", async () => {
   const noteAId = uuid();
   const noteBId = uuid();
   const noteCId = uuid();
+  const noteDId = uuid();
 
   const store = createStore({
     notes: [
-      createNote({ id: noteAId, name: "A" }),
+      createNote({
+        id: noteAId,
+        name: "A",
+        children: [createNote({ id: noteDId, name: "D" })],
+      }),
       createNote({ id: noteBId, name: "B" }),
       createNote({ id: noteCId, name: "C" }),
     ],
@@ -644,6 +649,10 @@ test("sidebar.deleteNote", async () => {
   const { notes } = store.current.state;
   expect(notes).toContainEqual(expect.objectContaining({ id: noteBId }));
   expect(notes).toContainEqual(expect.objectContaining({ id: noteCId }));
+
+  // Note D was a child of deleted note A
+  expect(notes).not.toContainEqual(expect.objectContaining({ id: noteAId }));
+  expect(notes).not.toContainEqual(expect.objectContaining({ id: noteDId }));
 });
 
 test("sidebar.deleteSelectedNote", async () => {
