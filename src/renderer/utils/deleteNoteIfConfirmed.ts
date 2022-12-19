@@ -1,3 +1,4 @@
+import { keyBy } from "lodash";
 import { flatten, getNoteById } from "../../shared/domain/note";
 import { filterOutStaleNoteIds } from "../../shared/ui/app";
 import { StoreContext } from "../store";
@@ -14,7 +15,10 @@ export async function deleteNoteIfConfirmed(
   if (confirmed) {
     await window.ipc("notes.moveToTrash", note.id);
 
-    const otherNotes = flatten(notes).filter(n => n.id !== note.id);
+    // Flatten so we can remove children from state as well.
+    const deletedNotes = keyBy(flatten([note]), "id");
+
+    const otherNotes = flatten(notes).filter(n => deletedNotes[n.id] == null);
     ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
 
     ctx.setNotes(notes => {
