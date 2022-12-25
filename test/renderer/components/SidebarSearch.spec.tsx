@@ -37,7 +37,7 @@ test("searchNotes nested", () => {
   const notes = [
     createNote({
       id: parentId,
-      name: "parent",
+      name: "parentq",
       content: "Random string lol",
       children: [
         createNote({

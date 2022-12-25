@@ -48,6 +48,7 @@ export interface UIEvents {
   "sidebar.moveSelectionDown": void;
   "sidebar.search": string;
   "sidebar.focusSearch": void;
+  "sidebar.selectSearchResult": string;
   "sidebar.openSelectedNotes": void;
 
   // Editor
@@ -122,6 +123,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "sidebar.moveSelectionDown",
   "sidebar.search",
   "sidebar.focusSearch",
+  "sidebar.selectSearchResult",
   "sidebar.openSelectedNotes",
 
   // Editor

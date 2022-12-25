@@ -1,12 +1,12 @@
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fuzzy } from "fast-fuzzy";
 import { cloneDeep, isEmpty } from "lodash";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
-import { flatten, Note } from "../../shared/domain/note";
+import { flatten, getFullPath, Note } from "../../shared/domain/note";
 import { Section } from "../../shared/ui/app";
 import { isBlank } from "../../shared/utils";
-import { mb0, THEME, w100 } from "../css";
+import { mb0, px3, THEME, w100, ZIndex } from "../css";
 import { Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -38,6 +38,31 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   }, [store]);
 
   const { searchString = "" } = state.sidebar;
+  const matches = useMemo(() => {
+    const notes = searchNotes(store.state.notes, searchString);
+
+    return notes.map(n => {
+      const path = getFullPath(store.state.notes, n);
+
+      return (
+        <SearchResult
+          key={n.id}
+          title={path}
+          onClick={() =>
+            store.dispatch("editor.openTab", {
+              note: n.id,
+              active: n.id,
+              focus: true,
+            })
+          }
+        >
+          {n.name}
+        </SearchResult>
+      );
+    });
+  }, [searchString, store]);
+
+  const searchHasFocus = state.focused[0] === Section.SidebarSearch;
 
   return (
     <StyledFocusable
@@ -56,6 +81,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
       {!isEmpty(searchString) && (
         <DeleteIcon icon={faTimes} onClick={onClear} />
       )}
+      {searchHasFocus && <SearchOverlay>{matches}</SearchOverlay>}
     </StyledFocusable>
   );
 }
@@ -66,6 +92,7 @@ const StyledFocusable = styled(Focusable)`
   align-items: center;
   position: relative;
   margin-bottom: 0.8rem;
+  position: relative;
 `;
 
 const SearchIcon = styled(Icon)`
@@ -100,10 +127,30 @@ const SearchInput = styled.input`
   font-size: 1.4rem;
 `;
 
+const SearchOverlay = styled.div`
+  position: absolute;
+  top: 3.2rem;
+  width: 100%;
+  background-color: ${THEME.sidebar.search.background};
+  z-index: ${ZIndex.SearchOverlay};
+`;
+
+const SearchResult = styled.div`
+  height: 3.2rem;
+  display: flex;
+  align-items: center;
+  font-size: 1.4rem;
+  ${px3}
+
+  &:hover {
+    background-color: ${THEME.sidebar.search.resultBackgroundHover};
+  }
+`;
+
 export function searchNotes(notes: Note[], searchString?: string): Note[] {
   // Don't bother searching if string is empty or just whitespace
   if (isBlank(searchString)) {
-    return notes;
+    return [];
   }
 
   const clonedNotes = cloneDeep(notes);

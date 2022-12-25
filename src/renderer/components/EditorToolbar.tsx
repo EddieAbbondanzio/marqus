@@ -342,7 +342,7 @@ const TabsScrollable = styled(Scrollable)`
 
 export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   // Keep in sync with sidebar.openSelectedNotes listener
-  const { sidebar, editor, notes } = ctx.getState();
+  const { editor, notes } = ctx.getState();
 
   if (ev.value?.note == null) {
     return;

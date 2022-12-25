@@ -23,7 +23,7 @@ import {
   faChevronDown,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
-import { searchNotes, SidebarSearch } from "./SidebarSearch";
+import { SidebarSearch } from "./SidebarSearch";
 import { EditorTab } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
@@ -40,14 +40,9 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const { store } = props;
   const { state } = store;
   const { input } = state.sidebar;
+  const { notes } = state;
   const expandedLookup = keyBy(state.sidebar.expanded, e => e);
   const selectedLookup = keyBy(state.sidebar.selected, s => s);
-
-  const { searchString } = state.sidebar;
-  const notes = useMemo(
-    () => searchNotes(state.notes, searchString),
-    [searchString, state.notes],
-  );
 
   const [menus, noteIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
@@ -173,8 +168,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       store.off("sidebar.openSelectedNotes", openSelectedNotes);
     };
   }, [noteIds, state.sidebar, store]);
-
-  // TODO: Where did calc(100% - 100px) come from?
 
   return (
     <SidebarResizable
