@@ -32,11 +32,12 @@ test("searchNotes roots", () => {
 test("searchNotes nested", () => {
   const parentId = uuid();
   const nestedId = uuid();
+  const doubleNestedId = uuid();
 
   const notes = [
     createNote({
       id: parentId,
-      name: "parent",
+      name: "parentq",
       content: "Random string lol",
       children: [
         createNote({
@@ -47,6 +48,12 @@ test("searchNotes nested", () => {
         createNote({
           name: "blarg",
           content: "",
+          children: [
+            createNote({
+              id: doubleNestedId,
+              name: "qqq",
+            }),
+          ],
         }),
       ],
     }),
@@ -79,5 +86,12 @@ test("searchNotes nested", () => {
   expect(matches3).toHaveLength(1);
   expect(matches3[0]).toMatchObject({
     id: nestedId,
+  });
+
+  //Match just the double nested note
+  const matches4 = searchNotes(notes, "qqq");
+  expect(matches4).toHaveLength(1);
+  expect(matches4[0]).toMatchObject({
+    id: doubleNestedId,
   });
 });

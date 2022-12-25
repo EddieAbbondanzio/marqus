@@ -22,6 +22,8 @@ export enum Section {
 
 export interface Sidebar {
   searchString?: string;
+  searchResults?: string[];
+  searchSelected?: string;
   hidden?: boolean;
   width: string;
   scroll: number;

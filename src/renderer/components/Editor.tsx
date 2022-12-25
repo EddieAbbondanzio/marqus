@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
-import { m2, m3 } from "../css";
+import { m3 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { ModelAndViewState, Monaco } from "./Monaco";

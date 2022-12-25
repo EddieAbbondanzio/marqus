@@ -23,7 +23,7 @@ import {
   faChevronDown,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
-import { searchNotes, SidebarSearch } from "./SidebarSearch";
+import { SidebarSearch } from "./SidebarSearch";
 import { EditorTab } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
@@ -40,14 +40,9 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const { store } = props;
   const { state } = store;
   const { input } = state.sidebar;
+  const { notes } = state;
   const expandedLookup = keyBy(state.sidebar.expanded, e => e);
   const selectedLookup = keyBy(state.sidebar.selected, s => s);
-
-  const { searchString } = state.sidebar;
-  const notes = useMemo(
-    () => searchNotes(state.notes, searchString),
-    [searchString, state.notes],
-  );
 
   const [menus, noteIds] = useMemo(
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
@@ -132,7 +127,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on(["sidebar.renameNote", "sidebar.renameSelectedNote"], renameNote);
     store.on(["sidebar.deleteNote", "sidebar.deleteSelectedNote"], deleteNote);
     store.on("sidebar.dragNote", dragNote);
-    store.on("sidebar.search", search);
     store.on("sidebar.collapseAll", collapseAll);
     store.on("sidebar.expandAll", expandAll);
     store.on("sidebar.setNoteSort", setNoteSort);
@@ -166,15 +160,12 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         deleteNote,
       );
       store.off("sidebar.dragNote", dragNote);
-      store.off("sidebar.search", search);
       store.off("sidebar.collapseAll", collapseAll);
       store.off("sidebar.expandAll", expandAll);
       store.off("sidebar.setNoteSort", setNoteSort);
       store.off("sidebar.openSelectedNotes", openSelectedNotes);
     };
   }, [noteIds, state.sidebar, store]);
-
-  // TODO: Where did calc(100% - 100px) come from?
 
   return (
     <SidebarResizable
@@ -310,7 +301,10 @@ export function renderMenus(
       // Use note.sort for children. If not set, use next parent. Climb parent
       // tree until we hit root then default to using global sort.
       let sortToUse = note.sort;
-      const parents = getParents(note, notes);
+
+      // N.B. Pass store.state.notes because it includes every note over notes
+      // otherwise app will crash when searching notes due to parents missing.
+      const parents = getParents(note, store.state.notes);
       for (const p of parents) {
         sortToUse = p.sort;
         if (sortToUse != null) {
@@ -676,17 +670,6 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
   if (newParent != null && !sidebar.expanded?.some(id => id === newParentId)) {
     toggleExpanded(ctx, newParent.id);
   }
-};
-
-export const search: Listener<"sidebar.search"> = async (
-  { value: searchString },
-  ctx,
-) => {
-  ctx.setUI({
-    sidebar: {
-      searchString,
-    },
-  });
 };
 
 export const expandAll: Listener<"sidebar.expandAll"> = async (_, ctx) => {

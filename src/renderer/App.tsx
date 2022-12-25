@@ -23,6 +23,7 @@ import { Config } from "../shared/domain/config";
 import { log } from "./logger";
 import { arrayify } from "../shared/utils";
 import { NoteDirectoryModal } from "./components/NoteDirectoryModal";
+import { searchNotes } from "./components/SidebarSearch";
 
 async function main() {
   let config: Config;
@@ -157,9 +158,19 @@ export async function loadInitialState(config: Config): Promise<State> {
     }))
     .filter(t => t.note != null) as EditorTab[];
 
+  // TODO: Find a better option than this. I suspect we need to refactor our store
+  // a bit to support external state better.
+  const searchResults = searchNotes(notes, ui.sidebar.searchString ?? "").map(
+    n => n.id,
+  );
+
   const deserializedAppState = filterOutStaleNoteIds(
     {
       ...ui,
+      sidebar: {
+        ...ui.sidebar,
+        searchResults,
+      },
       editor: {
         ...ui.editor,
         tabs: tabs.map(t => ({ ...t, fromPreviousSession: true })),

@@ -15,11 +15,13 @@ export const THEME = {
       font: OpenColor.red[9],
     },
     search: {
-      icon: OpenColor.white,
-      deleteIcon: OpenColor.red[0],
+      icon: OpenColor.gray[6],
+      deleteIcon: OpenColor.gray[6],
       deleteIconHover: OpenColor.red[7],
-      background: OpenColor.gray[8],
-      font: OpenColor.gray[2],
+      background: OpenColor.white,
+      font: OpenColor.gray[8],
+      selectedResult: OpenColor.gray[3],
+      resultBackgroundHover: OpenColor.gray[1],
     },
     input: {
       font: OpenColor.gray[2],
@@ -43,6 +45,10 @@ export const THEME = {
     },
   },
 };
+
+export enum ZIndex {
+  SearchOverlay = 10,
+}
 
 export const rounded = css`
   border-radius: 0.2rem;
