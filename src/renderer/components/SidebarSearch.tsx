@@ -76,6 +76,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
         ref={inputRef}
         value={searchString}
         onInput={onInput}
+        roundBottomCorners={!searchHasFocus || matches.length === 0}
       ></SearchInput>
       <SearchIcon icon={faSearch} />
       {!isEmpty(searchString) && (
@@ -113,7 +114,7 @@ const DeleteIcon = styled(Icon)`
   }
 `;
 
-const SearchInput = styled.input`
+const SearchInput = styled.input<{ roundBottomCorners: boolean }>`
   height: 3.2rem !important; // Keep in sync with height of new note button
   ${w100};
   padding: 0 3.2rem;
@@ -121,10 +122,14 @@ const SearchInput = styled.input`
   border: none;
   outline: none;
   -webkit-appearance: none;
-  border-radius: 4px;
   background-color: ${THEME.sidebar.search.background};
   color: ${THEME.sidebar.search.font};
   font-size: 1.4rem;
+
+  border-top-left-radius: 0.4rem;
+  border-top-right-radius: 0.4rem;
+  border-bottom-left-radius: ${p => (p.roundBottomCorners ? "0.4rem" : "0")};
+  border-bottom-right-radius: ${p => (p.roundBottomCorners ? "0.4rem" : "0")};
 `;
 
 const SearchOverlay = styled.div`
