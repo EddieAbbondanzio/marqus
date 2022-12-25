@@ -1,6 +1,6 @@
 {
   "name": "marker",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A markdown note taking app",
   "main": ".webpack/main",
   "scripts": {
