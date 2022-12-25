@@ -54,6 +54,21 @@ const shortcuts: Shortcut[] = [
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterF],
   },
   {
+    name: "sidebar.moveSelectedSearchResultUp",
+    event: "sidebar.moveSelectedSearchResultUp",
+    keys: [KeyCode.ArrowUp],
+    when: Section.SidebarSearch,
+    repeat: true,
+  },
+  {
+    name: "sidebar.moveSelectedSearchResultDown",
+    event: "sidebar.moveSelectedSearchResultDown",
+    keys: [KeyCode.ArrowDown],
+    when: Section.SidebarSearch,
+    repeat: true,
+  },
+
+  {
     name: "sidebar.scrollDown",
     event: "sidebar.scrollDown",
     keys: COMMON_KEY_COMBOS.scrollDown,

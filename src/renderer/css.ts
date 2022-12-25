@@ -20,7 +20,8 @@ export const THEME = {
       deleteIconHover: OpenColor.red[7],
       background: OpenColor.white,
       font: OpenColor.gray[8],
-      resultBackgroundHover: OpenColor.gray[3],
+      selectedResult: OpenColor.gray[3],
+      resultBackgroundHover: OpenColor.gray[1],
     },
     input: {
       font: OpenColor.gray[2],

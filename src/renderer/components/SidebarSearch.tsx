@@ -1,13 +1,19 @@
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { fuzzy } from "fast-fuzzy";
-import { cloneDeep, isEmpty } from "lodash";
-import React, { useCallback, useMemo, useRef } from "react";
+import { clamp, cloneDeep, isEmpty } from "lodash";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { flatten, getFullPath, Note } from "../../shared/domain/note";
 import { Section } from "../../shared/ui/app";
 import { isBlank } from "../../shared/utils";
 import { mb0, px3, THEME, w100, ZIndex } from "../css";
-import { Store } from "../store";
+import { Listener, Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 
@@ -21,6 +27,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   const { store } = props;
   const { state } = store;
 
+  const selectedIndex = useRef(0);
   const inputRef = useRef(null as HTMLInputElement | null);
 
   const onInput = useCallback(
@@ -38,31 +45,69 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   }, [store]);
 
   const { searchString = "" } = state.sidebar;
-  const matches = useMemo(() => {
-    const notes = searchNotes(store.state.notes, searchString);
+  const notes = useMemo(
+    () => searchNotes(store.state.notes, searchString ?? ""),
+    [searchString, store],
+  );
 
-    return notes.map(n => {
-      const path = getFullPath(store.state.notes, n);
+  useEffect(() => {
+    selectedIndex.current = 0;
+  }, [notes]);
 
-      return (
-        <SearchResult
-          key={n.id}
-          title={path}
-          onClick={() =>
-            store.dispatch("editor.openTab", {
-              note: n.id,
-              active: n.id,
-              focus: true,
-            })
-          }
-        >
-          {n.name}
-        </SearchResult>
-      );
-    });
-  }, [searchString, store]);
+  const renderedResults = notes.map((n, i) => {
+    const path = getFullPath(store.state.notes, n);
+
+    return (
+      <SearchResult
+        key={n.id}
+        title={path}
+        selected={selectedIndex.current === i}
+        onClick={() =>
+          store.dispatch("editor.openTab", {
+            note: n.id,
+            active: n.id,
+            focus: true,
+          })
+        }
+      >
+        {n.name}
+      </SearchResult>
+    );
+  });
 
   const searchHasFocus = state.focused[0] === Section.SidebarSearch;
+
+  const moveDown: Listener<"sidebar.moveSelectedSearchResultDown"> =
+    useCallback(() => {
+      if (selectedIndex.current === -1) {
+        selectedIndex.current = 0;
+      } else if (selectedIndex.current + 1 > notes.length) {
+        selectedIndex.current = 0;
+      } else {
+        selectedIndex.current += 1;
+      }
+    }, [selectedIndex, notes]);
+
+  const moveUp: Listener<"sidebar.moveSelectedSearchResultUp"> =
+    useCallback(() => {
+      if (selectedIndex.current === -1) {
+        selectedIndex.current = 0;
+      } else if (selectedIndex.current - 1 < 0) {
+        selectedIndex.current = notes.length - 1;
+      } else {
+        selectedIndex.current -= 1;
+      }
+    }, [selectedIndex, notes]);
+
+  useEffect(() => {
+    store.on("sidebar.moveSelectedSearchResultDown", moveDown);
+    store.on("sidebar.moveSelectedSearchResultUp", moveUp);
+
+    return () => {
+      store.off("sidebar.moveSelectedSearchResultDown", moveDown);
+      store.off("sidebar.moveSelectedSearchResultUp", moveUp);
+    };
+  }, [store, moveUp, moveDown]);
 
   return (
     <StyledFocusable
@@ -76,13 +121,13 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
         ref={inputRef}
         value={searchString}
         onInput={onInput}
-        roundBottomCorners={!searchHasFocus || matches.length === 0}
+        roundBottomCorners={!searchHasFocus || notes.length === 0}
       ></SearchInput>
       <SearchIcon icon={faSearch} />
       {!isEmpty(searchString) && (
         <DeleteIcon icon={faTimes} onClick={onClear} />
       )}
-      {searchHasFocus && <SearchOverlay>{matches}</SearchOverlay>}
+      {searchHasFocus && <SearchOverlay>{renderedResults}</SearchOverlay>}
     </StyledFocusable>
   );
 }
@@ -140,12 +185,15 @@ const SearchOverlay = styled.div`
   z-index: ${ZIndex.SearchOverlay};
 `;
 
-const SearchResult = styled.div`
+const SearchResult = styled.div<{ selected: boolean }>`
   height: 3.2rem;
   display: flex;
   align-items: center;
   font-size: 1.4rem;
   ${px3}
+
+  background-color: ${p =>
+    p.selected ? THEME.sidebar.search.selectedResult : ""} !important;
 
   &:hover {
     background-color: ${THEME.sidebar.search.resultBackgroundHover};
