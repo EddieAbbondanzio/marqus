@@ -184,6 +184,9 @@ const SearchOverlay = styled.div`
   width: 100%;
   background-color: ${THEME.sidebar.search.background};
   z-index: ${ZIndex.SearchOverlay};
+
+  border-bottom-left-radius: 0.4rem;
+  border-bottom-right-radius: 0.4rem;
 `;
 
 const SearchResult = styled.div<{ selected: boolean }>`
