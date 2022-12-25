@@ -15,8 +15,8 @@ import { Section } from "../../shared/ui/app";
 import { log } from "../logger";
 import { BrowserWindowEvent, IpcChannel } from "../../shared/ipc";
 
-const INITIAL_DELAY_MS = 250;
-const REPEAT_DELAY_MS = 125;
+const INITIAL_DELAY_MS = 400;
+const REPEAT_DELAY_MS = 200;
 
 export function useShortcuts(store: Store): void {
   const { dispatch, state } = store;

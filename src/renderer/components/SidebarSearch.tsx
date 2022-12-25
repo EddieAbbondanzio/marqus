@@ -9,7 +9,13 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
-import { flatten, getFullPath, Note } from "../../shared/domain/note";
+import {
+  flatten,
+  getFullPath,
+  getNoteById,
+  Note,
+} from "../../shared/domain/note";
+import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { Section } from "../../shared/ui/app";
 import { isBlank } from "../../shared/utils";
 import { mb0, px3, THEME, w100, ZIndex } from "../css";
@@ -26,8 +32,8 @@ export interface SidebarSearchProps {
 export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   const { store } = props;
   const { state } = store;
+  const { searchString, searchResults, searchSelected } = state.sidebar;
 
-  const selectedIndex = useRef(0);
   const inputRef = useRef(null as HTMLInputElement | null);
 
   const onInput = useCallback(
@@ -44,15 +50,13 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
     await store.dispatch("sidebar.search", "");
   }, [store]);
 
-  const { searchString = "" } = state.sidebar;
-  const notes = useMemo(
-    () => searchNotes(store.state.notes, searchString ?? ""),
-    [searchString, store],
-  );
+  const notes = useMemo(() => {
+    if (searchResults == null || searchResults.length === 0) {
+      return [];
+    }
 
-  useEffect(() => {
-    selectedIndex.current = 0;
-  }, [notes]);
+    return searchResults.map(r => getNoteById(state.notes, r));
+  }, [state.notes, searchResults]);
 
   const renderedResults = notes.map((n, i) => {
     const path = getFullPath(store.state.notes, n);
@@ -61,9 +65,9 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
       <SearchResult
         key={n.id}
         title={path}
-        selected={selectedIndex.current === i}
+        selected={searchSelected === n.id}
         onClick={() =>
-          store.dispatch("editor.openTab", {
+          void store.dispatch("editor.openTab", {
             note: n.id,
             active: n.id,
             focus: true,
@@ -77,37 +81,17 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
 
   const searchHasFocus = state.focused[0] === Section.SidebarSearch;
 
-  const moveDown: Listener<"sidebar.moveSelectedSearchResultDown"> =
-    useCallback(() => {
-      if (selectedIndex.current === -1) {
-        selectedIndex.current = 0;
-      } else if (selectedIndex.current + 1 > notes.length) {
-        selectedIndex.current = 0;
-      } else {
-        selectedIndex.current += 1;
-      }
-    }, [selectedIndex, notes]);
-
-  const moveUp: Listener<"sidebar.moveSelectedSearchResultUp"> =
-    useCallback(() => {
-      if (selectedIndex.current === -1) {
-        selectedIndex.current = 0;
-      } else if (selectedIndex.current - 1 < 0) {
-        selectedIndex.current = notes.length - 1;
-      } else {
-        selectedIndex.current -= 1;
-      }
-    }, [selectedIndex, notes]);
-
   useEffect(() => {
     store.on("sidebar.moveSelectedSearchResultDown", moveDown);
     store.on("sidebar.moveSelectedSearchResultUp", moveUp);
+    store.on("sidebar.search", search);
 
     return () => {
       store.off("sidebar.moveSelectedSearchResultDown", moveDown);
       store.off("sidebar.moveSelectedSearchResultUp", moveUp);
+      store.off("sidebar.search", search);
     };
-  }, [store, moveUp, moveDown]);
+  }, [store]);
 
   return (
     <StyledFocusable
@@ -122,6 +106,23 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
         value={searchString}
         onInput={onInput}
         roundBottomCorners={!searchHasFocus || notes.length === 0}
+        onKeyDown={(ev: React.KeyboardEvent<HTMLInputElement>) => {
+          const key = parseKeyCode(ev.code);
+
+          if (key !== null && key === KeyCode.Enter) {
+            if (searchResults == null || searchSelected == null) {
+              return;
+            }
+
+            void store.dispatch("editor.openTab", {
+              note: searchSelected,
+              active: searchSelected,
+              focus: true,
+            });
+
+            ev.stopPropagation();
+          }
+        }}
       ></SearchInput>
       <SearchIcon icon={faSearch} />
       {!isEmpty(searchString) && (
@@ -249,3 +250,67 @@ function calculateMatchScore(note: Note, term: string): number {
 
   return Math.max(nameScore, contentScore);
 }
+
+export const moveDown: Listener<"sidebar.moveSelectedSearchResultDown"> = (
+  _,
+  ctx,
+) => {
+  const { searchResults, searchSelected } = ctx.getState().sidebar;
+
+  if (searchResults == null || searchResults.length === 0) {
+    return;
+  }
+
+  let currIndex = searchResults.findIndex(s => s === searchSelected);
+  if (currIndex === -1 || currIndex + 1 > searchResults.length - 1) {
+    currIndex = 0;
+  } else {
+    currIndex += 1;
+  }
+
+  ctx.setUI({
+    sidebar: {
+      searchSelected: searchResults[currIndex],
+    },
+  });
+};
+
+export const moveUp: Listener<"sidebar.moveSelectedSearchResultUp"> = (
+  _,
+  ctx,
+) => {
+  const { searchResults, searchSelected } = ctx.getState().sidebar;
+
+  if (searchResults == null || searchResults.length === 0) {
+    return;
+  }
+
+  let currIndex = searchResults.findIndex(s => s === searchSelected);
+  if (currIndex === -1 || currIndex - 1 < 0) {
+    currIndex = searchResults.length - 1;
+  } else {
+    currIndex -= 1;
+  }
+
+  ctx.setUI({
+    sidebar: {
+      searchSelected: searchResults[currIndex],
+    },
+  });
+};
+
+export const search: Listener<"sidebar.search"> = (
+  { value: searchString },
+  ctx,
+) => {
+  const { notes } = ctx.getState();
+  const results = searchNotes(notes, searchString ?? "");
+
+  ctx.setUI({
+    sidebar: {
+      searchString,
+      searchSelected: undefined,
+      searchResults: results.map(n => n.id),
+    },
+  });
+};

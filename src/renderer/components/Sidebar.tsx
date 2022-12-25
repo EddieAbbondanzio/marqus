@@ -127,7 +127,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     store.on(["sidebar.renameNote", "sidebar.renameSelectedNote"], renameNote);
     store.on(["sidebar.deleteNote", "sidebar.deleteSelectedNote"], deleteNote);
     store.on("sidebar.dragNote", dragNote);
-    store.on("sidebar.search", search);
     store.on("sidebar.collapseAll", collapseAll);
     store.on("sidebar.expandAll", expandAll);
     store.on("sidebar.setNoteSort", setNoteSort);
@@ -161,7 +160,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         deleteNote,
       );
       store.off("sidebar.dragNote", dragNote);
-      store.off("sidebar.search", search);
       store.off("sidebar.collapseAll", collapseAll);
       store.off("sidebar.expandAll", expandAll);
       store.off("sidebar.setNoteSort", setNoteSort);
@@ -672,17 +670,6 @@ export const dragNote: Listener<"sidebar.dragNote"> = async (
   if (newParent != null && !sidebar.expanded?.some(id => id === newParentId)) {
     toggleExpanded(ctx, newParent.id);
   }
-};
-
-export const search: Listener<"sidebar.search"> = async (
-  { value: searchString },
-  ctx,
-) => {
-  ctx.setUI({
-    sidebar: {
-      searchString,
-    },
-  });
 };
 
 export const expandAll: Listener<"sidebar.expandAll"> = async (_, ctx) => {
