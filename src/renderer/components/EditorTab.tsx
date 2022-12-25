@@ -64,6 +64,7 @@ const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  min-width: 0;
 `;
 
 const StyledTab = styled.a<{ active?: boolean }>`
@@ -97,6 +98,7 @@ const StyledText = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  min-width: 0;
 `;
 
 const StyledDelete = styled(Icon)`
