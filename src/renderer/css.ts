@@ -48,6 +48,7 @@ export const THEME = {
 
 export enum ZIndex {
   SearchOverlay = 10,
+  ResizeHandle = 100,
 }
 
 export const rounded = css`

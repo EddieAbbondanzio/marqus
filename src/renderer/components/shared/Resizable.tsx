@@ -3,6 +3,7 @@ import { stripUnit } from "polished";
 import React, { PropsWithChildren, useRef, useState } from "react";
 import styled from "styled-components";
 import { PX_REGEX } from "../../../shared/domain";
+import { ZIndex } from "../../css";
 import { useMouseDrag } from "../../io/mouse";
 
 export interface ResizableProps {
@@ -79,4 +80,5 @@ export function Resizable(
 
 const Handle = styled.div`
   cursor: ew-resize;
+  z-index: ${ZIndex.ResizeHandle};
 `;

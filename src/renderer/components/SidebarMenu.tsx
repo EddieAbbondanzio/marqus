@@ -115,6 +115,11 @@ const StyledMenuIcon = styled(Icon)`
 const StyledMenuText = styled.div`
   color: ${THEME.sidebar.font};
   font-size: ${SIDEBAR_MENU_FONT_SIZE};
+
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export interface SidebarInputProps {
