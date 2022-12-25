@@ -15,8 +15,8 @@ import { Section } from "../../shared/ui/app";
 import { log } from "../logger";
 import { BrowserWindowEvent, IpcChannel } from "../../shared/ipc";
 
-const INITIAL_DELAY_MS = 400;
-const REPEAT_DELAY_MS = 200;
+const INITIAL_DELAY_MS = 300;
+const REPEAT_DELAY_MS = 150;
 
 export function useShortcuts(store: Store): void {
   const { dispatch, state } = store;
@@ -26,6 +26,7 @@ export function useShortcuts(store: Store): void {
 
   // We use useState because we want to trigger a re-render if the keys change.
   const [didKeysChange, setDidKeysChange] = useState(false);
+  const lastTriggerTime = useRef(Date.now());
 
   if (!isTest() && shortcuts.length === 0) {
     void log.info("No shortcuts were passed to the useShortcuts hook");
@@ -51,6 +52,12 @@ export function useShortcuts(store: Store): void {
     if (shortcut != null) {
       void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
 
+      // Track time of last shortcut trigger to prevent repeat shortcuts from
+      // being triggered multiple times if the shortcut was pressed, released, and
+      // pressed again before the repeat interval fires.
+      const currTime = Date.now();
+      lastTriggerTime.current = currTime;
+
       if (shortcut.repeat) {
         void (async () => {
           const keysStarted = activeKeysToArray(activeKeys.current);
@@ -63,7 +70,10 @@ export function useShortcuts(store: Store): void {
 
           const trigger = () => {
             const keysOnInterval = activeKeysToArray(activeKeys.current);
-            if (isEqual(keysStarted, keysOnInterval)) {
+            if (
+              isEqual(keysStarted, keysOnInterval) &&
+              lastTriggerTime.current === currTime
+            ) {
               void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
             }
           };
@@ -95,6 +105,7 @@ export function useShortcuts(store: Store): void {
     };
   }, []);
 
+  // Subscribe to window events
   useEffect(() => {
     const keyDown = (ev: KeyboardEvent) => {
       // Prevent redundant calls
