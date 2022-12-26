@@ -39,6 +39,7 @@ export const promptFatal = async (
 export const promptConfirmAction = async (
   verb: string,
   name: string,
+  detail?: string,
 ): Promise<boolean> => {
   const opts: PromptOptions<boolean> = {
     text: `Are you sure you want to ${verb} ${name}?`,
@@ -48,6 +49,7 @@ export const promptConfirmAction = async (
     ],
     type: "info",
     title: `Confirm ${verb}`,
+    detail,
   };
 
   const pickedButton = await ipc("app.promptUser", opts);

@@ -11,7 +11,11 @@ export async function deleteNoteIfConfirmed(
   const { notes } = ctx.getState();
 
   const note = getNoteById(notes, noteId);
-  const confirmed = await promptConfirmAction("delete", `note ${note.name}`);
+  const confirmed = await promptConfirmAction(
+    "delete",
+    `"${note.name}"`,
+    "The note can be restored from your computer's trash",
+  );
   if (confirmed) {
     await window.ipc("notes.moveToTrash", note.id);
 
