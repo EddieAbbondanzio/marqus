@@ -99,6 +99,7 @@ export enum KeyCode {
   NumpadDecimal = "numpadDecimal",
   PageDown = "pageDown",
   PageUp = "pageUp",
+  PrintScreen = "printScreen",
 }
 
 /**
@@ -303,6 +304,8 @@ export function parseKeyCode(code: string): KeyCode | null {
     case "MetaLeft":
     case "MetaRight":
       return KeyCode.Meta;
+    case "PrintScreen":
+      return KeyCode.PrintScreen;
     default:
       // We return null over throwing an error because if new codes are ever
       // added to the spec we'd need to immediately update the app to support them.
@@ -427,6 +430,7 @@ export function isAction(key: KeyCode): boolean {
     case KeyCode.Space:
     case KeyCode.PageDown:
     case KeyCode.PageUp:
+    case KeyCode.PrintScreen:
       return true;
     default:
       return false;
