@@ -170,7 +170,7 @@ export const noteIpcPlugin: IpcPlugin = {
     }
   },
 
-  "notes.importAttachments": async (ctx, noteId, attachments) => {
+  "notes.importAttachments": async (ctx, noteId, rawAttachments) => {
     const { log } = ctx;
     const noteDirectory = getNoteDirectory(ctx);
     const noteAttachmentsDirectory = p.join(
@@ -183,9 +183,9 @@ export const noteIpcPlugin: IpcPlugin = {
       await fs.promises.mkdir(noteAttachmentsDirectory);
     }
 
-    const copiedOverAttachments: Attachment[] = [];
+    const attachments: Attachment[] = [];
 
-    for (const attachment of attachments) {
+    for (const attachment of rawAttachments) {
       // Don't allow directories to be drag and dropped into notes because if we
       // automatically insert a link for every note to the markdown file it could
       // spam the file with a ton of links.
@@ -193,30 +193,39 @@ export const noteIpcPlugin: IpcPlugin = {
         continue;
       }
 
-      // Ensure filename is always unique by appending a number to the end of it
-      // if we detect the file already exists.
-      const parsedFile = p.parse(attachment.name);
-      const originalName = parsedFile.name;
-      let copyNumber = 1;
-      while (fs.existsSync(p.join(noteAttachmentsDirectory, attachment.name))) {
-        attachment.name = `${originalName}-${copyNumber}${parsedFile.ext}`;
-        copyNumber += 1;
+      // Only copy over the attachment if it was outside of the note's attachment
+      // directory. This prevents us from duplicating the file if the user were
+      // to drag and drop a file that is already a known attachment.
+      if (
+        p.relative(noteAttachmentsDirectory, attachment.path).startsWith("..")
+      ) {
+        // Ensure filename is always unique by appending a number to the end of it
+        // if we detect the file already exists.
+        const parsedFile = p.parse(attachment.name);
+        const originalName = parsedFile.name;
+        let copyNumber = 1;
+        while (
+          fs.existsSync(p.join(noteAttachmentsDirectory, attachment.name))
+        ) {
+          attachment.name = `${originalName}-${copyNumber}${parsedFile.ext}`;
+          copyNumber += 1;
 
-        // Prevent infinite loops, and fail softly.
-        if (copyNumber > 1000) {
-          await log.warn(
-            `Tried fixing duplicate attachment name ${attachment.name} but failed 1000 times.`,
-          );
-          continue;
+          // Prevent infinite loops, and fail softly.
+          if (copyNumber > 1000) {
+            await log.warn(
+              `Tried fixing duplicate attachment name ${attachment.name} but failed 1000 times.`,
+            );
+            continue;
+          }
         }
+
+        await fs.promises.copyFile(
+          attachment.path,
+          p.join(noteAttachmentsDirectory, attachment.name),
+        );
       }
 
-      await fs.promises.copyFile(
-        attachment.path,
-        p.join(noteAttachmentsDirectory, attachment.name),
-      );
-
-      copiedOverAttachments.push({
+      attachments.push({
         name: attachment.name,
         // Drag-and-drop attachments always go to root directory
         path: attachment.name,
@@ -227,7 +236,7 @@ export const noteIpcPlugin: IpcPlugin = {
       });
     }
 
-    return copiedOverAttachments;
+    return attachments;
   },
 };
 

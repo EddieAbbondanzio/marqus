@@ -338,7 +338,9 @@ test("notes.importAttachments", async () => {
       [noteId]: {
         [METADATA_FILE_NAME]: JSON.stringify(createMetadata({ id: noteId })),
         [MARKDOWN_FILE_NAME]: "",
-        [ATTACHMENTS_DIRECTORY]: {},
+        [ATTACHMENTS_DIRECTORY]: {
+          "existing-attachment.txt": "ayy-lmao",
+        },
       },
     },
     "random-dir": {
@@ -419,6 +421,28 @@ test("notes.importAttachments", async () => {
     type: "image",
     mimeType: "image/jpeg",
   });
+
+  // Doesn't copy file if it was already in the attachment directory
+  const existingAttachment = await ipc.invoke(
+    "notes.importAttachments",
+    noteId,
+    [
+      {
+        path: path.join(
+          FAKE_NOTE_DIRECTORY,
+          noteId,
+          ATTACHMENTS_DIRECTORY,
+          "existing-attachment.txt",
+        ),
+        name: "existing-attachment.txt",
+        mimeType: "text/plain",
+      },
+    ],
+  );
+
+  // We can tell if the file was copied over based off it's name because it would
+  // end in (1).
+  expect(existingAttachment[0].name).toBe("existing-attachment.txt");
 });
 
 test("loadNotes empty", async () => {
