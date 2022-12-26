@@ -50,6 +50,7 @@ test.each([
   ["NumpadDecimal", KeyCode.NumpadDecimal],
   ["PageUp", KeyCode.PageUp],
   ["PageDown", KeyCode.PageDown],
+  ["PrintScreen", KeyCode.PrintScreen],
 ])("parseKey (key: %s)", (raw, code) => {
   expect(parseKeyCode(raw)).toBe(code);
 });
