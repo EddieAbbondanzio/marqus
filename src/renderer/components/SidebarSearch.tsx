@@ -74,7 +74,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
           })
         }
       >
-        {n.name}
+        <TruncatedText>{n.name}</TruncatedText>
       </SearchResult>
     );
   });
@@ -195,6 +195,7 @@ const SearchResult = styled.div<{ selected: boolean }>`
   align-items: center;
   font-size: 1.4rem;
   ${px3}
+  min-width: 0;
 
   background-color: ${p =>
     p.selected ? THEME.sidebar.search.selectedResult : ""} !important;
@@ -202,6 +203,12 @@ const SearchResult = styled.div<{ selected: boolean }>`
   &:hover {
     background-color: ${THEME.sidebar.search.resultBackgroundHover};
   }
+`;
+
+const TruncatedText = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export function searchNotes(notes: Note[], searchString?: string): Note[] {
