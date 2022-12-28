@@ -197,7 +197,7 @@ export const noteIpcPlugin: IpcPlugin = {
       // directory. This prevents us from duplicating the file if the user were
       // to drag and drop a file that is already a known attachment.
       if (
-        p.relative(noteAttachmentsDirectory, attachment.path).startsWith("..")
+        p.relative(noteAttachmentsDirectory, attachment.name).startsWith("..")
       ) {
         // Ensure filename is always unique by appending a number to the end of it
         // if we detect the file already exists.

@@ -434,7 +434,12 @@ test("notes.importAttachments", async () => {
           ATTACHMENTS_DIRECTORY,
           "existing-attachment.txt",
         ),
-        name: "existing-attachment.txt",
+        name: path.join(
+          FAKE_NOTE_DIRECTORY,
+          noteId,
+          ATTACHMENTS_DIRECTORY,
+          "existing-attachment.txt",
+        ),
         mimeType: "text/plain",
       },
     ],
@@ -442,7 +447,9 @@ test("notes.importAttachments", async () => {
 
   // We can tell if the file was copied over based off it's name because it would
   // end in (1).
-  expect(existingAttachment[0].name).toBe("existing-attachment.txt");
+  expect(existingAttachment[0].name).toBe(
+    `${FAKE_NOTE_DIRECTORY}/${noteId}/${ATTACHMENTS_DIRECTORY}/existing-attachment.txt`,
+  );
 });
 
 test("loadNotes empty", async () => {
