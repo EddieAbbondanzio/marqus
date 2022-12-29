@@ -442,7 +442,7 @@ test("notes.importAttachments", async () => {
 
   // We can tell if the file was copied over based off it's name because it would
   // end in (1).
-  expect(existingAttachment[0].name).toBe("existing-attachment.txt");
+  expect(existingAttachment[0].name).toBe(`existing-attachment.txt`);
 });
 
 test("loadNotes empty", async () => {

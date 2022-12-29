@@ -4,6 +4,7 @@ import {
   shell,
 } from "electron";
 import { Protocol } from "../shared/domain/protocols";
+import * as path from "path";
 
 export function openInBrowser(url: string): Promise<void> {
   if (!url.startsWith("http")) {
@@ -26,4 +27,9 @@ export function setCspHeader(
       details.responseHeaders,
     ),
   });
+}
+
+export function isChildOf(parent: string, dir: string): boolean {
+  const relative = path.relative(parent, dir);
+  return !relative.startsWith("..") && !path.isAbsolute(relative);
 }
