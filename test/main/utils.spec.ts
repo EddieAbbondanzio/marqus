@@ -1,5 +1,5 @@
 import { shell } from "electron";
-import { openInBrowser } from "../../src/main/utils";
+import { isChildOf, openInBrowser } from "../../src/main/utils";
 import { setCspHeader } from "../../src/main/utils";
 
 test("openInBrowser", async () => {
@@ -19,4 +19,13 @@ test("setCspHeader", () => {
       "Content-Security-Policy": [`img-src * attachment://*`],
     },
   });
+});
+
+test.each([
+  ["foo", "bar", false],
+  ["foo", "foo/../../bar", false],
+  ["foo", "foo/bar", true],
+  ["foo", "foo/bar/baz.txt", true],
+])("isChildOf", (parent, child, isChild) => {
+  expect(isChildOf(parent, child)).toBe(isChild);
 });

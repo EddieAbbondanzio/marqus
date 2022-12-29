@@ -14,7 +14,7 @@ import {
   parseAttachmentPath,
 } from "../../protocols/attachments";
 import { NOTE_SCHEMAS } from "../../schemas/notes";
-import { openInBrowser } from "../../utils";
+import { isChildOf, openInBrowser } from "../../utils";
 import * as fs from "fs";
 import * as p from "path";
 
@@ -196,9 +196,7 @@ export const noteIpcPlugin: IpcPlugin = {
       // Only copy over the attachment if it was outside of the note's attachment
       // directory. This prevents us from duplicating the file if the user were
       // to drag and drop a file that is already a known attachment.
-      if (
-        p.relative(noteAttachmentsDirectory, attachment.name).startsWith("..")
-      ) {
+      if (!isChildOf(noteAttachmentsDirectory, attachment.path)) {
         // Ensure filename is always unique by appending a number to the end of it
         // if we detect the file already exists.
         const parsedFile = p.parse(attachment.name);
@@ -223,6 +221,10 @@ export const noteIpcPlugin: IpcPlugin = {
           attachment.path,
           p.join(noteAttachmentsDirectory, attachment.name),
         );
+
+        console.log("COPIED TO ATTACHMENTS");
+      } else {
+        console.log("WAS ALREADY IN ATTACHMENTS");
       }
 
       attachments.push({

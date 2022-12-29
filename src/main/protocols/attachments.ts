@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import { UUID_REGEX } from "../../shared/domain";
 import { ATTACHMENTS_DIRECTORY } from "../ipc/plugins/notes";
+import { isChildOf } from "../utils";
 
 export function registerAttachmentsProtocol(noteDirectoryPath: string): void {
   protocol.registerFileProtocol(Protocol.Attachment, (req, cb) => {
@@ -55,7 +56,7 @@ export function parseAttachmentPath(
 
   const attachmentFile = path.join(attachmentsPath, filePath);
 
-  if (path.relative(attachmentsPath, attachmentFile).startsWith("..")) {
+  if (!isChildOf(attachmentsPath, attachmentFile)) {
     throw new Error(
       `${attachmentFile} is outside of attachment directory for ${noteId}, and cannot be loaded.`,
     );

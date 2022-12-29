@@ -8,7 +8,13 @@ export enum Protocol {
 
 export interface FileInfo {
   mimeType: string;
+  /**
+   * Full path of the attachment including file name and extension.
+   */
   path: string;
+  /**
+   * File name including extension. Ex: "foo.txt"
+   */
   name: string;
 }
 
