@@ -221,10 +221,6 @@ export const noteIpcPlugin: IpcPlugin = {
           attachment.path,
           p.join(noteAttachmentsDirectory, attachment.name),
         );
-
-        console.log("COPIED TO ATTACHMENTS");
-      } else {
-        console.log("WAS ALREADY IN ATTACHMENTS");
       }
 
       attachments.push({
