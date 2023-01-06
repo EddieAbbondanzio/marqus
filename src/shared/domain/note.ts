@@ -98,6 +98,11 @@ export function createNote(props: Partial<Note> & Pick<Note, "name">): Note {
   note.dateCreated ??= new Date();
   note.content ??= "";
 
+  // Trim out null parent id
+  if (note.parent === null) {
+    delete note.parent;
+  }
+
   if (!isEmpty(note.children)) {
     for (const child of note.children!) {
       child.parent = note.id;
