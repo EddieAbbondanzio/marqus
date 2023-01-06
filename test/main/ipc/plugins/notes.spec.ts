@@ -55,6 +55,12 @@ function createMetadata(props?: Partial<NoteMetadata>): NoteMetadata {
   return metadata;
 }
 
+test("createNote", () => {
+  // Trims out null
+  const note = createNote({ name: "foo", parent: null });
+  expect(note).not.toHaveProperty("parent");
+});
+
 test("registers attachment protocol", async () => {
   mockFS({
     [FAKE_NOTE_DIRECTORY]: {},
