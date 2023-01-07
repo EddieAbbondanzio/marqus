@@ -47,16 +47,18 @@ test("config.openInTextEditor", async () => {
 
   await ipc.invoke("config.openInTextEditor");
   expect(shell.openPath).toHaveBeenCalledWith(
-    expect.stringContaining(`marker-desktop/${CONFIG_FILE}`),
+    expect.stringContaining(`marker/${CONFIG_FILE}`),
   );
 });
 
-test.each([null, "fake-data-dir"])(
+test.each([undefined, "fake-data-dir"])(
   "config.openNoteDirectory (noteDirectory: %s)",
   async noteDirectory => {
-    mockFS({
-      [noteDirectory]: {},
-    });
+    if (noteDirectory != null) {
+      mockFS({
+        [noteDirectory]: {},
+      });
+    }
 
     const { ipc } = await initIpc(
       {

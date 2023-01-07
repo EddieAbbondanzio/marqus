@@ -9,6 +9,6 @@
     }
   },
   "include": [
-    "src", "tsconfig.json"
+    "src", "test",
   ],
 }
