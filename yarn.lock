@@ -8169,9 +8169,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marker@workspace:packages/desktop":
+"marker-desktop@workspace:packages/marker-desktop":
   version: 0.0.0-use.local
-  resolution: "marker@workspace:packages/desktop"
+  resolution: "marker-desktop@workspace:packages/marker-desktop"
   dependencies:
     "@electron-forge/cli": ^6.0.0-beta.61
     "@electron-forge/maker-deb": ^6.0.0-beta.61
