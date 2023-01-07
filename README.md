@@ -1,7 +1,7 @@
 # Marker
 
 <p align="center">
-<img width="256" height="256" src="https://github.com/EddieAbbondanzio/marker/blob/master/static/icon.png?raw=true">
+<img width="256" height="256" src="https://github.com/EddieAbbondanzio/marker/blob/master/packages/marker-desktop/static/icon.png?raw=true">
 </p>
 
 Marker is a free, markdown note taking app for Linux that allows for infinitely nestable notes to help with organization.
