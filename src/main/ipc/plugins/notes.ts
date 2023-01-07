@@ -266,7 +266,7 @@ export async function loadNotes(
   const everyNote = (
     await Promise.all(
       entries
-        .filter(isNoteEntry)
+        .filter(e => isNoteSubdirectory(noteDirectoryPath, e))
         .map(p => loadNoteFromFS(noteDirectoryPath, p.name)),
     )
   ).map(n => ({ ...n, children: [] }));
@@ -350,6 +350,28 @@ export function splitNoteIntoFiles(note: NoteFile): [NoteMetadata, string] {
   return [metadata, note.content];
 }
 
-export function isNoteEntry(entry: fs.Dirent): boolean {
-  return entry.isDirectory() && UUID_REGEX.test(entry.name);
+export function isNoteSubdirectory(
+  noteDirectoryPath: string,
+  entry: fs.Dirent,
+): boolean {
+  const isMatch = entry.isDirectory() && UUID_REGEX.test(entry.name);
+  if (!isMatch) {
+    return false;
+  }
+
+  const metadataPath = p.join(
+    noteDirectoryPath,
+    entry.name,
+    METADATA_FILE_NAME,
+  );
+  const markdownPath = p.join(
+    noteDirectoryPath,
+    entry.name,
+    MARKDOWN_FILE_NAME,
+  );
+
+  // Attachment directory doesn't need to be checked because it'll be re-created
+  // the first time the user attempts to add an attachment.
+
+  return fs.existsSync(metadataPath) && fs.existsSync(markdownPath);
 }
