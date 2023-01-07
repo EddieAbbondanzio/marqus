@@ -21,3 +21,6 @@ pnpm-debug.log*
 *.sw?
 
 .webpack
+
+# Yarn
+.yarn/*
