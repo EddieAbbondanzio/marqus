@@ -1,0 +1,11 @@
+# Eletron forge build dir.
+out
+
+# Default dev data dir
+notes
+config.json
+appState.json
+shortcuts.json
+
+# Default dev log dir
+logs

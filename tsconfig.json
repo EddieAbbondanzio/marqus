@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "es2015",
     "allowJs": true,
-    "jsx": "react",
     "module": "commonjs",
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -20,7 +19,4 @@
       ]
     }
   },
-  "include": [
-    "src", "tsconfig.json"
-  ],
 }

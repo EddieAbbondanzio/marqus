@@ -1,7 +1,5 @@
 .DS_Store
 node_modules
-/dist
-
 
 # local env files
 .env.local
@@ -24,15 +22,5 @@ pnpm-debug.log*
 
 .webpack
 
-# Eletron forge build dir.
-/out
-
-
-# Default dev data dir
-/notes
-config.json
-appState.json
-shortcuts.json
-
-# Default dev log dir
-/logs
+# Yarn
+.yarn/*
