@@ -24,8 +24,8 @@
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
-    },
-    "project": ["./tsconfig.json", "./test/tsconfig.jest.json"]
+    }
+    // "project": ["./tsconfig.json", "./test/tsconfig.jest.json"]
   },
   "settings": {
     "react": {

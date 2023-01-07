@@ -10,7 +10,7 @@ export interface ConfigV3 {
   developerMode?: boolean;
 }
 
-export const configSchemaV3: z.Schema<ConfigV3> = z.preprocess(
+export const configSchemaV3 = z.preprocess(
   obj => {
     const config = obj as ConfigV2 | ConfigV3;
     if (config.version === 2) {

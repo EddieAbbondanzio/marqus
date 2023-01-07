@@ -10,7 +10,7 @@ export interface ConfigV2 {
   logDirectory?: string;
 }
 
-export const configSchemaV2: z.Schema<ConfigV2> = z.preprocess(
+export const configSchemaV2 = z.preprocess(
   obj => {
     const config = obj as ConfigV1 | ConfigV2;
 

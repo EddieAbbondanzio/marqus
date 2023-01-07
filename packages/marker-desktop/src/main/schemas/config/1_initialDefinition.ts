@@ -11,7 +11,7 @@ export interface ConfigV1 {
   dataDirectory?: string;
 }
 
-export const configSchemaV1: z.Schema<ConfigV1> = z.preprocess(
+export const configSchemaV1 = z.preprocess(
   (obj: unknown) => {
     const config = obj as Partial<ConfigV1>;
 

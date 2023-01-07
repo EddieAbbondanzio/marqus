@@ -12,7 +12,7 @@ export interface ConfigV5 {
   autoHideAppMenu?: boolean;
 }
 
-export const configSchemaV5: z.Schema<ConfigV5> = z.preprocess(
+export const configSchemaV5 = z.preprocess(
   obj => {
     const config = obj as ConfigV4 | ConfigV5;
     if (config.version === 4) {
