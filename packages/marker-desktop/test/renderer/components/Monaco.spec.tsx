@@ -24,7 +24,14 @@ test("importAttachments", async () => {
     focused: [Section.Editor],
   });
 
-  const r = render(<Monaco store={store.current} />);
+  const r = render(
+    <Monaco
+      store={store.current}
+      modelAndViewStateCache={{}}
+      updateCache={jest.fn()}
+      removeCache={jest.fn()}
+    />,
+  );
   const monacoContainer = r.getByTestId("monaco-container");
 
   const model = {

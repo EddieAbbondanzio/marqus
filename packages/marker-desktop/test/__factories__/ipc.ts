@@ -63,7 +63,7 @@ export async function initIpc(
 
   let onDispose: (() => Promise<void>) | undefined = undefined;
   const reloadIpcPlugins =
-    partial.reloadIpcPlugins ??
+    partial?.reloadIpcPlugins ??
     jest.fn().mockImplementation(async () => {
       if (onDispose != null) {
         await onDispose();

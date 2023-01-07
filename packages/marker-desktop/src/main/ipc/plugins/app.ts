@@ -326,7 +326,7 @@ export function buildClickHandler<Ev extends UIEventType>(
   event: Ev,
   eventInput: UIEventInput<Ev>,
   channel: IpcChannel,
-): MenuItemConstructorOptions["click"] {
+): ClickHandler {
   return (_, browserWindow) => {
     browserWindow?.webContents.send(channel, {
       event,
@@ -334,3 +334,7 @@ export function buildClickHandler<Ev extends UIEventType>(
     });
   };
 }
+
+type ClickHandler = Required<
+  Pick<MenuItemConstructorOptions, "click">
+>["click"];

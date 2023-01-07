@@ -47,8 +47,8 @@ test("useShortcuts dispatches shortcut", () => {
 });
 
 test("doesSectionHaveFocus", () => {
-  expect(doesSectionHaveFocus(null, null)).toBe(true);
-  expect(doesSectionHaveFocus([], null)).toBe(true);
+  expect(doesSectionHaveFocus(undefined, undefined)).toBe(true);
+  expect(doesSectionHaveFocus([], undefined)).toBe(true);
 
   expect(doesSectionHaveFocus([], Section.Editor)).toBe(false);
   expect(doesSectionHaveFocus([Section.Editor], Section.Editor)).toBe(true);

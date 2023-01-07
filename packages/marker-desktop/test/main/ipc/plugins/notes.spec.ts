@@ -57,7 +57,10 @@ function createMetadata(props?: Partial<NoteMetadata>): NoteMetadata {
 
 test("createNote", () => {
   // Trims out null
-  const note = createNote({ name: "foo", parent: null });
+  const note = createNote({
+    name: "foo",
+    parent: null as unknown as undefined,
+  });
   expect(note).not.toHaveProperty("parent");
 });
 

@@ -317,7 +317,7 @@ test("sidebar.createNote confirm", async () => {
   // Start
   let dispatchPromise: Promise<unknown>;
   act(() => {
-    dispatchPromise = store.current.dispatch("sidebar.createNote", null);
+    dispatchPromise = store.current.dispatch("sidebar.createNote", null!);
   });
   expect(store.current.state.focused).toEqual(["sidebarInput"]);
 
@@ -391,7 +391,7 @@ test("sidebar.createNote uses selected as parent", async () => {
   render(<Sidebar store={store.current} />);
 
   await act(async () => {
-    void store.current.dispatch("sidebar.createNote", undefined);
+    void store.current.dispatch("sidebar.createNote", undefined!);
   });
 
   const { state } = store.current;
@@ -414,7 +414,7 @@ test("sidebar.createNote respects root flag", async () => {
 
   const { state } = store.current;
   expect(state.focused).toEqual(["sidebarInput"]);
-  expect(state.sidebar.input.parentId).toBe(undefined);
+  expect(state.sidebar.input!.parentId).toBe(undefined);
 });
 
 test("sidebar.createNote escape cancels", async () => {
@@ -424,7 +424,7 @@ test("sidebar.createNote escape cancels", async () => {
   // Start
   let dispatchPromise: Promise<unknown>;
   act(() => {
-    dispatchPromise = store.current.dispatch("sidebar.createNote", null);
+    dispatchPromise = store.current.dispatch("sidebar.createNote", null!);
   });
   expect(store.current.state.focused).toEqual([Section.SidebarInput]);
 
@@ -485,7 +485,7 @@ test.each(["cancel", "confirm"])("sidebar.renameNote (%s)", async action => {
   });
 
   const { state: changedState } = store.current;
-  expect(changedState.sidebar.input.value).toBe("Alpha");
+  expect(changedState.sidebar.input!.value).toBe("Alpha");
 
   if (action === "confirm") {
     await act(async () => {
@@ -501,7 +501,7 @@ test.each(["cancel", "confirm"])("sidebar.renameNote (%s)", async action => {
       name: "Alpha",
     });
 
-    const untouchedNote = finalState.notes.find(n => n.id === noteBId);
+    const untouchedNote = finalState.notes.find(n => n.id === noteBId)!;
     expect(untouchedNote.name).toBe("B");
   } else {
     await act(async () => {
@@ -517,7 +517,7 @@ test.each(["cancel", "confirm"])("sidebar.renameNote (%s)", async action => {
       name: "A",
     });
 
-    const untouchedNote = finalState.notes.find(n => n.id === noteBId);
+    const untouchedNote = finalState.notes.find(n => n.id === noteBId)!;
     expect(untouchedNote.name).toBe("B");
   }
 });
@@ -566,7 +566,7 @@ test.each(["cancel", "confirm"])(
     });
 
     const { state: changedState } = store.current;
-    expect(changedState.sidebar.input.value).toBe("Beta");
+    expect(changedState.sidebar.input!.value).toBe("Beta");
 
     if (action === "confirm") {
       await act(async () => {
@@ -582,7 +582,7 @@ test.each(["cancel", "confirm"])(
         name: "Beta",
       });
 
-      const untouchedNote = finalState.notes.find(n => n.id === noteAId);
+      const untouchedNote = finalState.notes.find(n => n.id === noteAId)!;
       expect(untouchedNote.name).toBe("A");
     } else {
       await act(async () => {
@@ -598,7 +598,7 @@ test.each(["cancel", "confirm"])(
         name: "B",
       });
 
-      const untouchedNote = finalState.notes.find(n => n.id === noteAId);
+      const untouchedNote = finalState.notes.find(n => n.id === noteAId)!;
       expect(untouchedNote.name).toBe("A");
     }
   },

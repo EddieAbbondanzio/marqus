@@ -1,7 +1,7 @@
 import { arrayify, isBlank, sleep } from "../../src/shared/utils";
 
 test("isBlank", () => {
-  expect(isBlank(null)).toBe(true);
+  expect(isBlank(undefined)).toBe(true);
   expect(isBlank("")).toBe(true);
   expect(isBlank(" ")).toBe(true);
   expect(isBlank("  ")).toBe(true);

@@ -131,7 +131,7 @@ test("editor.closeActiveTab", async () => {
   // Close Foo
   render(<EditorToolbar store={store.current} />);
   await act(async () => {
-    await store.current.dispatch("editor.closeActiveTab", undefined);
+    await store.current.dispatch("editor.closeActiveTab", undefined!);
   });
 
   const { editor: editorAfterFirstClose } = store.current.state;
@@ -150,7 +150,7 @@ test("editor.closeActiveTab", async () => {
 
   // Close Bar
   await act(async () => {
-    await store.current.dispatch("editor.closeActiveTab", undefined);
+    await store.current.dispatch("editor.closeActiveTab", undefined!);
   });
 
   const { editor: editorAfterSecondClose } = store.current.state;
@@ -166,7 +166,7 @@ test("editor.closeActiveTab", async () => {
 
   // Close Baz (last remaining tab)
   await act(async () => {
-    await store.current.dispatch("editor.closeActiveTab", undefined);
+    await store.current.dispatch("editor.closeActiveTab", undefined!);
   });
   const { editor: editorAfterThirdClose } = store.current.state;
   expect(editorAfterThirdClose.tabs).toHaveLength(0);
@@ -449,7 +449,7 @@ test("previousTab", async () => {
 test("updateTabsScroll scrolls tabs", async () => {
   const store = createStore();
   const r = render(<EditorToolbar store={store.current} />);
-  const scrollable = r.container.querySelector("[orientation=horizontal]");
+  const scrollable = r.container.querySelector("[orientation=horizontal]")!;
 
   await act(async () => {
     fireEvent.scroll(scrollable, { target: { scrollLeft: 10 } });

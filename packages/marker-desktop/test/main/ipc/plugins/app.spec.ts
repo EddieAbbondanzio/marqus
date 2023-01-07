@@ -1,5 +1,5 @@
 import { createConfig } from "../../../__factories__/config";
-import { initIpc, FAKE_DATA_DIRECTORY } from "../../../__factories__/ipc";
+import { initIpc } from "../../../__factories__/ipc";
 
 import { createJsonFile } from "../../../__factories__/json";
 import { BrowserWindow, dialog, Menu, shell, WebContents } from "electron";
