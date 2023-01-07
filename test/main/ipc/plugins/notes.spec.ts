@@ -1,7 +1,7 @@
 import {
   ATTACHMENTS_DIRECTORY,
   buildNoteTree,
-  isNoteEntry,
+  isNoteSubdirectory,
   loadNoteFromFS,
   loadNotes,
   MARKDOWN_FILE_NAME,
@@ -610,10 +610,25 @@ test("splitNoteIntoFiles", async () => {
 });
 
 test.each([
-  [{ isDirectory: () => false, name: "foo" } as fs.Dirent, false],
-  [{ isDirectory: () => true, name: "foo" } as fs.Dirent, false],
-  [{ isDirectory: () => false, name: uuid() } as fs.Dirent, false],
-  [{ isDirectory: () => true, name: uuid() } as fs.Dirent, true],
-])("isNoteEntry", (entry, isNote) => {
-  expect(isNoteEntry(entry)).toBe(isNote);
-});
+  ["empty-text-file.txt", "", false],
+  ["random-directory", {}, false],
+  [uuid(), "", false],
+  [uuid(), {}, false],
+  [uuid(), { [METADATA_FILE_NAME]: "" }, false],
+  [uuid(), { [MARKDOWN_FILE_NAME]: "" }, false],
+  [uuid(), { [METADATA_FILE_NAME]: "", [MARKDOWN_FILE_NAME]: "" }, true],
+])(
+  "isNoteSubdirectory %s %s",
+  async (name: string, contents: any, isNote: boolean) => {
+    mockFS({
+      [FAKE_NOTE_DIRECTORY]: {
+        [name]: contents,
+      },
+    });
+
+    const entries = await fs.promises.readdir(FAKE_NOTE_DIRECTORY, {
+      withFileTypes: true,
+    });
+    expect(isNoteSubdirectory(FAKE_NOTE_DIRECTORY, entries[0])).toBe(isNote);
+  },
+);
