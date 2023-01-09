@@ -2,7 +2,9 @@ const name = "marker";
 
 module.exports = {
   packagerConfig: {
+    // Only supports Windows / Mac
     icon: "static/icon.png",
+    executableName: "marker-desktop",
   },
   makers: [
     {
@@ -20,6 +22,8 @@ module.exports = {
       config: {
         name,
         productName: "Marker",
+        genericName: "Text Editor",
+        icon: "static/icon.png",
       },
     },
     {
@@ -27,6 +31,8 @@ module.exports = {
       config: {
         name,
         productName: "Marker",
+        genericName: "Text Editor",
+        icon: "static/icon.png",
       },
     },
   ],

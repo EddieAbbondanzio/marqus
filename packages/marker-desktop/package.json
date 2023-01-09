@@ -1,5 +1,6 @@
 {
   "name": "marker-desktop",
+  "productName": "marker",
   "version": "0.4.4",
   "description": "A markdown note taking app",
   "main": ".webpack/main",
