@@ -47,7 +47,7 @@ mkdir  "out/v${VERSION}"
 # Copy output to version specific directory
 cd out
 
-mv "make/deb/x64/marker_${VERSION}_amd64.deb" "v${VERSION}/marker-v${VERSION}.deb"
-mv "make/rpm/x64/marker-${VERSION}-1.x86_64.rpm" "v${VERSION}/marker-v${VERSION}.rpm"
+mv "make/deb/x64/marker-desktop_${VERSION}_amd64.deb" "v${VERSION}/marker-v${VERSION}.deb"
+mv "make/rpm/x64/marker-desktop-${VERSION}-1.x86_64.rpm" "v${VERSION}/marker-v${VERSION}.rpm"
 
 echo "DONE!"
