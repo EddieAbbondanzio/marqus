@@ -1,4 +1,5 @@
-const path = require("path");
+const name = "marker";
+
 module.exports = {
   packagerConfig: {
     icon: "static/icon.png",
@@ -7,7 +8,7 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        name: "Marker",
+        name,
       },
     },
     {
@@ -16,11 +17,17 @@ module.exports = {
     },
     {
       name: "@electron-forge/maker-deb",
-      config: {},
+      config: {
+        name,
+        productName: "Marker",
+      },
     },
     {
       name: "@electron-forge/maker-rpm",
-      config: {},
+      config: {
+        name,
+        productName: "Marker",
+      },
     },
   ],
   plugins: [

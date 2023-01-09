@@ -150,6 +150,8 @@ export async function main(): Promise<void> {
   } catch (err) {
     console.error("Error: Failed to initialize app.");
     console.error(err);
+
+    mainWindow.webContents.openDevTools();
   }
 }
 
