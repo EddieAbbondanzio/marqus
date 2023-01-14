@@ -95,7 +95,7 @@ export async function main(): Promise<void> {
       mainWindow = new BrowserWindow({
         // Title must be specified otherwise npm package name will be used until
         // index.html has loaded.
-        title: "Marker",
+        title: "Seismic Notes",
         icon: "static/icon.png",
         height: windowHeight,
         width: windowWidth,

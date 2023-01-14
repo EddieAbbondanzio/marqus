@@ -7998,83 +7998,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marker-desktop@workspace:packages/marker-desktop":
-  version: 0.0.0-use.local
-  resolution: "marker-desktop@workspace:packages/marker-desktop"
-  dependencies:
-    "@electron-forge/cli": 6.0.4
-    "@electron-forge/maker-deb": 6.0.4
-    "@electron-forge/maker-rpm": 6.0.4
-    "@electron-forge/maker-squirrel": 6.0.4
-    "@electron-forge/maker-zip": 6.0.4
-    "@electron-forge/plugin-webpack": 6.0.4
-    "@fortawesome/fontawesome-svg-core": ^1.2.36
-    "@fortawesome/free-solid-svg-icons": ^5.15.4
-    "@fortawesome/react-fontawesome": ^0.1.16
-    "@testing-library/react": ^12.1.5
-    "@testing-library/react-hooks": ^8.0.0
-    "@types/jest": ^27.0.2
-    "@types/jest-when": ^3.5.0
-    "@types/jquery": ^3.5.14
-    "@types/jquery.scrollto": ^1.4.29
-    "@types/lodash": ^4.14.176
-    "@types/mock-fs": ^4.13.1
-    "@types/react": ^17.0.33
-    "@types/react-dom": ^17.0.10
-    "@types/react-test-renderer": ^17.0.1
-    "@types/styled-components": ^5.1.25
-    "@typescript-eslint/eslint-plugin": ^4.0.1
-    "@typescript-eslint/parser": ^4.0.1
-    "@vercel/webpack-asset-relocator-loader": 1.7.0
-    async-mutex: ^0.4.0
-    babel-jest: ^27.3.1
-    chalk: ^4.1.2
-    copy-webpack-plugin: ^6.4.1
-    css-loader: ^6.0.0
-    dart-sass: ^1.25.0
-    date-fns: ^2.28.0
-    electron: 15.3.0
-    electron-squirrel-startup: ^1.0.0
-    eslint: ^7.6.0
-    eslint-plugin-import: ^2.20.0
-    eslint-plugin-react: ^7.29.4
-    eslint-plugin-react-hooks: ^4.4.0
-    fast-fuzzy: ^1.11.1
-    fork-ts-checker-webpack-plugin: ^6.0.1
-    html-webpack-plugin: ^4.5.2
-    jest: ^27.3.1
-    jest-when: ^3.5.1
-    jquery: ^3.6.2
-    jquery.scrollto: ^2.1.3
-    lodash: ^4.17.21
-    mock-fs: ^5.2.0
-    monaco-editor: ^0.33.0
-    monaco-editor-webpack-plugin: ^7.0.1
-    nanoid: ^3.1.30
-    node-loader: ^2.0.0
-    open-color: ^1.9.1
-    polished: ^4.2.2
-    react: ^17.0.2
-    react-dom: ^17.0.2
-    react-remark: ^2.1.0
-    remark-emoji: ^2.1.0
-    remark-gfm: ^1.0.0
-    sass: ^1.43.4
-    sass-loader: ^12.3.0
-    style-loader: ^3.0.0
-    styled-components: ^5.3.3
-    tozod: ^3.0.0
-    ts-jest: ^27.0.7
-    ts-loader: ^9.2.2
-    tsdef: 0.0.14
-    typescript: ^4.0.2
-    unist-util-visit: ^2.0.3
-    webpack-cli: ^4.9.2
-    webpack-dev-server: ^4.7.4
-    zod: ^3.17.10
-  languageName: unknown
-  linkType: soft
-
 "matcher@npm:^3.0.0":
   version: 3.0.0
   resolution: "matcher@npm:3.0.0"
@@ -10336,6 +10259,83 @@ __metadata:
   checksum: c843e92fdd1a5c145dbb6ffdae33e501867f9703afac67bdf35a685e49f85b1dcc10ea250033175a64bd9d31f0555bc6785b8359da0c90bcea30cf6dfbb55a8f
   languageName: node
   linkType: hard
+
+"seismic-notes-desktop@workspace:packages/seismic-notes-desktop":
+  version: 0.0.0-use.local
+  resolution: "seismic-notes-desktop@workspace:packages/seismic-notes-desktop"
+  dependencies:
+    "@electron-forge/cli": 6.0.4
+    "@electron-forge/maker-deb": 6.0.4
+    "@electron-forge/maker-rpm": 6.0.4
+    "@electron-forge/maker-squirrel": 6.0.4
+    "@electron-forge/maker-zip": 6.0.4
+    "@electron-forge/plugin-webpack": 6.0.4
+    "@fortawesome/fontawesome-svg-core": ^1.2.36
+    "@fortawesome/free-solid-svg-icons": ^5.15.4
+    "@fortawesome/react-fontawesome": ^0.1.16
+    "@testing-library/react": ^12.1.5
+    "@testing-library/react-hooks": ^8.0.0
+    "@types/jest": ^27.0.2
+    "@types/jest-when": ^3.5.0
+    "@types/jquery": ^3.5.14
+    "@types/jquery.scrollto": ^1.4.29
+    "@types/lodash": ^4.14.176
+    "@types/mock-fs": ^4.13.1
+    "@types/react": ^17.0.33
+    "@types/react-dom": ^17.0.10
+    "@types/react-test-renderer": ^17.0.1
+    "@types/styled-components": ^5.1.25
+    "@typescript-eslint/eslint-plugin": ^4.0.1
+    "@typescript-eslint/parser": ^4.0.1
+    "@vercel/webpack-asset-relocator-loader": 1.7.0
+    async-mutex: ^0.4.0
+    babel-jest: ^27.3.1
+    chalk: ^4.1.2
+    copy-webpack-plugin: ^6.4.1
+    css-loader: ^6.0.0
+    dart-sass: ^1.25.0
+    date-fns: ^2.28.0
+    electron: 15.3.0
+    electron-squirrel-startup: ^1.0.0
+    eslint: ^7.6.0
+    eslint-plugin-import: ^2.20.0
+    eslint-plugin-react: ^7.29.4
+    eslint-plugin-react-hooks: ^4.4.0
+    fast-fuzzy: ^1.11.1
+    fork-ts-checker-webpack-plugin: ^6.0.1
+    html-webpack-plugin: ^4.5.2
+    jest: ^27.3.1
+    jest-when: ^3.5.1
+    jquery: ^3.6.2
+    jquery.scrollto: ^2.1.3
+    lodash: ^4.17.21
+    mock-fs: ^5.2.0
+    monaco-editor: ^0.33.0
+    monaco-editor-webpack-plugin: ^7.0.1
+    nanoid: ^3.1.30
+    node-loader: ^2.0.0
+    open-color: ^1.9.1
+    polished: ^4.2.2
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    react-remark: ^2.1.0
+    remark-emoji: ^2.1.0
+    remark-gfm: ^1.0.0
+    sass: ^1.43.4
+    sass-loader: ^12.3.0
+    style-loader: ^3.0.0
+    styled-components: ^5.3.3
+    tozod: ^3.0.0
+    ts-jest: ^27.0.7
+    ts-loader: ^9.2.2
+    tsdef: 0.0.14
+    typescript: ^4.0.2
+    unist-util-visit: ^2.0.3
+    webpack-cli: ^4.9.2
+    webpack-dev-server: ^4.7.4
+    zod: ^3.17.10
+  languageName: unknown
+  linkType: soft
 
 "select-hose@npm:^2.0.0":
   version: 2.0.0
