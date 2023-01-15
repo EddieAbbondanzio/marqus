@@ -1,6 +1,6 @@
 const path = require("path");
 
-const name = "seismic-notes";
+const name = "marqus";
 const iconPath = path.join(__dirname, "/static/icon.png");
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
   packagerConfig: {
     // Only supports Windows / Mac
     icon: "static/icon.png",
-    executableName: "seismic-notes-desktop",
+    executableName: "marqus-desktop",
   },
   makers: [
     {
@@ -26,7 +26,7 @@ module.exports = {
       name: "@electron-forge/maker-deb",
       config: {
         name,
-        productName: "Seismic Notes",
+        productName: "Marqus",
         genericName: "Text Editor",
         icon: iconPath,
       },
@@ -35,7 +35,7 @@ module.exports = {
       name: "@electron-forge/maker-rpm",
       config: {
         name,
-        productName: "Seismic Notes",
+        productName: "Marqus",
         genericName: "Text Editor",
         icon: "static/icon.png",
       },

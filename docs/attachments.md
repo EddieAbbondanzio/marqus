@@ -2,16 +2,16 @@
 
 Attachments are images and files that are inserted into notes. Images will be rendered, and any other type of file will be a clickable link that will open up the appropriate application to handle them.
 
-To make it super easy to add images, Seismic Notes supports dragging and dropping them into any note that is being actively edited.
+To make it super easy to add images, Marqus supports dragging and dropping them into any note that is being actively edited.
 
-![Drag and drop](https://github.com/EddieAbbondanzio/seismic-notes/blob/master/docs/images/drag-and-drop.gif)
+![Drag and drop](https://github.com/EddieAbbondanzio/marqus/blob/master/docs/images/drag-and-drop.gif)
 
 ## How Attachments Work
 
 Notes can use any file within their `attachment` folder as an attachment.
 
 To open a notes `attachment` folder, right click on it in the sidebar and select "Open attachments"
-![Drag and drop](https://github.com/EddieAbbondanzio/seismic-notes/blob/master/docs/images/open-attachments.png)
+![Drag and drop](https://github.com/EddieAbbondanzio/marqus/blob/master/docs/images/open-attachments.png)
 
 Images can be inserted using: `![](attachment://image.jpg)`
 
