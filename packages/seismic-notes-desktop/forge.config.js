@@ -1,10 +1,15 @@
-const name = "marker";
+const path = require("path");
+
+const name = "seismic-notes";
+const iconPath = path.join(__dirname, "/static/icon.png");
 
 module.exports = {
+  // Available options:
+  // https://electron.github.io/electron-packager/main/interfaces/electronpackager.options.html
   packagerConfig: {
     // Only supports Windows / Mac
     icon: "static/icon.png",
-    executableName: "marker-desktop",
+    executableName: "seismic-notes-desktop",
   },
   makers: [
     {
@@ -21,16 +26,16 @@ module.exports = {
       name: "@electron-forge/maker-deb",
       config: {
         name,
-        productName: "Marker",
+        productName: "Seismic Notes",
         genericName: "Text Editor",
-        icon: "static/icon.png",
+        icon: iconPath,
       },
     },
     {
       name: "@electron-forge/maker-rpm",
       config: {
         name,
-        productName: "Marker",
+        productName: "Seismic Notes",
         genericName: "Text Editor",
         icon: "static/icon.png",
       },

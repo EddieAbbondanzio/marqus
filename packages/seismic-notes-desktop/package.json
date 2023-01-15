@@ -1,6 +1,6 @@
 {
-  "name": "marker-desktop",
-  "productName": "marker",
+  "name": "seismic-notes-desktop",
+  "productName": "Seismic Notes",
   "version": "0.4.4",
   "description": "A markdown note taking app",
   "main": ".webpack/main",
