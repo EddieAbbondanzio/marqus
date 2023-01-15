@@ -1,6 +1,6 @@
 {
-  "name": "seismic-notes-desktop",
-  "productName": "Seismic Notes",
+  "name": "marqus-desktop",
+  "productName": "Marqus",
   "version": "0.4.4",
   "description": "A markdown note taking app",
   "main": ".webpack/main",

@@ -47,7 +47,7 @@ test("config.openInTextEditor", async () => {
 
   await ipc.invoke("config.openInTextEditor");
   expect(shell.openPath).toHaveBeenCalledWith(
-    expect.stringContaining(`seismic-notes-desktop/${CONFIG_FILE}`),
+    expect.stringContaining(`marqus-desktop/${CONFIG_FILE}`),
   );
 });
 
