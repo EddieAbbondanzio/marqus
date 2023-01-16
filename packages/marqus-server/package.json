@@ -1,0 +1,32 @@
+{
+  "name": "marker-server",
+  "version": "1.0.0",
+  "description": "Server to sync notes for Marker across multiple devices",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EddieAbbondanzio/marker-server.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/EddieAbbondanzio/marker-server/issues"
+  },
+  "homepage": "https://github.com/EddieAbbondanzio/marker-server#readme",
+  "dependencies": {
+    "@prisma/client": "^4.8.0",
+    "express": "^4.18.2",
+    "http-status": "^1.6.1",
+    "zod": "^3.20.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.15",
+    "@types/node": "^18.11.18",
+    "prisma": "^4.8.0",
+    "typescript": "^4.9.4"
+  }
+}
