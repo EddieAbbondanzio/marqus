@@ -1,18 +1,11 @@
-/* eslint-disable no-console */
-import { differenceInCalendarDays, format, formatISO } from "date-fns";
+import { format, formatISO } from "date-fns";
 import { Config } from "../../../shared/domain/config";
-import { Logger } from "../../../shared/logger";
 import { JsonFile } from "../../json";
-import * as fsp from "fs/promises";
-import * as fs from "fs";
-import * as p from "path";
-import { ISO_8601_REGEX } from "../../../shared/utils";
-import chalk from "chalk";
-import * as os from "os";
 import { IpcPlugin } from "..";
+import winston, { Logger } from "winston";
+import DailyRotateFile from "winston-daily-rotate-file";
 
-const DELETE_LOGS_OLDER_THAN_DAYS = 14;
-
+// TODO: How will we tie this into the new logger?
 export const logIpcPlugin: IpcPlugin = {
   "log.info": async ({ log }, message) => log.info(`[RENDERER] ${message}`),
 
@@ -24,86 +17,44 @@ export const logIpcPlugin: IpcPlugin = {
     log.error(`[RENDERER] ${message}`, err),
 };
 
-export async function getLogger(
-  config: JsonFile<Config>,
-  c: Console,
-): Promise<Logger & { filePath: string; close: () => Promise<void> }> {
+export async function getLogger(config: JsonFile<Config>): Promise<Logger> {
+  const timestamp = winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" });
+  const printf = winston.format.printf(
+    info => `${info.timestamp} [${info.level}]: ${info.message}`,
+  );
+
+  const transports: winston.transport[] = [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize({ all: true }),
+        timestamp,
+        printf,
+      ),
+    }),
+  ];
+
   const { logDirectory } = config.content;
-  if (logDirectory != null && !fs.existsSync(logDirectory)) {
-    await fsp.mkdir(logDirectory);
+  if (logDirectory != null) {
+    console.log("ADDING FILE TRANSPORT!", logDirectory);
+    transports.push(
+      new DailyRotateFile({
+        filename: `%DATE%.log`,
+        dirname: logDirectory,
+        datePattern: "YYYY-MM-DD",
+        maxFiles: "14d",
+        maxSize: "20m",
+        format: winston.format.combine(timestamp, printf),
+      }),
+    );
   }
 
-  // Delete any logs older than 2 weeks
-  const entries = await fsp.readdir(logDirectory, { withFileTypes: true });
-  for (const entry of entries) {
-    if (p.extname(entry.name) !== "log" && !ISO_8601_REGEX.test(entry.name)) {
-      continue;
-    }
-
-    const filePath = p.join(logDirectory, entry.name);
-    const fileStats = await fsp.stat(filePath);
-
-    if (
-      differenceInCalendarDays(new Date(), fileStats.birthtime) >
-      DELETE_LOGS_OLDER_THAN_DAYS
-    ) {
-      await fsp.unlink(filePath);
-    }
-  }
-
-  const currLogFile = getLogFileName(new Date());
-  const currFilePath = p.join(logDirectory, currLogFile);
-  const fileStream = fs.createWriteStream(currFilePath, {
-    flags: "a",
+  const logger = winston.createLogger({
+    level: "info",
+    transports,
+    // N.B. Format is specified at the transport layer because we want to support
+    // colors in the console, but if we enable colors on the logger it'll print
+    // out the control characters to the log file too.
   });
 
-  const log: Logger = {
-    async debug(message: string): Promise<void> {
-      const fullMessage = `${getTimeStamp()} (debug): ${message}`;
-      c.log(chalk.cyan(fullMessage));
-
-      await fileStream.write(fullMessage + os.EOL);
-    },
-    async info(message: string): Promise<void> {
-      const fullMessage = `${getTimeStamp()} (info): ${message}`;
-      c.log(fullMessage);
-
-      fileStream.write(fullMessage + os.EOL);
-    },
-    async warn(message: string): Promise<void> {
-      const fullMessage = `${getTimeStamp()} (warn): ${message}`;
-      c.warn(chalk.yellow(fullMessage));
-
-      fileStream.write(fullMessage + os.EOL);
-    },
-    async error(message: string): Promise<void> {
-      const fullMessage = `${getTimeStamp()} (ERROR): ${message}`;
-
-      c.error(chalk.red(fullMessage));
-      fileStream.write(fullMessage + os.EOL);
-    },
-  };
-
-  const close = async () => {
-    await new Promise(res => fileStream.end(res));
-
-    // Delete empty log files to avoid spamming file system.
-    if (fs.statSync(currFilePath).size === 0) {
-      fs.unlinkSync(currFilePath);
-    }
-  };
-
-  return {
-    ...log,
-    filePath: currFilePath,
-    close,
-  };
-}
-
-export function getTimeStamp(): string {
-  return format(new Date(), "L/d H:mm");
-}
-
-export function getLogFileName(date: Date): string {
-  return `${formatISO(date)}.log`;
+  return logger;
 }
