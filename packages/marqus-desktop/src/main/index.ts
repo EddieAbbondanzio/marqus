@@ -130,8 +130,8 @@ export async function main(): Promise<void> {
       app.on("ready", createWindow);
     }
   } catch (err) {
-    console.error("Error: Failed to initialize app.");
-    console.error(err);
+    logger.error("Error: Failed to initialize app.");
+    logger.error(err);
 
     mainWindow.webContents.openDevTools();
   }
