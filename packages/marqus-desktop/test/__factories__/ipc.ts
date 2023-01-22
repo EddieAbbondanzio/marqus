@@ -6,7 +6,6 @@ import { IpcSchema, IpcType } from "../../src/shared/ipc";
 import { createConfig } from "./config";
 import { createBrowserWindow } from "./electron";
 import { createJsonFile } from "./json";
-import { createLogger } from "./logger";
 
 export class MockedIpcMainTS implements IpcMainTS {
   // Type safety is not a concern here.
@@ -54,7 +53,6 @@ export async function initIpc(
   const config =
     partial?.config ??
     createJsonFile(createConfig({ noteDirectory: FAKE_NOTE_DIRECTORY }));
-  const log = partial?.log ?? createLogger();
   const browserWindow = partial?.browserWindow ?? createBrowserWindow();
 
   const blockAppFromQuitting = jest.fn().mockImplementation(async cb => {
@@ -75,7 +73,6 @@ export async function initIpc(
   const ctx = {
     ipc,
     config,
-    log,
     browserWindow,
     blockAppFromQuitting,
     reloadIpcPlugins,
