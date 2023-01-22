@@ -1,4 +1,4 @@
-import { keyBy, isEmpty, cloneDeep } from "lodash";
+import { keyBy, isEmpty, cloneDeep, orderBy } from "lodash";
 import { PromisedInput } from "../promisedInput";
 import { flatten, Note, NoteSort } from "../domain/note";
 
@@ -84,6 +84,15 @@ export function filterOutStaleNoteIds(
     currentNoteIds[clonedUI.editor.activeTabNoteId] == null
   ) {
     clonedUI.editor.activeTabNoteId = undefined;
+  }
+
+  if (clonedUI.editor.activeTabNoteId == null) {
+    const [tabsByLastActive] = orderBy(
+      clonedUI.editor.tabs,
+      ["lastActive"],
+      ["desc"],
+    );
+    clonedUI.editor.activeTabNoteId = tabsByLastActive?.note.id;
   }
 
   return clonedUI;

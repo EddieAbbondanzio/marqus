@@ -1,3 +1,4 @@
+import { subMinutes } from "date-fns";
 import { createNote } from "../../../src/shared/domain/note";
 import { filterOutStaleNoteIds } from "../../../src/shared/ui/app";
 import { createState } from "../../__factories__/state";
@@ -18,8 +19,8 @@ test("filterOutStaleNoteIds", async () => {
     editor: {
       tabs: [
         { note: note1 },
-        { note: note2 },
-        { note: nested1 },
+        { note: note2, lastActive: subMinutes(new Date(), 10) },
+        { note: nested1, lastActive: subMinutes(new Date(), 3) },
         { note: createNote({ name: "stale-note" }) },
       ],
       activeTabNoteId: note1.id,
@@ -31,6 +32,10 @@ test("filterOutStaleNoteIds", async () => {
   expect(filteredUI.sidebar.expanded).not.toContain(note1.id);
   expect(filteredUI.sidebar.selected).not.toContain(note1.id);
   expect(filteredUI.editor.tabs).not.toContainEqual({ note: note1 });
-  expect(filteredUI.editor.tabs).toContainEqual({ note: nested1 });
-  expect(filteredUI.editor.activeTabNoteId).toBe(undefined);
+  expect(filteredUI.editor.tabs).toContainEqual(
+    expect.objectContaining({ note: nested1 }),
+  );
+
+  // New active note should be set to previously most recently opened tab
+  expect(filteredUI.editor.activeTabNoteId).toBe(nested1.id);
 });
