@@ -1,8 +1,9 @@
 import { app, BrowserWindow, ipcMain, session } from "electron";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
+import { sleep } from "../shared/utils";
 import { initPlugins, IpcMainTS, IPC_PLUGINS, OnDispose } from "./ipc";
 import { getConfig } from "./ipc/plugins/config";
-import { getLogger } from "./ipc/plugins/log";
+import { getFileTransport, logger } from "./logger";
 import { setCspHeader } from "./utils";
 
 if (!isTest() && getProcessType() !== "main") {
@@ -23,7 +24,7 @@ let onDispose: () => Promise<void>;
 export async function main(): Promise<void> {
   try {
     const configFile = await getConfig();
-    const log = await getLogger(configFile, console);
+    logger.add(getFileTransport(configFile));
 
     // Handle creating/removing shortcuts on Windows when installing/uninstalling.
     if (require("electron-squirrel-startup")) {
@@ -59,29 +60,11 @@ export async function main(): Promise<void> {
       keepAlivePromise = undefined;
     };
 
-    let quitInitiated = false;
     app.on("before-quit", async ev => {
       if (keepAlivePromise) {
         ev.preventDefault();
 
         await keepAlivePromise;
-        app.quit();
-
-        return;
-      }
-
-      if (!quitInitiated) {
-        // Post-pone quitting so we can save off the log file first.
-        ev.preventDefault();
-
-        await log.close();
-
-        // Use console.log() over log.info to avoid appending this to the log file
-        // eslint-disable-next-line no-console
-        console.log(`Shutting down. Log saved to: ${log.filePath}`);
-
-        // Now let the app close.
-        quitInitiated = true;
         app.quit();
       }
     });
@@ -113,7 +96,6 @@ export async function main(): Promise<void> {
       const appContext = {
         ipc: typeSafeIpc,
         browserWindow: mainWindow,
-        log,
         config: configFile,
         blockAppFromQuitting,
         reloadIpcPlugins: async () => {
