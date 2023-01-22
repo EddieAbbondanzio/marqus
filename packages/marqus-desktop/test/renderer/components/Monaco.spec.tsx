@@ -11,6 +11,7 @@ import * as monaco from "monaco-editor";
 import { Section } from "../../../src/shared/ui/app";
 import { when } from "jest-when";
 import { Protocol } from "../../../src/shared/domain/protocols";
+import { createConfig } from "../../__factories__/config";
 
 test("importAttachments", async () => {
   const noteId = uuid();
@@ -23,10 +24,12 @@ test("importAttachments", async () => {
     },
     focused: [Section.Editor],
   });
+  const config = createConfig();
 
   const r = render(
     <Monaco
       store={store.current}
+      config={config}
       modelAndViewStateCache={{}}
       updateCache={jest.fn()}
       removeCache={jest.fn()}

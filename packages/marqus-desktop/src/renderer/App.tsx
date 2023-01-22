@@ -121,7 +121,7 @@ export function App(props: AppProps): JSX.Element {
   return (
     <Container>
       {!(state.sidebar.hidden ?? false) && <Sidebar store={store} />}
-      <Editor store={store} />
+      <Editor store={store} config={config} />
       {props.config.noteDirectory == null && (
         <NoteDirectoryModal store={store} />
       )}

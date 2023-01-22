@@ -5,6 +5,7 @@ import * as monaco from "monaco-editor";
 import { TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { Section } from "../../shared/ui/app";
 import { Attachment, Protocol } from "../../shared/domain/protocols";
+import { Config } from "../../shared/domain/config";
 
 const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   language: "markdown",
@@ -33,13 +34,14 @@ export type ModelAndViewState = {
 
 export interface MonacoProps {
   store: Store;
+  config: Config;
   modelAndViewStateCache: Partial<Record<string, ModelAndViewState>>;
   updateCache: (noteId: string, mAndVS: ModelAndViewState) => void;
   removeCache: (noteId: string) => void;
 }
 
 export function Monaco(props: MonacoProps): JSX.Element {
-  const { store } = props;
+  const { store, config } = props;
   const { state } = store;
   const { editor } = state;
 
@@ -154,6 +156,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
       monacoEditor.current = monaco.editor.create(el, {
         value: "",
         ...MONACO_SETTINGS,
+        tabSize: config.tabSize,
       });
 
       // Monaco doesn't automatically resize when it's container element does so

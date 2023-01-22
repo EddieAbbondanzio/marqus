@@ -10,15 +10,17 @@ import { ModelAndViewState, Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
 import { EditorToolbar, TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { getNoteById } from "../../shared/domain/note";
+import { Config } from "../../shared/domain/config";
 
 const NOTE_SAVE_INTERVAL_MS = 500;
 
 interface EditorProps {
   store: Store;
+  config: Config;
 }
 
 export function Editor(props: EditorProps): JSX.Element {
-  const { store } = props;
+  const { store, config } = props;
   const { state } = store;
   const { editor } = state;
 
@@ -49,6 +51,7 @@ export function Editor(props: EditorProps): JSX.Element {
       content = (
         <Monaco
           store={store}
+          config={config}
           modelAndViewStateCache={modelAndViewStateCache.current}
           updateCache={updateCache}
           removeCache={removeCache}
