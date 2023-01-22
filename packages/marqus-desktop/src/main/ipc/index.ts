@@ -43,7 +43,6 @@ export type IpcPlugin = {
 export interface AppContext {
   browserWindow: BrowserWindow;
   config: JsonFile<Config>;
-  log: Logger;
   blockAppFromQuitting: (cb: () => Promise<void>) => Promise<void>;
   reloadIpcPlugins: () => Promise<void>;
 }

@@ -17,6 +17,7 @@ import { NOTE_SCHEMAS } from "../../schemas/notes";
 import { isChildOf, openInBrowser } from "../../utils";
 import * as fs from "fs";
 import * as p from "path";
+import { logger } from "../../logger";
 
 export const ATTACHMENTS_DIRECTORY = "attachments";
 export const METADATA_FILE_NAME = "metadata.json";
@@ -74,8 +75,7 @@ export const noteIpcPlugin: IpcPlugin = {
   },
 
   "notes.update": async (ctx, id, props) => {
-    const { blockAppFromQuitting, log } = ctx;
-
+    const { blockAppFromQuitting } = ctx;
     const noteDirectory = getNoteDirectory(ctx);
     const note: NoteFile = await loadNoteFromFS(noteDirectory, id);
     const update = await noteUpdateSchema.parseAsync(props);
@@ -104,9 +104,7 @@ export const noteIpcPlugin: IpcPlugin = {
       Object.keys(props).length > Object.keys(update).length
     ) {
       const diff = difference(Object.keys(props), Object.keys(update));
-      await log.warn(
-        `ipc notes.update does not support keys: ${diff.join(", ")}`,
-      );
+      logger.warn(`ipc notes.update does not support keys: ${diff.join(", ")}`);
     }
 
     note.dateUpdated = new Date();
@@ -171,7 +169,6 @@ export const noteIpcPlugin: IpcPlugin = {
   },
 
   "notes.importAttachments": async (ctx, noteId, rawAttachments) => {
-    const { log } = ctx;
     const noteDirectory = getNoteDirectory(ctx);
     const noteAttachmentsDirectory = p.join(
       noteDirectory,
@@ -210,7 +207,7 @@ export const noteIpcPlugin: IpcPlugin = {
 
           // Prevent infinite loops, and fail softly.
           if (copyNumber > 1000) {
-            await log.warn(
+            logger.warn(
               `Tried fixing duplicate attachment name ${attachment.name} but failed 1000 times.`,
             );
             continue;
