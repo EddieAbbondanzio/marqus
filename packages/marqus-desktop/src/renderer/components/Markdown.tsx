@@ -60,36 +60,31 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           let align: ImageAlign | undefined = undefined;
 
           if (props.src != null) {
-            let url: URL;
-            // Assume links with no protocol are http
-            if (getProtocol(props.src) == null) {
-              url = new URL(`http://${props.src}`);
-            } else {
-              url = new URL(props.src);
-            }
+            let url = tryGetURL(props.src);
+            if (url != null) {
+              const originalParams = new URLSearchParams(url.search);
 
-            const originalParams = new URLSearchParams(url.search);
+              url.search = "";
+              url.searchParams.set("noteId", noteId);
 
-            url.search = "";
-            url.searchParams.set("noteId", noteId);
+              title = url.pathname;
+              src = url.href;
 
-            title = url.pathname;
-            src = url.href;
+              if (originalParams.has("height")) {
+                height = originalParams.get("height")!;
+              }
+              if (originalParams.has("width")) {
+                width = originalParams.get("width")!;
+              }
 
-            if (originalParams.has("height")) {
-              height = originalParams.get("height")!;
-            }
-            if (originalParams.has("width")) {
-              width = originalParams.get("width")!;
-            }
-
-            if (originalParams.has("align")) {
-              const rawAlign = originalParams.get("align");
-              if (
-                rawAlign != null &&
-                ["left", "right", "center"].includes(rawAlign)
-              ) {
-                align = rawAlign as ImageAlign;
+              if (originalParams.has("align")) {
+                const rawAlign = originalParams.get("align");
+                if (
+                  rawAlign != null &&
+                  ["left", "right", "center"].includes(rawAlign)
+                ) {
+                  align = rawAlign as ImageAlign;
+                }
               }
             }
           }
@@ -115,50 +110,46 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           let href: string;
           let target = "";
           let onClick: ((ev: MouseEvent) => void) | undefined;
-          let url: URL;
-          // Assume links with no protocol are http
-          if (getProtocol(props.href) == null) {
-            url = new URL(`http://${props.href}`);
-          } else {
-            url = new URL(props.href);
-          }
+          const url = tryGetURL(props.href);
 
-          switch (url.protocol) {
-            case `${Protocol.Attachment}:`:
-              url.searchParams.set("noteId", noteId);
-              href = url.href;
+          if (url) {
+            switch (url.protocol) {
+              case `${Protocol.Attachment}:`:
+                url.searchParams.set("noteId", noteId);
+                href = url.href;
 
-              onClick = (ev: MouseEvent) => {
-                ev.preventDefault();
-                void window.ipc("notes.openAttachmentFile", href);
-              };
-              break;
+                onClick = (ev: MouseEvent) => {
+                  ev.preventDefault();
+                  void window.ipc("notes.openAttachmentFile", href);
+                };
+                break;
 
-            case "note:":
-              onClick = (ev: MouseEvent) => {
-                ev.preventDefault();
+              case "note:":
+                onClick = (ev: MouseEvent) => {
+                  ev.preventDefault();
 
-                const decodedHref = decodeURI(url.href);
-                void store.dispatch("editor.openTab", {
-                  note: decodedHref,
-                  active: decodedHref,
-                });
-              };
-              break;
+                  const decodedHref = decodeURI(url.href);
+                  void store.dispatch("editor.openTab", {
+                    note: decodedHref,
+                    active: decodedHref,
+                  });
+                };
+                break;
 
-            default:
-              href = url.href;
-              target = "_blank";
-              break;
+              default:
+                href = url.href;
+                target = "_blank";
+                break;
+            }
           }
 
           return (
             <Link
               {...otherProps}
               target={target}
-              href={url.href}
+              href={url?.href}
               onClick={onClick}
-              title={url.href}
+              title={url?.href}
             >
               {children}
             </Link>
@@ -196,6 +187,22 @@ export function Markdown(props: MarkdownProps): JSX.Element {
       {reactContent}
     </StyledScrollable>
   );
+}
+
+function tryGetURL(src: string): URL | null {
+  try {
+    let url: URL;
+    // Assume links with no protocol are http
+    if (getProtocol(src) == null) {
+      url = new URL(`http://${src}`);
+    } else {
+      url = new URL(src);
+    }
+
+    return url;
+  } catch (err) {
+    return null;
+  }
 }
 
 const StyledScrollable = styled(Scrollable)`
@@ -312,7 +319,7 @@ const CodeBlock = styled.pre`
 
 const CodeSpan = styled.code`
   font-family: monospace;
-  font-size: 1.6rem;
+  font-size: max(inherit, 1.6rem);
   background-color: ${OpenColor.gray[3]}!important;
   border-radius: 2px;
   padding: 2px 4px;
