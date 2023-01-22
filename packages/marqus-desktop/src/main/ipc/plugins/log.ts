@@ -1,13 +1,14 @@
 import { IpcPlugin } from "..";
+import { logger } from "../../logger";
 
 // TODO: How will we tie this into the new logger?
 export const logIpcPlugin: IpcPlugin = {
-  "log.info": async ({ log }, message) => log.info(`[RENDERER] ${message}`),
+  "log.info": async (_, message) => void logger.info(`[RENDERER] ${message}`),
 
-  "log.debug": async ({ log }, message) => log.debug(`[RENDERER] ${message}`),
+  "log.debug": async (_, message) => void logger.debug(`[RENDERER] ${message}`),
 
-  "log.warn": async ({ log }, message) => log.warn(`[RENDERER] ${message}`),
+  "log.warn": async (_, message) => void logger.warn(`[RENDERER] ${message}`),
 
-  "log.error": async ({ log }, message, err) =>
-    log.error(`[RENDERER] ${message}`, err),
+  "log.error": async (_, message, err) =>
+    void logger.error(`[RENDERER] ${message}`, err),
 };
