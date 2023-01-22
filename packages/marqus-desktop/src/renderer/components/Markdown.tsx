@@ -312,7 +312,7 @@ const CodeBlock = styled.pre`
 
 const CodeSpan = styled.code`
   font-family: monospace;
-  font-size: 1.6rem;
+  font-size: max(inherit, 1.6rem);
   background-color: ${OpenColor.gray[3]}!important;
   border-radius: 2px;
   padding: 2px 4px;
