@@ -35,7 +35,7 @@ module.exports = {
         {
           from: "static",
           to: "static",
-        }, 
+        },
       ],
     }),
   ],
