@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  createMarkdownModel,
   generateAttachmentLink,
   Monaco,
 } from "../../../src/renderer/components/Monaco";
@@ -101,6 +102,17 @@ test("importAttachments", async () => {
       },
     ],
   );
+});
+
+test("createMarkdownModel", () => {
+  const model = {
+    getEOL: jest.fn().mockReturnValue("\n"),
+    getLineCount: jest.fn().mockReturnValue(2),
+  };
+  (monaco.editor.createModel as jest.Mock).mockReturnValueOnce(model);
+
+  createMarkdownModel("foo");
+  expect(monaco.editor.createModel).toHaveBeenCalledWith("foo", "markdown");
 });
 
 test("generateAttachmentLink", () => {
