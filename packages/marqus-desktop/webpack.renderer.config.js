@@ -1,6 +1,6 @@
-const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const Webpack = require("webpack");
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 const rules = require("./webpack.rules");
 

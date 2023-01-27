@@ -259,7 +259,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
       // First load, gotta create the model.
       if (cache == null) {
         cache = {
-          model: monaco.editor.createModel(newTab.note.content ?? ""),
+          model: createMarkdownModel(newTab.note.content),
         }!;
       }
 
@@ -288,6 +288,16 @@ const StyledEditor = styled.div`
   flex-grow: 1;
   height: calc(100% - ${TOOLBAR_HEIGHT});
 `;
+
+export function createMarkdownModel(
+  content: string | undefined,
+): monaco.editor.ITextModel {
+  return monaco.editor.createModel(
+    content ?? "",
+    // N.B. Language needs to be specified for syntax highlighting.
+    "markdown",
+  );
+}
 
 export function generateAttachmentLink(attachment: Attachment): string {
   // We do this to support spaces

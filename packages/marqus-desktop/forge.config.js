@@ -45,6 +45,8 @@ module.exports = {
     {
       name: "@electron-forge/plugin-webpack",
       config: {
+        // unsafe-eval is required for source map support in dev. We don't set
+        // it in prod so it's safe to ignore that scary warning in the console.
         devContentSecurityPolicy:
           "default-src ws://localhost:3000 http://localhost:3000 self; style-src 'unsafe-inline'; img-src * attachment://*; script-src-elem 'self' 'unsafe-eval'; script-src 'self' 'unsafe-eval';",
         mainConfig: "./webpack.main.config.js",
