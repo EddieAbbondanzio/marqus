@@ -171,6 +171,11 @@ const shortcuts: Shortcut[] = [
     event: "editor.boldSelectedText",
     keys: [KeyCode.Control, KeyCode.LetterB],
   },
+  {
+    name: "editor.italicSelectedText",
+    event: "editor.italicSelectedText",
+    keys: [KeyCode.Control, KeyCode.LetterI],
+  },
 ];
 
 export const DEFAULT_SHORTCUTS = shortcuts.map(s => ({

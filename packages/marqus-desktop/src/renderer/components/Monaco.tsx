@@ -159,6 +159,11 @@ export function Monaco(props: MonacoProps): JSX.Element {
         tabSize: config.tabSize,
       });
 
+      // Disable default shortcut for ctrl+i so we can support italics.
+      if (monacoEditor.current != null) {
+        disableKeybinding(monacoEditor.current, "editor.action.triggerSuggest");
+      }
+
       // Monaco doesn't automatically resize when it's container element does so
       // we need to listen for changes and trigger the refresh ourselves.
 
@@ -285,11 +290,24 @@ export function Monaco(props: MonacoProps): JSX.Element {
     wrapSelections(editor, "**");
   };
 
+  const italicSelectedText: Listener<
+    "editor.italicSelectedText"
+  > = async ev => {
+    const editor = monacoEditor.current;
+    if (editor == null) {
+      return;
+    }
+
+    wrapSelections(editor, "_");
+  };
+
   useEffect(() => {
     store.on("editor.boldSelectedText", boldSelectedText);
+    store.on("editor.italicSelectedText", italicSelectedText);
 
     return () => {
       store.off("editor.boldSelectedText", boldSelectedText);
+      store.off("editor.italicSelectedText", italicSelectedText);
     };
   }, [store]);
 
@@ -364,4 +382,17 @@ export function wrapSelections(
       },
     ]);
   }
+}
+
+export function disableKeybinding(
+  editor: monaco.editor.IStandaloneCodeEditor,
+  commandId: string,
+): void {
+  const { _standaloneKeybindingService } = editor as any;
+
+  _standaloneKeybindingService.addDynamicKeybinding(
+    `-${commandId}`,
+    undefined,
+    () => {},
+  );
 }
