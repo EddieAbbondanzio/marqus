@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { Store } from "../store";
+import { Listener, Store } from "../store";
 import * as monaco from "monaco-editor";
 import { TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { Section } from "../../shared/ui/app";
@@ -276,6 +276,23 @@ export function Monaco(props: MonacoProps): JSX.Element {
     }
   }, [editor.activeTabNoteId, editor.tabs, state.focused, props]);
 
+  const boldSelectedText: Listener<"editor.boldSelectedText"> = async ev => {
+    const editor = monacoEditor.current;
+    if (editor == null) {
+      return;
+    }
+
+    wrapSelections(editor, "**");
+  };
+
+  useEffect(() => {
+    store.on("editor.boldSelectedText", boldSelectedText);
+
+    return () => {
+      store.off("editor.boldSelectedText", boldSelectedText);
+    };
+  }, [store]);
+
   return (
     <StyledEditor
       data-testid="monaco-container"
@@ -308,5 +325,43 @@ export function generateAttachmentLink(attachment: Attachment): string {
       return `[${attachment.name}](${Protocol.Attachment}://${urlEncodedPath})`;
     case "image":
       return `![](${Protocol.Attachment}://${urlEncodedPath})`;
+  }
+}
+
+export function wrapSelections(
+  editor: monaco.editor.IStandaloneCodeEditor,
+  wrapWith: string,
+): void {
+  for (const selection of editor.getSelections() ?? []) {
+    const start = selection.getStartPosition();
+    const end = selection.getEndPosition();
+
+    // Don't wrap selection if it's empty.
+    if (start.equals(end)) {
+      continue;
+    }
+
+    editor.executeEdits(null, [
+      {
+        range: {
+          startLineNumber: start.lineNumber,
+          startColumn: start.column,
+          endLineNumber: start.lineNumber,
+          endColumn: start.column,
+        },
+        text: wrapWith,
+        forceMoveMarkers: true,
+      },
+      {
+        range: {
+          startLineNumber: end.lineNumber,
+          startColumn: end.column,
+          endLineNumber: end.lineNumber,
+          endColumn: end.column,
+        },
+        text: wrapWith,
+        forceMoveMarkers: true,
+      },
+    ]);
   }
 }

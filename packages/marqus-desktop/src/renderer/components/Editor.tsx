@@ -45,6 +45,20 @@ export function Editor(props: EditorProps): JSX.Element {
     activeTab = editor.tabs.find(t => t.note.id === editor.activeTabNoteId);
   }
 
+  useEffect(() => {
+    store.on("editor.setContent", setContent);
+    store.on("editor.save", save);
+    store.on("editor.toggleView", toggleView);
+    store.on("editor.updateScroll", updateScroll);
+
+    return () => {
+      store.off("editor.setContent", setContent);
+      store.off("editor.save", save);
+      store.off("editor.toggleView", toggleView);
+      store.off("editor.updateScroll", updateScroll);
+    };
+  }, [store]);
+
   let content;
   if (activeTab) {
     if (editor.isEditing) {
@@ -70,20 +84,6 @@ export function Editor(props: EditorProps): JSX.Element {
       );
     }
   }
-
-  useEffect(() => {
-    store.on("editor.setContent", setContent);
-    store.on("editor.save", save);
-    store.on("editor.toggleView", toggleView);
-    store.on("editor.updateScroll", updateScroll);
-
-    return () => {
-      store.off("editor.setContent", setContent);
-      store.off("editor.save", save);
-      store.off("editor.toggleView", toggleView);
-      store.off("editor.updateScroll", updateScroll);
-    };
-  }, [store]);
 
   return (
     <StyledFocusable

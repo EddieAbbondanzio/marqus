@@ -46,7 +46,7 @@ const shortcuts: Shortcut[] = [
   {
     name: "app.toggleSidebar",
     event: "app.toggleSidebar",
-    keys: [KeyCode.Control, KeyCode.LetterB],
+    keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterB],
   },
   {
     name: "sidebar.focusSearch",
@@ -165,6 +165,11 @@ const shortcuts: Shortcut[] = [
     name: "editor.nextTab",
     event: "editor.nextTab",
     keys: [KeyCode.Control, KeyCode.Tab],
+  },
+  {
+    name: "editor.boldSelectedText",
+    event: "editor.boldSelectedText",
+    keys: [KeyCode.Control, KeyCode.LetterB],
   },
 ];
 
