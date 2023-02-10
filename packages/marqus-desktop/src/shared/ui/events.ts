@@ -71,6 +71,8 @@ export interface UIEvents {
   "editor.previousTab": void;
   "editor.nextTab": void;
   "editor.updateTabsScroll": number;
+  "editor.boldSelectedText": void;
+  "editor.italicSelectedText": void;
 
   // Focus Tracker
   "focus.push": Section | Section[];
@@ -146,6 +148,8 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.previousTab",
   "editor.nextTab",
   "editor.updateTabsScroll",
+  "editor.boldSelectedText",
+  "editor.italicSelectedText",
 
   // Focus Tracker
   "focus.push",

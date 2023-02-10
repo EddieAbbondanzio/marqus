@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { Store } from "../store";
+import { Listener, Store } from "../store";
 import * as monaco from "monaco-editor";
 import { TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { Section } from "../../shared/ui/app";
@@ -159,6 +159,11 @@ export function Monaco(props: MonacoProps): JSX.Element {
         tabSize: config.tabSize,
       });
 
+      // Disable default shortcut for ctrl+i so we can support italics.
+      if (monacoEditor.current != null) {
+        disableKeybinding(monacoEditor.current, "editor.action.triggerSuggest");
+      }
+
       // Monaco doesn't automatically resize when it's container element does so
       // we need to listen for changes and trigger the refresh ourselves.
 
@@ -276,6 +281,36 @@ export function Monaco(props: MonacoProps): JSX.Element {
     }
   }, [editor.activeTabNoteId, editor.tabs, state.focused, props]);
 
+  const boldSelectedText: Listener<"editor.boldSelectedText"> = async ev => {
+    const editor = monacoEditor.current;
+    if (editor == null) {
+      return;
+    }
+
+    wrapSelections(editor, "**");
+  };
+
+  const italicSelectedText: Listener<
+    "editor.italicSelectedText"
+  > = async ev => {
+    const editor = monacoEditor.current;
+    if (editor == null) {
+      return;
+    }
+
+    wrapSelections(editor, "_");
+  };
+
+  useEffect(() => {
+    store.on("editor.boldSelectedText", boldSelectedText);
+    store.on("editor.italicSelectedText", italicSelectedText);
+
+    return () => {
+      store.off("editor.boldSelectedText", boldSelectedText);
+      store.off("editor.italicSelectedText", italicSelectedText);
+    };
+  }, [store]);
+
   return (
     <StyledEditor
       data-testid="monaco-container"
@@ -309,4 +344,56 @@ export function generateAttachmentLink(attachment: Attachment): string {
     case "image":
       return `![](${Protocol.Attachment}://${urlEncodedPath})`;
   }
+}
+
+export function wrapSelections(
+  editor: monaco.editor.IStandaloneCodeEditor,
+  wrapWith: string,
+): void {
+  for (const selection of editor.getSelections() ?? []) {
+    const start = selection.getStartPosition();
+    const end = selection.getEndPosition();
+
+    // Don't wrap selection if it's empty.
+    if (start.equals(end)) {
+      continue;
+    }
+
+    editor.executeEdits(null, [
+      {
+        range: {
+          startLineNumber: start.lineNumber,
+          startColumn: start.column,
+          endLineNumber: start.lineNumber,
+          endColumn: start.column,
+        },
+        text: wrapWith,
+        forceMoveMarkers: true,
+      },
+      {
+        range: {
+          startLineNumber: end.lineNumber,
+          startColumn: end.column,
+          endLineNumber: end.lineNumber,
+          endColumn: end.column,
+        },
+        text: wrapWith,
+        forceMoveMarkers: true,
+      },
+    ]);
+  }
+}
+
+export function disableKeybinding(
+  editor: monaco.editor.IStandaloneCodeEditor,
+  commandId: string,
+): void {
+  // See: https://github.com/microsoft/monaco-editor/issues/102
+  const { _standaloneKeybindingService } = editor as any;
+
+  _standaloneKeybindingService.addDynamicKeybinding(
+    `-${commandId}`,
+    undefined,
+    () => {},
+  );
 }

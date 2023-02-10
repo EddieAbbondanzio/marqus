@@ -50,7 +50,7 @@ test("importAttachments", async () => {
     setModel: jest.fn(),
     dispose: jest.fn(),
   };
-  (monaco.editor.create as jest.Mock).mockReturnValueOnce(monacoEditor);
+  (monaco.editor.create as jest.Mock).mockReturnValue(monacoEditor);
   (monaco.editor.createModel as jest.Mock).mockReturnValueOnce(model);
 
   when((window as any).ipc as jest.Mock)

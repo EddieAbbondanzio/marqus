@@ -5,4 +5,7 @@
 export const editor = {
   create: jest.fn(),
   createModel: jest.fn(),
+  _standaloneKeybindingService: {
+    addDynamicKeybinding: jest.fn(),
+  },
 };
