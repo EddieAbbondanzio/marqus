@@ -388,6 +388,7 @@ export function disableKeybinding(
   editor: monaco.editor.IStandaloneCodeEditor,
   commandId: string,
 ): void {
+  // See: https://github.com/microsoft/monaco-editor/issues/102
   const { _standaloneKeybindingService } = editor as any;
 
   _standaloneKeybindingService.addDynamicKeybinding(
