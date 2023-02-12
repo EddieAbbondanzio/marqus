@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Listener, Store } from "../store";
 import * as monaco from "monaco-editor";
 import { TOOLBAR_HEIGHT } from "./EditorToolbar";
-import { Section } from "../../shared/ui/app";
+import { Section } from "../../shared/ui/appState";
 import { Attachment, Protocol } from "../../shared/domain/protocols";
 import { Config } from "../../shared/domain/config";
 
@@ -309,6 +309,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
     let onDidScrollChangeDispose: monaco.IDisposable;
 
     if (currEditor != null) {
+      // Wait, do I need this? What if I just move view state to the app state too?
       onDidScrollChangeDispose = currEditor.onDidScrollChange(e => {
         if (e.scrollTopChanged) {
           void store.dispatch("editor.updateScroll", e.scrollTop);

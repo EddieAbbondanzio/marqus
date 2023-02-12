@@ -3,7 +3,7 @@ import { Shortcut } from "./domain/shortcut";
 import { Note } from "./domain/note";
 import { Point } from "electron";
 import { Menu } from "./ui/menu";
-import { SerializedAppState } from "./ui/app";
+import { SerializedAppState } from "./ui/appState";
 import { Attachment, FileInfo } from "./domain/protocols";
 
 export const IPCS = [

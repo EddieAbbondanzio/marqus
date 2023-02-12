@@ -1,6 +1,6 @@
 import { Point } from "electron";
 import { NoteSort } from "../domain/note";
-import { Section } from "./app";
+import { Section } from "./appState";
 
 /*
  * Events are defined in shared so we can keep shortcuts and application menus

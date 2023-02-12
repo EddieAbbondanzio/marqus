@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useRef,
 } from "react";
-import { Section } from "../../../shared/ui/app";
+import { Section } from "../../../shared/ui/appState";
 import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { Store } from "../../store";
 import styled from "styled-components";

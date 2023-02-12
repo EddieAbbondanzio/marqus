@@ -3,7 +3,7 @@ import {
   shortcutsIpcPlugin,
   SHORTCUT_FILE_PATH,
 } from "../../../../src/main/ipc/plugins/shortcuts";
-import { Section } from "../../../../src/shared/ui/app";
+import { Section } from "../../../../src/shared/ui/appState";
 import { parseKeyCodes } from "../../../../src/shared/io/keyCode";
 import mockFS from "mock-fs";
 import { SHORTCUTS_SCHEMAS } from "../../../../src/main/schemas/shortcuts";

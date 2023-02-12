@@ -3,7 +3,7 @@ import {
   doesSectionHaveFocus,
   getShortcutLabels,
 } from "../../../src/renderer/io/shortcuts";
-import { Section } from "../../../src/shared/ui/app";
+import { Section } from "../../../src/shared/ui/appState";
 import { fireEvent } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import { useShortcuts } from "../../../src/renderer/io/shortcuts";

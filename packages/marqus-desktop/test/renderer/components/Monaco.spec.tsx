@@ -9,7 +9,7 @@ import { createStore } from "../../__factories__/store";
 import { fireEvent, render } from "@testing-library/react";
 import { uuid } from "../../../src/shared/domain";
 import * as monaco from "monaco-editor";
-import { Section } from "../../../src/shared/ui/app";
+import { Section } from "../../../src/shared/ui/appState";
 import { when } from "jest-when";
 import { Protocol } from "../../../src/shared/domain/protocols";
 import { createConfig } from "../../__factories__/config";

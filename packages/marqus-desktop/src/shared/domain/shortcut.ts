@@ -1,6 +1,6 @@
 import { KeyCode } from "../io/keyCode";
 import { LIST_OF_EVENTS, UIEventInput, UIEventType } from "../ui/events";
-import { Section } from "../ui/app";
+import { Section } from "../ui/appState";
 import { z } from "zod";
 
 /*

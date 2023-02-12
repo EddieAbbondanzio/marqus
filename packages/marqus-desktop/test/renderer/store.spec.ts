@@ -3,7 +3,7 @@ import { Listener } from "../../src/renderer/store";
 import { uuid } from "../../src/shared/domain";
 import { createNote } from "../../src/shared/domain/note";
 import { KeyCode } from "../../src/shared/io/keyCode";
-import { Section } from "../../src/shared/ui/app";
+import { Section } from "../../src/shared/ui/appState";
 import { createStore } from "../__factories__/store";
 
 // Tests are a bit confusing because we are using the same UI event over and

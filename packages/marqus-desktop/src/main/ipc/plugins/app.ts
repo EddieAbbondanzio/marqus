@@ -12,7 +12,7 @@ import { UIEventType, UIEventInput } from "../../../shared/ui/events";
 import {
   DEFAULT_SIDEBAR_WIDTH,
   SerializedAppState,
-} from "../../../shared/ui/app";
+} from "../../../shared/ui/appState";
 
 import { JsonFile, loadJsonFile } from "../../json";
 import p from "path";

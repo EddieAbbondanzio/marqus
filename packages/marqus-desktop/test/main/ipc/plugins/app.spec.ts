@@ -4,7 +4,7 @@ import { initIpc } from "../../../__factories__/ipc";
 import { createJsonFile } from "../../../__factories__/json";
 import { BrowserWindow, dialog, Menu, shell, WebContents } from "electron";
 import { openInBrowser } from "../../../../src/main/utils";
-import { Section, serializeAppState } from "../../../../src/shared/ui/app";
+import { Section, serializeAppState } from "../../../../src/shared/ui/appState";
 import { createAppState } from "../../../__factories__/state";
 import { uuid } from "../../../../src/shared/domain";
 import mockFS from "mock-fs";

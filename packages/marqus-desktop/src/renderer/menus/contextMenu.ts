@@ -12,7 +12,7 @@ import { getFocusableAttribute } from "../components/shared/Focusable";
 import { getSidebarMenuAttribute } from "../components/SidebarMenu";
 import { getShortcutLabels } from "../io/shortcuts";
 import { Store } from "../store";
-import { Section } from "../../shared/ui/app";
+import { Section } from "../../shared/ui/appState";
 import { getEditorTabAttribute } from "../components/EditorTab";
 import { IpcChannel } from "../../shared/ipc";
 import { Config } from "../../shared/domain/config";

@@ -6,7 +6,7 @@ import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
-import { Section, AppState, serializeAppState } from "../shared/ui/app";
+import { Section, AppState, serializeAppState } from "../shared/ui/appState";
 import { log } from "./logger";
 import { arrayify } from "../shared/utils";
 

@@ -1,6 +1,6 @@
 import { subMinutes } from "date-fns";
 import { createNote } from "../../../src/shared/domain/note";
-import { filterOutStaleNoteIds } from "../../../src/shared/ui/app";
+import { filterOutStaleNoteIds } from "../../../src/shared/ui/appState";
 import { createState } from "../../__factories__/state";
 
 test("filterOutStaleNoteIds", async () => {

@@ -8,7 +8,7 @@ import {
   NoteSort,
 } from "../../../src/shared/domain/note";
 import * as prompt from "../../../src/renderer/utils/prompt";
-import { Section } from "../../../src/shared/ui/app";
+import { Section } from "../../../src/shared/ui/appState";
 import { createStore } from "../../__factories__/store";
 import { uuid } from "../../../src/shared/domain";
 

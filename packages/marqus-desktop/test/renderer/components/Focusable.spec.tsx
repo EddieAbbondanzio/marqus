@@ -10,7 +10,7 @@ import { App } from "../../../src/renderer/App";
 import React, { ReactNode } from "react";
 import * as store from "../../../src/renderer/store";
 import { mockStore } from "../../__mocks__/store";
-import { Section } from "../../../src/shared/ui/app";
+import { Section } from "../../../src/shared/ui/appState";
 import { createConfig } from "../../__factories__/config";
 
 function init(

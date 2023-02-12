@@ -1,7 +1,7 @@
 import { DEFAULT_SHORTCUTS } from "../../../shared/io/defaultShortcuts";
 import { parseKeyCodes } from "../../../shared/io/keyCode";
 import { BrowserWindowEvent, IpcChannel } from "../../../shared/ipc";
-import { Section } from "../../../shared/ui/app";
+import { Section } from "../../../shared/ui/appState";
 import { UIEventInput, UIEventType } from "../../../shared/ui/events";
 import { loadJsonFile } from "../../json";
 import p from "path";

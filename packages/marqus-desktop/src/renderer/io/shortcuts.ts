@@ -11,7 +11,7 @@ import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
 import { isTest } from "../../shared/env";
 import { UIEventType } from "../../shared/ui/events";
-import { Section } from "../../shared/ui/app";
+import { Section } from "../../shared/ui/appState";
 import { log } from "../logger";
 import { BrowserWindowEvent, IpcChannel } from "../../shared/ipc";
 

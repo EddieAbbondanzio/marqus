@@ -16,7 +16,7 @@ import {
   Note,
 } from "../../shared/domain/note";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
-import { Section } from "../../shared/ui/app";
+import { Section } from "../../shared/ui/appState";
 import { isBlank } from "../../shared/utils";
 import { mb0, px3, THEME, w100, ZIndex } from "../css";
 import { Listener, Store } from "../store";

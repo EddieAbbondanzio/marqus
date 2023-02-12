@@ -15,7 +15,7 @@ import { p2, rounded, THEME } from "../css";
 import { Listener, Store, StoreContext } from "../store";
 import { Icon } from "./shared/Icon";
 import { orderBy, uniq } from "lodash";
-import { Section } from "../../shared/ui/app";
+import { Section } from "../../shared/ui/appState";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
 import { arrayify } from "../../shared/utils";

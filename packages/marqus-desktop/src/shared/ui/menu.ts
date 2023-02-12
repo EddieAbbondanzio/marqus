@@ -1,14 +1,14 @@
 import { UIEventInput, UIEventType } from "./events";
 
 export type Menu =
-  | Seperator
+  | Separator
   | SubMenu
   | RoleMenu
   | EventMenu<UIEventType>
   | RadioMenu<UIEventType>
   | CheckboxMenu<UIEventType>;
 
-export interface Seperator extends BaseMenu {
+export interface Separator extends BaseMenu {
   type: "separator";
 }
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Section } from "../../../shared/ui/app";
+import { Section } from "../../../shared/ui/appState";
 import { LIST_OF_EVENTS, UIEventType } from "../../../shared/ui/events";
 
 interface ShortcutOverrideV1 {
@@ -24,7 +24,7 @@ export const OVERRIDE_SCHEMA: z.Schema<ShortcutOverrideV1> = z.object({
   name: z.string(),
   event: z
     .string()
-    .refine((val) => LIST_OF_EVENTS.includes(val as UIEventType))
+    .refine(val => LIST_OF_EVENTS.includes(val as UIEventType))
     .optional(),
   eventInput: z.any().optional(),
   keys: z.string().optional(),

@@ -4,7 +4,7 @@ import { DEFAULT_NOTE_SORTING_ALGORITHM } from "../../src/shared/domain/note";
 import { getLatestSchemaVersion } from "../../src/main/schemas/utils";
 import { APP_STATE_SCHEMAS } from "../../src/main/schemas/appState";
 import { cloneDeep, omit } from "lodash";
-import { AppState } from "../../src/shared/ui/app";
+import { AppState } from "../../src/shared/ui/appState";
 
 const latestVersion = getLatestSchemaVersion(APP_STATE_SCHEMAS);
 

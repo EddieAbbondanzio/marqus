@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { DATE_OR_STRING_SCHEMA, PX_REGEX } from "../../../shared/domain";
 import { NoteSort } from "../../../shared/domain/note";
-import { Section } from "../../../shared/ui/app";
+import { Section } from "../../../shared/ui/appState";
 
 export interface AppStateV1 {
   version: number;

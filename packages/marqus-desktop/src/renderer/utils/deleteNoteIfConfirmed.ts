@@ -1,6 +1,6 @@
 import { keyBy } from "lodash";
 import { flatten, getNoteById } from "../../shared/domain/note";
-import { filterOutStaleNoteIds } from "../../shared/ui/app";
+import { filterOutStaleNoteIds } from "../../shared/ui/appState";
 import { StoreContext } from "../store";
 import { promptConfirmAction } from "./prompt";
 

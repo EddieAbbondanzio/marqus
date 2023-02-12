@@ -9,7 +9,7 @@ import {
   filterOutStaleNoteIds,
   Section,
   SerializedAppState,
-} from "../shared/ui/app";
+} from "../shared/ui/appState";
 import { getNoteById } from "../shared/domain/note";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";

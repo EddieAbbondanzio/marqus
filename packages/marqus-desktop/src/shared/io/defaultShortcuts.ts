@@ -1,5 +1,5 @@
 import { Shortcut } from "../domain/shortcut";
-import { Section } from "../ui/app";
+import { Section } from "../ui/appState";
 import { KeyCode, sortKeyCodes } from "./keyCode";
 
 export const COMMON_KEY_COMBOS = {

@@ -24,9 +24,9 @@ import {
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
-import { EditorTab } from "../../shared/ui/app";
+import { EditorTab } from "../../shared/ui/appState";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
-import { Section } from "../../shared/ui/app";
+import { Section } from "../../shared/ui/appState";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 
 const EXPANDED_ICON = faChevronDown;
