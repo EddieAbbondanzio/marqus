@@ -251,8 +251,11 @@ export function Monaco(props: MonacoProps): JSX.Element {
       }
     }
 
-    // Load new tab
-    if (editor.activeTabNoteId != null) {
+    // Load new tab when active tab note id changes.
+    if (
+      editor.activeTabNoteId != null &&
+      editor.activeTabNoteId != lastActiveTabNoteId
+    ) {
       const newTab = editor.tabs.find(
         t => t.note.id === editor.activeTabNoteId,
       );
@@ -302,10 +305,25 @@ export function Monaco(props: MonacoProps): JSX.Element {
   };
 
   useEffect(() => {
+    const currEditor = monacoEditor.current;
+    let onDidScrollChangeDispose: monaco.IDisposable;
+
+    if (currEditor != null) {
+      onDidScrollChangeDispose = currEditor.onDidScrollChange(e => {
+        if (e.scrollTopChanged) {
+          void store.dispatch("editor.updateScroll", e.scrollTop);
+        }
+      });
+    }
+
     store.on("editor.boldSelectedText", boldSelectedText);
     store.on("editor.italicSelectedText", italicSelectedText);
 
     return () => {
+      if (onDidScrollChangeDispose != null) {
+        onDidScrollChangeDispose.dispose();
+      }
+
       store.off("editor.boldSelectedText", boldSelectedText);
       store.off("editor.italicSelectedText", italicSelectedText);
     };

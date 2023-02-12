@@ -14,14 +14,7 @@ test("Markdown img sets src", async () => {
       tabs: [],
     },
   });
-  render(
-    <Markdown
-      store={store.current}
-      content="foobar"
-      scroll={0}
-      onScroll={jest.fn()}
-    />,
-  );
+  render(<Markdown store={store.current} content="foobar" scroll={0} />);
 
   const { rehypeReactOptions } = (useRemark as jest.Mock).mock.calls[0][0];
   const {
@@ -48,14 +41,7 @@ test("Markdown img sets width and height", async () => {
       tabs: [],
     },
   });
-  render(
-    <Markdown
-      store={store.current}
-      content="foobar"
-      scroll={0}
-      onScroll={jest.fn()}
-    />,
-  );
+  render(<Markdown store={store.current} content="foobar" scroll={0} />);
 
   const { rehypeReactOptions } = (useRemark as jest.Mock).mock.calls[0][0];
   const {
@@ -88,14 +74,7 @@ test("Markdown attachment link", async () => {
       tabs: [],
     },
   });
-  render(
-    <Markdown
-      store={store.current}
-      content="foobar"
-      scroll={0}
-      onScroll={jest.fn()}
-    />,
-  );
+  render(<Markdown store={store.current} content="foobar" scroll={0} />);
 
   const { rehypeReactOptions } = (useRemark as jest.Mock).mock.calls[0][0];
   const {
@@ -129,14 +108,7 @@ test("Markdown http link", async () => {
       tabs: [],
     },
   });
-  render(
-    <Markdown
-      store={store.current}
-      content="foobar"
-      scroll={0}
-      onScroll={jest.fn()}
-    />,
-  );
+  render(<Markdown store={store.current} content="foobar" scroll={0} />);
 
   const { rehypeReactOptions } = (useRemark as jest.Mock).mock.calls[0][0];
   const {

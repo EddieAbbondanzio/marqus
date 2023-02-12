@@ -77,9 +77,6 @@ export function Editor(props: EditorProps): JSX.Element {
           store={store}
           content={activeTab.note.content}
           scroll={editor.scroll}
-          onScroll={newVal =>
-            void store.dispatch("editor.updateScroll", newVal)
-          }
         />
       );
     }

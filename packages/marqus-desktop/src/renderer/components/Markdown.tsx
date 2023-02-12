@@ -21,7 +21,6 @@ export interface MarkdownProps {
   store: Store;
   content: string;
   scroll: number;
-  onScroll: (newVal: number) => void;
 }
 
 export function Markdown(props: MarkdownProps): JSX.Element {
@@ -182,7 +181,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
     <StyledScrollable
       className="markdown"
       scroll={props.scroll}
-      onScroll={props.onScroll}
+      onScroll={scroll => void store.dispatch("editor.updateScroll", scroll)}
     >
       {reactContent}
     </StyledScrollable>
