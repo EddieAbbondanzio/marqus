@@ -184,10 +184,18 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
       if (monacoEditor.current != null) {
         monacoEditor.current.dispose();
+        monacoEditor.current = null;
+
+        // N.B. Disposing monaco editor will also dispose the active model so
+        // we remove it from the cache.
+        if (activeNoteId.current != null) {
+          props.removeCache(activeNoteId.current);
+        }
       }
 
       if (onChangeSub.current != null) {
         onChangeSub.current.dispose();
+        onChangeSub.current = null;
       }
 
       if (el != null) {
@@ -251,8 +259,13 @@ export function Monaco(props: MonacoProps): JSX.Element {
       }
     }
 
-    // Load new tab
-    if (editor.activeTabNoteId != null) {
+    // Load new model when switching to a new tab (either no previous tab, or the
+    // new active tab is different).
+    if (
+      editor.activeTabNoteId != null &&
+      (lastActiveTabNoteId == null ||
+        lastActiveTabNoteId !== editor.activeTabNoteId)
+    ) {
       const newTab = editor.tabs.find(
         t => t.note.id === editor.activeTabNoteId,
       );
@@ -262,19 +275,20 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
       let cache = props.modelAndViewStateCache[newTab.note.id];
       // First load, gotta create the model.
-      if (cache == null) {
+      if (cache == null || cache.model.isDisposed()) {
         cache = {
           model: createMarkdownModel(newTab.note.content),
         }!;
-      }
 
-      monacoEditor.current.setModel(cache.model);
+        props.updateCache(newTab.note.id, cache);
+        monacoEditor.current.setModel(cache.model);
 
-      if (cache.viewState) {
-        monacoEditor.current.restoreViewState(cache.viewState);
-      }
-      if (state.focused[0] === Section.Editor) {
-        monacoEditor.current.focus();
+        if (cache.viewState) {
+          monacoEditor.current.restoreViewState(cache.viewState);
+        }
+        if (state.focused[0] === Section.Editor) {
+          monacoEditor.current.focus();
+        }
       }
 
       activeNoteId.current = newTab.note.id;
@@ -394,6 +408,6 @@ export function disableKeybinding(
   _standaloneKeybindingService.addDynamicKeybinding(
     `-${commandId}`,
     undefined,
-    () => {},
+    () => void undefined,
   );
 }
