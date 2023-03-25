@@ -268,13 +268,18 @@ export function Monaco(props: MonacoProps): JSX.Element {
         }!;
       }
 
-      monacoEditor.current.setModel(cache.model);
+      if (cache.model.getValue() !== newTab.note.content) {
+        console.log("SET MODEL!!!!!");
+        monacoEditor.current.setModel(cache.model);
 
-      if (cache.viewState) {
-        monacoEditor.current.restoreViewState(cache.viewState);
-      }
-      if (state.focused[0] === Section.Editor) {
-        monacoEditor.current.focus();
+        if (cache.viewState) {
+          monacoEditor.current.restoreViewState(cache.viewState);
+        }
+        if (state.focused[0] === Section.Editor) {
+          monacoEditor.current.focus();
+        }
+      } else {
+        console.log("DIDN'T SET MODEL");
       }
 
       activeNoteId.current = newTab.note.id;
@@ -394,6 +399,6 @@ export function disableKeybinding(
   _standaloneKeybindingService.addDynamicKeybinding(
     `-${commandId}`,
     undefined,
-    () => {},
+    () => void undefined,
   );
 }
