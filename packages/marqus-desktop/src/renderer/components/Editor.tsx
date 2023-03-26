@@ -6,7 +6,7 @@ import { Ipc } from "../../shared/ipc";
 import { m3 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
-import { ModelAndViewState, Monaco } from "./Monaco";
+import { Monaco } from "./Monaco";
 import { Focusable } from "./shared/Focusable";
 import { EditorToolbar, TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { getNoteById } from "../../shared/domain/note";
@@ -23,22 +23,6 @@ export function Editor(props: EditorProps): JSX.Element {
   const { store, config } = props;
   const { state } = store;
   const { editor } = state;
-
-  // N.B. We cache the model and view state for monaco tabs here in the Editor
-  // vs within the Monaco component because the Monaco component gets unmounted
-  // when the editor switches to view mode so we'd lose tab states.
-  //
-  // TODO: Move these up to the store?
-  const modelAndViewStateCache = useRef<Record<string, ModelAndViewState>>({});
-  const updateCache = useCallback(
-    (noteId: string, modelAndViewState: ModelAndViewState) => {
-      modelAndViewStateCache.current[noteId] = modelAndViewState;
-    },
-    [],
-  );
-  const removeCache = useCallback((noteId: string) => {
-    delete modelAndViewStateCache.current[noteId];
-  }, []);
 
   let activeTab;
   if (editor.activeTabNoteId != null) {
@@ -62,15 +46,7 @@ export function Editor(props: EditorProps): JSX.Element {
   let content;
   if (activeTab) {
     if (editor.isEditing) {
-      content = (
-        <Monaco
-          store={store}
-          config={config}
-          modelAndViewStateCache={modelAndViewStateCache.current}
-          updateCache={updateCache}
-          removeCache={removeCache}
-        />
-      );
+      content = <Monaco store={store} config={config} />;
     } else {
       content = (
         <Markdown

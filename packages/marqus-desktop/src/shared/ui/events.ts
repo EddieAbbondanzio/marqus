@@ -1,4 +1,5 @@
 import { Point } from "electron";
+import { ModelViewState } from "../../renderer/store";
 import { NoteSort } from "../domain/note";
 import { Section } from "./app";
 
@@ -73,6 +74,11 @@ export interface UIEvents {
   "editor.updateTabsScroll": number;
   "editor.boldSelectedText": void;
   "editor.italicSelectedText": void;
+  "editor.setModelViewState": {
+    noteId: string;
+    modelViewState: ModelViewState;
+  };
+  "editor.deleteModelViewState": string;
 
   // Focus Tracker
   "focus.push": Section | Section[];
@@ -150,6 +156,8 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.updateTabsScroll",
   "editor.boldSelectedText",
   "editor.italicSelectedText",
+  "editor.setModelViewState",
+  "editor.deleteModelViewState",
 
   // Focus Tracker
   "focus.push",

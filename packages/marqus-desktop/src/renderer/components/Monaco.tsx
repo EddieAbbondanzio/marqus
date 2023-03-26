@@ -27,17 +27,12 @@ const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   renderLineHighlight: "none",
 };
 
-export type ModelAndViewState = {
-  model: monaco.editor.ITextModel;
-  viewState?: monaco.editor.ICodeEditorViewState;
-};
-
 export interface MonacoProps {
   store: Store;
   config: Config;
-  modelAndViewStateCache: Partial<Record<string, ModelAndViewState>>;
-  updateCache: (noteId: string, mAndVS: ModelAndViewState) => void;
-  removeCache: (noteId: string) => void;
+  // modelAndViewStateCache: Partial<Record<string, ModelAndViewState>>;
+  // updateCache: (noteId: string, mAndVS: ModelAndViewState) => void;
+  // removeCache: (noteId: string) => void;
 }
 
 export function Monaco(props: MonacoProps): JSX.Element {
@@ -52,11 +47,30 @@ export function Monaco(props: MonacoProps): JSX.Element {
   const onChangeSub = useRef<monaco.IDisposable | null>(null);
   const activeNoteId = useRef<string | null>(null);
 
+  // Need to sub before doing anything or else we get no listener error.
+  useEffect(() => {
+    console.log("Sub to set model view state!");
+
+    store.on("editor.boldSelectedText", boldSelectedText);
+    store.on("editor.italicSelectedText", italicSelectedText);
+    store.on("editor.setModelViewState", setModelViewState);
+    store.on("editor.deleteModelViewState", deleteModelViewState);
+
+    return () => {
+      console.log("Remove model view state listeners.");
+      store.off("editor.boldSelectedText", boldSelectedText);
+      store.off("editor.italicSelectedText", italicSelectedText);
+      store.off("editor.setModelViewState", setModelViewState);
+      store.off("editor.deleteModelViewState", deleteModelViewState);
+    };
+  }, [store]);
+
   // N.B. We need to manually focus the Monaco HTMLElement when the user switches
   // focus to the editor. We also need to make sure we don't re-apply focus once
   // already focused otherwise the ctrl+f popup breaks.
   const { focused } = state;
   const wasFocused = useRef<boolean>(false);
+
   useEffect(() => {
     if (focused.length === 0) {
       return;
@@ -189,7 +203,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
         // N.B. Disposing monaco editor will also dispose the active model so
         // we remove it from the cache.
         if (activeNoteId.current != null) {
-          props.removeCache(activeNoteId.current);
+          store.dispatch("editor.deleteModelViewState", activeNoteId.current);
         }
       }
 
@@ -252,10 +266,18 @@ export function Monaco(props: MonacoProps): JSX.Element {
       if (oldTab != null) {
         const viewState = monacoEditor.current.saveViewState()!;
         const model = monacoEditor.current.getModel()!;
-
-        props.updateCache(oldTab.note.id, { model, viewState });
+        console.log("Cache off old tab.");
+        // console.log("New tab. Save model view state!");
+        store.dispatch("editor.setModelViewState", {
+          noteId: oldTab.note.id,
+          modelViewState: {
+            model,
+            viewState,
+          },
+        });
+        // props.updateCache(oldTab.note.id, { model, viewState });
       } else {
-        props.removeCache(lastActiveTabNoteId);
+        store.dispatch("editor.deleteModelViewState", lastActiveTabNoteId);
       }
     }
 
@@ -273,14 +295,22 @@ export function Monaco(props: MonacoProps): JSX.Element {
         throw new Error(`Active tab ${editor.activeTabNoteId} was not found.`);
       }
 
-      let cache = props.modelAndViewStateCache[newTab.note.id];
+      let cache = store.cache.modelViewStates[newTab.note.id];
+
+      // let cache = props.modelAndViewStateCache[newTab.note.id];
       // First load, gotta create the model.
       if (cache == null || cache.model.isDisposed()) {
         cache = {
           model: createMarkdownModel(newTab.note.content),
         }!;
 
-        props.updateCache(newTab.note.id, cache);
+        console.log("Generate new model view state");
+        store.dispatch("editor.setModelViewState", {
+          noteId: newTab.note.id,
+          modelViewState: cache,
+        });
+
+        // props.updateCache(newTab.note.id, cache);
         monacoEditor.current.setModel(cache.model);
 
         if (cache.viewState) {
@@ -293,37 +323,25 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
       activeNoteId.current = newTab.note.id;
     }
-  }, [editor.activeTabNoteId, editor.tabs, state.focused, props]);
+  }, [editor.activeTabNoteId, editor.tabs, state.focused, props, store]);
 
-  const boldSelectedText: Listener<"editor.boldSelectedText"> = async ev => {
+  const boldSelectedText: Listener<"editor.boldSelectedText"> = async () => {
     const editor = monacoEditor.current;
-    if (editor == null) {
-      return;
+    if (editor != null) {
+      wrapSelections(editor, "**");
     }
-
-    wrapSelections(editor, "**");
   };
 
   const italicSelectedText: Listener<
     "editor.italicSelectedText"
-  > = async ev => {
+  > = async () => {
     const editor = monacoEditor.current;
-    if (editor == null) {
-      return;
+    if (editor != null) {
+      wrapSelections(editor, "_");
     }
-
-    wrapSelections(editor, "_");
   };
 
-  useEffect(() => {
-    store.on("editor.boldSelectedText", boldSelectedText);
-    store.on("editor.italicSelectedText", italicSelectedText);
-
-    return () => {
-      store.off("editor.boldSelectedText", boldSelectedText);
-      store.off("editor.italicSelectedText", italicSelectedText);
-    };
-  }, [store]);
+  console.log("Render monaco!");
 
   return (
     <StyledEditor
@@ -411,3 +429,35 @@ export function disableKeybinding(
     () => void undefined,
   );
 }
+
+export const setModelViewState: Listener<"editor.setModelViewState"> = (
+  { value },
+  ctx,
+) => {
+  // TODO: Can we make listener parameters required?
+  if (value == null || value.noteId == null || value.modelViewState == null) {
+    return;
+  }
+
+  console.log("editor.setModelViewState()", value);
+  ctx.setCache({
+    modelViewStates: {
+      [value.noteId]: value.modelViewState,
+    },
+  });
+};
+
+export const deleteModelViewState: Listener<"editor.deleteModelViewState"> = (
+  { value },
+  ctx,
+) => {
+  if (value == null) {
+    return;
+  }
+
+  ctx.setCache({
+    modelViewStates: {
+      [value]: undefined,
+    },
+  });
+};

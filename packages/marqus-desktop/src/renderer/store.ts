@@ -9,9 +9,11 @@ import { UIEventType, UIEventInput } from "../shared/ui/events";
 import { Section, AppState, serializeAppState } from "../shared/ui/app";
 import { log } from "./logger";
 import { arrayify } from "../shared/utils";
+import * as monaco from "monaco-editor";
 
 export interface Store {
-  state: State;
+  state: Readonly<State>;
+  cache: Readonly<Cache>;
   on: On;
   off: Off;
   dispatch: Dispatch;
@@ -21,6 +23,16 @@ export interface State extends AppState {
   notes: Note[];
   shortcuts: Shortcut[];
 }
+
+// TODO: Move to app.ts if we serialize this
+export interface Cache {
+  modelViewStates: Record<string, ModelViewState | undefined>;
+}
+
+export type ModelViewState = {
+  model: monaco.editor.ITextModel;
+  viewState?: monaco.editor.ICodeEditorViewState;
+};
 
 export type Dispatch = <ET extends UIEventType>(
   event: ET,
@@ -48,12 +60,17 @@ export type Focus = (
 ) => void;
 
 export interface StoreContext {
+  setCache: SetCache;
   setUI: SetUI;
   setShortcuts: SetShortcuts;
   setNotes: SetNotes;
   focus: Focus;
   getState(): State;
 }
+
+export type SetCache = (
+  t: Transformer<Cache, DeepPartial<Cache>> | DeepPartial<Cache>,
+) => void;
 
 // UI supports partial updates since it's unlikely we'll want to do full updates
 export type SetUI = (
@@ -71,6 +88,7 @@ export type ListenerLookup = {
 
 export function useStore(initialState: State): Store {
   const [state, setState] = useState(initialState);
+  const cache = useRef<Cache>({ modelViewStates: {} });
   const listeners = useRef<ListenerLookup>({});
   const lastState = useRef(state as Readonly<State>);
 
@@ -78,6 +96,21 @@ export function useStore(initialState: State): Store {
   useLayoutEffect(() => {
     lastState.current = cloneDeep(state);
   }, [state]);
+
+  // Cache is good for storing state that shouldn't trigger a re-render
+  const setCache: SetCache = useCallback(transformer => {
+    const prevCache = cache.current;
+
+    const updates =
+      typeof transformer === "function" ? transformer(prevCache) : transformer;
+
+    const newCache = deepUpdate(prevCache, updates, [
+      // We don't deep update model or viewstate because they will always be
+      // updated all at once.
+      /modelViewStates\.[a-zA-Z0-9]*\..*/,
+    ]);
+    cache.current = newCache;
+  }, []);
 
   const setUI: SetUI = useCallback(transformer => {
     setState(prevState => {
@@ -141,6 +174,7 @@ export function useStore(initialState: State): Store {
 
   const store = useMemo(() => {
     const ctx = {
+      setCache,
       setUI,
       setShortcuts,
       setNotes,
@@ -194,8 +228,8 @@ export function useStore(initialState: State): Store {
       }
     };
 
-    return { state, on, off, dispatch };
-  }, [state, focus, setUI]);
+    return { state, cache: cache.current, on, off, dispatch };
+  }, [state, focus, setUI, setCache]);
 
   return store;
 }
