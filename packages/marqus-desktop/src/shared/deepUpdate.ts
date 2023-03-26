@@ -18,13 +18,14 @@ export function deepUpdate<T extends {}>(
 ): T {
   breadthFirst(
     updates,
-    (update, property, path) => {
+    (update, property, path, hasChildrenToVisit) => {
       const existing = get(obj, path);
       /**
        * To prevent from updating children properties from their parents we don't
        * perform updates on objects unless their value has been deleted.
        */
       if (
+        hasChildrenToVisit &&
         typeof existing === "object" &&
         !Array.isArray(existing) &&
         update[property] != null
@@ -62,7 +63,12 @@ export function deepUpdate<T extends {}>(
  */
 function breadthFirst(
   root: Record<string, any>,
-  step: (target: any, property: string, path: string) => void,
+  step: (
+    target: any,
+    property: string,
+    path: string,
+    hasChildrenToVisit: boolean,
+  ) => void,
   ignorePaths?: RegExp[],
 ): void {
   // N.B. Objects we iterate may have circular references from a child to parent.
@@ -72,7 +78,12 @@ function breadthFirst(
 
   const recursiveStep = (
     target: Record<string, any>,
-    step: (target: any, property: string, path: string) => void,
+    step: (
+      target: any,
+      property: string,
+      path: string,
+      hasChildrenToVisit: boolean,
+    ) => void,
     path?: string,
   ) => {
     const toVisit: [any, string][] = [];
@@ -84,16 +95,18 @@ function breadthFirst(
       const child = target[k];
 
       let p = path == null ? k : `${path}.${k}`;
-      step(target, k, p);
 
-      if (ignorePaths != null && ignorePaths.some(ip => ip.test(p))) {
-        continue;
+      let hasChildrenToVisit = false;
+
+      if (ignorePaths == null || ignorePaths.every(ip => !ip.test(p))) {
+        // We don't visit children in an array
+        if (typeof child === "object" && !Array.isArray(child)) {
+          toVisit.push([child, k]);
+          hasChildrenToVisit = true;
+        }
       }
 
-      // We don't visit children in an array
-      if (typeof child === "object" && !Array.isArray(child)) {
-        toVisit.push([child, k]);
-      }
+      step(target, k, p, hasChildrenToVisit);
     }
 
     // Visit any children we found
