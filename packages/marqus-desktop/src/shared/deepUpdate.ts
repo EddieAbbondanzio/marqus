@@ -11,38 +11,46 @@ import { isBlank } from "./utils";
  * @param updates Partial updates to apply. Can delete props by passing = undefined.
  * @returns The newly updated object.
  */
-export function deepUpdate<T extends {}>(obj: T, updates: DeepPartial<T>): T {
+export function deepUpdate<T extends {}>(
+  obj: T,
+  updates: DeepPartial<T>,
+  ignoredPaths?: RegExp[],
+): T {
   const newObj = cloneDeep(obj);
 
-  breadthFirst(updates, (update, property, path) => {
-    const existing = get(newObj, path);
-    /**
-     * To prevent from updating children properties from their parents we don't
-     * perform updates on objects unless their value has been deleted.
-     */
-    if (
-      typeof existing === "object" &&
-      !Array.isArray(existing) &&
-      update[property] != null
-    ) {
-      return;
-    }
-
-    if (update.hasOwnProperty(property)) {
-      const newValue = update[property];
-      const parentPath = path.split(".").slice(0, -1).join(".");
-      let parent = isBlank(parentPath) ? newObj : get(newObj, parentPath);
-
-      // Delete
-      if (newValue == null) {
-        delete parent[property];
+  breadthFirst(
+    updates,
+    (update, property, path) => {
+      const existing = get(newObj, path);
+      /**
+       * To prevent from updating children properties from their parents we don't
+       * perform updates on objects unless their value has been deleted.
+       */
+      if (
+        typeof existing === "object" &&
+        !Array.isArray(existing) &&
+        update[property] != null
+      ) {
+        return;
       }
-      // Update
-      else {
-        parent[property] = newValue;
+
+      if (update.hasOwnProperty(property)) {
+        const newValue = update[property];
+        const parentPath = path.split(".").slice(0, -1).join(".");
+        let parent = isBlank(parentPath) ? newObj : get(newObj, parentPath);
+
+        // Delete
+        if (newValue == null) {
+          delete parent[property];
+        }
+        // Update
+        else {
+          parent[property] = newValue;
+        }
       }
-    }
-  });
+    },
+    ignoredPaths,
+  );
 
   return newObj;
 }
@@ -57,7 +65,7 @@ export function deepUpdate<T extends {}>(obj: T, updates: DeepPartial<T>): T {
 function breadthFirst(
   root: Record<string, any>,
   step: (target: any, property: string, path: string) => void,
-  path?: string,
+  ignorePaths?: RegExp[],
 ): void {
   // N.B. Objects we iterate may have circular references from a child to parent.
   // To get around this, we check if we've already visited an object once and if
@@ -77,12 +85,17 @@ function breadthFirst(
     for (const k in target) {
       const child = target[k];
 
+      let p = path == null ? k : `${path}.${k}`;
+
+      if (ignorePaths != null && ignorePaths.some(ip => ip.test(p))) {
+        continue;
+      }
+
       // We don't visit children in an array
       if (typeof child === "object" && !Array.isArray(child)) {
         toVisit.push([child, k]);
       }
 
-      let p = path == null ? k : `${path}.${k}`;
       step(target, k, p);
     }
 
@@ -96,5 +109,5 @@ function breadthFirst(
       recursiveStep(next, step, fullPath);
     }
   };
-  recursiveStep(root, step, path);
+  recursiveStep(root, step);
 }
