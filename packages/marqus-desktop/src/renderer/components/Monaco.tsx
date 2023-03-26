@@ -30,9 +30,6 @@ const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
 export interface MonacoProps {
   store: Store;
   config: Config;
-  // modelAndViewStateCache: Partial<Record<string, ModelAndViewState>>;
-  // updateCache: (noteId: string, mAndVS: ModelAndViewState) => void;
-  // removeCache: (noteId: string) => void;
 }
 
 export function Monaco(props: MonacoProps): JSX.Element {
@@ -49,15 +46,12 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
   // Need to sub before doing anything or else we get no listener error.
   useEffect(() => {
-    console.log("Sub to set model view state!");
-
     store.on("editor.boldSelectedText", boldSelectedText);
     store.on("editor.italicSelectedText", italicSelectedText);
     store.on("editor.setModelViewState", setModelViewState);
     store.on("editor.deleteModelViewState", deleteModelViewState);
 
     return () => {
-      console.log("Remove model view state listeners.");
       store.off("editor.boldSelectedText", boldSelectedText);
       store.off("editor.italicSelectedText", italicSelectedText);
       store.off("editor.setModelViewState", setModelViewState);
@@ -230,7 +224,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
     if (value == null) {
       return;
     }
-
     void store.dispatch("editor.setContent", {
       content: value,
       noteId: activeNoteId.current!,
@@ -266,8 +259,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
       if (oldTab != null) {
         const viewState = monacoEditor.current.saveViewState()!;
         const model = monacoEditor.current.getModel()!;
-        console.log("Cache off old tab.");
-        // console.log("New tab. Save model view state!");
         store.dispatch("editor.setModelViewState", {
           noteId: oldTab.note.id,
           modelViewState: {
@@ -275,7 +266,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
             viewState,
           },
         });
-        // props.updateCache(oldTab.note.id, { model, viewState });
       } else {
         store.dispatch("editor.deleteModelViewState", lastActiveTabNoteId);
       }
@@ -297,28 +287,25 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
       let cache = store.cache.modelViewStates[newTab.note.id];
 
-      // let cache = props.modelAndViewStateCache[newTab.note.id];
       // First load, gotta create the model.
       if (cache == null || cache.model.isDisposed()) {
         cache = {
           model: createMarkdownModel(newTab.note.content),
         }!;
 
-        console.log("Generate new model view state");
         store.dispatch("editor.setModelViewState", {
           noteId: newTab.note.id,
           modelViewState: cache,
         });
+      }
 
-        // props.updateCache(newTab.note.id, cache);
-        monacoEditor.current.setModel(cache.model);
+      monacoEditor.current.setModel(cache.model);
 
-        if (cache.viewState) {
-          monacoEditor.current.restoreViewState(cache.viewState);
-        }
-        if (state.focused[0] === Section.Editor) {
-          monacoEditor.current.focus();
-        }
+      if (cache.viewState) {
+        monacoEditor.current.restoreViewState(cache.viewState);
+      }
+      if (state.focused[0] === Section.Editor) {
+        monacoEditor.current.focus();
       }
 
       activeNoteId.current = newTab.note.id;
@@ -340,8 +327,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
       wrapSelections(editor, "_");
     }
   };
-
-  console.log("Render monaco!");
 
   return (
     <StyledEditor
@@ -439,7 +424,6 @@ export const setModelViewState: Listener<"editor.setModelViewState"> = (
     return;
   }
 
-  console.log("editor.setModelViewState()", value);
   ctx.setCache({
     modelViewStates: {
       [value.noteId]: value.modelViewState,

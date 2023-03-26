@@ -16,12 +16,10 @@ export function deepUpdate<T extends {}>(
   updates: DeepPartial<T>,
   ignoredPaths?: RegExp[],
 ): T {
-  const newObj = cloneDeep(obj);
-
   breadthFirst(
     updates,
     (update, property, path) => {
-      const existing = get(newObj, path);
+      const existing = get(obj, path);
       /**
        * To prevent from updating children properties from their parents we don't
        * perform updates on objects unless their value has been deleted.
@@ -37,7 +35,7 @@ export function deepUpdate<T extends {}>(
       if (update.hasOwnProperty(property)) {
         const newValue = update[property];
         const parentPath = path.split(".").slice(0, -1).join(".");
-        let parent = isBlank(parentPath) ? newObj : get(newObj, parentPath);
+        let parent = isBlank(parentPath) ? obj : get(obj, parentPath);
 
         // Delete
         if (newValue == null) {
@@ -52,7 +50,7 @@ export function deepUpdate<T extends {}>(
     ignoredPaths,
   );
 
-  return newObj;
+  return obj;
 }
 
 /**
