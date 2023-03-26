@@ -78,7 +78,6 @@ export interface UIEvents {
     noteId: string;
     modelViewState: ModelViewState;
   };
-  "editor.deleteModelViewState": string;
 
   // Focus Tracker
   "focus.push": Section | Section[];
@@ -157,7 +156,6 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.boldSelectedText",
   "editor.italicSelectedText",
   "editor.setModelViewState",
-  "editor.deleteModelViewState",
 
   // Focus Tracker
   "focus.push",

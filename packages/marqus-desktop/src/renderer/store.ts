@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { cloneDeep, isEmpty, pick } from "lodash";
+import { cloneDeep, isEmpty, pick, update } from "lodash";
 import { deepUpdate } from "../shared/deepUpdate";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
@@ -87,7 +87,7 @@ export type ListenerLookup = {
 };
 
 export function useStore(initialState: State): Store {
-  const [state, setState] = useState(initialState);
+  const [state, setState] = useState<State>(initialState);
   const cache = useRef<Cache>({ modelViewStates: {} });
   const listeners = useRef<ListenerLookup>({});
   const lastState = useRef(state as Readonly<State>);

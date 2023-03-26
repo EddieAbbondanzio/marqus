@@ -41,7 +41,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
   // if any of them change.
   const containerElement = useRef<HTMLDivElement | null>(null);
   const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const onChangeSub = useRef<monaco.IDisposable | null>(null);
+  const onChangeSub = useRef<monaco.IDisposable[]>([]);
   const activeNoteId = useRef<string | null>(null);
 
   // Need to sub before doing anything or else we get no listener error.
@@ -191,18 +191,12 @@ export function Monaco(props: MonacoProps): JSX.Element {
       if (monacoEditor.current != null) {
         monacoEditor.current.dispose();
         monacoEditor.current = null;
-
-        // N.B. Disposing monaco editor will also dispose the active model so
-        // we remove it from the cache.
-        // if (activeNoteId.current != null) {
-        //   store.dispatch("editor.deleteModelViewState", activeNoteId.current);
-        // }
       }
 
-      if (onChangeSub.current != null) {
-        onChangeSub.current.dispose();
-        onChangeSub.current = null;
+      for (const sub of onChangeSub.current) {
+        sub.dispose();
       }
+      onChangeSub.current = [];
 
       if (el != null) {
         el.removeEventListener("dragenter", dragEnter);
@@ -214,7 +208,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onChange = useCallback(() => {
+  const onModelChange = useCallback(async () => {
     if (monacoEditor.current == null) {
       return;
     }
@@ -222,23 +216,65 @@ export function Monaco(props: MonacoProps): JSX.Element {
     if (value == null) {
       return;
     }
-    void store.dispatch("editor.setContent", {
+
+    if (activeNoteId.current == null) {
+      return;
+    }
+
+    const viewState = monacoEditor.current.saveViewState()!;
+    const model = monacoEditor.current.getModel()!;
+    await store.dispatch("editor.setModelViewState", {
+      noteId: activeNoteId.current,
+      modelViewState: {
+        model,
+        viewState,
+      },
+    });
+
+    await store.dispatch("editor.setContent", {
       content: value,
       noteId: activeNoteId.current!,
     });
   }, [store]);
 
+  const onViewStateChange = useCallback(() => {
+    if (monacoEditor.current == null) {
+      return;
+    }
+    if (activeNoteId.current == null) {
+      return;
+    }
+
+    const viewState = monacoEditor.current.saveViewState()!;
+    console.log(
+      "View state change. Curr cursor:",
+      viewState.cursorState[0].position,
+    );
+    store.dispatch("editor.setModelViewState", {
+      noteId: activeNoteId.current,
+      modelViewState: {
+        viewState,
+      },
+    });
+  }, [store]);
+
+  // Subscribe to monaco editor events
   useEffect(() => {
     if (monacoEditor.current == null) {
       return;
     }
 
     // Prevent memory leak
-    onChangeSub.current?.dispose();
-
-    onChangeSub.current =
-      monacoEditor.current.onDidChangeModelContent(onChange);
-  }, [onChange]);
+    for (const sub of onChangeSub.current) {
+      sub.dispose();
+    }
+    onChangeSub.current = [
+      monacoEditor.current.onDidChangeModelContent(onModelChange),
+      monacoEditor.current.onDidChangeCursorPosition(onViewStateChange),
+      monacoEditor.current.onDidChangeCursorSelection(onViewStateChange),
+      monacoEditor.current.onDidScrollChange(onViewStateChange),
+    ];
+  }, [onModelChange, onViewStateChange]);
 
   // Active tab change
   useEffect(() => {
@@ -246,27 +282,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
     if (monacoEditor.current == null) {
       return;
-    }
-
-    // Cache off old state so we can restore it when tab is opened later on.
-    if (lastActiveTabNoteId != null) {
-      const oldTab = editor.tabs.find(t => t.note.id === activeNoteId.current);
-
-      // If old tab wasn't found, it means the tab was closed and we shouldn't
-      // bother saving off view state / model.
-      if (oldTab != null) {
-        const viewState = monacoEditor.current.saveViewState()!;
-        const model = monacoEditor.current.getModel()!;
-        store.dispatch("editor.setModelViewState", {
-          noteId: oldTab.note.id,
-          modelViewState: {
-            model,
-            viewState,
-          },
-        });
-      } else {
-        store.dispatch("editor.deleteModelViewState", lastActiveTabNoteId);
-      }
     }
 
     // Load new model when switching to a new tab (either no previous tab, or the
@@ -299,7 +314,10 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
       if (cache.viewState) {
         monacoEditor.current.restoreViewState(cache.viewState);
+      } else {
+        monacoEditor.current.restoreViewState(null);
       }
+
       if (state.focused[0] === Section.Editor) {
         monacoEditor.current.focus();
       }
