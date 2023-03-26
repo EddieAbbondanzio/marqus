@@ -1,6 +1,6 @@
 import { Point } from "electron";
 import { NoteSort } from "../domain/note";
-import { Section } from "./app";
+import { ModelViewState, Section } from "./app";
 
 /*
  * Events are defined in shared so we can keep shortcuts and application menus
@@ -73,6 +73,10 @@ export interface UIEvents {
   "editor.updateTabsScroll": number;
   "editor.boldSelectedText": void;
   "editor.italicSelectedText": void;
+  "editor.setModelViewState": {
+    noteId: string;
+    modelViewState: ModelViewState;
+  };
 
   // Focus Tracker
   "focus.push": Section | Section[];
@@ -150,6 +154,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.updateTabsScroll",
   "editor.boldSelectedText",
   "editor.italicSelectedText",
+  "editor.setModelViewState",
 
   // Focus Tracker
   "focus.push",

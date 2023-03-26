@@ -11,5 +11,8 @@ export function mockStore(partial?: CreateStore): Store {
     off: partial?.off ?? jest.fn(),
     dispatch: partial?.dispatch ?? jest.fn(),
     state: createState(partial?.state),
+    cache: {
+      modelViewStates: {},
+    },
   };
 }

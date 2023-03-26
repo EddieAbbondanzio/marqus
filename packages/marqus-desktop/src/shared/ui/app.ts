@@ -1,6 +1,7 @@
 import { keyBy, isEmpty, cloneDeep, orderBy } from "lodash";
 import { PromisedInput } from "../promisedInput";
 import { flatten, Note, NoteSort } from "../domain/note";
+import * as monaco from "monaco-editor";
 
 export const DEFAULT_SIDEBAR_WIDTH = "250px";
 
@@ -45,6 +46,15 @@ export interface EditorTab {
   note: Note;
   lastActive?: Date;
 }
+
+export interface Cache {
+  modelViewStates: Record<string, ModelViewState | undefined>;
+}
+
+export type ModelViewState = {
+  model?: monaco.editor.ITextModel;
+  viewState?: monaco.editor.ICodeEditorViewState;
+};
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to
 // clear out all references to it otherwise things will bork.
@@ -112,9 +122,13 @@ export type SerializedEditor = Omit<Editor, "tabs"> & {
 export interface SerializedEditorTab {
   noteId: string;
   lastActive?: Date;
+  viewState?: monaco.editor.ICodeEditorViewState;
 }
 
-export function serializeAppState(appState: AppState): SerializedAppState {
+export function serializeAppState(
+  appState: AppState,
+  cache?: Cache,
+): SerializedAppState {
   const { editor, ...cloned } = cloneDeep(appState);
 
   // We need to delete some values before sending them over to the main
@@ -130,6 +144,7 @@ export function serializeAppState(appState: AppState): SerializedAppState {
       tabs: editor.tabs.map(t => ({
         noteId: t.note.id,
         lastActive: t.lastActive,
+        viewState: cache?.modelViewStates[t.note.id]?.viewState,
       })),
     },
   };

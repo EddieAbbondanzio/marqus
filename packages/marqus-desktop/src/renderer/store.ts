@@ -9,9 +9,11 @@ import { UIEventType, UIEventInput } from "../shared/ui/events";
 import { Section, AppState, serializeAppState } from "../shared/ui/app";
 import { log } from "./logger";
 import { arrayify } from "../shared/utils";
+import { Cache } from "../shared/ui/app";
 
 export interface Store {
-  state: State;
+  state: Readonly<State>;
+  cache: Readonly<Cache>;
   on: On;
   off: Off;
   dispatch: Dispatch;
@@ -48,12 +50,17 @@ export type Focus = (
 ) => void;
 
 export interface StoreContext {
+  setCache: SetCache;
   setUI: SetUI;
   setShortcuts: SetShortcuts;
   setNotes: SetNotes;
   focus: Focus;
   getState(): State;
 }
+
+export type SetCache = (
+  t: Transformer<Cache, DeepPartial<Cache>> | DeepPartial<Cache>,
+) => void;
 
 // UI supports partial updates since it's unlikely we'll want to do full updates
 export type SetUI = (
@@ -69,8 +76,9 @@ export type ListenerLookup = {
   [EV in UIEventType]?: Array<Listener<EV>>;
 };
 
-export function useStore(initialState: State): Store {
-  const [state, setState] = useState(initialState);
+export function useStore(initialState: State, initialCache?: Cache): Store {
+  const [state, setState] = useState<State>(initialState);
+  const cache = useRef<Cache>(initialCache ?? { modelViewStates: {} });
   const listeners = useRef<ListenerLookup>({});
   const lastState = useRef(state as Readonly<State>);
 
@@ -78,6 +86,23 @@ export function useStore(initialState: State): Store {
   useLayoutEffect(() => {
     lastState.current = cloneDeep(state);
   }, [state]);
+
+  // Cache is good for storing state that shouldn't trigger a re-render
+  const setCache: SetCache = useCallback(transformer => {
+    const prevCache = cache.current;
+
+    const updates =
+      typeof transformer === "function" ? transformer(prevCache) : transformer;
+
+    const newCache = deepUpdate(prevCache, updates, [
+      // We don't deep update model or viewstate because they will always be
+      // updated all at once.
+      /modelViewStates\.[a-zA-Z0-9]*\.model.*/,
+      /modelViewStates\.[a-zA-Z0-9]*\.viewState.*/,
+    ]);
+
+    cache.current = newCache;
+  }, []);
 
   const setUI: SetUI = useCallback(transformer => {
     setState(prevState => {
@@ -93,7 +118,10 @@ export function useStore(initialState: State): Store {
       };
 
       const newUI = pick(newState, "version", "editor", "sidebar", "focused");
-      void window.ipc("app.saveAppState", serializeAppState(newUI));
+      void window.ipc(
+        "app.saveAppState",
+        serializeAppState(newUI, cache.current),
+      );
       return newState;
     });
   }, []);
@@ -141,6 +169,7 @@ export function useStore(initialState: State): Store {
 
   const store = useMemo(() => {
     const ctx = {
+      setCache,
       setUI,
       setShortcuts,
       setNotes,
@@ -194,8 +223,8 @@ export function useStore(initialState: State): Store {
       }
     };
 
-    return { state, on, off, dispatch };
-  }, [state, focus, setUI]);
+    return { state, cache: cache.current, on, off, dispatch };
+  }, [state, focus, setUI, setCache]);
 
   return store;
 }

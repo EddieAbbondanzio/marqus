@@ -27,15 +27,7 @@ test("importAttachments", async () => {
   });
   const config = createConfig();
 
-  const r = render(
-    <Monaco
-      store={store.current}
-      config={config}
-      modelAndViewStateCache={{}}
-      updateCache={jest.fn()}
-      removeCache={jest.fn()}
-    />,
-  );
+  const r = render(<Monaco store={store.current} config={config} />);
   const monacoContainer = r.getByTestId("monaco-container");
 
   const model = {

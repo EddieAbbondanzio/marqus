@@ -12,6 +12,7 @@ import * as store from "../../../src/renderer/store";
 import { mockStore } from "../../__mocks__/store";
 import { Section } from "../../../src/shared/ui/app";
 import { createConfig } from "../../__factories__/config";
+import { createCache } from "../../__factories__/state";
 
 function init(
   props: FocusableProps,
@@ -26,7 +27,11 @@ test("useFocusTracking detects clicks in focusables", async () => {
   jest.spyOn(store, "useStore").mockImplementation(() => s);
 
   const res = render(
-    <App state={s.state} config={createConfig({ noteDirectory: "foo" })} />,
+    <App
+      state={s.state}
+      config={createConfig({ noteDirectory: "foo" })}
+      cache={createCache()}
+    />,
   );
 
   // Simulate a click within the sidebar search.

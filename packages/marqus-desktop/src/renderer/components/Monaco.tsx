@@ -27,17 +27,9 @@ const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   renderLineHighlight: "none",
 };
 
-export type ModelAndViewState = {
-  model: monaco.editor.ITextModel;
-  viewState?: monaco.editor.ICodeEditorViewState;
-};
-
 export interface MonacoProps {
   store: Store;
   config: Config;
-  modelAndViewStateCache: Partial<Record<string, ModelAndViewState>>;
-  updateCache: (noteId: string, mAndVS: ModelAndViewState) => void;
-  removeCache: (noteId: string) => void;
 }
 
 export function Monaco(props: MonacoProps): JSX.Element {
@@ -49,14 +41,28 @@ export function Monaco(props: MonacoProps): JSX.Element {
   // if any of them change.
   const containerElement = useRef<HTMLDivElement | null>(null);
   const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const onChangeSub = useRef<monaco.IDisposable | null>(null);
+  const onChangeSub = useRef<monaco.IDisposable[]>([]);
   const activeNoteId = useRef<string | null>(null);
+
+  // Need to sub before doing anything or else we get no listener error.
+  useEffect(() => {
+    store.on("editor.boldSelectedText", boldSelectedText);
+    store.on("editor.italicSelectedText", italicSelectedText);
+    store.on("editor.setModelViewState", setModelViewState);
+
+    return () => {
+      store.off("editor.boldSelectedText", boldSelectedText);
+      store.off("editor.italicSelectedText", italicSelectedText);
+      store.off("editor.setModelViewState", setModelViewState);
+    };
+  }, [store]);
 
   // N.B. We need to manually focus the Monaco HTMLElement when the user switches
   // focus to the editor. We also need to make sure we don't re-apply focus once
   // already focused otherwise the ctrl+f popup breaks.
   const { focused } = state;
   const wasFocused = useRef<boolean>(false);
+
   useEffect(() => {
     if (focused.length === 0) {
       return;
@@ -72,16 +78,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
     }
   }, [focused]);
 
-  // dragenter and dragover have to be cancelled in order for the drop event
-  // to work on a div.
-  const dragEnter = (ev: DragEvent) => {
-    ev.stopPropagation();
-    ev.preventDefault();
-  };
-  const dragOver = (ev: DragEvent) => {
-    ev.stopPropagation();
-    ev.preventDefault();
-  };
   const importAttachments = useCallback(
     async (ev: DragEvent) => {
       ev.preventDefault();
@@ -149,6 +145,17 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
   // Mount / Unmount
   useEffect(() => {
+    // dragenter and dragover have to be cancelled in order for the drop event
+    // to work on a div.
+    const dragEnter = (ev: DragEvent) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+    };
+    const dragOver = (ev: DragEvent) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+    };
+
     const { current: el } = containerElement;
     let resizeObserver: ResizeObserver | null = null;
 
@@ -185,18 +192,12 @@ export function Monaco(props: MonacoProps): JSX.Element {
       if (monacoEditor.current != null) {
         monacoEditor.current.dispose();
         monacoEditor.current = null;
-
-        // N.B. Disposing monaco editor will also dispose the active model so
-        // we remove it from the cache.
-        if (activeNoteId.current != null) {
-          props.removeCache(activeNoteId.current);
-        }
       }
 
-      if (onChangeSub.current != null) {
-        onChangeSub.current.dispose();
-        onChangeSub.current = null;
+      for (const sub of onChangeSub.current) {
+        sub.dispose();
       }
+      onChangeSub.current = [];
 
       if (el != null) {
         el.removeEventListener("dragenter", dragEnter);
@@ -208,7 +209,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onChange = useCallback(() => {
+  const onModelChange = useCallback(async () => {
     if (monacoEditor.current == null) {
       return;
     }
@@ -217,47 +218,65 @@ export function Monaco(props: MonacoProps): JSX.Element {
       return;
     }
 
-    void store.dispatch("editor.setContent", {
+    if (activeNoteId.current == null) {
+      return;
+    }
+
+    const viewState = monacoEditor.current.saveViewState()!;
+    const model = monacoEditor.current.getModel()!;
+    await store.dispatch("editor.setModelViewState", {
+      noteId: activeNoteId.current,
+      modelViewState: {
+        model,
+        viewState,
+      },
+    });
+
+    await store.dispatch("editor.setContent", {
       content: value,
       noteId: activeNoteId.current!,
     });
   }, [store]);
 
+  const onViewStateChange = useCallback(() => {
+    if (monacoEditor.current == null || activeNoteId.current == null) {
+      return;
+    }
+
+    const viewState = monacoEditor.current.saveViewState()!;
+    store.dispatch("editor.setModelViewState", {
+      noteId: activeNoteId.current,
+      modelViewState: {
+        viewState,
+      },
+    });
+  }, [store]);
+
+  // Subscribe to monaco editor events
   useEffect(() => {
     if (monacoEditor.current == null) {
       return;
     }
 
     // Prevent memory leak
-    onChangeSub.current?.dispose();
-
-    onChangeSub.current =
-      monacoEditor.current.onDidChangeModelContent(onChange);
-  }, [onChange]);
+    for (const sub of onChangeSub.current) {
+      sub.dispose();
+    }
+    onChangeSub.current = [
+      monacoEditor.current.onDidChangeModelContent(onModelChange),
+      monacoEditor.current.onDidChangeCursorPosition(onViewStateChange),
+      monacoEditor.current.onDidChangeCursorSelection(onViewStateChange),
+      monacoEditor.current.onDidScrollChange(onViewStateChange),
+    ];
+  }, [onModelChange, onViewStateChange]);
 
   // Active tab change
   useEffect(() => {
-    const lastActiveTabNoteId = activeNoteId.current;
-
     if (monacoEditor.current == null) {
       return;
     }
 
-    // Cache off old state so we can restore it when tab is opened later on.
-    if (lastActiveTabNoteId != null) {
-      const oldTab = editor.tabs.find(t => t.note.id === activeNoteId.current);
-
-      // If old tab wasn't found, it means the tab was closed and we shouldn't
-      // bother saving off view state / model.
-      if (oldTab != null) {
-        const viewState = monacoEditor.current.saveViewState()!;
-        const model = monacoEditor.current.getModel()!;
-
-        props.updateCache(oldTab.note.id, { model, viewState });
-      } else {
-        props.removeCache(lastActiveTabNoteId);
-      }
-    }
+    const lastActiveTabNoteId = activeNoteId.current;
 
     // Load new model when switching to a new tab (either no previous tab, or the
     // new active tab is different).
@@ -273,57 +292,47 @@ export function Monaco(props: MonacoProps): JSX.Element {
         throw new Error(`Active tab ${editor.activeTabNoteId} was not found.`);
       }
 
-      let cache = props.modelAndViewStateCache[newTab.note.id];
-      // First load, gotta create the model.
-      if (cache == null || cache.model.isDisposed()) {
-        cache = {
-          model: createMarkdownModel(newTab.note.content),
-        }!;
+      activeNoteId.current = newTab.note.id;
 
-        props.updateCache(newTab.note.id, cache);
-        monacoEditor.current.setModel(cache.model);
+      const cache = store.cache.modelViewStates[newTab.note.id] ?? {};
+      if (cache.model == null || cache.model.isDisposed()) {
+        cache.model = createMarkdownModel(newTab.note.content);
 
-        if (cache.viewState) {
-          monacoEditor.current.restoreViewState(cache.viewState);
-        }
-        if (state.focused[0] === Section.Editor) {
-          monacoEditor.current.focus();
-        }
+        store.dispatch("editor.setModelViewState", {
+          noteId: newTab.note.id,
+          modelViewState: cache,
+        });
       }
 
-      activeNoteId.current = newTab.note.id;
-    }
-  }, [editor.activeTabNoteId, editor.tabs, state.focused, props]);
+      monacoEditor.current.setModel(cache.model);
 
-  const boldSelectedText: Listener<"editor.boldSelectedText"> = async ev => {
+      if (cache.viewState) {
+        monacoEditor.current.restoreViewState(cache.viewState);
+      } else {
+        monacoEditor.current.restoreViewState(null);
+      }
+
+      if (state.focused[0] === Section.Editor) {
+        monacoEditor.current.focus();
+      }
+    }
+  }, [editor.activeTabNoteId, editor.tabs, state.focused, props, store]);
+
+  const boldSelectedText: Listener<"editor.boldSelectedText"> = async () => {
     const editor = monacoEditor.current;
-    if (editor == null) {
-      return;
+    if (editor != null) {
+      wrapSelections(editor, "**");
     }
-
-    wrapSelections(editor, "**");
   };
 
   const italicSelectedText: Listener<
     "editor.italicSelectedText"
-  > = async ev => {
+  > = async () => {
     const editor = monacoEditor.current;
-    if (editor == null) {
-      return;
+    if (editor != null) {
+      wrapSelections(editor, "_");
     }
-
-    wrapSelections(editor, "_");
   };
-
-  useEffect(() => {
-    store.on("editor.boldSelectedText", boldSelectedText);
-    store.on("editor.italicSelectedText", italicSelectedText);
-
-    return () => {
-      store.off("editor.boldSelectedText", boldSelectedText);
-      store.off("editor.italicSelectedText", italicSelectedText);
-    };
-  }, [store]);
 
   return (
     <StyledEditor
@@ -411,3 +420,19 @@ export function disableKeybinding(
     () => void undefined,
   );
 }
+
+export const setModelViewState: Listener<"editor.setModelViewState"> = (
+  { value },
+  ctx,
+) => {
+  // TODO: Can we make listener parameters required?
+  if (value == null || value.noteId == null || value.modelViewState == null) {
+    return;
+  }
+
+  ctx.setCache({
+    modelViewStates: {
+      [value.noteId]: value.modelViewState,
+    },
+  });
+};

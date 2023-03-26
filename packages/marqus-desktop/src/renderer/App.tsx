@@ -5,12 +5,14 @@ import { promptFatal } from "./utils/prompt";
 import { Sidebar } from "./components/Sidebar";
 import { useFocusTracking } from "./components/shared/Focusable";
 import {
+  Cache,
   EditorTab,
   filterOutStaleNoteIds,
+  ModelViewState,
   Section,
   SerializedAppState,
 } from "../shared/ui/app";
-import { getNoteById } from "../shared/domain/note";
+import { getNoteById, Note } from "../shared/domain/note";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { isEmpty, tail } from "lodash";
@@ -24,14 +26,18 @@ import { log } from "./logger";
 import { arrayify } from "../shared/utils";
 import { NoteDirectoryModal } from "./components/NoteDirectoryModal";
 import { searchNotes } from "./components/SidebarSearch";
+import { Shortcut } from "../shared/domain/shortcut";
 
 async function main() {
   let config: Config;
   let initialState: State;
+  let initialCache: Cache;
 
   try {
     config = await window.ipc("config.get");
-    initialState = await loadInitialState(config);
+    const loadedState = await loadInitialState(config);
+    initialState = loadedState.state;
+    initialCache = loadedState.cache;
   } catch (e) {
     await log.error("Fatal: Failed to initialize the app.", e as Error);
     await promptFatal("Failed to initialize app.", e as Error);
@@ -39,7 +45,7 @@ async function main() {
   }
 
   render(
-    <App state={initialState} config={config} />,
+    <App state={initialState} config={config} cache={initialCache} />,
     document.getElementById("app"),
   );
 }
@@ -51,12 +57,13 @@ if (!isTest()) {
 
 export interface AppProps {
   state: State;
+  cache: Cache;
   config: Config;
 }
 
 export function App(props: AppProps): JSX.Element {
   const { config } = props;
-  const store = useStore(props.state);
+  const store = useStore(props.state, props.cache);
   const { state } = store;
 
   useShortcuts(store);
@@ -136,22 +143,28 @@ const Container = styled.div`
   flex-direction: row;
 `;
 
-export async function loadInitialState(config: Config): Promise<State> {
+export async function loadInitialState(
+  config: Config,
+): Promise<{ state: State; cache: Cache }> {
   const promises = [
     window.ipc("app.loadAppState"),
     window.ipc("shortcuts.getAll"),
   ];
 
-  // Can't load notes with a note directory
+  // Can't load notes without a note directory
   if (config.noteDirectory != null) {
     promises.push(window.ipc("notes.getAll"));
   }
 
-  const [ui, shortcuts, notes = []] = await Promise.all(promises);
+  const [ui, shortcuts, notes = []] = (await Promise.all(promises)) as [
+    SerializedAppState,
+    Shortcut[],
+    Note[],
+  ];
 
   // Fail softly if a note can't be found for a tab. The user may have manually
   // deleted the note prior to opening the app.
-  const tabs: EditorTab[] = (ui as SerializedAppState).editor.tabs
+  const tabs: EditorTab[] = ui.editor.tabs
     .map(t => ({
       note: getNoteById(notes, t.noteId, false),
       lastActive: t.lastActive,
@@ -179,10 +192,22 @@ export async function loadInitialState(config: Config): Promise<State> {
     notes,
   );
 
+  const modelViewStates: Record<string, ModelViewState> = {};
+  for (const tab of ui.editor.tabs) {
+    if (tab.viewState) {
+      modelViewStates[tab.noteId] = { viewState: tab.viewState };
+    }
+  }
+
   return {
-    ...deserializedAppState,
-    shortcuts,
-    notes,
+    state: {
+      ...deserializedAppState,
+      shortcuts,
+      notes,
+    },
+    cache: {
+      modelViewStates,
+    },
   };
 }
 

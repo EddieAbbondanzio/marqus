@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/ban-types */
-import { cloneDeep, get } from "lodash";
+import { get } from "lodash";
 import { DeepPartial } from "tsdef";
 import { isBlank } from "./utils";
 
@@ -11,72 +11,113 @@ import { isBlank } from "./utils";
  * @param updates Partial updates to apply. Can delete props by passing = undefined.
  * @returns The newly updated object.
  */
-export function deepUpdate<T extends {}>(obj: T, updates: DeepPartial<T>): T {
-  const newObj = cloneDeep(obj);
-
-  breadthFirst(updates, (update, property, path) => {
-    const existing = get(newObj, path);
-    /**
-     * To prevent from updating children properties from their parents we don't
-     * perform updates on objects unless their value has been deleted.
-     */
-    if (
-      typeof existing === "object" &&
-      !Array.isArray(existing) &&
-      update[property] != null
-    ) {
-      return;
-    }
-
-    if (update.hasOwnProperty(property)) {
-      const newValue = update[property];
-      const parentPath = path.split(".").slice(0, -1).join(".");
-      let parent = isBlank(parentPath) ? newObj : get(newObj, parentPath);
-
-      // Delete
-      if (newValue == null) {
-        delete parent[property];
+export function deepUpdate<T extends {}>(
+  obj: T,
+  updates: DeepPartial<T>,
+  ignoredPaths?: RegExp[],
+): T {
+  breadthFirst(
+    updates,
+    (update, property, path, hasChildrenToVisit) => {
+      const existing = get(obj, path);
+      /**
+       * To prevent from updating children properties from their parents we don't
+       * perform updates on objects unless their value has been deleted.
+       */
+      if (
+        hasChildrenToVisit &&
+        typeof existing === "object" &&
+        !Array.isArray(existing) &&
+        update[property] != null
+      ) {
+        return;
       }
-      // Update
-      else {
-        parent[property] = newValue;
-      }
-    }
-  });
 
-  return newObj;
+      if (update.hasOwnProperty(property)) {
+        const newValue = update[property];
+        const parentPath = path.split(".").slice(0, -1).join(".");
+        let parent = isBlank(parentPath) ? obj : get(obj, parentPath);
+
+        // Delete
+        if (newValue == null) {
+          delete parent[property];
+        }
+        // Update
+        else {
+          parent[property] = newValue;
+        }
+      }
+    },
+    ignoredPaths,
+  );
+
+  return obj;
 }
 
 /**
  * Iterate an object in breadth first order. This will visit all siblings before
  * moving to a deeper nested object.
- * @param target The object to start with.
+ * @param root The object to start with.
  * @param step Step iterator
  * @param path Full path in dot notation "parent.child.grandChild"
  */
 function breadthFirst(
-  target: Record<string, any>,
-  step: (target: any, property: string, path: string) => void,
-  path?: string
+  root: Record<string, any>,
+  step: (
+    target: any,
+    property: string,
+    path: string,
+    hasChildrenToVisit: boolean,
+  ) => void,
+  ignorePaths?: RegExp[],
 ): void {
-  const toVisit: [any, string][] = [];
+  // N.B. Objects we iterate may have circular references from a child to parent.
+  // To get around this, we check if we've already visited an object once and if
+  // so, skip it.
+  const visited: Map<object, boolean> = new Map();
 
-  // Iterate root properties
-  for (const k in target) {
-    const child = target[k];
+  const recursiveStep = (
+    target: Record<string, any>,
+    step: (
+      target: any,
+      property: string,
+      path: string,
+      hasChildrenToVisit: boolean,
+    ) => void,
+    path?: string,
+  ) => {
+    const toVisit: [any, string][] = [];
 
-    // We don't visit children in an array
-    if (typeof child === "object" && !Array.isArray(child)) {
-      toVisit.push([child, k]);
+    visited.set(target, true);
+
+    // Iterate root properties
+    for (const k in target) {
+      const child = target[k];
+
+      let p = path == null ? k : `${path}.${k}`;
+
+      let hasChildrenToVisit = false;
+
+      if (ignorePaths == null || ignorePaths.every(ip => !ip.test(p))) {
+        // We don't visit children in an array
+        if (typeof child === "object" && !Array.isArray(child)) {
+          toVisit.push([child, k]);
+          hasChildrenToVisit = true;
+        }
+      }
+
+      step(target, k, p, hasChildrenToVisit);
     }
 
-    let p = path == null ? k : `${path}.${k}`;
-    step(target, k, p);
-  }
+    // Visit any children we found
+    for (const [next, prop] of toVisit) {
+      if (visited.has(next)) {
+        return;
+      }
 
-  // Visit any children we found
-  for (const [next, prop] of toVisit) {
-    let fullPath = path == null ? prop : `${path}.${prop}`;
-    breadthFirst(next, step, fullPath);
-  }
+      let fullPath = path == null ? prop : `${path}.${prop}`;
+      recursiveStep(next, step, fullPath);
+    }
+  };
+  recursiveStep(root, step);
 }
