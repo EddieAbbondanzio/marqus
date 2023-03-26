@@ -78,16 +78,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
     }
   }, [focused]);
 
-  // dragenter and dragover have to be cancelled in order for the drop event
-  // to work on a div.
-  const dragEnter = (ev: DragEvent) => {
-    ev.stopPropagation();
-    ev.preventDefault();
-  };
-  const dragOver = (ev: DragEvent) => {
-    ev.stopPropagation();
-    ev.preventDefault();
-  };
   const importAttachments = useCallback(
     async (ev: DragEvent) => {
       ev.preventDefault();
@@ -155,6 +145,17 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
   // Mount / Unmount
   useEffect(() => {
+    // dragenter and dragover have to be cancelled in order for the drop event
+    // to work on a div.
+    const dragEnter = (ev: DragEvent) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+    };
+    const dragOver = (ev: DragEvent) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+    };
+
     const { current: el } = containerElement;
     let resizeObserver: ResizeObserver | null = null;
 
@@ -238,18 +239,11 @@ export function Monaco(props: MonacoProps): JSX.Element {
   }, [store]);
 
   const onViewStateChange = useCallback(() => {
-    if (monacoEditor.current == null) {
-      return;
-    }
-    if (activeNoteId.current == null) {
+    if (monacoEditor.current == null || activeNoteId.current == null) {
       return;
     }
 
     const viewState = monacoEditor.current.saveViewState()!;
-    console.log(
-      "View state change. Curr cursor:",
-      viewState.cursorState[0].position,
-    );
     store.dispatch("editor.setModelViewState", {
       noteId: activeNoteId.current,
       modelViewState: {
@@ -278,11 +272,11 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
   // Active tab change
   useEffect(() => {
-    const lastActiveTabNoteId = activeNoteId.current;
-
     if (monacoEditor.current == null) {
       return;
     }
+
+    const lastActiveTabNoteId = activeNoteId.current;
 
     // Load new model when switching to a new tab (either no previous tab, or the
     // new active tab is different).
@@ -298,9 +292,9 @@ export function Monaco(props: MonacoProps): JSX.Element {
         throw new Error(`Active tab ${editor.activeTabNoteId} was not found.`);
       }
 
-      const cache = store.cache.modelViewStates[newTab.note.id] ?? {};
+      activeNoteId.current = newTab.note.id;
 
-      // First load, or model was disposed.
+      const cache = store.cache.modelViewStates[newTab.note.id] ?? {};
       if (cache.model == null || cache.model.isDisposed()) {
         cache.model = createMarkdownModel(newTab.note.content);
 
@@ -321,8 +315,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
       if (state.focused[0] === Section.Editor) {
         monacoEditor.current.focus();
       }
-
-      activeNoteId.current = newTab.note.id;
     }
   }, [editor.activeTabNoteId, editor.tabs, state.focused, props, store]);
 
