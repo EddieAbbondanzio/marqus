@@ -25,7 +25,7 @@ import { getConfigDirectory } from "./config";
 
 export const APP_STATE_FILE = "appState.json";
 export const APP_STATE_DEFAULTS = {
-  version: 1,
+  version: 2,
   sidebar: {
     scroll: 0,
     sort: NoteSort.Alphanumeric,
@@ -80,14 +80,14 @@ export const appIpcPlugin: IpcPlugin = {
   },
 
   "app.saveAppState": async (ctx, appState) => {
-    if (appStateFile == null) {
-      return;
-    }
-
     const { blockAppFromQuitting } = ctx;
 
     await blockAppFromQuitting(async () => {
-      await appStateFile!.update(appState);
+      if (appStateFile == null) {
+        return;
+      }
+
+      await appStateFile.update(appState);
     });
   },
 

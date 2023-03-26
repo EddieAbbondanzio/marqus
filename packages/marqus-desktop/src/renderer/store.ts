@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { cloneDeep, isEmpty, pick, update } from "lodash";
+import { cloneDeep, isEmpty, pick } from "lodash";
 import { deepUpdate } from "../shared/deepUpdate";
 import { DeepPartial } from "tsdef";
 import { Note } from "../shared/domain/note";
@@ -9,7 +9,7 @@ import { UIEventType, UIEventInput } from "../shared/ui/events";
 import { Section, AppState, serializeAppState } from "../shared/ui/app";
 import { log } from "./logger";
 import { arrayify } from "../shared/utils";
-import * as monaco from "monaco-editor";
+import { Cache } from "../shared/ui/app";
 
 export interface Store {
   state: Readonly<State>;
@@ -23,16 +23,6 @@ export interface State extends AppState {
   notes: Note[];
   shortcuts: Shortcut[];
 }
-
-// TODO: Move to app.ts if we serialize this
-export interface Cache {
-  modelViewStates: Record<string, ModelViewState | undefined>;
-}
-
-export type ModelViewState = {
-  model?: monaco.editor.ITextModel;
-  viewState?: monaco.editor.ICodeEditorViewState;
-};
 
 export type Dispatch = <ET extends UIEventType>(
   event: ET,
@@ -86,9 +76,9 @@ export type ListenerLookup = {
   [EV in UIEventType]?: Array<Listener<EV>>;
 };
 
-export function useStore(initialState: State): Store {
+export function useStore(initialState: State, initialCache?: Cache): Store {
   const [state, setState] = useState<State>(initialState);
-  const cache = useRef<Cache>({ modelViewStates: {} });
+  const cache = useRef<Cache>(initialCache ?? { modelViewStates: {} });
   const listeners = useRef<ListenerLookup>({});
   const lastState = useRef(state as Readonly<State>);
 
@@ -128,7 +118,10 @@ export function useStore(initialState: State): Store {
       };
 
       const newUI = pick(newState, "version", "editor", "sidebar", "focused");
-      void window.ipc("app.saveAppState", serializeAppState(newUI));
+      void window.ipc(
+        "app.saveAppState",
+        serializeAppState(newUI, cache.current),
+      );
       return newState;
     });
   }, []);

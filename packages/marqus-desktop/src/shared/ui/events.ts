@@ -1,7 +1,6 @@
 import { Point } from "electron";
-import { ModelViewState } from "../../renderer/store";
 import { NoteSort } from "../domain/note";
-import { Section } from "./app";
+import { ModelViewState, Section } from "./app";
 
 /*
  * Events are defined in shared so we can keep shortcuts and application menus
