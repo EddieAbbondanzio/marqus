@@ -50,33 +50,51 @@ export function deepUpdate<T extends {}>(obj: T, updates: DeepPartial<T>): T {
 /**
  * Iterate an object in breadth first order. This will visit all siblings before
  * moving to a deeper nested object.
- * @param target The object to start with.
+ * @param root The object to start with.
  * @param step Step iterator
  * @param path Full path in dot notation "parent.child.grandChild"
  */
 function breadthFirst(
-  target: Record<string, any>,
+  root: Record<string, any>,
   step: (target: any, property: string, path: string) => void,
-  path?: string
+  path?: string,
 ): void {
-  const toVisit: [any, string][] = [];
+  // N.B. Objects we iterate may have circular references from a child to parent.
+  // To get around this, we check if we've already visited an object once and if
+  // so, skip it.
+  const visited: Map<object, boolean> = new Map();
 
-  // Iterate root properties
-  for (const k in target) {
-    const child = target[k];
+  const recursiveStep = (
+    target: Record<string, any>,
+    step: (target: any, property: string, path: string) => void,
+    path?: string,
+  ) => {
+    const toVisit: [any, string][] = [];
 
-    // We don't visit children in an array
-    if (typeof child === "object" && !Array.isArray(child)) {
-      toVisit.push([child, k]);
+    visited.set(target, true);
+
+    // Iterate root properties
+    for (const k in target) {
+      const child = target[k];
+
+      // We don't visit children in an array
+      if (typeof child === "object" && !Array.isArray(child)) {
+        toVisit.push([child, k]);
+      }
+
+      let p = path == null ? k : `${path}.${k}`;
+      step(target, k, p);
     }
 
-    let p = path == null ? k : `${path}.${k}`;
-    step(target, k, p);
-  }
+    // Visit any children we found
+    for (const [next, prop] of toVisit) {
+      if (visited.has(next)) {
+        return;
+      }
 
-  // Visit any children we found
-  for (const [next, prop] of toVisit) {
-    let fullPath = path == null ? prop : `${path}.${prop}`;
-    breadthFirst(next, step, fullPath);
-  }
+      let fullPath = path == null ? prop : `${path}.${prop}`;
+      recursiveStep(next, step, fullPath);
+    }
+  };
+  recursiveStep(root, step, path);
 }
