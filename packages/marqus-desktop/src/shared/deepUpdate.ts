@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/ban-types */
-import { cloneDeep, get } from "lodash";
+import { get } from "lodash";
 import { DeepPartial } from "tsdef";
 import { isBlank } from "./utils";
 
@@ -84,6 +84,7 @@ function breadthFirst(
       const child = target[k];
 
       let p = path == null ? k : `${path}.${k}`;
+      step(target, k, p);
 
       if (ignorePaths != null && ignorePaths.some(ip => ip.test(p))) {
         continue;
@@ -93,8 +94,6 @@ function breadthFirst(
       if (typeof child === "object" && !Array.isArray(child)) {
         toVisit.push([child, k]);
       }
-
-      step(target, k, p);
     }
 
     // Visit any children we found

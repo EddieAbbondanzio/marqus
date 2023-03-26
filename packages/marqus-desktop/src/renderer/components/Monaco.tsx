@@ -49,13 +49,11 @@ export function Monaco(props: MonacoProps): JSX.Element {
     store.on("editor.boldSelectedText", boldSelectedText);
     store.on("editor.italicSelectedText", italicSelectedText);
     store.on("editor.setModelViewState", setModelViewState);
-    store.on("editor.deleteModelViewState", deleteModelViewState);
 
     return () => {
       store.off("editor.boldSelectedText", boldSelectedText);
       store.off("editor.italicSelectedText", italicSelectedText);
       store.off("editor.setModelViewState", setModelViewState);
-      store.off("editor.deleteModelViewState", deleteModelViewState);
     };
   }, [store]);
 
@@ -196,9 +194,9 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
         // N.B. Disposing monaco editor will also dispose the active model so
         // we remove it from the cache.
-        if (activeNoteId.current != null) {
-          store.dispatch("editor.deleteModelViewState", activeNoteId.current);
-        }
+        // if (activeNoteId.current != null) {
+        //   store.dispatch("editor.deleteModelViewState", activeNoteId.current);
+        // }
       }
 
       if (onChangeSub.current != null) {
@@ -285,13 +283,11 @@ export function Monaco(props: MonacoProps): JSX.Element {
         throw new Error(`Active tab ${editor.activeTabNoteId} was not found.`);
       }
 
-      let cache = store.cache.modelViewStates[newTab.note.id];
+      const cache = store.cache.modelViewStates[newTab.note.id] ?? {};
 
-      // First load, gotta create the model.
-      if (cache == null || cache.model.isDisposed()) {
-        cache = {
-          model: createMarkdownModel(newTab.note.content),
-        }!;
+      // First load, or model was disposed.
+      if (cache.model == null || cache.model.isDisposed()) {
+        cache.model = createMarkdownModel(newTab.note.content);
 
         store.dispatch("editor.setModelViewState", {
           noteId: newTab.note.id,
@@ -427,21 +423,6 @@ export const setModelViewState: Listener<"editor.setModelViewState"> = (
   ctx.setCache({
     modelViewStates: {
       [value.noteId]: value.modelViewState,
-    },
-  });
-};
-
-export const deleteModelViewState: Listener<"editor.deleteModelViewState"> = (
-  { value },
-  ctx,
-) => {
-  if (value == null) {
-    return;
-  }
-
-  ctx.setCache({
-    modelViewStates: {
-      [value]: undefined,
     },
   });
 };

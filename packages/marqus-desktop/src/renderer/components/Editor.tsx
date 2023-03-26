@@ -1,5 +1,5 @@
 import { debounce } from "lodash";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
@@ -34,12 +34,14 @@ export function Editor(props: EditorProps): JSX.Element {
     store.on("editor.save", save);
     store.on("editor.toggleView", toggleView);
     store.on("editor.updateScroll", updateScroll);
+    store.on("editor.deleteModelViewState", deleteModelViewState);
 
     return () => {
       store.off("editor.setContent", setContent);
       store.off("editor.save", save);
       store.off("editor.toggleView", toggleView);
       store.off("editor.updateScroll", updateScroll);
+      store.off("editor.deleteModelViewState", deleteModelViewState);
     };
   }, [store]);
 
@@ -164,6 +166,24 @@ export const updateScroll: Listener<"editor.updateScroll"> = (
   ctx.setUI({
     editor: {
       scroll,
+    },
+  });
+};
+
+// deleteModelViewState can be called after the Monaco component has unmounted so
+// we have to register the listener in the Editor parent.
+export const deleteModelViewState: Listener<"editor.deleteModelViewState"> = (
+  { value },
+  ctx,
+) => {
+  if (value == null) {
+    return;
+  }
+
+  console.log("Delete model view state!");
+  ctx.setCache({
+    modelViewStates: {
+      [value]: undefined,
     },
   });
 };

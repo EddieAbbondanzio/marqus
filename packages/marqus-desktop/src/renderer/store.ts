@@ -30,7 +30,7 @@ export interface Cache {
 }
 
 export type ModelViewState = {
-  model: monaco.editor.ITextModel;
+  model?: monaco.editor.ITextModel;
   viewState?: monaco.editor.ICodeEditorViewState;
 };
 
@@ -107,8 +107,10 @@ export function useStore(initialState: State): Store {
     const newCache = deepUpdate(prevCache, updates, [
       // We don't deep update model or viewstate because they will always be
       // updated all at once.
-      /modelViewStates\.[a-zA-Z0-9]*\..*/,
+      /modelViewStates\.[a-zA-Z0-9]*\.model.*/,
+      /modelViewStates\.[a-zA-Z0-9]*\.viewState.*/,
     ]);
+
     cache.current = newCache;
   }, []);
 
