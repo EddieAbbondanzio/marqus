@@ -45,6 +45,7 @@ export interface Editor {
 export interface EditorTab {
   note: Note;
   lastActive?: Date;
+  isNewNote?: boolean;
 }
 
 export interface Cache {

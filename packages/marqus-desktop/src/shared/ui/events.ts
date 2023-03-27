@@ -73,6 +73,7 @@ export interface UIEvents {
   "editor.updateTabsScroll": number;
   "editor.boldSelectedText": void;
   "editor.italicSelectedText": void;
+  "editor.selectAllText": { isNewNote?: boolean };
   "editor.setModelViewState": {
     noteId: string;
     modelViewState: ModelViewState;
@@ -154,6 +155,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.updateTabsScroll",
   "editor.boldSelectedText",
   "editor.italicSelectedText",
+  "editor.selectAllText",
   "editor.setModelViewState",
 
   // Focus Tracker
