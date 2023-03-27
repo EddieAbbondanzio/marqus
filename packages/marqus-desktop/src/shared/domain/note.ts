@@ -96,7 +96,7 @@ export function createNote(props: Partial<Note> & Pick<Note, "name">): Note {
 
   note.id ??= uuid();
   note.dateCreated ??= new Date();
-  note.content ??= "";
+  note.content ??= `# ${note.name}`;
 
   // Trim out null parent id
   if (note.parent === null) {
