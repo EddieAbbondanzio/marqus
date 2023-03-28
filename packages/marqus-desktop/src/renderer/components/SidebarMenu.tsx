@@ -175,6 +175,9 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
   };
 
   const keyDown = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+    // Swallow event to avoid triggering shortcuts
+    ev.stopPropagation();
+
     const key = parseKeyCode(ev.code);
     switch (key) {
       case KeyCode.Enter:
@@ -182,9 +185,6 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
       case KeyCode.Escape:
         return cancel();
     }
-
-    // Swallow keyboard events to prevent shortcuts from triggering.
-    ev.stopPropagation();
   };
 
   // On first render, scroll the input into view.

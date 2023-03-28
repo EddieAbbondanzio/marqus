@@ -186,7 +186,7 @@ export async function loadInitialState(
       },
       editor: {
         ...ui.editor,
-        tabs: tabs.map(t => ({ ...t, fromPreviousSession: true })),
+        tabs,
       },
     },
     notes,
