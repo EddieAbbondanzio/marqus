@@ -48,11 +48,13 @@ export function Monaco(props: MonacoProps): JSX.Element {
   useEffect(() => {
     store.on("editor.boldSelectedText", boldSelectedText);
     store.on("editor.italicSelectedText", italicSelectedText);
+    store.on("editor.selectAllText", selectAllText);
     store.on("editor.setModelViewState", setModelViewState);
 
     return () => {
       store.off("editor.boldSelectedText", boldSelectedText);
       store.off("editor.italicSelectedText", italicSelectedText);
+      store.off("editor.selectAllText", selectAllText);
       store.off("editor.setModelViewState", setModelViewState);
     };
   }, [store]);
@@ -285,38 +287,68 @@ export function Monaco(props: MonacoProps): JSX.Element {
       (lastActiveTabNoteId == null ||
         lastActiveTabNoteId !== editor.activeTabNoteId)
     ) {
-      const newTab = editor.tabs.find(
-        t => t.note.id === editor.activeTabNoteId,
-      );
-      if (newTab == null) {
-        throw new Error(`Active tab ${editor.activeTabNoteId} was not found.`);
-      }
+      (async () => {
+        if (monacoEditor.current == null) {
+          return;
+        }
 
-      activeNoteId.current = newTab.note.id;
+        const newTab = editor.tabs.find(
+          t => t.note.id === editor.activeTabNoteId,
+        );
+        if (newTab == null) {
+          throw new Error(
+            `Active tab ${editor.activeTabNoteId} was not found.`,
+          );
+        }
 
-      const cache = store.cache.modelViewStates[newTab.note.id] ?? {};
-      if (cache.model == null || cache.model.isDisposed()) {
-        cache.model = createMarkdownModel(newTab.note.content);
+        activeNoteId.current = newTab.note.id;
 
-        store.dispatch("editor.setModelViewState", {
-          noteId: newTab.note.id,
-          modelViewState: cache,
-        });
-      }
+        const cache = store.cache.modelViewStates[newTab.note.id] ?? {};
+        if (cache.model == null || cache.model.isDisposed()) {
+          cache.model = createMarkdownModel(newTab.note.content);
 
-      monacoEditor.current.setModel(cache.model);
+          await store.dispatch("editor.setModelViewState", {
+            noteId: newTab.note.id,
+            modelViewState: cache,
+          });
+        }
 
-      if (cache.viewState) {
-        monacoEditor.current.restoreViewState(cache.viewState);
-      } else {
-        monacoEditor.current.restoreViewState(null);
-      }
+        monacoEditor.current.setModel(cache.model);
 
-      if (state.focused[0] === Section.Editor) {
-        monacoEditor.current.focus();
-      }
+        if (cache.viewState) {
+          monacoEditor.current.restoreViewState(cache.viewState);
+        } else {
+          monacoEditor.current.restoreViewState(null);
+        }
+
+        // On first open of a new note, select all it's text so user can easily
+        // change the title if they wish.
+        if (newTab.isNewNote && cache.viewState == null) {
+          await store.dispatch("editor.selectAllText", { isNewNote: true });
+        }
+
+        if (state.focused[0] === Section.Editor) {
+          monacoEditor.current.focus();
+        }
+      })();
     }
   }, [editor.activeTabNoteId, editor.tabs, state.focused, props, store]);
+
+  const selectAllText: Listener<"editor.selectAllText"> = async ev => {
+    const editor = monacoEditor.current;
+    if (editor == null) {
+      return;
+    }
+
+    let range = editor.getModel()!.getFullModelRange();
+
+    // When we select all in a new note we only select the text in the title.
+    if (ev.value && ev.value.isNewNote) {
+      range = range.setStartPosition(1, 3);
+    }
+
+    editor.setSelection(range);
+  };
 
   const boldSelectedText: Listener<"editor.boldSelectedText"> = async () => {
     const editor = monacoEditor.current;

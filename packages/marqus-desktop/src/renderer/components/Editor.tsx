@@ -104,6 +104,11 @@ const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
     );
     // Update local cache for renderer
     prev.editor.tabs[index].note.content = content;
+
+    if (prev.editor.tabs[index].isNewNote) {
+      delete prev.editor.tabs[index].isNewNote;
+    }
+
     return {
       editor: {
         tabs: [...prev.editor.tabs],
