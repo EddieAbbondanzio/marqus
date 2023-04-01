@@ -33,13 +33,11 @@ export function Editor(props: EditorProps): JSX.Element {
     store.on("editor.setContent", setContent);
     store.on("editor.save", save);
     store.on("editor.toggleView", toggleView);
-    store.on("editor.updateScroll", updateScroll);
 
     return () => {
       store.off("editor.setContent", setContent);
       store.off("editor.save", save);
       store.off("editor.toggleView", toggleView);
-      store.off("editor.updateScroll", updateScroll);
     };
   }, [store]);
 
@@ -53,9 +51,6 @@ export function Editor(props: EditorProps): JSX.Element {
           store={store}
           content={activeTab.note.content}
           scroll={editor.scroll}
-          onScroll={newVal =>
-            void store.dispatch("editor.updateScroll", newVal)
-          }
         />
       );
     }
@@ -154,21 +149,6 @@ const save: Listener<"editor.save"> = (_, ctx) => {
   ctx.setUI({
     editor: {
       isEditing: false,
-    },
-  });
-};
-
-export const updateScroll: Listener<"editor.updateScroll"> = (
-  { value: scroll },
-  ctx,
-) => {
-  if (scroll == null) {
-    throw Error();
-  }
-
-  ctx.setUI({
-    editor: {
-      scroll,
     },
   });
 };

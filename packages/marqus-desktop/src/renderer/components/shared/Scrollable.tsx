@@ -1,13 +1,16 @@
 import { clamp, debounce } from "lodash";
 import OpenColor from "open-color";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
+import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { w100 } from "../../css";
 
 const SCROLL_DEBOUNCE_INTERVAL = 100; // ms
 
 export interface ScrollableProps {
   className?: string;
+  delayedSetScroll?: boolean;
+  disableScrollOnArrowKeys?: boolean;
   scroll?: number;
   orientation?: ScrollOrientation;
   onScroll?: (scrollPos: number) => void;
@@ -17,27 +20,92 @@ export type ScrollOrientation = "horizontal" | "vertical";
 export function Scrollable(
   props: React.PropsWithChildren<ScrollableProps>,
 ): JSX.Element {
-  const { scroll, className, orientation = "vertical", onScroll } = props;
+  const {
+    scroll,
+    className,
+    orientation = "vertical",
+    onScroll,
+    disableScrollOnArrowKeys,
+  } = props;
 
   const wrapper = useRef(null as unknown as HTMLDivElement);
 
   const prevScroll = useRef(props.scroll);
+
   useEffect(() => {
+    const el = wrapper.current;
+    if (!el) {
+      return;
+    }
+
+    const onKeyDown = (ev: KeyboardEvent) => {
+      if (!disableScrollOnArrowKeys) {
+        return;
+      }
+
+      const keyCode = parseKeyCode(ev.code);
+      if (
+        keyCode &&
+        [
+          KeyCode.ArrowUp,
+          KeyCode.ArrowDown,
+          KeyCode.ArrowLeft,
+          KeyCode.ArrowRight,
+        ].includes(keyCode)
+      ) {
+        ev.preventDefault();
+      }
+    };
+    el.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      el.removeEventListener("keydown", onKeyDown);
+    };
+  }, [disableScrollOnArrowKeys]);
+
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useLayoutEffect(() => {
     const el = wrapper.current;
 
     // Only set scroll if it changed since the last time we set scroll. We do this
     // so Scrollable allows the scroll position to be changed via child.scrollIntoView.
-    if (scroll != null && el != null && prevScroll.current !== scroll) {
-      let clamped;
+    if (scroll != null && el != null) {
+      let clamped: number;
 
       switch (orientation) {
         case "horizontal":
-          clamped = clamp(scroll, 0, el.scrollWidth - el.clientLeft);
-          wrapper.current.scrollLeft = clamped;
+          clamped = clamp(scroll, 0, el.scrollWidth);
+
+          if (!props.delayedSetScroll) {
+            wrapper.current.scrollLeft = clamped;
+          } else {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+
+            timeoutRef.current = setTimeout(() => {
+              wrapper.current.scrollLeft = clamped;
+            }, 1);
+          }
+
           break;
         case "vertical":
-          clamped = clamp(scroll, 0, el.scrollHeight - el.clientHeight);
-          wrapper.current.scrollTop = clamped;
+          clamped = clamp(scroll, 0, el.scrollHeight);
+
+          if (!props.delayedSetScroll) {
+            wrapper.current.scrollTop = clamped;
+          } else {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+
+            if (wrapper.current.scrollTop != clamped) {
+              timeoutRef.current = setTimeout(() => {
+                wrapper.current.scrollTop = clamped;
+              }, 1);
+            }
+          }
           break;
         default:
           throw new Error(`Invalid scrollable orientation ${orientation}`);
@@ -45,11 +113,7 @@ export function Scrollable(
 
       prevScroll.current = scroll;
     }
-
-    // N.B. Don't trigger onScroll if we clamped scroll position here because
-    // onScroll may dispatch a store event but the store might not be initialized
-    // yet.
-  }, [scroll, onScroll, orientation]);
+  }, [props.delayedSetScroll, scroll, orientation]);
 
   // Debounce it so we don't spam the event handler.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,6 +149,7 @@ export function Scrollable(
       className={className}
       onScroll={onScrollHandler}
       orientation={orientation}
+      tabIndex={-1}
       ref={wrapper}
     >
       {props.children}
@@ -97,6 +162,10 @@ export function Scrollable(
 const StyledDiv = styled.div<{
   orientation: ScrollOrientation;
 }>`
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+
   ${props => {
     switch (props.orientation) {
       case "horizontal":

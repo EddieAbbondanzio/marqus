@@ -180,6 +180,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         </Controls>
 
         <SidebarScrollable
+          disableScrollOnArrowKeys={true}
           scroll={store.state.sidebar.scroll}
           onScroll={async s => {
             await store.dispatch("sidebar.updateScroll", s);

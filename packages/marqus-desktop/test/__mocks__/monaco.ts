@@ -9,3 +9,8 @@ export const editor = {
     addDynamicKeybinding: jest.fn(),
   },
 };
+
+export const languages = {
+  register: jest.fn(),
+  setLanguageConfiguration: jest.fn(),
+};

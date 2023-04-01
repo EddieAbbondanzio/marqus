@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 import { useRemark } from "react-remark";
 import { getProtocol, Protocol } from "../../shared/domain/protocols";
 import { omit } from "lodash";
-import { Store } from "../store";
+import { Listener, Store } from "../store";
 
 // TODO: Add types, or update react-remark.
 // React-remark isn't currently up to date with the latest version of remark so
@@ -15,13 +15,14 @@ import { Store } from "../store";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const emoji = require("remark-emoji");
 
+const LINE_HEIGHT = 30;
+
 type ImageAlign = "left" | "right" | "center";
 
 export interface MarkdownProps {
   store: Store;
   content: string;
   scroll: number;
-  onScroll: (newVal: number) => void;
 }
 
 export function Markdown(props: MarkdownProps): JSX.Element {
@@ -60,7 +61,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
           let align: ImageAlign | undefined = undefined;
 
           if (props.src != null) {
-            let url = tryGetURL(props.src);
+            const url = tryGetURL(props.src);
             if (url != null) {
               const originalParams = new URLSearchParams(url.search);
 
@@ -178,16 +179,45 @@ export function Markdown(props: MarkdownProps): JSX.Element {
     setMarkdownSource(props.content);
   }, [props.content, setMarkdownSource]);
 
+  useEffect(() => {
+    store.on("editor.updateScroll", updateScroll);
+
+    return () => {
+      store.off("editor.updateScroll", updateScroll);
+    };
+  }, [store]);
+
   return (
     <StyledScrollable
+      delayedSetScroll={true}
       className="markdown"
       scroll={props.scroll}
-      onScroll={props.onScroll}
+      onScroll={newVal => store.dispatch("editor.updateScroll", newVal)}
     >
       {reactContent}
     </StyledScrollable>
   );
 }
+
+export const updateScroll: Listener<"editor.updateScroll"> = (
+  { value: scroll },
+  ctx,
+) => {
+  if (scroll == null) {
+    throw Error();
+  }
+
+  const state = ctx.getState();
+  if (state.editor.isEditing) {
+    return;
+  }
+
+  ctx.setUI({
+    editor: {
+      scroll,
+    },
+  });
+};
 
 function tryGetURL(src: string): URL | null {
   try {

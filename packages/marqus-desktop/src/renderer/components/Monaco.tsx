@@ -7,6 +7,11 @@ import { Section } from "../../shared/ui/app";
 import { Attachment, Protocol } from "../../shared/domain/protocols";
 import { Config } from "../../shared/domain/config";
 
+// Fixes: Error: Language id "vs.editor.nullLanguage" is not configured nor known
+// See https://github.com/microsoft/monaco-editor/issues/2962
+monaco.languages.register({ id: "vs.editor.nullLanguage" });
+monaco.languages.setLanguageConfiguration("vs.editor.nullLanguage", {});
+
 const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
   language: "markdown",
 
