@@ -63,6 +63,8 @@ export function Scrollable(
     };
   }, [disableScrollOnArrowKeys]);
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useLayoutEffect(() => {
     const el = wrapper.current;
 
@@ -78,7 +80,11 @@ export function Scrollable(
           if (!props.delayedSetScroll) {
             wrapper.current.scrollLeft = clamped;
           } else {
-            setTimeout(() => {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+
+            timeoutRef.current = setTimeout(() => {
               wrapper.current.scrollLeft = clamped;
             }, 1);
           }
@@ -90,9 +96,15 @@ export function Scrollable(
           if (!props.delayedSetScroll) {
             wrapper.current.scrollTop = clamped;
           } else {
-            setTimeout(() => {
-              wrapper.current.scrollTop = clamped;
-            }, 1);
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+
+            if (wrapper.current.scrollTop != clamped) {
+              timeoutRef.current = setTimeout(() => {
+                wrapper.current.scrollTop = clamped;
+              }, 1);
+            }
           }
           break;
         default:
