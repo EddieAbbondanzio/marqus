@@ -1,6 +1,6 @@
 import { clamp, debounce } from "lodash";
 import OpenColor from "open-color";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
 import { w100 } from "../../css";
 
@@ -22,7 +22,8 @@ export function Scrollable(
   const wrapper = useRef(null as unknown as HTMLDivElement);
 
   const prevScroll = useRef(props.scroll);
-  useEffect(() => {
+
+  useLayoutEffect(() => {
     const el = wrapper.current;
 
     // Only set scroll if it changed since the last time we set scroll. We do this
@@ -32,11 +33,12 @@ export function Scrollable(
 
       switch (orientation) {
         case "horizontal":
-          clamped = clamp(scroll, 0, el.scrollWidth - el.clientLeft);
+          clamped = clamp(scroll, 0, el.scrollWidth);
           wrapper.current.scrollLeft = clamped;
           break;
         case "vertical":
-          clamped = clamp(scroll, 0, el.scrollHeight - el.clientHeight);
+          clamped = clamp(scroll, 0, el.scrollHeight);
+          console.log("SET SCROLL: ", clamped);
           wrapper.current.scrollTop = clamped;
           break;
         default:
@@ -45,11 +47,7 @@ export function Scrollable(
 
       prevScroll.current = scroll;
     }
-
-    // N.B. Don't trigger onScroll if we clamped scroll position here because
-    // onScroll may dispatch a store event but the store might not be initialized
-    // yet.
-  }, [scroll, onScroll, orientation]);
+  }, [scroll, orientation]);
 
   // Debounce it so we don't spam the event handler.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,6 +83,7 @@ export function Scrollable(
       className={className}
       onScroll={onScrollHandler}
       orientation={orientation}
+      tabIndex={-1}
       ref={wrapper}
     >
       {props.children}

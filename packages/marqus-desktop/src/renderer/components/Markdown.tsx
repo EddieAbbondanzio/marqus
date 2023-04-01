@@ -181,13 +181,9 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 
   useEffect(() => {
     store.on("editor.updateScroll", updateScroll);
-    store.on("editor.scrollUp", scrollUp);
-    store.on("editor.scrollDown", scrollDown);
 
     return () => {
       store.off("editor.updateScroll", updateScroll);
-      store.off("editor.scrollUp", scrollUp);
-      store.off("editor.scrollDown", scrollDown);
     };
   }, [store]);
 
@@ -219,44 +215,6 @@ export const updateScroll: Listener<"editor.updateScroll"> = (
     editor: {
       scroll,
     },
-  });
-};
-
-export const scrollUp: Listener<"editor.scrollUp"> = (
-  _,
-  { getState, setUI },
-) => {
-  const state = getState();
-  if (state.editor.isEditing) {
-    return;
-  }
-
-  setUI(prev => {
-    const scroll = Math.max(prev.editor.scroll - LINE_HEIGHT, 0);
-    return {
-      editor: {
-        scroll,
-      },
-    };
-  });
-};
-
-export const scrollDown: Listener<"editor.scrollDown"> = (
-  _,
-  { getState, setUI },
-) => {
-  const state = getState();
-  if (state.editor.isEditing) {
-    return;
-  }
-
-  setUI(prev => {
-    const scroll = prev.editor.scroll + LINE_HEIGHT;
-    return {
-      editor: {
-        scroll,
-      },
-    };
   });
 };
 
