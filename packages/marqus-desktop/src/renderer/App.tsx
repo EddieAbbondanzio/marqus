@@ -90,13 +90,6 @@ export function App(props: AppProps): JSX.Element {
 
     const onError = async (err: ErrorEvent) => {
       await log.error("Uncaught Error:", err.error);
-
-      // N.B. We add a delay to slow down refreshes in case an infinite loop was
-      // somehow triggered.
-      setTimeout(async () => {
-        await log.info("Attempting to recover from error. Reloading!");
-        window.location.reload();
-      }, 10000);
     };
     window.addEventListener("error", onError);
 
