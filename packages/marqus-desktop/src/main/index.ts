@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain, session } from "electron";
 import { getProcessType, isDevelopment, isTest } from "../shared/env";
-import { sleep } from "../shared/utils";
-import { initPlugins, IpcMainTS, IPC_PLUGINS, OnDispose } from "./ipc";
+import { initPlugins, IpcMainTS, IPC_PLUGINS } from "./ipc";
 import { getConfig } from "./ipc/plugins/config";
 import { getFileTransport, logger } from "./logger";
 import { setCspHeader } from "./utils";
