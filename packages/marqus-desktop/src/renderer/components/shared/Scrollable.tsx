@@ -2,6 +2,7 @@ import { clamp, debounce } from "lodash";
 import OpenColor from "open-color";
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
+import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { w100 } from "../../css";
 
 const SCROLL_DEBOUNCE_INTERVAL = 100; // ms
@@ -9,6 +10,7 @@ const SCROLL_DEBOUNCE_INTERVAL = 100; // ms
 export interface ScrollableProps {
   className?: string;
   delayedSetScroll?: boolean;
+  disableScrollOnArrowKeys?: boolean;
   scroll?: number;
   orientation?: ScrollOrientation;
   onScroll?: (scrollPos: number) => void;
@@ -18,11 +20,48 @@ export type ScrollOrientation = "horizontal" | "vertical";
 export function Scrollable(
   props: React.PropsWithChildren<ScrollableProps>,
 ): JSX.Element {
-  const { scroll, className, orientation = "vertical", onScroll } = props;
+  const {
+    scroll,
+    className,
+    orientation = "vertical",
+    onScroll,
+    disableScrollOnArrowKeys,
+  } = props;
 
   const wrapper = useRef(null as unknown as HTMLDivElement);
 
   const prevScroll = useRef(props.scroll);
+
+  useEffect(() => {
+    const el = wrapper.current;
+    if (!el) {
+      return;
+    }
+
+    const onKeyDown = (ev: KeyboardEvent) => {
+      if (!disableScrollOnArrowKeys) {
+        return;
+      }
+
+      const keyCode = parseKeyCode(ev.code);
+      if (
+        keyCode &&
+        [
+          KeyCode.ArrowUp,
+          KeyCode.ArrowDown,
+          KeyCode.ArrowLeft,
+          KeyCode.ArrowRight,
+        ].includes(keyCode)
+      ) {
+        ev.preventDefault();
+      }
+    };
+    el.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      el.removeEventListener("keydown", onKeyDown);
+    };
+  }, [disableScrollOnArrowKeys]);
 
   useLayoutEffect(() => {
     const el = wrapper.current;
