@@ -1,6 +1,6 @@
 import { clamp, debounce } from "lodash";
 import OpenColor from "open-color";
-import React, { useCallback, useLayoutEffect, useRef } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
 import { w100 } from "../../css";
 
@@ -8,6 +8,7 @@ const SCROLL_DEBOUNCE_INTERVAL = 100; // ms
 
 export interface ScrollableProps {
   className?: string;
+  delayedSetScroll?: boolean;
   scroll?: number;
   orientation?: ScrollOrientation;
   onScroll?: (scrollPos: number) => void;
@@ -29,17 +30,31 @@ export function Scrollable(
     // Only set scroll if it changed since the last time we set scroll. We do this
     // so Scrollable allows the scroll position to be changed via child.scrollIntoView.
     if (scroll != null && el != null) {
-      let clamped;
+      let clamped: number;
 
       switch (orientation) {
         case "horizontal":
           clamped = clamp(scroll, 0, el.scrollWidth);
-          wrapper.current.scrollLeft = clamped;
+
+          if (!props.delayedSetScroll) {
+            wrapper.current.scrollLeft = clamped;
+          } else {
+            setTimeout(() => {
+              wrapper.current.scrollLeft = clamped;
+            }, 1);
+          }
+
           break;
         case "vertical":
           clamped = clamp(scroll, 0, el.scrollHeight);
-          console.log("SET SCROLL: ", clamped);
-          wrapper.current.scrollTop = clamped;
+
+          if (!props.delayedSetScroll) {
+            wrapper.current.scrollTop = clamped;
+          } else {
+            setTimeout(() => {
+              wrapper.current.scrollTop = clamped;
+            }, 1);
+          }
           break;
         default:
           throw new Error(`Invalid scrollable orientation ${orientation}`);
@@ -47,7 +62,7 @@ export function Scrollable(
 
       prevScroll.current = scroll;
     }
-  }, [scroll, orientation]);
+  }, [props.delayedSetScroll, scroll, orientation]);
 
   // Debounce it so we don't spam the event handler.
   // eslint-disable-next-line react-hooks/exhaustive-deps

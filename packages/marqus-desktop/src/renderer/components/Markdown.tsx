@@ -189,6 +189,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
 
   return (
     <StyledScrollable
+      delayedSetScroll={true}
       className="markdown"
       scroll={props.scroll}
       onScroll={newVal => store.dispatch("editor.updateScroll", newVal)}
