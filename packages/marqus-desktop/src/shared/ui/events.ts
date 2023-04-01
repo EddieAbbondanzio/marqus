@@ -59,6 +59,8 @@ export interface UIEvents {
   "editor.toggleView": void;
   "editor.setContent": { noteId: string; content: string };
   "editor.updateScroll": number;
+  "editor.scrollDown": void;
+  "editor.scrollUp": void;
   "editor.openTab":
     | { note: string | string[]; active?: string; focus?: boolean }
     | undefined;
@@ -143,6 +145,8 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.toggleView",
   "editor.setContent",
   "editor.updateScroll",
+  "editor.scrollDown",
+  "editor.scrollUp",
   "editor.openTab",
   "editor.closeTab",
   "editor.closeActiveTab",

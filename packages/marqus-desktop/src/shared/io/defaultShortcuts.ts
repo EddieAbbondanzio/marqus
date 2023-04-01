@@ -176,6 +176,20 @@ const shortcuts: Shortcut[] = [
     event: "editor.italicSelectedText",
     keys: [KeyCode.Control, KeyCode.LetterI],
   },
+  {
+    name: "editor.scrollDown",
+    event: "editor.scrollDown",
+    keys: COMMON_KEY_COMBOS.scrollDown,
+    when: Section.Editor,
+    repeat: true,
+  },
+  {
+    name: "editor.scrollUp",
+    event: "editor.scrollUp",
+    keys: COMMON_KEY_COMBOS.scrollUp,
+    when: Section.Editor,
+    repeat: true,
+  },
 ];
 
 export const DEFAULT_SHORTCUTS = shortcuts.map(s => ({

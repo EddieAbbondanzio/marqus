@@ -27,7 +27,7 @@ export function Scrollable(
 
     // Only set scroll if it changed since the last time we set scroll. We do this
     // so Scrollable allows the scroll position to be changed via child.scrollIntoView.
-    if (scroll != null && el != null && prevScroll.current !== scroll) {
+    if (scroll != null && el != null) {
       let clamped;
 
       switch (orientation) {
