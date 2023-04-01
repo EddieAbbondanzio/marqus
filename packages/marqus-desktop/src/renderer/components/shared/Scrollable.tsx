@@ -150,6 +150,10 @@ export function Scrollable(
 const StyledDiv = styled.div<{
   orientation: ScrollOrientation;
 }>`
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+
   ${props => {
     switch (props.orientation) {
       case "horizontal":
