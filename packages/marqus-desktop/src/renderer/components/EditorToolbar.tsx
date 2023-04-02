@@ -47,7 +47,13 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       await store.dispatch("editor.closeTab", noteId);
     };
 
-    for (const tab of editor.tabs) {
+    const onUnpin = async (noteId: string) => {
+      await store.dispatch("editor.unpinTab", noteId);
+    };
+
+    // Put pinned tabs note first
+    const sortedTabs = orderBy(editor.tabs, ["isPinned"], ["asc"]);
+    for (const tab of sortedTabs) {
       const note = getNoteById(notes, tab.note.id);
       const notePath = getFullPath(notes, note);
 
@@ -58,8 +64,10 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
           noteName={note.name}
           notePath={notePath}
           active={activeTabNoteId === note.id}
+          isPinned={tab.isPinned}
           onClick={onClick}
           onClose={onClose}
+          onUnpin={onUnpin}
         />,
       );
     }
@@ -237,6 +245,8 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     store.on("editor.previousTab", switchToPreviousTab);
     store.on("editor.updateTabsScroll", updateTabsScroll);
     store.on("editor.deleteNote", deleteNote);
+    store.on("editor.pinTab", pinTab);
+    store.on("editor.unpinTab", unpinTab);
 
     return () => {
       store.off("editor.openTab", openTab);
@@ -255,6 +265,8 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       store.off("editor.previousTab", switchToPreviousTab);
       store.off("editor.updateTabsScroll", updateTabsScroll);
       store.off("editor.deleteNote", deleteNote);
+      store.off("editor.pinTab", pinTab);
+      store.off("editor.unpinTab", unpinTab);
     };
   }, [store, switchToNextTab, switchToPreviousTab]);
 
@@ -428,6 +440,50 @@ export const updateTabsScroll: Listener<"editor.updateTabsScroll"> = async (
       },
     });
   }
+};
+
+export const pinTab: Listener<"editor.pinTab"> = async (
+  { value: tabNoteId },
+  ctx,
+) => {
+  if (tabNoteId == null) {
+    return;
+  }
+
+  const state = ctx.getState();
+  if (state.editor.tabs.findIndex(t => t.note.id === tabNoteId) === -1) {
+    return;
+  }
+
+  ctx.setUI(prev => {
+    const tabs = prev.editor.tabs;
+    const tab = tabs.find(t => t.note.id === tabNoteId)!;
+    tab.isPinned = true;
+
+    return prev;
+  });
+};
+
+export const unpinTab: Listener<"editor.unpinTab"> = async (
+  { value: tabNoteId },
+  ctx,
+) => {
+  if (tabNoteId == null) {
+    return;
+  }
+
+  const state = ctx.getState();
+  if (state.editor.tabs.findIndex(t => t.note.id === tabNoteId) === -1) {
+    return;
+  }
+
+  ctx.setUI(prev => {
+    const tabs = prev.editor.tabs;
+    const tab = tabs.find(t => t.note.id === tabNoteId)!;
+    delete tab.isPinned;
+
+    return prev;
+  });
 };
 
 function setActiveTab(

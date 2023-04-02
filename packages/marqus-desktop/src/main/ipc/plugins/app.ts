@@ -22,10 +22,11 @@ import { IpcPlugin } from "..";
 import * as fs from "fs";
 import { Config } from "../../../shared/domain/config";
 import { getConfigDirectory } from "./config";
+import { getLatestSchemaVersion } from "../../schemas/utils";
 
 export const APP_STATE_FILE = "appState.json";
 export const APP_STATE_DEFAULTS = {
-  version: 2,
+  version: getLatestSchemaVersion(APP_STATE_SCHEMAS),
   sidebar: {
     scroll: 0,
     sort: NoteSort.Alphanumeric,

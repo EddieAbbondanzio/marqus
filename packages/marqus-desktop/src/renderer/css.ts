@@ -41,6 +41,8 @@ export const THEME = {
       deleteColor: OpenColor.gray[6],
       deleteHoverColor: OpenColor.red[7],
       deleteHoverBackground: OpenColor.gray[3],
+      unpinHoverColor: OpenColor.gray[8],
+      unpinHoverBackground: OpenColor.gray[3],
       scrollbarColor: OpenColor.gray[5],
     },
   },
