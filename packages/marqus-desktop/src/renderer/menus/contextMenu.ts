@@ -126,6 +126,30 @@ export function useContextMenu(store: Store, config: Config): void {
           const tabNoteId = getEditorTabAttribute(ev.target as HTMLElement);
 
           if (tabNoteId != null) {
+            const tab = state.editor.tabs.find(t => t.note.id === tabNoteId)!;
+
+            if (tab.isPinned) {
+              items.push({
+                label: "Unpin tab",
+                type: "normal",
+                event: "editor.unpinTab",
+                eventInput: tabNoteId,
+                shortcut: shortcutLabels["editor.unpinTab"],
+              });
+            } else {
+              items.push({
+                label: "Pin tab",
+                type: "normal",
+                event: "editor.pinTab",
+                eventInput: tabNoteId,
+                shortcut: shortcutLabels["editor.pinTab"],
+              });
+            }
+
+            items.push({
+              type: "separator",
+            });
+
             items.push({
               label: "Close",
               type: "normal",
