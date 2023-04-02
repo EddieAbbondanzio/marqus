@@ -52,8 +52,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     };
 
     // Put pinned tabs note first
-    const sortedTabs = orderBy(editor.tabs, ["isPinned"], ["asc"]);
-    for (const tab of sortedTabs) {
+    for (const tab of editor.tabs) {
       const note = getNoteById(notes, tab.note.id);
       const notePath = getFullPath(notes, note);
 
@@ -150,29 +149,38 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
         break;
 
       case "editor.closeAllTabs":
-        noteIdsToClose = editor.tabs.map(t => t.note.id);
+        noteIdsToClose = editor.tabs
+          .filter(t => !t.isPinned)
+          .map(t => t.note.id);
         break;
 
       case "editor.closeOtherTabs":
         noteIdsToClose = editor.tabs
-          .filter(t => t.note.id !== (value ?? editor.activeTabNoteId))
+          .filter(
+            t => !t.isPinned && t.note.id !== (value ?? editor.activeTabNoteId),
+          )
           .map(t => t.note.id);
         break;
 
       case "editor.closeTabsToLeft": {
-        const leftLimit = editor.tabs.findIndex(
+        const start = editor.tabs.findIndex(t => !t.isPinned);
+
+        const end = editor.tabs.findIndex(
           t => t.note.id === (value ?? editor.activeTabNoteId),
         );
-        noteIdsToClose = editor.tabs.slice(0, leftLimit).map(t => t.note.id);
+        noteIdsToClose = editor.tabs.slice(start, end).map(t => t.note.id);
         break;
       }
 
       case "editor.closeTabsToRight": {
-        const rightLimit = editor.tabs.findIndex(
+        const firstNonPinnedIndex = editor.tabs.findIndex(t => !t.isPinned);
+        const activeTabIndex = editor.tabs.findIndex(
           t => t.note.id === (value ?? editor.activeTabNoteId),
         );
 
-        noteIdsToClose = editor.tabs.slice(rightLimit + 1).map(t => t.note.id);
+        const end = Math.max(firstNonPinnedIndex, activeTabIndex + 1);
+
+        noteIdsToClose = editor.tabs.slice(end).map(t => t.note.id);
         break;
       }
 
@@ -459,6 +467,7 @@ export const pinTab: Listener<"editor.pinTab"> = async (
     const tabs = prev.editor.tabs;
     const tab = tabs.find(t => t.note.id === tabNoteId)!;
     tab.isPinned = true;
+    prev.editor.tabs = orderBy(tabs, ["isPinned"], ["asc"]);
 
     return prev;
   });
@@ -481,6 +490,7 @@ export const unpinTab: Listener<"editor.unpinTab"> = async (
     const tabs = prev.editor.tabs;
     const tab = tabs.find(t => t.note.id === tabNoteId)!;
     delete tab.isPinned;
+    prev.editor.tabs = orderBy(tabs, ["isPinned"], ["asc"]);
 
     return prev;
   });
