@@ -23,6 +23,7 @@ import { isProtocolUrl } from "../../shared/domain/protocols";
 import OpenColor from "open-color";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 import { EditorTab } from "./EditorTab";
+import { MouseButton } from "../io/mouse";
 
 export const TOOLBAR_HEIGHT = "4.3rem"; // 4.2rem + 1px for border
 
@@ -236,6 +237,20 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     await store.dispatch("app.openNoteAttachments", activeTabNoteId);
   }, [store]);
 
+  const onMouseUp = useCallback(
+    async (ev: MouseEvent) => {
+      switch (ev.button) {
+        case MouseButton.Forward:
+          await store.dispatch("editor.previousTab");
+          break;
+        case MouseButton.Back:
+          await store.dispatch("editor.nextTab");
+          break;
+      }
+    },
+    [store],
+  );
+
   useEffect(() => {
     store.on("editor.openTab", openTab);
     store.on(
@@ -256,6 +271,8 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     store.on("editor.pinTab", pinTab);
     store.on("editor.unpinTab", unpinTab);
 
+    window.addEventListener("mouseup", onMouseUp);
+
     return () => {
       store.off("editor.openTab", openTab);
       store.off(
@@ -275,8 +292,10 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       store.off("editor.deleteNote", deleteNote);
       store.off("editor.pinTab", pinTab);
       store.off("editor.unpinTab", unpinTab);
+
+      window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [store, switchToNextTab, switchToPreviousTab]);
+  }, [store, switchToNextTab, switchToPreviousTab, onMouseUp]);
 
   return (
     <EditorToolbarFocusable section={Section.EditorToolbar} store={store}>
