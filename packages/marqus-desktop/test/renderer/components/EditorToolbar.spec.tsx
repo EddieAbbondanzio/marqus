@@ -6,6 +6,8 @@ import { createNote } from "../../../src/shared/domain/note";
 import { createTab } from "../../__factories__/editor";
 import { subHours } from "date-fns";
 import { uuid } from "../../../src/shared/domain";
+import { mockStore } from "../../__mocks__/store";
+import { MouseButton } from "../../../src/renderer/io/mouse";
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -15,7 +17,7 @@ afterAll(() => {
   jest.useRealTimers();
 });
 
-test("openTab opens tabs passed", async () => {
+test("editor.openTab opens tabs passed", async () => {
   const store = createStore({
     sidebar: {
       selected: [],
@@ -54,7 +56,7 @@ test("openTab opens tabs passed", async () => {
   expect(sidebar.selected).toEqual(["2"]);
 });
 
-test("openTab works with note paths too", async () => {
+test("editor.openTab works with note paths too", async () => {
   const store = createStore({
     notes: [
       createNote({ id: "1", name: "foo" }),
@@ -513,6 +515,20 @@ test("editor.nextTab", async () => {
   expect(sidebar.selected).toEqual(["2"]);
 });
 
+test("editor.nextTab mouse shortcut", async () => {
+  const store = mockStore();
+  render(<EditorToolbar store={store} />);
+  await act(async () => {
+    const backEvent = new MouseEvent("mouseup", {
+      button: MouseButton.Back,
+    });
+
+    fireEvent(window, backEvent);
+  });
+
+  expect(store.dispatch).toHaveBeenCalledWith("editor.nextTab");
+});
+
 test("editor.previousTab", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
@@ -551,6 +567,20 @@ test("editor.previousTab", async () => {
   const { sidebar, editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe("3");
   expect(sidebar.selected).toEqual(["3"]);
+});
+
+test("editor.previousTab mouse shortcut", async () => {
+  const store = mockStore();
+  render(<EditorToolbar store={store} />);
+  await act(async () => {
+    const forwardEvent = new MouseEvent("mouseup", {
+      button: MouseButton.Forward,
+    });
+
+    fireEvent(window, forwardEvent);
+  });
+
+  expect(store.dispatch).toHaveBeenCalledWith("editor.previousTab");
 });
 
 test("editor.updateTabsScroll scrolls tabs", async () => {

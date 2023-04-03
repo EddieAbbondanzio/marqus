@@ -122,7 +122,7 @@ export function useMouseDrag(
       // Don't track the mouse's movement unless a button is currently pressed.
       if (
         drag == null ||
-        (drag.state != "dragging" && drag.state !== "dragStarted")
+        (drag.state !== "dragging" && drag.state !== "dragStarted")
       ) {
         return;
       }
