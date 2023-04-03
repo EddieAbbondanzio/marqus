@@ -224,6 +224,7 @@ test("editor.closeAllTabs", async () => {
         createTab({
           note: notes[0],
           lastActive: subHours(new Date(), 1),
+          isPinned: true,
         }),
         createTab({
           note: notes[1],
@@ -245,7 +246,8 @@ test("editor.closeAllTabs", async () => {
 
   const { editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe(undefined);
-  expect(editor.tabs.length).toBe(0);
+  expect(editor.tabs.length).toBe(1);
+  expect(editor.tabs[0].note.id).toBe("1");
 });
 
 test("editor.closeOtherTabs", async () => {
@@ -253,15 +255,17 @@ test("editor.closeOtherTabs", async () => {
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
     createNote({ id: "3", name: "baz" }),
+    createNote({ id: "4", name: "baq" }),
   ];
   const store = createStore({
     notes,
     editor: {
-      activeTabNoteId: "1",
+      activeTabNoteId: "2",
       tabs: [
         createTab({
           note: notes[0],
           lastActive: subHours(new Date(), 1),
+          isPinned: true,
         }),
         createTab({
           note: notes[1],
@@ -270,6 +274,10 @@ test("editor.closeOtherTabs", async () => {
         createTab({
           note: notes[2],
           lastActive: subHours(new Date(), 3),
+        }),
+        createTab({
+          note: notes[3],
+          lastActive: subHours(new Date(), 4),
         }),
       ],
     },
@@ -282,8 +290,10 @@ test("editor.closeOtherTabs", async () => {
   });
 
   const { editor } = store.current.state;
-  expect(editor.activeTabNoteId).toBe("1");
-  expect(editor.tabs.length).toBe(1);
+  expect(editor.activeTabNoteId).toBe("2");
+  expect(editor.tabs.length).toBe(2);
+  expect(editor.tabs[0].note.id).toBe("1");
+  expect(editor.tabs[1].note.id).toBe("2");
 });
 
 test("editor.closeTabsToRight", async () => {
