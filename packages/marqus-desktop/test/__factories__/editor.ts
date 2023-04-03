@@ -6,5 +6,6 @@ export function createTab(partial: Partial<EditorTab>): EditorTab {
   return {
     lastActive: partial.lastActive ?? new Date(),
     note: partial.note ?? createNote({ name: uuid() }),
+    isPinned: partial.isPinned,
   };
 }

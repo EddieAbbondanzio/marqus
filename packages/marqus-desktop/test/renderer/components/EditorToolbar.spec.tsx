@@ -461,3 +461,97 @@ test("updateTabsScroll scrolls tabs", async () => {
   const { editor } = store.current.state;
   expect(editor.tabsScroll).toBe(10);
 });
+
+test("pinTab", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: [],
+    },
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.pinTab", "2");
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs).toEqual([
+    expect.objectContaining({
+      note: expect.objectContaining({ id: "2" }),
+      isPinned: true,
+    }),
+    expect.objectContaining({ note: expect.objectContaining({ id: "1" }) }),
+    expect.objectContaining({ note: expect.objectContaining({ id: "3" }) }),
+  ]);
+});
+
+test("unpinTab", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: [],
+    },
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.unpinTab", "1");
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs).toEqual([
+    expect.objectContaining({
+      note: expect.objectContaining({ id: "2" }),
+      isPinned: true,
+    }),
+    expect.objectContaining({ note: expect.objectContaining({ id: "1" }) }),
+    expect.objectContaining({ note: expect.objectContaining({ id: "3" }) }),
+  ]);
+});
