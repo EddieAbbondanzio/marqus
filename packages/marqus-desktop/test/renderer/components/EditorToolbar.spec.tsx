@@ -326,7 +326,7 @@ test("editor.closeTabsToRight", async () => {
   expect(editor.tabs[0].note.id).toBe("1");
 });
 
-test("editor.closeTabsToLeft", async () => {
+test("editor.closeTabsToRight with pinned tabs to right", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
@@ -335,11 +335,57 @@ test("editor.closeTabsToLeft", async () => {
   const store = createStore({
     notes,
     editor: {
-      activeTabNoteId: "2",
+      activeTabNoteId: "1",
       tabs: [
         createTab({
           note: notes[0],
           lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    // Default behavior is to close tabs relative to active tab
+    await store.current.dispatch("editor.closeTabsToRight", undefined!);
+  });
+
+  const { editor } = store.current.state;
+
+  expect(editor.activeTabNoteId).toBe("1");
+  expect(editor.tabs.length).toBe(2);
+  expect(editor.tabs[0].note.id).toBe("1");
+  expect(editor.tabs[1].note.id).toBe("2");
+});
+
+test("editor.closeTabsToLeft", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+    createNote({ id: "4", name: "baq" }),
+  ];
+  const store = createStore({
+    notes,
+    editor: {
+      activeTabNoteId: "3",
+      tabs: [
+        // Pinned tab won't be closed.
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
         }),
         createTab({
           note: notes[1],
@@ -348,6 +394,59 @@ test("editor.closeTabsToLeft", async () => {
         createTab({
           note: notes[2],
           lastActive: subHours(new Date(), 3),
+        }),
+        createTab({
+          note: notes[3],
+          lastActive: subHours(new Date(), 4),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    // Default behavior is to close tabs to the left of active tab
+    await store.current.dispatch("editor.closeTabsToLeft", undefined!);
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.activeTabNoteId).toBe("3");
+  expect(editor.tabs.length).toBe(3);
+  expect(editor.tabs[0].note.id).toBe("1");
+  expect(editor.tabs[1].note.id).toBe("3");
+  expect(editor.tabs[2].note.id).toBe("4");
+});
+
+test("editor.closeTabsToLeft", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+    createNote({ id: "4", name: "baq" }),
+  ];
+  const store = createStore({
+    notes,
+    editor: {
+      activeTabNoteId: "2",
+      tabs: [
+        // Pinned tab won't be closed.
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+        createTab({
+          note: notes[3],
+          lastActive: subHours(new Date(), 4),
         }),
       ],
     },
@@ -361,12 +460,10 @@ test("editor.closeTabsToLeft", async () => {
 
   const { editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe("2");
-  expect(editor.tabs.length).toBe(2);
-  expect(editor.tabs[0].note.id).toBe("2");
-  expect(editor.tabs[1].note.id).toBe("3");
+  expect(editor.tabs.length).toBe(4);
 });
 
-test("nextTab", async () => {
+test("editor.nextTab", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
@@ -406,7 +503,7 @@ test("nextTab", async () => {
   expect(sidebar.selected).toEqual(["2"]);
 });
 
-test("previousTab", async () => {
+test("editor.previousTab", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
@@ -446,7 +543,7 @@ test("previousTab", async () => {
   expect(sidebar.selected).toEqual(["3"]);
 });
 
-test("updateTabsScroll scrolls tabs", async () => {
+test("editor.updateTabsScroll scrolls tabs", async () => {
   const store = createStore();
   const r = render(<EditorToolbar store={store.current} />);
   const scrollable = r.container.querySelector("[orientation=horizontal]")!;
@@ -462,7 +559,7 @@ test("updateTabsScroll scrolls tabs", async () => {
   expect(editor.tabsScroll).toBe(10);
 });
 
-test("pinTab", async () => {
+test("editor.pinTab", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
@@ -508,7 +605,7 @@ test("pinTab", async () => {
   ]);
 });
 
-test("unpinTab", async () => {
+test("editor.unpinTab", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
