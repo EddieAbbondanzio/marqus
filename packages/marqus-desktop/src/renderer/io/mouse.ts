@@ -2,6 +2,7 @@ import { RefObject, useEffect, useState } from "react";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
 
 export const DEFAULT_CURSOR = "auto";
+
 export enum MouseButton {
   Left = 0,
   Middle = 1,
@@ -47,16 +48,6 @@ export type Cursor =
   | "nwse-resize"
   | "zoom-in"
   | "zoom-out";
-
-export async function cursor(
-  cursorIcon: Cursor,
-  cb: () => Promise<void>,
-): Promise<void> {
-  const original = document.body.style.cursor;
-  document.body.style.cursor = cursorIcon;
-  await cb();
-  document.body.style.cursor = original;
-}
 
 export function setCursor(cursor: Cursor): void {
   document.body.style.cursor = cursor;

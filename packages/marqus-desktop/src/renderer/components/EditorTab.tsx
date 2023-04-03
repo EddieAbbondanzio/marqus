@@ -7,6 +7,7 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { m0, mr2, p2, px2, THEME } from "../css";
 import { Icon } from "./shared/Icon";
+
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
 
 export interface EditorTabProps {
