@@ -1,4 +1,4 @@
-import { head } from "lodash";
+import { head, partial } from "lodash";
 import React, {
   MutableRefObject,
   PropsWithChildren,
@@ -9,6 +9,7 @@ import { Section } from "../../../shared/ui/app";
 import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { Store } from "../../store";
 import styled from "styled-components";
+import { getClosestAttribute } from "../../utils/dom";
 
 // Should not be used directly.
 export const FOCUSABLE_ATTRIBUTE = "data-focusable";
@@ -118,16 +119,12 @@ const StyledDiv = styled.div`
   }
 `;
 
+export const getFocusableAttribute = partial(
+  getClosestAttribute,
+  FOCUSABLE_ATTRIBUTE,
+) as (el: HTMLElement) => Section | null;
+
 export function wasInsideFocusable(ev: Event, section: Section): boolean {
   const f = getFocusableAttribute(ev.target as HTMLElement);
   return f != null && f === section;
-}
-
-export function getFocusableAttribute(element: HTMLElement): Section | null {
-  const parent = element.closest(`[${FOCUSABLE_ATTRIBUTE}]`);
-  if (parent != null) {
-    return parent.getAttribute(FOCUSABLE_ATTRIBUTE) as Section | null;
-  }
-
-  return null;
 }

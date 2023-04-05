@@ -14,7 +14,7 @@ import {
 import { p2, rounded, THEME } from "../css";
 import { Listener, Store, StoreContext } from "../store";
 import { Icon } from "./shared/Icon";
-import { orderBy, uniq } from "lodash";
+import { clamp, orderBy, uniq } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
@@ -22,7 +22,8 @@ import { arrayify } from "../../shared/utils";
 import { isProtocolUrl } from "../../shared/domain/protocols";
 import OpenColor from "open-color";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
-import { EditorTab } from "./EditorTab";
+import { EditorSpacer, EditorTab, TabDrag } from "./EditorTab";
+import { MouseButton } from "../io/mouse";
 
 export const TOOLBAR_HEIGHT = "4.3rem"; // 4.2rem + 1px for border
 
@@ -51,6 +52,53 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       await store.dispatch("editor.unpinTab", noteId);
     };
 
+    const onDrag = async (noteId: string, drag: TabDrag) => {
+      const tab = editor.tabs.find(t => t.note.id === noteId);
+      if (tab == null) {
+        throw new Error(`No tab for note ID: ${noteId} found.`);
+      }
+      let newIndex: number;
+
+      // Validating where we'll move the note to based on if it's pinned or not
+      // will be handled in the store listener so we can disregard if a note is
+      // pinned or not here.
+
+      switch (drag.type) {
+        case "absolute":
+          switch (drag.side) {
+            case "left":
+              newIndex = 0;
+              break;
+
+            case "right":
+              newIndex = editor.tabs.length - 1;
+              break;
+          }
+          break;
+
+        case "relative": {
+          const originalIndex = editor.tabs.findIndex(
+            t => t.note.id === noteId,
+          );
+          const targetIndex = editor.tabs.findIndex(
+            t => t.note.id === drag.noteId,
+          );
+          if (targetIndex === -1) {
+            throw new Error(`No target tab for note ID: ${noteId} found.`);
+          }
+
+          if (originalIndex < targetIndex) {
+            newIndex = targetIndex + 1;
+          } else {
+            newIndex = targetIndex - 1;
+          }
+          break;
+        }
+      }
+
+      await store.dispatch("editor.moveTab", { noteId, newIndex });
+    };
+
     // Put pinned tabs note first
     for (const tab of editor.tabs) {
       const note = getNoteById(notes, tab.note.id);
@@ -67,6 +115,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
           onClick={onClick}
           onClose={onClose}
           onUnpin={onUnpin}
+          onDrag={onDrag}
         />,
       );
     }
@@ -236,6 +285,20 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     await store.dispatch("app.openNoteAttachments", activeTabNoteId);
   }, [store]);
 
+  const onMouseUp = useCallback(
+    async (ev: MouseEvent) => {
+      switch (ev.button) {
+        case MouseButton.Forward:
+          await store.dispatch("editor.previousTab");
+          break;
+        case MouseButton.Back:
+          await store.dispatch("editor.nextTab");
+          break;
+      }
+    },
+    [store],
+  );
+
   useEffect(() => {
     store.on("editor.openTab", openTab);
     store.on(
@@ -255,6 +318,9 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     store.on("editor.deleteNote", deleteNote);
     store.on("editor.pinTab", pinTab);
     store.on("editor.unpinTab", unpinTab);
+    store.on("editor.moveTab", moveTab);
+
+    window.addEventListener("mouseup", onMouseUp);
 
     return () => {
       store.off("editor.openTab", openTab);
@@ -275,12 +341,15 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       store.off("editor.deleteNote", deleteNote);
       store.off("editor.pinTab", pinTab);
       store.off("editor.unpinTab", unpinTab);
+      store.off("editor.moveTab", moveTab);
+
+      window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [store, switchToNextTab, switchToPreviousTab]);
+  }, [store, switchToNextTab, switchToPreviousTab, onMouseUp]);
 
   return (
     <EditorToolbarFocusable section={Section.EditorToolbar} store={store}>
-      <ToolbarButtonRow>
+      <LeftSpacer side="left">
         <ToolbarButton
           title="Toggle edit/view mode"
           onClick={async () => await store.dispatch("editor.toggleView")}
@@ -299,7 +368,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
         >
           <Icon icon={faTrash} />
         </ToolbarButton>
-      </ToolbarButtonRow>
+      </LeftSpacer>
 
       <TabsScrollable
         orientation="horizontal"
@@ -307,17 +376,23 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
         onScroll={s => store.dispatch("editor.updateTabsScroll", s)}
       >
         {tabs}
+        <RightSpacer side="right" />
       </TabsScrollable>
     </EditorToolbarFocusable>
   );
 }
 
-const ToolbarButtonRow = styled.div`
+const LeftSpacer = styled(EditorSpacer)`
   display: flex;
   flex-direction: row;
   align-items: center;
   padding-left: 1rem;
-  padding-right: 1rem;
+  padding-right: 1.4rem;
+`;
+
+const RightSpacer = styled(EditorSpacer)`
+  flex-grow: 1;
+  min-width: 0.4rem;
 `;
 
 const ToolbarButton = styled.button<{ highlighted?: boolean }>`
@@ -350,10 +425,10 @@ const EditorToolbarFocusable = styled(Focusable)`
 `;
 
 const TabsScrollable = styled(Scrollable)`
+  display: flex;
+  align-items: center;
   width: calc(100% - 1rem) !important;
   white-space: nowrap;
-  padding-left: 0.4rem;
-  padding-right: 0.4rem;
 
   ::-webkit-scrollbar-thumb {
     background: ${THEME.editor.toolbar.scrollbarColor};
@@ -467,9 +542,12 @@ export const pinTab: Listener<"editor.pinTab"> = async (
     const tabs = prev.editor.tabs;
     const tab = tabs.find(t => t.note.id === tabNoteId)!;
     tab.isPinned = true;
-    prev.editor.tabs = orderBy(tabs, ["isPinned"], ["asc"]);
 
-    return prev;
+    return {
+      editor: {
+        tabs: orderBy(tabs, ["isPinned"], ["asc"]),
+      },
+    };
   });
 };
 
@@ -490,9 +568,66 @@ export const unpinTab: Listener<"editor.unpinTab"> = async (
     const tabs = prev.editor.tabs;
     const tab = tabs.find(t => t.note.id === tabNoteId)!;
     delete tab.isPinned;
-    prev.editor.tabs = orderBy(tabs, ["isPinned"], ["asc"]);
 
-    return prev;
+    return {
+      editor: {
+        tabs: orderBy(tabs, ["isPinned"], ["asc"]),
+      },
+    };
+  });
+};
+
+export const moveTab: Listener<"editor.moveTab"> = async ({ value }, ctx) => {
+  if (value == null || value.newIndex === -1) {
+    return;
+  }
+
+  const { noteId, newIndex } = value;
+
+  const { editor } = ctx.getState();
+  const originalIndex = editor.tabs.findIndex(t => t.note.id === noteId);
+  if (originalIndex === -1) {
+    throw new Error(`No tab for note ID: ${noteId} found.`);
+  }
+
+  const clampedNewIndex = clamp(newIndex, 0, editor.tabs.length - 1);
+  if (originalIndex === clampedNewIndex) {
+    return;
+  }
+
+  const tab = editor.tabs[originalIndex]!;
+  let validatedIndex: number;
+  if (tab.isPinned) {
+    validatedIndex = Math.min(
+      clampedNewIndex,
+      editor.tabs.findIndex(t => !t.isPinned) - 1,
+    );
+  } else {
+    validatedIndex = Math.max(
+      clampedNewIndex,
+      editor.tabs.findIndex(t => !t.isPinned),
+    );
+  }
+
+  if (originalIndex === validatedIndex) {
+    return;
+  }
+
+  ctx.setUI(prev => {
+    const tabs = prev.editor.tabs;
+
+    // Feels a little too magical, but too tired to find simpler approach.
+    // Src: https://stackoverflow.com/a/59398737
+    [tabs[originalIndex], tabs[validatedIndex]] = [
+      tabs[validatedIndex],
+      tabs[originalIndex],
+    ];
+
+    return {
+      editor: {
+        tabs,
+      },
+    };
   });
 };
 

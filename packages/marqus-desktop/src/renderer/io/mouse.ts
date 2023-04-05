@@ -2,10 +2,13 @@ import { RefObject, useEffect, useState } from "react";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
 
 export const DEFAULT_CURSOR = "auto";
+
 export enum MouseButton {
   Left = 0,
   Middle = 1,
   Right = 2,
+  Back = 3,
+  Forward = 4,
 }
 
 export type Cursor =
@@ -45,16 +48,6 @@ export type Cursor =
   | "nwse-resize"
   | "zoom-in"
   | "zoom-out";
-
-export async function cursor(
-  cursorIcon: Cursor,
-  cb: () => Promise<void>,
-): Promise<void> {
-  const original = document.body.style.cursor;
-  document.body.style.cursor = cursorIcon;
-  await cb();
-  document.body.style.cursor = original;
-}
 
 export function setCursor(cursor: Cursor): void {
   document.body.style.cursor = cursor;
@@ -120,7 +113,7 @@ export function useMouseDrag(
       // Don't track the mouse's movement unless a button is currently pressed.
       if (
         drag == null ||
-        (drag.state != "dragging" && drag.state !== "dragStarted")
+        (drag.state !== "dragging" && drag.state !== "dragStarted")
       ) {
         return;
       }
