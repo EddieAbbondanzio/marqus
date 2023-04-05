@@ -768,7 +768,6 @@ test("editor.moveTab regular tab to left of another", async () => {
         createTab({
           note: notes[1],
           lastActive: subHours(new Date(), 2),
-          isPinned: true,
         }),
         createTab({
           note: notes[2],
@@ -786,14 +785,14 @@ test("editor.moveTab regular tab to left of another", async () => {
   await act(async () => {
     await store.current.dispatch("editor.moveTab", {
       noteId: notes[3].id,
-      newIndex: 2,
+      newIndex: 1,
     });
   });
 
   const { editor } = store.current.state;
   expect(editor.tabs[0].note.id).toBe(notes[0].id);
-  expect(editor.tabs[1].note.id).toBe(notes[1].id);
-  expect(editor.tabs[2].note.id).toBe(notes[3].id);
+  expect(editor.tabs[1].note.id).toBe(notes[3].id);
+  expect(editor.tabs[2].note.id).toBe(notes[1].id);
   expect(editor.tabs[3].note.id).toBe(notes[2].id);
 });
 
