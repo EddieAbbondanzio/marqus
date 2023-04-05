@@ -84,7 +84,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
   }
 
   const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
-  const cursorRef = useRef<HTMLDivElement | null>(null);
+  const cursorElRef = useRef<HTMLDivElement | null>(null);
   const onDrag = useCallback(
     (drag: MouseDrag | null) => {
       if (!drag || drag.state === "dragCancelled") {
@@ -94,14 +94,14 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
 
       const { clientX: mouseX, clientY: mouseY } = drag.event;
       if (drag.state === "dragging") {
-        const el = cursorRef.current;
+        const el = cursorElRef.current;
         if (el) {
           el.style.left = `${mouseX}px`;
           el.style.top = `${mouseY}px`;
         }
       } else if (drag.state === "dragStarted") {
         setCursorEl(
-          <CursorFollower ref={cursorRef}>
+          <CursorFollower ref={cursorElRef}>
             <StyledTab active={active}>
               <FlexRow>
                 <StyledNoteIcon icon={faFile} size="lg" />
