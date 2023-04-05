@@ -9,11 +9,13 @@ import React, {
   useCallback,
   useEffect,
   useRef,
+  useState,
 } from "react";
+import { createPortal } from "react-dom";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { m0, mr2, p2, px2, THEME } from "../css";
-import { useMouseDrag } from "../io/mouse";
+import { MouseDrag, useMouseDrag } from "../io/mouse";
 import { getClosestAttribute } from "../utils/dom";
 import { wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
@@ -81,11 +83,35 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
     );
   }
 
+  const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
+  const cursorRef = useRef<HTMLDivElement | null>(null);
   const onDrag = useCallback(
-    drag => {
-      if (drag?.state === "dragEnded") {
-        const endedOn = getEditorTabAttribute(drag.event.target as HTMLElement);
+    (drag: MouseDrag | null) => {
+      if (!drag || drag.state === "dragCancelled") {
+        setCursorEl(undefined);
+        return;
+      }
 
+      const { clientX: mouseX, clientY: mouseY } = drag.event;
+      if (drag.state === "dragging") {
+        const el = cursorRef.current;
+        if (el) {
+          el.style.left = `${mouseX}px`;
+          el.style.top = `${mouseY}px`;
+        }
+      } else if (drag.state === "dragStarted") {
+        setCursorEl(
+          <CursorHelper ref={cursorRef}>
+            <StyledTab active={active}>
+              <FlexRow>
+                <StyledNoteIcon icon={faFile} size="lg" />
+                <StyledText>{noteName}</StyledText>
+              </FlexRow>
+            </StyledTab>
+          </CursorHelper>,
+        );
+      } else if (drag.state === "dragEnded") {
+        const endedOn = getEditorTabAttribute(drag.event.target as HTMLElement);
         if (endedOn != null) {
           props.onDrag(noteId, {
             type: "relative",
@@ -100,9 +126,11 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
             props.onDrag(noteId, { type: "absolute", side });
           }
         }
+
+        setCursorEl(undefined);
       }
     },
-    [noteId, props],
+    [noteId, props, active, noteName],
   );
 
   useMouseDrag(wrapper, onDrag, {
@@ -110,23 +138,28 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
   });
 
   return (
-    <StyledWrapper {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}>
-      <StyledTab
-        ref={wrapper}
-        key={noteId}
-        title={notePath}
+    <>
+      <StyledWrapper
+        {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
         onClick={() => props.onClick(noteId)}
-        active={active}
       >
-        <FlexRow>
-          <StyledNoteIcon icon={faFile} size="lg" />
-          <StyledText>{noteName}</StyledText>
-        </FlexRow>
-        {action}
-      </StyledTab>
-    </StyledWrapper>
+        <StyledTab ref={wrapper} key={noteId} title={notePath} active={active}>
+          <FlexRow>
+            <StyledNoteIcon icon={faFile} size="lg" />
+            <StyledText>{noteName}</StyledText>
+          </FlexRow>
+          {action}
+        </StyledTab>
+      </StyledWrapper>
+      {createPortal(cursorEl, document.body)}
+    </>
   );
 }
+
+const CursorHelper = styled.div`
+  position: absolute;
+  pointer-events: none;
+`;
 
 const StyledWrapper = styled.div`
   display: inline-flex;
@@ -161,7 +194,9 @@ const StyledTab = styled.a<{ active?: boolean }>`
   height: 2.9rem;
 
   background-color: ${p =>
-    p.active ? THEME.editor.toolbar.activeTabBackground : ""};
+    p.active
+      ? THEME.editor.toolbar.activeTabBackground
+      : THEME.editor.toolbar.background};
 
   &:hover {
     background-color: ${THEME.editor.toolbar.hoveredTabBackground};
