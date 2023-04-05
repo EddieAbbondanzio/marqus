@@ -16,7 +16,7 @@ import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { m0, mr2, p2, px2, THEME } from "../css";
 import { MouseDrag, useMouseDrag } from "../io/mouse";
-import { getClosestAttribute } from "../utils/dom";
+import { getClosestAttribute, getOffsetRelativeTo } from "../utils/dom";
 import { wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 
@@ -105,7 +105,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
           el.style.top = `${mouseY - offsetY - 8}px`;
         }
       } else if (drag.state === "dragStarted") {
-        offset.current = [drag.event.offsetX, drag.event.offsetY];
+        offset.current = getOffsetRelativeTo(drag.event, wrapper.current);
 
         setCursorEl(
           <CursorFollower ref={cursorElRef}>
@@ -209,11 +209,6 @@ const StyledTab = styled.a<{ active?: boolean }>`
     .delete {
       display: block;
     }
-  }
-
-  // We need offsetX, offsetY to always for the tab container.
-  * {
-    pointer-events: none;
   }
 `;
 

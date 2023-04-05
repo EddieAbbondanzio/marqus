@@ -11,7 +11,7 @@ import { Icon } from "./shared/Icon";
 import { MouseDrag, useMouseDrag } from "../io/mouse";
 import { Section } from "../../shared/ui/app";
 import { partial } from "lodash";
-import { getClosestAttribute } from "../utils/dom";
+import { getClosestAttribute, getOffsetRelativeTo } from "../utils/dom";
 import { createPortal } from "react-dom";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
@@ -45,8 +45,9 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
     backgroundColor = THEME.sidebar.selected;
   }
 
-  const menuRef = useRef<HTMLAnchorElement>(null);
+  const menuRef = useRef<HTMLAnchorElement>(null!);
 
+  const offset = useRef<[number, number]>();
   const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
   const cursorElRef = useRef<HTMLDivElement | null>(null);
   const { width } = store.state.sidebar;
@@ -61,10 +62,14 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
       if (drag.state === "dragging") {
         const el = cursorElRef.current;
         if (el) {
-          el.style.left = `${mouseX}px`;
-          el.style.top = `${mouseY}px`;
+          const [offsetX, offsetY] = offset.current ?? [0, 0];
+
+          el.style.left = `${mouseX - offsetX}px`;
+          el.style.top = `${mouseY - offsetY}px`;
         }
       } else if (drag.state === "dragStarted") {
+        offset.current = getOffsetRelativeTo(drag.event, menuRef.current);
+
         setCursorEl(
           <CursorFollower ref={cursorElRef}>
             <StyledMenu style={{ paddingLeft, backgroundColor, width }}>
