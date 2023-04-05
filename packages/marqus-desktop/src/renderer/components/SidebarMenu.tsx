@@ -47,7 +47,6 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
 
   const menuRef = useRef<HTMLAnchorElement>(null!);
 
-  const offset = useRef<[number, number]>();
   const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
   const cursorElRef = useRef<HTMLDivElement | null>(null);
   const { width } = store.state.sidebar;
@@ -62,14 +61,12 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
       if (drag.state === "dragging") {
         const el = cursorElRef.current;
         if (el) {
-          const [offsetX, offsetY] = offset.current ?? [0, 0];
+          const [offsetX, offsetY] = drag.initialOffset;
 
           el.style.left = `${mouseX - offsetX}px`;
           el.style.top = `${mouseY - offsetY}px`;
         }
       } else if (drag.state === "dragStarted") {
-        offset.current = getOffsetRelativeTo(drag.event, menuRef.current);
-
         setCursorEl(
           <CursorFollower ref={cursorElRef}>
             <StyledMenu style={{ paddingLeft, backgroundColor, width }}>

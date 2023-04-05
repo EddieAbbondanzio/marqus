@@ -16,7 +16,7 @@ import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { m0, mr2, p2, px2, THEME } from "../css";
 import { MouseDrag, useMouseDrag } from "../io/mouse";
-import { getClosestAttribute, getOffsetRelativeTo } from "../utils/dom";
+import { getClosestAttribute } from "../utils/dom";
 import { wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 
@@ -83,7 +83,6 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
     );
   }
 
-  const offset = useRef<[number, number]>();
   const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
   const cursorElRef = useRef<HTMLDivElement | null>(null);
   const onDrag = useCallback(
@@ -98,15 +97,13 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         const el = cursorElRef.current;
 
         if (el) {
-          const [offsetX, offsetY] = offset.current ?? [0, 0];
+          const [offsetX, offsetY] = drag.initialOffset;
 
           el.style.left = `${mouseX - offsetX}px`;
           // Keep in sync with margin-top of StyledTab
           el.style.top = `${mouseY - offsetY - 8}px`;
         }
       } else if (drag.state === "dragStarted") {
-        offset.current = getOffsetRelativeTo(drag.event, wrapper.current);
-
         setCursorEl(
           <CursorFollower ref={cursorElRef}>
             <StyledTab active={active}>
