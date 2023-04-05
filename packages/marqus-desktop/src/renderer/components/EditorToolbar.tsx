@@ -22,7 +22,7 @@ import { arrayify } from "../../shared/utils";
 import { isProtocolUrl } from "../../shared/domain/protocols";
 import OpenColor from "open-color";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
-import { EditorTab } from "./EditorTab";
+import { EditorSpacer, EditorTab, TabDrag } from "./EditorTab";
 import { MouseButton } from "../io/mouse";
 
 export const TOOLBAR_HEIGHT = "4.3rem"; // 4.2rem + 1px for border
@@ -52,6 +52,10 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       await store.dispatch("editor.unpinTab", noteId);
     };
 
+    const onDrag = async (drag: TabDrag) => {
+      console.log("was dragged over: ", drag);
+    };
+
     // Put pinned tabs note first
     for (const tab of editor.tabs) {
       const note = getNoteById(notes, tab.note.id);
@@ -68,6 +72,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
           onClick={onClick}
           onClose={onClose}
           onUnpin={onUnpin}
+          onDrag={onDrag}
         />,
       );
     }
@@ -325,11 +330,22 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
         scroll={editor.tabsScroll}
         onScroll={s => store.dispatch("editor.updateTabsScroll", s)}
       >
+        <LeftSpacer side="left" />
         {tabs}
+        <RightSpacer side="right" />
       </TabsScrollable>
     </EditorToolbarFocusable>
   );
 }
+
+const LeftSpacer = styled(EditorSpacer)`
+  width: 0.4rem;
+`;
+
+const RightSpacer = styled(EditorSpacer)`
+  flex-grow: 1;
+  min-width: 0.4rem;
+`;
 
 const ToolbarButtonRow = styled.div`
   display: flex;
@@ -369,10 +385,10 @@ const EditorToolbarFocusable = styled(Focusable)`
 `;
 
 const TabsScrollable = styled(Scrollable)`
+  display: flex;
+  align-items: center;
   width: calc(100% - 1rem) !important;
   white-space: nowrap;
-  padding-left: 0.4rem;
-  padding-right: 0.4rem;
 
   ::-webkit-scrollbar-thumb {
     background: ${THEME.editor.toolbar.scrollbarColor};

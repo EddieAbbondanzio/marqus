@@ -10,6 +10,8 @@ import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import { useMouseDrag } from "../io/mouse";
 import { Section } from "../../shared/ui/app";
+import { partial } from "lodash";
+import { getClosestAttribute } from "../utils/dom";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
 export const SIDEBAR_MENU_HEIGHT = 24;
@@ -53,10 +55,12 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         if (newParent != null) {
           props.onDrag(newParent);
         }
-        // Drags that end outside of the sidebar should be considered cancels.
+        // Drag was inside sidebar, but not on a note. Move note to root.
         else if (wasInsideFocusable(drag.event, Section.Sidebar)) {
           props.onDrag();
         }
+
+        // Drags that end outside of the sidebar should be considered cancels.
       }
     },
     [props],
@@ -257,11 +261,7 @@ const ErrorMessage = styled.div`
   ${p2}
 `;
 
-export function getSidebarMenuAttribute(element: HTMLElement): string | null {
-  const parent = element.closest(`[${SIDEBAR_MENU_ATTRIBUTE}]`);
-  if (parent != null) {
-    return parent.getAttribute(SIDEBAR_MENU_ATTRIBUTE);
-  }
-
-  return null;
-}
+export const getSidebarMenuAttribute = partial(
+  getClosestAttribute,
+  SIDEBAR_MENU_ATTRIBUTE,
+);

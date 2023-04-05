@@ -3,11 +3,17 @@ import {
   faTimes,
   faThumbtack,
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useEffect, useRef } from "react";
+import { partial } from "lodash";
+import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
+import { Section } from "../../shared/ui/app";
 import { m0, mr2, p2, px2, THEME } from "../css";
+import { useMouseDrag } from "../io/mouse";
+import { getClosestAttribute } from "../utils/dom";
+import { wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 
+export const EDITOR_SPACER_ATTRIBUTE = "data-editor-spacer";
 export const EDITOR_TAB_ATTRIBUTE = "data-editor-tab";
 
 export interface EditorTabProps {
@@ -19,7 +25,12 @@ export interface EditorTabProps {
   onClick: (noteId: string) => void;
   onClose: (noteId: string) => void;
   onUnpin: (noteId: string) => void;
+  onDrag: (drag: TabDrag) => void;
 }
+
+export type TabDrag =
+  | { type: "absolute"; side: "left" | "right" }
+  | { type: "relative"; noteId: string };
 
 export function EditorTab(props: EditorTabProps): JSX.Element {
   const { noteId, noteName, notePath, active, isPinned } = props;
@@ -65,23 +76,58 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
     );
   }
 
+  const onDrag = useCallback(
+    drag => {
+      if (drag?.state === "dragEnded") {
+        const endedOn = getEditorTabAttribute(drag.event.target as HTMLElement);
+
+        if (endedOn != null) {
+          props.onDrag({
+            type: "relative",
+            noteId: endedOn,
+          });
+        } else if (wasInsideFocusable(drag.event, Section.EditorToolbar)) {
+          const side = getEditorSpacerAttribute(
+            drag.event.target as HTMLElement,
+          );
+
+          if (side) {
+            props.onDrag({ type: "absolute", side });
+          }
+        }
+      }
+    },
+    [props],
+  );
+
+  useMouseDrag(wrapper, onDrag, {
+    cursor: "grabbing",
+  });
+
   return (
-    <StyledTab
-      ref={wrapper}
-      key={noteId}
-      title={notePath}
-      onClick={() => props.onClick(noteId)}
-      {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
-      active={active}
-    >
-      <FlexRow>
-        <StyledNoteIcon icon={faFile} size="lg" />
-        <StyledText>{noteName}</StyledText>
-      </FlexRow>
-      {action}
-    </StyledTab>
+    <StyledWrapper {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}>
+      <StyledTab
+        ref={wrapper}
+        key={noteId}
+        title={notePath}
+        onClick={() => props.onClick(noteId)}
+        active={active}
+      >
+        <FlexRow>
+          <StyledNoteIcon icon={faFile} size="lg" />
+          <StyledText>{noteName}</StyledText>
+        </FlexRow>
+        {action}
+      </StyledTab>
+    </StyledWrapper>
   );
 }
+
+const StyledWrapper = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
 const StyledNoteIcon = styled(Icon)`
   margin-right: 1rem;
@@ -155,11 +201,36 @@ const StyledPinnedIcon = styled(Icon)`
   }
 `;
 
-export function getEditorTabAttribute(element: HTMLElement): string | null {
-  const parent = element.closest(`[${EDITOR_TAB_ATTRIBUTE}]`);
-  if (parent != null) {
-    return parent.getAttribute(EDITOR_TAB_ATTRIBUTE);
-  }
-
-  return null;
+export interface EditorSpacerProps {
+  className?: string;
+  side: SpacerSide;
 }
+
+export type SpacerSide = "left" | "right";
+
+export function EditorSpacer(props: EditorSpacerProps): JSX.Element {
+  const { className, side } = props;
+
+  return (
+    <StyledSpacer
+      className={className}
+      {...{ [EDITOR_SPACER_ATTRIBUTE]: side }}
+    />
+  );
+}
+
+const StyledSpacer = styled.div`
+  display: inline-flex;
+  height: 100%;
+  flex-shrink: 0;
+`;
+
+export const getEditorTabAttribute = partial(
+  getClosestAttribute,
+  EDITOR_TAB_ATTRIBUTE,
+);
+
+export const getEditorSpacerAttribute = partial(
+  getClosestAttribute,
+  EDITOR_SPACER_ATTRIBUTE,
+) as (el: HTMLElement) => SpacerSide | null;
