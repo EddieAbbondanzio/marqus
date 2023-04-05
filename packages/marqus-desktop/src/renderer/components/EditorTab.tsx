@@ -83,6 +83,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
     );
   }
 
+  const offset = useRef<[number, number]>();
   const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
   const cursorElRef = useRef<HTMLDivElement | null>(null);
   const onDrag = useCallback(
@@ -95,11 +96,17 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
       const { clientX: mouseX, clientY: mouseY } = drag.event;
       if (drag.state === "dragging") {
         const el = cursorElRef.current;
+
         if (el) {
-          el.style.left = `${mouseX}px`;
-          el.style.top = `${mouseY}px`;
+          const [offsetX, offsetY] = offset.current ?? [0, 0];
+
+          el.style.left = `${mouseX - offsetX}px`;
+          // Keep in sync with margin-top of StyledTab
+          el.style.top = `${mouseY - offsetY - 8}px`;
         }
       } else if (drag.state === "dragStarted") {
+        offset.current = [drag.event.offsetX, drag.event.offsetY];
+
         setCursorEl(
           <CursorFollower ref={cursorElRef}>
             <StyledTab active={active}>
@@ -133,9 +140,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
     [noteId, props, active, noteName],
   );
 
-  useMouseDrag(wrapper, onDrag, {
-    cursor: "grabbing",
-  });
+  useMouseDrag(wrapper, onDrag, { cursor: "grabbing" });
 
   return (
     <>
@@ -143,7 +148,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
         onClick={() => props.onClick(noteId)}
       >
-        <StyledTab ref={wrapper} key={noteId} title={notePath} active={active}>
+        <StyledTab ref={wrapper} title={notePath} active={active}>
           <FlexRow>
             <StyledNoteIcon icon={faFile} size="lg" />
             <StyledText>{noteName}</StyledText>
@@ -204,6 +209,11 @@ const StyledTab = styled.a<{ active?: boolean }>`
     .delete {
       display: block;
     }
+  }
+
+  // We need offsetX, offsetY to always for the tab container.
+  * {
+    pointer-events: none;
   }
 `;
 
