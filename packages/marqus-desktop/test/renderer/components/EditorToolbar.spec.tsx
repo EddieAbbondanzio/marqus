@@ -692,3 +692,315 @@ test("editor.unpinTab", async () => {
     expect.objectContaining({ note: expect.objectContaining({ id: "3" }) }),
   ]);
 });
+
+test("editor.moveTab regular tab to right of another", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+    createNote({ id: "4", name: "baq" }),
+  ];
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: [],
+    },
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+        createTab({
+          note: notes[3],
+          lastActive: subHours(new Date(), 4),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.moveTab", {
+      noteId: notes[2].id,
+      newIndex: 3,
+    });
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs[0].note.id).toBe(notes[0].id);
+  expect(editor.tabs[1].note.id).toBe(notes[1].id);
+  expect(editor.tabs[2].note.id).toBe(notes[3].id);
+  expect(editor.tabs[3].note.id).toBe(notes[2].id);
+});
+
+test("editor.moveTab regular tab to left of another", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+    createNote({ id: "4", name: "baq" }),
+  ];
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: [],
+    },
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+        createTab({
+          note: notes[3],
+          lastActive: subHours(new Date(), 4),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.moveTab", {
+      noteId: notes[3].id,
+      newIndex: 2,
+    });
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs[0].note.id).toBe(notes[0].id);
+  expect(editor.tabs[1].note.id).toBe(notes[1].id);
+  expect(editor.tabs[2].note.id).toBe(notes[3].id);
+  expect(editor.tabs[3].note.id).toBe(notes[2].id);
+});
+
+test("editor.moveTab attempt to move regular tab before pinned tab", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+    createNote({ id: "4", name: "baq" }),
+  ];
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: [],
+    },
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+        createTab({
+          note: notes[3],
+          lastActive: subHours(new Date(), 4),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.moveTab", {
+      noteId: notes[3].id,
+      newIndex: 0,
+    });
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs[0].note.id).toBe(notes[0].id);
+  expect(editor.tabs[1].note.id).toBe(notes[1].id);
+  expect(editor.tabs[2].note.id).toBe(notes[3].id);
+  expect(editor.tabs[3].note.id).toBe(notes[2].id);
+});
+
+test("editor.moveNote move pinned tab to right", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+    createNote({ id: "4", name: "baq" }),
+  ];
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: [],
+    },
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+        createTab({
+          note: notes[3],
+          lastActive: subHours(new Date(), 4),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.moveTab", {
+      noteId: notes[0].id,
+      newIndex: 1,
+    });
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs[0].note.id).toBe(notes[1].id);
+  expect(editor.tabs[1].note.id).toBe(notes[0].id);
+  expect(editor.tabs[2].note.id).toBe(notes[2].id);
+  expect(editor.tabs[3].note.id).toBe(notes[3].id);
+});
+
+test("editor.moveNote move pinned tab to left", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+    createNote({ id: "4", name: "baq" }),
+  ];
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: [],
+    },
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+        createTab({
+          note: notes[3],
+          lastActive: subHours(new Date(), 4),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.moveTab", {
+      noteId: notes[1].id,
+      newIndex: 0,
+    });
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs[0].note.id).toBe(notes[1].id);
+  expect(editor.tabs[1].note.id).toBe(notes[0].id);
+  expect(editor.tabs[2].note.id).toBe(notes[2].id);
+  expect(editor.tabs[3].note.id).toBe(notes[3].id);
+});
+
+test("editor.moveTab try to move pinned tab past regular tab", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+    createNote({ id: "4", name: "baq" }),
+  ];
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: [],
+    },
+    editor: {
+      activeTabNoteId: "1",
+      tabs: [
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[2],
+          lastActive: subHours(new Date(), 3),
+        }),
+        createTab({
+          note: notes[3],
+          lastActive: subHours(new Date(), 4),
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.moveTab", {
+      noteId: notes[0].id,
+      newIndex: 3,
+    });
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs[0].note.id).toBe(notes[1].id);
+  expect(editor.tabs[1].note.id).toBe(notes[0].id);
+  expect(editor.tabs[2].note.id).toBe(notes[2].id);
+  expect(editor.tabs[3].note.id).toBe(notes[3].id);
+});

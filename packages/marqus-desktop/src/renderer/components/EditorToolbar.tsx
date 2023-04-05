@@ -14,7 +14,7 @@ import {
 import { p2, rounded, THEME } from "../css";
 import { Listener, Store, StoreContext } from "../store";
 import { Icon } from "./shared/Icon";
-import { orderBy, uniq } from "lodash";
+import { clamp, orderBy, uniq } from "lodash";
 import { Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
@@ -542,9 +542,12 @@ export const pinTab: Listener<"editor.pinTab"> = async (
     const tabs = prev.editor.tabs;
     const tab = tabs.find(t => t.note.id === tabNoteId)!;
     tab.isPinned = true;
-    prev.editor.tabs = orderBy(tabs, ["isPinned"], ["asc"]);
 
-    return prev;
+    return {
+      editor: {
+        tabs: orderBy(tabs, ["isPinned"], ["asc"]),
+      },
+    };
   });
 };
 
@@ -565,9 +568,12 @@ export const unpinTab: Listener<"editor.unpinTab"> = async (
     const tabs = prev.editor.tabs;
     const tab = tabs.find(t => t.note.id === tabNoteId)!;
     delete tab.isPinned;
-    prev.editor.tabs = orderBy(tabs, ["isPinned"], ["asc"]);
 
-    return prev;
+    return {
+      editor: {
+        tabs: orderBy(tabs, ["isPinned"], ["asc"]),
+      },
+    };
   });
 };
 
@@ -576,25 +582,52 @@ export const moveTab: Listener<"editor.moveTab"> = async ({ value }, ctx) => {
     return;
   }
 
-  const { editor } = ctx.getState();
   const { noteId, newIndex } = value;
 
+  const { editor } = ctx.getState();
   const originalIndex = editor.tabs.findIndex(t => t.note.id === noteId);
   if (originalIndex === -1) {
     throw new Error(`No tab for note ID: ${noteId} found.`);
   }
 
+  const clampedNewIndex = clamp(newIndex, 0, editor.tabs.length - 1);
+  if (originalIndex === clampedNewIndex) {
+    return;
+  }
+
+  const tab = editor.tabs[originalIndex]!;
+  let validatedIndex: number;
+  if (tab.isPinned) {
+    validatedIndex = Math.min(
+      clampedNewIndex,
+      editor.tabs.findIndex(t => !t.isPinned) - 1,
+    );
+  } else {
+    validatedIndex = Math.max(
+      clampedNewIndex,
+      editor.tabs.findIndex(t => !t.isPinned),
+    );
+  }
+
+  if (originalIndex === validatedIndex) {
+    return;
+  }
+
   ctx.setUI(prev => {
     const tabs = prev.editor.tabs;
 
+    // Feels a little too magical, but too tired to find simpler approach.
     // Src: https://stackoverflow.com/a/59398737
-    [tabs[originalIndex], tabs[newIndex]] = [
-      tabs[newIndex],
+    [tabs[originalIndex], tabs[validatedIndex]] = [
+      tabs[validatedIndex],
       tabs[originalIndex],
     ];
-    prev.editor.tabs = orderBy(tabs, ["isPinned"], ["asc"]);
 
-    return prev;
+    return {
+      editor: {
+        tabs,
+      },
+    };
   });
 };
 
