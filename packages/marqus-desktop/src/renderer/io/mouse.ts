@@ -90,14 +90,6 @@ export function useMouseDrag(
         return;
       }
 
-      if (
-        drag != null &&
-        drag.state !== "dragCancelled" &&
-        drag.state !== "dragEnded"
-      ) {
-        throw new Error(`Mouse is already dragging. Can't restart.`);
-      }
-
       const newDrag: MouseDrag = {
         state: "dragStarted",
         event,
