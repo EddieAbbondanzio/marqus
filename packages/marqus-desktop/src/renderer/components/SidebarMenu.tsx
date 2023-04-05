@@ -68,8 +68,8 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         }
       } else if (drag.state === "dragStarted") {
         setCursorEl(
-          <CursorFollower ref={cursorElRef}>
-            <StyledMenu style={{ paddingLeft, backgroundColor, width }}>
+          <CursorFollower ref={cursorElRef} style={{ width }}>
+            <StyledMenu style={{ paddingLeft, backgroundColor }}>
               {icon && (
                 <StyledMenuIcon
                   icon={icon}
