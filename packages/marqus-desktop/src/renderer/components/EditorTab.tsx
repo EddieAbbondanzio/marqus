@@ -101,14 +101,14 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         }
       } else if (drag.state === "dragStarted") {
         setCursorEl(
-          <CursorHelper ref={cursorRef}>
+          <CursorFollower ref={cursorRef}>
             <StyledTab active={active}>
               <FlexRow>
                 <StyledNoteIcon icon={faFile} size="lg" />
                 <StyledText>{noteName}</StyledText>
               </FlexRow>
             </StyledTab>
-          </CursorHelper>,
+          </CursorFollower>,
         );
       } else if (drag.state === "dragEnded") {
         const endedOn = getEditorTabAttribute(drag.event.target as HTMLElement);
@@ -156,7 +156,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
   );
 }
 
-const CursorHelper = styled.div`
+const CursorFollower = styled.div`
   position: absolute;
   pointer-events: none;
 `;
