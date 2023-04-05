@@ -72,6 +72,7 @@ export interface UIEvents {
   "editor.closeOtherTabs": string;
   "editor.previousTab": void;
   "editor.nextTab": void;
+  "editor.moveTab": { noteId: string; newIndex: number };
   "editor.updateTabsScroll": number;
   "editor.boldSelectedText": void;
   "editor.italicSelectedText": void;
@@ -156,6 +157,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.closeOtherTabs",
   "editor.previousTab",
   "editor.nextTab",
+  "editor.moveTab",
   "editor.updateTabsScroll",
   "editor.boldSelectedText",
   "editor.italicSelectedText",

@@ -4,7 +4,12 @@ import {
   faThumbtack,
 } from "@fortawesome/free-solid-svg-icons";
 import { partial } from "lodash";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { m0, mr2, p2, px2, THEME } from "../css";
@@ -25,7 +30,7 @@ export interface EditorTabProps {
   onClick: (noteId: string) => void;
   onClose: (noteId: string) => void;
   onUnpin: (noteId: string) => void;
-  onDrag: (drag: TabDrag) => void;
+  onDrag: (noteId: string, drag: TabDrag) => void;
 }
 
 export type TabDrag =
@@ -82,7 +87,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         const endedOn = getEditorTabAttribute(drag.event.target as HTMLElement);
 
         if (endedOn != null) {
-          props.onDrag({
+          props.onDrag(noteId, {
             type: "relative",
             noteId: endedOn,
           });
@@ -92,12 +97,12 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
           );
 
           if (side) {
-            props.onDrag({ type: "absolute", side });
+            props.onDrag(noteId, { type: "absolute", side });
           }
         }
       }
     },
-    [props],
+    [noteId, props],
   );
 
   useMouseDrag(wrapper, onDrag, {
@@ -139,6 +144,7 @@ const FlexRow = styled.div`
   flex-direction: row;
   align-items: center;
   min-width: 0;
+  user-select: none;
 `;
 
 const StyledTab = styled.a<{ active?: boolean }>`
@@ -208,14 +214,18 @@ export interface EditorSpacerProps {
 
 export type SpacerSide = "left" | "right";
 
-export function EditorSpacer(props: EditorSpacerProps): JSX.Element {
+export function EditorSpacer(
+  props: PropsWithChildren<EditorSpacerProps>,
+): JSX.Element {
   const { className, side } = props;
 
   return (
     <StyledSpacer
       className={className}
       {...{ [EDITOR_SPACER_ATTRIBUTE]: side }}
-    />
+    >
+      {props.children}
+    </StyledSpacer>
   );
 }
 
