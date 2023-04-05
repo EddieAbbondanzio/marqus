@@ -11,7 +11,7 @@ import { Icon } from "./shared/Icon";
 import { MouseDrag, useMouseDrag } from "../io/mouse";
 import { Section } from "../../shared/ui/app";
 import { partial } from "lodash";
-import { getClosestAttribute, getOffsetRelativeTo } from "../utils/dom";
+import { getClosestAttribute } from "../utils/dom";
 import { createPortal } from "react-dom";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
@@ -37,7 +37,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   const { title, value, icon, isSelected, onClick, store } = props;
   const { state } = store;
 
-  const iconOffset = icon ? 0 : 8;
+  const iconOffset = icon ? 0 : 4;
   const paddingLeft = `${props.depth * SIDEBAR_MENU_INDENT + iconOffset}px`;
 
   let backgroundColor = THEME.sidebar.background;
