@@ -223,7 +223,15 @@ export function useContextMenu(store: Store, config: Config): void {
     return () => {
       window.removeEventListener("contextmenu", showMenu);
     };
-  }, [shortcutLabels, store, state.notes, state.sidebar.sort, config]);
+  }, [
+    shortcutLabels,
+    store,
+    state.notes,
+    state.sidebar.sort,
+    config,
+    state.editor.isEditing,
+    state.editor.tabs,
+  ]);
 
   useEffect(() => {
     const onClick = async (ev: CustomEvent) => {

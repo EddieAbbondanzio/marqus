@@ -1,5 +1,6 @@
-import { RefObject, useEffect, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import { parseKeyCode, KeyCode } from "../../shared/io/keyCode";
+import { getOffsetRelativeTo } from "../utils/dom";
 
 export const DEFAULT_CURSOR = "auto";
 
@@ -61,6 +62,7 @@ export type MouseDrag =
   | {
       event: MouseEvent;
       state: Exclude<DragState, "dragCancelled">;
+      initialOffset: [number, number];
     }
   | {
       state: "dragCancelled";
@@ -73,7 +75,7 @@ export type DragState =
   | "dragCancelled";
 
 export function useMouseDrag(
-  ref: RefObject<HTMLElement | Window | null>,
+  ref: RefObject<HTMLElement | null>,
   callback: (drag: MouseDrag | null) => void,
   opts?: { cursor: Cursor; disabled?: boolean },
 ): void {
@@ -90,17 +92,10 @@ export function useMouseDrag(
         return;
       }
 
-      if (
-        drag != null &&
-        drag.state !== "dragCancelled" &&
-        drag.state !== "dragEnded"
-      ) {
-        throw new Error(`Mouse is already dragging. Can't restart.`);
-      }
-
       const newDrag: MouseDrag = {
         state: "dragStarted",
         event,
+        initialOffset: getOffsetRelativeTo(event, el),
       };
       setDrag(newDrag);
     };
@@ -128,6 +123,7 @@ export function useMouseDrag(
       const newDrag: MouseDrag = {
         state: "dragging",
         event,
+        initialOffset: drag.initialOffset,
       };
       setDrag(newDrag);
       callback(newDrag);
@@ -151,6 +147,7 @@ export function useMouseDrag(
       const newDrag: MouseDrag = {
         state: "dragEnded",
         event,
+        initialOffset: drag.initialOffset,
       };
       setDrag(newDrag);
       if (opts?.cursor) {

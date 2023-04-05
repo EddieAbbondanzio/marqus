@@ -8,10 +8,11 @@ import { Store } from "../store";
 import { mt1, p2, py1, THEME, w100 } from "../css";
 import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
-import { useMouseDrag } from "../io/mouse";
+import { MouseDrag, useMouseDrag } from "../io/mouse";
 import { Section } from "../../shared/ui/app";
 import { partial } from "lodash";
 import { getClosestAttribute } from "../utils/dom";
+import { createPortal } from "react-dom";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
 export const SIDEBAR_MENU_HEIGHT = 24;
@@ -36,18 +37,57 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   const { title, value, icon, isSelected, onClick, store } = props;
   const { state } = store;
 
-  const iconOffset = icon ? 0 : 8;
+  const iconOffset = icon ? 0 : 4;
   const paddingLeft = `${props.depth * SIDEBAR_MENU_INDENT + iconOffset}px`;
 
-  let backgroundColor;
+  let backgroundColor = THEME.sidebar.background;
   if (isSelected) {
     backgroundColor = THEME.sidebar.selected;
   }
 
-  const menuRef = useRef<HTMLAnchorElement>(null);
+  const menuRef = useRef<HTMLAnchorElement>(null!);
+
+  const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
+  const cursorElRef = useRef<HTMLDivElement | null>(null);
+  const { width } = store.state.sidebar;
   const onDrag = useCallback(
-    drag => {
-      if (drag?.state === "dragEnded") {
+    (drag: MouseDrag | null) => {
+      if (!drag || drag.state === "dragCancelled") {
+        setCursorEl(undefined);
+        return;
+      }
+
+      const { clientX: mouseX, clientY: mouseY } = drag.event;
+      if (drag.state === "dragging") {
+        const el = cursorElRef.current;
+        if (el) {
+          const [offsetX, offsetY] = drag.initialOffset;
+
+          el.style.left = `${mouseX - offsetX}px`;
+          el.style.top = `${mouseY - offsetY}px`;
+        }
+      } else if (drag.state === "dragStarted") {
+        setCursorEl(
+          <CursorFollower ref={cursorElRef} style={{ width }}>
+            <StyledMenu style={{ paddingLeft, backgroundColor }}>
+              {icon && (
+                <StyledMenuIcon
+                  icon={icon}
+                  size="xs"
+                  onClick={ev => props.onIconClick(ev)}
+                />
+              )}
+              <StyledMenuText
+                style={{
+                  paddingLeft: !icon ? `${SIDEBAR_ICON_WIDTH}px` : undefined,
+                }}
+              >
+                {value}
+              </StyledMenuText>
+            </StyledMenu>
+          </CursorFollower>,
+        );
+      } else if (drag.state === "dragEnded") {
         const newParent = getSidebarMenuAttribute(
           drag.event.target as HTMLElement,
         );
@@ -61,9 +101,11 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         }
 
         // Drags that end outside of the sidebar should be considered cancels.
+
+        setCursorEl(undefined);
       }
     },
-    [props],
+    [props, backgroundColor, icon, paddingLeft, value, width],
   );
 
   useMouseDrag(menuRef, onDrag, {
@@ -72,28 +114,36 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   });
 
   return (
-    <StyledMenu
-      ref={menuRef}
-      style={{ paddingLeft, backgroundColor }}
-      title={title}
-      onClick={onClick}
-      {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
-    >
-      {icon && (
-        <StyledMenuIcon
-          icon={icon}
-          size="xs"
-          onClick={ev => props.onIconClick(ev)}
-        />
-      )}
-      <StyledMenuText
-        style={{ paddingLeft: !icon ? `${SIDEBAR_ICON_WIDTH}px` : undefined }}
+    <>
+      <StyledMenu
+        ref={menuRef}
+        style={{ paddingLeft, backgroundColor }}
+        title={title}
+        onClick={onClick}
+        {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
       >
-        {value}
-      </StyledMenuText>
-    </StyledMenu>
+        {icon && (
+          <StyledMenuIcon
+            icon={icon}
+            size="xs"
+            onClick={ev => props.onIconClick(ev)}
+          />
+        )}
+        <StyledMenuText
+          style={{ paddingLeft: !icon ? `${SIDEBAR_ICON_WIDTH}px` : undefined }}
+        >
+          {value}
+        </StyledMenuText>
+      </StyledMenu>
+      {createPortal(cursorEl, document.body)}
+    </>
   );
 }
+
+const CursorFollower = styled.div`
+  position: absolute;
+  pointer-events: none;
+`;
 
 const StyledMenu = styled.a`
   display: flex;
