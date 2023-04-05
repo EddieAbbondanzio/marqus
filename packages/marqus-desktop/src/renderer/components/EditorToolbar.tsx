@@ -90,7 +90,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
           if (originalIndex < targetIndex) {
             newIndex = targetIndex + 1;
           } else {
-            newIndex = targetIndex - 1;
+            newIndex = targetIndex;
           }
           break;
         }
@@ -615,13 +615,9 @@ export const moveTab: Listener<"editor.moveTab"> = async ({ value }, ctx) => {
 
   ctx.setUI(prev => {
     const tabs = prev.editor.tabs;
+    const [tab] = tabs.splice(originalIndex, 1);
 
-    // Feels a little too magical, but too tired to find simpler approach.
-    // Src: https://stackoverflow.com/a/59398737
-    [tabs[originalIndex], tabs[validatedIndex]] = [
-      tabs[validatedIndex],
-      tabs[originalIndex],
-    ];
+    tabs.splice(validatedIndex, 0, tab);
 
     return {
       editor: {
