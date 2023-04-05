@@ -77,9 +77,6 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
           break;
 
         case "relative": {
-          const originalIndex = editor.tabs.findIndex(
-            t => t.note.id === noteId,
-          );
           const targetIndex = editor.tabs.findIndex(
             t => t.note.id === drag.noteId,
           );
@@ -87,11 +84,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
             throw new Error(`No target tab for note ID: ${noteId} found.`);
           }
 
-          if (originalIndex < targetIndex) {
-            newIndex = targetIndex + 1;
-          } else {
-            newIndex = targetIndex;
-          }
+          newIndex = targetIndex;
           break;
         }
       }
