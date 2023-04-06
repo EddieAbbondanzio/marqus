@@ -29,6 +29,7 @@ export interface EditorTabProps {
   noteName: string;
   active?: boolean;
   isPinned?: boolean;
+  isPreview?: boolean;
   onClick: (noteId: string) => void;
   onClose: (noteId: string) => void;
   onUnpin: (noteId: string) => void;
@@ -109,7 +110,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
             <StyledTab active={active}>
               <FlexRow>
                 <StyledNoteIcon icon={faFile} size="lg" />
-                <StyledText>{noteName}</StyledText>
+                <StyledText isPreview={props.isPreview}>{noteName}</StyledText>
               </FlexRow>
             </StyledTab>
           </CursorFollower>,
@@ -148,7 +149,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
         <StyledTab ref={wrapper} title={notePath} active={active}>
           <FlexRow>
             <StyledNoteIcon icon={faFile} size="lg" />
-            <StyledText>{noteName}</StyledText>
+            <StyledText isPreview={props.isPreview}>{noteName}</StyledText>
           </FlexRow>
           {action}
         </StyledTab>
@@ -209,13 +210,15 @@ const StyledTab = styled.a<{ active?: boolean }>`
   }
 `;
 
-const StyledText = styled.span`
+const StyledText = styled.span<{ isPreview?: boolean }>`
   font-size: 1.2rem;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   min-width: 0;
+
+  font-style: ${p => (p.isPreview ? "italic" : "normal")};
 `;
 
 const StyledDeleteIcon = styled(Icon)`

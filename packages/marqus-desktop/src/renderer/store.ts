@@ -78,12 +78,16 @@ export type ListenerLookup = {
 };
 
 export function useStore(initialState: State, initialCache?: Cache): Store {
+  // We manage a state variable and ref because we need the store to trigger
+  // re-renders on components that use it's state, but we also need to be able
+  // to keep state fresh while performing async actions.
   const [state, setState] = useState<State>(initialState);
+  const stateRef = useRef(state);
+
   const cache = useRef<Cache>(
     initialCache ?? { modelViewStates: {}, closedTabs: [] },
   );
   const listeners = useRef<ListenerLookup>({});
-  const lastState = useRef(state);
 
   // Cache is good for storing state that shouldn't trigger a re-render
   const setCache: SetCache = useCallback(transformer => {
@@ -121,8 +125,8 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
         serializeAppState(newUI, cache.current),
       );
 
-      lastState.current = {
-        ...lastState.current,
+      stateRef.current = {
+        ...stateRef.current,
         ...newUI,
       };
 
@@ -139,7 +143,7 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
     setState(prevState => {
       const shortcuts = transformer(prevState.shortcuts);
 
-      lastState.current.shortcuts = shortcuts;
+      stateRef.current.shortcuts = shortcuts;
 
       return {
         ...prevState,
@@ -151,7 +155,7 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
     setState(prevState => {
       const notes = transformer(prevState.notes);
 
-      lastState.current.notes = notes;
+      stateRef.current.notes = notes;
 
       return {
         ...prevState,
@@ -167,7 +171,7 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
       }
 
       // Don't push new section if new first is the same.
-      const { current: state } = lastState;
+      const { current: state } = stateRef;
       if (!isEmpty(state.focused) && state.focused[0] === sections[0]) {
         return;
       }
@@ -190,7 +194,7 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
       setShortcuts,
       setNotes,
       focus,
-      getState: () => cloneDeep(lastState.current),
+      getState: () => cloneDeep(stateRef.current),
       getCache: () => cloneDeep(cache.current),
     };
 

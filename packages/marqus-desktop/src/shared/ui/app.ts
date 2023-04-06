@@ -47,6 +47,7 @@ export interface EditorTab {
   lastActive?: Date;
   isNewNote?: boolean;
   isPinned?: boolean;
+  isPreview?: boolean;
 }
 
 export interface Cache {
@@ -54,11 +55,15 @@ export interface Cache {
   closedTabs: ClosedEditorTab[];
 }
 
-export type ClosedEditorTab = { noteId: string; previousIndex: number };
-
 export type ModelViewState = {
   model?: monaco.editor.ITextModel;
   viewState?: monaco.editor.ICodeEditorViewState;
+};
+
+export type ClosedEditorTab = {
+  noteId: string;
+  previousIndex: number;
+  isPreview?: boolean;
 };
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to
@@ -129,6 +134,7 @@ export interface SerializedEditorTab {
   lastActive?: Date;
   viewState?: monaco.editor.ICodeEditorViewState;
   isPinned?: boolean;
+  isPreview?: boolean;
 }
 
 export function serializeAppState(
@@ -152,6 +158,7 @@ export function serializeAppState(
         lastActive: t.lastActive,
         viewState: cache?.modelViewStates[t.note.id]?.viewState,
         isPinned: t.isPinned,
+        isPreview: t.isPreview,
       })),
     },
   };
