@@ -512,16 +512,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
     ctx.focus([Section.Editor], { overwrite: true });
   }
 
-  // Filter out any closed tabs that have been reopened.
-  ctx.setCache(prev => {
-    const closedTabs = prev.closedTabs.filter(
-      ct => !tabs.some(t => t.note.id === ct.noteId),
-    );
-
-    return {
-      closedTabs,
-    };
-  });
+  cleanupClosedTabsCache(ctx);
 };
 
 export const reopenClosedTab: Listener<"editor.reopenClosedTab"> = async (
@@ -719,5 +710,20 @@ export function setActiveTab(
       expanded,
       selected: [activeTabNoteId],
     },
+  });
+}
+
+export function cleanupClosedTabsCache(ctx: StoreContext): void {
+  const { tabs } = ctx.getState().editor;
+
+  // Filter out any closed tabs that have been reopened.
+  ctx.setCache(prev => {
+    const closedTabs = prev.closedTabs.filter(
+      ct => !tabs.some(t => t.note.id === ct.noteId),
+    );
+
+    return {
+      closedTabs,
+    };
   });
 }

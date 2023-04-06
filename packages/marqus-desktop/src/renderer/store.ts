@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { cloneDeep, isEmpty, pick } from "lodash";
 import { deepUpdate } from "../shared/deepUpdate";
 import { DeepPartial } from "tsdef";
@@ -83,12 +83,7 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
     initialCache ?? { modelViewStates: {}, closedTabs: [] },
   );
   const listeners = useRef<ListenerLookup>({});
-  const lastState = useRef(state as Readonly<State>);
-
-  // We need to run these first
-  useLayoutEffect(() => {
-    lastState.current = cloneDeep(state);
-  }, [state]);
+  const lastState = useRef(state);
 
   // Cache is good for storing state that shouldn't trigger a re-render
   const setCache: SetCache = useCallback(transformer => {
@@ -125,6 +120,12 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
         "app.saveAppState",
         serializeAppState(newUI, cache.current),
       );
+
+      lastState.current = {
+        ...lastState.current,
+        ...newUI,
+      };
+
       return newState;
     });
   }, []);
@@ -135,16 +136,28 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
    */
 
   const setShortcuts: SetShortcuts = transformer => {
-    setState(prevState => ({
-      ...prevState,
-      shortcuts: transformer(prevState.shortcuts),
-    }));
+    setState(prevState => {
+      const shortcuts = transformer(prevState.shortcuts);
+
+      lastState.current.shortcuts = shortcuts;
+
+      return {
+        ...prevState,
+        shortcuts,
+      };
+    });
   };
   const setNotes: SetNotes = transformer => {
-    setState(prevState => ({
-      ...prevState,
-      notes: transformer(prevState.notes),
-    }));
+    setState(prevState => {
+      const notes = transformer(prevState.notes);
+
+      lastState.current.notes = notes;
+
+      return {
+        ...prevState,
+        notes,
+      };
+    });
   };
 
   const focus: Focus = useCallback(
@@ -177,7 +190,7 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
       setShortcuts,
       setNotes,
       focus,
-      getState: () => lastState.current,
+      getState: () => cloneDeep(lastState.current),
       getCache: () => cloneDeep(cache.current),
     };
 
