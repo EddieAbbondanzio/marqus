@@ -175,11 +175,13 @@ const shortcuts: Shortcut[] = [
     name: "editor.boldSelectedText",
     event: "editor.boldSelectedText",
     keys: [KeyCode.Control, KeyCode.LetterB],
+    when: Section.Editor,
   },
   {
     name: "editor.italicSelectedText",
     event: "editor.italicSelectedText",
     keys: [KeyCode.Control, KeyCode.LetterI],
+    when: Section.Editor,
   },
 ];
 
