@@ -13,6 +13,7 @@ export function mockStore(partial?: CreateStore): Store {
     state: createState(partial?.state),
     cache: {
       modelViewStates: {},
+      closedTabs: [],
     },
   };
 }

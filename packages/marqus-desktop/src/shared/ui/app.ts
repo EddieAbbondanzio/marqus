@@ -51,7 +51,10 @@ export interface EditorTab {
 
 export interface Cache {
   modelViewStates: Record<string, ModelViewState | undefined>;
+  closedTabs: ClosedEditorTab[];
 }
+
+export type ClosedEditorTab = { noteId: string; previousIndex: number };
 
 export type ModelViewState = {
   model?: monaco.editor.ITextModel;

@@ -157,6 +157,11 @@ const shortcuts: Shortcut[] = [
     when: Section.Editor,
   },
   {
+    name: "editor.reopenClosedTab",
+    event: "editor.reopenClosedTab",
+    keys: [KeyCode.Control, KeyCode.Shift, KeyCode.LetterT],
+  },
+  {
     name: "editor.previousTab",
     event: "editor.previousTab",
     keys: [KeyCode.Control, KeyCode.Shift, KeyCode.Tab],

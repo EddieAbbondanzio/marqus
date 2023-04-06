@@ -15,7 +15,7 @@ import { p2, rounded, THEME } from "../css";
 import { Listener, Store, StoreContext } from "../store";
 import { Icon } from "./shared/Icon";
 import { clamp, orderBy, uniq } from "lodash";
-import { Section } from "../../shared/ui/app";
+import { ClosedEditorTab, Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
 import { arrayify } from "../../shared/utils";
@@ -230,6 +230,17 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
         throw new Error(`Invalid action ${value}`);
     }
 
+    ctx.setCache(prev => {
+      const closedTabs: ClosedEditorTab[] = noteIdsToClose.map(noteId => ({
+        noteId,
+        previousIndex: editor.tabs.findIndex(t => t.note.id === noteId),
+      }));
+
+      return {
+        closedTabs: [...closedTabs, ...prev.closedTabs],
+      };
+    });
+
     ctx.setUI(prev => {
       const tabs = prev.editor.tabs.filter(
         t => !noteIdsToClose.includes(t.note.id),
@@ -294,6 +305,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
 
   useEffect(() => {
     store.on("editor.openTab", openTab);
+    store.on("editor.reopenClosedTab", reopenClosedTab);
     store.on(
       [
         "editor.closeActiveTab",
@@ -317,6 +329,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
 
     return () => {
       store.off("editor.openTab", openTab);
+      store.off("editor.reopenClosedTab", reopenClosedTab);
       store.off(
         [
           "editor.closeActiveTab",
@@ -492,6 +505,35 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   if (ev.value.focus) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
+};
+
+export const reopenClosedTab: Listener<"editor.reopenClosedTab"> = async (
+  _,
+  ctx,
+) => {
+  const { closedTabs } = ctx.getCache();
+  if (closedTabs.length === 0) {
+    return;
+  }
+
+  const { noteId, previousIndex } = closedTabs.shift()!;
+  const { notes } = ctx.getState();
+  const note = getNoteById(notes, noteId);
+
+  ctx.setUI(prev => {
+    const { tabs } = prev.editor;
+
+    const newIndex = Math.min(previousIndex, tabs.length);
+    tabs.splice(newIndex, 0, { note });
+
+    return {
+      editor: {
+        tabs,
+      },
+    };
+  });
+
+  setActiveTab(ctx, noteId);
 };
 
 export const deleteNote: Listener<"editor.deleteNote"> = async (_, ctx) => {
