@@ -28,6 +28,7 @@ import { EditorTab } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
+import { cleanupClosedTabsCache } from "./EditorToolbar";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -764,16 +765,7 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
     },
   }));
 
-  // Filter out any closed tabs that have been reopened.
-  ctx.setCache(prev => {
-    const closedTabs = prev.closedTabs.filter(
-      ct => !tabs.some(t => t.note.id === ct.noteId),
-    );
-
-    return {
-      closedTabs,
-    };
-  });
+  cleanupClosedTabsCache(ctx);
 };
 
 function toggleExpanded(ctx: StoreContext, noteId: string): void {
