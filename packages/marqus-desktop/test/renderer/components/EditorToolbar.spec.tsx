@@ -94,7 +94,7 @@ test("editor.openTab works with note paths too", async () => {
   });
 
   ({ editor } = store.current.state);
-  expect(editor.tabs[1]!.note.id).toBe("4");
+  expect(editor.tabs[0]!.note.id).toBe("4");
   expect(editor.activeTabNoteId).toBe("4");
 });
 

@@ -47,6 +47,7 @@ export interface EditorTab {
   lastActive?: Date;
   isNewNote?: boolean;
   isPinned?: boolean;
+  isPreview?: boolean;
 }
 
 export interface Cache {
@@ -129,6 +130,7 @@ export interface SerializedEditorTab {
   lastActive?: Date;
   viewState?: monaco.editor.ICodeEditorViewState;
   isPinned?: boolean;
+  isPreview?: boolean;
 }
 
 export function serializeAppState(
@@ -152,6 +154,7 @@ export function serializeAppState(
         lastActive: t.lastActive,
         viewState: cache?.modelViewStates[t.note.id]?.viewState,
         isPinned: t.isPinned,
+        isPreview: t.isPreview,
       })),
     },
   };

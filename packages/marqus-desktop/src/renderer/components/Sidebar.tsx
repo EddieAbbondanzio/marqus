@@ -24,11 +24,10 @@ import {
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
-import { EditorTab } from "../../shared/ui/app";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
-import { cleanupClosedTabsCache } from "./EditorToolbar";
+import { cleanupClosedTabsCache, openTabsForNotes } from "./EditorToolbar";
 
 const EXPANDED_ICON = faChevronDown;
 const COLLAPSED_ICON = faChevronRight;
@@ -723,47 +722,20 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
   ctx,
 ) => {
   // Keep in sync with editor.openTab listener
-  const { sidebar, editor, notes } = ctx.getState();
-  const { selected } = sidebar;
+  const {
+    sidebar: { selected },
+  } = ctx.getState();
 
   if (selected == null || selected.length === 0) {
     return;
   }
 
-  const notesToOpen = selected.map(s => getNoteById(notes, s));
-  const tabs = [...editor.tabs];
-
-  let firstTab: EditorTab | undefined;
-  for (const note of notesToOpen) {
-    let newTab = false;
-    let tab = editor.tabs.find(t => t.note.id === note.id);
-
-    if (tab == null) {
-      newTab = true;
-      tab = { note };
-    }
-
-    tab.lastActive = new Date();
-
-    if (newTab) {
-      tabs.push(tab);
-    }
-
-    if (firstTab == null) {
-      firstTab = tab;
-    }
-  }
+  openTabsForNotes(ctx, selected);
 
   // Editor is not set as focused when a note is opened from the sidebar because
   // the user may not want to start editing the note yet. This makes it easier
   // to delete a note because otherwise each time they clicked on a note, they'd
   // have to click back into the editor and then hit delete.
-  ctx.setUI(prev => ({
-    editor: {
-      tabs,
-      activeTabNoteId: firstTab?.note.id ?? prev.editor.activeTabNoteId,
-    },
-  }));
 
   cleanupClosedTabsCache(ctx);
 };

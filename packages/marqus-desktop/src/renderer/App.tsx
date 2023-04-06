@@ -162,6 +162,7 @@ export async function loadInitialState(
       note: getNoteById(notes, t.noteId, false),
       lastActive: t.lastActive,
       isPinned: t.isPinned,
+      isPreview: t.isPreview,
     }))
     .filter(t => t.note != null) as EditorTab[];
 

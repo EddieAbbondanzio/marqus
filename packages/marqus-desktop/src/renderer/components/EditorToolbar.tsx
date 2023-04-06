@@ -105,6 +105,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
           notePath={notePath}
           active={activeTabNoteId === note.id}
           isPinned={tab.isPinned}
+          isPreview={tab.isPreview}
           onClick={onClick}
           onClose={onClose}
           onUnpin={onUnpin}
@@ -449,12 +450,11 @@ const TabsScrollable = styled(Scrollable)`
 
 export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   // Keep in sync with sidebar.openSelectedNotes listener
-  const { editor, notes } = ctx.getState();
-
   if (ev.value?.note == null) {
     return;
   }
 
+  const { notes } = ctx.getState();
   const notesToOpen = arrayify(ev.value.note);
   const noteIds: string[] = [];
   let activeTabNoteId: string | undefined = undefined;
@@ -481,30 +481,7 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
     return;
   }
 
-  const tabs = [...editor.tabs];
-
-  for (const noteId of noteIds) {
-    let newTab = false;
-    let tab = editor.tabs.find(t => t.note.id === noteId);
-
-    if (tab == null) {
-      newTab = true;
-      const note = getNoteById(notes, noteId);
-      tab = { note };
-    }
-
-    tab.lastActive = new Date();
-
-    if (newTab) {
-      tabs.push(tab);
-    }
-  }
-
-  ctx.setUI({
-    editor: {
-      tabs,
-    },
-  });
+  openTabsForNotes(ctx, noteIds);
 
   setActiveTab(ctx, activeTabNoteId);
 
@@ -682,6 +659,56 @@ export const moveTab: Listener<"editor.moveTab"> = async ({ value }, ctx) => {
     };
   });
 };
+
+export function openTabsForNotes(ctx: StoreContext, noteIds: string[]): void {
+  if (noteIds.length === 0) {
+    return;
+  }
+
+  const { editor, notes } = ctx.getState();
+  let tabs = [...editor.tabs];
+
+  for (const noteId of noteIds) {
+    let newTab = false;
+    let tab = editor.tabs.find(t => t.note.id === noteId);
+
+    if (tab == null) {
+      newTab = true;
+      const note = getNoteById(notes, noteId);
+      tab = { note };
+
+      // Only open tabs in preview mode if we opened a single tab.
+      if (noteIds.length === 1) {
+        tab.isPreview = true;
+
+        // Only one preview tab can be open at once.
+        tabs = tabs.filter(t => !t.isPreview);
+      }
+    }
+    // Second open of a tab takes it out of preview mode.
+    else if (tab.isPreview) {
+      delete tab.isPreview;
+    }
+
+    tab.lastActive = new Date();
+
+    if (newTab) {
+      tabs.push(tab);
+    }
+  }
+
+  let { activeTabNoteId } = editor;
+  if (!activeTabNoteId) {
+    activeTabNoteId = tabs[0].note.id;
+  }
+
+  ctx.setUI({
+    editor: {
+      tabs,
+      activeTabNoteId,
+    },
+  });
+}
 
 export function setActiveTab(
   ctx: StoreContext,

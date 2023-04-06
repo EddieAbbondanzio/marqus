@@ -103,6 +103,9 @@ const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
     if (prev.editor.tabs[index].isNewNote) {
       delete prev.editor.tabs[index].isNewNote;
     }
+    if (prev.editor.tabs[index].isPreview) {
+      delete prev.editor.tabs[index].isPreview;
+    }
 
     return {
       editor: {
