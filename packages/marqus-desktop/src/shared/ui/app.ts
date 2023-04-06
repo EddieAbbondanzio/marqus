@@ -54,12 +54,12 @@ export interface Cache {
   closedTabs: ClosedEditorTab[];
 }
 
-export type ClosedEditorTab = { noteId: string; previousIndex: number };
-
 export type ModelViewState = {
   model?: monaco.editor.ITextModel;
   viewState?: monaco.editor.ICodeEditorViewState;
 };
+
+export type ClosedEditorTab = { noteId: string; previousIndex: number };
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to
 // clear out all references to it otherwise things will bork.
