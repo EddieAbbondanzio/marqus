@@ -25,6 +25,16 @@ export async function deleteNoteIfConfirmed(
     const otherNotes = flatten(notes).filter(n => deletedNotes[n.id] == null);
     ctx.setUI(ui => filterOutStaleNoteIds(ui, otherNotes, false));
 
+    ctx.setCache(cache => {
+      const closedTabs = cache.closedTabs.filter(
+        t => deletedNotes[t.noteId] == null,
+      );
+
+      return {
+        closedTabs,
+      };
+    });
+
     ctx.setNotes(notes => {
       if (note.parent == null) {
         return notes.filter(t => t.id !== note.id);
