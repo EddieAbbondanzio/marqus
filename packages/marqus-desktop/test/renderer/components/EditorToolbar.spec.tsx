@@ -264,6 +264,51 @@ test("editor.closeTab", async () => {
   ]);
 });
 
+test("editor.closeTab prevents duplicates in closedTab cache", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
+  const store = createStore(
+    {
+      notes,
+      editor: {
+        activeTabNoteId: "1",
+        tabs: [
+          createTab({
+            note: notes[0],
+            lastActive: subHours(new Date(), 1),
+          }),
+          createTab({
+            note: notes[1],
+            lastActive: subHours(new Date(), 2),
+          }),
+          createTab({
+            note: notes[2],
+            lastActive: subHours(new Date(), 3),
+          }),
+        ],
+      },
+    },
+    {
+      closedTabs: [{ noteId: "2", previousIndex: 2 }],
+    },
+  );
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.closeTab", "2");
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.activeTabNoteId).toBe("1");
+
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: "2", previousIndex: 1 },
+  ]);
+});
+
 test("editor.closeAllTabs", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),

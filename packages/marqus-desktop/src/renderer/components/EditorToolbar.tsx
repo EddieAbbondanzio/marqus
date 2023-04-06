@@ -14,7 +14,7 @@ import {
 import { p2, rounded, THEME } from "../css";
 import { Listener, Store, StoreContext } from "../store";
 import { Icon } from "./shared/Icon";
-import { clamp, orderBy, uniq } from "lodash";
+import { clamp, orderBy, uniq, uniqBy } from "lodash";
 import { ClosedEditorTab, Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
@@ -231,13 +231,19 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     }
 
     ctx.setCache(prev => {
-      const closedTabs: ClosedEditorTab[] = noteIdsToClose.map(noteId => ({
+      const newlyClosedTabs: ClosedEditorTab[] = noteIdsToClose.map(noteId => ({
         noteId,
         previousIndex: editor.tabs.findIndex(t => t.note.id === noteId),
       }));
 
+      const closedTabs = [...newlyClosedTabs, ...prev.closedTabs];
+
+      // Each tab can only be opened once so we remove duplicates to ensure we
+      // don't let the user try to re-open a tab that's already been re-opened.
+      const deduplicatedClosedTabs = uniqBy(closedTabs, t => t.noteId);
+
       return {
-        closedTabs: [...closedTabs, ...prev.closedTabs],
+        closedTabs: deduplicatedClosedTabs,
       };
     });
 
