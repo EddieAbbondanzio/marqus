@@ -232,10 +232,15 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     }
 
     ctx.setCache(prev => {
-      const newlyClosedTabs: ClosedEditorTab[] = noteIdsToClose.map(noteId => ({
-        noteId,
-        previousIndex: editor.tabs.findIndex(t => t.note.id === noteId),
-      }));
+      const newlyClosedTabs: ClosedEditorTab[] = noteIdsToClose.map(noteId => {
+        const previousIndex = editor.tabs.findIndex(t => t.note.id === noteId);
+
+        return {
+          noteId,
+          previousIndex,
+          isPreview: editor.tabs[previousIndex].isPreview,
+        };
+      });
 
       const closedTabs = [...newlyClosedTabs, ...prev.closedTabs];
 
@@ -501,7 +506,7 @@ export const reopenClosedTab: Listener<"editor.reopenClosedTab"> = async (
     return;
   }
 
-  const { noteId, previousIndex } = closedTabs[0];
+  const { noteId, previousIndex, isPreview } = closedTabs[0];
   ctx.setCache(prev => {
     const closedTabs = prev.closedTabs.slice(1);
 
@@ -522,7 +527,7 @@ export const reopenClosedTab: Listener<"editor.reopenClosedTab"> = async (
     const { tabs } = prev.editor;
 
     const newIndex = Math.min(previousIndex, tabs.length);
-    tabs.splice(newIndex, 0, { note });
+    tabs.splice(newIndex, 0, { note, isPreview });
 
     return {
       editor: {

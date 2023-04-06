@@ -60,7 +60,11 @@ export type ModelViewState = {
   viewState?: monaco.editor.ICodeEditorViewState;
 };
 
-export type ClosedEditorTab = { noteId: string; previousIndex: number };
+export type ClosedEditorTab = {
+  noteId: string;
+  previousIndex: number;
+  isPreview?: boolean;
+};
 
 // If a note was deleted but was referenced elsewhere in the ui state we need to
 // clear out all references to it otherwise things will bork.
