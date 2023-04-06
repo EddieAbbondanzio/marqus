@@ -201,6 +201,7 @@ export async function loadInitialState(
     },
     cache: {
       modelViewStates,
+      closedTabs: [],
     },
   };
 }

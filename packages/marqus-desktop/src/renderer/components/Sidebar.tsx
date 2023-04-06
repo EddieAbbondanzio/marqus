@@ -763,6 +763,17 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
       activeTabNoteId: firstTab?.note.id ?? prev.editor.activeTabNoteId,
     },
   }));
+
+  // Filter out any closed tabs that have been reopened.
+  ctx.setCache(prev => {
+    const closedTabs = prev.closedTabs.filter(
+      ct => !tabs.some(t => t.note.id === ct.noteId),
+    );
+
+    return {
+      closedTabs,
+    };
+  });
 };
 
 function toggleExpanded(ctx: StoreContext, noteId: string): void {

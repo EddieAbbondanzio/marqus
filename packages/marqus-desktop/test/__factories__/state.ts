@@ -39,5 +39,6 @@ export function createAppState(partial?: DeepPartial<AppState>): AppState {
 export function createCache(partial?: Partial<Cache>): Cache {
   return {
     modelViewStates: partial?.modelViewStates ?? {},
+    closedTabs: partial?.closedTabs ?? [],
   };
 }

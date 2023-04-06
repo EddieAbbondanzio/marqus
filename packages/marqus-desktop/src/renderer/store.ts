@@ -56,6 +56,7 @@ export interface StoreContext {
   setNotes: SetNotes;
   focus: Focus;
   getState(): State;
+  getCache(): Cache;
 }
 
 export type SetCache = (
@@ -78,7 +79,9 @@ export type ListenerLookup = {
 
 export function useStore(initialState: State, initialCache?: Cache): Store {
   const [state, setState] = useState<State>(initialState);
-  const cache = useRef<Cache>(initialCache ?? { modelViewStates: {} });
+  const cache = useRef<Cache>(
+    initialCache ?? { modelViewStates: {}, closedTabs: [] },
+  );
   const listeners = useRef<ListenerLookup>({});
   const lastState = useRef(state as Readonly<State>);
 
@@ -168,13 +171,14 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
   );
 
   const store = useMemo(() => {
-    const ctx = {
+    const ctx: StoreContext = {
       setCache,
       setUI,
       setShortcuts,
       setNotes,
       focus,
       getState: () => lastState.current,
+      getCache: () => cloneDeep(cache.current),
     };
 
     const dispatch: Dispatch = (async (event, value: any) => {

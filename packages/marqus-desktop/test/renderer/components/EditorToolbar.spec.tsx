@@ -98,6 +98,75 @@ test("editor.openTab works with note paths too", async () => {
   expect(editor.activeTabNoteId).toBe("4");
 });
 
+test("editor.openTab removes tabs from closedTab", async () => {
+  const store = createStore(
+    {
+      notes: [
+        createNote({ id: "1", name: "foo" }),
+        createNote({ id: "2", name: "bar" }),
+        createNote({
+          id: "3",
+          name: "baz",
+          children: [createNote({ id: "4", name: "Nested" })],
+        }),
+      ],
+      editor: {
+        tabs: [],
+      },
+    },
+    {
+      closedTabs: [{ noteId: "1", previousIndex: 0 }],
+    },
+  );
+  render(<EditorToolbar store={store.current} />);
+
+  await act(async () => {
+    await store.current.dispatch("editor.openTab", { note: "1" });
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs).toHaveLength(1);
+  expect(editor.tabs).toEqual([
+    expect.objectContaining({ note: expect.objectContaining({ id: "1" }) }),
+  ]);
+
+  expect(store.current.cache.closedTabs).toEqual([]);
+});
+
+test("editor.reopenClosedTab", async () => {
+  const store = createStore(
+    {
+      notes: [
+        createNote({ id: "1", name: "foo" }),
+        createNote({ id: "2", name: "bar" }),
+        createNote({
+          id: "3",
+          name: "baz",
+          children: [createNote({ id: "4", name: "Nested" })],
+        }),
+      ],
+      editor: {
+        tabs: [],
+      },
+    },
+    {
+      closedTabs: [{ noteId: "1", previousIndex: 0 }],
+    },
+  );
+  render(<EditorToolbar store={store.current} />);
+
+  await act(async () => {
+    await store.current.dispatch("editor.reopenClosedTab");
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs).toHaveLength(1);
+  expect(editor.tabs).toEqual([
+    expect.objectContaining({ note: expect.objectContaining({ id: "1" }) }),
+  ]);
+  expect(editor.activeTabNoteId).toBe("1");
+});
+
 test("editor.closeActiveTab", async () => {
   const noteFooId = uuid();
   const noteBarId = uuid();
@@ -150,6 +219,10 @@ test("editor.closeActiveTab", async () => {
   );
   expect(editorAfterFirstClose.activeTabNoteId).toBe(noteBarId);
 
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: noteFooId, previousIndex: 0 },
+  ]);
+
   // Close Bar
   await act(async () => {
     await store.current.dispatch("editor.closeActiveTab", undefined!);
@@ -166,6 +239,11 @@ test("editor.closeActiveTab", async () => {
   );
   expect(editorAfterSecondClose.activeTabNoteId).toBe(noteBazId);
 
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: noteBarId, previousIndex: 0 },
+    { noteId: noteFooId, previousIndex: 0 },
+  ]);
+
   // Close Baz (last remaining tab)
   await act(async () => {
     await store.current.dispatch("editor.closeActiveTab", undefined!);
@@ -173,6 +251,12 @@ test("editor.closeActiveTab", async () => {
   const { editor: editorAfterThirdClose } = store.current.state;
   expect(editorAfterThirdClose.tabs).toHaveLength(0);
   expect(editorAfterThirdClose.activeTabNoteId).toBe(undefined);
+
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: noteBazId, previousIndex: 0 },
+    { noteId: noteBarId, previousIndex: 0 },
+    { noteId: noteFooId, previousIndex: 0 },
+  ]);
 });
 
 test("editor.closeTab", async () => {
@@ -204,12 +288,60 @@ test("editor.closeTab", async () => {
 
   render(<EditorToolbar store={store.current} />);
   await act(async () => {
-    // Default behavior is to close active tab
     await store.current.dispatch("editor.closeTab", "2");
   });
 
   const { editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe("1");
+
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: "2", previousIndex: 1 },
+  ]);
+});
+
+test("editor.closeTab prevents duplicates in closedTab cache", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({ id: "2", name: "bar" }),
+    createNote({ id: "3", name: "baz" }),
+  ];
+  const store = createStore(
+    {
+      notes,
+      editor: {
+        activeTabNoteId: "1",
+        tabs: [
+          createTab({
+            note: notes[0],
+            lastActive: subHours(new Date(), 1),
+          }),
+          createTab({
+            note: notes[1],
+            lastActive: subHours(new Date(), 2),
+          }),
+          createTab({
+            note: notes[2],
+            lastActive: subHours(new Date(), 3),
+          }),
+        ],
+      },
+    },
+    {
+      closedTabs: [{ noteId: "2", previousIndex: 2 }],
+    },
+  );
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.closeTab", "2");
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.activeTabNoteId).toBe("1");
+
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: "2", previousIndex: 1 },
+  ]);
 });
 
 test("editor.closeAllTabs", async () => {
@@ -242,7 +374,6 @@ test("editor.closeAllTabs", async () => {
 
   render(<EditorToolbar store={store.current} />);
   await act(async () => {
-    // Default behavior is to close active tab
     await store.current.dispatch("editor.closeAllTabs");
   });
 
@@ -250,6 +381,11 @@ test("editor.closeAllTabs", async () => {
   expect(editor.activeTabNoteId).toBe(undefined);
   expect(editor.tabs.length).toBe(1);
   expect(editor.tabs[0].note.id).toBe("1");
+
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: "2", previousIndex: 1 },
+    { noteId: "3", previousIndex: 2 },
+  ]);
 });
 
 test("editor.closeOtherTabs", async () => {
@@ -296,6 +432,11 @@ test("editor.closeOtherTabs", async () => {
   expect(editor.tabs.length).toBe(2);
   expect(editor.tabs[0].note.id).toBe("1");
   expect(editor.tabs[1].note.id).toBe("2");
+
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: "3", previousIndex: 2 },
+    { noteId: "4", previousIndex: 3 },
+  ]);
 });
 
 test("editor.closeTabsToRight", async () => {
@@ -336,6 +477,11 @@ test("editor.closeTabsToRight", async () => {
   expect(editor.activeTabNoteId).toBe("1");
   expect(editor.tabs.length).toBe(1);
   expect(editor.tabs[0].note.id).toBe("1");
+
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: "2", previousIndex: 1 },
+    { noteId: "3", previousIndex: 2 },
+  ]);
 });
 
 test("editor.closeTabsToRight with pinned tabs to right", async () => {
@@ -379,6 +525,10 @@ test("editor.closeTabsToRight with pinned tabs to right", async () => {
   expect(editor.tabs.length).toBe(2);
   expect(editor.tabs[0].note.id).toBe("1");
   expect(editor.tabs[1].note.id).toBe("2");
+
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: "3", previousIndex: 2 },
+  ]);
 });
 
 test("editor.closeTabsToLeft", async () => {
@@ -427,9 +577,13 @@ test("editor.closeTabsToLeft", async () => {
   expect(editor.tabs[0].note.id).toBe("1");
   expect(editor.tabs[1].note.id).toBe("3");
   expect(editor.tabs[2].note.id).toBe("4");
+
+  expect(store.current.cache.closedTabs).toEqual([
+    { noteId: "2", previousIndex: 1 },
+  ]);
 });
 
-test("editor.closeTabsToLeft", async () => {
+test("editor.closeTabsToLeft pinned notes", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
@@ -473,6 +627,8 @@ test("editor.closeTabsToLeft", async () => {
   const { editor } = store.current.state;
   expect(editor.activeTabNoteId).toBe("2");
   expect(editor.tabs.length).toBe(4);
+
+  expect(store.current.cache.closedTabs).toEqual([]);
 });
 
 test("editor.nextTab", async () => {

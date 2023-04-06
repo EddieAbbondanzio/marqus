@@ -40,7 +40,6 @@ export interface UIEvents {
   "sidebar.collapseAll": void;
   "sidebar.expandAll": void;
   "sidebar.setNoteSort": { sort: NoteSort; note?: string };
-
   "sidebar.deleteSelectedNote": void;
   "sidebar.toggleSelectedNoteExpanded": void;
   "sidebar.toggleNoteExpanded": string;
@@ -70,6 +69,7 @@ export interface UIEvents {
   "editor.closeTabsToLeft": string;
   "editor.closeTabsToRight": string;
   "editor.closeOtherTabs": string;
+  "editor.reopenClosedTab": void;
   "editor.previousTab": void;
   "editor.nextTab": void;
   "editor.moveTab": { noteId: string; newIndex: number };
@@ -155,6 +155,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.closeTabsToLeft",
   "editor.closeTabsToRight",
   "editor.closeOtherTabs",
+  "editor.reopenClosedTab",
   "editor.previousTab",
   "editor.nextTab",
   "editor.moveTab",

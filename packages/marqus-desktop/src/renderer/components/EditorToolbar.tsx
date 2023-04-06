@@ -14,8 +14,8 @@ import {
 import { p2, rounded, THEME } from "../css";
 import { Listener, Store, StoreContext } from "../store";
 import { Icon } from "./shared/Icon";
-import { clamp, orderBy, uniq } from "lodash";
-import { Section } from "../../shared/ui/app";
+import { clamp, orderBy, uniq, uniqBy } from "lodash";
+import { ClosedEditorTab, Section } from "../../shared/ui/app";
 import { Scrollable } from "./shared/Scrollable";
 import { Focusable } from "./shared/Focusable";
 import { arrayify } from "../../shared/utils";
@@ -230,6 +230,23 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
         throw new Error(`Invalid action ${value}`);
     }
 
+    ctx.setCache(prev => {
+      const newlyClosedTabs: ClosedEditorTab[] = noteIdsToClose.map(noteId => ({
+        noteId,
+        previousIndex: editor.tabs.findIndex(t => t.note.id === noteId),
+      }));
+
+      const closedTabs = [...newlyClosedTabs, ...prev.closedTabs];
+
+      // Each tab can only be opened once so we remove duplicates to ensure we
+      // don't let the user try to re-open a tab that's already been re-opened.
+      const deduplicatedClosedTabs = uniqBy(closedTabs, t => t.noteId);
+
+      return {
+        closedTabs: deduplicatedClosedTabs,
+      };
+    });
+
     ctx.setUI(prev => {
       const tabs = prev.editor.tabs.filter(
         t => !noteIdsToClose.includes(t.note.id),
@@ -294,6 +311,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
 
   useEffect(() => {
     store.on("editor.openTab", openTab);
+    store.on("editor.reopenClosedTab", reopenClosedTab);
     store.on(
       [
         "editor.closeActiveTab",
@@ -317,6 +335,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
 
     return () => {
       store.off("editor.openTab", openTab);
+      store.off("editor.reopenClosedTab", reopenClosedTab);
       store.off(
         [
           "editor.closeActiveTab",
@@ -492,6 +511,59 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   if (ev.value.focus) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
+
+  // Filter out any closed tabs that have been reopened.
+  ctx.setCache(prev => {
+    const closedTabs = prev.closedTabs.filter(
+      ct => !tabs.some(t => t.note.id === ct.noteId),
+    );
+
+    return {
+      closedTabs,
+    };
+  });
+};
+
+export const reopenClosedTab: Listener<"editor.reopenClosedTab"> = async (
+  _,
+  ctx,
+) => {
+  const { closedTabs } = ctx.getCache();
+  if (closedTabs.length === 0) {
+    return;
+  }
+
+  const { noteId, previousIndex } = closedTabs[0];
+  ctx.setCache(prev => {
+    const closedTabs = prev.closedTabs.slice(1);
+
+    return {
+      closedTabs,
+    };
+  });
+
+  const { notes, editor } = ctx.getState();
+
+  // Sanity check to ensure we don't open a duplicate tab.
+  if (editor.tabs.findIndex(t => t.note.id === noteId) !== -1) {
+    return;
+  }
+
+  const note = getNoteById(notes, noteId);
+  ctx.setUI(prev => {
+    const { tabs } = prev.editor;
+
+    const newIndex = Math.min(previousIndex, tabs.length);
+    tabs.splice(newIndex, 0, { note });
+
+    return {
+      editor: {
+        tabs,
+      },
+    };
+  });
+
+  setActiveTab(ctx, noteId);
 };
 
 export const deleteNote: Listener<"editor.deleteNote"> = async (_, ctx) => {
@@ -620,7 +692,7 @@ export const moveTab: Listener<"editor.moveTab"> = async ({ value }, ctx) => {
   });
 };
 
-function setActiveTab(
+export function setActiveTab(
   ctx: StoreContext,
   activeTabNoteId: string | undefined,
 ): void {
