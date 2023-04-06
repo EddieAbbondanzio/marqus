@@ -178,7 +178,7 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
       setNotes,
       focus,
       getState: () => lastState.current,
-      getCache: () => cache.current,
+      getCache: () => cloneDeep(cache.current),
     };
 
     const dispatch: Dispatch = (async (event, value: any) => {

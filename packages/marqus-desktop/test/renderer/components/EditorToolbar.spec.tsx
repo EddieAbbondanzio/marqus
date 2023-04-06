@@ -98,6 +98,41 @@ test("editor.openTab works with note paths too", async () => {
   expect(editor.activeTabNoteId).toBe("4");
 });
 
+test("editor.openTab removes tabs from closedTab", async () => {
+  const store = createStore(
+    {
+      notes: [
+        createNote({ id: "1", name: "foo" }),
+        createNote({ id: "2", name: "bar" }),
+        createNote({
+          id: "3",
+          name: "baz",
+          children: [createNote({ id: "4", name: "Nested" })],
+        }),
+      ],
+      editor: {
+        tabs: [],
+      },
+    },
+    {
+      closedTabs: [{ noteId: "1", previousIndex: 0 }],
+    },
+  );
+  render(<EditorToolbar store={store.current} />);
+
+  await act(async () => {
+    await store.current.dispatch("editor.openTab", { note: "1" });
+  });
+
+  const { editor } = store.current.state;
+  expect(editor.tabs).toHaveLength(1);
+  expect(editor.tabs).toEqual([
+    expect.objectContaining({ note: expect.objectContaining({ id: "1" }) }),
+  ]);
+
+  expect(store.current.cache.closedTabs).toEqual([]);
+});
+
 test("editor.reopenClosedTab", async () => {
   const store = createStore(
     {

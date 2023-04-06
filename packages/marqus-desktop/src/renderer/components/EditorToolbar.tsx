@@ -511,6 +511,17 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   if (ev.value.focus) {
     ctx.focus([Section.Editor], { overwrite: true });
   }
+
+  // Filter out any closed tabs that have been reopened.
+  ctx.setCache(prev => {
+    const closedTabs = prev.closedTabs.filter(
+      ct => !tabs.some(t => t.note.id === ct.noteId),
+    );
+
+    return {
+      closedTabs,
+    };
+  });
 };
 
 export const reopenClosedTab: Listener<"editor.reopenClosedTab"> = async (
@@ -522,10 +533,23 @@ export const reopenClosedTab: Listener<"editor.reopenClosedTab"> = async (
     return;
   }
 
-  const { noteId, previousIndex } = closedTabs.shift()!;
-  const { notes } = ctx.getState();
-  const note = getNoteById(notes, noteId);
+  const { noteId, previousIndex } = closedTabs[0];
+  ctx.setCache(prev => {
+    const closedTabs = prev.closedTabs.slice(1);
 
+    return {
+      closedTabs,
+    };
+  });
+
+  const { notes, editor } = ctx.getState();
+
+  // Sanity check to ensure we don't open a duplicate tab.
+  if (editor.tabs.findIndex(t => t.note.id === noteId) !== -1) {
+    return;
+  }
+
+  const note = getNoteById(notes, noteId);
   ctx.setUI(prev => {
     const { tabs } = prev.editor;
 
@@ -668,7 +692,7 @@ export const moveTab: Listener<"editor.moveTab"> = async ({ value }, ctx) => {
   });
 };
 
-function setActiveTab(
+export function setActiveTab(
   ctx: StoreContext,
   activeTabNoteId: string | undefined,
 ): void {

@@ -897,17 +897,22 @@ test("sidebar.openSelectedNotes", async () => {
     }),
   ];
 
-  const store = createStore({
-    notes,
-    sidebar: {
-      selected: [noteFooId],
+  const store = createStore(
+    {
+      notes,
+      sidebar: {
+        selected: [noteFooId],
+      },
+      editor: {
+        activeTabNoteId: undefined,
+        tabs: [],
+      },
+      focused: [Section.Sidebar],
     },
-    editor: {
-      activeTabNoteId: undefined,
-      tabs: [],
+    {
+      closedTabs: [{ noteId: noteFooId, previousIndex: 0 }],
     },
-    focused: [Section.Sidebar],
-  });
+  );
 
   render(<Sidebar store={store.current} />);
 
@@ -930,4 +935,6 @@ test("sidebar.openSelectedNotes", async () => {
   expect(editor.tabs).toHaveLength(1);
   expect(store.current.state.focused).toEqual([Section.Sidebar]);
   expect(editor.activeTabNoteId).toBe(noteFooId);
+
+  expect(store.current.cache.closedTabs).toEqual([]);
 });
