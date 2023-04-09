@@ -1,4 +1,4 @@
-import winston, { Logger } from "winston";
+import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import { Config } from "../shared/domain/config";
 import { JsonFile } from "./json";
