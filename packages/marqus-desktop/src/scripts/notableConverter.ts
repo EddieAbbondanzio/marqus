@@ -13,6 +13,7 @@ type NoteData = Pick<
   Note,
   "id" | "name" | "dateCreated" | "dateUpdated" | "content"
 > & {
+  parent?: string;
   children: { [noteName: string]: NoteData };
 };
 
@@ -109,6 +110,7 @@ async function main() {
           name: n,
           content: "",
           dateCreated: new Date(),
+          parent: prevParent.id,
           children: {},
         };
 
@@ -150,6 +152,7 @@ async function main() {
         dateCreated: parsedFile.data.created,
         dateUpdated: parsedFile.data.modified,
         content: parsedFile.content,
+        parent: parent.id,
         children: {},
       };
     } else {
@@ -179,22 +182,22 @@ async function main() {
     return;
   }
 
-  const notesToSave: Array<NoteData & { parent?: NoteData }> =
-    Object.values(notes);
+  const notesToSave: NoteData[] = Object.values(notes);
   while (notesToSave.length > 0) {
     const currNote = notesToSave.shift()!;
 
     const children = Object.values(currNote.children) ?? [];
     if (children.length > 0) {
-      notesToSave.push(...children.map(c => ({ ...c, parent: currNote })));
+      notesToSave.push(...children);
     }
 
     const convertedNote = createNote({
+      id: currNote.id,
       name: currNote.name,
       content: currNote.content,
       dateCreated: currNote.dateCreated,
       dateUpdated: currNote.dateUpdated,
-      parent: currNote.parent?.id,
+      parent: currNote.parent,
     });
 
     await saveNoteToFS(outputDirectory, convertedNote);
