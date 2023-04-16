@@ -10,6 +10,7 @@ export const THEME = {
     selected: OpenColor.gray[7],
     background: OpenColor.gray[9],
     font: OpenColor.gray[3],
+    icon: OpenColor.gray[6],
     error: {
       background: OpenColor.red[1],
       font: OpenColor.red[9],

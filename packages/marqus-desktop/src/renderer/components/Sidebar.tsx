@@ -19,18 +19,16 @@ import { createPromisedInput, PromisedInput } from "../../shared/promisedInput";
 import { promptError } from "../utils/prompt";
 import { Scrollable } from "./shared/Scrollable";
 import { SIDEBAR_MENU_HEIGHT, SidebarMenu, SidebarInput } from "./SidebarMenu";
-import {
-  faChevronDown,
-  faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown, faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { SidebarSearch } from "./SidebarSearch";
 import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 import { cleanupClosedTabsCache, openTabsForNotes } from "./EditorToolbar";
+import { math, remToPx, stripUnit } from "polished";
 
-const EXPANDED_ICON = faChevronDown;
-const COLLAPSED_ICON = faChevronRight;
+const EXPANDED_ICON = faCaretDown;
+const COLLAPSED_ICON = faCaretRight;
 const MIN_WIDTH = "200px";
 export interface SidebarProps {
   store: Store;
@@ -219,7 +217,7 @@ const Controls = styled.div`
 `;
 
 const EmptySpace = styled.div`
-  padding-bottom: ${SIDEBAR_MENU_HEIGHT}px;
+  padding-bottom: ${SIDEBAR_MENU_HEIGHT};
 `;
 
 export function renderMenus(
@@ -266,6 +264,7 @@ export function renderMenus(
           key="sidebarInput"
           value={input}
           depth={currDepth}
+          isSelected={isSelected}
         />,
       );
     } else {
@@ -324,6 +323,7 @@ export function renderMenus(
           key="sidebarInput"
           value={input}
           depth={currDepth + 1}
+          isSelected={isSelected}
         />,
       );
     }
@@ -334,7 +334,13 @@ export function renderMenus(
 
   if (input != null && input.parentId == null && input.id == null) {
     menus.push(
-      <SidebarInput store={store} key="sidebarInput" value={input} depth={0} />,
+      <SidebarInput
+        store={store}
+        key="sidebarInput"
+        value={input}
+        depth={0}
+        isSelected={false}
+      />,
     );
   }
 
@@ -373,10 +379,12 @@ export const updateScroll: Listener<"sidebar.updateScroll"> = (
 
 export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
   setUI(prev => {
-    const scroll = Math.max(prev.sidebar.scroll - SIDEBAR_MENU_HEIGHT, 0);
+    const calculated = math(`${prev.sidebar.scroll} - ${SIDEBAR_MENU_HEIGHT}`);
+    const scrollInPx = stripUnit(remToPx(calculated)) as number;
+
     return {
       sidebar: {
-        scroll,
+        scroll: Math.max(scrollInPx, 0),
       },
     };
   });
@@ -384,10 +392,10 @@ export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
 
 export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
   setUI(prev => {
-    const scroll = prev.sidebar.scroll + SIDEBAR_MENU_HEIGHT;
+    const scroll = math(`${prev.sidebar.scroll} + ${SIDEBAR_MENU_HEIGHT}`);
     return {
       sidebar: {
-        scroll,
+        scroll: stripUnit(scroll) as number,
       },
     };
   });
