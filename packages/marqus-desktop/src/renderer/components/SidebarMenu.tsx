@@ -40,11 +40,6 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   const iconOffset = icon ? 0 : 4;
   const paddingLeft = `${props.depth * SIDEBAR_MENU_INDENT + iconOffset}px`;
 
-  let backgroundColor = THEME.sidebar.background;
-  if (isSelected) {
-    backgroundColor = THEME.sidebar.selected;
-  }
-
   const menuRef = useRef<HTMLAnchorElement>(null!);
 
   const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
@@ -69,7 +64,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
       } else if (drag.state === "dragStarted") {
         setCursorEl(
           <CursorFollower ref={cursorElRef} style={{ width }}>
-            <StyledMenu style={{ paddingLeft, backgroundColor }}>
+            <StyledMenu selected={isSelected} style={{ paddingLeft }}>
               {icon && (
                 <StyledMenuIcon
                   icon={icon}
@@ -105,7 +100,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         setCursorEl(undefined);
       }
     },
-    [props, backgroundColor, icon, paddingLeft, value, width],
+    [props, icon, paddingLeft, isSelected, value, width],
   );
 
   useMouseDrag(menuRef, onDrag, {
@@ -116,8 +111,9 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   return (
     <>
       <StyledMenu
+        selected={props.isSelected}
         ref={menuRef}
-        style={{ paddingLeft, backgroundColor }}
+        style={{ paddingLeft }}
         title={title}
         onClick={onClick}
         {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
@@ -145,7 +141,7 @@ const CursorFollower = styled.div`
   pointer-events: none;
 `;
 
-const StyledMenu = styled.a`
+const StyledMenu = styled.a<{ selected: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -153,9 +149,17 @@ const StyledMenu = styled.a`
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
 
-  &:hover {
-    background-color: ${THEME.sidebar.hover};
-  }
+  ${p => {
+    if (p.selected) {
+      return `background-color: ${THEME.sidebar.selected};`;
+    } else {
+      return `
+      background-color: ${THEME.sidebar.background};
+      &:hover {
+        background-color: ${THEME.sidebar.hover};
+      }`;
+    }
+  }}
 `;
 
 const StyledMenuIcon = styled(Icon)`
