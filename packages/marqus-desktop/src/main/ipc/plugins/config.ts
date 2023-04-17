@@ -8,6 +8,7 @@ import * as fs from "fs";
 import * as fsp from "fs/promises";
 import { IpcPlugin } from "..";
 import { getLatestSchemaVersion } from "../../schemas/utils";
+import { cloneDeep } from "lodash";
 
 export const CONFIG_FILE = "config.json";
 export const DEFAULT_DEV_NOTE_DIRECTORY = "notes";
@@ -16,7 +17,21 @@ export const DEFAULT_WINDOW_HEIGHT = 600;
 export const DEFAULT_WINDOW_WIDTH = 800;
 
 export const configIpcPlugin: IpcPlugin = {
-  "config.get": ({ config }) => config.content,
+  "config.get": ({ config }) => {
+    const clonedConfig = cloneDeep(config.content) as Config;
+
+    // We don't tell the app about a noteDirectory if the folder doesn't exist
+    // in the FS because this makes the user go through setup again. This gives
+    // them the chance to fix the error themselves.
+    if (
+      clonedConfig.noteDirectory &&
+      !fs.existsSync(clonedConfig.noteDirectory)
+    ) {
+      delete clonedConfig.noteDirectory;
+    }
+
+    return clonedConfig;
+  },
 
   "config.openInTextEditor": async () => {
     const configPath = path.join(getConfigDirectory(), CONFIG_FILE);
@@ -76,19 +91,23 @@ export async function getConfig(): Promise<JsonFile<Config>> {
   );
 
   if (isDevelopment()) {
-    await configFile.update({
-      noteDirectory: DEFAULT_DEV_NOTE_DIRECTORY,
+    const defaults: Partial<Config> = {
       logDirectory: DEFAULT_DEV_LOG_DIRECTORY,
-    });
-  }
+    };
 
-  // Always check if we need to recreate the note directory on start. It may have
-  // been deleted to clear out notes.
-  if (
-    configFile.content.noteDirectory != null &&
-    !fs.existsSync(configFile.content.noteDirectory)
-  ) {
-    await fsp.mkdir(configFile.content.noteDirectory);
+    if (!fs.existsSync(DEFAULT_DEV_LOG_DIRECTORY)) {
+      await fsp.mkdir(DEFAULT_DEV_LOG_DIRECTORY);
+    }
+
+    if (!configFile.content.noteDirectory) {
+      defaults.noteDirectory = DEFAULT_DEV_NOTE_DIRECTORY;
+
+      if (!fs.existsSync(DEFAULT_DEV_NOTE_DIRECTORY)) {
+        await fsp.mkdir(DEFAULT_DEV_NOTE_DIRECTORY);
+      }
+    }
+
+    await configFile.update(defaults);
   }
 
   return configFile;

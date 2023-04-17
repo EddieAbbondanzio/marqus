@@ -26,17 +26,26 @@ afterEach(() => {
 jest.mock("../../../../src/main/utils");
 
 test("appIpcs sets app menu on start", async () => {
-  const { browserWindow } = await initIpc({}, appIpcPlugin);
+  mockFS({
+    foo: {},
+  });
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+
+  const { browserWindow } = await initIpc({ config }, appIpcPlugin);
   expect(browserWindow.setMenu).toHaveBeenCalled();
 });
 
 test("appIpcs saves config on window resize", async () => {
+  mockFS({
+    foo: {},
+  });
+
   const on = jest.fn();
   const getSize = jest.fn().mockReturnValueOnce([100, 200]);
 
   const browserWindow = createBrowserWindow({ on, getSize });
   const config = createJsonFile(
-    createConfig({ windowHeight: 50, windowWidth: 75 }),
+    createConfig({ windowHeight: 50, windowWidth: 75, noteDirectory: "foo" }),
   );
   await initIpc({ browserWindow, config }, appIpcPlugin);
   expect(config.content.windowHeight).toBe(50);
@@ -92,9 +101,10 @@ test("app.loadAppState loads", async () => {
 
   mockFS({
     [APP_STATE_FILE]: appStateJson,
+    foo: {},
   });
-
-  const { ipc } = await initIpc({}, appIpcPlugin);
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+  const { ipc } = await initIpc({ config }, appIpcPlugin);
 
   const appState = await ipc.invoke("app.loadAppState");
   expect(appState.focused).toEqual([Section.Editor]);
@@ -116,9 +126,12 @@ test("app.loadAppState loads", async () => {
 
 test("app.loadAppState loads defaults", async () => {
   // No ui.json in file system.
-  mockFS();
+  mockFS({
+    foo: {},
+  });
 
-  const { ipc } = await initIpc({}, appIpcPlugin);
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+  const { ipc } = await initIpc({ config }, appIpcPlugin);
 
   const appState = await ipc.invoke("app.loadAppState");
   expect(appState).toEqual(APP_STATE_DEFAULTS);
@@ -127,9 +140,11 @@ test("app.loadAppState loads defaults", async () => {
 test("app.loadAppState handles bad JSON", async () => {
   mockFS({
     [APP_STATE_FILE]: "P{WD{A{DSASD}",
+    foo: {},
   });
 
-  const { ipc } = await initIpc({}, appIpcPlugin);
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+  const { ipc } = await initIpc({ config }, appIpcPlugin);
   const appState = await ipc.invoke("app.loadAppState");
   expect(appState).toEqual(APP_STATE_DEFAULTS);
 });
@@ -137,9 +152,11 @@ test("app.loadAppState handles bad JSON", async () => {
 test("app.saveAppState", async () => {
   mockFS({
     [APP_STATE_FILE]: JSON.stringify(createAppState()),
+    foo: {},
   });
 
-  const { ipc } = await initIpc({}, appIpcPlugin);
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+  const { ipc } = await initIpc({ config }, appIpcPlugin);
 
   const update = serializeAppState(
     createAppState({
@@ -162,7 +179,12 @@ test("app.saveAppState", async () => {
 });
 
 test("app.showContextMenu", async () => {
-  const { ipc } = await initIpc({}, appIpcPlugin);
+  mockFS({
+    foo: {},
+  });
+
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+  const { ipc } = await initIpc({ config }, appIpcPlugin);
   const menu = {
     popup: jest.fn(),
   };
@@ -175,11 +197,17 @@ test("app.showContextMenu", async () => {
 });
 
 test("app.setApplicationMenu", async () => {
+  mockFS({
+    foo: {},
+  });
+
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+
   const setMenu = jest.fn();
   const browserWindow = createBrowserWindow({
     setMenu,
   });
-  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
+  const { ipc } = await initIpc({ browserWindow, config }, appIpcPlugin);
 
   // Weak test...
   await ipc.invoke("app.setApplicationMenu", []);
@@ -187,7 +215,12 @@ test("app.setApplicationMenu", async () => {
 });
 
 test("app.promptUser", async () => {
-  const { ipc } = await initIpc({}, appIpcPlugin);
+  mockFS({
+    foo: {},
+  });
+
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+  const { ipc } = await initIpc({ config }, appIpcPlugin);
 
   // Throws if multiple cancel buttons
   await expect(async () => {
@@ -233,19 +266,29 @@ test("app.promptUser", async () => {
 });
 
 test("app.openDevTools", async () => {
+  mockFS({
+    foo: {},
+  });
+
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
   const openDevTools = jest.fn();
   const browserWindow = createBrowserWindow({
     webContents: {
       openDevTools,
     } as unknown as WebContents,
   });
-  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
+  const { ipc } = await initIpc({ browserWindow, config }, appIpcPlugin);
 
   await ipc.invoke("app.openDevTools");
   expect(openDevTools).toHaveBeenCalled();
 });
 
 test("app.reload", async () => {
+  mockFS({
+    foo: {},
+  });
+
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
   const reload = jest.fn();
   const browserWindow = createBrowserWindow({
     webContents: {
@@ -253,7 +296,7 @@ test("app.reload", async () => {
     } as unknown as WebContents,
   });
   const { ipc, reloadIpcPlugins } = await initIpc(
-    { browserWindow },
+    { browserWindow, config },
     appIpcPlugin,
   );
 
@@ -263,11 +306,16 @@ test("app.reload", async () => {
 });
 
 test("app.toggleFullScreen", async () => {
+  mockFS({
+    foo: {},
+  });
+
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
   const browserWindow = createBrowserWindow({
     isFullScreen: jest.fn(),
     setFullScreen: jest.fn(),
   });
-  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
+  const { ipc } = await initIpc({ browserWindow, config }, appIpcPlugin);
 
   // Windowed -> Full Screen
   (browserWindow.isFullScreen as jest.Mock).mockReturnValueOnce(false);
@@ -282,7 +330,12 @@ test("app.toggleFullScreen", async () => {
 });
 
 test("app.quit", async () => {
-  const { ipc } = await initIpc({}, appIpcPlugin);
+  mockFS({
+    foo: {},
+  });
+
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+  const { ipc } = await initIpc({ config }, appIpcPlugin);
   const close = jest.fn();
 
   (BrowserWindow.getAllWindows as jest.Mock).mockImplementationOnce(() => [
@@ -296,31 +349,47 @@ test("app.quit", async () => {
 });
 
 test("app.inspectElement rounds floats", async () => {
+  mockFS({
+    foo: {},
+  });
+
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
   const inspectElement = jest.fn();
   const browserWindow = createBrowserWindow({
     webContents: {
       inspectElement,
     } as unknown as WebContents,
   });
-  const { ipc } = await initIpc({ browserWindow }, appIpcPlugin);
+  const { ipc } = await initIpc({ browserWindow, config }, appIpcPlugin);
 
   await ipc.invoke("app.inspectElement", { x: 1.23, y: 2.67 });
   expect(inspectElement).toBeCalledWith(1, 3);
 });
 
 test("app.openInWebBrowser", async () => {
-  const { ipc } = await initIpc({}, appIpcPlugin);
+  mockFS({
+    foo: {},
+  });
+
+  const config = createJsonFile(createConfig({ noteDirectory: "foo" }));
+  const { ipc } = await initIpc({ config }, appIpcPlugin);
 
   await ipc.invoke("app.openInWebBrowser", "foo.com");
   expect(openInBrowser).toHaveBeenCalledWith("foo.com");
 });
 
 test("app.openLogDirectory", async () => {
+  mockFS({
+    foo: {},
+    bar: {},
+  });
+
   const { ipc } = await initIpc(
     {
       config: createJsonFile(
         createConfig({
-          logDirectory: "foo",
+          noteDirectory: "foo",
+          logDirectory: "bar",
         }),
       ),
     },
@@ -328,10 +397,15 @@ test("app.openLogDirectory", async () => {
   );
 
   await ipc.invoke("app.openLogDirectory");
-  expect(shell.openPath).toHaveBeenCalledWith("foo");
+  expect(shell.openPath).toHaveBeenCalledWith("bar");
 });
 
 test("app.toggleAutoHideAppMenu", async () => {
+  mockFS({
+    foo: {},
+    bar: {},
+  });
+
   const browserWindow = createBrowserWindow({
     isMenuBarAutoHide: jest.fn().mockReturnValueOnce(false),
   });
@@ -341,7 +415,8 @@ test("app.toggleAutoHideAppMenu", async () => {
       browserWindow,
       config: createJsonFile(
         createConfig({
-          logDirectory: "foo",
+          noteDirectory: "foo",
+          logDirectory: "bar",
         }),
       ),
     },
