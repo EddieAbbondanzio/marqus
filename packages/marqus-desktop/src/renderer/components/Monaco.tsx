@@ -8,7 +8,7 @@ import { Attachment, Protocol } from "../../shared/domain/protocols";
 import { Config } from "../../shared/domain/config";
 import { debounce } from "lodash";
 
-const SET_CONTENT_INTERVAL_MS = 250;
+const DEBOUNCE_INTERVAL_MS = 250;
 
 // Fixes: Error: Language id "vs.editor.nullLanguage" is not configured nor known
 // See https://github.com/microsoft/monaco-editor/issues/2962
@@ -248,23 +248,27 @@ export function Monaco(props: MonacoProps): JSX.Element {
         content: value,
         noteId: activeNoteId.current!,
       });
-    }, SET_CONTENT_INTERVAL_MS),
+    }, DEBOUNCE_INTERVAL_MS),
     [store],
   );
 
-  const onViewStateChange = useCallback(() => {
-    if (monacoEditor.current == null || activeNoteId.current == null) {
-      return;
-    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onViewStateChange = useCallback(
+    debounce(() => {
+      if (monacoEditor.current == null || activeNoteId.current == null) {
+        return;
+      }
 
-    const viewState = monacoEditor.current.saveViewState()!;
-    store.dispatch("editor.setModelViewState", {
-      noteId: activeNoteId.current,
-      modelViewState: {
-        viewState,
-      },
-    });
-  }, [store]);
+      const viewState = monacoEditor.current.saveViewState()!;
+      store.dispatch("editor.setModelViewState", {
+        noteId: activeNoteId.current,
+        modelViewState: {
+          viewState,
+        },
+      });
+    }, DEBOUNCE_INTERVAL_MS),
+    [store],
+  );
 
   // Subscribe to monaco editor events
   useEffect(() => {
