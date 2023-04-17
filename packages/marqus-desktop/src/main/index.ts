@@ -76,10 +76,15 @@ export async function main(): Promise<void> {
 
       const { windowHeight, windowWidth, autoHideAppMenu } = configFile.content;
 
+      let title = "Marqus";
+      if (isDevelopment()) {
+        title = `${title} (DEVELOPMENT)`;
+      }
+
       mainWindow = new BrowserWindow({
         // Title must be specified otherwise npm package name will be used until
         // index.html has loaded.
-        title: "Marqus",
+        title,
         icon: "static/icon.png",
         height: windowHeight,
         width: windowWidth,
