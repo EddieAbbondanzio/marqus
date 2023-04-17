@@ -3,7 +3,6 @@ import { compact } from "lodash";
 import { MaybeThunk } from "tsdef";
 import { Config } from "../../shared/domain/config";
 import { IPCS, IpcSchema, IpcType } from "../../shared/ipc";
-import { Logger } from "../../shared/logger";
 import { JsonFile } from "../json";
 import { appIpcPlugin } from "./plugins/app";
 import { configIpcPlugin } from "./plugins/config";

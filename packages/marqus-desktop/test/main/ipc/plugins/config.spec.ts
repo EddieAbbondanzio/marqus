@@ -22,7 +22,11 @@ afterEach(() => {
   mockFS.restore();
 });
 
-test("config.get", async () => {
+test("config.get note directory exists", async () => {
+  mockFS({
+    [FAKE_NOTE_DIRECTORY]: {},
+  });
+
   const config: Config = {
     version: 4,
     windowHeight: 100,
@@ -40,6 +44,26 @@ test("config.get", async () => {
 
   const c: Config = await ipc.invoke("config.get");
   expect(c).toMatchObject(config);
+});
+
+test("config.get note directory doesn't exist", async () => {
+  const config: Config = {
+    version: 4,
+    windowHeight: 100,
+    windowWidth: 200,
+    noteDirectory: FAKE_NOTE_DIRECTORY,
+    logDirectory: "logs",
+    developerMode: true,
+    autoHideAppMenu: true,
+  };
+
+  const { ipc } = await initIpc(
+    { config: createJsonFile(config) },
+    configIpcPlugin,
+  );
+
+  const c: Config = await ipc.invoke("config.get");
+  expect(c.noteDirectory).toBe(undefined);
 });
 
 test("config.openInTextEditor", async () => {
@@ -114,14 +138,13 @@ test.each([null, ["foo"]])(
   },
 );
 
-test("getConfig overrides note / log directory in development", async () => {
+test("getConfig defaults note directory in development", async () => {
   mockFS({
     [CONFIG_FILE]: JSON.stringify({
       version: getLatestSchemaVersion(CONFIG_SCHEMAS),
       windowHeight: 10,
       windowWidth: 10,
       logDirectory: "random/logs",
-      noteDirectory: "random/note-dir",
     }),
     random: {
       "note-dir": {},
@@ -135,22 +158,30 @@ test("getConfig overrides note / log directory in development", async () => {
 
   const config = await getConfig();
   expect(config.content.noteDirectory).toBe(DEFAULT_DEV_NOTE_DIRECTORY);
-  expect(config.content.logDirectory).toBe(DEFAULT_DEV_LOG_DIRECTORY);
+  expect(fs.existsSync(config.content.noteDirectory!)).toBe(true);
 });
 
-test("getConfig creates note directory if directory is missing.", async () => {
+test("getConfig overrides log directory in development", async () => {
   mockFS({
     [CONFIG_FILE]: JSON.stringify({
       version: getLatestSchemaVersion(CONFIG_SCHEMAS),
-      noteDirectory: "foo",
-      logDirectory: "bar",
-      windowHeight: 800,
-      windowWidth: 600,
+      windowHeight: 10,
+      windowWidth: 10,
+      logDirectory: "random/logs",
     }),
+    random: {
+      "note-dir": {},
+      logs: {},
+    },
   });
 
-  await getConfig();
-  expect(fs.existsSync(CONFIG_FILE)).toBe(true);
+  // We use spyOn instead of mocking entire module because we need getProcessType
+  // to function normal.
+  jest.spyOn(env, "isDevelopment").mockReturnValue(true);
+
+  const config = await getConfig();
+  expect(config.content.logDirectory).toBe(DEFAULT_DEV_LOG_DIRECTORY);
+  expect(fs.existsSync(config.content.logDirectory!)).toBe(true);
 });
 
 test("getConfigDirectory", () => {

@@ -23,6 +23,7 @@ import * as fs from "fs";
 import { Config } from "../../../shared/domain/config";
 import { getConfigDirectory } from "./config";
 import { getLatestSchemaVersion } from "../../schemas/utils";
+import { logger } from "../../logger";
 
 export const APP_STATE_FILE = "appState.json";
 export const APP_STATE_DEFAULTS = {
@@ -66,8 +67,18 @@ export const appIpcPlugin: IpcPlugin = {
 
     browserWindow.on("resize", onResize);
 
-    if (config.content.noteDirectory != null) {
+    const hasNoteDirectory = Boolean(config.content.noteDirectory);
+    let noteDirectoryExists = false;
+    if (hasNoteDirectory) {
+      noteDirectoryExists = fs.existsSync(config.content.noteDirectory!);
+    }
+
+    if (hasNoteDirectory && noteDirectoryExists) {
       appStateFile = await loadAppState(config.content);
+    } else if (!noteDirectoryExists) {
+      logger.warn(
+        `Failed to load app state. Note directory ${config.content.noteDirectory} wasn't found.`,
+      );
     }
 
     return () => {
