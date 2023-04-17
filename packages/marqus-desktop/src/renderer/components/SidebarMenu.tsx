@@ -5,7 +5,7 @@ import { PromisedInput } from "../../shared/promisedInput";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
-import { mt1, p2, py1, THEME, w100 } from "../css";
+import { mt1, p2, px2, py1, THEME, w100 } from "../css";
 import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon, IconProps } from "./shared/Icon";
 import { MouseDrag, useMouseDrag } from "../io/mouse";
@@ -142,7 +142,7 @@ const CursorFollower = styled.div`
   pointer-events: none;
 `;
 
-// TODO: How can we commonize with StyledFocusable below?
+// Keep in sync with StyledFocusable
 const SidebarRow = styled.a<{
   state?: "selected" | "hovered";
   depth: number;
@@ -297,6 +297,7 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
   );
 }
 
+// Keep in sync with SidebarRow
 const StyledFocusable = styled(Focusable)<{
   state: "selected" | "hovered";
   depth: number;
@@ -347,10 +348,13 @@ const ErrorMessage = styled.div`
   background-color: ${THEME.sidebar.error.background};
   color: ${THEME.sidebar.error.font};
   font-size: ${FONT_SIZE};
-  border-radius: 0.4rem;
+  font-weight: bold;
   position: relative;
-  ${mt1}
-  ${p2}
+  height: ${SIDEBAR_MENU_HEIGHT};
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  ${px2}
 `;
 
 export const getSidebarMenuAttribute = partial(

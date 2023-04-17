@@ -12,7 +12,7 @@ export const THEME = {
     font: OpenColor.gray[3],
     icon: OpenColor.gray[6],
     error: {
-      background: OpenColor.red[1],
+      background: OpenColor.red[2],
       font: OpenColor.red[9],
     },
     search: {
