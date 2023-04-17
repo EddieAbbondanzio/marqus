@@ -36,7 +36,17 @@ interface SidebarMenuProps {
 }
 
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
-  const { title, value, depth, icon, isSelected, onClick, store } = props;
+  const {
+    title,
+    value,
+    depth,
+    icon,
+    isSelected,
+    onClick,
+    onIconClick,
+    onDrag,
+    store,
+  } = props;
   const { state } = store;
 
   const menuRef = useRef<HTMLAnchorElement>(null!);
@@ -45,7 +55,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   const cursorElRef = useRef<HTMLDivElement | null>(null);
   const { width } = store.state.sidebar;
 
-  const onDrag = useCallback(
+  const onDragHandler = useCallback(
     (drag: MouseDrag | null) => {
       if (!drag || drag.state === "dragCancelled") {
         setCursorEl(undefined);
@@ -64,16 +74,12 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
       } else if (drag.state === "dragStarted") {
         setCursorEl(
           <CursorFollower ref={cursorElRef} style={{ width }}>
-            <SidebarRow
-              depth={depth}
-              hasIcon={Boolean(icon)}
-              state={isSelected ? "selected" : undefined}
-            >
+            <SidebarRow depth={depth} hasIcon={Boolean(icon)} state="selected">
               {icon && (
                 <StyledMenuIcon
                   icon={icon}
                   size={ICON_SIZE}
-                  onClick={ev => props.onIconClick(ev)}
+                  onClick={onIconClick}
                 />
               )}
               <StyledMenuText>{value}</StyledMenuText>
@@ -86,11 +92,11 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         );
 
         if (newParent != null) {
-          props.onDrag(newParent);
+          onDrag(newParent);
         }
         // Drag was inside sidebar, but not on a note. Move note to root.
         else if (wasInsideFocusable(drag.event, Section.Sidebar)) {
-          props.onDrag();
+          onDrag();
         }
 
         // Drags that end outside of the sidebar should be considered cancels.
@@ -98,10 +104,10 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         setCursorEl(undefined);
       }
     },
-    [props, icon, depth, isSelected, value, width],
+    [icon, depth, value, width, onIconClick, onDrag],
   );
 
-  useMouseDrag(menuRef, onDrag, {
+  useMouseDrag(menuRef, onDragHandler, {
     cursor: "grabbing",
     disabled: state.sidebar.input != null,
   });
@@ -202,7 +208,13 @@ export interface SidebarInputProps {
 }
 
 export function SidebarInput(props: SidebarInputProps): JSX.Element {
-  const { depth, icon } = props;
+  const {
+    store,
+    depth,
+    icon,
+    isSelected,
+    value: { confirm, cancel, value },
+  } = props;
 
   const inputRef = useRef(null! as HTMLInputElement);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
@@ -210,18 +222,17 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
   );
   const [isValid, setIsValid] = useState(true);
 
-  const { cancel } = props.value;
   const tryConfirm = () => {
     if (isValid) {
-      props.value.confirm();
+      confirm();
     }
   };
 
   const onBlur = () => {
-    if (isBlank(props.value.value)) {
+    if (isBlank(value)) {
       cancel();
     } else {
-      props.value.confirm();
+      confirm();
     }
   };
 
@@ -262,25 +273,27 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
   }, []);
 
   return (
-    <StyledFocusable
-      state={props.isSelected ? "selected" : "hovered"}
-      depth={depth}
-      hasIcon={Boolean(icon)}
-      store={props.store}
-      section={Section.SidebarInput}
-      elementRef={inputRef}
-      onBlur={onBlur}
-    >
-      {icon && <StyledMenuIcon icon={icon} size={ICON_SIZE} />}
-      <StyledInput
-        ref={inputRef}
-        value={props.value.value}
-        onChange={onChange}
-        onKeyDown={keyDown}
-        data-testid="sidebar-input"
-      />
+    <>
+      <StyledFocusable
+        state={isSelected ? "selected" : "hovered"}
+        depth={depth}
+        hasIcon={Boolean(icon)}
+        store={store}
+        section={Section.SidebarInput}
+        elementRef={inputRef}
+        onBlur={onBlur}
+      >
+        {icon && <StyledMenuIcon icon={icon} size={ICON_SIZE} />}
+        <StyledInput
+          ref={inputRef}
+          value={value}
+          onChange={onChange}
+          onKeyDown={keyDown}
+          data-testid="sidebar-input"
+        />
+      </StyledFocusable>
       {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-    </StyledFocusable>
+    </>
   );
 }
 
@@ -316,7 +329,6 @@ const StyledFocusable = styled(Focusable)<{
   }};
 `;
 
-// Keep height consistent with sidebar item
 const StyledInput = styled.input`
   ${w100};
   border: none;
