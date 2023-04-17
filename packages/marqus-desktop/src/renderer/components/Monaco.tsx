@@ -6,6 +6,9 @@ import { TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { Section } from "../../shared/ui/app";
 import { Attachment, Protocol } from "../../shared/domain/protocols";
 import { Config } from "../../shared/domain/config";
+import { debounce } from "lodash";
+
+const SET_CONTENT_INTERVAL_MS = 250;
 
 // Fixes: Error: Language id "vs.editor.nullLanguage" is not configured nor known
 // See https://github.com/microsoft/monaco-editor/issues/2962
@@ -216,34 +219,38 @@ export function Monaco(props: MonacoProps): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onModelChange = useCallback(async () => {
-    if (monacoEditor.current == null) {
-      return;
-    }
-    const value = monacoEditor.current.getModel()?.getValue();
-    if (value == null) {
-      return;
-    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onModelChange = useCallback(
+    debounce(async () => {
+      if (monacoEditor.current == null) {
+        return;
+      }
+      const value = monacoEditor.current.getModel()?.getValue();
+      if (value == null) {
+        return;
+      }
 
-    if (activeNoteId.current == null) {
-      return;
-    }
+      if (activeNoteId.current == null) {
+        return;
+      }
 
-    const viewState = monacoEditor.current.saveViewState()!;
-    const model = monacoEditor.current.getModel()!;
-    await store.dispatch("editor.setModelViewState", {
-      noteId: activeNoteId.current,
-      modelViewState: {
-        model,
-        viewState,
-      },
-    });
+      const viewState = monacoEditor.current.saveViewState()!;
+      const model = monacoEditor.current.getModel()!;
+      await store.dispatch("editor.setModelViewState", {
+        noteId: activeNoteId.current,
+        modelViewState: {
+          model,
+          viewState,
+        },
+      });
 
-    await store.dispatch("editor.setContent", {
-      content: value,
-      noteId: activeNoteId.current!,
-    });
-  }, [store]);
+      await store.dispatch("editor.setContent", {
+        content: value,
+        noteId: activeNoteId.current!,
+      });
+    }, SET_CONTENT_INTERVAL_MS),
+    [store],
+  );
 
   const onViewStateChange = useCallback(() => {
     if (monacoEditor.current == null || activeNoteId.current == null) {

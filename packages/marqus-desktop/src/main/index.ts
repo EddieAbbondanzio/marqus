@@ -50,6 +50,8 @@ export async function main(): Promise<void> {
     // If the app is closed while writing to the file system, we risk corrupting
     // a file so we block it from "closing" by keeping it running in the background
     // until we can finish whatever we were doing.
+
+    // TODO: Fix this because it likely doesn't handle multiple calls at once.
     let keepAlivePromise: Promise<unknown> | undefined;
     const blockAppFromQuitting = async (
       cb: () => Promise<void>,

@@ -12,7 +12,7 @@ import { EditorToolbar, TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { getNoteById } from "../../shared/domain/note";
 import { Config } from "../../shared/domain/config";
 
-const NOTE_SAVE_INTERVAL_MS = 500;
+const NOTE_SAVE_INTERVAL_MS = 1000;
 
 interface EditorProps {
   store: Store;
@@ -114,6 +114,9 @@ const setContent: Listener<"editor.setContent"> = async ({ value }, ctx) => {
     };
   });
 
+  // TODO: Reduce the amount of work here. `getNoteById` flattens the entire
+  // note tree then searches for the note in the resulting array. It works fine
+  // for a limited number of notes but will eventually bottle neck.
   ctx.setNotes(notes => {
     const note = getNoteById(notes, noteId);
     note.content = content;
