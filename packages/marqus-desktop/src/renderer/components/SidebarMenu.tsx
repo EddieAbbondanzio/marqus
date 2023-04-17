@@ -5,20 +5,22 @@ import { PromisedInput } from "../../shared/promisedInput";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
-import { mt1, p2, py1, THEME, w100 } from "../css";
+import { mt1, p2, px2, py1, THEME, w100 } from "../css";
 import { Focusable, wasInsideFocusable } from "./shared/Focusable";
-import { Icon } from "./shared/Icon";
+import { Icon, IconProps } from "./shared/Icon";
 import { MouseDrag, useMouseDrag } from "../io/mouse";
 import { Section } from "../../shared/ui/app";
 import { partial } from "lodash";
 import { getClosestAttribute } from "../utils/dom";
 import { createPortal } from "react-dom";
+import { math } from "polished";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
-export const SIDEBAR_MENU_HEIGHT = 24;
-export const SIDEBAR_MENU_INDENT = 10;
-export const SIDEBAR_ICON_WIDTH = 20;
-export const SIDEBAR_MENU_FONT_SIZE = "1.2rem";
+export const SIDEBAR_MENU_HEIGHT = "3rem";
+const INDENT_WIDTH = "10px";
+const ICON_WIDTH = "20px";
+const ICON_SIZE: IconProps["size"] = "lg";
+const FONT_SIZE = "1.2rem";
 
 interface SidebarMenuProps {
   icon?: IconDefinition;
@@ -34,23 +36,26 @@ interface SidebarMenuProps {
 }
 
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
-  const { title, value, icon, isSelected, onClick, store } = props;
+  const {
+    title,
+    value,
+    depth,
+    icon,
+    isSelected,
+    onClick,
+    onIconClick,
+    onDrag,
+    store,
+  } = props;
   const { state } = store;
-
-  const iconOffset = icon ? 0 : 4;
-  const paddingLeft = `${props.depth * SIDEBAR_MENU_INDENT + iconOffset}px`;
-
-  let backgroundColor = THEME.sidebar.background;
-  if (isSelected) {
-    backgroundColor = THEME.sidebar.selected;
-  }
 
   const menuRef = useRef<HTMLAnchorElement>(null!);
 
   const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
   const cursorElRef = useRef<HTMLDivElement | null>(null);
   const { width } = store.state.sidebar;
-  const onDrag = useCallback(
+
+  const onDragHandler = useCallback(
     (drag: MouseDrag | null) => {
       if (!drag || drag.state === "dragCancelled") {
         setCursorEl(undefined);
@@ -69,22 +74,16 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
       } else if (drag.state === "dragStarted") {
         setCursorEl(
           <CursorFollower ref={cursorElRef} style={{ width }}>
-            <StyledMenu style={{ paddingLeft, backgroundColor }}>
+            <SidebarRow depth={depth} hasIcon={Boolean(icon)} state="selected">
               {icon && (
                 <StyledMenuIcon
                   icon={icon}
-                  size="xs"
-                  onClick={ev => props.onIconClick(ev)}
+                  size={ICON_SIZE}
+                  onClick={onIconClick}
                 />
               )}
-              <StyledMenuText
-                style={{
-                  paddingLeft: !icon ? `${SIDEBAR_ICON_WIDTH}px` : undefined,
-                }}
-              >
-                {value}
-              </StyledMenuText>
-            </StyledMenu>
+              <StyledMenuText>{value}</StyledMenuText>
+            </SidebarRow>
           </CursorFollower>,
         );
       } else if (drag.state === "dragEnded") {
@@ -93,11 +92,11 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         );
 
         if (newParent != null) {
-          props.onDrag(newParent);
+          onDrag(newParent);
         }
         // Drag was inside sidebar, but not on a note. Move note to root.
         else if (wasInsideFocusable(drag.event, Section.Sidebar)) {
-          props.onDrag();
+          onDrag();
         }
 
         // Drags that end outside of the sidebar should be considered cancels.
@@ -105,36 +104,34 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         setCursorEl(undefined);
       }
     },
-    [props, backgroundColor, icon, paddingLeft, value, width],
+    [icon, depth, value, width, onIconClick, onDrag],
   );
 
-  useMouseDrag(menuRef, onDrag, {
+  useMouseDrag(menuRef, onDragHandler, {
     cursor: "grabbing",
     disabled: state.sidebar.input != null,
   });
 
   return (
     <>
-      <StyledMenu
+      <SidebarRow
+        state={isSelected ? "selected" : undefined}
         ref={menuRef}
-        style={{ paddingLeft, backgroundColor }}
         title={title}
+        depth={depth}
+        hasIcon={Boolean(icon)}
         onClick={onClick}
         {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
       >
         {icon && (
           <StyledMenuIcon
             icon={icon}
-            size="xs"
+            size={ICON_SIZE}
             onClick={ev => props.onIconClick(ev)}
           />
         )}
-        <StyledMenuText
-          style={{ paddingLeft: !icon ? `${SIDEBAR_ICON_WIDTH}px` : undefined }}
-        >
-          {value}
-        </StyledMenuText>
-      </StyledMenu>
+        <StyledMenuText>{value}</StyledMenuText>
+      </SidebarRow>
       {createPortal(cursorEl, document.body)}
     </>
   );
@@ -145,30 +142,56 @@ const CursorFollower = styled.div`
   pointer-events: none;
 `;
 
-const StyledMenu = styled.a`
+// Keep in sync with StyledFocusable
+const SidebarRow = styled.a<{
+  state?: "selected" | "hovered";
+  depth: number;
+  hasIcon?: boolean;
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: ${SIDEBAR_MENU_HEIGHT}px;
+  height: ${SIDEBAR_MENU_HEIGHT};
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
+  padding-left: ${p => getPaddingLeft(p.depth, p.hasIcon)};
 
-  &:hover {
-    background-color: ${THEME.sidebar.hover};
-  }
+  ${p => {
+    switch (p.state) {
+      case "selected":
+        return `background-color: ${THEME.sidebar.selected};`;
+
+      case "hovered":
+        return `background-color: ${THEME.sidebar.hover};`;
+
+      default:
+        return `
+        background-color: ${THEME.sidebar.background};
+        &:hover {
+          background-color: ${THEME.sidebar.hover};
+        }
+        `;
+    }
+  }}
 `;
 
 const StyledMenuIcon = styled(Icon)`
-  color: ${THEME.sidebar.font};
-  width: ${SIDEBAR_ICON_WIDTH}px;
+  color: ${THEME.sidebar.icon};
+  width: ${ICON_WIDTH};
+  height: 1.6rem;
   padding: 0;
+  margin: 0;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
   text-align: center;
-  font-size: ${SIDEBAR_MENU_FONT_SIZE};
+  font-size: ${FONT_SIZE};
+  flex-shrink: 0;
 `;
 
 const StyledMenuText = styled.div`
   color: ${THEME.sidebar.font};
-  font-size: ${SIDEBAR_MENU_FONT_SIZE};
+  font-size: ${FONT_SIZE};
+  font-weight: bold;
 
   overflow: hidden;
   min-width: 0;
@@ -181,32 +204,35 @@ export interface SidebarInputProps {
   value: PromisedInput;
   depth: number;
   icon?: IconDefinition;
+  isSelected: boolean;
 }
 
 export function SidebarInput(props: SidebarInputProps): JSX.Element {
-  const paddingLeft = `${
-    props.depth * SIDEBAR_MENU_INDENT +
-    // Adjust by 8 to account for real size of icon width (28px).
-    (props.icon == null ? SIDEBAR_ICON_WIDTH + 8 : 0)
-  }px`;
+  const {
+    store,
+    depth,
+    icon,
+    isSelected,
+    value: { confirm, cancel, value },
+  } = props;
+
   const inputRef = useRef(null! as HTMLInputElement);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined,
   );
   const [isValid, setIsValid] = useState(true);
 
-  const { cancel } = props.value;
   const tryConfirm = () => {
     if (isValid) {
-      props.value.confirm();
+      confirm();
     }
   };
 
   const onBlur = () => {
-    if (isBlank(props.value.value)) {
+    if (isBlank(value)) {
       cancel();
     } else {
-      props.value.confirm();
+      confirm();
     }
   };
 
@@ -247,56 +273,73 @@ export function SidebarInput(props: SidebarInputProps): JSX.Element {
   }, []);
 
   return (
-    <Indented style={{ paddingLeft }}>
+    <>
       <StyledFocusable
-        store={props.store}
+        state={isSelected ? "selected" : "hovered"}
+        depth={depth}
+        hasIcon={Boolean(icon)}
+        store={store}
         section={Section.SidebarInput}
         elementRef={inputRef}
         onBlur={onBlur}
       >
-        <StyledDiv>
-          {props.icon && <StyledMenuIcon icon={props.icon} size="xs" />}
-          <StyledInput
-            ref={inputRef}
-            value={props.value.value}
-            onChange={onChange}
-            onKeyDown={keyDown}
-            data-testid="sidebar-input"
-          />
-        </StyledDiv>
-        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+        {icon && <StyledMenuIcon icon={icon} size={ICON_SIZE} />}
+        <StyledInput
+          ref={inputRef}
+          value={value}
+          onChange={onChange}
+          onKeyDown={keyDown}
+          data-testid="sidebar-input"
+        />
       </StyledFocusable>
-    </Indented>
+      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+    </>
   );
 }
 
-const Indented = styled.div`
-  background-color: ${THEME.sidebar.hover};
-  height: 28px;
-`;
-
-const StyledFocusable = styled(Focusable)`
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-`;
-
-const StyledDiv = styled.div`
+// Keep in sync with SidebarRow
+const StyledFocusable = styled(Focusable)<{
+  state: "selected" | "hovered";
+  depth: number;
+  hasIcon?: boolean;
+}>`
   display: flex;
   flex-direction: row;
   flex-grow: 1;
+  align-items: center;
+  height: ${SIDEBAR_MENU_HEIGHT};
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  padding-left: ${p => getPaddingLeft(p.depth, p.hasIcon)};
+  ${p => {
+    switch (p.state) {
+      case "selected":
+        return `background-color: ${THEME.sidebar.selected};`;
+
+      case "hovered":
+        return `background-color: ${THEME.sidebar.hover};`;
+
+      default:
+        return `
+        background-color: ${THEME.sidebar.background};
+        &:hover {
+          background-color: ${THEME.sidebar.hover};
+        }
+        `;
+    }
+  }};
 `;
 
-// Keep height consistent with sidebar item
 const StyledInput = styled.input`
   ${w100};
   border: none;
   outline: none;
   -webkit-appearance: none;
   height: 2rem;
-  font-size: ${SIDEBAR_MENU_FONT_SIZE};
+  font-size: ${FONT_SIZE};
+  font-weight: bold;
   padding-left: 0;
-  background-color: ${THEME.sidebar.input.background};
+  background-color: inherit;
   color: ${THEME.sidebar.input.font};
   ${py1};
 `;
@@ -304,14 +347,30 @@ const StyledInput = styled.input`
 const ErrorMessage = styled.div`
   background-color: ${THEME.sidebar.error.background};
   color: ${THEME.sidebar.error.font};
-  font-size: ${SIDEBAR_MENU_FONT_SIZE};
-  border-radius: 0.4rem;
+  font-size: ${FONT_SIZE};
+  font-weight: bold;
   position: relative;
-  ${mt1}
-  ${p2}
+  height: ${SIDEBAR_MENU_HEIGHT};
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  ${px2}
 `;
 
 export const getSidebarMenuAttribute = partial(
   getClosestAttribute,
   SIDEBAR_MENU_ATTRIBUTE,
 );
+
+export function getPaddingLeft(depth: number, hasIcon?: boolean): string {
+  if (depth < 0) {
+    throw new Error("Depth must be 0 or greater.");
+  }
+
+  let iconOffset = "0px";
+  if (!hasIcon) {
+    iconOffset = math(`${ICON_WIDTH} + 5px`);
+  }
+
+  return math(`${depth} * ${INDENT_WIDTH} + ${iconOffset}`);
+}

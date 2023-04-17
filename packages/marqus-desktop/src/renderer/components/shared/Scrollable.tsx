@@ -43,6 +43,13 @@ export function Scrollable(
         return;
       }
 
+      // Don't swallow key events when user is editting text, otherwise they
+      // won't be able to move the cursor.
+      const target = ev.target as HTMLElement;
+      if (["INPUT", "TEXTAREA"].includes(target.tagName)) {
+        return;
+      }
+
       const keyCode = parseKeyCode(ev.code);
       if (
         keyCode &&
