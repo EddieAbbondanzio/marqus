@@ -57,13 +57,11 @@ export function Monaco(props: MonacoProps): JSX.Element {
     store.on("editor.boldSelectedText", boldSelectedText);
     store.on("editor.italicSelectedText", italicSelectedText);
     store.on("editor.selectAllText", selectAllText);
-    store.on("editor.setModelViewState", setModelViewState);
 
     return () => {
       store.off("editor.boldSelectedText", boldSelectedText);
       store.off("editor.italicSelectedText", italicSelectedText);
       store.off("editor.selectAllText", selectAllText);
-      store.off("editor.setModelViewState", setModelViewState);
     };
   }, [store]);
 
@@ -197,6 +195,11 @@ export function Monaco(props: MonacoProps): JSX.Element {
     }
 
     return () => {
+      // Flush debounced handlers to ensure any final changes are made when the
+      // editor switches to view mode.
+      onViewStateChange.flush();
+      onModelChange.flush();
+
       resizeObserver?.disconnect();
 
       if (monacoEditor.current != null) {
@@ -468,19 +471,3 @@ export function disableKeybinding(
     () => void undefined,
   );
 }
-
-export const setModelViewState: Listener<"editor.setModelViewState"> = (
-  { value },
-  ctx,
-) => {
-  // TODO: Can we make listener parameters required?
-  if (value == null || value.noteId == null || value.modelViewState == null) {
-    return;
-  }
-
-  ctx.setCache({
-    modelViewStates: {
-      [value.noteId]: value.modelViewState,
-    },
-  });
-};
