@@ -314,6 +314,10 @@ const H6 = styled.h6`
 
 const Paragraph = styled.p`
   font-size: 1.6rem;
+
+  // Makes links render nicely when rendered in an paragraph, or when there's
+  // one link per line in a pseudo list.
+  white-space: pre-wrap;
 `;
 
 const Blockquote = styled.blockquote`
@@ -400,8 +404,11 @@ const LIST_ITEM_MARKER_WIDTH = 32;
 const LIST_INDENT = 16;
 
 const UnorderedList = styled.ul`
-  margin-left: ${LIST_INDENT}px;
   font-size: 1.6rem;
+
+  ul {
+    margin-left: ${LIST_INDENT}px;
+  }
 
   li:not(.task) {
     &:before {
@@ -433,9 +440,12 @@ const UnorderedList = styled.ul`
 `;
 
 const OrderedList = styled.ol`
-  margin-left: ${LIST_INDENT}px;
   counter-reset: section ${p => (p.start != null ? p.start - 1 : undefined)};
   font-size: 1.6rem;
+
+  ol {
+    margin-left: ${LIST_INDENT}px;
+  }
 
   li {
     display: flex;
