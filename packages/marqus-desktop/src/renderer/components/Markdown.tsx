@@ -314,6 +314,10 @@ const H6 = styled.h6`
 
 const Paragraph = styled.p`
   font-size: 1.6rem;
+
+  // Makes links render nicely when rendered in an paragraph, or when there's
+  // one link per line in a pseudo list.
+  white-space: pre-wrap;
 `;
 
 const Blockquote = styled.blockquote`
