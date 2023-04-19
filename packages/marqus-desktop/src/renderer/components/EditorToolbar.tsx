@@ -494,6 +494,14 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
     ctx.focus([Section.Editor], { overwrite: true });
   }
 
+  if (ev.value.scrollTo) {
+    ctx.setUI({
+      sidebar: {
+        scrollToNoteId: activeTabNoteId,
+      },
+    });
+  }
+
   cleanupClosedTabsCache(ctx);
 };
 

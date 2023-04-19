@@ -98,7 +98,7 @@ test("editor.openTab works with note paths too", async () => {
   expect(editor.activeTabNoteId).toBe("4");
 });
 
-test("editor.openTab removes tabs from closedTab", async () => {
+test("editor.openTab removes tabs from closedTabs", async () => {
   const store = createStore(
     {
       notes: [

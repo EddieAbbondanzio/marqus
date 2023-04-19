@@ -40,6 +40,7 @@ interface SidebarMenuProps {
 
 export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
   const {
+    id,
     title,
     value,
     depth,
@@ -56,7 +57,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
 
   const [cursorEl, setCursorEl] = useState<JSX.Element | undefined>();
   const cursorElRef = useRef<HTMLDivElement | null>(null);
-  const { width } = store.state.sidebar;
+  const { width, scrollToNoteId } = store.state.sidebar;
 
   const onDragHandler = useCallback(
     (drag: MouseDrag | null) => {
@@ -115,6 +116,13 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
     disabled: state.sidebar.input != null,
   });
 
+  // Scroll to menu if it matches the scrollToNoteId
+  useEffect(() => {
+    if (scrollToNoteId != null && scrollToNoteId === id) {
+      $(menuRef.current!.parentElement!).scrollTo(menuRef.current!, 0);
+    }
+  }, [scrollToNoteId, id]);
+
   return (
     <>
       <SidebarRow
@@ -124,7 +132,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         depth={depth}
         hasIcon={Boolean(icon)}
         onClick={onClick}
-        {...{ [SIDEBAR_MENU_ATTRIBUTE]: props.id }}
+        {...{ [SIDEBAR_MENU_ATTRIBUTE]: id }}
       >
         {icon && (
           <StyledMenuIcon

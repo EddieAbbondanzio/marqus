@@ -59,7 +59,12 @@ export interface UIEvents {
   "editor.setContent": { noteId: string; content: string };
   "editor.updateScroll": number;
   "editor.openTab":
-    | { note: string | string[]; active?: string; focus?: boolean }
+    | {
+        note: string | string[];
+        active?: string;
+        focus?: boolean;
+        scrollTo?: boolean;
+      }
     | undefined;
   "editor.pinTab": string;
   "editor.unpinTab": string;

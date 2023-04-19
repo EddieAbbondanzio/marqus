@@ -71,6 +71,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
             note: n.id,
             active: n.id,
             focus: true,
+            scrollTo: true,
           })
         }
       >
