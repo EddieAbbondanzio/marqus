@@ -4,7 +4,7 @@ import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, mb3, THEME, w100 } from "../css";
-import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
+import { clamp, Dictionary, head, isEmpty, keyBy, round, take } from "lodash";
 import {
   Note,
   getNoteById,
@@ -379,12 +379,16 @@ export const updateScroll: Listener<"sidebar.updateScroll"> = (
 
 export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
   setUI(prev => {
-    const calculated = math(`${prev.sidebar.scroll} - ${SIDEBAR_MENU_HEIGHT}`);
-    const scrollInPx = stripUnit(remToPx(calculated)) as number;
+    const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
+    const menuHeightInt = stripUnit(menuHeightInPx) as number;
+
+    const newScroll = prev.sidebar.scroll - menuHeightInt;
+    const roundedScroll = newScroll - (newScroll % menuHeightInt);
+    const clampedScroll = Math.max(roundedScroll, 0);
 
     return {
       sidebar: {
-        scroll: Math.max(scrollInPx, 0),
+        scroll: clampedScroll,
       },
     };
   });
@@ -392,10 +396,15 @@ export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
 
 export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
   setUI(prev => {
-    const scroll = math(`${prev.sidebar.scroll} + ${SIDEBAR_MENU_HEIGHT}`);
+    const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
+    const menuHeightInt = stripUnit(menuHeightInPx) as number;
+
+    const newScroll = prev.sidebar.scroll + menuHeightInt;
+    const roundedScroll = newScroll - (newScroll % menuHeightInt);
+
     return {
       sidebar: {
-        scroll: stripUnit(scroll) as number,
+        scroll: roundedScroll,
       },
     };
   });

@@ -16,7 +16,10 @@ import { createPortal } from "react-dom";
 import { math } from "polished";
 
 export const SIDEBAR_MENU_ATTRIBUTE = "data-nav-menu";
-export const SIDEBAR_MENU_HEIGHT = "3rem";
+
+// Keep in sync with actual height + padding set in StyledRow / StyledFocusable
+// lower down in this file.
+export const SIDEBAR_MENU_HEIGHT = "3.4rem";
 const INDENT_WIDTH = "10px";
 const ICON_WIDTH = "20px";
 const ICON_SIZE: IconProps["size"] = "lg";
@@ -151,7 +154,7 @@ const SidebarRow = styled.a<{
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: ${SIDEBAR_MENU_HEIGHT};
+  height: 3rem;
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
   padding-left: ${p => getPaddingLeft(p.depth, p.hasIcon)};
@@ -307,7 +310,7 @@ const StyledFocusable = styled(Focusable)<{
   flex-direction: row;
   flex-grow: 1;
   align-items: center;
-  height: ${SIDEBAR_MENU_HEIGHT};
+  height: 3rem;
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
   padding-left: ${p => getPaddingLeft(p.depth, p.hasIcon)};
