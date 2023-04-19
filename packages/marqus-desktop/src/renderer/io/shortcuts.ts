@@ -1,5 +1,5 @@
 import { chain, isEqual } from "lodash";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   KeyCode,
   keyCodesToString,
@@ -9,7 +9,6 @@ import {
 import { Store } from "../store";
 import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
-import { isTest } from "../../shared/env";
 import { UIEventType } from "../../shared/ui/events";
 import { Section } from "../../shared/ui/app";
 import { log } from "../logger";
@@ -19,30 +18,19 @@ const INITIAL_DELAY_MS = 300;
 const REPEAT_DELAY_MS = 150;
 
 export function useShortcuts(store: Store): void {
-  const { dispatch, state } = store;
-  const { shortcuts } = state;
-  const activeKeys = useRef<Record<string, boolean | undefined>>({});
+  const activeKeys = useRef<Record<string, boolean>>({});
   const interval = useRef<NodeJS.Timer>();
-
-  // We use useState because we want to trigger a re-render if the keys change.
-  const [didKeysChange, setDidKeysChange] = useState(false);
   const lastTriggerTime = useRef(Date.now());
 
-  if (!isTest() && shortcuts.length === 0) {
-    void log.info("No shortcuts were passed to the useShortcuts hook");
-  }
+  const handleChange = useCallback(() => {
+    const { state } = store;
 
-  const resetState = () => {
     if (interval.current != null) {
-      clearInterval(interval.current!);
+      clearInterval(interval.current);
       interval.current = undefined;
     }
 
-    setDidKeysChange(true);
-  };
-
-  if (didKeysChange) {
-    const shortcut = shortcuts.find(
+    const shortcut = state.shortcuts.find(
       s =>
         !s.disabled &&
         isEqual(s.keys, activeKeysToArray(activeKeys.current)) &&
@@ -50,7 +38,7 @@ export function useShortcuts(store: Store): void {
     );
 
     if (shortcut != null) {
-      void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
+      void store.dispatch(shortcut.event as UIEventType, shortcut.eventInput);
 
       // Track time of last shortcut trigger to prevent repeat shortcuts from
       // being triggered multiple times if the shortcut was pressed, released, and
@@ -74,7 +62,10 @@ export function useShortcuts(store: Store): void {
               isEqual(keysStarted, keysOnInterval) &&
               lastTriggerTime.current === currTime
             ) {
-              void dispatch(shortcut.event as UIEventType, shortcut.eventInput);
+              void store.dispatch(
+                shortcut.event as UIEventType,
+                shortcut.eventInput,
+              );
             }
           };
 
@@ -85,9 +76,7 @@ export function useShortcuts(store: Store): void {
         })();
       }
     }
-
-    setDidKeysChange(false);
-  }
+  }, [store]);
 
   // Reset active keys when the browser window loses focus to prevent active keys
   // from getting stuck keys because we couldn't listen for the keyup event.
@@ -107,6 +96,17 @@ export function useShortcuts(store: Store): void {
 
   // Subscribe to window events
   useEffect(() => {
+    const keyUp = ({ code }: KeyboardEvent) => {
+      const key = parseKeyCode(code);
+      if (key == null) {
+        return;
+      }
+
+      delete activeKeys.current[key];
+
+      handleChange();
+    };
+
     const keyDown = (ev: KeyboardEvent) => {
       // Prevent redundant calls
       if (!ev.repeat) {
@@ -116,20 +116,9 @@ export function useShortcuts(store: Store): void {
           return;
         }
 
-        activeKeys.current = { ...activeKeys.current, [key]: true };
-        resetState();
+        activeKeys.current[key] = true;
+        handleChange();
       }
-    };
-
-    const keyUp = ({ code }: KeyboardEvent) => {
-      const key = parseKeyCode(code);
-      if (key == null) {
-        return;
-      }
-
-      delete activeKeys.current[key];
-
-      resetState();
     };
 
     window.addEventListener("keydown", keyDown);
@@ -139,7 +128,7 @@ export function useShortcuts(store: Store): void {
       window.removeEventListener("keydown", keyDown);
       window.removeEventListener("keyup", keyUp);
     };
-  }, [interval, shortcuts, dispatch]);
+  }, [handleChange]);
 }
 
 export function doesSectionHaveFocus(
