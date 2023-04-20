@@ -336,6 +336,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     store.on("editor.pinTab", pinTab);
     store.on("editor.unpinTab", unpinTab);
     store.on("editor.moveTab", moveTab);
+    store.on("editor.revealTabNoteInSidebar", revealTabNoteInSidebar);
 
     window.addEventListener("mouseup", onMouseUp);
 
@@ -360,6 +361,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       store.off("editor.pinTab", pinTab);
       store.off("editor.unpinTab", unpinTab);
       store.off("editor.moveTab", moveTab);
+      store.off("editor.revealTabNoteInSidebar", revealTabNoteInSidebar);
 
       window.removeEventListener("mouseup", onMouseUp);
     };
@@ -668,6 +670,33 @@ export const moveTab: Listener<"editor.moveTab"> = async ({ value }, ctx) => {
     return {
       editor: {
         tabs,
+      },
+    };
+  });
+};
+
+export const revealTabNoteInSidebar: Listener<
+  "editor.revealTabNoteInSidebar"
+> = async ({ value }, ctx) => {
+  if (value == null) {
+    return;
+  }
+
+  // The note we want to show in the sidebar may be hidden due to a collapsed
+  // parent so we expand any if needed.
+  const { notes } = ctx.getState();
+  const noteToReveal = getNoteById(notes, value);
+  const noteToRevealParentIds = getParents(noteToReveal, notes).map(n => n.id);
+
+  ctx.setUI(prev => {
+    const prevExpanded = prev.sidebar.expanded ?? [];
+    const newExpanded = uniq([...prevExpanded, ...noteToRevealParentIds]);
+
+    return {
+      sidebar: {
+        selected: [noteToReveal.id],
+        scrollToNoteId: value,
+        expanded: newExpanded,
       },
     };
   });

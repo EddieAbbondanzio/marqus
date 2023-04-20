@@ -78,6 +78,7 @@ export interface UIEvents {
   "editor.previousTab": void;
   "editor.nextTab": void;
   "editor.moveTab": { noteId: string; newIndex: number };
+  "editor.revealTabNoteInSidebar": string;
   "editor.updateTabsScroll": number;
   "editor.boldSelectedText": void;
   "editor.italicSelectedText": void;

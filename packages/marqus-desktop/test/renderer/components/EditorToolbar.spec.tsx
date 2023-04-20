@@ -1004,7 +1004,7 @@ test("editor.moveTab attempt to move regular tab before pinned tab", async () =>
   expect(editor.tabs[3].note.id).toBe(notes[2].id);
 });
 
-test("editor.moveNote move pinned tab to right", async () => {
+test("editor.moveTab move pinned tab to right", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
@@ -1056,7 +1056,7 @@ test("editor.moveNote move pinned tab to right", async () => {
   expect(editor.tabs[3].note.id).toBe(notes[3].id);
 });
 
-test("editor.moveNote move pinned tab to left", async () => {
+test("editor.moveTab move pinned tab to left", async () => {
   const notes = [
     createNote({ id: "1", name: "foo" }),
     createNote({ id: "2", name: "bar" }),
@@ -1158,4 +1158,62 @@ test("editor.moveTab try to move pinned tab past regular tab", async () => {
   expect(editor.tabs[1].note.id).toBe(notes[0].id);
   expect(editor.tabs[2].note.id).toBe(notes[2].id);
   expect(editor.tabs[3].note.id).toBe(notes[3].id);
+});
+
+test("editor.revealTabNoteInSidebar", async () => {
+  const notes = [
+    createNote({ id: "1", name: "foo" }),
+    createNote({
+      id: "2",
+      name: "bar",
+      children: [
+        createNote({
+          id: "3",
+          name: "baz",
+          children: [createNote({ id: "4", name: "baq" })],
+        }),
+      ],
+    }),
+    createNote({
+      id: "5",
+      name: "rando-1",
+      children: [
+        createNote({
+          id: "6",
+          name: "rando-2",
+        }),
+      ],
+    }),
+  ];
+  const store = createStore({
+    notes,
+    sidebar: {
+      selected: [],
+      expanded: ["5"],
+    },
+    editor: {
+      activeTabNoteId: "0",
+      tabs: [
+        createTab({
+          note: notes[0],
+          lastActive: subHours(new Date(), 1),
+          isPinned: true,
+        }),
+        createTab({
+          note: notes[1].children[0].children[0],
+          lastActive: subHours(new Date(), 2),
+          isPinned: true,
+        }),
+      ],
+    },
+  });
+
+  render(<EditorToolbar store={store.current} />);
+  await act(async () => {
+    await store.current.dispatch("editor.revealTabNoteInSidebar", "4");
+  });
+
+  const { sidebar } = store.current.state;
+  expect(sidebar.selected).toEqual(["4"]);
+  expect(sidebar.expanded).toEqual(expect.arrayContaining(["5", "2", "3"]));
 });
