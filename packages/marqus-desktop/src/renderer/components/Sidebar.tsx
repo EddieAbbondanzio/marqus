@@ -25,7 +25,7 @@ import { SidebarNewNoteButton } from "./SidebarNewNoteButton";
 import { Section } from "../../shared/ui/app";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 import { cleanupClosedTabsCache, openTabsForNotes } from "./EditorToolbar";
-import { math, remToPx, stripUnit } from "polished";
+import { remToPx, stripUnit } from "polished";
 
 const EXPANDED_ICON = faCaretDown;
 const COLLAPSED_ICON = faCaretRight;
