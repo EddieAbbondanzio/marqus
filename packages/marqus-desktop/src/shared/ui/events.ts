@@ -59,7 +59,12 @@ export interface UIEvents {
   "editor.setContent": { noteId: string; content: string };
   "editor.updateScroll": number;
   "editor.openTab":
-    | { note: string | string[]; active?: string; focus?: boolean }
+    | {
+        note: string | string[];
+        active?: string;
+        focus?: boolean;
+        scrollTo?: boolean;
+      }
     | undefined;
   "editor.pinTab": string;
   "editor.unpinTab": string;
@@ -73,6 +78,7 @@ export interface UIEvents {
   "editor.previousTab": void;
   "editor.nextTab": void;
   "editor.moveTab": { noteId: string; newIndex: number };
+  "editor.revealTabNoteInSidebar": string;
   "editor.updateTabsScroll": number;
   "editor.boldSelectedText": void;
   "editor.italicSelectedText": void;

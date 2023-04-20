@@ -147,6 +147,14 @@ export function useContextMenu(store: Store, config: Config): void {
             }
 
             items.push({
+              label: "Reveal note in sidebar",
+              type: "normal",
+              event: "editor.revealTabNoteInSidebar",
+              eventInput: tabNoteId,
+              shortcut: shortcutLabels["editor.revealTabNoteInSidebar"],
+            });
+
+            items.push({
               type: "separator",
             });
 

@@ -32,6 +32,7 @@ export interface Sidebar {
   selected?: string[];
   expanded?: string[];
   sort: NoteSort;
+  scrollToNoteId?: string;
 }
 
 export interface Editor {
