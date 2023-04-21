@@ -25,7 +25,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   const { store } = props;
   const { state } = store;
   const { notes } = state;
-  const { searchString, searchResults, searchSelected } = state.sidebar;
+  const { searchString = "", searchResults, searchSelected } = state.sidebar;
 
   const fuzzySearcher = useMemo(() => {
     const flatNotes = flatten(notes);
