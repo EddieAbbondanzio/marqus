@@ -15,8 +15,6 @@ export function SidebarSearchResult(props: SidebarSearchProps): JSX.Element {
   const { path, selected, onClick, matchData } = props;
   const note = matchData.item;
 
-  console.log("Selected?: ", selected);
-
   return (
     <Container title={path} selected={selected} onClick={onClick}>
       <Title>{note.name}</Title>
