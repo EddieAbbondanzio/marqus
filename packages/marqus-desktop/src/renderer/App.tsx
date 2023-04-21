@@ -12,7 +12,7 @@ import {
   Section,
   SerializedAppState,
 } from "../shared/ui/app";
-import { getNoteById, Note } from "../shared/domain/note";
+import { flatten, getNoteById, Note } from "../shared/domain/note";
 import { State, Listener, useStore } from "./store";
 import { isTest } from "../shared/env";
 import { isEmpty, tail } from "lodash";
@@ -169,7 +169,8 @@ export async function loadInitialState(
 
   let searchResults: MatchData<Note>[] = [];
   if (ui.sidebar.searchString) {
-    searchResults = search(ui.sidebar.searchString, notes, FUZZY_OPTIONS);
+    const flatNotes = flatten(notes);
+    searchResults = search(ui.sidebar.searchString, flatNotes, FUZZY_OPTIONS);
   }
 
   const deserializedAppState = filterOutStaleNoteIds(

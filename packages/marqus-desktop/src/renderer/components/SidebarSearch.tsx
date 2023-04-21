@@ -10,6 +10,7 @@ import { mb0, THEME, w100, ZIndex } from "../css";
 import { Listener, Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
+import { Scrollable } from "./shared/Scrollable";
 import { SidebarSearchResult } from "./SidebarSearchResult";
 
 export const FUZZY_OPTIONS: FullOptions<Note> & { returnMatchData: true } = {
@@ -26,7 +27,11 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   const { store } = props;
   const { state } = store;
   const { notes } = state;
-  const { searchString = "", searchResults, searchSelected } = state.sidebar;
+  const {
+    searchString = "",
+    searchResults = [],
+    searchSelected,
+  } = state.sidebar;
 
   const fuzzySearcher = useMemo(() => {
     const flatNotes = flatten(notes);
@@ -120,7 +125,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
         ref={inputRef}
         value={searchString}
         onInput={onInput}
-        roundBottomCorners={!searchHasFocus || notes.length === 0}
+        roundBottomCorners={!searchHasFocus || searchResults.length === 0}
         onKeyDown={(ev: React.KeyboardEvent<HTMLInputElement>) => {
           const key = parseKeyCode(ev.code);
 
@@ -143,7 +148,11 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
       {!isEmpty(searchString) && (
         <DeleteIcon icon={faTimes} onClick={onClear} />
       )}
-      {searchHasFocus && <SearchOverlay>{renderedResults}</SearchOverlay>}
+      {searchHasFocus && searchString && searchResults.length > 0 && (
+        <Overlay>
+          <OverlayContent>{renderedResults}</OverlayContent>
+        </Overlay>
+      )}
     </StyledFocusable>
   );
 }
@@ -193,12 +202,20 @@ const SearchInput = styled.input<{ roundBottomCorners: boolean }>`
   border-bottom-right-radius: ${p => (p.roundBottomCorners ? "0.4rem" : "0")};
 `;
 
-const SearchOverlay = styled.div`
+const Overlay = styled.div`
   position: absolute;
   top: 3.2rem;
   width: 100%;
+  z-index: 100;
+`;
+
+const OverlayContent = styled(Scrollable)`
+  width: 100%;
+
   background-color: ${THEME.sidebar.search.background};
   z-index: ${ZIndex.SearchOverlay};
+  # 3.2rem (top) + 1.6 (padding) gets us 4.8rem
+  max-height: calc(100vh - 4.8rem);
 
   border-bottom-left-radius: 0.4rem;
   border-bottom-right-radius: 0.4rem;
