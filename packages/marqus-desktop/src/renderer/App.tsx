@@ -26,7 +26,7 @@ import { log } from "./logger";
 import { arrayify } from "../shared/utils";
 import { NoteDirectoryModal } from "./components/NoteDirectoryModal";
 import { Shortcut } from "../shared/domain/shortcut";
-import { search } from "fast-fuzzy";
+import { MatchData, search } from "fast-fuzzy";
 import { FUZZY_OPTIONS } from "./components/SidebarSearch";
 
 async function main() {
@@ -167,11 +167,10 @@ export async function loadInitialState(
     }))
     .filter(t => t.note != null) as EditorTab[];
 
-  const searchResults = search(
-    ui.sidebar.searchString ?? "",
-    notes,
-    FUZZY_OPTIONS,
-  );
+  let searchResults: MatchData<Note>[] = [];
+  if (ui.sidebar.searchString) {
+    searchResults = search(ui.sidebar.searchString, notes, FUZZY_OPTIONS);
+  }
 
   const deserializedAppState = filterOutStaleNoteIds(
     {
