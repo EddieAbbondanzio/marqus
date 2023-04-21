@@ -15,6 +15,8 @@ export function SidebarSearchResult(props: SidebarSearchProps): JSX.Element {
   const { path, selected, onClick, matchData } = props;
   const note = matchData.item;
 
+  console.log("Selected?: ", selected);
+
   return (
     <Container title={path} selected={selected} onClick={onClick}>
       <Title>{note.name}</Title>
@@ -30,7 +32,7 @@ const Container = styled.div<{ selected: boolean }>`
   overflow: hidden;
   font-size: 1.4rem;
   ${p3}
-  color: ${THEME.sidebar.search.font}
+  color: ${THEME.sidebar.search.font};
 
   background-color: ${p =>
     p.selected ? THEME.sidebar.search.selectedResult : ""} !important;

@@ -214,7 +214,7 @@ const OverlayContent = styled(Scrollable)`
 
   background-color: ${THEME.sidebar.search.background};
   z-index: ${ZIndex.SearchOverlay};
-  # 3.2rem (top) + 1.6 (padding) gets us 4.8rem
+  // 3.2rem (top) + 1.6 (padding) gets us 4.8rem
   max-height: calc(100vh - 4.8rem);
 
   border-bottom-left-radius: 0.4rem;
@@ -238,6 +238,7 @@ export const moveDown: Listener<"sidebar.moveSelectedSearchResultDown"> = (
     currIndex += 1;
   }
 
+  console.log("Down: ", currIndex);
   ctx.setUI({
     sidebar: {
       searchSelected: searchResults[currIndex].item.id,
@@ -262,6 +263,7 @@ export const moveUp: Listener<"sidebar.moveSelectedSearchResultUp"> = (
     currIndex -= 1;
   }
 
+  console.log("Up: ", currIndex);
   ctx.setUI({
     sidebar: {
       searchSelected: searchResults[currIndex].item.id,
