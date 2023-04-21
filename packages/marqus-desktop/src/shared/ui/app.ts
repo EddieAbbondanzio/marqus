@@ -2,6 +2,7 @@ import { keyBy, isEmpty, cloneDeep, orderBy } from "lodash";
 import { PromisedInput } from "../promisedInput";
 import { flatten, Note, NoteSort } from "../domain/note";
 import * as monaco from "monaco-editor";
+import { MatchData } from "fast-fuzzy";
 
 export const DEFAULT_SIDEBAR_WIDTH = "250px";
 
@@ -23,7 +24,7 @@ export enum Section {
 
 export interface Sidebar {
   searchString?: string;
-  searchResults?: string[];
+  searchResults?: MatchData<Note>[];
   searchSelected?: string;
   hidden?: boolean;
   width: string;
@@ -148,6 +149,8 @@ export function serializeAppState(
   // thread otherwise electron will throw an error.
   if (cloned.sidebar != null) {
     delete cloned.sidebar.input;
+    delete cloned.sidebar.searchResults;
+    delete cloned.sidebar.searchSelected;
   }
 
   return {
