@@ -6,10 +6,11 @@ import styled from "styled-components";
 import { flatten, getFullPath, Note } from "../../shared/domain/note";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { Section } from "../../shared/ui/app";
-import { mb0, px3, THEME, w100, ZIndex } from "../css";
+import { mb0, THEME, w100, ZIndex } from "../css";
 import { Listener, Store } from "../store";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
+import { SidebarSearchResult } from "./SidebarSearchResult";
 
 export const FUZZY_OPTIONS: FullOptions<Note> & { returnMatchData: true } = {
   ignoreCase: true,
@@ -75,10 +76,11 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
       const path = getFullPath(notes, n);
 
       return (
-        <SearchResult
+        <SidebarSearchResult
           key={n.id}
-          title={path}
+          path={path}
           selected={searchSelected === n.id}
+          matchData={match}
           onClick={() =>
             void store.dispatch("editor.openTab", {
               note: n.id,
@@ -87,9 +89,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
               scrollTo: true,
             })
           }
-        >
-          <TruncatedText>{n.name}</TruncatedText>
-        </SearchResult>
+        />
       );
     });
   }, [searchResults, searchSelected, notes, store]);
@@ -202,28 +202,6 @@ const SearchOverlay = styled.div`
 
   border-bottom-left-radius: 0.4rem;
   border-bottom-right-radius: 0.4rem;
-`;
-
-const SearchResult = styled.div<{ selected: boolean }>`
-  height: 3.2rem;
-  display: flex;
-  align-items: center;
-  font-size: 1.4rem;
-  ${px3}
-  min-width: 0;
-
-  background-color: ${p =>
-    p.selected ? THEME.sidebar.search.selectedResult : ""} !important;
-
-  &:hover {
-    background-color: ${THEME.sidebar.search.resultBackgroundHover};
-  }
-`;
-
-const TruncatedText = styled.div`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 `;
 
 export const moveDown: Listener<"sidebar.moveSelectedSearchResultDown"> = (

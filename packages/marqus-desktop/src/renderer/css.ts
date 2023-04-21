@@ -21,6 +21,7 @@ export const THEME = {
       deleteIconHover: OpenColor.red[7],
       background: OpenColor.white,
       font: OpenColor.gray[8],
+      path: OpenColor.gray[7],
       selectedResult: OpenColor.gray[3],
       resultBackgroundHover: OpenColor.gray[1],
     },

@@ -15,8 +15,6 @@ import { Listener, Store } from "../store";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const emoji = require("remark-emoji");
 
-const LINE_HEIGHT = 30;
-
 type ImageAlign = "left" | "right" | "center";
 
 export interface MarkdownProps {
