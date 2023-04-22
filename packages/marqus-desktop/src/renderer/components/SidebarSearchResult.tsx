@@ -1,29 +1,65 @@
 import styled from "styled-components";
 import { p3, THEME } from "../css";
-import React from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import { MatchData } from "fast-fuzzy";
 import { Note } from "../../shared/domain/note";
+import { Store } from "../store";
+import { isScrolledIntoView } from "../utils/dom";
+
+// Keep in sync with CSS below for Background
+export const SEARCH_RESULT_HEIGHT = "5rem";
 
 export interface SidebarSearchProps {
   path: string;
   selected: boolean;
   onClick: () => void;
   matchData: MatchData<Note>;
+  store: Store;
 }
 
 export function SidebarSearchResult(props: SidebarSearchProps): JSX.Element {
-  const { path, selected, onClick, matchData } = props;
+  const { store, path, selected, onClick, matchData } = props;
   const note = matchData.item;
 
+  const resultRef = useRef<HTMLDivElement>(null!);
+
+  // Scroll to menu if it's selected and offscreen
+  const prevSelectedRef = useRef(selected);
+  useLayoutEffect(() => {
+    const prevSelected = prevSelectedRef.current;
+    prevSelectedRef.current = selected;
+
+    // We only scroll to the menu when it goes from not-selected -> selected.
+    if (prevSelected || !selected) {
+      return;
+    }
+
+    const visCheck = isScrolledIntoView(resultRef.current);
+    if (visCheck.fullyVisible) {
+      return;
+    }
+
+    const prevScroll = store.state.sidebar.searchScroll ?? 0;
+    void store.dispatch(
+      "sidebar.updateSearchScroll",
+      prevScroll + visCheck.offBy,
+    );
+  }, [selected, store]);
+
   return (
-    <Container title={path} selected={selected} onClick={onClick}>
+    <Background
+      ref={resultRef}
+      title={path}
+      selected={selected}
+      onClick={onClick}
+    >
       <Title>{note.name}</Title>
       <Path>{path}</Path>
-    </Container>
+    </Background>
   );
 }
 
-const Container = styled.div<{ selected: boolean }>`
+const Background = styled.div<{ selected: boolean }>`
   display: flex;
   flex-direction: column;
   min-width: 0;

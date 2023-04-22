@@ -1,4 +1,4 @@
-import { clamp, debounce, pick } from "lodash";
+import { clamp, debounce } from "lodash";
 import OpenColor from "open-color";
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";

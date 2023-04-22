@@ -26,6 +26,7 @@ export interface Sidebar {
   searchString?: string;
   searchResults?: MatchData<Note>[];
   searchSelected?: string;
+  searchScroll?: number;
   hidden?: boolean;
   width: string;
   scroll: number;
@@ -151,6 +152,7 @@ export function serializeAppState(
     delete cloned.sidebar.input;
     delete cloned.sidebar.searchResults;
     delete cloned.sidebar.searchSelected;
+    delete cloned.sidebar.searchScroll;
   }
 
   return {

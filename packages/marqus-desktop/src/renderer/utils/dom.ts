@@ -1,3 +1,5 @@
+import { clamp } from "lodash";
+
 export function getClosestAttribute(
   attr: string,
   element: HTMLElement,
@@ -47,4 +49,21 @@ export function isScrolledIntoView(el: HTMLElement): ViewCheck {
   }
 
   return { fullyVisible: true };
+}
+
+export function incrementScroll(
+  currScroll: number,
+  amount: number,
+  opts?: {
+    min?: number;
+    max?: number;
+    roundBy?: number;
+  },
+): number {
+  let newScroll = currScroll + amount;
+  if (opts?.roundBy != null) {
+    newScroll = newScroll - (newScroll % opts.roundBy);
+  }
+
+  return clamp(newScroll, opts?.min ?? 0, opts?.max ?? Infinity);
 }

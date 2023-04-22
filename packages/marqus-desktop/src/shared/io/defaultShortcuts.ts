@@ -67,6 +67,20 @@ const shortcuts: Shortcut[] = [
     when: Section.SidebarSearch,
     repeat: true,
   },
+  {
+    name: "sidebar.scrollSearchDown",
+    event: "sidebar.scrollSearchDown",
+    keys: COMMON_KEY_COMBOS.scrollDown,
+    when: Section.SidebarSearch,
+    repeat: true,
+  },
+  {
+    name: "sidebar.scrollSearchUp",
+    event: "sidebar.scrollSearchUp",
+    keys: COMMON_KEY_COMBOS.scrollUp,
+    when: Section.SidebarSearch,
+    repeat: true,
+  },
 
   {
     name: "sidebar.scrollDown",

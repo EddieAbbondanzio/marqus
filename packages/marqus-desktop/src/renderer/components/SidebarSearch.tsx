@@ -1,17 +1,23 @@
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FullOptions, Searcher } from "fast-fuzzy";
 import { isEmpty } from "lodash";
+import { remToPx, stripUnit } from "polished";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { flatten, getFullPath, Note } from "../../shared/domain/note";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { Section } from "../../shared/ui/app";
 import { mb0, THEME, w100, ZIndex } from "../css";
+import { Size } from "../hooks/resizeObserver";
 import { Listener, Store } from "../store";
+import { incrementScroll } from "../utils/dom";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
 import { Scrollable } from "./shared/Scrollable";
-import { SidebarSearchResult } from "./SidebarSearchResult";
+import {
+  SEARCH_RESULT_HEIGHT,
+  SidebarSearchResult,
+} from "./SidebarSearchResult";
 
 export const FUZZY_OPTIONS: FullOptions<Note> & { returnMatchData: true } = {
   ignoreCase: true,
@@ -31,6 +37,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
     searchString = "",
     searchResults = [],
     searchSelected,
+    searchScroll = 0,
   } = state.sidebar;
 
   const fuzzySearcher = useMemo(() => {
@@ -94,24 +101,70 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
               scrollTo: true,
             })
           }
+          store={store}
         />
       );
     });
   }, [searchResults, searchSelected, notes, store]);
 
-  const searchHasFocus = state.focused[0] === Section.SidebarSearch;
+  const maxScroll = useRef(0);
+  const onSidebarHeightChange = (size: Size) => {
+    maxScroll.current = size.scrollHeight;
+  };
+
+  const scrollUp: Listener<"sidebar.scrollSearchUp"> = (_, { setUI }) => {
+    setUI(prev => {
+      const stepInPx = remToPx(SEARCH_RESULT_HEIGHT);
+      const stepInt = stripUnit(stepInPx) as number;
+
+      return {
+        sidebar: {
+          searchScroll: incrementScroll(
+            prev.sidebar.searchScroll ?? 0,
+            -stepInt,
+            { max: maxScroll.current, roundBy: stepInt },
+          ),
+        },
+      };
+    });
+  };
+
+  const scrollDown: Listener<"sidebar.scrollSearchDown"> = (_, { setUI }) => {
+    setUI(prev => {
+      const stepInPx = remToPx(SEARCH_RESULT_HEIGHT);
+      const stepInt = stripUnit(stepInPx) as number;
+
+      return {
+        sidebar: {
+          searchScroll: incrementScroll(
+            prev.sidebar.searchScroll ?? 0,
+            stepInt,
+            { max: maxScroll.current, roundBy: stepInt },
+          ),
+        },
+      };
+    });
+  };
 
   useEffect(() => {
     store.on("sidebar.moveSelectedSearchResultDown", moveDown);
     store.on("sidebar.moveSelectedSearchResultUp", moveUp);
     store.on("sidebar.search", search);
+    store.on("sidebar.updateSearchScroll", updateScroll);
+    store.on("sidebar.scrollSearchUp", scrollUp);
+    store.on("sidebar.scrollSearchDown", scrollDown);
 
     return () => {
       store.off("sidebar.moveSelectedSearchResultDown", moveDown);
       store.off("sidebar.moveSelectedSearchResultUp", moveUp);
       store.off("sidebar.search", search);
+      store.off("sidebar.updateSearchScroll", updateScroll);
+      store.off("sidebar.scrollSearchUp", scrollUp);
+      store.off("sidebar.scrollSearchDown", scrollDown);
     };
   }, [store, search]);
+
+  const searchHasFocus = state.focused[0] === Section.SidebarSearch;
 
   return (
     <StyledFocusable
@@ -150,7 +203,15 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
       )}
       {searchHasFocus && searchString && searchResults.length > 0 && (
         <Overlay>
-          <OverlayContent>{renderedResults}</OverlayContent>
+          <OverlayContent
+            scroll={searchScroll}
+            onScroll={async s =>
+              await store.dispatch("sidebar.updateSearchScroll", s)
+            }
+            onSizeChange={onSidebarHeightChange}
+          >
+            {renderedResults}
+          </OverlayContent>
         </Overlay>
       )}
     </StyledFocusable>
@@ -238,7 +299,6 @@ export const moveDown: Listener<"sidebar.moveSelectedSearchResultDown"> = (
     currIndex += 1;
   }
 
-  console.log("Down: ", currIndex);
   ctx.setUI({
     sidebar: {
       searchSelected: searchResults[currIndex].item.id,
@@ -263,10 +323,24 @@ export const moveUp: Listener<"sidebar.moveSelectedSearchResultUp"> = (
     currIndex -= 1;
   }
 
-  console.log("Up: ", currIndex);
   ctx.setUI({
     sidebar: {
       searchSelected: searchResults[currIndex].item.id,
+    },
+  });
+};
+
+export const updateScroll: Listener<"sidebar.updateSearchScroll"> = (
+  { value: scroll },
+  ctx,
+) => {
+  if (scroll == null) {
+    throw new Error("Cannot update search scroll to null");
+  }
+
+  ctx.setUI({
+    sidebar: {
+      searchScroll: scroll,
     },
   });
 };

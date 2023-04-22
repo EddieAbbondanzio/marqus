@@ -27,10 +27,12 @@ import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 import { cleanupClosedTabsCache, openTabsForNotes } from "./EditorToolbar";
 import { remToPx, stripUnit } from "polished";
 import { Size } from "../hooks/resizeObserver";
+import { incrementScroll } from "../utils/dom";
 
 const EXPANDED_ICON = faCaretDown;
 const COLLAPSED_ICON = faCaretRight;
 const MIN_WIDTH = "200px";
+
 export interface SidebarProps {
   store: Store;
 }
@@ -38,15 +40,15 @@ export interface SidebarProps {
 export function Sidebar(props: SidebarProps): JSX.Element {
   const { store } = props;
   const { state } = store;
-  const { input } = state.sidebar;
   const { notes } = state;
-  const expandedLookup = keyBy(state.sidebar.expanded, e => e);
-  const selectedLookup = keyBy(state.sidebar.selected, s => s);
+  const { input, expanded, selected } = state.sidebar;
 
-  const [menus, noteIds] = useMemo(
-    () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
-    [notes, store, input, expandedLookup, selectedLookup],
-  );
+  const [menus, noteIds] = useMemo(() => {
+    const expandedLookup = keyBy(expanded, e => e);
+    const selectedLookup = keyBy(selected, s => s);
+
+    return renderMenus(notes, store, input, expandedLookup, selectedLookup);
+  }, [notes, store, input, expanded, selected]);
 
   const maxScroll = useRef(0);
   const onSidebarHeightChange = (size: Size) => {
@@ -58,13 +60,12 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
       const menuHeightInt = stripUnit(menuHeightInPx) as number;
 
-      const newScroll = prev.sidebar.scroll - menuHeightInt;
-      const roundedScroll = newScroll - (newScroll % menuHeightInt);
-      const clampedScroll = clamp(roundedScroll, 0, maxScroll.current);
-
       return {
         sidebar: {
-          scroll: clampedScroll,
+          scroll: incrementScroll(prev.sidebar.scroll, -menuHeightInt, {
+            max: maxScroll.current,
+            roundBy: menuHeightInt,
+          }),
         },
       };
     });
@@ -75,13 +76,12 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
       const menuHeightInt = stripUnit(menuHeightInPx) as number;
 
-      const newScroll = prev.sidebar.scroll + menuHeightInt;
-      const roundedScroll = newScroll - (newScroll % menuHeightInt);
-      const clampedScroll = clamp(roundedScroll, 0, maxScroll.current);
-
       return {
         sidebar: {
-          scroll: clampedScroll,
+          scroll: incrementScroll(prev.sidebar.scroll, menuHeightInt, {
+            max: maxScroll.current,
+            roundBy: menuHeightInt,
+          }),
         },
       };
     });
