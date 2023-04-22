@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
@@ -46,6 +46,45 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
     [notes, store, input, expandedLookup, selectedLookup],
   );
+
+  const maxScroll = useRef(0);
+  const onSidebarHeightChange = (size: { height: number }) => {
+    maxScroll.current = size.height;
+  };
+
+  const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
+    setUI(prev => {
+      const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
+      const menuHeightInt = stripUnit(menuHeightInPx) as number;
+
+      const newScroll = prev.sidebar.scroll - menuHeightInt;
+      const roundedScroll = newScroll - (newScroll % menuHeightInt);
+      const clampedScroll = clamp(roundedScroll, 0, maxScroll.current);
+
+      return {
+        sidebar: {
+          scroll: clampedScroll,
+        },
+      };
+    });
+  };
+
+  const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
+    setUI(prev => {
+      const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
+      const menuHeightInt = stripUnit(menuHeightInPx) as number;
+
+      const newScroll = prev.sidebar.scroll + menuHeightInt;
+      const roundedScroll = newScroll - (newScroll % menuHeightInt);
+      const clampedScroll = clamp(roundedScroll, 0, maxScroll.current);
+
+      return {
+        sidebar: {
+          scroll: clampedScroll,
+        },
+      };
+    });
+  };
 
   useEffect(() => {
     const getNext = (increment: number) => {
@@ -183,6 +222,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
           onScroll={async s => {
             await store.dispatch("sidebar.updateScroll", s);
           }}
+          onSizeChange={onSidebarHeightChange}
         >
           {menus}
 
@@ -374,39 +414,6 @@ export const updateScroll: Listener<"sidebar.updateScroll"> = (
     sidebar: {
       scroll,
     },
-  });
-};
-
-export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
-  setUI(prev => {
-    const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
-    const menuHeightInt = stripUnit(menuHeightInPx) as number;
-
-    const newScroll = prev.sidebar.scroll - menuHeightInt;
-    const roundedScroll = newScroll - (newScroll % menuHeightInt);
-    const clampedScroll = Math.max(roundedScroll, 0);
-
-    return {
-      sidebar: {
-        scroll: clampedScroll,
-      },
-    };
-  });
-};
-
-export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
-  setUI(prev => {
-    const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
-    const menuHeightInt = stripUnit(menuHeightInPx) as number;
-
-    const newScroll = prev.sidebar.scroll + menuHeightInt;
-    const roundedScroll = newScroll - (newScroll % menuHeightInt);
-
-    return {
-      sidebar: {
-        scroll: roundedScroll,
-      },
-    };
   });
 };
 

@@ -1,9 +1,10 @@
-import { clamp, debounce } from "lodash";
+import { clamp, debounce, pick } from "lodash";
 import OpenColor from "open-color";
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
 import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { w100 } from "../../css";
+import { Size, useResizeObserver } from "../../hooks/resizeObserver";
 
 const SCROLL_DEBOUNCE_INTERVAL = 100; // ms
 
@@ -14,6 +15,7 @@ export interface ScrollableProps {
   scroll?: number;
   orientation?: ScrollOrientation;
   onScroll?: (scrollPos: number) => void;
+  onSizeChange?: (size: Size) => void;
 }
 export type ScrollOrientation = "horizontal" | "vertical";
 
@@ -25,6 +27,7 @@ export function Scrollable(
     className,
     orientation = "vertical",
     onScroll,
+    onSizeChange,
     disableScrollOnArrowKeys,
   } = props;
 
@@ -150,6 +153,31 @@ export function Scrollable(
     ),
     [onScroll, orientation],
   );
+
+  useResizeObserver(wrapper, onSizeChange);
+
+  // Mount / Unmount
+  useEffect(() => {
+    const el = wrapper.current;
+    let resizeObserver: ResizeObserver | null = null;
+
+    if (el != null) {
+      resizeObserver = new ResizeObserver(() => {
+        if (onSizeChange) {
+          const rect = el.getBoundingClientRect();
+          onSizeChange(pick(rect, "height", "width"));
+        }
+      });
+
+      resizeObserver.observe(el);
+    }
+
+    return () => {
+      if (resizeObserver != null) {
+        resizeObserver.disconnect();
+      }
+    };
+  }, [onSizeChange]);
 
   return (
     <StyledDiv
