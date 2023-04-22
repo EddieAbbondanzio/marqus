@@ -702,7 +702,11 @@ export const revealTabNoteInSidebar: Listener<
   });
 };
 
-export function openTabsForNotes(ctx: StoreContext, noteIds: string[]): void {
+export function openTabsForNotes(
+  ctx: StoreContext,
+  noteIds: string[],
+  newActiveTabNoteId?: string,
+): void {
   if (noteIds.length === 0) {
     return;
   }
@@ -740,6 +744,9 @@ export function openTabsForNotes(ctx: StoreContext, noteIds: string[]): void {
   }
 
   let { activeTabNoteId } = editor;
+  if (newActiveTabNoteId) {
+    activeTabNoteId = newActiveTabNoteId;
+  }
   if (!activeTabNoteId) {
     activeTabNoteId = tabs[0].note.id;
   }

@@ -755,7 +755,7 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
     return;
   }
 
-  openTabsForNotes(ctx, selected);
+  openTabsForNotes(ctx, selected, selected[0]);
 
   // Editor is not set as focused when a note is opened from the sidebar because
   // the user may not want to start editing the note yet. This makes it easier
