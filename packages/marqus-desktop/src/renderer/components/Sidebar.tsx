@@ -4,7 +4,7 @@ import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, mb3, THEME, w100 } from "../css";
-import { clamp, Dictionary, head, isEmpty, keyBy, round, take } from "lodash";
+import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
   getNoteById,
@@ -26,6 +26,7 @@ import { Section } from "../../shared/ui/app";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 import { cleanupClosedTabsCache, openTabsForNotes } from "./EditorToolbar";
 import { remToPx, stripUnit } from "polished";
+import { Size } from "../hooks/resizeObserver";
 
 const EXPANDED_ICON = faCaretDown;
 const COLLAPSED_ICON = faCaretRight;
@@ -48,8 +49,8 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   );
 
   const maxScroll = useRef(0);
-  const onSidebarHeightChange = (size: { height: number }) => {
-    maxScroll.current = size.height;
+  const onSidebarHeightChange = (size: Size) => {
+    maxScroll.current = size.scrollHeight;
   };
 
   const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {

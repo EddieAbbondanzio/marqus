@@ -1,5 +1,11 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/promisedInput";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
@@ -11,7 +17,7 @@ import { Icon, IconProps } from "./shared/Icon";
 import { MouseDrag, useMouseDrag } from "../io/mouse";
 import { Section } from "../../shared/ui/app";
 import { partial } from "lodash";
-import { getClosestAttribute } from "../utils/dom";
+import { getClosestAttribute, isScrolledIntoView } from "../utils/dom";
 import { createPortal } from "react-dom";
 import { math } from "polished";
 
@@ -122,6 +128,29 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
       $(menuRef.current!.parentElement!).scrollTo(menuRef.current!, 0);
     }
   }, [scrollToNoteId, id]);
+
+  // Scroll to menu if it's selected and offscreen
+  const prevIsSelectedRef = useRef(isSelected);
+  useLayoutEffect(() => {
+    const prevIsSelected = prevIsSelectedRef.current;
+    prevIsSelectedRef.current = isSelected;
+
+    // We only scroll to the menu when it goes from not-selected -> selected.
+    if (prevIsSelected || !isSelected) {
+      return;
+    }
+
+    const visCheck = isScrolledIntoView(menuRef.current);
+    if (visCheck.fullyVisible) {
+      return;
+    }
+
+    void store.dispatch(
+      "sidebar.updateScroll",
+      store.state.sidebar.scroll + visCheck.offBy,
+    );
+  }, [isSelected, store]);
+
   return (
     <>
       <SidebarRow
@@ -383,24 +412,4 @@ export function getPaddingLeft(depth: number, hasIcon?: boolean): string {
   }
 
   return math(`${depth} * ${INDENT_WIDTH} + ${iconOffset}`);
-}
-
-export function isFullyVisible(
-  el: HTMLElement,
-): { fullyVisible: true } | { fullyVisible: false; offBy: number } {
-  const parentEl = el.parentElement as HTMLElement;
-  const { scrollTop } = parentEl;
-
-  const elTop = el.offsetTop - parentEl.offsetTop;
-  if (elTop < scrollTop) {
-    return { fullyVisible: false, offBy: elTop - scrollTop };
-  }
-
-  const elBottom = elTop + el.offsetHeight;
-  const scrollBottom = parentEl.offsetHeight + scrollTop;
-  if (elBottom > scrollBottom) {
-    return { fullyVisible: false, offBy: elBottom - scrollBottom };
-  }
-
-  return { fullyVisible: true };
 }

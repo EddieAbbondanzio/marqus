@@ -24,3 +24,27 @@ export function getOffsetRelativeTo(
     targetRect.top - parentRect.top + offsetY,
   ];
 }
+
+export type ViewCheck =
+  | { fullyVisible: true }
+  | { fullyVisible: false; offBy: number };
+
+export function isScrolledIntoView(el: HTMLElement): ViewCheck {
+  const parentEl = el.parentElement as HTMLElement;
+  const { scrollTop } = parentEl;
+
+  // Check if element is above view
+  const elTop = el.offsetTop - parentEl.offsetTop;
+  if (elTop < scrollTop) {
+    return { fullyVisible: false, offBy: elTop - scrollTop };
+  }
+
+  // Check if element is below view
+  const elBottom = elTop + el.offsetHeight;
+  const scrollBottom = parentEl.offsetHeight + scrollTop;
+  if (elBottom > scrollBottom) {
+    return { fullyVisible: false, offBy: elBottom - scrollBottom };
+  }
+
+  return { fullyVisible: true };
+}

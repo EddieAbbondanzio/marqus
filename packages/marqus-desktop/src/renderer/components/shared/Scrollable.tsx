@@ -156,29 +156,6 @@ export function Scrollable(
 
   useResizeObserver(wrapper.current, onSizeChange);
 
-  // Mount / Unmount
-  useEffect(() => {
-    const el = wrapper.current;
-    let resizeObserver: ResizeObserver | null = null;
-
-    if (el != null) {
-      resizeObserver = new ResizeObserver(() => {
-        if (onSizeChange) {
-          const rect = el.getBoundingClientRect();
-          onSizeChange(pick(rect, "height", "width"));
-        }
-      });
-
-      resizeObserver.observe(el);
-    }
-
-    return () => {
-      if (resizeObserver != null) {
-        resizeObserver.disconnect();
-      }
-    };
-  }, [onSizeChange]);
-
   return (
     <StyledDiv
       className={className}

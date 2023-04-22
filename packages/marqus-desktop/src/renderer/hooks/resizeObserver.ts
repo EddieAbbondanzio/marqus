@@ -4,6 +4,8 @@ import { useEffect } from "react";
 export interface Size {
   height: number;
   width: number;
+  scrollHeight: number;
+  scrollWidth: number;
 }
 
 export function useResizeObserver(
@@ -21,7 +23,13 @@ export function useResizeObserver(
 
     const resizeObserver = new ResizeObserver(() => {
       const rect = el.getBoundingClientRect();
-      onResize(pick(rect, "height", "width"));
+
+      const size = {
+        ...pick(rect, "height", "width"),
+        ...pick(el, "scrollHeight", "scrollWidth"),
+      };
+
+      onResize(size);
     });
 
     resizeObserver.observe(el);
