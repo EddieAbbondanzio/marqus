@@ -1,17 +1,23 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { PromisedInput } from "../../shared/promisedInput";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { isBlank } from "../../shared/utils";
 import { Store } from "../store";
-import { mt1, p2, px2, py1, THEME, w100 } from "../css";
+import { px2, py1, THEME, w100 } from "../css";
 import { Focusable, wasInsideFocusable } from "./shared/Focusable";
 import { Icon, IconProps } from "./shared/Icon";
 import { MouseDrag, useMouseDrag } from "../io/mouse";
 import { Section } from "../../shared/ui/app";
 import { partial } from "lodash";
-import { getClosestAttribute } from "../utils/dom";
+import { getClosestAttribute, isScrolledIntoView } from "../utils/dom";
 import { createPortal } from "react-dom";
 import { math } from "polished";
 
@@ -101,9 +107,9 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         // Drag was inside sidebar, but not on a note. Move note to root.
         else if (wasInsideFocusable(drag.event, Section.Sidebar)) {
           onDrag();
+        } else {
+          // Drags that end outside of the sidebar should be considered cancels.
         }
-
-        // Drags that end outside of the sidebar should be considered cancels.
 
         setCursorEl(undefined);
       }
@@ -122,6 +128,28 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
       $(menuRef.current!.parentElement!).scrollTo(menuRef.current!, 0);
     }
   }, [scrollToNoteId, id]);
+
+  // Scroll to menu if it's selected and offscreen
+  const prevIsSelectedRef = useRef(isSelected);
+  useLayoutEffect(() => {
+    const prevIsSelected = prevIsSelectedRef.current;
+    prevIsSelectedRef.current = isSelected;
+
+    // We only scroll to the menu when it goes from not-selected -> selected.
+    if (prevIsSelected || !isSelected) {
+      return;
+    }
+
+    const visCheck = isScrolledIntoView(menuRef.current);
+    if (visCheck.fullyVisible) {
+      return;
+    }
+
+    void store.dispatch(
+      "sidebar.updateScroll",
+      store.state.sidebar.scroll + visCheck.offBy,
+    );
+  }, [isSelected, store]);
 
   return (
     <>

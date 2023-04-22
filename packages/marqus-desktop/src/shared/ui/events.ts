@@ -51,6 +51,9 @@ export interface UIEvents {
   "sidebar.moveSelectedSearchResultUp": void;
   "sidebar.moveSelectedSearchResultDown": void;
   "sidebar.openSelectedNotes": void;
+  "sidebar.updateSearchScroll": number;
+  "sidebar.scrollSearchUp": void;
+  "sidebar.scrollSearchDown": void;
 
   // Editor
   "editor.save": void;
@@ -145,6 +148,9 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "sidebar.moveSelectedSearchResultUp",
   "sidebar.moveSelectedSearchResultDown",
   "sidebar.openSelectedNotes",
+  "sidebar.updateSearchScroll",
+  "sidebar.scrollSearchUp",
+  "sidebar.scrollSearchDown",
 
   // Editor
   "editor.save",

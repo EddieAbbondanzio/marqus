@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
 import { KeyCode, parseKeyCode } from "../../../shared/io/keyCode";
 import { w100 } from "../../css";
+import { Size, useResizeObserver } from "../../hooks/resizeObserver";
 
 const SCROLL_DEBOUNCE_INTERVAL = 100; // ms
 
@@ -14,6 +15,7 @@ export interface ScrollableProps {
   scroll?: number;
   orientation?: ScrollOrientation;
   onScroll?: (scrollPos: number) => void;
+  onSizeChange?: (size: Size) => void;
 }
 export type ScrollOrientation = "horizontal" | "vertical";
 
@@ -25,6 +27,7 @@ export function Scrollable(
     className,
     orientation = "vertical",
     onScroll,
+    onSizeChange,
     disableScrollOnArrowKeys,
   } = props;
 
@@ -150,6 +153,8 @@ export function Scrollable(
     ),
     [onScroll, orientation],
   );
+
+  useResizeObserver(wrapper.current, onSizeChange);
 
   return (
     <StyledDiv

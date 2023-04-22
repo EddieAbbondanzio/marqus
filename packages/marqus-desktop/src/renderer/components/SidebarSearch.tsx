@@ -1,29 +1,29 @@
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { fuzzy } from "fast-fuzzy";
-import { clamp, cloneDeep, isEmpty } from "lodash";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { FullOptions, Searcher } from "fast-fuzzy";
+import { isEmpty } from "lodash";
+import { remToPx, stripUnit } from "polished";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
-import {
-  flatten,
-  getFullPath,
-  getNoteById,
-  Note,
-} from "../../shared/domain/note";
+import { flatten, getFullPath, Note } from "../../shared/domain/note";
 import { KeyCode, parseKeyCode } from "../../shared/io/keyCode";
 import { Section } from "../../shared/ui/app";
-import { isBlank } from "../../shared/utils";
-import { mb0, px3, THEME, w100, ZIndex } from "../css";
+import { mb0, THEME, w100, ZIndex } from "../css";
+import { Size } from "../hooks/resizeObserver";
 import { Listener, Store } from "../store";
+import { incrementScroll } from "../utils/dom";
 import { Focusable } from "./shared/Focusable";
 import { Icon } from "./shared/Icon";
+import { Scrollable } from "./shared/Scrollable";
+import {
+  SEARCH_RESULT_HEIGHT,
+  SidebarSearchResult,
+} from "./SidebarSearchResult";
 
-export const MATCH_THRESHOLD = 0.6;
+export const FUZZY_OPTIONS: FullOptions<Note> & { returnMatchData: true } = {
+  ignoreCase: true,
+  returnMatchData: true,
+  keySelector: n => [n.name, n.content],
+};
 
 export interface SidebarSearchProps {
   store: Store;
@@ -32,7 +32,35 @@ export interface SidebarSearchProps {
 export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   const { store } = props;
   const { state } = store;
-  const { searchString, searchResults, searchSelected } = state.sidebar;
+  const { notes } = state;
+  const {
+    searchString = "",
+    searchResults = [],
+    searchSelected,
+    searchScroll = 0,
+  } = state.sidebar;
+
+  const fuzzySearcher = useMemo(() => {
+    const flatNotes = flatten(notes);
+    const searcher = new Searcher(flatNotes, FUZZY_OPTIONS);
+
+    return searcher;
+  }, [notes]);
+
+  const search: Listener<"sidebar.search"> = useCallback(
+    ({ value: searchString = "" }, ctx) => {
+      const matches = fuzzySearcher.search(searchString);
+
+      ctx.setUI({
+        sidebar: {
+          searchString,
+          searchSelected: undefined,
+          searchResults: matches,
+        },
+      });
+    },
+    [fuzzySearcher],
+  );
 
   const inputRef = useRef(null as HTMLInputElement | null);
 
@@ -50,49 +78,93 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
     await store.dispatch("sidebar.search", "");
   }, [store]);
 
-  const notes = useMemo(() => {
+  const renderedResults = useMemo(() => {
     if (searchResults == null || searchResults.length === 0) {
-      return [];
+      return undefined;
     }
 
-    return searchResults.map(r => getNoteById(state.notes, r));
-  }, [state.notes, searchResults]);
+    return searchResults.map(match => {
+      const n = match.item;
+      const path = getFullPath(notes, n);
 
-  const renderedResults = notes.map((n, i) => {
-    const path = getFullPath(store.state.notes, n);
+      return (
+        <SidebarSearchResult
+          key={n.id}
+          path={path}
+          selected={searchSelected === n.id}
+          matchData={match}
+          onClick={() =>
+            void store.dispatch("editor.openTab", {
+              note: n.id,
+              active: n.id,
+              focus: true,
+              scrollTo: true,
+            })
+          }
+          store={store}
+        />
+      );
+    });
+  }, [searchResults, searchSelected, notes, store]);
 
-    return (
-      <SearchResult
-        key={n.id}
-        title={path}
-        selected={searchSelected === n.id}
-        onClick={() =>
-          void store.dispatch("editor.openTab", {
-            note: n.id,
-            active: n.id,
-            focus: true,
-            scrollTo: true,
-          })
-        }
-      >
-        <TruncatedText>{n.name}</TruncatedText>
-      </SearchResult>
-    );
-  });
+  const maxScroll = useRef(0);
+  const onSidebarHeightChange = (size: Size) => {
+    maxScroll.current = size.scrollHeight;
+  };
 
-  const searchHasFocus = state.focused[0] === Section.SidebarSearch;
+  const scrollUp: Listener<"sidebar.scrollSearchUp"> = (_, { setUI }) => {
+    setUI(prev => {
+      const stepInPx = remToPx(SEARCH_RESULT_HEIGHT);
+      const stepInt = stripUnit(stepInPx) as number;
+
+      return {
+        sidebar: {
+          searchScroll: incrementScroll(
+            prev.sidebar.searchScroll ?? 0,
+            -stepInt,
+            { max: maxScroll.current, roundBy: stepInt },
+          ),
+        },
+      };
+    });
+  };
+
+  const scrollDown: Listener<"sidebar.scrollSearchDown"> = (_, { setUI }) => {
+    setUI(prev => {
+      const stepInPx = remToPx(SEARCH_RESULT_HEIGHT);
+      const stepInt = stripUnit(stepInPx) as number;
+
+      return {
+        sidebar: {
+          searchScroll: incrementScroll(
+            prev.sidebar.searchScroll ?? 0,
+            stepInt,
+            { max: maxScroll.current, roundBy: stepInt },
+          ),
+        },
+      };
+    });
+  };
 
   useEffect(() => {
     store.on("sidebar.moveSelectedSearchResultDown", moveDown);
     store.on("sidebar.moveSelectedSearchResultUp", moveUp);
     store.on("sidebar.search", search);
+    store.on("sidebar.updateSearchScroll", updateScroll);
+    store.on("sidebar.scrollSearchUp", scrollUp);
+    store.on("sidebar.scrollSearchDown", scrollDown);
 
     return () => {
       store.off("sidebar.moveSelectedSearchResultDown", moveDown);
       store.off("sidebar.moveSelectedSearchResultUp", moveUp);
       store.off("sidebar.search", search);
+      store.off("sidebar.updateSearchScroll", updateScroll);
+      store.off("sidebar.scrollSearchUp", scrollUp);
+      store.off("sidebar.scrollSearchDown", scrollDown);
     };
-  }, [store]);
+  }, [store, search]);
+
+  const searchHasFocus = state.focused[0] === Section.SidebarSearch;
 
   return (
     <StyledFocusable
@@ -106,7 +178,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
         ref={inputRef}
         value={searchString}
         onInput={onInput}
-        roundBottomCorners={!searchHasFocus || notes.length === 0}
+        roundBottomCorners={!searchHasFocus || searchResults.length === 0}
         onKeyDown={(ev: React.KeyboardEvent<HTMLInputElement>) => {
           const key = parseKeyCode(ev.code);
 
@@ -129,7 +201,19 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
       {!isEmpty(searchString) && (
         <DeleteIcon icon={faTimes} onClick={onClear} />
       )}
-      {searchHasFocus && <SearchOverlay>{renderedResults}</SearchOverlay>}
+      {searchHasFocus && searchString && searchResults.length > 0 && (
+        <Overlay>
+          <OverlayContent
+            scroll={searchScroll}
+            onScroll={async s =>
+              await store.dispatch("sidebar.updateSearchScroll", s)
+            }
+            onSizeChange={onSidebarHeightChange}
+          >
+            {renderedResults}
+          </OverlayContent>
+        </Overlay>
+      )}
     </StyledFocusable>
   );
 }
@@ -179,88 +263,24 @@ const SearchInput = styled.input<{ roundBottomCorners: boolean }>`
   border-bottom-right-radius: ${p => (p.roundBottomCorners ? "0.4rem" : "0")};
 `;
 
-const SearchOverlay = styled.div`
+const Overlay = styled.div`
   position: absolute;
   top: 3.2rem;
   width: 100%;
+  z-index: 100;
+`;
+
+const OverlayContent = styled(Scrollable)`
+  width: 100%;
+
   background-color: ${THEME.sidebar.search.background};
   z-index: ${ZIndex.SearchOverlay};
+  // 3.2rem (top) + 1.6 (padding) gets us 4.8rem
+  max-height: calc(100vh - 4.8rem);
 
   border-bottom-left-radius: 0.4rem;
   border-bottom-right-radius: 0.4rem;
 `;
-
-const SearchResult = styled.div<{ selected: boolean }>`
-  height: 3.2rem;
-  display: flex;
-  align-items: center;
-  font-size: 1.4rem;
-  ${px3}
-  min-width: 0;
-
-  background-color: ${p =>
-    p.selected ? THEME.sidebar.search.selectedResult : ""} !important;
-
-  &:hover {
-    background-color: ${THEME.sidebar.search.resultBackgroundHover};
-  }
-`;
-
-const TruncatedText = styled.div`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-export function searchNotes(notes: Note[], searchString?: string): Note[] {
-  // Don't bother searching if string is empty or just whitespace
-  if (isBlank(searchString)) {
-    return [];
-  }
-
-  const clonedNotes = cloneDeep(notes);
-  const matchedNotes: { note: Note; score: number }[] = [];
-
-  for (const note of clonedNotes) {
-    const score = calculateMatchScore(note, searchString!);
-    if (score > MATCH_THRESHOLD) {
-      matchedNotes.push({ note, score });
-    }
-  }
-
-  for (const match of matchedNotes) {
-    // Matched children should be sorted by relevance so we re-use searchNotes
-    match.note.children = searchNotes(match.note.children, searchString);
-  }
-
-  // When searching at the root level, check every note that we didn't match to
-  // ensure we search every nested note even if their parent didn't match. If
-  // we find a nested note that matches, we'll show it as a root note.
-  if (clonedNotes.length > 0 && clonedNotes.every(n => n.parent == null)) {
-    const alreadyMatchedIds = flatten(matchedNotes.map(m => m.note)).map(
-      n => n.id,
-    );
-    const otherNotes = flatten(clonedNotes).filter(
-      n => !alreadyMatchedIds.includes(n.id),
-    );
-
-    for (const note of otherNotes) {
-      const score = calculateMatchScore(note, searchString!);
-      if (score > MATCH_THRESHOLD) {
-        matchedNotes.push({ note, score });
-      }
-    }
-  }
-
-  return matchedNotes.sort((a, b) => a.score - b.score).map(({ note }) => note);
-}
-
-function calculateMatchScore(note: Note, term: string): number {
-  const nameScore = fuzzy(term, note.name);
-  const contentScore = fuzzy(term, note.content);
-
-  return Math.max(nameScore, contentScore);
-}
 
 export const moveDown: Listener<"sidebar.moveSelectedSearchResultDown"> = (
   _,
@@ -272,7 +292,7 @@ export const moveDown: Listener<"sidebar.moveSelectedSearchResultDown"> = (
     return;
   }
 
-  let currIndex = searchResults.findIndex(s => s === searchSelected);
+  let currIndex = searchResults.findIndex(s => s.item.id === searchSelected);
   if (currIndex === -1 || currIndex + 1 > searchResults.length - 1) {
     currIndex = 0;
   } else {
@@ -281,7 +301,7 @@ export const moveDown: Listener<"sidebar.moveSelectedSearchResultDown"> = (
 
   ctx.setUI({
     sidebar: {
-      searchSelected: searchResults[currIndex],
+      searchSelected: searchResults[currIndex].item.id,
     },
   });
 };
@@ -296,7 +316,7 @@ export const moveUp: Listener<"sidebar.moveSelectedSearchResultUp"> = (
     return;
   }
 
-  let currIndex = searchResults.findIndex(s => s === searchSelected);
+  let currIndex = searchResults.findIndex(s => s.item.id === searchSelected);
   if (currIndex === -1 || currIndex - 1 < 0) {
     currIndex = searchResults.length - 1;
   } else {
@@ -305,23 +325,22 @@ export const moveUp: Listener<"sidebar.moveSelectedSearchResultUp"> = (
 
   ctx.setUI({
     sidebar: {
-      searchSelected: searchResults[currIndex],
+      searchSelected: searchResults[currIndex].item.id,
     },
   });
 };
 
-export const search: Listener<"sidebar.search"> = (
-  { value: searchString },
+export const updateScroll: Listener<"sidebar.updateSearchScroll"> = (
+  { value: scroll },
   ctx,
 ) => {
-  const { notes } = ctx.getState();
-  const results = searchNotes(notes, searchString ?? "");
+  if (scroll == null) {
+    throw new Error("Cannot update search scroll to null");
+  }
 
   ctx.setUI({
     sidebar: {
-      searchString,
-      searchSelected: undefined,
-      searchResults: results.map(n => n.id),
+      searchScroll: scroll,
     },
   });
 };

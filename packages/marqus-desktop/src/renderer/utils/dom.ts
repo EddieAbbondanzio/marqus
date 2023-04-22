@@ -1,3 +1,5 @@
+import { clamp } from "lodash";
+
 export function getClosestAttribute(
   attr: string,
   element: HTMLElement,
@@ -23,4 +25,45 @@ export function getOffsetRelativeTo(
     targetRect.left - parentRect.left + offsetX,
     targetRect.top - parentRect.top + offsetY,
   ];
+}
+
+export type ViewCheck =
+  | { fullyVisible: true }
+  | { fullyVisible: false; offBy: number };
+
+export function isScrolledIntoView(el: HTMLElement): ViewCheck {
+  const parentEl = el.parentElement as HTMLElement;
+  const { scrollTop } = parentEl;
+
+  // Check if element is above view
+  const elTop = el.offsetTop - parentEl.offsetTop;
+  if (elTop < scrollTop) {
+    return { fullyVisible: false, offBy: elTop - scrollTop };
+  }
+
+  // Check if element is below view
+  const elBottom = elTop + el.offsetHeight;
+  const scrollBottom = parentEl.offsetHeight + scrollTop;
+  if (elBottom > scrollBottom) {
+    return { fullyVisible: false, offBy: elBottom - scrollBottom };
+  }
+
+  return { fullyVisible: true };
+}
+
+export function incrementScroll(
+  currScroll: number,
+  amount: number,
+  opts?: {
+    min?: number;
+    max?: number;
+    roundBy?: number;
+  },
+): number {
+  let newScroll = currScroll + amount;
+  if (opts?.roundBy != null) {
+    newScroll = newScroll - (newScroll % opts.roundBy);
+  }
+
+  return clamp(newScroll, opts?.min ?? 0, opts?.max ?? Infinity);
 }

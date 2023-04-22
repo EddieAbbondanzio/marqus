@@ -87,6 +87,11 @@ test("app.loadAppState loads", async () => {
           width: "301px",
           selected,
           expanded,
+          // Everything below should be deleted.
+          input: {},
+          searchResults: [{}],
+          searchSelected: "1",
+          searchScroll: 100,
         },
         editor: {
           activeTabNoteId,
@@ -116,6 +121,9 @@ test("app.loadAppState loads", async () => {
   expect(appState.sidebar.width).toBe("301px");
   expect(appState.sidebar.selected).toEqual(selected);
   expect(appState.sidebar.expanded).toEqual(expanded);
+  expect(appState.sidebar.searchResults).toBe(undefined);
+  expect(appState.sidebar.searchSelected).toBe(undefined);
+  expect(appState.sidebar.searchScroll).toBe(undefined);
 
   expect(appState.editor.activeTabNoteId).toBe(activeTabNoteId);
   expect(appState.editor.isEditing).toBe(false);

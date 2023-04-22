@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Resizable } from "./shared/Resizable";
 import { Focusable } from "./shared/Focusable";
 import { Store, StoreContext, Listener } from "../store";
 import styled from "styled-components";
 import { h100, mb3, THEME, w100 } from "../css";
-import { clamp, Dictionary, head, isEmpty, keyBy, round, take } from "lodash";
+import { clamp, Dictionary, head, isEmpty, keyBy, take } from "lodash";
 import {
   Note,
   getNoteById,
@@ -26,10 +26,13 @@ import { Section } from "../../shared/ui/app";
 import { deleteNoteIfConfirmed } from "../utils/deleteNoteIfConfirmed";
 import { cleanupClosedTabsCache, openTabsForNotes } from "./EditorToolbar";
 import { remToPx, stripUnit } from "polished";
+import { Size } from "../hooks/resizeObserver";
+import { incrementScroll } from "../utils/dom";
 
 const EXPANDED_ICON = faCaretDown;
 const COLLAPSED_ICON = faCaretRight;
 const MIN_WIDTH = "200px";
+
 export interface SidebarProps {
   store: Store;
 }
@@ -37,15 +40,52 @@ export interface SidebarProps {
 export function Sidebar(props: SidebarProps): JSX.Element {
   const { store } = props;
   const { state } = store;
-  const { input } = state.sidebar;
   const { notes } = state;
-  const expandedLookup = keyBy(state.sidebar.expanded, e => e);
-  const selectedLookup = keyBy(state.sidebar.selected, s => s);
+  const { input, expanded, selected } = state.sidebar;
 
-  const [menus, noteIds] = useMemo(
-    () => renderMenus(notes, store, input, expandedLookup, selectedLookup),
-    [notes, store, input, expandedLookup, selectedLookup],
-  );
+  const [menus, noteIds] = useMemo(() => {
+    const expandedLookup = keyBy(expanded, e => e);
+    const selectedLookup = keyBy(selected, s => s);
+
+    return renderMenus(notes, store, input, expandedLookup, selectedLookup);
+  }, [notes, store, input, expanded, selected]);
+
+  const maxScroll = useRef(0);
+  const onSidebarHeightChange = (size: Size) => {
+    maxScroll.current = size.scrollHeight;
+  };
+
+  const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
+    setUI(prev => {
+      const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
+      const menuHeightInt = stripUnit(menuHeightInPx) as number;
+
+      return {
+        sidebar: {
+          scroll: incrementScroll(prev.sidebar.scroll, -menuHeightInt, {
+            max: maxScroll.current,
+            roundBy: menuHeightInt,
+          }),
+        },
+      };
+    });
+  };
+
+  const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
+    setUI(prev => {
+      const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
+      const menuHeightInt = stripUnit(menuHeightInPx) as number;
+
+      return {
+        sidebar: {
+          scroll: incrementScroll(prev.sidebar.scroll, menuHeightInt, {
+            max: maxScroll.current,
+            roundBy: menuHeightInt,
+          }),
+        },
+      };
+    });
+  };
 
   useEffect(() => {
     const getNext = (increment: number) => {
@@ -183,6 +223,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
           onScroll={async s => {
             await store.dispatch("sidebar.updateScroll", s);
           }}
+          onSizeChange={onSidebarHeightChange}
         >
           {menus}
 
@@ -374,39 +415,6 @@ export const updateScroll: Listener<"sidebar.updateScroll"> = (
     sidebar: {
       scroll,
     },
-  });
-};
-
-export const scrollUp: Listener<"sidebar.scrollUp"> = (_, { setUI }) => {
-  setUI(prev => {
-    const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
-    const menuHeightInt = stripUnit(menuHeightInPx) as number;
-
-    const newScroll = prev.sidebar.scroll - menuHeightInt;
-    const roundedScroll = newScroll - (newScroll % menuHeightInt);
-    const clampedScroll = Math.max(roundedScroll, 0);
-
-    return {
-      sidebar: {
-        scroll: clampedScroll,
-      },
-    };
-  });
-};
-
-export const scrollDown: Listener<"sidebar.scrollDown"> = (_, { setUI }) => {
-  setUI(prev => {
-    const menuHeightInPx = remToPx(SIDEBAR_MENU_HEIGHT);
-    const menuHeightInt = stripUnit(menuHeightInPx) as number;
-
-    const newScroll = prev.sidebar.scroll + menuHeightInt;
-    const roundedScroll = newScroll - (newScroll % menuHeightInt);
-
-    return {
-      sidebar: {
-        scroll: roundedScroll,
-      },
-    };
   });
 };
 
@@ -747,7 +755,7 @@ export const openSelectedNotes: Listener<"sidebar.openSelectedNotes"> = async (
     return;
   }
 
-  openTabsForNotes(ctx, selected);
+  openTabsForNotes(ctx, selected, selected[0]);
 
   // Editor is not set as focused when a note is opened from the sidebar because
   // the user may not want to start editing the note yet. This makes it easier

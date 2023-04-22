@@ -7,6 +7,7 @@ import { Section } from "../../shared/ui/app";
 import { Attachment, Protocol } from "../../shared/domain/protocols";
 import { Config } from "../../shared/domain/config";
 import { debounce } from "lodash";
+import { useResizeObserver } from "../hooks/resizeObserver";
 
 const DEBOUNCE_INTERVAL_MS = 250;
 
@@ -151,6 +152,12 @@ export function Monaco(props: MonacoProps): JSX.Element {
     [store.state],
   );
 
+  // Monaco doesn't automatically resize when it's container element does so
+  // we need to listen for changes and trigger the refresh ourselves.
+  useResizeObserver(containerElement.current, () =>
+    monacoEditor.current?.layout(),
+  );
+
   // Mount / Unmount
   useEffect(() => {
     // dragenter and dragover have to be cancelled in order for the drop event
@@ -165,7 +172,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
     };
 
     const { current: el } = containerElement;
-    let resizeObserver: ResizeObserver | null = null;
 
     if (el != null) {
       monacoEditor.current = monaco.editor.create(el, {
@@ -179,16 +185,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
         disableKeybinding(monacoEditor.current, "editor.action.triggerSuggest");
       }
 
-      // Monaco doesn't automatically resize when it's container element does so
-      // we need to listen for changes and trigger the refresh ourselves.
-
-      resizeObserver = new ResizeObserver(() => {
-        if (monacoEditor.current != null) {
-          monacoEditor.current.layout();
-        }
-      });
-      resizeObserver.observe(el);
-
       el.addEventListener("dragenter", dragEnter);
       el.addEventListener("dragover", dragOver);
       el.addEventListener("drop", importAttachments);
@@ -199,8 +195,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
       // editor switches to view mode.
       onViewStateChange.flush();
       onModelChange.flush();
-
-      resizeObserver?.disconnect();
 
       if (monacoEditor.current != null) {
         monacoEditor.current.dispose();
