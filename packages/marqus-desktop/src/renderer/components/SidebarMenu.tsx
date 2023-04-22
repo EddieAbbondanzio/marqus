@@ -101,9 +101,9 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         // Drag was inside sidebar, but not on a note. Move note to root.
         else if (wasInsideFocusable(drag.event, Section.Sidebar)) {
           onDrag();
+        } else {
+          // Drags that end outside of the sidebar should be considered cancels.
         }
-
-        // Drags that end outside of the sidebar should be considered cancels.
 
         setCursorEl(undefined);
       }
@@ -122,7 +122,6 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
       $(menuRef.current!.parentElement!).scrollTo(menuRef.current!, 0);
     }
   }, [scrollToNoteId, id]);
-
   return (
     <>
       <SidebarRow
@@ -384,4 +383,24 @@ export function getPaddingLeft(depth: number, hasIcon?: boolean): string {
   }
 
   return math(`${depth} * ${INDENT_WIDTH} + ${iconOffset}`);
+}
+
+export function isFullyVisible(
+  el: HTMLElement,
+): { fullyVisible: true } | { fullyVisible: false; offBy: number } {
+  const parentEl = el.parentElement as HTMLElement;
+  const { scrollTop } = parentEl;
+
+  const elTop = el.offsetTop - parentEl.offsetTop;
+  if (elTop < scrollTop) {
+    return { fullyVisible: false, offBy: elTop - scrollTop };
+  }
+
+  const elBottom = elTop + el.offsetHeight;
+  const scrollBottom = parentEl.offsetHeight + scrollTop;
+  if (elBottom > scrollBottom) {
+    return { fullyVisible: false, offBy: elBottom - scrollBottom };
+  }
+
+  return { fullyVisible: true };
 }

@@ -154,7 +154,9 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
   // Monaco doesn't automatically resize when it's container element does so
   // we need to listen for changes and trigger the refresh ourselves.
-  useResizeObserver(containerElement, () => monacoEditor.current?.layout());
+  useResizeObserver(containerElement.current, () =>
+    monacoEditor.current?.layout(),
+  );
 
   // Mount / Unmount
   useEffect(() => {

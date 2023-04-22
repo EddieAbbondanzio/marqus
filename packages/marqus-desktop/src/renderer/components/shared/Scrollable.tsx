@@ -154,7 +154,7 @@ export function Scrollable(
     [onScroll, orientation],
   );
 
-  useResizeObserver(wrapper, onSizeChange);
+  useResizeObserver(wrapper.current, onSizeChange);
 
   // Mount / Unmount
   useEffect(() => {

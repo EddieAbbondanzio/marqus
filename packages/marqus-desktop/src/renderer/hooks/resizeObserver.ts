@@ -1,5 +1,5 @@
 import { pick } from "lodash";
-import { MutableRefObject, useEffect } from "react";
+import { useEffect } from "react";
 
 export interface Size {
   height: number;
@@ -7,22 +7,21 @@ export interface Size {
 }
 
 export function useResizeObserver(
-  elRef: MutableRefObject<HTMLElement | null>,
-  callback?: (size: Size) => void,
+  el: HTMLElement | null,
+  onResize?: (size: Size) => void,
 ): void {
   // Mount / Unmount
   useEffect(() => {
-    const el = elRef.current;
     if (el == null) {
       return;
     }
-    if (callback == null) {
+    if (onResize == null) {
       return;
     }
 
     const resizeObserver = new ResizeObserver(() => {
       const rect = el.getBoundingClientRect();
-      callback(pick(rect, "height", "width"));
+      onResize(pick(rect, "height", "width"));
     });
 
     resizeObserver.observe(el);
@@ -32,5 +31,5 @@ export function useResizeObserver(
         resizeObserver.disconnect();
       }
     };
-  }, [elRef, callback]);
+  }, [el, onResize]);
 }
