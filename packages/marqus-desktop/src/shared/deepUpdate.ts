@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/ban-types */
-import { get } from "lodash";
+import { cloneDeep, get } from "lodash";
 import { DeepPartial } from "tsdef";
 import { isBlank } from "./utils";
 
@@ -16,10 +16,14 @@ export function deepUpdate<T extends {}>(
   updates: DeepPartial<T>,
   ignoredPaths?: RegExp[],
 ): T {
+  // deepUpdate returns the updated object instead of performing it in place so
+  // we clone the obj to prevent from accidentally updating the source obj.
+  const cloneObj = cloneDeep(obj);
+
   breadthFirst(
     updates,
     (update, property, path, hasChildrenToVisit) => {
-      const existing = get(obj, path);
+      const existing = get(cloneObj, path);
       /**
        * To prevent from updating children properties from their parents we don't
        * perform updates on objects unless their value has been deleted.
@@ -36,7 +40,7 @@ export function deepUpdate<T extends {}>(
       if (update.hasOwnProperty(property)) {
         const newValue = update[property];
         const parentPath = path.split(".").slice(0, -1).join(".");
-        let parent = isBlank(parentPath) ? obj : get(obj, parentPath);
+        let parent = isBlank(parentPath) ? cloneObj : get(cloneObj, parentPath);
 
         // Delete
         if (newValue == null) {
@@ -51,7 +55,7 @@ export function deepUpdate<T extends {}>(
     ignoredPaths,
   );
 
-  return obj;
+  return cloneObj;
 }
 
 /**

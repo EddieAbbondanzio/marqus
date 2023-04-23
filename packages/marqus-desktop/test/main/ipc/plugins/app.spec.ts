@@ -23,6 +23,7 @@ afterEach(() => {
   mockFS.restore();
 });
 
+jest.mock("../../../../src/main/logger");
 jest.mock("../../../../src/main/utils");
 
 test("appIpcs sets app menu on start", async () => {

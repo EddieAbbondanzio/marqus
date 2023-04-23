@@ -214,6 +214,7 @@ export async function loadAppState(
 
   let file: JsonFile<SerializedAppState>;
   const filePath = p.join(getConfigDirectory(), APP_STATE_FILE);
+  logger.info(`Loading appState.json at: ${filePath}`);
 
   try {
     file = await loadJsonFile<SerializedAppState>(filePath, APP_STATE_SCHEMAS, {
