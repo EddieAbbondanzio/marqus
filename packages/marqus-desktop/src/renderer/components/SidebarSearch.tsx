@@ -1,5 +1,10 @@
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { FullOptions, Searcher } from "fast-fuzzy";
+import {
+  AdditionalOptions,
+  FullOptions,
+  FuzzyOptions,
+  Searcher,
+} from "fast-fuzzy";
 import { isEmpty } from "lodash";
 import { remToPx, stripUnit } from "polished";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
@@ -25,6 +30,14 @@ export const FUZZY_OPTIONS: FullOptions<Note> & { returnMatchData: true } = {
   keySelector: n => [n.name, n.content],
 };
 
+type NoteFuzzySearcher = Searcher<
+  Note,
+  FuzzyOptions &
+    AdditionalOptions<Note> & {
+      returnMatchData: true;
+    }
+>;
+
 export interface SidebarSearchProps {
   store: Store;
 }
@@ -40,16 +53,29 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
     searchScroll = 0,
   } = state.sidebar;
 
-  const fuzzySearcher = useMemo(() => {
-    const flatNotes = flatten(notes);
-    const searcher = new Searcher(flatNotes, FUZZY_OPTIONS);
+  // Generating the Fuzzy Searcher is very costly and needs to be done each time
+  // the note array changes. To reduce having a major impact on performance, we
+  // only init the searcher when the sidebar search is focused and keep it until
+  // the note array changes.
+  const fuzzySearcherRef = useRef<NoteFuzzySearcher | null>(null);
+  const isSearchFocused = state.focused[0] === Section.SidebarSearch;
+  useEffect(() => {
+    if (!isSearchFocused) {
+      fuzzySearcherRef.current = null;
+      return;
+    }
 
-    return searcher;
-  }, [notes]);
+    const flatNotes = flatten(notes);
+    fuzzySearcherRef.current = new Searcher(flatNotes, FUZZY_OPTIONS);
+  }, [isSearchFocused, notes]);
 
   const search: Listener<"sidebar.search"> = useCallback(
     ({ value: searchString = "" }, ctx) => {
-      const matches = fuzzySearcher.search(searchString);
+      if (fuzzySearcherRef.current == null) {
+        return;
+      }
+
+      const matches = fuzzySearcherRef.current.search(searchString);
 
       ctx.setUI({
         sidebar: {
@@ -59,7 +85,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
         },
       });
     },
-    [fuzzySearcher],
+    [fuzzySearcherRef],
   );
 
   const inputRef = useRef(null as HTMLInputElement | null);
