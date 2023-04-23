@@ -40,15 +40,26 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
     searchScroll = 0,
   } = state.sidebar;
 
+  // Generating the Fuzzy Searcher is very costly and needs to be done each time
+  // the note array changes. To reduce having a major impact on performance, we
+  // only init the searcher when the sidebar search is focused and keep it until
+  // the note array changes.
+  const isSearchFocused = state.focused[0] === Section.SidebarSearch;
   const fuzzySearcher = useMemo(() => {
-    const flatNotes = flatten(notes);
-    const searcher = new Searcher(flatNotes, FUZZY_OPTIONS);
+    if (!isSearchFocused) {
+      return undefined;
+    }
 
-    return searcher;
-  }, [notes]);
+    const flatNotes = flatten(notes);
+    return new Searcher(flatNotes, FUZZY_OPTIONS);
+  }, [isSearchFocused, notes]);
 
   const search: Listener<"sidebar.search"> = useCallback(
     ({ value: searchString = "" }, ctx) => {
+      if (fuzzySearcher == null) {
+        return;
+      }
+
       const matches = fuzzySearcher.search(searchString);
 
       ctx.setUI({
