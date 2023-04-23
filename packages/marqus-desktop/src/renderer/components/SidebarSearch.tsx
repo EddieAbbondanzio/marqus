@@ -1,10 +1,5 @@
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
-import {
-  AdditionalOptions,
-  FullOptions,
-  FuzzyOptions,
-  Searcher,
-} from "fast-fuzzy";
+import { FullOptions, Searcher } from "fast-fuzzy";
 import { isEmpty } from "lodash";
 import { remToPx, stripUnit } from "polished";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
@@ -30,14 +25,6 @@ export const FUZZY_OPTIONS: FullOptions<Note> & { returnMatchData: true } = {
   keySelector: n => [n.name, n.content],
 };
 
-type NoteFuzzySearcher = Searcher<
-  Note,
-  FuzzyOptions &
-    AdditionalOptions<Note> & {
-      returnMatchData: true;
-    }
->;
-
 export interface SidebarSearchProps {
   store: Store;
 }
@@ -57,25 +44,23 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
   // the note array changes. To reduce having a major impact on performance, we
   // only init the searcher when the sidebar search is focused and keep it until
   // the note array changes.
-  const fuzzySearcherRef = useRef<NoteFuzzySearcher | null>(null);
   const isSearchFocused = state.focused[0] === Section.SidebarSearch;
-  useEffect(() => {
+  const fuzzySearcher = useMemo(() => {
     if (!isSearchFocused) {
-      fuzzySearcherRef.current = null;
-      return;
+      return undefined;
     }
 
     const flatNotes = flatten(notes);
-    fuzzySearcherRef.current = new Searcher(flatNotes, FUZZY_OPTIONS);
+    return new Searcher(flatNotes, FUZZY_OPTIONS);
   }, [isSearchFocused, notes]);
 
   const search: Listener<"sidebar.search"> = useCallback(
     ({ value: searchString = "" }, ctx) => {
-      if (fuzzySearcherRef.current == null) {
+      if (fuzzySearcher == null) {
         return;
       }
 
-      const matches = fuzzySearcherRef.current.search(searchString);
+      const matches = fuzzySearcher.search(searchString);
 
       ctx.setUI({
         sidebar: {
@@ -85,7 +70,7 @@ export function SidebarSearch(props: SidebarSearchProps): JSX.Element {
         },
       });
     },
-    [fuzzySearcherRef],
+    [fuzzySearcher],
   );
 
   const inputRef = useRef(null as HTMLInputElement | null);
