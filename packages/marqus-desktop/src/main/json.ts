@@ -100,7 +100,11 @@ export async function loadJsonFile<Content extends Versioned>(
     this: JsonFile<Content>,
     partial: DeepPartial<Content>,
   ): Promise<void> {
-    const updated = deepUpdate(this.content, partial);
+    // deepUpdate works in place so we clone the content to prevent from
+    // accidentally making changes.
+    const clonedContent = cloneDeep(this.content);
+
+    const updated = deepUpdate(clonedContent, partial);
 
     // Validate against latest schema when saving to ensure we have valid content.
     const validated = await latestSchema.parseAsync(updated);

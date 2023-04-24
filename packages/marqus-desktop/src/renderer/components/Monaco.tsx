@@ -326,6 +326,9 @@ export function Monaco(props: MonacoProps): JSX.Element {
           });
         }
 
+        // N.B. If the app locks up when we call setModel it means there's
+        // something cloning the model via cloneDeep. (Double check store / deepUpdate)
+        // Src: https://github.com/Microsoft/vscode/issues/72383
         monacoEditor.current.setModel(cache.model);
 
         if (cache.viewState) {
