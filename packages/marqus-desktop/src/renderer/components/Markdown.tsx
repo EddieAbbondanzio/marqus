@@ -1,20 +1,25 @@
-import React, { useEffect } from "react";
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+  createElement,
+  Fragment,
+  PropsWithChildren,
+} from "react";
 import styled from "styled-components";
 import { Scrollable } from "./shared/Scrollable";
 import OpenColor from "open-color";
 import remarkGfm from "remark-gfm";
-import { useRemark } from "react-remark";
 import { getProtocol, Protocol } from "../../shared/domain/protocols";
 import { omit } from "lodash";
 import { Listener, Store } from "../store";
 import rehypeHighlight from "rehype-highlight";
-
-// TODO: Add types, or update react-remark.
-// React-remark isn't currently up to date with the latest version of remark so
-// we are stuck using older plugins. remark-emoji never shipped types with this
-// version (2.1.0)
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const emoji = require("remark-emoji");
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkToRehype from "remark-rehype";
+import rehypeReact from "rehype-react";
+import remarkEmoji from "remark-emoji";
 
 type ImageAlign = "left" | "right" | "center";
 
@@ -28,155 +33,58 @@ export function Markdown(props: MarkdownProps): JSX.Element {
   const { store } = props;
   const noteId = store.state.editor.activeTabNoteId;
 
-  // Check for update so we can migrate to newer versions of remarkGFM
-  // https://github.com/remarkjs/react-remark/issues/50
-  const [reactContent, setMarkdownSource] = useRemark({
-    remarkPlugins: [remarkGfm, emoji],
-    remarkToRehypeOptions: { allowDangerousHtml: false },
-    // rehype-highlight uses a new type for unified so we have to ignore the error.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    rehypePlugins: [rehypeHighlight],
-    rehypeReactOptions: {
-      components: {
-        h1: H1,
-        h2: H2,
-        h3: H3,
-        h4: H4,
-        h5: H5,
-        h6: H6,
-        p: Paragraph,
-        blockquote: Blockquote,
-        pre: CodeBlock,
-        code: CodeSpan,
-        span: Text,
-        img: (props: any) => {
-          if (noteId == null) {
-            throw new Error(`Cannot render links without a noteId.`);
-          }
+  // react-remark hasn't been updated in 2 years and doesn't work with the latest
+  // remark version / plugins so we roll our own setup instead of using the library.
+  // https://github.com/remarkjs/react-remark
 
-          const otherProps = omit(props, "src");
+  const [reactContent, _setReactContent] = useState<ReactElement | null>(null);
 
-          let src;
-          let title;
-          let height: string | number | undefined = undefined;
-          let width: string | number | undefined = undefined;
-          let align: ImageAlign | undefined = undefined;
-
-          if (props.src != null) {
-            const url = tryGetURL(props.src);
-            if (url != null) {
-              const originalParams = new URLSearchParams(url.search);
-
-              url.search = "";
-              url.searchParams.set("noteId", noteId);
-
-              title = url.pathname;
-              src = url.href;
-
-              if (originalParams.has("height")) {
-                height = originalParams.get("height")!;
+  const setMarkdownSource = useCallback(
+    (source: string) => {
+      unified()
+        .use(remarkParse)
+        .use([remarkGfm, remarkEmoji])
+        .use(remarkToRehype, { allowDangerousHtml: false })
+        .use(rehypeHighlight, { detect: true })
+        .use(rehypeReact, {
+          createElement,
+          Fragment,
+          components: {
+            h1: H1,
+            h2: H2,
+            h3: H3,
+            h4: H4,
+            h5: H5,
+            h6: H6,
+            p: Paragraph,
+            blockquote: Blockquote,
+            pre: CodeBlock,
+            code: CodeSpan,
+            span: Text,
+            img: (p: any) => MarkdownImage({ ...p, noteId }),
+            a: (p: any) => MarkdownLink({ ...p, store }),
+            hr: Hr,
+            br: Br,
+            del: Del,
+            strong: Strong,
+            em: Em,
+            ul: UnorderedList,
+            ol: OrderedList,
+            li: (p: any) => {
+              if (p.className === "task-list-item") {
+                return <Li className="task">{p.children}</Li>;
+              } else {
+                return <Li>{p.children}</Li>;
               }
-              if (originalParams.has("width")) {
-                width = originalParams.get("width")!;
-              }
-
-              if (originalParams.has("align")) {
-                const rawAlign = originalParams.get("align");
-                if (
-                  rawAlign != null &&
-                  ["left", "right", "center"].includes(rawAlign)
-                ) {
-                  align = rawAlign as ImageAlign;
-                }
-              }
-            }
-          }
-
-          return (
-            <Image
-              {...otherProps}
-              src={src}
-              height={height}
-              width={width}
-              align={align}
-              title={title}
-            />
-          );
-        },
-        a: (props: any) => {
-          if (noteId == null) {
-            throw new Error(`Cannot render links without a noteId.`);
-          }
-
-          const { children, ...otherProps } = props;
-
-          let href: string;
-          let target = "";
-          let onClick: ((ev: MouseEvent) => void) | undefined;
-          const url = tryGetURL(props.href);
-
-          if (url) {
-            switch (url.protocol) {
-              case `${Protocol.Attachment}:`:
-                url.searchParams.set("noteId", noteId);
-                href = url.href;
-
-                onClick = (ev: MouseEvent) => {
-                  ev.preventDefault();
-                  void window.ipc("notes.openAttachmentFile", href);
-                };
-                break;
-
-              case "note:":
-                onClick = (ev: MouseEvent) => {
-                  ev.preventDefault();
-
-                  const decodedHref = decodeURI(url.href);
-                  void store.dispatch("editor.openTab", {
-                    note: decodedHref,
-                    active: decodedHref,
-                  });
-                };
-                break;
-
-              default:
-                href = url.href;
-                target = "_blank";
-                break;
-            }
-          }
-
-          return (
-            <Link
-              {...otherProps}
-              target={target}
-              href={url?.href}
-              onClick={onClick}
-              title={url?.href}
-            >
-              {children}
-            </Link>
-          );
-        },
-        hr: Hr,
-        br: Br,
-        del: Del,
-        strong: Strong,
-        em: Em,
-        ul: UnorderedList,
-        ol: OrderedList,
-        li: (p: any) => {
-          if (p.className === "task-list-item") {
-            return <Li className="task">{p.children}</Li>;
-          } else {
-            return <Li>{p.children}</Li>;
-          }
-        },
-        table: Table,
-      },
+            },
+            table: Table,
+          },
+        })
+        .process(source)
+        .then(vfile => _setReactContent(vfile.result as ReactElement));
     },
-  });
+    [noteId, store],
+  );
 
   useEffect(() => {
     setMarkdownSource(props.content);
@@ -364,7 +272,133 @@ const CodeSpan = styled.code`
 
 const Text = styled.span``;
 
-const Image = styled.img<{ align?: "left" | "right" | "center" }>`
+export interface MarkdownImageProps {
+  noteId: string;
+  src: string;
+  title?: string;
+  alt?: string;
+}
+
+export function MarkdownImage(props: MarkdownImageProps): JSX.Element {
+  if (props.noteId == null) {
+    throw new Error(`Cannot render links without a noteId.`);
+  }
+
+  const otherProps = omit(props, "src");
+
+  let src;
+  let title;
+  let height: string | number | undefined = undefined;
+  let width: string | number | undefined = undefined;
+  let align: ImageAlign | undefined = undefined;
+
+  if (props.src != null) {
+    const url = tryGetURL(props.src);
+    if (url != null) {
+      const originalParams = new URLSearchParams(url.search);
+
+      url.search = "";
+      url.searchParams.set("noteId", props.noteId);
+
+      title = url.pathname;
+      src = url.href;
+
+      if (originalParams.has("height")) {
+        height = originalParams.get("height")!;
+      }
+      if (originalParams.has("width")) {
+        width = originalParams.get("width")!;
+      }
+
+      if (originalParams.has("align")) {
+        const rawAlign = originalParams.get("align");
+        if (
+          rawAlign != null &&
+          ["left", "right", "center"].includes(rawAlign)
+        ) {
+          align = rawAlign as ImageAlign;
+        }
+      }
+    }
+  }
+
+  return (
+    <AlignableImage
+      {...otherProps}
+      src={src}
+      height={height}
+      width={width}
+      align={align}
+      title={title}
+    />
+  );
+}
+
+export interface MarkdownLinkProps {
+  store: Store;
+  href: string;
+  noteId: string;
+}
+
+export function MarkdownLink(
+  props: PropsWithChildren<MarkdownLinkProps>,
+): JSX.Element {
+  if (props.noteId == null) {
+    throw new Error(`Cannot render links without a noteId.`);
+  }
+
+  const { children, ...otherProps } = props;
+
+  let href: string;
+  let target = "";
+  let onClick: ((ev: React.MouseEvent) => void) | undefined;
+  const url = tryGetURL(props.href);
+
+  if (url) {
+    switch (url.protocol) {
+      case `${Protocol.Attachment}:`:
+        url.searchParams.set("noteId", props.noteId);
+        href = url.href;
+
+        onClick = ev => {
+          ev.preventDefault();
+          void window.ipc("notes.openAttachmentFile", href);
+        };
+        break;
+
+      case "note:":
+        onClick = ev => {
+          ev.preventDefault();
+
+          const decodedHref = decodeURI(url.href);
+          void props.store.dispatch("editor.openTab", {
+            note: decodedHref,
+            active: decodedHref,
+          });
+        };
+        break;
+
+      default:
+        href = url.href;
+        target = "_blank";
+        break;
+    }
+  }
+
+  return (
+    <Link
+      {...otherProps}
+      target={target}
+      href={url?.href}
+      onClick={onClick}
+      title={url?.href}
+    >
+      {children}
+    </Link>
+  );
+}
+
+const AlignableImage = styled.img<{ align?: "left" | "right" | "center" }>`
   max-width: 80%;
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -378,6 +412,7 @@ const Image = styled.img<{ align?: "left" | "right" | "center" }>`
       ? `margin-left: auto;`
       : ""}
 `;
+
 const Link = styled.a`
   text-decoration: none;
   color: ${OpenColor.blue[9]};

@@ -1,30 +1,21 @@
 import React from "react";
 import { fireEvent, render } from "@testing-library/react";
-import { Markdown } from "../../../src/renderer/components/Markdown";
+import {
+  Markdown,
+  MarkdownImage,
+  MarkdownLink,
+} from "../../../src/renderer/components/Markdown";
 import { uuid } from "../../../src/shared/domain";
-import { useRemark } from "react-remark";
 import { Protocol } from "../../../src/shared/domain/protocols";
 import { createStore } from "../../__factories__/store";
 
-test("Markdown img sets src", async () => {
+test("MarkdownImage sets src", async () => {
   const noteId = uuid();
-  const store = createStore({
-    editor: {
-      activeTabNoteId: noteId,
-      tabs: [],
-    },
-  });
-  render(<Markdown store={store.current} content="foobar" scroll={0} />);
-
-  const { rehypeReactOptions } = (useRemark as jest.Mock).mock.calls[0][0];
-  const {
-    components: { img },
-  } = rehypeReactOptions;
-
   const renderedImg = render(
-    img({
+    MarkdownImage({
       alt: "alt-text",
       src: `website-url.com/image.jpg`,
+      noteId,
     }),
   ).getByAltText("alt-text") as HTMLImageElement;
 
@@ -33,25 +24,13 @@ test("Markdown img sets src", async () => {
   expect(url.href).toBe("http://website-url.com/image.jpg");
 });
 
-test("Markdown img sets width and height", async () => {
+test("MarkdownImage sets width and height", async () => {
   const noteId = uuid();
-  const store = createStore({
-    editor: {
-      activeTabNoteId: noteId,
-      tabs: [],
-    },
-  });
-  render(<Markdown store={store.current} content="foobar" scroll={0} />);
-
-  const { rehypeReactOptions } = (useRemark as jest.Mock).mock.calls[0][0];
-  const {
-    components: { img },
-  } = rehypeReactOptions;
-
   const renderedImg = render(
-    img({
+    MarkdownImage({
       alt: "alt-text",
       src: `${Protocol.Attachment}://foo.jpg?height=300&width=200`,
+      noteId,
     }),
   ).getByAltText("alt-text") as HTMLImageElement;
 
@@ -67,24 +46,21 @@ test("Markdown img sets width and height", async () => {
   expect(parsedParams.has("width")).toBe(false);
 });
 
-test("Markdown attachment link", async () => {
+test("MarkdownLink attachment link", async () => {
+  const noteId = uuid();
   const store = createStore({
     editor: {
-      activeTabNoteId: uuid(),
+      activeTabNoteId: noteId,
       tabs: [],
     },
   });
-  render(<Markdown store={store.current} content="foobar" scroll={0} />);
-
-  const { rehypeReactOptions } = (useRemark as jest.Mock).mock.calls[0][0];
-  const {
-    components: { a },
-  } = rehypeReactOptions;
 
   const renderedLink = render(
-    a({
+    MarkdownLink({
       children: ["Click me!"],
       href: `${Protocol.Attachment}://foo.jpg`,
+      store: store.current,
+      noteId,
     }),
   ).getByText("Click me!") as HTMLAnchorElement;
 
@@ -101,24 +77,20 @@ test("Markdown attachment link", async () => {
   );
 });
 
-test("Markdown http link", async () => {
+test("MarkdownLink http link", async () => {
+  const noteId = uuid();
   const store = createStore({
     editor: {
-      activeTabNoteId: uuid(),
+      activeTabNoteId: noteId,
       tabs: [],
     },
   });
-  render(<Markdown store={store.current} content="foobar" scroll={0} />);
-
-  const { rehypeReactOptions } = (useRemark as jest.Mock).mock.calls[0][0];
-  const {
-    components: { a },
-  } = rehypeReactOptions;
-
   const renderedLink = render(
-    a({
+    MarkdownLink({
       children: ["Click me!"],
       href: "http://random-website.com",
+      store: store.current,
+      noteId,
     }),
   ).getByText("Click me!") as HTMLAnchorElement;
 
@@ -133,9 +105,11 @@ test("Markdown http link", async () => {
 
   // Passing a url without protocol will throw an error from new URL so we test for it.
   const renderedLinkNoProtocol = render(
-    a({
+    MarkdownLink({
       children: ["Click me 2!"],
       href: "random-website.com",
+      store: store.current,
+      noteId,
     }),
   ).getByText("Click me 2!") as HTMLAnchorElement;
 
