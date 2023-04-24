@@ -12,6 +12,7 @@
  * https://electronjs.org/docs/tutorial/security
  */
 import "../../static/reset.sass";
+import "../../static/highlight-js-theme.css";
 
 import "./App";
 import "jquery.scrollto";

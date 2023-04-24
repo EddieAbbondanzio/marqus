@@ -7,6 +7,7 @@ import { useRemark } from "react-remark";
 import { getProtocol, Protocol } from "../../shared/domain/protocols";
 import { omit } from "lodash";
 import { Listener, Store } from "../store";
+import rehypeHighlight from "rehype-highlight";
 
 // TODO: Add types, or update react-remark.
 // React-remark isn't currently up to date with the latest version of remark so
@@ -32,6 +33,10 @@ export function Markdown(props: MarkdownProps): JSX.Element {
   const [reactContent, setMarkdownSource] = useRemark({
     remarkPlugins: [remarkGfm, emoji],
     remarkToRehypeOptions: { allowDangerousHtml: false },
+    // rehype-highlight uses a new type for unified so we have to ignore the error.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    rehypePlugins: [rehypeHighlight],
     rehypeReactOptions: {
       components: {
         h1: H1,
@@ -336,7 +341,7 @@ const Blockquote = styled.blockquote`
 `;
 
 const CodeBlock = styled.pre`
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-family: monospace;
   background-color: ${OpenColor.gray[3]}!important;
   border-radius: 2px;
