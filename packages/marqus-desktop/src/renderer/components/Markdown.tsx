@@ -62,7 +62,7 @@ export function Markdown(props: MarkdownProps): JSX.Element {
             code: CodeSpan,
             span: Text,
             img: (p: any) => MarkdownImage({ ...p, noteId }),
-            a: (p: any) => MarkdownLink({ ...p, store }),
+            a: (p: any) => MarkdownLink({ ...p, store, noteId }),
             hr: Hr,
             br: Br,
             del: Del,
@@ -281,7 +281,7 @@ export interface MarkdownImageProps {
 
 export function MarkdownImage(props: MarkdownImageProps): JSX.Element {
   if (props.noteId == null) {
-    throw new Error(`Cannot render links without a noteId.`);
+    throw new Error(`Cannot render images without a noteId.`);
   }
 
   const otherProps = omit(props, "src");
