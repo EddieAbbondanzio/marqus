@@ -7,7 +7,7 @@ if (!isTest() && getProcessType() !== "renderer") {
   );
 }
 
-export const log: Logger = {
+export const logger: Logger = {
   info: async message => {
     // eslint-disable-next-line no-console
     console.log(message);

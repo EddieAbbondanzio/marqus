@@ -1,5 +1,7 @@
 import { promptFatal } from "../../../src/renderer/utils/prompt";
 
+jest.mock("../../../src/renderer/logger");
+
 test("promptFatal", async () => {
   const err = {
     message: "error-message",
