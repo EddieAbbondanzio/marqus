@@ -1,5 +1,5 @@
 import { PromptOptions } from "../../shared/ui/prompt";
-import { log } from "../logger";
+import { logger } from "../logger";
 
 const { ipc } = window;
 
@@ -29,7 +29,7 @@ export const promptFatal = async (
   });
 
   if (button.text === "Quit") {
-    await log.info("Shutting down.");
+    await logger.info("Shutting down.");
     await ipc("app.quit");
   } else if (button.text === "Reload") {
     await ipc("app.reload");

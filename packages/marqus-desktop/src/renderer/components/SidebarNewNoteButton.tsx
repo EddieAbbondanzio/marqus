@@ -4,7 +4,7 @@ import React from "react";
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
 import { pb2 } from "../css";
-import { log } from "../logger";
+import { logger } from "../logger";
 import { Store } from "../store";
 import { Icon } from "./shared/Icon";
 

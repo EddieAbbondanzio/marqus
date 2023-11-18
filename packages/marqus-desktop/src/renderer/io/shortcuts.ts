@@ -11,7 +11,7 @@ import { sleep } from "../../shared/utils";
 import { Shortcut } from "../../shared/domain/shortcut";
 import { UIEventType } from "../../shared/ui/events";
 import { Section } from "../../shared/ui/app";
-import { log } from "../logger";
+import { logger } from "../logger";
 import { BrowserWindowEvent, IpcChannel } from "../../shared/ipc";
 
 const INITIAL_DELAY_MS = 300;
@@ -112,7 +112,7 @@ export function useShortcuts(store: Store): void {
       if (!ev.repeat) {
         const key = parseKeyCode(ev.code);
         if (key == null) {
-          void log.info(`Unknown key: ${ev.code}`);
+          void logger.info(`Unknown key: ${ev.code}`);
           return;
         }
 

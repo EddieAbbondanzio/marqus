@@ -22,7 +22,7 @@ import { useContextMenu } from "./menus/contextMenu";
 import { Editor } from "./components/Editor";
 import { h100, w100 } from "./css";
 import { Config } from "../shared/domain/config";
-import { log } from "./logger";
+import { logger } from "./logger";
 import { arrayify } from "../shared/utils";
 import { NoteDirectoryModal } from "./components/NoteDirectoryModal";
 import { Shortcut } from "../shared/domain/shortcut";
@@ -40,7 +40,7 @@ async function main() {
     initialState = loadedState.state;
     initialCache = loadedState.cache;
   } catch (e) {
-    await log.error("Fatal: Failed to initialize the app.", e as Error);
+    await logger.error("Fatal: Failed to initialize the app.", e as Error);
     await promptFatal("Failed to initialize app.", e as Error);
     return;
   }
@@ -90,7 +90,7 @@ export function App(props: AppProps): JSX.Element {
     store.on("focus.pop", pop);
 
     const onError = async (err: ErrorEvent) => {
-      await log.error("Uncaught Error:", err.error);
+      await logger.error("Uncaught Error:", err.error);
     };
     window.addEventListener("error", onError);
 

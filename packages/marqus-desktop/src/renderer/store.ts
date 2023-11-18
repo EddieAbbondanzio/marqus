@@ -7,7 +7,7 @@ import { Note } from "../shared/domain/note";
 import { Shortcut } from "../shared/domain/shortcut";
 import { UIEventType, UIEventInput } from "../shared/ui/events";
 import { Section, AppState, serializeAppState } from "../shared/ui/app";
-import { log } from "./logger";
+import { logger } from "./logger";
 import { arrayify } from "../shared/utils";
 import { Cache } from "../shared/ui/app";
 
@@ -205,7 +205,7 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
 
       const eventListeners: any = listeners.current[event];
       if (eventListeners == null || eventListeners.length === 0) {
-        await log.debug(`No store listener found for ${event}.`);
+        await logger.debug(`No store listener found for ${event}.`);
         return;
       }
 
