@@ -24,8 +24,11 @@ module.exports = [
       "sass-loader",
     ],
   },
+  // Required to load Monaco's codicon.ttf so the icons will show in the ctrl+f
+  // menu.
+  // https://github.com/microsoft/monaco-editor/tree/main/webpack-plugin
   {
     test: /\.ttf$/,
-    use: [{ loader: "file-loader" }],
+    type: "asset/resource",
   },
 ];
