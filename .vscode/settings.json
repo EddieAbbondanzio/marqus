@@ -1,0 +1,14 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "files.exclude": {
+    "**/.git": false,
+    "**/.vscode": false,
+    "**/.webpack": false
+  },
+  "search.exclude": {
+    "**/.git": false,
+    "**/.vscode": false,
+    "**/.webpack": false
+  },
+  "cSpell.words": ["applicationmenuclick", "Ipcs", "Rehype", "testid", "tsdef"]
+}
