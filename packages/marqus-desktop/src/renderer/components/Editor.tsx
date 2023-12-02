@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Section } from "../../shared/ui/app";
 import { Ipc } from "../../shared/ipc";
-import { m3 } from "../css";
 import { Listener, Store } from "../store";
 import { Markdown } from "./Markdown";
 import { Monaco } from "./Monaco";
@@ -11,6 +10,7 @@ import { Focusable } from "./shared/Focusable";
 import { EditorToolbar, TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { getNoteById } from "../../shared/domain/note";
 import { Config } from "../../shared/domain/config";
+import { ml3 } from "../css";
 
 const NOTE_SAVE_INTERVAL_MS = 1000;
 
@@ -79,8 +79,8 @@ const StyledContent = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - ${TOOLBAR_HEIGHT});
-  ${m3}
   overflow: hidden;
+  ${ml3}
 `;
 
 const debouncedInvoker = debounce(

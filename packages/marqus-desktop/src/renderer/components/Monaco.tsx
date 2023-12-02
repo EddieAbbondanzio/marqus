@@ -383,14 +383,14 @@ export function Monaco(props: MonacoProps): JSX.Element {
   };
 
   return (
-    <StyledEditor
+    <StyledMonaco
       data-testid="monaco-container"
       ref={containerElement}
-    ></StyledEditor>
+    ></StyledMonaco>
   );
 }
 
-const StyledEditor = styled.div`
+const StyledMonaco = styled.div`
   flex-grow: 1;
   height: calc(100% - ${TOOLBAR_HEIGHT});
 `;
