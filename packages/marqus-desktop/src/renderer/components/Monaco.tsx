@@ -195,6 +195,10 @@ export function Monaco(props: MonacoProps): JSX.Element {
     };
 
     const cancelDrop = () => {
+      // Dragend doesn't fire when dropping files so we need to find another way
+      // to detect if the file drop was cancelled. A file drop can be ended via
+      // the user hitting the Escape key but we can't listen to this outside of
+      // the window so we listen for the mouse to be released.
       (
         monacoEditor.current?.getModel() as ITextModelPausableUndoRedo
       ).resumeUndoRedoTracking();
