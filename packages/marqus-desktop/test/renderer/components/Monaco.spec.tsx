@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  generateAttachmentLink,
+  generateAttachmentMarkdown,
   Monaco,
 } from "../../../src/renderer/components/Monaco";
 import { createNote } from "../../../src/shared/domain/note";
@@ -147,7 +147,7 @@ test("importAttachments", async () => {
 
 test("generateAttachmentLink", () => {
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "foo.txt",
       path: "foo.txt",
       mimeType: "text/plain",
@@ -156,7 +156,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`[foo.txt](${Protocol.Attachment}://foo.txt)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "bar.txt",
       path: "nested/bar.txt",
       mimeType: "text/plain",
@@ -165,7 +165,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`[bar.txt](${Protocol.Attachment}://nested/bar.txt)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "foo bar.txt",
       path: "foo bar.txt",
       mimeType: "text/plain",
@@ -174,7 +174,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`[foo bar.txt](${Protocol.Attachment}://foo%20bar.txt)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "baz.jpg",
       path: "baz.jpg",
       mimeType: "image/jpeg",
@@ -183,7 +183,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`![](${Protocol.Attachment}://baz.jpg)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "qux.jpg",
       path: "nested/qux.jpg",
       mimeType: "image/jpeg",
@@ -192,7 +192,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`![](${Protocol.Attachment}://nested/qux.jpg)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "two words.jpg",
       path: "two words.jpg",
       mimeType: "image/jpeg",
