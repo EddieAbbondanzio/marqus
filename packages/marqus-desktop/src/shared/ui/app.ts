@@ -3,6 +3,7 @@ import { PromisedInput } from "../promisedInput";
 import { flatten, Note, NoteSort } from "../domain/note";
 import * as monaco from "monaco-editor";
 import { MatchData } from "fast-fuzzy";
+import { ITextModelWithUndoRedoControl } from "../../renderer/utils/monaco";
 
 export const DEFAULT_SIDEBAR_WIDTH = "250px";
 
@@ -59,7 +60,7 @@ export interface Cache {
 }
 
 export type ModelViewState = {
-  model?: monaco.editor.ITextModel;
+  model?: ITextModelWithUndoRedoControl;
   viewState?: monaco.editor.ICodeEditorViewState;
 };
 

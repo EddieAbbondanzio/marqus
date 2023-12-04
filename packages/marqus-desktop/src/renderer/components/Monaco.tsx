@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Listener, Store } from "../store";
+import { Range } from "monaco-editor";
 import * as monaco from "monaco-editor";
 import { TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { Section } from "../../shared/ui/app";
@@ -8,6 +9,10 @@ import { Attachment, Protocol } from "../../shared/domain/protocols";
 import { Config } from "../../shared/domain/config";
 import { debounce } from "lodash";
 import { useResizeObserver } from "../hooks/resizeObserver";
+import {
+  ITextModelWithUndoRedoControl,
+  patchMonacoForUndoRedoControl,
+} from "../utils/monaco";
 
 const DEBOUNCE_INTERVAL_MS = 250;
 
@@ -89,8 +94,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
   const importAttachments = useCallback(
     async (ev: DragEvent) => {
-      ev.preventDefault();
-
       if (ev.dataTransfer == null) {
         return;
       }
@@ -99,11 +102,36 @@ export function Monaco(props: MonacoProps): JSX.Element {
       if (files.length === 0) {
         return;
       }
-
       const noteId = store.state.editor.activeTabNoteId;
       if (noteId == null) {
         return;
       }
+
+      // N.B. When dragging and dropping files into Monaco the default behavior
+      // is to paste the file path(s). This cannot be disabled. In order to get
+      // around that, we have to hack things. We do this by:
+      // 1. Pausing undo / redo tracking,
+      // 2. Calculate how much text was pasted by Monaco
+      // - Will be 1 full path per file, with a space between them if more than
+      // - than 1 was passed.
+      // 3. Execute an edit to remove all the chars in the range
+      // 4. Turn undo / redo tracking back on.
+
+      // Cursor will always be set when dragging and dropping
+      const dropPosition = monacoEditor.current!.getPosition()!;
+      const charsPasted = Object.values(files)
+        .map(f => f.path)
+        .join(" ").length;
+      const initialDropPosition = dropPosition.delta(undefined, -charsPasted);
+
+      // Undo path that was pasted
+      const range = new Range(
+        dropPosition.lineNumber,
+        dropPosition.column,
+        initialDropPosition.lineNumber,
+        initialDropPosition.column,
+      );
+      monacoEditor.current!.executeEdits("", [{ range, text: "" }]);
 
       const attachments = await window.ipc(
         "notes.importAttachments",
@@ -127,26 +155,26 @@ export function Monaco(props: MonacoProps): JSX.Element {
           return;
         }
 
-        // When inserting attachments, we should move the content to the next
-        // line if the current line already has content.
-        let prefixWithEOL = false;
-        const cursorPos = monaco.getPosition();
-        if (cursorPos) {
-          const lineLength = model.getLineLength(cursorPos.lineNumber);
-          if (lineLength > 0) {
-            prefixWithEOL = true;
-          }
-        }
-
         const eol = model.getEOL();
-        let text = attachments.map(generateAttachmentLink).join(eol);
-        if (prefixWithEOL) {
-          text = eol + text;
-        }
+        const text = attachments.map(generateAttachmentLink).join(eol);
 
-        monaco.trigger("keyboard", "type", {
-          text,
-        });
+        (
+          monacoEditor.current?.getModel() as ITextModelWithUndoRedoControl
+        ).resumeUndoRedoTracking();
+
+        // N.B. We use executeEdits over trigger so if the user undoes the action
+        // it'll remove ALL of the inserted attachment text at once.
+        monaco.executeEdits("", [
+          {
+            range: new Range(
+              initialDropPosition.lineNumber,
+              initialDropPosition.column,
+              initialDropPosition.lineNumber,
+              initialDropPosition.column,
+            ),
+            text,
+          },
+        ]);
       }
     },
     [store.state],
@@ -160,15 +188,16 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
   // Mount / Unmount
   useEffect(() => {
-    // dragenter and dragover have to be cancelled in order for the drop event
-    // to work on a div.
-    const dragEnter = (ev: DragEvent) => {
-      ev.stopPropagation();
-      ev.preventDefault();
+    const dragEnter = () => {
+      (
+        monacoEditor.current?.getModel() as ITextModelWithUndoRedoControl
+      ).stopUndoRedoTracking();
     };
-    const dragOver = (ev: DragEvent) => {
-      ev.stopPropagation();
-      ev.preventDefault();
+
+    const cancelDrop = () => {
+      (
+        monacoEditor.current?.getModel() as ITextModelWithUndoRedoControl
+      ).resumeUndoRedoTracking();
     };
 
     const { current: el } = containerElement;
@@ -186,8 +215,8 @@ export function Monaco(props: MonacoProps): JSX.Element {
       }
 
       el.addEventListener("dragenter", dragEnter);
-      el.addEventListener("dragover", dragOver);
       el.addEventListener("drop", importAttachments);
+      window.addEventListener("mouseup", cancelDrop);
     }
 
     return () => {
@@ -208,8 +237,8 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
       if (el != null) {
         el.removeEventListener("dragenter", dragEnter);
-        el.removeEventListener("dragover", dragOver);
         el.removeEventListener("drop", importAttachments);
+        window.removeEventListener("mouseup", cancelDrop);
       }
     };
     // No dependencies because we want this hook to only run once.
@@ -232,7 +261,9 @@ export function Monaco(props: MonacoProps): JSX.Element {
       }
 
       const viewState = monacoEditor.current.saveViewState()!;
-      const model = monacoEditor.current.getModel()!;
+      // Does this patch actually work lol?
+      const model =
+        monacoEditor.current.getModel()! as ITextModelWithUndoRedoControl;
       await store.dispatch("editor.setModelViewState", {
         noteId: activeNoteId.current,
         modelViewState: {
@@ -318,6 +349,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
         const cache = store.cache.modelViewStates[newTab.note.id] ?? {};
         if (cache.model == null || cache.model.isDisposed()) {
+          // We need a way to inject custom stop / resume undoredo tracking
           cache.model = createMarkdownModel(newTab.note.content);
 
           await store.dispatch("editor.setModelViewState", {
@@ -397,12 +429,14 @@ const StyledMonaco = styled.div`
 
 export function createMarkdownModel(
   content: string | undefined,
-): monaco.editor.ITextModel {
-  return monaco.editor.createModel(
+): ITextModelWithUndoRedoControl {
+  const model = monaco.editor.createModel(
     content ?? "",
     // N.B. Language needs to be specified for syntax highlighting.
     "markdown",
   );
+
+  return patchMonacoForUndoRedoControl(model);
 }
 
 export function generateAttachmentLink(attachment: Attachment): string {

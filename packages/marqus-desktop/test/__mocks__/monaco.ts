@@ -4,7 +4,11 @@
 
 export const editor = {
   create: jest.fn(),
-  createModel: jest.fn(),
+  createModel: jest.fn().mockReturnValue({
+    _commandManager: {
+      _undoRedoService: {},
+    },
+  }),
   _standaloneKeybindingService: {
     addDynamicKeybinding: jest.fn(),
   },

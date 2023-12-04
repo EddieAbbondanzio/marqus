@@ -33,9 +33,15 @@ test("importAttachments", async () => {
   const model = {
     getEOL: jest.fn().mockReturnValue("\n"),
     getLineCount: jest.fn().mockReturnValue(2),
+    // TODO: Make helper mock for creating models since we use internal APIS now
+    _commandManager: {
+      _undoRedoService: {},
+    },
   };
   const monacoEditor = {
     getModel: jest.fn().mockReturnValue(model),
+    // TODO: Add custom support for getPosition here.
+    // Test needs to simulate removing the path monaco inserts by default.
     setPosition: jest.fn(),
     trigger: jest.fn(),
     onDidChangeModelContent: jest.fn(),
@@ -100,6 +106,10 @@ test("createMarkdownModel", () => {
   const model = {
     getEOL: jest.fn().mockReturnValue("\n"),
     getLineCount: jest.fn().mockReturnValue(2),
+    // TODO: Make helper mock for creating models since we use internal APIS now
+    _commandManager: {
+      _undoRedoService: {},
+    },
   };
   (monaco.editor.createModel as jest.Mock).mockReturnValueOnce(model);
 
