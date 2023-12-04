@@ -10,7 +10,7 @@ import { Config } from "../../shared/domain/config";
 import { debounce } from "lodash";
 import { useResizeObserver } from "../hooks/resizeObserver";
 import {
-  ITextModelPausableUndoRedo,
+  PatchedIStandaloneCodeEditor,
   createMarkdownModel,
 } from "../utils/monaco";
 
@@ -54,7 +54,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
   // These are stored as refs because we don't want the component to re-render
   // if any of them change.
   const containerElement = useRef<HTMLDivElement | null>(null);
-  const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const monacoEditor = useRef<PatchedIStandaloneCodeEditor | null>(null);
   const onChangeSub = useRef<monaco.IDisposable[]>([]);
   const activeNoteId = useRef<string | null>(null);
 
@@ -157,10 +157,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
         const eol = model.getEOL();
         const text = attachments.map(generateAttachmentLink).join(eol);
-
-        (
-          monacoEditor.current?.getModel() as ITextModelPausableUndoRedo
-        ).resumeUndoRedoTracking();
+        monacoEditor.current!.getModel()!.resumeUndoRedoTracking();
 
         // N.B. We use executeEdits over trigger so if the user undoes the action
         // it'll remove ALL of the inserted attachment text at once.
@@ -189,9 +186,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
   // Mount / Unmount
   useEffect(() => {
     const dragEnter = () => {
-      (
-        monacoEditor.current?.getModel() as ITextModelPausableUndoRedo
-      ).stopUndoRedoTracking();
+      monacoEditor.current!.getModel()!.stopUndoRedoTracking();
     };
 
     const cancelDrop = () => {
@@ -199,9 +194,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
       // to detect if the file drop was cancelled. A file drop can be ended via
       // the user hitting the Escape key but we can't listen to this outside of
       // the window so we listen for the mouse to be released.
-      (
-        monacoEditor.current?.getModel() as ITextModelPausableUndoRedo
-      ).resumeUndoRedoTracking();
+      monacoEditor.current!.getModel()!.resumeUndoRedoTracking();
     };
 
     const { current: el } = containerElement;
@@ -211,7 +204,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
         value: "",
         ...MONACO_SETTINGS,
         tabSize: config.tabSize,
-      });
+      }) as PatchedIStandaloneCodeEditor;
 
       // Disable default shortcut for ctrl+i so we can support italics.
       if (monacoEditor.current != null) {
@@ -265,9 +258,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
       }
 
       const viewState = monacoEditor.current.saveViewState()!;
-      // Does this patch actually work lol?
-      const model =
-        monacoEditor.current.getModel()! as ITextModelPausableUndoRedo;
+      const model = monacoEditor.current.getModel()!;
       await store.dispatch("editor.setModelViewState", {
         noteId: activeNoteId.current,
         modelViewState: {
