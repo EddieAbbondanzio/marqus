@@ -10,8 +10,8 @@ import { Config } from "../../shared/domain/config";
 import { debounce } from "lodash";
 import { useResizeObserver } from "../hooks/resizeObserver";
 import {
-  ITextModelWithUndoRedoControl,
-  patchMonacoForUndoRedoControl,
+  ITextModelPausableUndoRedo,
+  createMarkdownModel,
 } from "../utils/monaco";
 
 const DEBOUNCE_INTERVAL_MS = 250;
@@ -159,7 +159,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
         const text = attachments.map(generateAttachmentLink).join(eol);
 
         (
-          monacoEditor.current?.getModel() as ITextModelWithUndoRedoControl
+          monacoEditor.current?.getModel() as ITextModelPausableUndoRedo
         ).resumeUndoRedoTracking();
 
         // N.B. We use executeEdits over trigger so if the user undoes the action
@@ -190,13 +190,13 @@ export function Monaco(props: MonacoProps): JSX.Element {
   useEffect(() => {
     const dragEnter = () => {
       (
-        monacoEditor.current?.getModel() as ITextModelWithUndoRedoControl
+        monacoEditor.current?.getModel() as ITextModelPausableUndoRedo
       ).stopUndoRedoTracking();
     };
 
     const cancelDrop = () => {
       (
-        monacoEditor.current?.getModel() as ITextModelWithUndoRedoControl
+        monacoEditor.current?.getModel() as ITextModelPausableUndoRedo
       ).resumeUndoRedoTracking();
     };
 
@@ -263,7 +263,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
       const viewState = monacoEditor.current.saveViewState()!;
       // Does this patch actually work lol?
       const model =
-        monacoEditor.current.getModel()! as ITextModelWithUndoRedoControl;
+        monacoEditor.current.getModel()! as ITextModelPausableUndoRedo;
       await store.dispatch("editor.setModelViewState", {
         noteId: activeNoteId.current,
         modelViewState: {
@@ -426,18 +426,6 @@ const StyledMonaco = styled.div`
   flex-grow: 1;
   height: calc(100% - ${TOOLBAR_HEIGHT});
 `;
-
-export function createMarkdownModel(
-  content: string | undefined,
-): ITextModelWithUndoRedoControl {
-  const model = monaco.editor.createModel(
-    content ?? "",
-    // N.B. Language needs to be specified for syntax highlighting.
-    "markdown",
-  );
-
-  return patchMonacoForUndoRedoControl(model);
-}
 
 export function generateAttachmentLink(attachment: Attachment): string {
   // We do this to support spaces
