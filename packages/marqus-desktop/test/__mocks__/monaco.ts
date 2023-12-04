@@ -18,3 +18,12 @@ export const languages = {
   register: jest.fn(),
   setLanguageConfiguration: jest.fn(),
 };
+
+export class Range {
+  constructor(
+    public endLineNumber: number,
+    public endColumn: number,
+    public startLineNumber: number,
+    public startColumn: number,
+  ) {}
+}

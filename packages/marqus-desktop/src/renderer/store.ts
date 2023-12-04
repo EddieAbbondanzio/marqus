@@ -10,6 +10,7 @@ import { Section, AppState, serializeAppState } from "../shared/ui/app";
 import { logger } from "./logger";
 import { arrayify } from "../shared/utils";
 import { Cache } from "../shared/ui/app";
+import { isDevelopment } from "../shared/env";
 
 export interface Store {
   state: Readonly<State>;
@@ -204,11 +205,12 @@ export function useStore(initialState: State, initialCache?: Cache): Store {
       }
 
       const eventListeners: any = listeners.current[event];
-      if (eventListeners == null || eventListeners.length === 0) {
-        await logger.debug(`No store listener found for ${event}.`);
-        return;
+      if (isDevelopment()) {
+        if (eventListeners == null || eventListeners.length === 0) {
+          await logger.debug(`No store listener found for ${event}.`);
+          return;
+        }
       }
-
       const ev = { type: event, value };
 
       for (const l of eventListeners) {

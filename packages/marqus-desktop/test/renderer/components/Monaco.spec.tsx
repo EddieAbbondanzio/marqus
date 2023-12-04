@@ -12,8 +12,36 @@ import { Section } from "../../../src/shared/ui/app";
 import { when } from "jest-when";
 import { Protocol } from "../../../src/shared/domain/protocols";
 import { createConfig } from "../../__factories__/config";
+import * as utils from "../../../src/renderer/utils/monaco";
 
 test("importAttachments", async () => {
+  jest.spyOn(utils, "disableKeybinding").mockImplementation(jest.fn());
+
+  const executeEdits = jest.fn();
+
+  // TODO: Commonize this better.
+  (monaco.editor.create as jest.Mock).mockImplementationOnce(() => ({
+    getPosition: jest.fn().mockImplementation(() => ({
+      lineNumber: 0,
+      column: 100,
+      delta: () => ({
+        lineNumber: 0,
+        column: -39,
+      }),
+    })),
+    _standaloneKeybindingService: { addDynamicKeybind: jest.fn() },
+    onDidChangeModelContent: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    onDidChangeCursorPosition: jest
+      .fn()
+      .mockReturnValue({ dispose: jest.fn() }),
+    onDidChangeCursorSelection: jest
+      .fn()
+      .mockReturnValue({ dispose: jest.fn() }),
+    onDidScrollChange: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    dispose: jest.fn(),
+    executeEdits,
+  }));
+
   const noteId = uuid();
   const note = createNote({ id: noteId, name: "foo", content: "foo\nbar" });
   const store = createStore({
@@ -32,7 +60,6 @@ test("importAttachments", async () => {
   const model = {
     getEOL: jest.fn().mockReturnValue("\n"),
     getLineCount: jest.fn().mockReturnValue(2),
-    // TODO: Make helper mock for creating models since we use internal APIS now
     _commandManager: {
       _undoRedoService: {},
     },
@@ -82,6 +109,23 @@ test("importAttachments", async () => {
       },
     },
   });
+
+  // Ensure default behavior of pasting paths is removed.
+  expect(executeEdits).toHaveBeenCalledWith(
+    "",
+    expect.arrayContaining([
+      {
+        range: expect.objectContaining({
+          endLineNumber: 0,
+          endColumn: 100,
+          startLineNumber: 0,
+          startColumn:
+            0 - ["random/path/foo.jpg", "random/path/bar.txt"].join(" ").length,
+        }),
+        text: "",
+      },
+    ]),
+  );
 
   expect((window as any).ipc).toHaveBeenCalledWith(
     "notes.importAttachments",

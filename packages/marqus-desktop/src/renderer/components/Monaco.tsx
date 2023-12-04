@@ -12,6 +12,7 @@ import { useResizeObserver } from "../hooks/resizeObserver";
 import {
   PatchedIStandaloneCodeEditor,
   createMarkdownModel,
+  disableKeybinding,
 } from "../utils/monaco";
 
 const DEBOUNCE_INTERVAL_MS = 250;
@@ -116,6 +117,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
       // - than 1 was passed.
       // 3. Execute an edit to remove all the chars in the range
       // 4. Turn undo / redo tracking back on.
+      // See: https://github.com/microsoft/monaco-editor/issues/100
 
       // Cursor will always be set when dragging and dropping
       const dropPosition = monacoEditor.current!.getPosition()!;
@@ -470,18 +472,4 @@ export function wrapSelections(
       },
     ]);
   }
-}
-
-export function disableKeybinding(
-  editor: monaco.editor.IStandaloneCodeEditor,
-  commandId: string,
-): void {
-  // See: https://github.com/microsoft/monaco-editor/issues/102
-  const { _standaloneKeybindingService } = editor as any;
-
-  _standaloneKeybindingService.addDynamicKeybinding(
-    `-${commandId}`,
-    undefined,
-    () => void undefined,
-  );
 }
