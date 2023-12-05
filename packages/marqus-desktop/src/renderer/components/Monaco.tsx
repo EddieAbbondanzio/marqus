@@ -12,35 +12,11 @@ import { useResizeObserver } from "../hooks/resizeObserver";
 import {
   PatchedIStandaloneCodeEditor,
   createMarkdownModel,
+  createMonacoInstance,
   disableKeybinding,
 } from "../utils/monaco";
 
 const DEBOUNCE_INTERVAL_MS = 250;
-
-// Fixes: Error: Language id "vs.editor.nullLanguage" is not configured nor known
-// See https://github.com/microsoft/monaco-editor/issues/2962
-monaco.languages.register({ id: "vs.editor.nullLanguage" });
-monaco.languages.setLanguageConfiguration("vs.editor.nullLanguage", {});
-
-const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
-  language: "markdown",
-
-  // Hide line numbers
-  lineNumbers: "off",
-  folding: false,
-  lineDecorationsWidth: 0,
-  lineNumbersMinChars: 0,
-
-  wordWrap: "on",
-  overviewRulerBorder: false,
-  overviewRulerLanes: 0,
-  minimap: {
-    enabled: false,
-  },
-  contextmenu: false,
-  quickSuggestions: false,
-  renderLineHighlight: "none",
-};
 
 export interface MonacoProps {
   store: Store;
@@ -85,10 +61,9 @@ export function Monaco(props: MonacoProps): JSX.Element {
     };
 
     const cancelDrop = () => {
-      // Dragend doesn't fire when dropping files so we need to find another way
-      // to detect if the file drop was cancelled. A file drop can be ended via
-      // the user hitting the Escape key but we can't listen to this outside of
-      // the window so we listen for the mouse to be released.
+      // dragend doesn't fire when dropping files so we listen for cancelling the
+      // drop via mouseup. Drag n drop can also be ended by pressing Escape but
+      // we can't listen to the key when focus is outside of the browser.
 
       const { current: instance } = monacoEditor;
       const model = instance.getModel();
@@ -101,12 +76,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
     const { current: el } = containerElement;
     if (el != null) {
-      // TODO: Pull creating monaco instance out to a factory?
-      const instance = monaco.editor.create(el, {
-        value: "",
-        ...MONACO_SETTINGS,
-        tabSize: config.tabSize,
-      }) as PatchedIStandaloneCodeEditor;
+      const instance = createMonacoInstance(el, config.tabSize!);
       monacoEditor.current = instance;
 
       // Disable default shortcut for ctrl+i so we can support italics.
@@ -234,7 +204,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
         .map(generateAttachmentMarkdown)
         .join(model.getEOL());
 
-      // N.B. We use executeEdits over trigger so if the user undoes the action
+      // N.B. We use executeEdits over trigger so if the user undos the action
       // it'll remove ALL of the inserted attachment text at once.
       instance.executeEdits("", [
         {

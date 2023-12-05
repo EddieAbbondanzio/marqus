@@ -40,6 +40,14 @@ test("importAttachments", async () => {
     onDidScrollChange: jest.fn().mockReturnValue({ dispose: jest.fn() }),
     dispose: jest.fn(),
     executeEdits,
+    focus: jest.fn(),
+    setModel: jest.fn(),
+    restoreViewState: jest.fn(),
+    getModel: jest.fn().mockReturnValueOnce({
+      resumeUndoRedoTracking: jest.fn(),
+      stopUndoRedoTracking: jest.fn(),
+      getEOL: jest.fn().mockReturnValue("\n"),
+    }),
   }));
 
   const noteId = uuid();
@@ -52,30 +60,11 @@ test("importAttachments", async () => {
     },
     focused: [Section.Editor],
   });
+  store.current.on("editor.setModelViewState", jest.fn());
   const config = createConfig();
 
   const r = render(<Monaco store={store.current} config={config} />);
   const monacoContainer = r.getByTestId("monaco-container");
-
-  const model = {
-    getEOL: jest.fn().mockReturnValue("\n"),
-    getLineCount: jest.fn().mockReturnValue(2),
-    _commandManager: {
-      _undoRedoService: {},
-    },
-  };
-  const monacoEditor = {
-    getModel: jest.fn().mockReturnValue(model),
-    // TODO: Add custom support for getPosition here.
-    // Test needs to simulate removing the path monaco inserts by default.
-    setPosition: jest.fn(),
-    trigger: jest.fn(),
-    onDidChangeModelContent: jest.fn(),
-    setModel: jest.fn(),
-    dispose: jest.fn(),
-  };
-  (monaco.editor.create as jest.Mock).mockReturnValue(monacoEditor);
-  (monaco.editor.createModel as jest.Mock).mockReturnValueOnce(model);
 
   when((window as any).ipc as jest.Mock)
     .calledWith("notes.importAttachments", noteId, expect.anything())

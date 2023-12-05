@@ -1,8 +1,60 @@
 import * as monaco from "monaco-editor";
+import { IDisposable } from "monaco-editor";
+
+// Fixes: Error: Language id "vs.editor.nullLanguage" is not configured nor known
+// See https://github.com/microsoft/monaco-editor/issues/2962
+monaco.languages.register({ id: "vs.editor.nullLanguage" });
+monaco.languages.setLanguageConfiguration("vs.editor.nullLanguage", {});
+
+const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
+  language: "markdown",
+
+  // Hide line numbers
+  lineNumbers: "off",
+  folding: false,
+  lineDecorationsWidth: 0,
+  lineNumbersMinChars: 0,
+
+  wordWrap: "on",
+  overviewRulerBorder: false,
+  overviewRulerLanes: 0,
+  minimap: {
+    enabled: false,
+  },
+  contextmenu: false,
+  quickSuggestions: false,
+  renderLineHighlight: "none",
+};
+
+export function createMonacoInstance(
+  el: HTMLElement,
+  tabSize: number,
+): PatchedIStandaloneCodeEditor {
+  const instance = monaco.editor.create(el, {
+    value: "",
+    ...MONACO_SETTINGS,
+    tabSize,
+  });
+
+  return instance as PatchedIStandaloneCodeEditor;
+}
 
 export interface PatchedIStandaloneCodeEditor
   extends monaco.editor.IStandaloneCodeEditor {
+  _standaloneKeybindingService: StandaloneKeybindingService;
   getModel(): ITextModelPausableUndoRedo | null;
+}
+
+// StandaloneKeybindingService is not exposed by VS Code's source so we define an
+// interface of just the properties we care about. Source:
+// https://github.com/microsoft/vscode/blob/c0c1dce86b7188fd63edaf86d69c154fc281f83c/src/vs/editor/standalone/browser/standaloneServices.ts#L475
+export interface StandaloneKeybindingService {
+  addDynamicKeybinding(
+    commandId: string,
+    _keybinding: unknown,
+    handler: unknown,
+    when: unknown | undefined,
+  ): IDisposable;
 }
 
 // IUndoRedoService is not exposed by VS Code's source so we define an interface
@@ -64,17 +116,17 @@ export function patchMonacoForPausableUndoRedo(
   return patchedModel;
 }
 
-// TODO: pull this to typing too?
 export function disableKeybinding(
-  editor: monaco.editor.IStandaloneCodeEditor,
+  editor: PatchedIStandaloneCodeEditor,
   commandId: string,
 ): void {
   // See: https://github.com/microsoft/monaco-editor/issues/102
-  const { _standaloneKeybindingService } = editor as any;
+  const { _standaloneKeybindingService } = editor;
 
   _standaloneKeybindingService.addDynamicKeybinding(
     `-${commandId}`,
     undefined,
     () => void undefined,
+    undefined,
   );
 }
