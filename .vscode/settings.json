@@ -10,5 +10,12 @@
     "**/.vscode": false,
     "**/.webpack": false
   },
-  "cSpell.words": ["applicationmenuclick", "Ipcs", "Rehype", "testid", "tsdef"]
+  "cSpell.words": [
+    "applicationmenuclick",
+    "Ipcs",
+    "Pausable",
+    "Rehype",
+    "testid",
+    "tsdef"
+  ]
 }

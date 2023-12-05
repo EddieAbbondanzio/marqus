@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Listener, Store } from "../store";
+import { Range } from "monaco-editor";
 import * as monaco from "monaco-editor";
 import { TOOLBAR_HEIGHT } from "./EditorToolbar";
 import { Section } from "../../shared/ui/app";
@@ -8,33 +9,14 @@ import { Attachment, Protocol } from "../../shared/domain/protocols";
 import { Config } from "../../shared/domain/config";
 import { debounce } from "lodash";
 import { useResizeObserver } from "../hooks/resizeObserver";
+import {
+  PatchedIStandaloneCodeEditor,
+  createMarkdownModel,
+  createMonacoInstance,
+  disableKeybinding,
+} from "../utils/monaco";
 
 const DEBOUNCE_INTERVAL_MS = 250;
-
-// Fixes: Error: Language id "vs.editor.nullLanguage" is not configured nor known
-// See https://github.com/microsoft/monaco-editor/issues/2962
-monaco.languages.register({ id: "vs.editor.nullLanguage" });
-monaco.languages.setLanguageConfiguration("vs.editor.nullLanguage", {});
-
-const MONACO_SETTINGS: monaco.editor.IStandaloneEditorConstructionOptions = {
-  language: "markdown",
-
-  // Hide line numbers
-  lineNumbers: "off",
-  folding: false,
-  lineDecorationsWidth: 0,
-  lineNumbersMinChars: 0,
-
-  wordWrap: "on",
-  overviewRulerBorder: false,
-  overviewRulerLanes: 0,
-  minimap: {
-    enabled: false,
-  },
-  contextmenu: false,
-  quickSuggestions: false,
-  renderLineHighlight: "none",
-};
 
 export interface MonacoProps {
   store: Store;
@@ -49,7 +31,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
   // These are stored as refs because we don't want the component to re-render
   // if any of them change.
   const containerElement = useRef<HTMLDivElement | null>(null);
-  const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const monacoEditor = useRef<PatchedIStandaloneCodeEditor>(null!);
   const onChangeSub = useRef<monaco.IDisposable[]>([]);
   const activeNoteId = useRef<string | null>(null);
 
@@ -66,6 +48,70 @@ export function Monaco(props: MonacoProps): JSX.Element {
     };
   }, [store]);
 
+  // Mount / Unmount
+  useEffect(() => {
+    const dragEnter = () => {
+      const { current: instance } = monacoEditor;
+      const model = instance.getModel();
+      if (!model) {
+        return;
+      }
+
+      model.stopUndoRedoTracking();
+    };
+
+    const cancelDrop = () => {
+      // dragend doesn't fire when dropping files so we listen for cancelling the
+      // drop via mouseup. Drag n drop can also be ended by pressing Escape but
+      // we can't listen to the key when focus is outside of the browser.
+
+      const { current: instance } = monacoEditor;
+      const model = instance.getModel();
+      if (!model) {
+        return;
+      }
+
+      model.resumeUndoRedoTracking();
+    };
+
+    const { current: el } = containerElement;
+    if (el != null) {
+      const instance = createMonacoInstance(el, config.tabSize!);
+      monacoEditor.current = instance;
+
+      // Disable default shortcut for ctrl+i so we can support italics.
+      disableKeybinding(instance, "editor.action.triggerSuggest");
+
+      el.addEventListener("dragenter", dragEnter);
+      el.addEventListener("drop", importAttachments);
+      window.addEventListener("mouseup", cancelDrop);
+    }
+
+    return () => {
+      // Flush debounced handlers to ensure any final changes are made when the
+      // editor switches to view mode.
+      onViewStateChange.flush();
+      onModelChange.flush();
+
+      const { current: instance } = monacoEditor;
+      instance.dispose();
+      monacoEditor.current = null!;
+
+      for (const sub of onChangeSub.current) {
+        sub.dispose();
+      }
+      onChangeSub.current = [];
+
+      if (el != null) {
+        el.removeEventListener("dragenter", dragEnter);
+        el.removeEventListener("drop", importAttachments);
+        window.removeEventListener("mouseup", cancelDrop);
+      }
+    };
+    // No dependencies because we want this hook to only run once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // N.B. We need to manually focus the Monaco HTMLElement when the user switches
   // focus to the editor. We also need to make sure we don't re-apply focus once
   // already focused otherwise the ctrl+f popup breaks.
@@ -79,7 +125,8 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
     if (focused[0] === Section.Editor) {
       if (!wasFocused.current) {
-        monacoEditor.current?.focus();
+        const { current: instance } = monacoEditor;
+        instance.focus();
         wasFocused.current = true;
       }
     } else {
@@ -89,8 +136,6 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
   const importAttachments = useCallback(
     async (ev: DragEvent) => {
-      ev.preventDefault();
-
       if (ev.dataTransfer == null) {
         return;
       }
@@ -104,6 +149,41 @@ export function Monaco(props: MonacoProps): JSX.Element {
       if (noteId == null) {
         return;
       }
+
+      // N.B. When dragging and dropping files into Monaco the default behavior
+      // is to paste the file path(s). This cannot be disabled. In order to get
+      // around that, we have to hack things. We do this by:
+      // 1. Pausing undo / redo tracking,
+      // 2. Calculate how much text was pasted by Monaco
+      // - Will be 1 full path per file, with a space between them if more than
+      // - than 1 was passed.
+      // 3. Execute an edit to remove all the chars in the range
+      // 4. Turn undo / redo tracking back on.
+      // 5. Paste our custom text. We turn on undo/redo tracking before this
+      // - so it can be undone by the user if desired.
+      // See: https://github.com/microsoft/monaco-editor/issues/100
+
+      const { current: instance } = monacoEditor;
+      const model = instance.getModel();
+      if (model == null) {
+        return;
+      }
+
+      // Cursor will always be set when dragging and dropping
+      const dropPosition = instance.getPosition()!;
+      const charsPasted = Object.values(files)
+        .map(f => f.path)
+        .join(" ").length;
+      const initialDropPosition = dropPosition.delta(undefined, -charsPasted);
+
+      // Undo path that was pasted
+      const range = new Range(
+        dropPosition.lineNumber,
+        dropPosition.column,
+        initialDropPosition.lineNumber,
+        initialDropPosition.column,
+      );
+      instance.executeEdits("", [{ range, text: "" }]);
 
       const attachments = await window.ipc(
         "notes.importAttachments",
@@ -119,111 +199,42 @@ export function Monaco(props: MonacoProps): JSX.Element {
         return;
       }
 
-      // Use code below to insert the text:
-      const { current: monaco } = monacoEditor;
-      if (monaco != null) {
-        const model = monaco.getModel();
-        if (model == null) {
-          return;
-        }
+      model.resumeUndoRedoTracking();
+      const text = attachments
+        .map(generateAttachmentMarkdown)
+        .join(model.getEOL());
 
-        // When inserting attachments, we should move the content to the next
-        // line if the current line already has content.
-        let prefixWithEOL = false;
-        const cursorPos = monaco.getPosition();
-        if (cursorPos) {
-          const lineLength = model.getLineLength(cursorPos.lineNumber);
-          if (lineLength > 0) {
-            prefixWithEOL = true;
-          }
-        }
-
-        const eol = model.getEOL();
-        let text = attachments.map(generateAttachmentLink).join(eol);
-        if (prefixWithEOL) {
-          text = eol + text;
-        }
-
-        monaco.trigger("keyboard", "type", {
+      // N.B. We use executeEdits over trigger so if the user undos the action
+      // it'll remove ALL of the inserted attachment text at once.
+      instance.executeEdits("", [
+        {
+          range: new Range(
+            initialDropPosition.lineNumber,
+            initialDropPosition.column,
+            initialDropPosition.lineNumber,
+            initialDropPosition.column,
+          ),
           text,
-        });
-      }
+        },
+      ]);
     },
     [store.state],
   );
 
   // Monaco doesn't automatically resize when it's container element does so
   // we need to listen for changes and trigger the refresh ourselves.
-  useResizeObserver(containerElement.current, () =>
-    monacoEditor.current?.layout(),
-  );
-
-  // Mount / Unmount
-  useEffect(() => {
-    // dragenter and dragover have to be cancelled in order for the drop event
-    // to work on a div.
-    const dragEnter = (ev: DragEvent) => {
-      ev.stopPropagation();
-      ev.preventDefault();
-    };
-    const dragOver = (ev: DragEvent) => {
-      ev.stopPropagation();
-      ev.preventDefault();
-    };
-
-    const { current: el } = containerElement;
-
-    if (el != null) {
-      monacoEditor.current = monaco.editor.create(el, {
-        value: "",
-        ...MONACO_SETTINGS,
-        tabSize: config.tabSize,
-      });
-
-      // Disable default shortcut for ctrl+i so we can support italics.
-      if (monacoEditor.current != null) {
-        disableKeybinding(monacoEditor.current, "editor.action.triggerSuggest");
-      }
-
-      el.addEventListener("dragenter", dragEnter);
-      el.addEventListener("dragover", dragOver);
-      el.addEventListener("drop", importAttachments);
-    }
-
-    return () => {
-      // Flush debounced handlers to ensure any final changes are made when the
-      // editor switches to view mode.
-      onViewStateChange.flush();
-      onModelChange.flush();
-
-      if (monacoEditor.current != null) {
-        monacoEditor.current.dispose();
-        monacoEditor.current = null;
-      }
-
-      for (const sub of onChangeSub.current) {
-        sub.dispose();
-      }
-      onChangeSub.current = [];
-
-      if (el != null) {
-        el.removeEventListener("dragenter", dragEnter);
-        el.removeEventListener("dragover", dragOver);
-        el.removeEventListener("drop", importAttachments);
-      }
-    };
-    // No dependencies because we want this hook to only run once.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useResizeObserver(containerElement.current, () => {
+    const { current: instance } = monacoEditor;
+    instance.layout();
+  });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onModelChange = useCallback(
     debounce(async () => {
-      if (monacoEditor.current == null) {
-        return;
-      }
-      const value = monacoEditor.current.getModel()?.getValue();
-      if (value == null) {
+      const { current: instance } = monacoEditor;
+
+      const model = instance.getModel();
+      if (model == null) {
         return;
       }
 
@@ -231,8 +242,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
         return;
       }
 
-      const viewState = monacoEditor.current.saveViewState()!;
-      const model = monacoEditor.current.getModel()!;
+      const viewState = instance.saveViewState()!;
       await store.dispatch("editor.setModelViewState", {
         noteId: activeNoteId.current,
         modelViewState: {
@@ -242,7 +252,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
       });
 
       await store.dispatch("editor.setContent", {
-        content: value,
+        content: model.getValue(),
         noteId: activeNoteId.current!,
       });
     }, DEBOUNCE_INTERVAL_MS),
@@ -252,13 +262,16 @@ export function Monaco(props: MonacoProps): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onViewStateChange = useCallback(
     debounce(() => {
-      if (monacoEditor.current == null || activeNoteId.current == null) {
+      const { current: instance } = monacoEditor;
+      const { current: noteId } = activeNoteId;
+
+      if (instance == null || noteId == null) {
         return;
       }
 
-      const viewState = monacoEditor.current.saveViewState()!;
+      const viewState = instance.saveViewState()!;
       store.dispatch("editor.setModelViewState", {
-        noteId: activeNoteId.current,
+        noteId,
         modelViewState: {
           viewState,
         },
@@ -269,28 +282,22 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
   // Subscribe to monaco editor events
   useEffect(() => {
-    if (monacoEditor.current == null) {
-      return;
-    }
+    const { current: instance } = monacoEditor;
 
     // Prevent memory leak
     for (const sub of onChangeSub.current) {
       sub.dispose();
     }
     onChangeSub.current = [
-      monacoEditor.current.onDidChangeModelContent(onModelChange),
-      monacoEditor.current.onDidChangeCursorPosition(onViewStateChange),
-      monacoEditor.current.onDidChangeCursorSelection(onViewStateChange),
-      monacoEditor.current.onDidScrollChange(onViewStateChange),
+      instance.onDidChangeModelContent(onModelChange),
+      instance.onDidChangeCursorPosition(onViewStateChange),
+      instance.onDidChangeCursorSelection(onViewStateChange),
+      instance.onDidScrollChange(onViewStateChange),
     ];
   }, [onModelChange, onViewStateChange]);
 
   // Active tab change
   useEffect(() => {
-    if (monacoEditor.current == null) {
-      return;
-    }
-
     const lastActiveTabNoteId = activeNoteId.current;
 
     // Load new model when switching to a new tab (either no previous tab, or the
@@ -301,7 +308,8 @@ export function Monaco(props: MonacoProps): JSX.Element {
         lastActiveTabNoteId !== editor.activeTabNoteId)
     ) {
       (async () => {
-        if (monacoEditor.current == null) {
+        const { current: instance } = monacoEditor;
+        if (instance == null) {
           return;
         }
 
@@ -318,6 +326,7 @@ export function Monaco(props: MonacoProps): JSX.Element {
 
         const cache = store.cache.modelViewStates[newTab.note.id] ?? {};
         if (cache.model == null || cache.model.isDisposed()) {
+          // We need a way to inject custom stop / resume undoredo tracking
           cache.model = createMarkdownModel(newTab.note.content);
 
           await store.dispatch("editor.setModelViewState", {
@@ -329,13 +338,8 @@ export function Monaco(props: MonacoProps): JSX.Element {
         // N.B. If the app locks up when we call setModel it means there's
         // something cloning the model via cloneDeep. (Double check store / deepUpdate)
         // Src: https://github.com/Microsoft/vscode/issues/72383
-        monacoEditor.current.setModel(cache.model);
-
-        if (cache.viewState) {
-          monacoEditor.current.restoreViewState(cache.viewState);
-        } else {
-          monacoEditor.current.restoreViewState(null);
-        }
+        instance.setModel(cache.model);
+        instance.restoreViewState(cache.viewState ?? null);
 
         // On first open of a new note, select all it's text so user can easily
         // change the title if they wish.
@@ -344,42 +348,38 @@ export function Monaco(props: MonacoProps): JSX.Element {
         }
 
         if (state.focused[0] === Section.Editor) {
-          monacoEditor.current.focus();
+          instance.focus();
         }
       })();
     }
   }, [editor.activeTabNoteId, editor.tabs, state.focused, props, store]);
 
   const selectAllText: Listener<"editor.selectAllText"> = async ev => {
-    const editor = monacoEditor.current;
-    if (editor == null) {
+    const { current: instance } = monacoEditor;
+    if (instance == null) {
       return;
     }
 
-    let range = editor.getModel()!.getFullModelRange();
+    let range = instance.getModel()!.getFullModelRange();
 
     // When we select all in a new note we only select the text in the title.
     if (ev.value && ev.value.isNewNote) {
       range = range.setStartPosition(1, 3);
     }
 
-    editor.setSelection(range);
+    instance.setSelection(range);
   };
 
   const boldSelectedText: Listener<"editor.boldSelectedText"> = async () => {
-    const editor = monacoEditor.current;
-    if (editor != null) {
-      wrapSelections(editor, "**");
-    }
+    const { current: instance } = monacoEditor;
+    wrapSelections(instance, "**");
   };
 
   const italicSelectedText: Listener<
     "editor.italicSelectedText"
   > = async () => {
-    const editor = monacoEditor.current;
-    if (editor != null) {
-      wrapSelections(editor, "_");
-    }
+    const { current: instance } = monacoEditor;
+    wrapSelections(instance, "_");
   };
 
   return (
@@ -395,17 +395,7 @@ const StyledMonaco = styled.div`
   height: calc(100% - ${TOOLBAR_HEIGHT});
 `;
 
-export function createMarkdownModel(
-  content: string | undefined,
-): monaco.editor.ITextModel {
-  return monaco.editor.createModel(
-    content ?? "",
-    // N.B. Language needs to be specified for syntax highlighting.
-    "markdown",
-  );
-}
-
-export function generateAttachmentLink(attachment: Attachment): string {
+export function generateAttachmentMarkdown(attachment: Attachment): string {
   // We do this to support spaces
   const urlEncodedPath = encodeURI(attachment.path);
 
@@ -453,18 +443,4 @@ export function wrapSelections(
       },
     ]);
   }
-}
-
-export function disableKeybinding(
-  editor: monaco.editor.IStandaloneCodeEditor,
-  commandId: string,
-): void {
-  // See: https://github.com/microsoft/monaco-editor/issues/102
-  const { _standaloneKeybindingService } = editor as any;
-
-  _standaloneKeybindingService.addDynamicKeybinding(
-    `-${commandId}`,
-    undefined,
-    () => void undefined,
-  );
 }

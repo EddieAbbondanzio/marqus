@@ -24,14 +24,6 @@
     },
     {
       "type": "npm",
-      "script": "test e2e",
-      "path": "packages/marqus-desktop",
-      "problemMatcher": ["$tsc"],
-      "label": "npm: test e2e - packages/marqus-desktop",
-      "detail": "playwright test test/e2e/"
-    },
-    {
-      "type": "npm",
       "script": "package",
       "path": "packages/marqus-desktop",
       "problemMatcher": ["$tsc"],

@@ -1,7 +1,6 @@
 import React from "react";
 import {
-  createMarkdownModel,
-  generateAttachmentLink,
+  generateAttachmentMarkdown,
   Monaco,
 } from "../../../src/renderer/components/Monaco";
 import { createNote } from "../../../src/shared/domain/note";
@@ -13,8 +12,44 @@ import { Section } from "../../../src/shared/ui/app";
 import { when } from "jest-when";
 import { Protocol } from "../../../src/shared/domain/protocols";
 import { createConfig } from "../../__factories__/config";
+import * as utils from "../../../src/renderer/utils/monaco";
 
 test("importAttachments", async () => {
+  jest.spyOn(utils, "disableKeybinding").mockImplementation(jest.fn());
+
+  const executeEdits = jest.fn();
+
+  // TODO: Commonize this better.
+  (monaco.editor.create as jest.Mock).mockImplementationOnce(() => ({
+    getPosition: jest.fn().mockImplementation(() => ({
+      lineNumber: 0,
+      column: 100,
+      delta: () => ({
+        lineNumber: 0,
+        column: -39,
+      }),
+    })),
+    _standaloneKeybindingService: { addDynamicKeybind: jest.fn() },
+    onDidChangeModelContent: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    onDidChangeCursorPosition: jest
+      .fn()
+      .mockReturnValue({ dispose: jest.fn() }),
+    onDidChangeCursorSelection: jest
+      .fn()
+      .mockReturnValue({ dispose: jest.fn() }),
+    onDidScrollChange: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    dispose: jest.fn(),
+    executeEdits,
+    focus: jest.fn(),
+    setModel: jest.fn(),
+    restoreViewState: jest.fn(),
+    getModel: jest.fn().mockReturnValueOnce({
+      resumeUndoRedoTracking: jest.fn(),
+      stopUndoRedoTracking: jest.fn(),
+      getEOL: jest.fn().mockReturnValue("\n"),
+    }),
+  }));
+
   const noteId = uuid();
   const note = createNote({ id: noteId, name: "foo", content: "foo\nbar" });
   const store = createStore({
@@ -25,25 +60,11 @@ test("importAttachments", async () => {
     },
     focused: [Section.Editor],
   });
+  store.current.on("editor.setModelViewState", jest.fn());
   const config = createConfig();
 
   const r = render(<Monaco store={store.current} config={config} />);
   const monacoContainer = r.getByTestId("monaco-container");
-
-  const model = {
-    getEOL: jest.fn().mockReturnValue("\n"),
-    getLineCount: jest.fn().mockReturnValue(2),
-  };
-  const monacoEditor = {
-    getModel: jest.fn().mockReturnValue(model),
-    setPosition: jest.fn(),
-    trigger: jest.fn(),
-    onDidChangeModelContent: jest.fn(),
-    setModel: jest.fn(),
-    dispose: jest.fn(),
-  };
-  (monaco.editor.create as jest.Mock).mockReturnValue(monacoEditor);
-  (monaco.editor.createModel as jest.Mock).mockReturnValueOnce(model);
 
   when((window as any).ipc as jest.Mock)
     .calledWith("notes.importAttachments", noteId, expect.anything())
@@ -78,6 +99,23 @@ test("importAttachments", async () => {
     },
   });
 
+  // Ensure default behavior of pasting paths is removed.
+  expect(executeEdits).toHaveBeenCalledWith(
+    "",
+    expect.arrayContaining([
+      {
+        range: expect.objectContaining({
+          endLineNumber: 0,
+          endColumn: 100,
+          startLineNumber: 0,
+          startColumn:
+            0 - ["random/path/foo.jpg", "random/path/bar.txt"].join(" ").length,
+        }),
+        text: "",
+      },
+    ]),
+  );
+
   expect((window as any).ipc).toHaveBeenCalledWith(
     "notes.importAttachments",
     noteId,
@@ -96,20 +134,9 @@ test("importAttachments", async () => {
   );
 });
 
-test("createMarkdownModel", () => {
-  const model = {
-    getEOL: jest.fn().mockReturnValue("\n"),
-    getLineCount: jest.fn().mockReturnValue(2),
-  };
-  (monaco.editor.createModel as jest.Mock).mockReturnValueOnce(model);
-
-  createMarkdownModel("foo");
-  expect(monaco.editor.createModel).toHaveBeenCalledWith("foo", "markdown");
-});
-
 test("generateAttachmentLink", () => {
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "foo.txt",
       path: "foo.txt",
       mimeType: "text/plain",
@@ -118,7 +145,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`[foo.txt](${Protocol.Attachment}://foo.txt)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "bar.txt",
       path: "nested/bar.txt",
       mimeType: "text/plain",
@@ -127,7 +154,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`[bar.txt](${Protocol.Attachment}://nested/bar.txt)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "foo bar.txt",
       path: "foo bar.txt",
       mimeType: "text/plain",
@@ -136,7 +163,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`[foo bar.txt](${Protocol.Attachment}://foo%20bar.txt)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "baz.jpg",
       path: "baz.jpg",
       mimeType: "image/jpeg",
@@ -145,7 +172,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`![](${Protocol.Attachment}://baz.jpg)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "qux.jpg",
       path: "nested/qux.jpg",
       mimeType: "image/jpeg",
@@ -154,7 +181,7 @@ test("generateAttachmentLink", () => {
   ).toBe(`![](${Protocol.Attachment}://nested/qux.jpg)`);
 
   expect(
-    generateAttachmentLink({
+    generateAttachmentMarkdown({
       name: "two words.jpg",
       path: "two words.jpg",
       mimeType: "image/jpeg",
