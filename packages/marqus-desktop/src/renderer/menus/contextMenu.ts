@@ -119,6 +119,16 @@ export function useContextMenu(store: Store, config: Config): void {
               role: "paste",
               shortcut: keyCodesToString([KeyCode.Control, KeyCode.LetterV]),
             });
+          } else {
+            const selection = window.getSelection();
+            if (selection != null && selection.type === "Range") {
+              items.push({
+                label: "Copy",
+                type: "normal",
+                role: "copy",
+                shortcut: keyCodesToString([KeyCode.Control, KeyCode.LetterC]),
+              });
+            }
           }
           break;
 
