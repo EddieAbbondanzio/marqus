@@ -2,7 +2,7 @@
 out
 
 # Default dev data dir
-notes
+/notes
 config.json
 appState.json
 shortcuts.json
