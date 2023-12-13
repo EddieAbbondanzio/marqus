@@ -19,7 +19,7 @@ const REPEAT_DELAY_MS = 150;
 
 export function useShortcuts(store: Store): void {
   const activeKeys = useRef<Record<string, boolean>>({});
-  const interval = useRef<NodeJS.Timer>();
+  const interval = useRef<NodeJS.Timeout>();
   const lastTriggerTime = useRef(Date.now());
 
   const handleChange = useCallback(() => {

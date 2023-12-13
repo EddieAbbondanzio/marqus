@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { getProcessType, isDevelopment } from "../shared/env";
-import { IpcChannel, IPCS, IpcType } from "../shared/ipc";
+import { getProcessType, isDevelopment } from "./shared/env";
+import { IpcChannel, IPCS, IpcType } from "./shared/ipc";
 
 if (getProcessType() === "main") {
   throw Error(

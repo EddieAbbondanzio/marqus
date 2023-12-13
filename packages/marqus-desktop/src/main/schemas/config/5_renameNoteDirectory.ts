@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { ConfigV3 } from "./3_addDeveloperMode";
 import { ConfigV4 } from "./4_addAutoHideAppMenu";
 
 export interface ConfigV5 {

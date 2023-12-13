@@ -1,9 +1,9 @@
 import { app, BrowserWindow, ipcMain, session } from "electron";
-import { getProcessType, isDevelopment, isTest } from "../shared/env";
-import { initPlugins, IpcMainTS, IPC_PLUGINS } from "./ipc";
-import { getConfig } from "./ipc/plugins/config";
-import { getFileTransport, logger } from "./logger";
-import { setCspHeader } from "./utils";
+import { getProcessType, isDevelopment, isTest } from "./shared/env";
+import { initPlugins, IpcMainTS, IPC_PLUGINS } from "./main/ipc";
+import { getConfig } from "./main/ipc/plugins/config";
+import { getFileTransport, logger } from "./main/logger";
+import { setCspHeader } from "./main/utils";
 
 if (!isTest() && getProcessType() !== "main") {
   throw Error(
