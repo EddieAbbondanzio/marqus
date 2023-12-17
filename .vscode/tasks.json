@@ -24,11 +24,11 @@
     },
     {
       "type": "npm",
-      "script": "package",
+      "script": "Publish app (no increment version)",
       "path": "packages/marqus-desktop",
       "problemMatcher": ["$tsc"],
       "label": "npm: package - packages/marqus-desktop",
-      "detail": "electron-forge pacakge"
+      "detail": "electron-forge publish-no-build"
     }
   ]
 }
