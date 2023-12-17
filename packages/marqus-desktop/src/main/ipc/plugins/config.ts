@@ -89,7 +89,6 @@ export async function getConfig(): Promise<JsonFile<Config>> {
   const configPath = path.join(getConfigDirectory(), CONFIG_FILE);
   logger.info(`Loading config ${configPath}`);
 
-
   const configFile = await loadJsonFile<Config>(
     configPath,
     CONFIG_SCHEMAS,
