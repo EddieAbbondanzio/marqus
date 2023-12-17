@@ -9,6 +9,7 @@ import * as fsp from "fs/promises";
 import { IpcPlugin } from "..";
 import { getLatestSchemaVersion } from "../../schemas/utils";
 import { cloneDeep } from "lodash";
+import { logger } from "../../logger";
 
 export const CONFIG_FILE = "config.json";
 export const DEFAULT_DEV_NOTE_DIRECTORY = "notes";
@@ -37,6 +38,7 @@ export const configIpcPlugin: IpcPlugin = {
     const configPath = path.join(getConfigDirectory(), CONFIG_FILE);
     const err = await shell.openPath(configPath);
     if (err) {
+      logger.error(`Failed to open config.`, err)
       throw new Error(err);
     }
   },
@@ -84,8 +86,12 @@ export async function getConfig(): Promise<JsonFile<Config>> {
     logDirectory: app.getPath("logs"),
   };
 
+  const configPath = path.join(getConfigDirectory(), CONFIG_FILE);
+  logger.info(`Loading config ${configPath}`);
+
+
   const configFile = await loadJsonFile<Config>(
-    path.join(getConfigDirectory(), CONFIG_FILE),
+    configPath,
     CONFIG_SCHEMAS,
     { defaultContent },
   );
@@ -114,9 +120,14 @@ export async function getConfig(): Promise<JsonFile<Config>> {
 }
 
 export function getConfigDirectory(): string {
+  let configDir;
+
   if (isProduction()) {
-    return app.getPath("userData");
+    configDir = app.getPath('userData');
   } else {
-    return process.cwd();
+    configDir = process.cwd();
   }
+
+  logger.info(`getConfigDirectory: ${configDir}`)
+  return configDir
 }
