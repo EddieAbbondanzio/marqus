@@ -7,7 +7,6 @@ import { loadJsonFile } from "../../json";
 import p from "path";
 import { SHORTCUTS_SCHEMAS } from "../../schemas/shortcuts";
 import { IpcPlugin } from "..";
-import { app } from "electron";
 import { getConfigDirectory } from "./config";
 
 export interface Shortcuts {

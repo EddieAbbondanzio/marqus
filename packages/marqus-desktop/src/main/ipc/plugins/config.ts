@@ -2,7 +2,7 @@ import { app, dialog, shell } from "electron";
 import { Config } from "../../../shared/domain/config";
 import { JsonFile, loadJsonFile } from "../../json";
 import { CONFIG_SCHEMAS } from "../../schemas/config";
-import { isDevelopment, isProduction } from "../../../shared/env";
+import { isDevelopment, isProduction, isTest } from "../../../shared/env";
 import * as path from "path";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
@@ -38,7 +38,7 @@ export const configIpcPlugin: IpcPlugin = {
     const configPath = path.join(getConfigDirectory(), CONFIG_FILE);
     const err = await shell.openPath(configPath);
     if (err) {
-      logger.error(`Failed to open config.`, err)
+      logger.error(`Failed to open config.`, err);
       throw new Error(err);
     }
   },
@@ -89,11 +89,9 @@ export async function getConfig(): Promise<JsonFile<Config>> {
   const configPath = path.join(getConfigDirectory(), CONFIG_FILE);
   logger.info(`Loading config ${configPath}`);
 
-  const configFile = await loadJsonFile<Config>(
-    configPath,
-    CONFIG_SCHEMAS,
-    { defaultContent },
-  );
+  const configFile = await loadJsonFile<Config>(configPath, CONFIG_SCHEMAS, {
+    defaultContent,
+  });
 
   if (isDevelopment()) {
     const defaults: Partial<Config> = {
@@ -122,11 +120,11 @@ export function getConfigDirectory(): string {
   let configDir;
 
   if (isProduction()) {
-    configDir = app.getPath('userData');
+    configDir = app.getPath("userData");
   } else {
     configDir = process.cwd();
   }
 
-  logger.info(`getConfigDirectory: ${configDir}`)
-  return configDir
+  logger.info(`getConfigDirectory: ${configDir}`);
+  return configDir;
 }
