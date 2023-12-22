@@ -39,6 +39,7 @@ interface SidebarMenuProps {
   value: string;
   isSelected: boolean;
   onClick: () => void;
+  onDoubleClick?: () => void;
   onIconClick: (ev: React.MouseEvent) => void;
   onDrag: (newParent?: string) => void;
   store: Store;
@@ -53,6 +54,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
     icon,
     isSelected,
     onClick,
+    onDoubleClick,
     onIconClick,
     onDrag,
     store,
@@ -160,6 +162,7 @@ export function SidebarMenu(props: SidebarMenuProps): JSX.Element {
         depth={depth}
         hasIcon={Boolean(icon)}
         onClick={onClick}
+        onDoubleClick={onDoubleClick}
         {...{ [SIDEBAR_MENU_ATTRIBUTE]: id }}
       >
         {icon && (

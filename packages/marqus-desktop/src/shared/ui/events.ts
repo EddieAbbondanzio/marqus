@@ -90,6 +90,7 @@ export interface UIEvents {
     noteId: string;
     modelViewState: ModelViewState;
   };
+  "editor.exitTabPreviewMode": string;
 
   // Focus Tracker
   "focus.push": Section | Section[];
@@ -176,6 +177,7 @@ export const LIST_OF_EVENTS: (keyof UIEvents)[] = [
   "editor.italicSelectedText",
   "editor.selectAllText",
   "editor.setModelViewState",
+  "editor.exitTabPreviewMode",
 
   // Focus Tracker
   "focus.push",
