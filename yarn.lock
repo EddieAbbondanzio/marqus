@@ -1341,34 +1341,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:^4.8.0":
-  version: 4.8.1
-  resolution: "@prisma/client@npm:4.8.1"
-  dependencies:
-    "@prisma/engines-version": "npm:4.8.0-61.d6e67a83f971b175a593ccc12e15c4a757f93ffe"
-  peerDependencies:
-    prisma: "*"
-  peerDependenciesMeta:
-    prisma:
-      optional: true
-  checksum: f8ef409729d290868aa284b5feacf44e1433a6718626310cca0090183a6b0b6ad0f33aace1ee05610eaf58feb5d4cc0fe26ef955d0dd9bf39c0ef5da279dccd9
-  languageName: node
-  linkType: hard
-
-"@prisma/engines-version@npm:4.8.0-61.d6e67a83f971b175a593ccc12e15c4a757f93ffe":
-  version: 4.8.0-61.d6e67a83f971b175a593ccc12e15c4a757f93ffe
-  resolution: "@prisma/engines-version@npm:4.8.0-61.d6e67a83f971b175a593ccc12e15c4a757f93ffe"
-  checksum: 074540915b9c16b822aa1ec9ff4ddb29a134a36130090f53d6175d372aa0da13bd23625f48d90cc752ea526eaa68bee08d12a81682a246fdaf548f1095b50bde
-  languageName: node
-  linkType: hard
-
-"@prisma/engines@npm:4.8.1":
-  version: 4.8.1
-  resolution: "@prisma/engines@npm:4.8.1"
-  checksum: e5c2461eb1d1b40e866fd445f2b41435986be05e73e1b9e1fbf0e2f414f28f368af442e8717e350f5120640669d5bb31630186b36c53850a7166688634ced0e6
-  languageName: node
-  linkType: hard
-
 "@sinclair/typebox@npm:^0.24.1":
   version: 0.24.51
   resolution: "@sinclair/typebox@npm:0.24.51"
@@ -1644,7 +1616,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:*, @types/express@npm:^4.17.13, @types/express@npm:^4.17.15":
+"@types/express@npm:*, @types/express@npm:^4.17.13":
   version: 4.17.15
   resolution: "@types/express@npm:4.17.15"
   dependencies:
@@ -1874,7 +1846,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^18.11.18":
+"@types/node@npm:*":
   version: 18.11.18
   resolution: "@types/node@npm:18.11.18"
   checksum: da05cf3a0036ef05cd695ac4cb265948593acbe723ba818f0ca0ce466b13ba99e1aac3a363086d6b8c7ea8f30c9233478e0293ac878a6f4b1d5515b10c392257
@@ -5147,7 +5119,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:^4.17.1, express@npm:^4.17.3, express@npm:^4.18.2":
+"express@npm:^4.17.1, express@npm:^4.17.3":
   version: 4.18.2
   resolution: "express@npm:4.18.2"
   dependencies:
@@ -6405,13 +6377,6 @@ __metadata:
     follow-redirects: "npm:^1.0.0"
     requires-port: "npm:^1.0.0"
   checksum: 2489e98aba70adbfd8b9d41ed1ff43528be4598c88616c558b109a09eaffe4bb35e551b6c75ac42ed7d948bb7530a22a2be6ef4f0cecacb5927be139f4274594
-  languageName: node
-  linkType: hard
-
-"http-status@npm:^1.6.1":
-  version: 1.6.2
-  resolution: "http-status@npm:1.6.2"
-  checksum: 357305fdd82e4c16e11e4b77370b23cd595ae536c12c6e5fb2c0f504776679e27d84e0803d2aa18377c2b5b7bd7ba3d08c092087567d40a66eda8fc0abdc47fd
   languageName: node
   linkType: hard
 
@@ -8261,21 +8226,6 @@ __metadata:
   checksum: ee6e661935c85734620d2fd10e237a60ae2992ef861713b71aa66135a5d5ae957cf06ce5e15fedf3ed1fce839dd7af1f9e87c5729186490f69fa9469e8e5c3e8
   languageName: node
   linkType: hard
-
-"marker-server@workspace:packages/marqus-server":
-  version: 0.0.0-use.local
-  resolution: "marker-server@workspace:packages/marqus-server"
-  dependencies:
-    "@prisma/client": "npm:^4.8.0"
-    "@types/express": "npm:^4.17.15"
-    "@types/node": "npm:^18.11.18"
-    express: "npm:^4.18.2"
-    http-status: "npm:^1.6.1"
-    prisma: "npm:^4.8.0"
-    typescript: "npm:^4.9.4"
-    zod: "npm:^3.20.2"
-  languageName: unknown
-  linkType: soft
 
 "marqus-desktop@workspace:packages/marqus-desktop":
   version: 0.0.0-use.local
@@ -10134,18 +10084,6 @@ __metadata:
     ansi-styles: "npm:^5.0.0"
     react-is: "npm:^18.0.0"
   checksum: 5c29cc909079ded70f0e68a03b186480d7c08f66289b7680b8ee4e3bbafa10015920381c4b6645b6b21708f983471066edfc3368512c24030411d05495ca2f51
-  languageName: node
-  linkType: hard
-
-"prisma@npm:^4.8.0":
-  version: 4.8.1
-  resolution: "prisma@npm:4.8.1"
-  dependencies:
-    "@prisma/engines": "npm:4.8.1"
-  bin:
-    prisma: build/index.js
-    prisma2: build/index.js
-  checksum: 5708aab1ac4a23d2baad78359b71b862d3aa560bf9289430642350b6c244cf8512344b31612b88702bde326f1cbd357d948edc0931fad1fc7dcde84afbf049b9
   languageName: node
   linkType: hard
 
@@ -12171,7 +12109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.0.2, typescript@npm:^4.9.4":
+"typescript@npm:^4.0.2":
   version: 4.9.4
   resolution: "typescript@npm:4.9.4"
   bin:
@@ -12181,7 +12119,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^4.0.2#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^4.9.4#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A^4.0.2#optional!builtin<compat/typescript>":
   version: 4.9.4
   resolution: "typescript@patch:typescript@npm%3A4.9.4#optional!builtin<compat/typescript>::version=4.9.4&hash=289587"
   bin:
@@ -13257,7 +13195,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.17.10, zod@npm:^3.20.2":
+"zod@npm:^3.17.10":
   version: 3.20.2
   resolution: "zod@npm:3.20.2"
   checksum: fc72c4126712d5aa74748cf31ece529e7a387d424a017b35904e2d8e8f457330832bb1d2f241b1a550c763022d414bc192ed9ad5c745c22bc77a59eeccaf55b6
