@@ -2,6 +2,7 @@ import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import { Config } from "../shared/domain/config";
 import { JsonFile } from "./json";
+import { isTest } from "../shared/env";
 
 const TIMESTAMP_FORMAT = winston.format.timestamp({
   format: "YYYY-MM-DD HH:mm:ss",
@@ -10,9 +11,9 @@ const PRINTF_FORMAT = winston.format.printf(
   info => `${info.timestamp} [${info.level}]: ${info.message}`,
 );
 
-export const logger = winston.createLogger({
-  level: "info",
-  transports: [
+const transports = [];
+if (!isTest()) {
+  transports.push(
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize({ all: true }),
@@ -20,7 +21,12 @@ export const logger = winston.createLogger({
         PRINTF_FORMAT,
       ),
     }),
-  ],
+  );
+}
+
+export const logger = winston.createLogger({
+  level: "info",
+  transports,
   // N.B. Format is specified at the transport layer because we want to support
   // colors in the console, but if we enable colors on the logger it'll print
   // out the control characters to the log file too.
