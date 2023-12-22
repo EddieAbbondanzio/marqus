@@ -731,10 +731,6 @@ export function openTabsForNotes(
         tabs = tabs.filter(t => !t.isPreview);
       }
     }
-    // Second open of a tab takes it out of preview mode.
-    else if (tab.isPreview) {
-      delete tab.isPreview;
-    }
 
     tab.lastActive = new Date();
 
