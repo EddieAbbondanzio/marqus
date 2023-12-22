@@ -44,6 +44,10 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       await store.dispatch("editor.openTab", { note: noteId, active: noteId });
     };
 
+    const onDoubleClick = async (noteId: string) => {
+      await store.dispatch("editor.exitTabPreviewMode", noteId);
+    };
+
     const onClose = async (noteId: string) => {
       await store.dispatch("editor.closeTab", noteId);
     };
@@ -107,6 +111,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
           isPinned={tab.isPinned}
           isPreview={tab.isPreview}
           onClick={onClick}
+          onDoubleClick={onDoubleClick}
           onClose={onClose}
           onUnpin={onUnpin}
           onDrag={onDrag}
@@ -337,6 +342,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
     store.on("editor.unpinTab", unpinTab);
     store.on("editor.moveTab", moveTab);
     store.on("editor.revealTabNoteInSidebar", revealTabNoteInSidebar);
+    store.on("editor.exitTabPreviewMode", exitTabPreviewMode);
 
     window.addEventListener("mouseup", onMouseUp);
 
@@ -362,6 +368,7 @@ export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
       store.off("editor.unpinTab", unpinTab);
       store.off("editor.moveTab", moveTab);
       store.off("editor.revealTabNoteInSidebar", revealTabNoteInSidebar);
+      store.off("editor.exitTabPreviewMode", exitTabPreviewMode);
 
       window.removeEventListener("mouseup", onMouseUp);
     };
@@ -505,6 +512,29 @@ export const openTab: Listener<"editor.openTab"> = async (ev, ctx) => {
   }
 
   cleanupClosedTabsCache(ctx);
+};
+
+export const exitTabPreviewMode: Listener<"editor.exitTabPreviewMode"> = async (
+  ev,
+  ctx,
+) => {
+  if (ev.value == null) {
+    return;
+  }
+
+  const noteId = ev.value;
+  ctx.setUI(ui => {
+    const tab = ui.editor.tabs.find(t => t.note.id === noteId);
+    if (tab == null) {
+      return ui;
+    }
+    if (!tab.isPreview) {
+      return ui;
+    }
+
+    tab.isPreview = false;
+    return ui;
+  });
 };
 
 export const reopenClosedTab: Listener<"editor.reopenClosedTab"> = async (
@@ -730,10 +760,6 @@ export function openTabsForNotes(
         // Only one preview tab can be open at once.
         tabs = tabs.filter(t => !t.isPreview);
       }
-    }
-    // Second open of a tab takes it out of preview mode.
-    else if (tab.isPreview) {
-      delete tab.isPreview;
     }
 
     tab.lastActive = new Date();

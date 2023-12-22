@@ -292,6 +292,10 @@ export function renderMenus(
       });
     };
 
+    const onDoubleClick = async () => {
+      await store.dispatch("editor.exitTabPreviewMode", note.id);
+    };
+
     let icon;
     if (hasChildren || hasInput) {
       icon = isExpanded ? EXPANDED_ICON : COLLAPSED_ICON;
@@ -322,6 +326,7 @@ export function renderMenus(
           title={noteFullPath}
           value={note.name}
           onClick={onClick}
+          onDoubleClick={onDoubleClick}
           onIconClick={async (ev: React.MouseEvent) => {
             // Prevents click of menu itself from triggering
             ev.stopPropagation();

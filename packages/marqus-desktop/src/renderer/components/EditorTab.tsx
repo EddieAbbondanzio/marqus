@@ -31,6 +31,7 @@ export interface EditorTabProps {
   isPinned?: boolean;
   isPreview?: boolean;
   onClick: (noteId: string) => void;
+  onDoubleClick: (noteId: string) => void;
   onClose: (noteId: string) => void;
   onUnpin: (noteId: string) => void;
   onDrag: (noteId: string, drag: TabDrag) => void;
@@ -145,6 +146,7 @@ export function EditorTab(props: EditorTabProps): JSX.Element {
       <StyledWrapper
         {...{ [EDITOR_TAB_ATTRIBUTE]: noteId }}
         onClick={() => props.onClick(noteId)}
+        onDoubleClick={() => props.onDoubleClick(noteId)}
       >
         <StyledTab ref={wrapper} title={notePath} active={active}>
           <FlexRow>
