@@ -36,3 +36,4 @@ As of right now Marqus only supports linux. We offer both `.deb`, and `rpm` file
 # Dev
 - Ensure node v18 is installed. (Run `nvm use` in the root dir)
 - Set up yarn `corepack enable`, `corepack yarn`
+- Start app `yarn workspace marqus-desktop run start`
