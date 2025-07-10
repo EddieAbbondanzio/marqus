@@ -32,3 +32,7 @@ The editor has multi tab support to make it easier to switch back and forth betw
 # Install
 
 As of right now Marqus only supports linux. We offer both `.deb`, and `rpm` files of all our releases.
+
+# Dev
+- Ensure node v18 is installed. (Run `nvm use` in the root dir)
+- Set up yarn `corepack enable`, `corepack yarn`
